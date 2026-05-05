@@ -1,0 +1,63 @@
+# =============================================================================
+# CI do repositorio sep-app (frontend Angular).
+# Copiado de docs-SEP/docs-sep/ci-pipelines/templates/sep-app-ci.template.yml
+# Ajustes locais: name renomeado para CI-APP; adicionados format:check e lint:scss.
+# =============================================================================
+
+name: CI-APP
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-app-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate frontend web
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Lint TS/HTML
+        run: npm run lint
+
+      - name: Lint SCSS
+        run: npm run lint:scss
+
+      - name: Test with coverage
+        run: npm run test:coverage
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-coverage
+          path: coverage/
+          retention-days: 14
