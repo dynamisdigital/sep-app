@@ -76,10 +76,12 @@ A separacao `features/public` (Apple) vs `features/authenticated` (Notion) mater
 
 ## Continuous Integration
 
-`.github/workflows/ci.yml` (`name: CI-APP`) roda em cada PR e push em `main`:
+`.github/workflows/ci.yml` (`name: CI-APP`) roda em pushes para `feature/**`, `develop` e `main`, alem de PRs para `develop` e `main`.
 
-- `format:check`, `lint`, `lint:scss`, `test:coverage`, `build`
-- artifact `web-coverage` (relatorio v8) com retention 14 dias
+A pipeline tem duas fases:
+
+1. `Test, Lint, Coverage` — instala dependencias com `npm ci --legacy-peer-deps`, roda `format:check`, `lint`, `lint:scss` e `test:coverage`, e publica o artifact `web-coverage` (relatorio v8) com retention 14 dias.
+2. `Build` — depende da fase anterior, reinstala dependencias com `npm ci --legacy-peer-deps`, roda `npm run build` e publica o artifact `web-build` a partir de `dist/` com retention 14 dias.
 
 ## Stack
 
