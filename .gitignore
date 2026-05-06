@@ -46,3 +46,8 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# ========================
+# Claude Code (config local — nao versionar)
+# ========================
+.claude/
