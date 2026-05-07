@@ -1,0 +1,314 @@
+// Componentes Apple — usar APENAS em superficies publicas (landing, login, cadastro).
+// Fonte oficial: docs-sep/DESIGN-apple.md (secao Components).
+// Regras invioláveis:
+// - sem shadow em cards, botoes ou texto;
+// - aplicar `--apple-shadow-product` somente em imagem de produto;
+// - usar `min-height: 44px` em controles clicaveis (touch target).
+
+@use "apple-typography" as appleType;
+
+// ===== Botoes =====
+
+@mixin apple-button-primary {
+  @include appleType.apple-type-body;
+
+  display: inline-flex;
+  gap: var(--apple-space-xs);
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 11px 22px;
+  color: var(--apple-color-on-primary);
+  background: var(--apple-color-primary);
+  border: 1px solid transparent;
+  border-radius: var(--apple-radius-pill);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--apple-color-primary-focus);
+    outline-offset: 2px;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+@mixin apple-button-secondary-pill {
+  @include appleType.apple-type-body;
+
+  display: inline-flex;
+  gap: var(--apple-space-xs);
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 11px 22px;
+  color: var(--apple-color-primary);
+  background: transparent;
+  border: 1px solid var(--apple-color-primary);
+  border-radius: var(--apple-radius-pill);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--apple-color-primary-focus);
+    outline-offset: 2px;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+@mixin apple-button-dark-utility {
+  @include appleType.apple-type-button-utility;
+
+  min-height: 32px;
+  padding: 8px 15px;
+  color: var(--apple-color-on-dark);
+  background: var(--apple-color-ink);
+  border: 1px solid transparent;
+  border-radius: var(--apple-radius-sm);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--apple-color-primary-focus);
+    outline-offset: 2px;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+@mixin apple-button-pearl-capsule {
+  @include appleType.apple-type-caption;
+
+  min-height: 32px;
+  padding: 8px 14px;
+  color: var(--apple-color-ink-muted-80);
+  background: var(--apple-color-surface-pearl);
+  border: 1px solid var(--apple-color-divider-soft);
+  border-radius: var(--apple-radius-md);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--apple-color-primary-focus);
+    outline-offset: 2px;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+@mixin apple-button-store-hero {
+  @include appleType.apple-type-button-large;
+
+  min-height: 44px;
+  padding: 14px 28px;
+  color: var(--apple-color-on-primary);
+  background: var(--apple-color-primary);
+  border: 1px solid transparent;
+  border-radius: var(--apple-radius-pill);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--apple-color-primary-focus);
+    outline-offset: 2px;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+@mixin apple-button-icon-circular {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: var(--apple-color-ink);
+  background: var(--apple-color-surface-chip-translucent);
+  border: none;
+  border-radius: var(--apple-radius-full);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--apple-color-primary-focus);
+    outline-offset: 2px;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+// ===== Links =====
+
+@mixin apple-text-link {
+  @include appleType.apple-type-body;
+
+  color: var(--apple-color-primary);
+  background: transparent;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--apple-color-primary-focus);
+    outline-offset: 2px;
+    border-radius: var(--apple-radius-xs);
+  }
+}
+
+@mixin apple-text-link-on-dark {
+  @include appleType.apple-type-body;
+
+  color: var(--apple-color-primary-on-dark);
+  background: transparent;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--apple-color-primary-on-dark);
+    outline-offset: 2px;
+    border-radius: var(--apple-radius-xs);
+  }
+}
+
+// ===== Navegacao =====
+
+@mixin apple-global-nav {
+  @include appleType.apple-type-nav-link;
+
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 var(--apple-space-lg);
+  color: var(--apple-color-on-dark);
+  background: var(--apple-color-surface-black);
+}
+
+@mixin apple-sub-nav-frosted {
+  @include appleType.apple-type-tagline;
+
+  display: flex;
+  gap: var(--apple-space-md);
+  align-items: center;
+  min-height: 52px;
+  padding: 0 var(--apple-space-lg);
+  color: var(--apple-color-ink);
+  background: rgb(245 245 247 / 80%);
+  backdrop-filter: saturate(180%) blur(20px);
+}
+
+// ===== Tiles (full-bleed) =====
+// Tiles ALTERNAM cor (claro <-> escuro); a mudanca de cor eh o divisor.
+
+@mixin apple-product-tile-light {
+  padding: var(--apple-space-section);
+  color: var(--apple-color-ink);
+  background: var(--apple-color-canvas);
+  border-radius: var(--apple-radius-none);
+}
+
+@mixin apple-product-tile-parchment {
+  padding: var(--apple-space-section);
+  color: var(--apple-color-ink);
+  background: var(--apple-color-canvas-parchment);
+  border-radius: var(--apple-radius-none);
+}
+
+@mixin apple-product-tile-dark {
+  padding: var(--apple-space-section);
+  color: var(--apple-color-on-dark);
+  background: var(--apple-color-surface-tile-1);
+  border-radius: var(--apple-radius-none);
+}
+
+// ===== Cards =====
+
+@mixin apple-store-utility-card {
+  @include appleType.apple-type-body-strong;
+
+  padding: var(--apple-space-lg);
+  color: var(--apple-color-ink);
+  background: var(--apple-color-canvas);
+  border: 1px solid var(--apple-color-hairline);
+  border-radius: var(--apple-radius-lg);
+}
+
+@mixin apple-configurator-option-chip {
+  @include appleType.apple-type-caption;
+
+  padding: 12px 16px;
+  color: var(--apple-color-ink);
+  background: var(--apple-color-canvas);
+  border: 1px solid var(--apple-color-hairline);
+  border-radius: var(--apple-radius-pill);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--apple-color-primary-focus);
+    outline-offset: 2px;
+  }
+}
+
+@mixin apple-configurator-option-chip-selected {
+  @include apple-configurator-option-chip;
+
+  border: 2px solid var(--apple-color-primary-focus);
+}
+
+// ===== Inputs =====
+
+@mixin apple-search-input {
+  @include appleType.apple-type-body;
+
+  width: 100%;
+  min-height: 44px;
+  padding: 12px 20px;
+  color: var(--apple-color-ink);
+  background: var(--apple-color-canvas);
+  border: 1px solid rgb(0 0 0 / 8%);
+  border-radius: var(--apple-radius-pill);
+
+  &::placeholder {
+    color: var(--apple-color-ink-muted-48);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--apple-color-primary-focus);
+    outline-offset: 2px;
+  }
+}
+
+// ===== Utilitarios =====
+
+@mixin apple-floating-sticky-bar {
+  @include appleType.apple-type-body;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 64px;
+  padding: 12px var(--apple-space-xl);
+  color: var(--apple-color-ink);
+  background: rgb(245 245 247 / 80%);
+  backdrop-filter: saturate(180%) blur(20px);
+}
+
+@mixin apple-footer {
+  @include appleType.apple-type-fine-print;
+
+  padding: 64px var(--apple-space-lg);
+  color: var(--apple-color-ink-muted-80);
+  background: var(--apple-color-canvas-parchment);
+}
+
+// Helper exclusivo para imagem de produto.
+@mixin apple-product-image-shadow {
+  box-shadow: var(--apple-shadow-product);
+}
