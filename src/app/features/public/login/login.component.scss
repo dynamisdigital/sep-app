@@ -1,0 +1,114 @@
+@use "../../../../styles/apple-typography" as appleType;
+@use "../../../../styles/apple-components" as apple;
+
+:host {
+  display: block;
+  background: var(--apple-color-canvas-parchment);
+}
+
+.login-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--apple-space-xxl);
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--apple-space-xl);
+}
+
+.login-back {
+  @include appleType.apple-type-tagline;
+
+  color: var(--apple-color-ink);
+  text-decoration: none;
+}
+
+.login-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--apple-space-lg);
+  width: 100%;
+  max-width: 480px;
+  padding: var(--apple-space-xl);
+}
+
+.login-title {
+  @include appleType.apple-type-display-md;
+
+  margin: 0;
+  text-align: center;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--apple-space-md);
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--apple-space-xxs);
+}
+
+.login-label {
+  @include appleType.apple-type-caption;
+
+  color: var(--apple-color-ink-muted-80);
+}
+
+.login-input {
+  @include apple.apple-search-input;
+}
+
+.login-error {
+  @include appleType.apple-type-fine-print;
+
+  margin: 0;
+  color: var(--apple-color-ink-muted-80);
+}
+
+.login-error-form {
+  padding: var(--apple-space-xs) var(--apple-space-md);
+  text-align: center;
+  background: rgb(0 0 0 / 4%);
+  border-radius: var(--apple-radius-sm);
+}
+
+.login-cta {
+  @include apple.apple-button-primary;
+
+  width: 100%;
+  margin-top: var(--apple-space-xs);
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.login-link-row {
+  @include appleType.apple-type-caption;
+
+  display: flex;
+  gap: var(--apple-space-xxs);
+  justify-content: center;
+  margin: 0;
+  color: var(--apple-color-ink-muted-80);
+}
+
+.login-link {
+  @include apple.apple-text-link;
+
+  text-decoration: none;
+}
+
+@media (width <= 419px) {
+  .login-card {
+    padding: var(--apple-space-lg);
+  }
+
+  .login-title {
+    font-size: 26px;
+  }
+}

@@ -1,0 +1,222 @@
+@use "../../../../styles/apple-typography" as appleType;
+@use "../../../../styles/apple-components" as apple;
+
+:host {
+  display: block;
+  background: var(--apple-color-canvas);
+  color: var(--apple-color-ink);
+}
+
+// ===== Global nav =====
+
+.global-nav {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 var(--apple-space-lg);
+  color: var(--apple-color-on-dark);
+  background: var(--apple-color-surface-black);
+}
+
+.global-nav-brand {
+  @include appleType.apple-type-tagline;
+
+  color: var(--apple-color-on-dark);
+  text-decoration: none;
+}
+
+.global-nav-list {
+  display: flex;
+  flex: 1;
+  gap: 24px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.global-nav-link {
+  @include appleType.apple-type-nav-link;
+
+  color: var(--apple-color-on-dark);
+  text-decoration: none;
+}
+
+.global-nav-cta {
+  @include apple.apple-button-dark-utility;
+
+  text-decoration: none;
+}
+
+// ===== Tiles =====
+
+.apple-page {
+  display: block;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--apple-space-md);
+  align-items: center;
+  min-height: calc(100vh - 44px);
+  padding: var(--apple-space-section) var(--apple-space-xl);
+  text-align: center;
+}
+
+.tile-hero {
+  background: var(--apple-color-canvas-parchment);
+}
+
+.tile-light {
+  background: var(--apple-color-canvas);
+}
+
+.tile-dark {
+  color: var(--apple-color-on-dark);
+  background: var(--apple-color-surface-tile-1);
+}
+
+.tile-dark-2 {
+  color: var(--apple-color-on-dark);
+  background: var(--apple-color-surface-tile-2);
+}
+
+.tile-headline {
+  @include appleType.apple-type-hero-display;
+
+  max-width: 880px;
+  margin: 0;
+  color: var(--apple-color-ink);
+}
+
+.tile-headline-dark {
+  @include appleType.apple-type-display-lg;
+
+  max-width: 880px;
+  margin: 0;
+  color: var(--apple-color-on-dark);
+}
+
+.tile-lead {
+  @include appleType.apple-type-lead;
+
+  max-width: 760px;
+  margin: 0;
+  color: var(--apple-color-ink-muted-80);
+}
+
+.tile-lead-dark {
+  @include appleType.apple-type-lead;
+
+  max-width: 760px;
+  margin: 0;
+  color: var(--apple-color-body-muted);
+}
+
+.tile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--apple-space-md);
+  justify-content: center;
+  margin-top: var(--apple-space-lg);
+}
+
+.cta-primary {
+  @include apple.apple-button-primary;
+
+  text-decoration: none;
+}
+
+.cta-secondary {
+  @include apple.apple-button-secondary-pill;
+
+  text-decoration: none;
+}
+
+.tile-fine {
+  @include appleType.apple-type-fine-print;
+
+  margin-top: var(--apple-space-lg);
+  color: var(--apple-color-ink-muted-48);
+}
+
+.tile-image {
+  width: 100%;
+  max-width: 600px;
+  margin-top: var(--apple-space-lg);
+  box-shadow: var(--apple-shadow-product);
+}
+
+// ===== Footer =====
+
+.apple-footer {
+  @include apple.apple-footer;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--apple-space-md);
+  align-items: center;
+  text-align: center;
+}
+
+.footer-copy {
+  @include appleType.apple-type-caption;
+
+  margin: 0;
+}
+
+.footer-links {
+  display: flex;
+  gap: var(--apple-space-lg);
+}
+
+.footer-link {
+  @include apple.apple-text-link;
+
+  text-decoration: none;
+}
+
+.footer-fine {
+  @include appleType.apple-type-micro-legal;
+
+  max-width: 720px;
+  margin: 0;
+  color: var(--apple-color-ink-muted-48);
+}
+
+// ===== Responsivo =====
+
+@media (width <= 1068px) {
+  .tile-headline {
+    font-size: 40px;
+  }
+}
+
+@media (width <= 833px) {
+  .tile {
+    padding: var(--apple-space-xxl) var(--apple-space-lg);
+    min-height: auto;
+  }
+
+  .global-nav-list {
+    display: none;
+  }
+}
+
+@media (width <= 640px) {
+  .tile-headline {
+    font-size: 34px;
+  }
+
+  .tile-headline-dark {
+    font-size: 32px;
+  }
+}
+
+@media (width <= 419px) {
+  .tile-headline {
+    font-size: 28px;
+  }
+}

@@ -1,0 +1,66 @@
+<main class="login-page">
+  <a routerLink="/" class="login-back" aria-label="Voltar para a pagina inicial">SEP</a>
+
+  <section class="login-card" aria-labelledby="login-title">
+    <h1 id="login-title" class="login-title">Entrar na SEP</h1>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="login-form">
+      <div class="login-field">
+        <label for="login-username" class="login-label">E-mail</label>
+        <input
+          id="login-username"
+          type="email"
+          autocomplete="email"
+          formControlName="username"
+          class="login-input"
+          [attr.aria-invalid]="form.controls.username.invalid && form.controls.username.touched"
+        />
+        @if (form.controls.username.touched && form.controls.username.errors?.['required']) {
+          <p class="login-error" role="alert">E-mail obrigatorio.</p>
+        }
+        @if (form.controls.username.touched && form.controls.username.errors?.['email']) {
+          <p class="login-error" role="alert">Informe um e-mail valido.</p>
+        }
+      </div>
+
+      <div class="login-field">
+        <label for="login-password" class="login-label">Senha</label>
+        <input
+          id="login-password"
+          type="password"
+          autocomplete="current-password"
+          formControlName="password"
+          class="login-input"
+          [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched"
+        />
+        @if (form.controls.password.touched && form.controls.password.errors?.['required']) {
+          <p class="login-error" role="alert">Senha obrigatoria.</p>
+        }
+        @if (
+          form.controls.password.touched &&
+          (form.controls.password.errors?.['minlength'] ||
+            form.controls.password.errors?.['maxlength'])
+        ) {
+          <p class="login-error" role="alert">Senha deve conter exatamente 6 caracteres.</p>
+        }
+      </div>
+
+      @if (errorMessage()) {
+        <p class="login-error login-error-form" role="alert">{{ errorMessage() }}</p>
+      }
+
+      <button type="submit" class="login-cta" [disabled]="loading()">
+        @if (loading()) {
+          <span>Entrando...</span>
+        } @else {
+          <span>Entrar</span>
+        }
+      </button>
+
+      <p class="login-link-row">
+        Ainda nao tem conta?
+        <a routerLink="/register" class="login-link">Criar conta</a>
+      </p>
+    </form>
+  </section>
+</main>
