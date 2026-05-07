@@ -1,7 +1,11 @@
 // Indice central de estilos globais.
-// Os tokens reais vem na F-Sprint 1 (specs/fase-1/101-fsprint-1-design-tokens-showcase.md).
+// Apple: superficies publicas (landing, login, cadastro).
+// Notion: superficies autenticadas (dashboard e telas com JWT).
+// Fronteira: estado de autenticacao (`/auth/me`).
 
-@use "tokens" as *;
-@use "mixins" as *;
-@use "apple" as *;
-@use "notion" as *;
+@use "apple-tokens";
+@use "apple-typography";
+@use "apple-components";
+@use "notion-tokens";
+@use "notion-typography";
+@use "notion-components";
