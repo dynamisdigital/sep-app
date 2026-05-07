@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-label="Ilustracao Escrow segregado">
+  <rect width="600" height="400" fill="#272729"/>
+  <g fill="none" stroke="#ffffff" stroke-width="1.5">
+    <rect x="120" y="120" width="360" height="180" rx="18"/>
+    <line x1="300" y1="120" x2="300" y2="300"/>
+  </g>
+  <g font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" font-weight="600" text-anchor="middle">
+    <text x="210" y="200" font-size="22" fill="#ffffff">Tomador</text>
+    <text x="210" y="232" font-size="14" fill="#cccccc">Wallet propria</text>
+    <text x="390" y="200" font-size="22" fill="#ffffff">Credor</text>
+    <text x="390" y="232" font-size="14" fill="#cccccc">Wallet propria</text>
+  </g>
+  <text x="300" y="350" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="14" fill="#cccccc">Conta escrow segregada (Resolucao CMN 4.656/2018)</text>
+</svg>
