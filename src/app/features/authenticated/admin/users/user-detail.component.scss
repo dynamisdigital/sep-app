@@ -1,0 +1,112 @@
+@use "../../../../../styles/notion-typography" as notionType;
+@use "../../../../../styles/notion-components" as notion;
+
+.sep-user-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-24);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--notion-space-16) 0;
+}
+
+.sep-user-detail-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+
+  @media (width >= 768px) {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+.sep-user-detail-title {
+  @include notionType.notion-type-section-heading;
+
+  margin: 0;
+  color: var(--notion-color-text);
+}
+
+.sep-user-detail-back {
+  @include notionType.notion-type-body;
+
+  color: var(--notion-color-blue);
+  text-decoration: none;
+  font-size: 13px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.sep-user-detail-state {
+  @include notionType.notion-type-body;
+
+  margin: 0;
+  color: var(--notion-color-text-muted);
+}
+
+.sep-user-detail-error {
+  @include notionType.notion-type-body;
+
+  margin: 0;
+  color: var(--notion-color-orange);
+}
+
+.sep-user-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--notion-space-24);
+
+  @media (width >= 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.sep-user-detail-card {
+  @include notion.notion-card;
+}
+
+.sep-user-detail-card-title {
+  @include notionType.notion-type-card-title;
+
+  margin: 0 0 var(--notion-space-16);
+  color: var(--notion-color-text);
+}
+
+.sep-user-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-12);
+  margin: 0;
+}
+
+.sep-user-detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-3);
+
+  dt {
+    @include notionType.notion-type-body;
+
+    color: var(--notion-color-text-subtle);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  dd {
+    @include notionType.notion-type-body;
+
+    margin: 0;
+    color: var(--notion-color-text);
+  }
+}
+
+.sep-user-detail-mono {
+  font-family: ui-monospace, "SF Mono", monospace;
+  font-size: 13px;
+  word-break: break-all;
+}

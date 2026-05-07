@@ -1,0 +1,67 @@
+<section class="sep-users-list">
+  <header class="sep-users-list-header">
+    <h1 class="sep-users-list-title">Administracao de usuarios</h1>
+    <div class="sep-users-list-filter">
+      <label for="filtro-email" class="sep-users-list-filter-label">Filtrar por e-mail</label>
+      <input
+        id="filtro-email"
+        type="search"
+        [formControl]="filtroControl"
+        placeholder="exemplo@empresa.com"
+        autocomplete="off"
+      />
+    </div>
+  </header>
+
+  @if (loading()) {
+    <p class="sep-users-list-state" role="status">Carregando usuarios...</p>
+  }
+
+  @if (errorMessage(); as msg) {
+    <div class="sep-users-list-error" role="alert">
+      <p>{{ msg }}</p>
+      <button type="button" (click)="carregar()" class="sep-users-list-retry">
+        Tentar novamente
+      </button>
+    </div>
+  }
+
+  @if (!loading() && !errorMessage()) {
+    @if (usuariosFiltrados().length === 0) {
+      <p class="sep-users-list-state">Nenhum usuario encontrado.</p>
+    } @else {
+      <div class="sep-users-list-table-wrapper">
+        <table class="sep-users-list-table">
+          <thead>
+            <tr>
+              <th scope="col">E-mail</th>
+              <th scope="col">Perfil</th>
+              <th scope="col">Criado em</th>
+              <th scope="col">Modificado em</th>
+              <th scope="col" class="sep-users-list-th-action">Acoes</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (usuario of usuariosFiltrados(); track usuario.id) {
+              <tr>
+                <td>{{ usuario.username }}</td>
+                <td>{{ usuario.role }}</td>
+                <td>{{ usuario.dataCriacao }}</td>
+                <td>{{ usuario.dataModificacao }}</td>
+                <td>
+                  <a
+                    [routerLink]="['/app/admin/users', usuario.id]"
+                    class="sep-users-list-detail-link"
+                    [attr.aria-label]="'Ver detalhe de ' + usuario.username"
+                  >
+                    Ver detalhe
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</section>

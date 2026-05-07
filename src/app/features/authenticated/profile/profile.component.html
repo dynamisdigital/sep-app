@@ -1,0 +1,64 @@
+<section class="sep-profile">
+  <header class="sep-profile-header">
+    <h1 class="sep-profile-title">Meu perfil</h1>
+    <div class="sep-profile-actions">
+      <a routerLink="/app/profile/change-password" class="sep-profile-action-link">
+        Alterar senha
+      </a>
+      <button
+        type="button"
+        class="sep-profile-action-button"
+        (click)="recarregar()"
+        [disabled]="loadingUser()"
+      >
+        {{ loadingUser() ? 'Carregando...' : 'Recarregar' }}
+      </button>
+    </div>
+  </header>
+
+  @if (currentUser(); as user) {
+    <div class="sep-profile-grid">
+      <article class="sep-profile-card">
+        <h2 class="sep-profile-card-title">Identificacao</h2>
+        <dl class="sep-profile-list">
+          <div class="sep-profile-list-row">
+            <dt>E-mail</dt>
+            <dd>{{ user.username }}</dd>
+          </div>
+          <div class="sep-profile-list-row">
+            <dt>Perfil</dt>
+            <dd>{{ user.role }}</dd>
+          </div>
+          <div class="sep-profile-list-row">
+            <dt>ID</dt>
+            <dd class="sep-profile-mono">{{ user.id }}</dd>
+          </div>
+        </dl>
+      </article>
+
+      <article class="sep-profile-card">
+        <h2 class="sep-profile-card-title">Auditoria</h2>
+        <dl class="sep-profile-list">
+          <div class="sep-profile-list-row">
+            <dt>Criado em</dt>
+            <dd>{{ user.dataCriacao }}</dd>
+          </div>
+          <div class="sep-profile-list-row">
+            <dt>Modificado em</dt>
+            <dd>{{ user.dataModificacao }}</dd>
+          </div>
+          <div class="sep-profile-list-row">
+            <dt>Criado por</dt>
+            <dd class="sep-profile-mono">{{ user.criadoPor }}</dd>
+          </div>
+          <div class="sep-profile-list-row">
+            <dt>Modificado por</dt>
+            <dd class="sep-profile-mono">{{ user.modificadoPor }}</dd>
+          </div>
+        </dl>
+      </article>
+    </div>
+  } @else {
+    <p class="sep-profile-empty">Nenhum dado de usuario disponivel no momento.</p>
+  }
+</section>

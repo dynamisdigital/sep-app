@@ -4,10 +4,16 @@
 .sep-dashboard {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-24);
+  gap: var(--notion-space-32);
   max-width: 1200px;
   margin: 0 auto;
   padding: var(--notion-space-16) 0;
+}
+
+.sep-dashboard-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
 }
 
 .sep-dashboard-title {
@@ -23,20 +29,56 @@
   align-self: flex-start;
 }
 
+.sep-dashboard-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-12);
+}
+
+.sep-dashboard-section-title {
+  @include notionType.notion-type-card-title;
+
+  margin: 0;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--notion-color-text-muted);
+}
+
 .sep-dashboard-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--notion-space-24);
+  gap: var(--notion-space-16);
 }
 
 .sep-dashboard-card {
   @include notion.notion-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-6);
+}
+
+.sep-dashboard-card-link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 120ms ease;
+
+  &:hover {
+    border-color: var(--notion-color-blue);
+  }
+}
+
+.sep-dashboard-card-placeholder {
+  opacity: 0.65;
 }
 
 .sep-dashboard-card-title {
   @include notionType.notion-type-card-title;
 
-  margin: 0 0 var(--notion-space-8);
+  margin: 0;
+  color: var(--notion-color-text);
 }
 
 .sep-dashboard-card-body {
@@ -44,4 +86,12 @@
 
   margin: 0;
   color: var(--notion-color-text-muted);
+}
+
+.sep-dashboard-card-tag {
+  @include notion.notion-pill-badge;
+
+  align-self: flex-start;
+  margin-top: var(--notion-space-4);
+  font-size: 11px;
 }

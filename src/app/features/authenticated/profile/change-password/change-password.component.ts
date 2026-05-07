@@ -1,0 +1,82 @@
+import { HttpErrorResponse } from '@angular/common/http';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
+import { RouterLink } from '@angular/router';
+
+import { ApiErrorResponse } from '../../../../core/api/api.models';
+import { AuthService } from '../../../../core/auth/auth.service';
+import { UsuariosService } from '../../../../core/users/usuarios.service';
+
+function confirmacaoIgualValidator(control: AbstractControl): ValidationErrors | null {
+  const novaSenha = control.get('novaSenha')?.value;
+  const confirmacao = control.get('confirmacaoNovaSenha')?.value;
+  if (!novaSenha || !confirmacao) return null;
+  return novaSenha === confirmacao ? null : { confirmacaoDivergente: true };
+}
+
+@Component({
+  selector: 'sep-change-password',
+  imports: [ReactiveFormsModule, RouterLink],
+  templateUrl: './change-password.component.html',
+  styleUrl: './change-password.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ChangePasswordComponent {
+  private readonly fb = inject(FormBuilder);
+  private readonly auth = inject(AuthService);
+  private readonly usuarios = inject(UsuariosService);
+
+  protected readonly currentUser = this.auth.currentUser;
+  protected readonly submitting = signal(false);
+  protected readonly successMessage = signal<string | null>(null);
+  protected readonly errorMessage = signal<string | null>(null);
+
+  protected readonly form = this.fb.nonNullable.group(
+    {
+      passwordAtual: ['', [Validators.required]],
+      novaSenha: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],
+      confirmacaoNovaSenha: ['', [Validators.required]],
+    },
+    { validators: confirmacaoIgualValidator },
+  );
+
+  submit(): void {
+    this.successMessage.set(null);
+    this.errorMessage.set(null);
+
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const user = this.currentUser();
+    if (!user) {
+      this.errorMessage.set('Sessao expirada. Faca login novamente.');
+      return;
+    }
+
+    const { passwordAtual, novaSenha } = this.form.getRawValue();
+    this.submitting.set(true);
+
+    this.usuarios.alterarSenha(user.id, { passwordAtual, novaSenha }).subscribe({
+      next: () => {
+        this.submitting.set(false);
+        this.successMessage.set('Senha alterada com sucesso.');
+        this.form.reset();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.submitting.set(false);
+        const apiErr = err.error as ApiErrorResponse | undefined;
+        this.errorMessage.set(
+          apiErr?.message ?? 'Nao foi possivel alterar a senha. Tente novamente.',
+        );
+      },
+    });
+  }
+}

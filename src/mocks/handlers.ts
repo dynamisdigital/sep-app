@@ -13,6 +13,18 @@ const adminUsuario = {
   modificadoPor: 'system',
 };
 
+const clienteUsuario = {
+  id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771002',
+  username: 'cliente@empresa.com',
+  role: 'CLIENTE',
+  dataCriacao: now,
+  dataModificacao: now,
+  criadoPor: 'system',
+  modificadoPor: 'system',
+};
+
+const usuariosFake = [adminUsuario, clienteUsuario];
+
 function errorResponse(status: number, error: string, message: string, path: string) {
   return HttpResponse.json(
     {
@@ -71,4 +83,38 @@ export const handlers = [
   }),
 
   http.get(`${baseUrl}/auth/me`, () => HttpResponse.json(adminUsuario)),
+
+  http.get(`${baseUrl}/usuarios`, () => HttpResponse.json(usuariosFake)),
+
+  http.get(`${baseUrl}/usuarios/:id`, ({ params }) => {
+    const id = params['id'] as string;
+    const found = usuariosFake.find((u) => u.id === id);
+    if (!found) {
+      return errorResponse(404, 'Not Found', 'usuario nao encontrado', `/api/v1/usuarios/${id}`);
+    }
+    return HttpResponse.json(found);
+  }),
+
+  http.patch(`${baseUrl}/usuarios/:id/senha`, async ({ request, params }) => {
+    const id = params['id'] as string;
+    const body = (await request.json()) as { passwordAtual?: string; novaSenha?: string };
+
+    if (body.passwordAtual !== '123456') {
+      return errorResponse(
+        400,
+        'Bad Request',
+        'senha atual invalida',
+        `/api/v1/usuarios/${id}/senha`,
+      );
+    }
+    if (!body.novaSenha || body.novaSenha.length !== 6) {
+      return errorResponse(
+        400,
+        'Bad Request',
+        'novaSenha deve conter exatamente 6 caracteres',
+        `/api/v1/usuarios/${id}/senha`,
+      );
+    }
+    return new HttpResponse(null, { status: 204 });
+  }),
 ];
