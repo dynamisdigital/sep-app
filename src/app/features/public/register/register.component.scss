@@ -1,0 +1,121 @@
+@use "../../../../styles/apple-typography" as appleType;
+@use "../../../../styles/apple-components" as apple;
+
+:host {
+  display: block;
+  background: var(--apple-color-canvas-parchment);
+}
+
+.register-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--apple-space-xxl);
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--apple-space-xl);
+}
+
+.register-back {
+  @include appleType.apple-type-tagline;
+
+  color: var(--apple-color-ink);
+  text-decoration: none;
+}
+
+.register-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--apple-space-lg);
+  width: 100%;
+  max-width: 480px;
+  padding: var(--apple-space-xl);
+}
+
+.register-title {
+  @include appleType.apple-type-display-md;
+
+  margin: 0;
+  text-align: center;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--apple-space-md);
+}
+
+.register-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--apple-space-xxs);
+}
+
+.register-label {
+  @include appleType.apple-type-caption;
+
+  color: var(--apple-color-ink-muted-80);
+}
+
+.register-input {
+  @include apple.apple-search-input;
+}
+
+select.register-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%231d1d1f' d='M6 8L0 0h12z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right var(--apple-space-md) center;
+}
+
+.register-error {
+  @include appleType.apple-type-fine-print;
+
+  margin: 0;
+  color: var(--apple-color-ink-muted-80);
+}
+
+.register-error-form {
+  padding: var(--apple-space-xs) var(--apple-space-md);
+  text-align: center;
+  background: rgb(0 0 0 / 4%);
+  border-radius: var(--apple-radius-sm);
+}
+
+.register-cta {
+  @include apple.apple-button-primary;
+
+  width: 100%;
+  margin-top: var(--apple-space-xs);
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.register-link-row {
+  @include appleType.apple-type-caption;
+
+  display: flex;
+  gap: var(--apple-space-xxs);
+  justify-content: center;
+  margin: 0;
+  color: var(--apple-color-ink-muted-80);
+}
+
+.register-link {
+  @include apple.apple-text-link;
+
+  text-decoration: none;
+}
+
+@media (width <= 419px) {
+  .register-card {
+    padding: var(--apple-space-lg);
+  }
+
+  .register-title {
+    font-size: 26px;
+  }
+}
