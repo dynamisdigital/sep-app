@@ -28,8 +28,8 @@ export class SidenavComponent {
     const user = this.currentUser();
     const items: MenuItem[] = [
       { label: 'Dashboard', route: '/app/dashboard' },
-      { label: 'Administracao', route: '/app/admin', roles: ['ADMIN'] },
-      { label: 'Meu perfil', route: '/app/dashboard', disabled: true },
+      { label: 'Meu perfil', route: '/app/profile' },
+      { label: 'Administracao', route: '/app/admin/users', roles: ['ADMIN'] },
     ];
 
     return items.filter((item) => {
