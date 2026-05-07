@@ -1,0 +1,217 @@
+// Componentes Notion — usar em superficies autenticadas (dashboard e telas com JWT).
+// Fonte oficial: docs-sep/DESIGN-notion.md (secao Component Stylings).
+// Regras invioláveis:
+// - bordas usam `--notion-border-whisper` em divisorias estruturais;
+// - shadows usam stacks multilayer oficiais;
+// - botoes funcionais usam raio 4px (`--notion-radius-micro`); badges usam pill.
+
+@use "notion-typography" as notionType;
+
+// ===== Botoes =====
+
+@mixin notion-button-primary {
+  @include notionType.notion-type-nav-button;
+
+  display: inline-flex;
+  gap: var(--notion-space-8);
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px 16px;
+  color: var(--notion-color-canvas);
+  background: var(--notion-color-blue);
+  border: 1px solid transparent;
+  border-radius: var(--notion-radius-micro);
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    transform 120ms ease;
+
+  &:hover {
+    background: var(--notion-color-blue-active);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--notion-color-blue-focus);
+    outline-offset: 2px;
+    box-shadow: var(--notion-shadow-card);
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+@mixin notion-button-secondary {
+  @include notionType.notion-type-nav-button;
+
+  display: inline-flex;
+  gap: var(--notion-space-8);
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px 16px;
+  color: var(--notion-color-text-strong);
+  background: rgb(0 0 0 / 5%);
+  border: 1px solid transparent;
+  border-radius: var(--notion-radius-micro);
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    transform 120ms ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--notion-color-blue-focus);
+    outline-offset: 2px;
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+@mixin notion-button-ghost {
+  @include notionType.notion-type-nav-button;
+
+  display: inline-flex;
+  gap: var(--notion-space-8);
+  align-items: center;
+  min-height: 40px;
+  padding: 8px 16px;
+  color: var(--notion-color-text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--notion-radius-micro);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--notion-color-blue-focus);
+    outline-offset: 2px;
+  }
+}
+
+@mixin notion-pill-badge {
+  @include notionType.notion-type-badge;
+
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  color: var(--notion-color-badge-blue-text);
+  background: var(--notion-color-badge-blue-bg);
+  border-radius: var(--notion-radius-pill);
+}
+
+// ===== Cards =====
+
+@mixin notion-card {
+  padding: var(--notion-space-24);
+  color: var(--notion-color-text);
+  background: var(--notion-color-canvas);
+  border: var(--notion-border-whisper);
+  border-radius: var(--notion-radius-card);
+  box-shadow: var(--notion-shadow-card);
+}
+
+@mixin notion-feature-card {
+  @include notion-card;
+
+  border-radius: var(--notion-radius-large);
+}
+
+@mixin notion-metric-card {
+  @include notion-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+}
+
+// ===== Inputs =====
+
+@mixin notion-input {
+  @include notionType.notion-type-body;
+
+  width: 100%;
+  min-height: 40px;
+  padding: 6px;
+  color: rgb(0 0 0 / 90%);
+  background: var(--notion-color-canvas);
+  border: var(--notion-border-input);
+  border-radius: var(--notion-radius-micro);
+
+  &::placeholder {
+    color: var(--notion-color-text-subtle);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--notion-color-blue-focus);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    color: var(--notion-color-text-subtle);
+    opacity: 0.6;
+  }
+}
+
+// ===== Navegacao =====
+
+@mixin notion-nav-link {
+  @include notionType.notion-type-nav-button;
+
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 8px;
+  color: var(--notion-color-text);
+  background: transparent;
+  border-radius: var(--notion-radius-micro);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 120ms ease;
+
+  &:hover {
+    color: var(--notion-color-blue);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--notion-color-blue-focus);
+    outline-offset: 2px;
+  }
+}
+
+// ===== Secoes =====
+
+@mixin notion-section {
+  padding: var(--notion-space-section) var(--notion-space-24);
+  background: var(--notion-color-canvas);
+}
+
+@mixin notion-warm-section {
+  padding: var(--notion-space-section) var(--notion-space-24);
+  background: var(--notion-color-warm-white);
+}
+
+@mixin notion-whisper-divider {
+  width: 100%;
+  height: 1px;
+  background: rgb(0 0 0 / 10%);
+  border: 0;
+}
+
+// ===== Acessibilidade =====
+
+@mixin notion-focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--notion-color-blue-focus);
+    outline-offset: 2px;
+    box-shadow: var(--notion-shadow-card);
+  }
+}

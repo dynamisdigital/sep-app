@@ -1,0 +1,163 @@
+// Tipografia Notion — NotionInter com fallback Inter/system.
+// Fonte oficial: docs-sep/DESIGN-notion.md (secao Typography).
+// Compressao em escala: -2.125px @ 64px → -0.625px @ 26px → normal @ 16px.
+// Ladder de pesos: 400 (read), 500 (interact), 600 (emphasize), 700 (announce).
+
+$notion-font-primary:
+  "NotionInter",
+  "Inter",
+  -apple-system,
+  system-ui,
+  "Segoe UI",
+  helvetica,
+  arial,
+  sans-serif;
+
+// 64px / 700 / -2.125px — billboard headlines, compressao maxima.
+@mixin notion-type-display-hero {
+  font-family: $notion-font-primary;
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -2.125px;
+  font-feature-settings: "lnum", "locl";
+}
+
+// 54px / 700 — secondary hero, feature headlines.
+@mixin notion-type-display-secondary {
+  font-family: $notion-font-primary;
+  font-size: 54px;
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -1.875px;
+  font-feature-settings: "lnum", "locl";
+}
+
+// 48px / 700 — feature section titles.
+@mixin notion-type-section-heading {
+  font-family: $notion-font-primary;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -1.5px;
+  font-feature-settings: "lnum", "locl";
+}
+
+// 40px / 700 — card headings, feature sub-sections.
+@mixin notion-type-subheading-large {
+  font-family: $notion-font-primary;
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: normal;
+  font-feature-settings: "lnum", "locl";
+}
+
+// 26px / 700 — section sub-titles, content headers.
+@mixin notion-type-subheading {
+  font-family: $notion-font-primary;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.23;
+  letter-spacing: -0.625px;
+  font-feature-settings: "lnum", "locl";
+}
+
+// 22px / 700 — feature cards, list titles.
+@mixin notion-type-card-title {
+  font-family: $notion-font-primary;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.27;
+  letter-spacing: -0.25px;
+}
+
+// 20px / 600 — introductions, feature descriptions.
+@mixin notion-type-body-large {
+  font-family: $notion-font-primary;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.125px;
+}
+
+// 16px / 400 — texto padrao de leitura.
+@mixin notion-type-body {
+  font-family: $notion-font-primary;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: normal;
+}
+
+// 16px / 500 — navigation, emphasized UI text.
+@mixin notion-type-body-medium {
+  font-family: $notion-font-primary;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: normal;
+}
+
+// 16px / 600 — strong labels, active states.
+@mixin notion-type-body-semibold {
+  font-family: $notion-font-primary;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: normal;
+}
+
+// 16px / 700 — headlines em tamanho de body.
+@mixin notion-type-body-bold {
+  font-family: $notion-font-primary;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: normal;
+}
+
+// 15px / 600 — navegacao, botoes.
+@mixin notion-type-nav-button {
+  font-family: $notion-font-primary;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.33;
+  letter-spacing: normal;
+}
+
+// 14px / 500 — metadata, secondary labels.
+@mixin notion-type-caption {
+  font-family: $notion-font-primary;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.43;
+  letter-spacing: normal;
+}
+
+// 14px / 400 — body captions, descriptions.
+@mixin notion-type-caption-light {
+  font-family: $notion-font-primary;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: normal;
+}
+
+// 12px / 600 / +0.125px — pill badges (unico tracking POSITIVO no sistema).
+@mixin notion-type-badge {
+  font-family: $notion-font-primary;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.33;
+  letter-spacing: 0.125px;
+}
+
+// 12px / 400 — small metadata, timestamps.
+@mixin notion-type-micro-label {
+  font-family: $notion-font-primary;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.33;
+  letter-spacing: 0.125px;
+}
