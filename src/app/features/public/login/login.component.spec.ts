@@ -52,7 +52,7 @@ describe('LoginComponent', () => {
     expect(screen.getByText('Senha deve conter exatamente 6 caracteres.')).toBeTruthy();
   });
 
-  it('credenciais validas: redireciona para /design-system/notion', async () => {
+  it('credenciais validas: redireciona para /app/dashboard', async () => {
     const result = await setup();
     const router = result.fixture.debugElement.injector.get(Router);
     let navigatedTo: string | null = null;
@@ -70,7 +70,7 @@ describe('LoginComponent', () => {
     await result.fixture.whenStable();
     await flush();
 
-    expect(navigatedTo).toBe('/design-system/notion');
+    expect(navigatedTo).toBe('/app/dashboard');
   });
 
   it('credenciais invalidas mostram erro de form', async () => {
