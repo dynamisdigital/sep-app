@@ -1,0 +1,129 @@
+<main class="showcase">
+  <nav class="showcase-nav" aria-label="Design systems">
+    <a routerLink="/design-system" class="showcase-nav-link">Todos</a>
+    <a routerLink="/design-system/apple" class="showcase-nav-link">Apple</a>
+    <a routerLink="/design-system/notion" class="showcase-nav-link">Notion</a>
+  </nav>
+
+  @if (showApple()) {
+    <section class="apple-showcase" aria-labelledby="apple-title">
+      <h1 id="apple-title" class="apple-showcase-title">Apple</h1>
+      <p class="apple-showcase-lead">
+        Superficies publicas (landing, login, cadastro). Single Action Blue accent, SF Pro tight, no
+        shadows on chrome.
+      </p>
+
+      <h2 class="apple-showcase-h2">Paleta</h2>
+      <ul class="apple-showcase-palette">
+        @for (color of appleColors; track color.token) {
+          <li class="apple-showcase-swatch" [style.--swatch-bg]="'var(' + color.token + ')'">
+            <span class="apple-showcase-swatch-chip"></span>
+            <span class="apple-showcase-swatch-label">{{ color.label }}</span>
+            <code class="apple-showcase-swatch-hex">{{ color.hex }}</code>
+          </li>
+        }
+      </ul>
+
+      <h2 class="apple-showcase-h2">Tipografia</h2>
+      <div class="apple-showcase-type">
+        <p class="apple-showcase-type-hero">Hero Display 56 / 600</p>
+        <p class="apple-showcase-type-display-lg">Display Large 40 / 600</p>
+        <p class="apple-showcase-type-lead">Lead 28 / 400</p>
+        <p class="apple-showcase-type-body">
+          Body 17 / 400 — paragrafo padrao Apple corre em 17px, nao 16px.
+        </p>
+        <p class="apple-showcase-type-caption">Caption 14 / 400 — secundario.</p>
+        <p class="apple-showcase-type-fine">Fine print 12 / 400 — rodape e legais.</p>
+      </div>
+
+      <h2 class="apple-showcase-h2">Botoes</h2>
+      <div class="apple-showcase-buttons">
+        <button type="button" class="apple-showcase-btn-primary">Comprar</button>
+        <button type="button" class="apple-showcase-btn-secondary">Saiba mais</button>
+        <button type="button" class="apple-showcase-btn-utility">Sign in</button>
+        <button type="button" class="apple-showcase-btn-pearl">Compare</button>
+      </div>
+
+      <h2 class="apple-showcase-h2">Input</h2>
+      <input
+        type="search"
+        class="apple-showcase-search"
+        placeholder="Buscar produtos"
+        aria-label="Buscar produtos"
+      />
+
+      <h2 class="apple-showcase-h2">Cards & tiles</h2>
+      <div class="apple-showcase-tiles">
+        <div class="apple-showcase-tile-light">
+          <p class="apple-showcase-tile-title">Tile Light</p>
+        </div>
+        <div class="apple-showcase-tile-dark">
+          <p class="apple-showcase-tile-title">Tile Dark</p>
+        </div>
+        <div class="apple-showcase-utility-card">
+          <p class="apple-showcase-utility-title">Utility Card</p>
+          <p class="apple-showcase-utility-price">R$ 9.999</p>
+        </div>
+      </div>
+    </section>
+  }
+
+  @if (showNotion()) {
+    <section class="notion-showcase" aria-labelledby="notion-title">
+      <h1 id="notion-title" class="notion-showcase-title">Notion</h1>
+      <p class="notion-showcase-lead">
+        Superficies autenticadas (dashboard, telas com JWT) e todo o mobile. Warm neutrals,
+        NotionInter compressao, whisper borders.
+      </p>
+
+      <h2 class="notion-showcase-h2">Paleta</h2>
+      <ul class="notion-showcase-palette">
+        @for (color of notionColors; track color.token) {
+          <li class="notion-showcase-swatch" [style.--swatch-bg]="'var(' + color.token + ')'">
+            <span class="notion-showcase-swatch-chip"></span>
+            <span class="notion-showcase-swatch-label">{{ color.label }}</span>
+            <code class="notion-showcase-swatch-hex">{{ color.hex }}</code>
+          </li>
+        }
+      </ul>
+
+      <h2 class="notion-showcase-h2">Tipografia</h2>
+      <div class="notion-showcase-type">
+        <p class="notion-showcase-type-hero">Display Hero 64 / 700 / -2.125</p>
+        <p class="notion-showcase-type-section">Section 48 / 700 / -1.5</p>
+        <p class="notion-showcase-type-card">Card Title 22 / 700 / -0.25</p>
+        <p class="notion-showcase-type-body">Body 16 / 400 — texto padrao de leitura.</p>
+        <p class="notion-showcase-type-caption">Caption 14 / 500 — metadata.</p>
+        <span class="notion-showcase-badge">novo</span>
+      </div>
+
+      <h2 class="notion-showcase-h2">Botoes</h2>
+      <div class="notion-showcase-buttons">
+        <button type="button" class="notion-showcase-btn-primary">Get Notion</button>
+        <button type="button" class="notion-showcase-btn-secondary">Saiba mais</button>
+        <button type="button" class="notion-showcase-btn-ghost">Cancelar</button>
+      </div>
+
+      <h2 class="notion-showcase-h2">Input</h2>
+      <input type="text" class="notion-showcase-input" placeholder="Email" aria-label="Email" />
+
+      <h2 class="notion-showcase-h2">Cards</h2>
+      <div class="notion-showcase-cards">
+        <div class="notion-showcase-card">
+          <h3 class="notion-showcase-card-title">Feature card</h3>
+          <p class="notion-showcase-card-body">Whisper border + 4-layer shadow stack.</p>
+        </div>
+        <div class="notion-showcase-metric">
+          <p class="notion-showcase-metric-value">R$ 4.200</p>
+          <p class="notion-showcase-metric-label">ROI medio</p>
+        </div>
+      </div>
+
+      <h2 class="notion-showcase-h2">Secoes</h2>
+      <div class="notion-showcase-sections">
+        <div class="notion-showcase-section-white">Section White</div>
+        <div class="notion-showcase-section-warm">Section Warm</div>
+      </div>
+    </section>
+  }
+</main>
