@@ -1,0 +1,60 @@
+<section class="sep-user-detail">
+  <header class="sep-user-detail-header">
+    <h1 class="sep-user-detail-title">Detalhe de usuario</h1>
+    <a routerLink="/app/admin/users" class="sep-user-detail-back">Voltar para lista</a>
+  </header>
+
+  @if (loading()) {
+    <p class="sep-user-detail-state" role="status">Carregando usuario...</p>
+  }
+
+  @if (errorMessage(); as msg) {
+    <p class="sep-user-detail-error" role="alert">{{ msg }}</p>
+  }
+
+  @if (usuario(); as u) {
+    <div class="sep-user-detail-grid">
+      <article class="sep-user-detail-card">
+        <h2 class="sep-user-detail-card-title">Identificacao</h2>
+        <dl class="sep-user-detail-list">
+          <div class="sep-user-detail-row">
+            <dt>ID</dt>
+            <dd class="sep-user-detail-mono">{{ u.id }}</dd>
+          </div>
+          <div class="sep-user-detail-row">
+            <dt>E-mail</dt>
+            <dd>{{ u.username }}</dd>
+          </div>
+          <div class="sep-user-detail-row">
+            <dt>Perfil</dt>
+            <dd>{{ u.role }}</dd>
+          </div>
+        </dl>
+      </article>
+
+      <article class="sep-user-detail-card">
+        <h2 class="sep-user-detail-card-title">Auditoria</h2>
+        <dl class="sep-user-detail-list">
+          <div class="sep-user-detail-row">
+            <dt>Criado em</dt>
+            <dd>{{ u.dataCriacao }}</dd>
+          </div>
+          <div class="sep-user-detail-row">
+            <dt>Modificado em</dt>
+            <dd>{{ u.dataModificacao }}</dd>
+          </div>
+          <div class="sep-user-detail-row">
+            <dt>Criado por</dt>
+            <dd class="sep-user-detail-mono">{{ u.criadoPor }}</dd>
+          </div>
+          <div class="sep-user-detail-row">
+            <dt>Modificado por</dt>
+            <dd class="sep-user-detail-mono">{{ u.modificadoPor }}</dd>
+          </div>
+        </dl>
+      </article>
+    </div>
+  } @else if (!loading() && !errorMessage()) {
+    <p class="sep-user-detail-state">Nenhum usuario carregado.</p>
+  }
+</section>
