@@ -1,0 +1,14 @@
+<div class="sep-shell">
+  <sep-header (toggleSidenav)="toggleSidenav()" />
+
+  <div class="sep-shell-body">
+    <sep-sidenav [collapsed]="sidenavCollapsed()" />
+
+    <main class="sep-shell-main">
+      <sep-breadcrumbs />
+      <div class="sep-shell-content">
+        <router-outlet />
+      </div>
+    </main>
+  </div>
+</div>

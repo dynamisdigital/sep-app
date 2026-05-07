@@ -1,0 +1,51 @@
+@use "../../../styles/notion-typography" as notionType;
+@use "../../../styles/notion-components" as notion;
+
+:host {
+  display: block;
+  background: var(--notion-color-warm-white);
+}
+
+.access-denied {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--notion-space-24);
+}
+
+.access-denied-panel {
+  @include notion.notion-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-16);
+  align-items: center;
+  max-width: 480px;
+  text-align: center;
+}
+
+.access-denied-badge {
+  @include notion.notion-pill-badge;
+
+  margin: 0;
+}
+
+.access-denied-title {
+  @include notionType.notion-type-section-heading;
+
+  margin: 0;
+}
+
+.access-denied-body {
+  @include notionType.notion-type-body;
+
+  margin: 0;
+  color: var(--notion-color-text-muted);
+}
+
+.access-denied-link {
+  @include notion.notion-button-primary;
+
+  text-decoration: none;
+}

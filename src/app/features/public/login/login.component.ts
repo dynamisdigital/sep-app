@@ -36,8 +36,7 @@ export class LoginComponent {
     this.authService.login(this.form.getRawValue()).subscribe({
       next: () => {
         this.loading.set(false);
-        // Redirect temporario ate F-Sprint 3 introduzir shell autenticado.
-        void this.router.navigateByUrl('/design-system/notion');
+        void this.router.navigateByUrl('/app/dashboard');
       },
       error: () => {
         this.loading.set(false);

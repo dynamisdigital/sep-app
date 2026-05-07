@@ -1,0 +1,53 @@
+@use "../../../styles/notion-typography" as notionType;
+
+.sep-breadcrumbs {
+  display: block;
+  padding: var(--notion-space-12) var(--notion-space-24);
+  background: var(--notion-color-canvas);
+  border-bottom: var(--notion-border-whisper);
+}
+
+.sep-breadcrumbs-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--notion-space-8);
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.sep-breadcrumbs-item {
+  display: inline-flex;
+  gap: var(--notion-space-8);
+  align-items: center;
+}
+
+.sep-breadcrumbs-link {
+  @include notionType.notion-type-caption;
+
+  color: var(--notion-color-text-muted);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--notion-color-blue);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--notion-color-blue-focus);
+    outline-offset: 2px;
+    border-radius: var(--notion-radius-micro);
+  }
+}
+
+.sep-breadcrumbs-current {
+  @include notionType.notion-type-caption;
+
+  color: var(--notion-color-text);
+}
+
+.sep-breadcrumbs-separator {
+  @include notionType.notion-type-micro-label;
+
+  color: var(--notion-color-text-subtle);
+}
