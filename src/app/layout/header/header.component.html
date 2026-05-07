@@ -1,0 +1,24 @@
+<header class="sep-header" role="banner">
+  <button
+    type="button"
+    class="sep-header-toggle"
+    aria-label="Alternar menu lateral"
+    (click)="onToggle()"
+  >
+    <span class="sep-header-toggle-bar"></span>
+    <span class="sep-header-toggle-bar"></span>
+    <span class="sep-header-toggle-bar"></span>
+  </button>
+
+  <span class="sep-header-brand">SEP</span>
+
+  <div class="sep-header-spacer"></div>
+
+  @if (currentUser(); as user) {
+    <div class="sep-header-user" aria-label="Usuario autenticado">
+      <span class="sep-header-user-name">{{ user.username }}</span>
+      <span class="sep-header-user-badge">{{ user.role }}</span>
+    </div>
+    <button type="button" class="sep-header-logout" (click)="logout()">Sair</button>
+  }
+</header>

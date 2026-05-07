@@ -1,0 +1,47 @@
+@use "../../../../styles/notion-typography" as notionType;
+@use "../../../../styles/notion-components" as notion;
+
+.sep-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-24);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--notion-space-16) 0;
+}
+
+.sep-dashboard-title {
+  @include notionType.notion-type-section-heading;
+
+  margin: 0;
+  color: var(--notion-color-text);
+}
+
+.sep-dashboard-badge {
+  @include notion.notion-pill-badge;
+
+  align-self: flex-start;
+}
+
+.sep-dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--notion-space-24);
+}
+
+.sep-dashboard-card {
+  @include notion.notion-card;
+}
+
+.sep-dashboard-card-title {
+  @include notionType.notion-type-card-title;
+
+  margin: 0 0 var(--notion-space-8);
+}
+
+.sep-dashboard-card-body {
+  @include notionType.notion-type-body;
+
+  margin: 0;
+  color: var(--notion-color-text-muted);
+}

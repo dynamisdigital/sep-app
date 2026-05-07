@@ -1,0 +1,32 @@
+.sep-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--notion-color-canvas);
+  color: var(--notion-color-text);
+}
+
+.sep-shell-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.sep-shell-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sep-shell-content {
+  flex: 1;
+  padding: var(--notion-space-24);
+  background: var(--notion-color-canvas);
+}
+
+@media (width <= 833px) {
+  .sep-shell-body {
+    flex-direction: column;
+  }
+}
