@@ -31,6 +31,11 @@ export interface UsuarioCreateRequest {
   role: UsuarioRole;
 }
 
+export interface UsuarioSenhaUpdateRequest {
+  passwordAtual: string;
+  novaSenha: string;
+}
+
 export interface ApiErrorResponse {
   timestamp: string;
   status: number;
