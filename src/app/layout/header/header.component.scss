@@ -1,0 +1,76 @@
+@use "../../../styles/notion-typography" as notionType;
+@use "../../../styles/notion-components" as notion;
+
+.sep-header {
+  display: flex;
+  gap: var(--notion-space-16);
+  align-items: center;
+  width: 100%;
+  height: 56px;
+  padding: 0 var(--notion-space-24);
+  background: var(--notion-color-canvas);
+  border-bottom: var(--notion-border-whisper);
+}
+
+.sep-header-toggle {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--notion-radius-micro);
+  cursor: pointer;
+
+  &:hover {
+    background: rgb(0 0 0 / 5%);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--notion-color-blue-focus);
+    outline-offset: 2px;
+  }
+}
+
+.sep-header-toggle-bar {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--notion-color-text);
+  border-radius: var(--notion-radius-pill);
+}
+
+.sep-header-brand {
+  @include notionType.notion-type-card-title;
+
+  color: var(--notion-color-text-strong);
+}
+
+.sep-header-spacer {
+  flex: 1;
+}
+
+.sep-header-user {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-end;
+}
+
+.sep-header-user-name {
+  @include notionType.notion-type-body-medium;
+
+  color: var(--notion-color-text);
+}
+
+.sep-header-user-badge {
+  @include notion.notion-pill-badge;
+}
+
+.sep-header-logout {
+  @include notion.notion-button-ghost;
+}

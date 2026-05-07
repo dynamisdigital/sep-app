@@ -1,0 +1,31 @@
+<section class="sep-dashboard">
+  @if (currentUser(); as user) {
+    <h1 class="sep-dashboard-title">Ola, {{ user.username }}</h1>
+    <span class="sep-dashboard-badge">{{ user.role }}</span>
+  } @else {
+    <h1 class="sep-dashboard-title">Dashboard</h1>
+  }
+
+  <div class="sep-dashboard-cards">
+    <article class="sep-dashboard-card">
+      <h2 class="sep-dashboard-card-title">Perfil e sessao</h2>
+      <p class="sep-dashboard-card-body">
+        Sua sessao esta ativa. Em breve voce podera editar dados e alterar senha aqui.
+      </p>
+    </article>
+
+    <article class="sep-dashboard-card">
+      <h2 class="sep-dashboard-card-title">Usuarios e administracao</h2>
+      <p class="sep-dashboard-card-body">
+        Administradores acessam a area /app/admin para gerenciar perfis e auditoria.
+      </p>
+    </article>
+
+    <article class="sep-dashboard-card">
+      <h2 class="sep-dashboard-card-title">Proximas jornadas</h2>
+      <p class="sep-dashboard-card-body">
+        Onboarding KYC/KYB, analise de credito e formalizacao chegam nas proximas Epics.
+      </p>
+    </article>
+  </div>
+</section>

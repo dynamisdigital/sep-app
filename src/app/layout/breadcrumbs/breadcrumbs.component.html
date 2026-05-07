@@ -1,0 +1,16 @@
+<nav class="sep-breadcrumbs" aria-label="Trilha de navegacao">
+  <ol class="sep-breadcrumbs-list">
+    @for (crumb of crumbs(); track crumb.label; let last = $last) {
+      <li class="sep-breadcrumbs-item">
+        @if (crumb.url && !last) {
+          <a [routerLink]="crumb.url" class="sep-breadcrumbs-link">{{ crumb.label }}</a>
+        } @else {
+          <span class="sep-breadcrumbs-current" aria-current="page">{{ crumb.label }}</span>
+        }
+        @if (!last) {
+          <span class="sep-breadcrumbs-separator" aria-hidden="true">/</span>
+        }
+      </li>
+    }
+  </ol>
+</nav>

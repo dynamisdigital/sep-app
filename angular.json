@@ -80,6 +80,17 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "dev-offline": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.dev-offline.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -92,6 +103,9 @@
             },
             "development": {
               "buildTarget": "sep-app:build:development"
+            },
+            "dev-offline": {
+              "buildTarget": "sep-app:build:dev-offline"
             }
           },
           "defaultConfiguration": "development"
