@@ -43,13 +43,13 @@ describe('RegisterComponent', () => {
     expect(screen.getByText('Informe um e-mail valido.')).toBeTruthy();
   });
 
-  it('senha fora de 6 caracteres mostra validacao', async () => {
+  it('senha vazia exibe mensagem obrigatoria', async () => {
     await setup();
     fireEvent.input(screen.getByLabelText(/e-mail/i), { target: { value: 'a@b.com' } });
-    fireEvent.input(screen.getByLabelText(/senha/i), { target: { value: '12345' } });
+    fireEvent.input(screen.getByLabelText(/senha/i), { target: { value: '' } });
     fireEvent.click(screen.getByRole('button', { name: /criar conta/i }));
 
-    expect(screen.getByText('Senha deve conter exatamente 6 caracteres.')).toBeTruthy();
+    expect(screen.getByText('Senha obrigatoria.')).toBeTruthy();
   });
 
   it('cadastro com e-mail novo: redireciona para /login', async () => {

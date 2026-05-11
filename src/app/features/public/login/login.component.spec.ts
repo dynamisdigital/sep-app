@@ -31,7 +31,7 @@ describe('LoginComponent', () => {
 
     expect(called).toBe(false);
     expect(screen.getByText('E-mail obrigatorio.')).toBeTruthy();
-    expect(screen.getByText('Senha obrigatoria.')).toBeTruthy();
+    expect(screen.getByText('Informe sua senha.')).toBeTruthy();
   });
 
   it('e-mail invalido bloqueia submit', async () => {
@@ -43,13 +43,13 @@ describe('LoginComponent', () => {
     expect(screen.getByText('Informe um e-mail valido.')).toBeTruthy();
   });
 
-  it('senha fora de 6 caracteres mostra validacao', async () => {
+  it('senha vazia mantem botao desabilitado', async () => {
     await setup();
     fireEvent.input(screen.getByLabelText(/e-mail/i), { target: { value: 'a@b.com' } });
-    fireEvent.input(screen.getByLabelText(/senha/i), { target: { value: '12345' } });
+    fireEvent.input(screen.getByLabelText(/senha/i), { target: { value: '' } });
     fireEvent.click(screen.getByRole('button', { name: /entrar/i }));
 
-    expect(screen.getByText('Senha deve conter exatamente 6 caracteres.')).toBeTruthy();
+    expect(screen.getByText('Informe sua senha.')).toBeTruthy();
   });
 
   it('credenciais validas: redireciona para /app/dashboard', async () => {

@@ -10,7 +10,19 @@ export const PUBLIC_ROUTES: Routes = [
     loadComponent: () => import('./login/login.component').then((m) => m.LoginComponent),
   },
   {
+    path: 'login/verify-totp',
+    loadComponent: () =>
+      import('./login/verify-totp/verify-totp.component').then((m) => m.VerifyTotpComponent),
+  },
+  {
+    path: 'account-locked',
+    loadComponent: () =>
+      import('./account-locked/account-locked.component').then((m) => m.AccountLockedComponent),
+  },
+  {
     path: 'register',
-    loadComponent: () => import('./register/register.component').then((m) => m.RegisterComponent),
+    // Sprint 5: register publico substituido pela tela de redirect (canalizacao por perfil).
+    loadComponent: () =>
+      import('./redirect-to-app/redirect-to-app.component').then((m) => m.RedirectToAppComponent),
   },
 ];

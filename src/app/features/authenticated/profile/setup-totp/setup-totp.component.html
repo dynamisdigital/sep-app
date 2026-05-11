@@ -1,0 +1,100 @@
+<section class="sep-setup-totp">
+  <header class="sep-setup-totp-header">
+    <a routerLink="/app/profile" class="sep-setup-totp-back">← Perfil</a>
+    <h1>Habilitar autenticacao em duas etapas (TOTP)</h1>
+    <p>
+      Voce vai escanear um QR code com um aplicativo autenticador (Google Authenticator, Authy,
+      1Password, etc.) e digitar o primeiro codigo gerado para concluir o setup. Salve os backup
+      codes em local seguro.
+    </p>
+  </header>
+
+  @if (!setup() && !confirmado()) {
+    <div class="sep-setup-totp-intro">
+      <button
+        type="button"
+        class="sep-setup-totp-cta"
+        (click)="iniciar()"
+        [disabled]="loading()"
+        data-testid="sep-setup-totp-start"
+      >
+        @if (loading()) {
+          Gerando dados...
+        } @else {
+          Iniciar setup
+        }
+      </button>
+      @if (errorMessage(); as msg) {
+        <p role="alert" class="sep-setup-totp-error">{{ msg }}</p>
+      }
+    </div>
+  }
+
+  @if (setup(); as dados) {
+    @if (!confirmado()) {
+      <div class="sep-setup-totp-panel">
+        <h2>1. Escaneie o QR code</h2>
+        <img
+          [src]="dados.qrCodeDataUrl"
+          alt="QR code para configurar TOTP"
+          class="sep-setup-totp-qr"
+          data-testid="sep-setup-totp-qr"
+        />
+        <p>Caso o app nao consiga escanear, use a chave manual:</p>
+        <code class="sep-setup-totp-secret" data-testid="sep-setup-totp-secret">{{
+          dados.secretBase32
+        }}</code>
+
+        <h2>2. Guarde seus backup codes</h2>
+        <p>
+          Cada codigo abaixo pode ser usado uma unica vez caso voce perca acesso ao app
+          autenticador. Imprima ou anote em local seguro — eles nao serao exibidos de novo.
+        </p>
+        <ul class="sep-setup-totp-codes" data-testid="sep-setup-totp-backup-codes">
+          @for (codigo of dados.backupCodes; track codigo) {
+            <li>{{ codigo }}</li>
+          }
+        </ul>
+
+        <h2>3. Confirme com o primeiro codigo gerado</h2>
+        <form [formGroup]="form" (ngSubmit)="confirmar()">
+          <label>
+            <span>Codigo TOTP</span>
+            <input
+              type="text"
+              inputmode="numeric"
+              maxlength="6"
+              formControlName="codigo"
+              data-testid="sep-setup-totp-confirm-input"
+            />
+          </label>
+          @if (errorMessage(); as msg) {
+            <p role="alert" class="sep-setup-totp-error">{{ msg }}</p>
+          }
+          <button
+            type="submit"
+            [disabled]="confirmando()"
+            class="sep-setup-totp-cta"
+            data-testid="sep-setup-totp-confirm"
+          >
+            @if (confirmando()) {
+              Confirmando...
+            } @else {
+              Confirmar e ativar MFA
+            }
+          </button>
+        </form>
+      </div>
+    }
+  }
+
+  @if (confirmado()) {
+    <div class="sep-setup-totp-success" role="status" data-testid="sep-setup-totp-success">
+      <h2>MFA ativado</h2>
+      <p>Voce ja podera usar o codigo TOTP no proximo login.</p>
+      <button type="button" class="sep-setup-totp-cta" (click)="voltarAoPerfil()">
+        Voltar ao perfil
+      </button>
+    </div>
+  }
+</section>

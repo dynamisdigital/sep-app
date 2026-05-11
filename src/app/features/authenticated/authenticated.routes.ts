@@ -34,6 +34,17 @@ export const AUTHENTICATED_ROUTES: Routes = [
         data: { breadcrumb: 'Alterar senha' },
       },
       {
+        path: 'profile/setup-totp',
+        loadComponent: () =>
+          import('./profile/setup-totp/setup-totp.component').then((m) => m.SetupTotpComponent),
+        data: { breadcrumb: 'Habilitar MFA' },
+      },
+      {
+        path: 'step-up',
+        loadComponent: () => import('./step-up/step-up.component').then((m) => m.StepUpComponent),
+        data: { breadcrumb: 'Confirmacao adicional' },
+      },
+      {
         path: 'admin',
         canActivate: [roleGuard],
         data: { roles: ['ADMIN'], breadcrumb: 'Administracao' },

@@ -88,7 +88,7 @@ describe('AuthService', () => {
     const service = TestBed.inject(AuthService);
     await awaitObservable(service.login({ username: 'admin@empresa.com', password: '123456' }));
 
-    service.logout();
+    await awaitObservable(service.logout());
 
     expect(window.localStorage.getItem(ACCESS_TOKEN_KEY)).toBeNull();
     expect(service.currentUser()).toBeNull();

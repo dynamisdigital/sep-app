@@ -22,7 +22,7 @@ export class RegisterComponent {
 
   protected readonly form = this.fb.nonNullable.group({
     username: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],
+    password: ['', [Validators.required]],
     role: ['CLIENTE' as UsuarioRole, [Validators.required]],
   });
 
