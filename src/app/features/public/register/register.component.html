@@ -36,13 +36,6 @@
         @if (form.controls.password.touched && form.controls.password.errors?.['required']) {
           <p class="register-error" role="alert">Senha obrigatoria.</p>
         }
-        @if (
-          form.controls.password.touched &&
-          (form.controls.password.errors?.['minlength'] ||
-            form.controls.password.errors?.['maxlength'])
-        ) {
-          <p class="register-error" role="alert">Senha deve conter exatamente 6 caracteres.</p>
-        }
       </div>
 
       <div class="register-field">

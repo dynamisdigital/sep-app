@@ -20,8 +20,10 @@ export class LoginComponent {
   protected readonly errorMessage = signal<string | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
+    // Sprint 5: politica server-side (12+ chars ou passphrase). Bean Validation
+    // bloqueia senha vazia; aqui exigimos apenas obrigatorio para UX previa.
     username: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],
+    password: ['', [Validators.required]],
   });
 
   submit(): void {
@@ -34,8 +36,16 @@ export class LoginComponent {
     this.errorMessage.set(null);
 
     this.authService.login(this.form.getRawValue()).subscribe({
-      next: () => {
+      next: (response) => {
         this.loading.set(false);
+        if (response.mfaRequired) {
+          void this.router.navigateByUrl('/login/verify-totp');
+          return;
+        }
+        if (response.usuario?.precisaRedefinirSenha) {
+          void this.router.navigateByUrl('/app/profile/change-password?forced=true');
+          return;
+        }
         void this.router.navigateByUrl('/app/dashboard');
       },
       error: () => {

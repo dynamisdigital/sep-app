@@ -45,14 +45,14 @@ describe('ChangePasswordComponent', () => {
     expect(submit.hasAttribute('disabled')).toBe(true);
   });
 
-  it('exige nova senha com 6 caracteres', async () => {
+  it('exige nova senha obrigatoria', async () => {
     await setup();
 
     const novaSenha = screen.getByLabelText(/^nova senha$/i) as HTMLInputElement;
-    fireEvent.input(novaSenha, { target: { value: '123' } });
+    fireEvent.input(novaSenha, { target: { value: '' } });
     fireEvent.blur(novaSenha);
 
-    expect(screen.getByText(/exatamente 6 caracteres/i)).toBeTruthy();
+    expect(screen.getByText('Informe a nova senha.')).toBeTruthy();
   });
 
   it('exige confirmacao igual a nova senha', async () => {

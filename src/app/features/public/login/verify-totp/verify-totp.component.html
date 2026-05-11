@@ -1,0 +1,50 @@
+<section class="sep-verify-totp">
+  <div class="sep-verify-totp-card">
+    <h1 class="sep-verify-totp-title">Verificacao em duas etapas</h1>
+    <p class="sep-verify-totp-lead">
+      Informe o codigo de 6 digitos do seu aplicativo autenticador ou um dos backup codes que voce
+      guardou ao habilitar o MFA.
+    </p>
+
+    @if (challengeAusente()) {
+      <div role="alert" class="sep-verify-totp-error" data-testid="sep-verify-totp-no-challenge">
+        Sessao de verificacao expirada. Refaca o login.
+      </div>
+      <a routerLink="/login">Voltar para o login</a>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <label>
+          <span>Codigo</span>
+          <input
+            type="text"
+            inputmode="text"
+            autocomplete="one-time-code"
+            formControlName="codigo"
+            data-testid="sep-verify-totp-input"
+            required
+          />
+        </label>
+
+        @if (errorMessage(); as msg) {
+          <p role="alert" class="sep-verify-totp-error" data-testid="sep-verify-totp-error">
+            {{ msg }}
+          </p>
+        }
+
+        <button
+          type="submit"
+          [disabled]="loading()"
+          class="sep-verify-totp-submit"
+          data-testid="sep-verify-totp-submit"
+        >
+          @if (loading()) {
+            Verificando...
+          } @else {
+            Verificar
+          }
+        </button>
+      </form>
+      <a routerLink="/login" class="sep-verify-totp-cancel">Cancelar e voltar ao login</a>
+    }
+  </div>
+</section>
