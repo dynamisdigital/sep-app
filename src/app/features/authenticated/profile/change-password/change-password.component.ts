@@ -7,7 +7,7 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { ApiErrorResponse } from '../../../../core/api/api.models';
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -31,6 +31,7 @@ export class ChangePasswordComponent {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly usuarios = inject(UsuariosService);
+  private readonly router = inject(Router);
 
   protected readonly currentUser = this.auth.currentUser;
   protected readonly submitting = signal(false);
@@ -40,7 +41,8 @@ export class ChangePasswordComponent {
   protected readonly form = this.fb.nonNullable.group(
     {
       passwordAtual: ['', [Validators.required]],
-      novaSenha: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],
+      // Sprint 5: politica server-side (12+ chars OU passphrase 4+ palavras).
+      novaSenha: ['', [Validators.required]],
       confirmacaoNovaSenha: ['', [Validators.required]],
     },
     { validators: confirmacaoIgualValidator },
@@ -72,6 +74,11 @@ export class ChangePasswordComponent {
       },
       error: (err: HttpErrorResponse) => {
         this.submitting.set(false);
+        if (err.status === 403 && user.mfaHabilitado) {
+          // Sprint 5: step-up exigido. Redireciona para coletar codigo TOTP.
+          void this.router.navigateByUrl('/app/step-up?next=/app/profile/change-password');
+          return;
+        }
         const apiErr = err.error as ApiErrorResponse | undefined;
         this.errorMessage.set(
           apiErr?.message ?? 'Nao foi possivel alterar a senha. Tente novamente.',

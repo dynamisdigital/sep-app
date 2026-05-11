@@ -1,0 +1,134 @@
+:host {
+  display: block;
+  padding: 24px;
+}
+
+.sep-setup-totp {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sep-setup-totp-back {
+  font-size: 14px;
+  color: var(--notion-color-text-muted);
+  text-decoration: none;
+}
+
+.sep-setup-totp-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sep-setup-totp-header h1 {
+  font-size: 24px;
+  margin: 0;
+}
+
+.sep-setup-totp-header p {
+  color: var(--notion-color-text-muted);
+  margin: 0;
+}
+
+.sep-setup-totp-intro,
+.sep-setup-totp-panel,
+.sep-setup-totp-success {
+  background: var(--notion-color-canvas);
+  border: var(--notion-border-whisper);
+  border-radius: var(--notion-radius-card);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sep-setup-totp-qr {
+  align-self: center;
+  width: 200px;
+  height: 200px;
+  border: var(--notion-border-whisper);
+  border-radius: var(--notion-radius-standard);
+}
+
+.sep-setup-totp-secret {
+  display: inline-block;
+  padding: 8px 12px;
+  background: var(--notion-color-warm-white);
+  border-radius: var(--notion-radius-micro);
+  font-family: monospace;
+  font-size: 14px;
+  word-break: break-all;
+}
+
+.sep-setup-totp-codes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 16px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+.sep-setup-totp-codes li {
+  background: var(--notion-color-warm-white);
+  padding: 6px 10px;
+  border-radius: var(--notion-radius-micro);
+  text-align: center;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  span {
+    font-size: 13px;
+    color: var(--notion-color-text-muted);
+  }
+
+  input {
+    padding: 10px 12px;
+    border: var(--notion-border-input);
+    border-radius: var(--notion-radius-subtle);
+    font-size: 18px;
+    letter-spacing: 0.2em;
+    text-align: center;
+  }
+}
+
+.sep-setup-totp-error {
+  color: #b00020;
+  margin: 0;
+  font-size: 14px;
+}
+
+.sep-setup-totp-cta {
+  align-self: flex-start;
+  padding: 10px 18px;
+  border-radius: var(--notion-radius-micro);
+  background: var(--notion-color-blue);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.sep-setup-totp-success h2 {
+  margin: 0;
+}

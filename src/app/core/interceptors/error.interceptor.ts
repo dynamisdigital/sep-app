@@ -20,6 +20,15 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         if (error.status === 403) {
           void router.navigateByUrl('/access-denied');
         }
+
+        // Sprint 5: 423 Locked = conta bloqueada por lockout.
+        if (error.status === 423) {
+          auth.clearSession();
+          void router.navigateByUrl('/account-locked');
+        }
+
+        // Sprint 5: 429 Too Many Requests = rate limit excedido.
+        // Mantido como erro propagado; tela de login/verify exibe a mensagem.
       }
 
       return throwError(() => error);
