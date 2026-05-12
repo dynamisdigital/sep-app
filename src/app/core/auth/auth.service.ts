@@ -5,8 +5,6 @@ import { Observable, catchError, finalize, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   LoginRequest,
-  LogoutRequest,
-  RefreshTokenRequest,
   TokenResponse,
   UsuarioCreateRequest,
   UsuarioResponse,
@@ -14,9 +12,19 @@ import {
 
 const API_BASE_URL = environment.apiBaseUrl;
 const ACCESS_TOKEN_KEY = 'SEP_ACCESS_TOKEN';
-const REFRESH_TOKEN_KEY = 'SEP_REFRESH_TOKEN';
 const PENDING_MFA_CHALLENGE_KEY = 'SEP_PENDING_MFA_CHALLENGE';
 
+/**
+ * Servico de autenticacao web (canal WEB; follow-up 5F-FIX-02 da Sprint 5).
+ *
+ * - Access token continua em `localStorage` (decisao do projeto; trade-off
+ *   discutido em CONTEXT.md). Refresh token NUNCA e persistido no cliente:
+ *   o backend devolve em `Set-Cookie HttpOnly` (canal `X-Client-Channel: WEB`,
+ *   anexado pelo `clientChannelInterceptor`). Refresh e logout viajam apenas
+ *   com cookie + `withCredentials`.
+ * - MFA challenge id continua em `localStorage` pra sobreviver a reload
+ *   entre `/auth/login` e `/auth/totp/verify`.
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
@@ -66,13 +74,13 @@ export class AuthService {
     return this.loadCurrentUser();
   }
 
+  /**
+   * Solicita rotacao do refresh token. O refresh vive no cookie HttpOnly
+   * `sep-refresh` (5F-FIX-02); aqui apenas postamos com `withCredentials`
+   * (anexado pelo `clientChannelInterceptor`) e o backend resolve via cookie.
+   */
   refresh(): Observable<TokenResponse | null> {
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) {
-      return of(null);
-    }
-    const payload: RefreshTokenRequest = { refreshToken };
-    return this.http.post<TokenResponse>(`${API_BASE_URL}/auth/refresh`, payload).pipe(
+    return this.http.post<TokenResponse>(`${API_BASE_URL}/auth/refresh`, {}).pipe(
       tap((response) => this.handleTokenResponse(response)),
       catchError(() => {
         this.clearSession();
@@ -83,18 +91,18 @@ export class AuthService {
 
   clearSession(): void {
     window.localStorage.removeItem(ACCESS_TOKEN_KEY);
-    window.localStorage.removeItem(REFRESH_TOKEN_KEY);
     window.localStorage.removeItem(PENDING_MFA_CHALLENGE_KEY);
     this.currentUserState.set(null);
     this.pendingMfaChallengeState.set(null);
   }
 
+  /**
+   * Logout: cookie `sep-refresh` viaja automaticamente; backend revoga e
+   * limpa o cookie via `Set-Cookie Max-Age=0`. Mesmo em falha, limpa estado
+   * local pra evitar sessao zumbi.
+   */
   logout(): Observable<void> {
-    const refreshToken = this.getRefreshToken();
-    const payload: LogoutRequest | null = refreshToken ? { refreshToken } : null;
-    const request: Observable<unknown> = payload
-      ? this.http.post(`${API_BASE_URL}/auth/logout`, payload)
-      : of(null);
+    const request = this.http.post(`${API_BASE_URL}/auth/logout`, {});
     return new Observable<void>((subscriber) => {
       const sub = request.subscribe({
         next: () => {
@@ -122,10 +130,6 @@ export class AuthService {
     return window.localStorage.getItem(ACCESS_TOKEN_KEY);
   }
 
-  getRefreshToken(): string | null {
-    return window.localStorage.getItem(REFRESH_TOKEN_KEY);
-  }
-
   private handleTokenResponse(response: TokenResponse): void {
     if (response.mfaRequired && response.mfaChallengeId) {
       window.localStorage.setItem(PENDING_MFA_CHALLENGE_KEY, response.mfaChallengeId);
@@ -137,9 +141,7 @@ export class AuthService {
     if (response.accessToken) {
       window.localStorage.setItem(ACCESS_TOKEN_KEY, response.accessToken);
     }
-    if (response.refreshToken) {
-      window.localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
-    }
+    // refresh token nao e persistido — vive no cookie HttpOnly (5F-FIX-02).
     if (response.usuario) {
       this.currentUserState.set(response.usuario);
     }
