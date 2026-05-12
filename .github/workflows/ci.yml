@@ -12,9 +12,12 @@ on:
       - main
       - develop
   push:
+    # Roda em push de qualquer branch (feature/*, fix/*, hotfix/*, etc.) pra
+    # garantir test+build antes de abrir PR. Branches com PR aberto rodarao
+    # 2 vezes (push + pull_request); tolerado pela equipe pra validacao
+    # continua (alinhado a sep-api/sep-mobile).
     branches:
-      - main
-      - develop
+      - '**'
   workflow_dispatch:
 
 permissions:
