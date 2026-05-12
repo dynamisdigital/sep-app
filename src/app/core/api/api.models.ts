@@ -33,13 +33,9 @@ export interface TokenResponse {
   mfaChallengeId: string | null;
 }
 
-export interface RefreshTokenRequest {
-  refreshToken: string;
-}
-
-export interface LogoutRequest {
-  refreshToken: string;
-}
+// 5F-FIX-02: refresh/logout web nao enviam body — refresh token vive em cookie
+// HttpOnly anexado pelo browser (clientChannelInterceptor faz withCredentials).
+// Interfaces antigas RefreshTokenRequest/LogoutRequest removidas.
 
 export interface TotpSetupResponse {
   secretBase32: string;
@@ -77,7 +73,9 @@ export interface StepUpCompleteResponse {
 export interface UsuarioCreateRequest {
   username: string;
   password: string;
-  role: UsuarioRole;
+  // 5F-FIX-01: cadastro publico sempre cria CLIENTE; role e ignorado pelo backend
+  // mesmo quando enviado. Mantido opcional para compat com chamadas legadas.
+  role?: UsuarioRole;
 }
 
 export interface UsuarioSenhaUpdateRequest {

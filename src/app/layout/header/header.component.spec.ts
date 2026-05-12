@@ -58,7 +58,10 @@ describe('HeaderComponent', () => {
     });
     result.fixture.detectChanges();
 
+    // 5F-FIX-02: logout agora sempre faz POST /auth/logout (MSW responde 204);
+    // o efeito de clearSession + navigate fica em microtask posterior.
     fireEvent.click(screen.getByRole('button', { name: 'Sair' }));
+    await result.fixture.whenStable();
 
     expect(window.localStorage.getItem(ACCESS_TOKEN_KEY)).toBeNull();
     expect(auth.currentUser()).toBeNull();
