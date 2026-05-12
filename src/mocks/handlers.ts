@@ -82,6 +82,22 @@ export const handlers = [
     );
   }),
 
+  http.post(`${baseUrl}/auth/logout`, () => new HttpResponse(null, { status: 204 })),
+
+  http.post(`${baseUrl}/auth/refresh`, () =>
+    HttpResponse.json({
+      accessToken: 'mock-jwt-token-refresh',
+      tokenType: 'Bearer',
+      expiresIn: 3600,
+      refreshToken: null,
+      usuario: adminUsuario,
+      mfaRequired: false,
+      mfaChallengeId: null,
+    }),
+  ),
+
+  http.post(`${baseUrl}/auth/logout-all`, () => new HttpResponse(null, { status: 204 })),
+
   http.get(`${baseUrl}/auth/me`, () => HttpResponse.json(adminUsuario)),
 
   http.get(`${baseUrl}/usuarios`, () => HttpResponse.json(usuariosFake)),
