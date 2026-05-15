@@ -3,7 +3,7 @@
 Frontend web Angular 20.x da plataforma SEP (Sociedade de Emprestimo entre Pessoas).
 
 > Documentacao consolidada do produto vive no repositorio [`docs-SEP`](../docs-SEP):
-> [PRD](../docs-SEP/docs-sep/PRD.md), [CONTEXT](../docs-SEP/docs-sep/CONTEXT.md), [AGENT.md](../docs-SEP/AGENT.md), [ADRs](../docs-SEP/adr/), [specs](../docs-SEP/specs/) e [steps web](../docs-SEP/steps/web/).
+> [PRD](../docs-SEP/docs-sep/PRD.md), [CONTEXT](../docs-SEP/docs-sep/CONTEXT.md), [AGENT.md](../docs-SEP/AGENT.md), [ADRs](../docs-SEP/adr/), [specs](../docs-SEP/specs/), [steps web](../docs-SEP/steps-fase-1/web/) e [docs especificos do web](../docs-SEP/repos/sep-app/).
 
 ## Setup do desenvolvedor
 
@@ -115,4 +115,4 @@ docs(adr): adicionar ADR 0009
 - F-Sprint 3 — Auth real, shell Notion, guards, interceptors
 - F-Sprint 4 — Telas autenticadas + smoke E2E
 
-Detalhamento: [docs-SEP/specs/fase-1/](../docs-SEP/specs/fase-1/) (100-104) e [docs-SEP/steps/web/](../docs-SEP/steps/web/).
+Detalhamento: [docs-SEP/specs/fase-1/](../docs-SEP/specs/fase-1/) (100-104) e [docs-SEP/steps-fase-1/web/](../docs-SEP/steps-fase-1/web/).
