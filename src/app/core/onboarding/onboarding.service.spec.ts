@@ -61,6 +61,18 @@ describe('OnboardingService', () => {
       ).resolves.toBeNull();
     });
 
+    it('enviarDocumentoPessoa() rejeita com 400 para documento nao aceito em PF', async () => {
+      await expect(
+        awaitObservable(
+          service.enviarDocumentoPessoa(
+            '2f0799c0-98b9-6d9d-bc4a-7d6f5b771f01',
+            'CONTRATO_SOCIAL',
+            arquivoFake(),
+          ),
+        ),
+      ).rejects.toMatchObject({ status: 400 });
+    });
+
     it('verificarPessoa() resolve em sucesso (202)', async () => {
       await expect(
         awaitObservable(service.verificarPessoa('2f0799c0-98b9-6d9d-bc4a-7d6f5b771f01')),

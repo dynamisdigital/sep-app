@@ -47,6 +47,7 @@ const EMPRESA_ID = '2f0799c0-98b9-6d9d-bc4a-7d6f5b771f02';
 const ID_SEM_OWNERSHIP = '2f0799c0-98b9-6d9d-bc4a-7d6f5b771ff03';
 const CPF_COM_ONBOARDING_ATIVO = '99999999999';
 const CNPJ_COM_ONBOARDING_ATIVO = '99999999999999';
+const TIPOS_DOCUMENTO_PF = ['RG', 'CNH', 'PASSAPORTE', 'SELFIE'];
 const TIPOS_DOCUMENTO_PJ = ['CONTRATO_SOCIAL', 'CCMEI', 'COMPROVANTE_ENDERECO'];
 
 function apenasDigitos(valor: string): string {
@@ -82,12 +83,22 @@ const onboardingHandlers = [
     );
   }),
 
-  http.post(`${baseUrl}/onboarding/pessoa/:id/documentos`, ({ params }) => {
+  http.post(`${baseUrl}/onboarding/pessoa/:id/documentos`, async ({ params, request }) => {
     if (params['id'] === ID_SEM_OWNERSHIP) {
       return errorResponse(
         403,
         'Forbidden',
         'solicitacao pertence a outro usuario',
+        `/api/v1/onboarding/pessoa/${params['id']}/documentos`,
+      );
+    }
+    const form = await request.formData();
+    const tipo = form.get('tipo') as string | null;
+    if (!tipo || !TIPOS_DOCUMENTO_PF.includes(tipo)) {
+      return errorResponse(
+        400,
+        'Bad Request',
+        'ONB-400-016: tipo de documento nao aceito para PF',
         `/api/v1/onboarding/pessoa/${params['id']}/documentos`,
       );
     }
