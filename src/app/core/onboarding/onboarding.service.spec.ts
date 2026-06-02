@@ -123,6 +123,12 @@ describe('OnboardingService', () => {
       ).resolves.toBeNull();
     });
 
+    it('verificarEmpresa() resolve em sucesso (202)', async () => {
+      await expect(
+        awaitObservable(service.verificarEmpresa('2f0799c0-98b9-6d9d-bc4a-7d6f5b771f02')),
+      ).resolves.toBeNull();
+    });
+
     it('enviarDocumentoEmpresa() rejeita com 400 para documento nao aceito em PJ', async () => {
       await expect(
         awaitObservable(
