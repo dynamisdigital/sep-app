@@ -60,11 +60,12 @@ describe('SidenavComponent', () => {
     result.fixture.detectChanges();
 
     expect(screen.getByText('Dashboard')).toBeTruthy();
+    expect(screen.getByText('Onboarding')).toBeTruthy();
     expect(screen.getByText('Meu perfil')).toBeTruthy();
     expect(screen.queryByText('Administracao')).toBeNull();
   });
 
-  it('Onboarding aparece para CLIENTE e ADMIN e aponta para /app/onboarding', async () => {
+  it('Onboarding aponta para /app/onboarding', async () => {
     const result = await render(SidenavComponent, {
       providers: [provideRouter([]), provideHttpClient()],
     });
