@@ -73,6 +73,18 @@ describe('OnboardingService', () => {
       ).rejects.toMatchObject({ status: 400 });
     });
 
+    it('enviarDocumentoPessoa() aceita COMPROVANTE_ENDERECO (204)', async () => {
+      await expect(
+        awaitObservable(
+          service.enviarDocumentoPessoa(
+            '2f0799c0-98b9-6d9d-bc4a-7d6f5b771f01',
+            'COMPROVANTE_ENDERECO',
+            arquivoFake(),
+          ),
+        ),
+      ).resolves.toBeNull();
+    });
+
     it('verificarPessoa() resolve em sucesso (202)', async () => {
       await expect(
         awaitObservable(service.verificarPessoa('2f0799c0-98b9-6d9d-bc4a-7d6f5b771f01')),
