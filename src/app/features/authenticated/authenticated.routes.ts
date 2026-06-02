@@ -45,6 +45,12 @@ export const AUTHENTICATED_ROUTES: Routes = [
         data: { breadcrumb: 'Confirmacao adicional' },
       },
       {
+        path: 'onboarding',
+        loadChildren: () =>
+          import('./onboarding/onboarding.routes').then((m) => m.ONBOARDING_ROUTES),
+        data: { breadcrumb: 'Onboarding' },
+      },
+      {
         path: 'admin',
         canActivate: [roleGuard],
         data: { roles: ['ADMIN'], breadcrumb: 'Administracao' },
