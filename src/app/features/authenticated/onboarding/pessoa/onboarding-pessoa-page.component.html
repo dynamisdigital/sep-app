@@ -1,0 +1,165 @@
+<section class="sep-onboarding-pessoa">
+  <header class="sep-onboarding-pessoa-header">
+    <h1 class="sep-onboarding-pessoa-title">Onboarding - Pessoa fisica</h1>
+    <a routerLink="/app/onboarding" class="sep-onboarding-pessoa-back">Voltar para Onboarding</a>
+  </header>
+
+  @if (!id()) {
+    <form
+      class="sep-onboarding-pessoa-form"
+      [formGroup]="form"
+      (ngSubmit)="iniciar()"
+      novalidate
+      autocomplete="off"
+    >
+      <div class="sep-onboarding-pessoa-field">
+        <label for="cpf">CPF</label>
+        <input id="cpf" type="text" inputmode="numeric" formControlName="cpf" />
+        @if (form.controls.cpf.touched && form.controls.cpf.errors?.['required']) {
+          <p class="sep-onboarding-pessoa-error">Informe o CPF.</p>
+        }
+      </div>
+
+      <div class="sep-onboarding-pessoa-field">
+        <label for="nomeCompleto">Nome completo</label>
+        <input id="nomeCompleto" type="text" formControlName="nomeCompleto" />
+        @if (
+          form.controls.nomeCompleto.touched && form.controls.nomeCompleto.errors?.['required']
+        ) {
+          <p class="sep-onboarding-pessoa-error">Informe o nome completo.</p>
+        }
+      </div>
+
+      <div class="sep-onboarding-pessoa-field">
+        <label for="dataNascimento">Data de nascimento</label>
+        <input id="dataNascimento" type="date" formControlName="dataNascimento" />
+        @if (
+          form.controls.dataNascimento.touched && form.controls.dataNascimento.errors?.['required']
+        ) {
+          <p class="sep-onboarding-pessoa-error">Informe a data de nascimento.</p>
+        }
+      </div>
+
+      @if (conflito()) {
+        <div
+          class="sep-onboarding-pessoa-feedback sep-onboarding-pessoa-feedback-error"
+          role="alert"
+        >
+          <p>Este CPF ja possui um onboarding ativo.</p>
+          <a routerLink="/app/onboarding">Voltar e consultar a solicitacao existente.</a>
+        </div>
+      }
+      @if (errorMessage(); as msg) {
+        <p class="sep-onboarding-pessoa-feedback sep-onboarding-pessoa-feedback-error" role="alert">
+          {{ msg }}
+        </p>
+      }
+
+      <div class="sep-onboarding-pessoa-actions">
+        <button
+          type="submit"
+          class="sep-onboarding-pessoa-submit"
+          [disabled]="submitting() || form.invalid"
+        >
+          {{ submitting() ? 'Iniciando...' : 'Iniciar onboarding' }}
+        </button>
+      </div>
+    </form>
+  } @else {
+    <div class="sep-onboarding-pessoa-detail">
+      <div class="sep-onboarding-pessoa-status-panel">
+        <div class="sep-onboarding-pessoa-status-head">
+          <h2 class="sep-onboarding-pessoa-section-title">Status</h2>
+          <button
+            type="button"
+            class="sep-onboarding-pessoa-refresh"
+            (click)="atualizarStatus()"
+            [disabled]="carregandoStatus()"
+          >
+            {{ carregandoStatus() ? 'Atualizando...' : 'Atualizar' }}
+          </button>
+        </div>
+        @if (status(); as s) {
+          <span class="sep-onboarding-pessoa-badge">{{ s.status }}</span>
+          @if (s.resultado; as r) {
+            <p class="sep-onboarding-pessoa-result">
+              Resultado: {{ r.statusFinal }}
+              @if (r.motivo) {
+                - {{ r.motivo }}
+              }
+            </p>
+          }
+
+          <h3 class="sep-onboarding-pessoa-section-title">Documentos enviados</h3>
+          @if (s.documentosEnviados.length) {
+            <ul class="sep-onboarding-pessoa-docs">
+              @for (doc of s.documentosEnviados; track doc.id) {
+                <li class="sep-onboarding-pessoa-doc">{{ doc.tipo }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="sep-onboarding-pessoa-empty">Nenhum documento enviado.</p>
+          }
+        } @else if (!carregandoStatus()) {
+          <p class="sep-onboarding-pessoa-empty">Status indisponivel.</p>
+        }
+      </div>
+
+      <div class="sep-onboarding-pessoa-upload">
+        <h2 class="sep-onboarding-pessoa-section-title">Enviar documento</h2>
+        <div class="sep-onboarding-pessoa-field">
+          <label for="tipoDocumento">Tipo</label>
+          <select
+            id="tipoDocumento"
+            [value]="tipoSelecionado()"
+            (change)="selecionarTipo($any($event.target).value)"
+          >
+            @for (tipo of tiposDocumento; track tipo) {
+              <option [value]="tipo">{{ tipo }}</option>
+            }
+          </select>
+        </div>
+        <div class="sep-onboarding-pessoa-field">
+          <label for="arquivo">Arquivo (PDF, JPEG ou PNG, ate 10MB)</label>
+          <input
+            id="arquivo"
+            type="file"
+            accept="application/pdf,image/jpeg,image/png"
+            (change)="selecionarArquivo($event)"
+          />
+        </div>
+        @if (documentoError(); as msg) {
+          <p class="sep-onboarding-pessoa-error" role="alert">{{ msg }}</p>
+        }
+        <div class="sep-onboarding-pessoa-actions">
+          <button
+            type="button"
+            class="sep-onboarding-pessoa-submit"
+            (click)="enviarDocumento()"
+            [disabled]="enviandoDocumento() || !arquivo()"
+          >
+            {{ enviandoDocumento() ? 'Enviando...' : 'Enviar documento' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="sep-onboarding-pessoa-verify">
+        <h2 class="sep-onboarding-pessoa-section-title">Verificacao</h2>
+        <button
+          type="button"
+          class="sep-onboarding-pessoa-submit"
+          (click)="verificar()"
+          [disabled]="verificando()"
+        >
+          {{ verificando() ? 'Enviando...' : 'Enviar para verificacao' }}
+        </button>
+      </div>
+
+      @if (errorMessage(); as msg) {
+        <p class="sep-onboarding-pessoa-feedback sep-onboarding-pessoa-feedback-error" role="alert">
+          {{ msg }}
+        </p>
+      }
+    </div>
+  }
+</section>
