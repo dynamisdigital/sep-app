@@ -101,6 +101,23 @@ describe('PropostaDetailPageComponent', () => {
     expect(screen.queryByText('Compartilhar dados via Open Finance')).toBeNull();
   });
 
+  it('mostra CTA de formalizacao para o tomador dono em proposta APROVADA', async () => {
+    const { fixture } = await renderPagina(PROPOSTA_APROVADA_ID);
+    autenticarComo(fixture, TOMADOR_ID);
+    await estabilizar(fixture);
+
+    const link = screen.getByText('Formalizar contrato').closest('a');
+    expect(link?.getAttribute('href')).toBe(`/app/formalizacao/proposta/${PROPOSTA_APROVADA_ID}`);
+  });
+
+  it('oculta CTA de formalizacao quando a proposta nao esta APROVADA', async () => {
+    const { fixture } = await renderPagina(PROPOSTA_PRE_APROVADA_ID);
+    autenticarComo(fixture, TOMADOR_ID);
+    await estabilizar(fixture);
+
+    expect(screen.queryByText('Formalizar contrato')).toBeNull();
+  });
+
   it('renderiza estado de erro com link para a lista em 404', async () => {
     const { fixture } = await renderPagina(PROPOSTA_INEXISTENTE_ID);
     await estabilizar(fixture);

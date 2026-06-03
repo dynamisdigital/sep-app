@@ -13,9 +13,11 @@ import { ContratoDetailComponent } from './contrato-detail.component';
 
 const CONTRATO_AGUARDANDO_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e01';
 const CONTRATO_EM_ASSINATURA_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e02';
+const CONTRATO_ASSINADO_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e03';
 const CONTRATO_SEM_VERSAO_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e05';
 const CONTRATO_PARA_ACEITE_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e06';
 const CONTRATO_INEXISTENTE_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771dead';
+const DOCUMENTO_HASH = 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad';
 
 async function flush(times = 5): Promise<void> {
   for (let i = 0; i < times; i += 1) {
@@ -160,5 +162,31 @@ describe('ContratoDetailComponent', () => {
     await estabilizar(fixture);
 
     expect(screen.getByText(/nao esta mais aguardando aceite/)).toBeTruthy();
+  });
+
+  it('exibe o status do envelope de assinatura', async () => {
+    const { fixture } = await renderDetail(CONTRATO_EM_ASSINATURA_ID);
+    await estabilizar(fixture);
+
+    expect(screen.getByText('Enviado para assinatura')).toBeTruthy();
+  });
+
+  it('baixa o documento assinado como blob e exibe o hash, revogando o object URL', async () => {
+    const createObjectURL = vi.fn(() => 'blob:fake');
+    const revokeObjectURL = vi.fn();
+    URL.createObjectURL = createObjectURL;
+    URL.revokeObjectURL = revokeObjectURL;
+
+    const { fixture } = await renderDetail(CONTRATO_ASSINADO_ID);
+    await estabilizar(fixture);
+
+    fireEvent.click(screen.getByRole('button', { name: /Baixar documento assinado/ }));
+    await estabilizar(fixture);
+
+    expect(createObjectURL).toHaveBeenCalled();
+    expect(revokeObjectURL).toHaveBeenCalled();
+    // "Hash do documento" so aparece quando o hash do documento foi lido do header.
+    expect(screen.getByText('Hash do documento')).toBeTruthy();
+    expect(screen.getAllByText(DOCUMENTO_HASH).length).toBeGreaterThanOrEqual(1);
   });
 });

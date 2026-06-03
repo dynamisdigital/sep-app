@@ -2,10 +2,15 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { ContratoResponse, VersaoContratoResponse } from '../../../core/api/api.models';
+import {
+  ContratoResponse,
+  StatusAssinaturaResponse,
+  VersaoContratoResponse,
+} from '../../../core/api/api.models';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ContratosService } from '../../../core/contratos/contratos.service';
 import {
+  STATUS_ENVELOPE_LABEL,
   STATUS_FORMALIZACAO_LABEL,
   formatarData,
   idCurto,
@@ -35,8 +40,13 @@ export class ContratoDetailComponent implements OnInit {
   protected readonly versaoSelecionada = signal<VersaoContratoResponse | null>(null);
   protected readonly aceitando = signal(false);
   protected readonly aceiteErrorMessage = signal<string | null>(null);
+  protected readonly statusAssinatura = signal<StatusAssinaturaResponse | null>(null);
+  protected readonly baixando = signal(false);
+  protected readonly documentoErro = signal<string | null>(null);
+  protected readonly documentoHash = signal<string | null>(null);
 
   protected readonly statusLabel = STATUS_FORMALIZACAO_LABEL;
+  protected readonly envelopeLabel = STATUS_ENVELOPE_LABEL;
   protected readonly formatarData = formatarData;
   protected readonly idCurto = idCurto;
 
@@ -57,6 +67,7 @@ export class ContratoDetailComponent implements OnInit {
         this.versaoSelecionada.set(contrato.versaoVigente);
         this.loading.set(false);
         this.carregarHistorico(id);
+        this.carregarStatusAssinatura(id);
       },
       error: (err: HttpErrorResponse) => {
         this.errorMessage.set(
@@ -73,6 +84,14 @@ export class ContratoDetailComponent implements OnInit {
     this.contratos.listarVersoes(id).subscribe({
       next: (versoes) => this.versoes.set(versoes),
       error: () => this.versoes.set([]),
+    });
+  }
+
+  // Status de assinatura e complementar: se falhar, o restante do detalhe segue.
+  private carregarStatusAssinatura(id: string): void {
+    this.contratos.consultarStatusAssinatura(id).subscribe({
+      next: (status) => this.statusAssinatura.set(status),
+      error: () => this.statusAssinatura.set(null),
     });
   }
 
@@ -95,10 +114,38 @@ export class ContratoDetailComponent implements OnInit {
         this.aceitando.set(false);
         this.contrato.set(contrato);
         this.versaoSelecionada.set(contrato.versaoVigente);
+        this.carregarStatusAssinatura(id);
       },
       error: (err: HttpErrorResponse) => {
         this.aceitando.set(false);
         this.tratarErroAceite(err, id);
+      },
+    });
+  }
+
+  // Documento assinado/CCB tratado como blob transitorio: baixa, dispara o download
+  // via object URL e revoga em seguida. Nada de PDF/base64/hash em storage; o hash do
+  // X-Document-Hash-Sha256 e apenas exibido como evidencia.
+  baixarDocumento(id: string): void {
+    this.baixando.set(true);
+    this.documentoErro.set(null);
+    this.contratos.baixarDocumentoAssinado(id).subscribe({
+      next: (resposta) => {
+        this.baixando.set(false);
+        const blob = resposta.body;
+        if (!blob) {
+          this.documentoErro.set('Documento indisponivel.');
+          return;
+        }
+        this.documentoHash.set(resposta.headers.get('X-Document-Hash-Sha256'));
+        const nome = nomeArquivo(resposta.headers.get('Content-Disposition'), id);
+        dispararDownload(blob, nome);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.baixando.set(false);
+        this.documentoErro.set(
+          mensagemFormalizacaoErro(err, 'Nao foi possivel baixar o documento.'),
+        );
       },
     });
   }
@@ -120,4 +167,20 @@ export class ContratoDetailComponent implements OnInit {
       mensagemFormalizacaoErro(err, 'Nao foi possivel registrar o aceite.'),
     );
   }
+}
+
+// Preserva o filename do Content-Disposition quando presente; caso contrario, gera
+// um nome estavel a partir do id do contrato.
+function nomeArquivo(contentDisposition: string | null, contratoId: string): string {
+  const match = contentDisposition?.match(/filename="?([^"]+)"?/i);
+  return match?.[1] ?? `contrato-${contratoId}.pdf`;
+}
+
+function dispararDownload(blob: Blob, nome: string): void {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = nome;
+  link.click();
+  URL.revokeObjectURL(url);
 }

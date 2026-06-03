@@ -53,6 +53,64 @@
       </div>
     }
 
+    @if (statusAssinatura(); as assinatura) {
+      @if (assinatura.statusEnvelope; as envelope) {
+        <section class="sep-contrato-detail-assinatura">
+          <h2 class="sep-contrato-detail-assinatura-title">Assinatura</h2>
+          <dl class="sep-contrato-detail-meta">
+            <div class="sep-contrato-detail-meta-item">
+              <dt>Envelope</dt>
+              <dd>{{ envelopeLabel[envelope] }}</dd>
+            </div>
+            @if (assinatura.dataAtualizacaoProvider; as atualizado) {
+              <div class="sep-contrato-detail-meta-item">
+                <dt>Atualizado em</dt>
+                <dd>{{ formatarData(atualizado) }}</dd>
+              </div>
+            }
+            @if (assinatura.idEnvelopeExterno; as envelopeId) {
+              <div class="sep-contrato-detail-meta-item">
+                <dt>Envelope (provider)</dt>
+                <dd>{{ idCurto(envelopeId) }}</dd>
+              </div>
+            }
+          </dl>
+          @if (envelope === 'RECUSADO' || envelope === 'EXPIRADO') {
+            <p class="sep-contrato-detail-assinatura-aviso" role="status">
+              A assinatura nao foi concluida ({{ envelopeLabel[envelope] }}). Procure o suporte para
+              reemitir.
+            </p>
+          }
+        </section>
+      }
+    }
+
+    @if (c.status === 'ASSINADO') {
+      <div class="sep-contrato-detail-documento">
+        <button
+          type="button"
+          class="sep-contrato-detail-documento-cta"
+          [disabled]="baixando()"
+          (click)="baixarDocumento(c.id)"
+        >
+          @if (baixando()) {
+            Baixando...
+          } @else {
+            Baixar documento assinado
+          }
+        </button>
+        @if (documentoHash(); as hash) {
+          <p class="sep-contrato-detail-hash">
+            <span class="sep-contrato-detail-hash-label">Hash do documento</span>
+            <code class="sep-contrato-detail-hash-value">{{ hash }}</code>
+          </p>
+        }
+        @if (documentoErro(); as msg) {
+          <p class="sep-contrato-detail-aceite-error" role="alert">{{ msg }}</p>
+        }
+      </div>
+    }
+
     @if (versaoSelecionada(); as versao) {
       @if (versoes().length > 1) {
         <nav class="sep-contrato-detail-versoes" aria-label="Versoes do contrato">

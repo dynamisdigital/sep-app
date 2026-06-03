@@ -1,6 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { ApiErrorResponse, StatusFormalizacao } from '../../../../core/api/api.models';
+import {
+  ApiErrorResponse,
+  StatusEnvelope,
+  StatusFormalizacao,
+} from '../../../../core/api/api.models';
 
 // Formatacao apenas visual da jornada de formalizacao. Valores chegam como number
 // BRL e datas como string ISO do backend; nada aqui interpreta regra de negocio.
@@ -28,6 +32,17 @@ export const STATUS_FORMALIZACAO_LABEL: Record<StatusFormalizacao, string> = {
   ASSINADO: 'Assinado',
   RECUSADO: 'Recusado',
   CANCELADO: 'Cancelado',
+};
+
+// Label do envelope de assinatura no provider. A tela apenas apresenta o estado
+// retornado; nao consulta o provider externo nem decide transicoes.
+export const STATUS_ENVELOPE_LABEL: Record<StatusEnvelope, string> = {
+  RASCUNHO: 'Rascunho',
+  ENVIADO: 'Enviado para assinatura',
+  VISUALIZADO: 'Visualizado',
+  ASSINADO: 'Assinado',
+  RECUSADO: 'Recusado',
+  EXPIRADO: 'Expirado',
 };
 
 // Extrai a mensagem amigavel do corpo de erro padronizado da API, com fallback.
