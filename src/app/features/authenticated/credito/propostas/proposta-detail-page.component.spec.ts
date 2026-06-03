@@ -64,9 +64,9 @@ describe('PropostaDetailPageComponent', () => {
     const { fixture } = await renderPagina(PROPOSTA_PRE_APROVADA_ID);
     await estabilizar(fixture);
 
-    expect(screen.getAllByText('PRE_APROVADA').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Pre-aprovada').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('Score')).toBeTruthy();
-    expect(screen.getByText('720')).toBeTruthy();
+    expect(screen.getAllByText('720').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('Ultimo parecer')).toBeTruthy();
     expect(
       screen.getByText('Aguardando comprovacao de faturamento via Open Finance.'),
@@ -97,7 +97,7 @@ describe('PropostaDetailPageComponent', () => {
     autenticarComo(fixture, TOMADOR_ID);
     await estabilizar(fixture);
 
-    expect(screen.getAllByText('APROVADA').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Aprovada').length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByText('Compartilhar dados via Open Finance')).toBeNull();
   });
 

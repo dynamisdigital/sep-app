@@ -1,0 +1,25 @@
+<section class="sep-score-panel">
+  <h2 class="sep-score-panel-title">Score</h2>
+  <dl class="sep-score-panel-grid">
+    <div>
+      <dt>Valor</dt>
+      <dd>{{ score().valor }}</dd>
+    </div>
+    <div>
+      <dt>Status sugerido</dt>
+      <dd><sep-proposta-status [status]="score().statusSugerido" /></dd>
+    </div>
+    <div>
+      <dt>Falhas</dt>
+      <dd>{{ score().falhas }}</dd>
+    </div>
+    <div>
+      <dt>Pendencias</dt>
+      <dd>{{ score().pendencias }}</dd>
+    </div>
+    <div>
+      <dt>Calculado em</dt>
+      <dd>{{ formatarData(score().dataCalculo) }}</dd>
+    </div>
+  </dl>
+</section>

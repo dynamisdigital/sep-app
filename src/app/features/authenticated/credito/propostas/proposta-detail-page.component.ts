@@ -14,6 +14,9 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { CreditoService } from '../../../../core/credito/credito.service';
 import { mensagemCreditoErro } from '../shared/credito-error';
 import { formatarData, formatarMoeda } from '../shared/credito-format';
+import { ParecerPanelComponent } from '../shared/parecer-panel.component';
+import { PropostaStatusComponent } from '../shared/proposta-status.component';
+import { ScorePanelComponent } from '../shared/score-panel.component';
 
 // Status finais nao permitem novo ciclo Open Finance (backend rejeita com 422).
 const STATUS_FINAIS = new Set<PropostaResponse['status']>(['APROVADA', 'REJEITADA']);
@@ -22,7 +25,7 @@ const STATUS_FINAIS = new Set<PropostaResponse['status']>(['APROVADA', 'REJEITAD
 // nao decide aprovacao/rejeicao — apenas reflete o estado retornado pelo backend.
 @Component({
   selector: 'sep-proposta-detail-page',
-  imports: [RouterLink],
+  imports: [RouterLink, PropostaStatusComponent, ScorePanelComponent, ParecerPanelComponent],
   templateUrl: './proposta-detail-page.component.html',
   styleUrl: './proposta-detail-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -41,7 +41,7 @@
             <td>{{ proposta.tipoOperacao }}</td>
             <td>{{ formatarMoeda(proposta.valorSolicitado, proposta.moeda) }}</td>
             <td>{{ proposta.prazoMeses }} meses</td>
-            <td>{{ proposta.status }}</td>
+            <td><sep-proposta-status [status]="proposta.status" /></td>
             <td>{{ formatarData(proposta.dataCriacao) }}</td>
           </tr>
         }

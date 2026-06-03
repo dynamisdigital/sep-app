@@ -6,12 +6,13 @@ import { PropostaResponse } from '../../../../core/api/api.models';
 import { CreditoService } from '../../../../core/credito/credito.service';
 import { mensagemCreditoErro } from '../shared/credito-error';
 import { formatarData, formatarMoeda, idCurto } from '../shared/credito-format';
+import { PropostaStatusComponent } from '../shared/proposta-status.component';
 
 // Lista as propostas do tomador autenticado. O backend resolve ownership: o
 // CLIENTE nunca envia tomadorId. A tela so apresenta o status retornado.
 @Component({
   selector: 'sep-propostas-list-page',
-  imports: [RouterLink],
+  imports: [RouterLink, PropostaStatusComponent],
   templateUrl: './propostas-list-page.component.html',
   styleUrl: './propostas-list-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

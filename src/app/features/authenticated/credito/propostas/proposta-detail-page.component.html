@@ -30,7 +30,7 @@
       </div>
       <div>
         <dt>Status</dt>
-        <dd>{{ proposta.status }}</dd>
+        <dd><sep-proposta-status [status]="proposta.status" /></dd>
       </div>
       <div>
         <dt>Criada em</dt>
@@ -39,52 +39,11 @@
     </dl>
 
     @if (proposta.score; as score) {
-      <section class="sep-proposta-detail-card">
-        <h2 class="sep-proposta-detail-card-title">Score</h2>
-        <dl class="sep-proposta-detail-grid">
-          <div>
-            <dt>Valor</dt>
-            <dd>{{ score.valor }}</dd>
-          </div>
-          <div>
-            <dt>Status sugerido</dt>
-            <dd>{{ score.statusSugerido }}</dd>
-          </div>
-          <div>
-            <dt>Falhas</dt>
-            <dd>{{ score.falhas }}</dd>
-          </div>
-          <div>
-            <dt>Pendencias</dt>
-            <dd>{{ score.pendencias }}</dd>
-          </div>
-          <div>
-            <dt>Calculado em</dt>
-            <dd>{{ formatarData(score.dataCalculo) }}</dd>
-          </div>
-        </dl>
-      </section>
+      <sep-score-panel [score]="score" />
     }
 
     @if (proposta.parecer; as parecer) {
-      <section class="sep-proposta-detail-card">
-        <h2 class="sep-proposta-detail-card-title">Ultimo parecer</h2>
-        <dl class="sep-proposta-detail-grid">
-          <div>
-            <dt>Decisao</dt>
-            <dd>{{ parecer.decisao }}</dd>
-          </div>
-          <div>
-            <dt>Versao</dt>
-            <dd>{{ parecer.versao }}</dd>
-          </div>
-          <div>
-            <dt>Data</dt>
-            <dd>{{ formatarData(parecer.dataParecer) }}</dd>
-          </div>
-        </dl>
-        <p class="sep-proposta-detail-justificativa">{{ parecer.justificativa }}</p>
-      </section>
+      <sep-parecer-panel [parecer]="parecer" />
     }
 
     @if (podeIniciarOpenFinance()) {
