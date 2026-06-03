@@ -34,7 +34,7 @@ export class BreadcrumbsComponent {
 
     const trail: Crumb[] = [{ label: 'Inicio', url: '/app/dashboard' }];
     let current = this.route.firstChild;
-    let path = '';
+    let path = '/app';
 
     while (current) {
       const segment = current.snapshot.url.map((u) => u.path).join('/');
