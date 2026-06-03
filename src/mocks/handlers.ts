@@ -443,6 +443,249 @@ const creditoHandlers = [
   }),
 ];
 
+// --- Formalizacao contratual (F-Sprint 8) ---
+// Identificadores deterministicos para smoke/dev-offline e testes:
+// - "...e01" contrato AGUARDANDO_ACEITE (sem aceite, sem envelope), ligado a proposta APROVADA "...c03".
+// - "...e02" contrato EM_ASSINATURA (aceite registrado, envelope ENVIADO, 2 versoes).
+// - "...e03" contrato ASSINADO (envelope ASSINADO, documento disponivel).
+// - "...e04" contrato com envelope RECUSADO.
+// - "...ff03" contrato de outro dono (403 ownership).
+// - "...dead" contrato inexistente (404).
+// - proposta APROVADA "...c03" possui contrato; proposta PRE_APROVADA "...c02" nao (404).
+const CONTRATO_AGUARDANDO_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e01';
+const CONTRATO_EM_ASSINATURA_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e02';
+const CONTRATO_ASSINADO_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e03';
+const CONTRATO_RECUSADO_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e04';
+const CONTRATO_SEM_OWNERSHIP_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771ff03';
+const DOCUMENTO_HASH_SHA256 = 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad';
+
+function clausulasFake() {
+  return [
+    {
+      id: '7f0799c0-98b9-6d9d-bc4a-7d6f5b771a01',
+      ordem: 1,
+      titulo: 'OBJETO',
+      texto: 'Mutuo de capital de giro.',
+    },
+    {
+      id: '7f0799c0-98b9-6d9d-bc4a-7d6f5b771a02',
+      ordem: 2,
+      titulo: 'PRAZO',
+      texto: 'Prazo de 12 meses.',
+    },
+  ];
+}
+
+function versaoFake(id: string, numero: number, hash: string) {
+  return {
+    id,
+    numero,
+    conteudoTexto: `CONTRATO DE MUTUO\n\nVersao ${numero}.\nClausula 1 - Objeto.\nClausula 2 - Prazo.`,
+    hashSha256: hash,
+    dataGeracao: now,
+    parecerOrigemId: '5f0799c0-98b9-6d9d-bc4a-7d6f5b771d01',
+    clausulas: clausulasFake(),
+  };
+}
+
+const VERSAO_E01 = versaoFake('8f0799c0-98b9-6d9d-bc4a-7d6f5b771b01', 1, DOCUMENTO_HASH_SHA256);
+const VERSAO_E02_V1 = versaoFake('8f0799c0-98b9-6d9d-bc4a-7d6f5b771b02', 1, 'aa11');
+const VERSAO_E02_V2 = versaoFake('8f0799c0-98b9-6d9d-bc4a-7d6f5b771b03', 2, 'bb22');
+
+function aceiteFake(versaoId: string) {
+  return {
+    id: '9f0799c0-98b9-6d9d-bc4a-7d6f5b771c01',
+    versaoId,
+    tomadorId: TOMADOR_ID,
+    dataAceite: now,
+    ipOrigem: '203.0.113.42',
+    userAgentOrigem: 'Mozilla/5.0 (smoke)',
+  };
+}
+
+function contratoFake(
+  id: string,
+  propostaId: string,
+  status: string,
+  versaoVigente: ReturnType<typeof versaoFake> | null,
+  aceite: ReturnType<typeof aceiteFake> | null,
+) {
+  return {
+    id,
+    propostaId,
+    tomadorId: TOMADOR_ID,
+    tipo: 'MUTUO',
+    status,
+    versaoVigente,
+    aceite,
+    dataCriacao: now,
+    dataModificacao: now,
+  };
+}
+
+const contratosFake: Record<string, ReturnType<typeof contratoFake>> = {
+  [CONTRATO_AGUARDANDO_ID]: contratoFake(
+    CONTRATO_AGUARDANDO_ID,
+    PROPOSTA_APROVADA_ID,
+    'AGUARDANDO_ACEITE',
+    VERSAO_E01,
+    null,
+  ),
+  [CONTRATO_EM_ASSINATURA_ID]: contratoFake(
+    CONTRATO_EM_ASSINATURA_ID,
+    PROPOSTA_OF_AUTORIZADO_ID,
+    'EM_ASSINATURA',
+    VERSAO_E02_V2,
+    aceiteFake(VERSAO_E02_V2.id),
+  ),
+  [CONTRATO_ASSINADO_ID]: contratoFake(
+    CONTRATO_ASSINADO_ID,
+    PROPOSTA_EM_ANALISE_ID,
+    'ASSINADO',
+    VERSAO_E01,
+    aceiteFake(VERSAO_E01.id),
+  ),
+  [CONTRATO_RECUSADO_ID]: contratoFake(
+    CONTRATO_RECUSADO_ID,
+    PROPOSTA_PENDENCIA_ID,
+    'RECUSADO',
+    VERSAO_E01,
+    aceiteFake(VERSAO_E01.id),
+  ),
+};
+
+const versoesPorContrato: Record<string, ReturnType<typeof versaoFake>[]> = {
+  [CONTRATO_AGUARDANDO_ID]: [VERSAO_E01],
+  // Historico em ordem decrescente de numero (vigente primeiro).
+  [CONTRATO_EM_ASSINATURA_ID]: [VERSAO_E02_V2, VERSAO_E02_V1],
+  [CONTRATO_ASSINADO_ID]: [VERSAO_E01],
+  [CONTRATO_RECUSADO_ID]: [VERSAO_E01],
+};
+
+const statusAssinaturaPorContrato: Record<
+  string,
+  { statusContrato: string; statusEnvelope: string | null; idEnvelopeExterno: string | null }
+> = {
+  [CONTRATO_AGUARDANDO_ID]: {
+    statusContrato: 'AGUARDANDO_ACEITE',
+    statusEnvelope: null,
+    idEnvelopeExterno: null,
+  },
+  [CONTRATO_EM_ASSINATURA_ID]: {
+    statusContrato: 'EM_ASSINATURA',
+    statusEnvelope: 'ENVIADO',
+    idEnvelopeExterno: 'env-ext-0002',
+  },
+  [CONTRATO_ASSINADO_ID]: {
+    statusContrato: 'ASSINADO',
+    statusEnvelope: 'ASSINADO',
+    idEnvelopeExterno: 'env-ext-0003',
+  },
+  [CONTRATO_RECUSADO_ID]: {
+    statusContrato: 'RECUSADO',
+    statusEnvelope: 'RECUSADO',
+    idEnvelopeExterno: 'env-ext-0004',
+  },
+};
+
+const formalizacaoHandlers = [
+  http.get(`${baseUrl}/contratos/proposta/:propostaId`, ({ params }) => {
+    const propostaId = params['propostaId'] as string;
+    const path = `/api/v1/contratos/proposta/${propostaId}`;
+    if (propostaId === PROPOSTA_SEM_OWNERSHIP_ID) {
+      return errorResponse(403, 'Forbidden', 'Contrato pertence a outro tomador', path);
+    }
+    const contrato = Object.values(contratosFake).find((c) => c.propostaId === propostaId);
+    if (!contrato) {
+      return errorResponse(404, 'Not Found', 'Contrato nao encontrado para a proposta', path);
+    }
+    return HttpResponse.json(contrato);
+  }),
+
+  http.get(`${baseUrl}/contratos/:id/versoes`, ({ params }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/contratos/${id}/versoes`;
+    if (id === CONTRATO_SEM_OWNERSHIP_ID) {
+      return errorResponse(403, 'Forbidden', 'Contrato pertence a outro tomador', path);
+    }
+    const versoes = versoesPorContrato[id];
+    if (!versoes) {
+      return errorResponse(404, 'Not Found', 'Contrato nao encontrado', path);
+    }
+    return HttpResponse.json(versoes);
+  }),
+
+  http.patch(`${baseUrl}/contratos/:id/aceite`, ({ request, params }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/contratos/${id}/aceite`;
+    // @RequireStepUp no backend: sem X-Step-Up-Token o aspecto barra antes da regra.
+    if (!request.headers.get('X-Step-Up-Token')) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
+    }
+    if (id === CONTRATO_SEM_OWNERSHIP_ID) {
+      return errorResponse(403, 'Forbidden', 'Contrato pertence a outro tomador', path);
+    }
+    const contrato = contratosFake[id];
+    if (!contrato) {
+      return errorResponse(404, 'Not Found', 'Contrato nao encontrado', path);
+    }
+    if (contrato.status !== 'AGUARDANDO_ACEITE') {
+      return errorResponse(409, 'Conflict', 'Contrato fora de AGUARDANDO_ACEITE', path);
+    }
+    const versao = contrato.versaoVigente;
+    return HttpResponse.json(
+      contratoFake(id, contrato.propostaId, 'EM_ASSINATURA', versao, aceiteFake(versao!.id)),
+    );
+  }),
+
+  http.get(`${baseUrl}/contratos/:id/assinatura/status`, ({ params }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/contratos/${id}/assinatura/status`;
+    if (id === CONTRATO_SEM_OWNERSHIP_ID) {
+      return errorResponse(403, 'Forbidden', 'Contrato pertence a outro tomador', path);
+    }
+    const status = statusAssinaturaPorContrato[id];
+    if (!status) {
+      return errorResponse(404, 'Not Found', 'Contrato nao encontrado', path);
+    }
+    return HttpResponse.json({ ...status, dataAtualizacaoProvider: now });
+  }),
+
+  http.get(`${baseUrl}/contratos/:id/documento-assinado`, ({ params }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/contratos/${id}/documento-assinado`;
+    if (id === CONTRATO_SEM_OWNERSHIP_ID) {
+      return errorResponse(403, 'Forbidden', 'Contrato pertence a outro tomador', path);
+    }
+    if (id !== CONTRATO_ASSINADO_ID) {
+      return errorResponse(404, 'Not Found', 'Documento assinado indisponivel', path);
+    }
+    const pdfBytes = new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d, 0x31, 0x2e, 0x34]); // "%PDF-1.4"
+    return new HttpResponse(pdfBytes, {
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="contrato-${id}.pdf"`,
+        'X-Document-Hash-Sha256': DOCUMENTO_HASH_SHA256,
+      },
+    });
+  }),
+
+  // Por id mantido por ultimo: as rotas mais especificas (/versoes, /aceite,
+  // /assinatura/status, /documento-assinado) precisam casar antes de /:id.
+  http.get(`${baseUrl}/contratos/:id`, ({ params }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/contratos/${id}`;
+    if (id === CONTRATO_SEM_OWNERSHIP_ID) {
+      return errorResponse(403, 'Forbidden', 'Contrato pertence a outro tomador', path);
+    }
+    const contrato = contratosFake[id];
+    if (!contrato) {
+      return errorResponse(404, 'Not Found', 'Contrato nao encontrado', path);
+    }
+    return HttpResponse.json(contrato);
+  }),
+];
+
 // Mocks alinhados ao PRD §21 (contratos iniciais dos endpoints).
 // Sucesso login usa admin@empresa.com / 123456.
 // 401: credenciais invalidas. 409: cadastro com duplicado@empresa.com.
@@ -541,4 +784,5 @@ export const handlers = [
 
   ...onboardingHandlers,
   ...creditoHandlers,
+  ...formalizacaoHandlers,
 ];
