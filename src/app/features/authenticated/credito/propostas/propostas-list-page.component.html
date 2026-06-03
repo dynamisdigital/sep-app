@@ -1,0 +1,51 @@
+<section class="sep-propostas-list">
+  <header class="sep-propostas-list-header">
+    <h1 class="sep-propostas-list-title">Minhas propostas</h1>
+    <a routerLink="/app/credito/propostas/nova" class="sep-propostas-list-new">Nova proposta</a>
+  </header>
+
+  @if (loading()) {
+    <p class="sep-propostas-list-state" role="status">Carregando propostas...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-propostas-list-state sep-propostas-list-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="sep-propostas-list-retry" (click)="carregar()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (propostas().length === 0) {
+    <div class="sep-propostas-list-state sep-propostas-list-empty">
+      <p>Voce ainda nao tem propostas.</p>
+      <a routerLink="/app/credito/propostas/nova">Solicitar credito</a>
+    </div>
+  } @else {
+    <table class="sep-propostas-list-table">
+      <thead>
+        <tr>
+          <th scope="col">Proposta</th>
+          <th scope="col">Tipo</th>
+          <th scope="col">Valor</th>
+          <th scope="col">Prazo</th>
+          <th scope="col">Status</th>
+          <th scope="col">Criada em</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (proposta of propostas(); track proposta.id) {
+          <tr>
+            <td>
+              <a [routerLink]="['/app/credito/propostas', proposta.id]">
+                {{ idCurto(proposta.id) }}
+              </a>
+            </td>
+            <td>{{ proposta.tipoOperacao }}</td>
+            <td>{{ formatarMoeda(proposta.valorSolicitado, proposta.moeda) }}</td>
+            <td>{{ proposta.prazoMeses }} meses</td>
+            <td>{{ proposta.status }}</td>
+            <td>{{ formatarData(proposta.dataCriacao) }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

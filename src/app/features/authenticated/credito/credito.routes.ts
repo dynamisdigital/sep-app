@@ -7,4 +7,18 @@ export const CREDITO_ROUTES: Routes = [
     path: '',
     loadComponent: () => import('./credito-home.component').then((m) => m.CreditoHomeComponent),
   },
+  {
+    path: 'propostas',
+    loadComponent: () =>
+      import('./propostas/propostas-list-page.component').then((m) => m.PropostasListPageComponent),
+    data: { breadcrumb: 'Propostas' },
+  },
+  {
+    path: 'propostas/:id',
+    loadComponent: () =>
+      import('./propostas/proposta-detail-page.component').then(
+        (m) => m.PropostaDetailPageComponent,
+      ),
+    data: { breadcrumb: 'Detalhe da proposta' },
+  },
 ];
