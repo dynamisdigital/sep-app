@@ -36,6 +36,19 @@ describe('stepUpInterceptor', () => {
     expect(store.token()).toBeNull();
   });
 
+  it('nao anexa o token num GET para URL terminada em /aceite (guard de metodo)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest('GET', 'http://localhost:8080/api/v1/contratos/abc/aceite');
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(store.token()).toBe('step-up-tok');
+  });
+
   it('nao anexa o token em requests fora da whitelist', () => {
     store.set('step-up-tok');
     const req = new HttpRequest('GET', 'http://localhost:8080/api/v1/contratos/abc');

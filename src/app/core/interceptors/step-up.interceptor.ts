@@ -14,10 +14,12 @@ export const stepUpInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
   // Anexa apenas em operacoes sensiveis conhecidas para nao gastar o token em chamadas irrelevantes.
+  // O aceite e PATCH: o guard de metodo evita consumir o token (uso unico) num GET acidental
+  // para uma URL terminada em /aceite.
   const exigeStepUp =
     (req.url.includes('/usuarios/') && req.url.endsWith('/senha')) ||
     req.url.endsWith('/auth/totp/disable') ||
-    (req.url.includes('/contratos/') && req.url.endsWith('/aceite'));
+    (req.method === 'PATCH' && req.url.includes('/contratos/') && req.url.endsWith('/aceite'));
   if (!exigeStepUp) {
     return next(req);
   }
