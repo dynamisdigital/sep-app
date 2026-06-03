@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 
-// Rotas filhas de /app/onboarding. O fluxo PJ (empresa) entra na proxima task (F-6.4).
+// Rotas filhas de /app/onboarding.
 export const ONBOARDING_ROUTES: Routes = [
   {
     path: '',
@@ -22,5 +22,21 @@ export const ONBOARDING_ROUTES: Routes = [
         (m) => m.OnboardingPessoaPageComponent,
       ),
     data: { breadcrumb: 'Pessoa fisica' },
+  },
+  {
+    path: 'empresa',
+    loadComponent: () =>
+      import('./empresa/onboarding-empresa-page.component').then(
+        (m) => m.OnboardingEmpresaPageComponent,
+      ),
+    data: { breadcrumb: 'Empresa' },
+  },
+  {
+    path: 'empresa/:id',
+    loadComponent: () =>
+      import('./empresa/onboarding-empresa-page.component').then(
+        (m) => m.OnboardingEmpresaPageComponent,
+      ),
+    data: { breadcrumb: 'Empresa' },
   },
 ];
