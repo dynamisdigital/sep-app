@@ -184,7 +184,8 @@ describe('ContratoDetailComponent', () => {
     await estabilizar(fixture);
 
     expect(createObjectURL).toHaveBeenCalled();
-    expect(revokeObjectURL).toHaveBeenCalled();
+    // Revoga exatamente o object URL criado (sem vazamento).
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:fake');
     // "Hash do documento" so aparece quando o hash do documento foi lido do header.
     expect(screen.getByText('Hash do documento')).toBeTruthy();
     expect(screen.getAllByText(DOCUMENTO_HASH).length).toBeGreaterThanOrEqual(1);

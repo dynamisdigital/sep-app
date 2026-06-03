@@ -178,9 +178,13 @@ function nomeArquivo(contentDisposition: string | null, contratoId: string): str
 
 function dispararDownload(blob: Blob, nome: string): void {
   const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = nome;
-  link.click();
-  URL.revokeObjectURL(url);
+  try {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = nome;
+    link.click();
+  } finally {
+    // Revoga sempre, mesmo se o click lancar, para nao vazar o object URL.
+    URL.revokeObjectURL(url);
+  }
 }
