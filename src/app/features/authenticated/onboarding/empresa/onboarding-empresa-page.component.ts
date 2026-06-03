@@ -109,6 +109,7 @@ export class OnboardingEmpresaPageComponent implements OnInit {
     if (arquivo && arquivo.size > TAMANHO_MAXIMO_BYTES) {
       this.documentoError.set('Arquivo excede o limite de 10MB.');
       this.arquivo.set(null);
+      input.value = ''; // permite reselecionar o mesmo arquivo apos corrigir
       return;
     }
     this.arquivo.set(arquivo);
