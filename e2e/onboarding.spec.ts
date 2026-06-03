@@ -50,4 +50,6 @@ test('PJ: inicia onboarding e exibe representante com CPF mascarado', async ({ p
   await page.waitForURL(/\/app\/onboarding\/empresa\/.+/, { timeout: 10_000 });
   await expect(page.getByText('APROVADO_FINAL', { exact: true })).toBeVisible();
   await expect(page.getByText('529****4725')).toBeVisible();
+  // LGPD: o CPF completo do representante nunca pode aparecer no web.
+  await expect(page.getByText(/\d{3}\.\d{3}\.\d{3}-\d{2}/)).toHaveCount(0);
 });
