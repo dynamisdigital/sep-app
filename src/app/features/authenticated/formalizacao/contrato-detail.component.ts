@@ -1,7 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { forkJoin } from 'rxjs';
 
 import { ContratoResponse, VersaoContratoResponse } from '../../../core/api/api.models';
 import { ContratosService } from '../../../core/contratos/contratos.service';
@@ -46,15 +45,13 @@ export class ContratoDetailComponent implements OnInit {
   carregar(id: string): void {
     this.loading.set(true);
     this.errorMessage.set(null);
-    forkJoin({
-      contrato: this.contratos.consultarContrato(id),
-      versoes: this.contratos.listarVersoes(id),
-    }).subscribe({
-      next: ({ contrato, versoes }) => {
+    // Contrato e a fonte primaria: ja traz a versao vigente (conteudo + clausulas).
+    this.contratos.consultarContrato(id).subscribe({
+      next: (contrato) => {
         this.contrato.set(contrato);
-        this.versoes.set(versoes);
         this.versaoSelecionada.set(contrato.versaoVigente);
         this.loading.set(false);
+        this.carregarHistorico(id);
       },
       error: (err: HttpErrorResponse) => {
         this.errorMessage.set(
@@ -62,6 +59,15 @@ export class ContratoDetailComponent implements OnInit {
         );
         this.loading.set(false);
       },
+    });
+  }
+
+  // Historico de versoes e complementar (abas). Se falhar, a leitura do contrato e
+  // da versao vigente permanece; apenas as abas de versoes anteriores ficam ausentes.
+  private carregarHistorico(id: string): void {
+    this.contratos.listarVersoes(id).subscribe({
+      next: (versoes) => this.versoes.set(versoes),
+      error: () => this.versoes.set([]),
     });
   }
 

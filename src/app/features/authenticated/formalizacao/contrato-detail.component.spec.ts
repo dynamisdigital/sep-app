@@ -2,8 +2,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
+import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { server } from '../../../../mocks/server';
 import { ContratoDetailComponent } from './contrato-detail.component';
 
 const CONTRATO_AGUARDANDO_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e01';
@@ -66,6 +68,20 @@ describe('ContratoDetailComponent', () => {
 
     // Apos selecionar a versao 1, mostra o hash aa11.
     expect(screen.getByText('aa11')).toBeTruthy();
+  });
+
+  it('mantem a leitura do contrato quando o historico de versoes falha', async () => {
+    server.use(
+      http.get('http://localhost:8080/api/v1/contratos/:id/versoes', () =>
+        HttpResponse.json({ message: 'erro' }, { status: 500 }),
+      ),
+    );
+
+    const { fixture } = await renderDetail(CONTRATO_AGUARDANDO_ID);
+    await estabilizar(fixture);
+
+    expect(screen.getByText('OBJETO')).toBeTruthy();
+    expect(screen.queryByRole('alert')).toBeNull();
   });
 
   it('mostra estado "sem versao gerada" quando o contrato nao tem versao vigente', async () => {
