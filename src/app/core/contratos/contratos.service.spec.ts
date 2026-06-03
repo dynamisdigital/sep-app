@@ -117,9 +117,15 @@ describe('ContratosService', () => {
       expect(response.headers.get('X-Document-Hash-Sha256')).toBeTruthy();
     });
 
-    it('rejeita com 404 quando o documento assinado nao esta disponivel', async () => {
+    it('rejeita com 409 quando o contrato existe mas ainda nao foi assinado', async () => {
       await expect(
         awaitObservable(service.baixarDocumentoAssinado(CONTRATO_AGUARDANDO_ID)),
+      ).rejects.toMatchObject({ status: 409 });
+    });
+
+    it('rejeita com 404 quando o contrato nao existe', async () => {
+      await expect(
+        awaitObservable(service.baixarDocumentoAssinado(CONTRATO_INEXISTENTE_ID)),
       ).rejects.toMatchObject({ status: 404 });
     });
   });

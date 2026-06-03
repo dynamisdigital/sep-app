@@ -657,8 +657,14 @@ const formalizacaoHandlers = [
     if (id === CONTRATO_SEM_OWNERSHIP_ID) {
       return errorResponse(403, 'Forbidden', 'Contrato pertence a outro tomador', path);
     }
-    if (id !== CONTRATO_ASSINADO_ID) {
-      return errorResponse(404, 'Not Found', 'Documento assinado indisponivel', path);
+    const contrato = contratosFake[id];
+    if (!contrato) {
+      return errorResponse(404, 'Not Found', 'Contrato nao encontrado', path);
+    }
+    // Contrato existe mas ainda nao assinado: backend lanca
+    // ContratoAssinaturaIndisponivelException (ConflitoException -> 409).
+    if (contrato.status !== 'ASSINADO') {
+      return errorResponse(409, 'Conflict', 'Contrato ainda nao assinado', path);
     }
     const pdfBytes = new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d, 0x31, 0x2e, 0x34]); // "%PDF-1.4"
     return new HttpResponse(pdfBytes, {
