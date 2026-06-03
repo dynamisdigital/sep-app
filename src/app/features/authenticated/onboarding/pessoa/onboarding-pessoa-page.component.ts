@@ -1,16 +1,20 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import {
-  ApiErrorResponse,
-  StatusOnboardingResponse,
-  TipoDocumento,
-} from '../../../../core/api/api.models';
+import { StatusOnboardingResponse, TipoDocumento } from '../../../../core/api/api.models';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
-
-const TAMANHO_MAXIMO_BYTES = 10 * 1024 * 1024;
+import { OnboardingDocumentUploadComponent } from '../shared/onboarding-document-upload.component';
+import { mensagemOnboardingErro } from '../shared/onboarding-error';
+import { OnboardingStatusComponent } from '../shared/onboarding-status.component';
 
 // Tipos aceitos para PF. CPF nao e tipo de documento no backend; PJ tem os seus.
 const TIPOS_DOCUMENTO_PF: TipoDocumento[] = [
@@ -26,7 +30,12 @@ const TIPOS_DOCUMENTO_PF: TipoDocumento[] = [
 // a tela apenas orquestra as chamadas e apresenta o status retornado.
 @Component({
   selector: 'sep-onboarding-pessoa-page',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    OnboardingStatusComponent,
+    OnboardingDocumentUploadComponent,
+  ],
   templateUrl: './onboarding-pessoa-page.component.html',
   styleUrl: './onboarding-pessoa-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,11 +56,11 @@ export class OnboardingPessoaPageComponent implements OnInit {
   protected readonly status = signal<StatusOnboardingResponse | null>(null);
   protected readonly carregandoStatus = signal(false);
 
-  protected readonly tipoSelecionado = signal<TipoDocumento>('RG');
-  protected readonly arquivo = signal<File | null>(null);
   protected readonly enviandoDocumento = signal(false);
   protected readonly documentoError = signal<string | null>(null);
   protected readonly verificando = signal(false);
+
+  private readonly uploader = viewChild(OnboardingDocumentUploadComponent);
 
   protected readonly form = this.fb.nonNullable.group({
     cpf: ['', [Validators.required]],
@@ -88,45 +97,30 @@ export class OnboardingPessoaPageComponent implements OnInit {
           this.conflito.set(true);
           return;
         }
-        this.errorMessage.set(mensagemDeErro(err, 'Nao foi possivel iniciar o onboarding.'));
+        this.errorMessage.set(
+          mensagemOnboardingErro(err, 'Nao foi possivel iniciar o onboarding.'),
+        );
       },
     });
   }
 
-  selecionarTipo(tipo: TipoDocumento): void {
-    this.tipoSelecionado.set(tipo);
-  }
-
-  selecionarArquivo(event: Event): void {
-    this.documentoError.set(null);
-    const input = event.target as HTMLInputElement;
-    const arquivo = input.files?.[0] ?? null;
-    if (arquivo && arquivo.size > TAMANHO_MAXIMO_BYTES) {
-      this.documentoError.set('Arquivo excede o limite de 10MB.');
-      this.arquivo.set(null);
-      return;
-    }
-    this.arquivo.set(arquivo);
-  }
-
-  enviarDocumento(): void {
+  aoEnviarDocumento(evento: { tipo: TipoDocumento; arquivo: File }): void {
     const id = this.id();
-    const arquivo = this.arquivo();
-    if (!id || !arquivo) {
-      this.documentoError.set('Selecione um arquivo antes de enviar.');
-      return;
-    }
+    if (!id) return;
 
+    this.documentoError.set(null);
     this.enviandoDocumento.set(true);
-    this.onboarding.enviarDocumentoPessoa(id, this.tipoSelecionado(), arquivo).subscribe({
+    this.onboarding.enviarDocumentoPessoa(id, evento.tipo, evento.arquivo).subscribe({
       next: () => {
         this.enviandoDocumento.set(false);
-        this.arquivo.set(null);
+        this.uploader()?.limpar();
         this.carregarStatus(id);
       },
       error: (err: HttpErrorResponse) => {
         this.enviandoDocumento.set(false);
-        this.documentoError.set(mensagemDeErro(err, 'Nao foi possivel enviar o documento.'));
+        this.documentoError.set(
+          mensagemOnboardingErro(err, 'Nao foi possivel enviar o documento.'),
+        );
       },
     });
   }
@@ -143,7 +137,9 @@ export class OnboardingPessoaPageComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         this.verificando.set(false);
-        this.errorMessage.set(mensagemDeErro(err, 'Nao foi possivel disparar a verificacao.'));
+        this.errorMessage.set(
+          mensagemOnboardingErro(err, 'Nao foi possivel disparar a verificacao.'),
+        );
       },
     });
   }
@@ -165,13 +161,8 @@ export class OnboardingPessoaPageComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         this.carregandoStatus.set(false);
-        this.errorMessage.set(mensagemDeErro(err, 'Nao foi possivel carregar o status.'));
+        this.errorMessage.set(mensagemOnboardingErro(err, 'Nao foi possivel carregar o status.'));
       },
     });
   }
-}
-
-function mensagemDeErro(err: HttpErrorResponse, padrao: string): string {
-  const apiErr = err.error as ApiErrorResponse | undefined;
-  return apiErr?.message ?? padrao;
 }

@@ -1,0 +1,48 @@
+@use "../../../../../styles/notion-typography" as notionType;
+@use "../../../../../styles/notion-components" as notion;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-16);
+}
+
+.sep-onboarding-upload-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-6);
+
+  label {
+    @include notionType.notion-type-body;
+
+    color: var(--notion-color-text);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  select {
+    @include notion.notion-input;
+  }
+}
+
+.sep-onboarding-upload-error {
+  @include notionType.notion-type-body;
+
+  margin: 0;
+  color: var(--notion-color-orange);
+  font-size: 12px;
+}
+
+.sep-onboarding-upload-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sep-onboarding-upload-submit {
+  @include notion.notion-button-primary;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}

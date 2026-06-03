@@ -90,13 +90,6 @@
   align-self: flex-start;
 }
 
-.sep-onboarding-empresa-result {
-  @include notionType.notion-type-body;
-
-  margin: 0;
-  color: var(--notion-color-text-muted);
-}
-
 .sep-onboarding-empresa-dados {
   display: flex;
   flex-direction: column;

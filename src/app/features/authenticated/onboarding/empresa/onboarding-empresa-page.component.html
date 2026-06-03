@@ -96,15 +96,7 @@
           </button>
         </div>
         @if (status(); as s) {
-          <span class="sep-onboarding-empresa-badge">{{ s.status }}</span>
-          @if (s.resultado; as r) {
-            <p class="sep-onboarding-empresa-result">
-              Resultado: {{ r.statusFinal }}
-              @if (r.motivo) {
-                - {{ r.motivo }}
-              }
-            </p>
-          }
+          <sep-onboarding-status [status]="s.status" [resultado]="s.resultado" />
 
           <h3 class="sep-onboarding-empresa-section-title">Dados da empresa</h3>
           <dl class="sep-onboarding-empresa-dados">
@@ -171,40 +163,14 @@
 
       <div class="sep-onboarding-empresa-upload">
         <h2 class="sep-onboarding-empresa-section-title">Enviar documento</h2>
-        <div class="sep-onboarding-empresa-field">
-          <label for="tipoDocumento">Tipo</label>
-          <select
-            id="tipoDocumento"
-            [value]="tipoSelecionado()"
-            (change)="selecionarTipo($any($event.target).value)"
-          >
-            @for (tipo of tiposDocumento; track tipo) {
-              <option [value]="tipo">{{ tipo }}</option>
-            }
-          </select>
-        </div>
-        <div class="sep-onboarding-empresa-field">
-          <label for="arquivo">Arquivo (PDF, JPEG ou PNG, ate 10MB)</label>
-          <input
-            id="arquivo"
-            type="file"
-            accept="application/pdf,image/jpeg,image/png"
-            (change)="selecionarArquivo($event)"
-          />
-        </div>
+        <sep-onboarding-document-upload
+          [tipos]="tiposDocumento"
+          [enviando]="enviandoDocumento()"
+          (enviar)="aoEnviarDocumento($event)"
+        />
         @if (documentoError(); as msg) {
           <p class="sep-onboarding-empresa-error" role="alert">{{ msg }}</p>
         }
-        <div class="sep-onboarding-empresa-actions">
-          <button
-            type="button"
-            class="sep-onboarding-empresa-submit"
-            (click)="enviarDocumento()"
-            [disabled]="enviandoDocumento() || !arquivo()"
-          >
-            {{ enviandoDocumento() ? 'Enviando...' : 'Enviar documento' }}
-          </button>
-        </div>
       </div>
 
       <div class="sep-onboarding-empresa-verify">

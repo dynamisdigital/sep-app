@@ -66,8 +66,7 @@
   }
 
   input[type="text"],
-  input[type="date"],
-  select {
+  input[type="date"] {
     @include notion.notion-input;
   }
 }
@@ -83,19 +82,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.sep-onboarding-pessoa-badge {
-  @include notion.notion-pill-badge;
-
-  align-self: flex-start;
-}
-
-.sep-onboarding-pessoa-result {
-  @include notionType.notion-type-body;
-
-  margin: 0;
-  color: var(--notion-color-text-muted);
 }
 
 .sep-onboarding-pessoa-docs {
