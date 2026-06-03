@@ -457,6 +457,7 @@ const CONTRATO_EM_ASSINATURA_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e02';
 const CONTRATO_ASSINADO_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e03';
 const CONTRATO_RECUSADO_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e04';
 const CONTRATO_SEM_OWNERSHIP_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771ff03';
+const CONTRATO_SEM_VERSAO_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e05';
 const DOCUMENTO_HASH_SHA256 = 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad';
 
 function clausulasFake() {
@@ -552,6 +553,14 @@ const contratosFake: Record<string, ReturnType<typeof contratoFake>> = {
     VERSAO_E01,
     aceiteFake(VERSAO_E01.id),
   ),
+  // Contrato GERADO ainda sem versao vigente (backend retorna versaoVigente null).
+  [CONTRATO_SEM_VERSAO_ID]: contratoFake(
+    CONTRATO_SEM_VERSAO_ID,
+    PROPOSTA_EM_ANALISE_ID,
+    'GERADO',
+    null,
+    null,
+  ),
 };
 
 const versoesPorContrato: Record<string, ReturnType<typeof versaoFake>[]> = {
@@ -561,6 +570,7 @@ const versoesPorContrato: Record<string, ReturnType<typeof versaoFake>[]> = {
   [CONTRATO_EM_ASSINATURA_ID]: [VERSAO_E02_V1, VERSAO_E02_V2],
   [CONTRATO_ASSINADO_ID]: [VERSAO_E01],
   [CONTRATO_RECUSADO_ID]: [VERSAO_E01],
+  [CONTRATO_SEM_VERSAO_ID]: [],
 };
 
 const statusAssinaturaPorContrato: Record<

@@ -1,12 +1,14 @@
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { render, screen } from '@testing-library/angular';
+import { fireEvent, render, screen } from '@testing-library/angular';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { ContratoDetailComponent } from './contrato-detail.component';
 
 const CONTRATO_AGUARDANDO_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e01';
+const CONTRATO_EM_ASSINATURA_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e02';
+const CONTRATO_SEM_VERSAO_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e05';
 const CONTRATO_INEXISTENTE_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771dead';
 
 async function flush(times = 5): Promise<void> {
@@ -40,12 +42,37 @@ describe('ContratoDetailComponent', () => {
     window.localStorage.clear();
   });
 
-  it('exibe status e metadados do contrato', async () => {
+  it('exibe status, conteudo da versao vigente, clausulas e hash', async () => {
     const { fixture } = await renderDetail(CONTRATO_AGUARDANDO_ID);
     await estabilizar(fixture);
 
     expect(screen.getByText('Aguardando aceite')).toBeTruthy();
-    expect(screen.getByText('Versao vigente')).toBeTruthy();
+    expect(screen.getByText('OBJETO')).toBeTruthy();
+    expect(screen.getByText('PRAZO')).toBeTruthy();
+    expect(
+      screen.getByText('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad'),
+    ).toBeTruthy();
+  });
+
+  it('alterna a visualizacao entre versoes sem mutar o contrato', async () => {
+    const { fixture } = await renderDetail(CONTRATO_EM_ASSINATURA_ID);
+    await estabilizar(fixture);
+
+    // Vigente (versao 2) selecionada por padrao -> hash bb22.
+    expect(screen.getByText('bb22')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /Versao 1/ }));
+    fixture.detectChanges();
+
+    // Apos selecionar a versao 1, mostra o hash aa11.
+    expect(screen.getByText('aa11')).toBeTruthy();
+  });
+
+  it('mostra estado "sem versao gerada" quando o contrato nao tem versao vigente', async () => {
+    const { fixture } = await renderDetail(CONTRATO_SEM_VERSAO_ID);
+    await estabilizar(fixture);
+
+    expect(screen.getByText(/ainda nao tem versao gerada/)).toBeTruthy();
   });
 
   it('exibe mensagem de erro quando o contrato nao existe (404)', async () => {
