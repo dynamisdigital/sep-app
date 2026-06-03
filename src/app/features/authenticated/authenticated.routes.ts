@@ -51,6 +51,11 @@ export const AUTHENTICATED_ROUTES: Routes = [
         data: { breadcrumb: 'Onboarding' },
       },
       {
+        path: 'credito',
+        loadChildren: () => import('./credito/credito.routes').then((m) => m.CREDITO_ROUTES),
+        data: { breadcrumb: 'Credito' },
+      },
+      {
         path: 'admin',
         canActivate: [roleGuard],
         data: { roles: ['ADMIN'], breadcrumb: 'Administracao' },
