@@ -1,0 +1,82 @@
+@use "../../../../../styles/notion-typography" as notionType;
+@use "../../../../../styles/notion-components" as notion;
+
+.sep-propostas-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-24);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--notion-space-16) 0;
+}
+
+.sep-propostas-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--notion-space-16);
+}
+
+.sep-propostas-list-title {
+  @include notionType.notion-type-section-heading;
+
+  margin: 0;
+  color: var(--notion-color-text);
+}
+
+.sep-propostas-list-new {
+  @include notion.notion-button-primary;
+
+  text-decoration: none;
+}
+
+.sep-propostas-list-state {
+  @include notionType.notion-type-body;
+
+  color: var(--notion-color-text-muted);
+}
+
+.sep-propostas-list-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+  align-items: flex-start;
+  color: var(--notion-color-orange);
+}
+
+.sep-propostas-list-retry {
+  @include notion.notion-button-secondary;
+}
+
+.sep-propostas-list-empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+  align-items: flex-start;
+}
+
+.sep-propostas-list-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    @include notionType.notion-type-body;
+
+    padding: var(--notion-space-8) var(--notion-space-12);
+    text-align: left;
+    border-bottom: var(--notion-border-whisper);
+    color: var(--notion-color-text);
+  }
+
+  th {
+    @include notionType.notion-type-caption;
+
+    color: var(--notion-color-text-muted);
+  }
+
+  a {
+    color: var(--notion-color-blue);
+    text-decoration: none;
+  }
+}

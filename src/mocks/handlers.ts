@@ -245,6 +245,204 @@ const onboardingHandlers = [
   }),
 ];
 
+// --- Credito e Open Finance (F-Sprint 7) ---
+// Sentinelas deterministicas para smoke/dev-offline e testes:
+// - id "...ff03" simula proposta de outro dono (403 ownership).
+// - id "...c05" simula proposta com consentimento Open Finance PENDENTE (409 ao iniciar).
+// - id "...c06" simula consentimento AUTORIZADO com agregados sanitizados.
+// - solicitacaoOnboardingId "999..." simula onboarding nao APROVADO_FINAL (422 ao criar).
+const PROPOSTA_EM_ANALISE_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c01';
+const PROPOSTA_PRE_APROVADA_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c02';
+const PROPOSTA_APROVADA_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c03';
+const PROPOSTA_PENDENCIA_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c04';
+const PROPOSTA_OF_PENDENTE_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c05';
+const PROPOSTA_OF_AUTORIZADO_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c06';
+const PROPOSTA_CRIADA_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c07';
+const PROPOSTA_SEM_OWNERSHIP_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771ff03';
+const ONBOARDING_NAO_APROVADO = '99999999-9999-9999-9999-999999999999';
+const TOMADOR_ID = clienteUsuario.id;
+
+function propostaFake(id: string, status: string, score: unknown = null, parecer: unknown = null) {
+  return {
+    id,
+    tomadorId: TOMADOR_ID,
+    solicitacaoOnboardingId: '2f0799c0-98b9-6d9d-bc4a-7d6f5b771f01',
+    tipoOperacao: 'CAPITAL_GIRO',
+    valorSolicitado: 10000.0,
+    moeda: 'BRL',
+    prazoMeses: 12,
+    status,
+    dataCriacao: now,
+    dataModificacao: now,
+    score,
+    parecer,
+  };
+}
+
+const scoreFake = {
+  valor: 720,
+  statusSugerido: 'PRE_APROVADA',
+  falhas: 0,
+  pendencias: 1,
+  dataCalculo: now,
+};
+
+const parecerFake = {
+  id: '5f0799c0-98b9-6d9d-bc4a-7d6f5b771d01',
+  propostaId: PROPOSTA_PRE_APROVADA_ID,
+  pareceristaId: adminUsuario.id,
+  decisao: 'PENDENCIA',
+  justificativa: 'Aguardando comprovacao de faturamento via Open Finance.',
+  scoreMotorSnapshot: 720,
+  versao: 1,
+  dataParecer: now,
+};
+
+const propostasFake: Record<string, ReturnType<typeof propostaFake>> = {
+  [PROPOSTA_EM_ANALISE_ID]: propostaFake(PROPOSTA_EM_ANALISE_ID, 'EM_ANALISE'),
+  [PROPOSTA_PRE_APROVADA_ID]: propostaFake(
+    PROPOSTA_PRE_APROVADA_ID,
+    'PRE_APROVADA',
+    scoreFake,
+    parecerFake,
+  ),
+  [PROPOSTA_APROVADA_ID]: propostaFake(PROPOSTA_APROVADA_ID, 'APROVADA'),
+  [PROPOSTA_PENDENCIA_ID]: propostaFake(PROPOSTA_PENDENCIA_ID, 'PENDENCIA'),
+  [PROPOSTA_OF_PENDENTE_ID]: propostaFake(PROPOSTA_OF_PENDENTE_ID, 'EM_ANALISE'),
+  [PROPOSTA_OF_AUTORIZADO_ID]: propostaFake(PROPOSTA_OF_AUTORIZADO_ID, 'EM_ANALISE'),
+};
+
+function pageOf<T>(content: T[]) {
+  return {
+    content,
+    totalElements: content.length,
+    totalPages: 1,
+    number: 0,
+    size: 20,
+    first: true,
+    last: true,
+    numberOfElements: content.length,
+    empty: content.length === 0,
+  };
+}
+
+const creditoHandlers = [
+  http.post(`${baseUrl}/credito/propostas`, async ({ request }) => {
+    const body = (await request.json()) as { solicitacaoOnboardingId?: string };
+
+    if (body.solicitacaoOnboardingId === ONBOARDING_NAO_APROVADO) {
+      return errorResponse(
+        422,
+        'Unprocessable Entity',
+        'Onboarding nao esta APROVADO_FINAL',
+        '/api/v1/credito/propostas',
+      );
+    }
+
+    return HttpResponse.json(propostaFake(PROPOSTA_CRIADA_ID, 'EM_ANALISE'), { status: 201 });
+  }),
+
+  http.get(`${baseUrl}/credito/propostas`, ({ request }) => {
+    const status = new URL(request.url).searchParams.get('status');
+    const todas = [
+      propostasFake[PROPOSTA_EM_ANALISE_ID],
+      propostasFake[PROPOSTA_PRE_APROVADA_ID],
+      propostasFake[PROPOSTA_APROVADA_ID],
+      propostasFake[PROPOSTA_PENDENCIA_ID],
+    ];
+    const filtradas = status ? todas.filter((p) => p.status === status) : todas;
+    return HttpResponse.json(pageOf(filtradas));
+  }),
+
+  http.get(`${baseUrl}/credito/propostas/:id`, ({ params }) => {
+    const id = params['id'] as string;
+    if (id === PROPOSTA_SEM_OWNERSHIP_ID) {
+      return errorResponse(
+        403,
+        'Forbidden',
+        'Proposta pertence a outro tomador',
+        `/api/v1/credito/propostas/${id}`,
+      );
+    }
+    const proposta = propostasFake[id];
+    if (!proposta) {
+      return errorResponse(
+        404,
+        'Not Found',
+        'Proposta nao encontrada',
+        `/api/v1/credito/propostas/${id}`,
+      );
+    }
+    return HttpResponse.json(proposta);
+  }),
+
+  http.post(
+    `${baseUrl}/credito/propostas/:id/open-finance/consentimento`,
+    async ({ params, request }) => {
+      const id = params['id'] as string;
+      const body = (await request.json()) as { cpfCnpjTomador?: string; redirectUri?: string };
+      const path = `/api/v1/credito/propostas/${id}/open-finance/consentimento`;
+
+      if (id === PROPOSTA_SEM_OWNERSHIP_ID) {
+        return errorResponse(403, 'Forbidden', 'Proposta pertence a outro tomador', path);
+      }
+      if (!/^\d{11}$|^\d{14}$/.test(body.cpfCnpjTomador ?? '')) {
+        return errorResponse(400, 'Bad Request', 'cpfCnpjTomador deve ter 11 ou 14 digitos', path);
+      }
+      if (!/^https?:\/\/[^\s]+$/.test(body.redirectUri ?? '')) {
+        return errorResponse(400, 'Bad Request', 'redirectUri deve ser http(s)', path);
+      }
+      if (id === PROPOSTA_OF_PENDENTE_ID) {
+        return errorResponse(409, 'Conflict', 'Ja existe consentimento PENDENTE', path);
+      }
+
+      return HttpResponse.json(
+        {
+          consentimentoId: '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e01',
+          status: 'PENDENTE',
+          urlAutorizacao: 'https://provider.openfinance.example/authorize?consent=fake',
+          dataExpiracao: '2026-04-25T18:30:00-03:00',
+        },
+        { status: 201 },
+      );
+    },
+  ),
+
+  http.get(`${baseUrl}/credito/propostas/:id/open-finance`, ({ params }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/credito/propostas/${id}/open-finance`;
+
+    if (id === PROPOSTA_SEM_OWNERSHIP_ID) {
+      return errorResponse(403, 'Forbidden', 'Proposta pertence a outro tomador', path);
+    }
+    if (id === PROPOSTA_OF_AUTORIZADO_ID) {
+      return HttpResponse.json({
+        statusConsentimento: 'AUTORIZADO',
+        dataInicio: now,
+        dataAutorizacao: now,
+        dataExpiracao: '2026-04-25T18:30:00-03:00',
+        ultimaMovimentacao: {
+          mediaEntradasMensal: 45000.0,
+          mediaSaidasMensal: 38000.0,
+          saldoMedio: 12000.0,
+          numeroMesesAvaliados: 6,
+          dataRecebimento: now,
+        },
+      });
+    }
+    if (id === PROPOSTA_OF_PENDENTE_ID) {
+      return HttpResponse.json({
+        statusConsentimento: 'PENDENTE',
+        dataInicio: now,
+        dataAutorizacao: null,
+        dataExpiracao: '2026-04-25T18:30:00-03:00',
+        ultimaMovimentacao: null,
+      });
+    }
+    return errorResponse(404, 'Not Found', 'Consentimento nao encontrado', path);
+  }),
+];
+
 // Mocks alinhados ao PRD §21 (contratos iniciais dos endpoints).
 // Sucesso login usa admin@empresa.com / 123456.
 // 401: credenciais invalidas. 409: cadastro com duplicado@empresa.com.
@@ -342,4 +540,5 @@ export const handlers = [
   }),
 
   ...onboardingHandlers,
+  ...creditoHandlers,
 ];

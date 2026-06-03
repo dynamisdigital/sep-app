@@ -1,0 +1,24 @@
+<section class="sep-parecer-panel">
+  <h2 class="sep-parecer-panel-title">Ultimo parecer</h2>
+  <dl class="sep-parecer-panel-grid">
+    <div>
+      <dt>Decisao</dt>
+      <dd>{{ decisaoLabel() }}</dd>
+    </div>
+    <div>
+      <dt>Versao</dt>
+      <dd>{{ parecer().versao }}</dd>
+    </div>
+    @if (parecer().scoreMotorSnapshot !== null) {
+      <div>
+        <dt>Score no parecer</dt>
+        <dd>{{ parecer().scoreMotorSnapshot }}</dd>
+      </div>
+    }
+    <div>
+      <dt>Data</dt>
+      <dd>{{ formatarData(parecer().dataParecer) }}</dd>
+    </div>
+  </dl>
+  <p class="sep-parecer-panel-justificativa">{{ parecer().justificativa }}</p>
+</section>

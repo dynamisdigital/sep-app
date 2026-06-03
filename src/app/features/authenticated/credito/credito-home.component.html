@@ -1,0 +1,17 @@
+<section class="sep-credito-home">
+  <header class="sep-credito-home-header">
+    <h1 class="sep-credito-home-title">Credito</h1>
+    <p class="sep-credito-home-subtitle">
+      Solicite credito e acompanhe a analise das suas propostas.
+    </p>
+  </header>
+
+  <div class="sep-credito-home-cards">
+    @for (atalho of atalhos; track atalho.route) {
+      <a [routerLink]="atalho.route" class="sep-credito-home-card">
+        <span class="sep-credito-home-card-title">{{ atalho.label }}</span>
+        <span class="sep-credito-home-card-body">{{ atalho.description }}</span>
+      </a>
+    }
+  </div>
+</section>
