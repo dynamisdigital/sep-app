@@ -1,0 +1,89 @@
+@use "../../../../../styles/notion-typography" as notionType;
+@use "../../../../../styles/notion-components" as notion;
+
+.sep-proposta-create {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-24);
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--notion-space-16) 0;
+}
+
+.sep-proposta-create-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--notion-space-16);
+}
+
+.sep-proposta-create-title {
+  @include notionType.notion-type-section-heading;
+
+  margin: 0;
+  color: var(--notion-color-text);
+}
+
+.sep-proposta-create-back {
+  @include notionType.notion-type-body;
+
+  color: var(--notion-color-blue);
+  text-decoration: none;
+}
+
+.sep-proposta-create-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-16);
+}
+
+.sep-proposta-create-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-6);
+
+  label {
+    @include notionType.notion-type-caption;
+
+    color: var(--notion-color-text-muted);
+  }
+
+  input,
+  select {
+    @include notion.notion-input;
+  }
+}
+
+.sep-proposta-create-error {
+  @include notionType.notion-type-caption;
+
+  margin: 0;
+  color: var(--notion-color-orange);
+}
+
+.sep-proposta-create-feedback {
+  @include notionType.notion-type-body;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+  align-items: flex-start;
+  margin: 0;
+}
+
+.sep-proposta-create-feedback-error {
+  color: var(--notion-color-orange);
+}
+
+.sep-proposta-create-actions {
+  display: flex;
+}
+
+.sep-proposta-create-submit {
+  @include notion.notion-button-primary;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}

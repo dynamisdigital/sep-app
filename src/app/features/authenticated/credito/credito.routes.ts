@@ -14,6 +14,14 @@ export const CREDITO_ROUTES: Routes = [
     data: { breadcrumb: 'Propostas' },
   },
   {
+    path: 'propostas/nova',
+    loadComponent: () =>
+      import('./propostas/proposta-create-page.component').then(
+        (m) => m.PropostaCreatePageComponent,
+      ),
+    data: { breadcrumb: 'Nova proposta' },
+  },
+  {
     path: 'propostas/:id',
     loadComponent: () =>
       import('./propostas/proposta-detail-page.component').then(
