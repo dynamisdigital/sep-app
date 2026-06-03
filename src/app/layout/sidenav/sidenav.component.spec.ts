@@ -60,8 +60,26 @@ describe('SidenavComponent', () => {
     result.fixture.detectChanges();
 
     expect(screen.getByText('Dashboard')).toBeTruthy();
+    expect(screen.getByText('Onboarding')).toBeTruthy();
     expect(screen.getByText('Meu perfil')).toBeTruthy();
     expect(screen.queryByText('Administracao')).toBeNull();
+  });
+
+  it('Onboarding aponta para /app/onboarding', async () => {
+    const result = await render(SidenavComponent, {
+      providers: [provideRouter([]), provideHttpClient()],
+    });
+    const auth = result.fixture.debugElement.injector.get(AuthService);
+    await new Promise<void>((resolve, reject) => {
+      auth.login({ username: 'admin@empresa.com', password: '123456' }).subscribe({
+        next: () => resolve(),
+        error: reject,
+      });
+    });
+    result.fixture.detectChanges();
+
+    const onboardingLink = screen.getByText('Onboarding').closest('a');
+    expect(onboardingLink?.getAttribute('href')).toBe('/app/onboarding');
   });
 
   it('link Meu perfil aponta para /app/profile e Administracao para /app/admin/users', async () => {

@@ -1,0 +1,17 @@
+<section class="sep-onboarding-home">
+  <header class="sep-onboarding-home-header">
+    <h1 class="sep-onboarding-home-title">Onboarding</h1>
+    <p class="sep-onboarding-home-subtitle">
+      Escolha o tipo de cadastro para iniciar a verificacao.
+    </p>
+  </header>
+
+  <div class="sep-onboarding-home-cards">
+    @for (path of paths; track path.route) {
+      <a [routerLink]="path.route" class="sep-onboarding-home-card">
+        <span class="sep-onboarding-home-card-title">{{ path.label }}</span>
+        <span class="sep-onboarding-home-card-body">{{ path.description }}</span>
+      </a>
+    }
+  </div>
+</section>

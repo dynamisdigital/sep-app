@@ -28,6 +28,7 @@ export class SidenavComponent {
     const user = this.currentUser();
     const items: MenuItem[] = [
       { label: 'Dashboard', route: '/app/dashboard' },
+      { label: 'Onboarding', route: '/app/onboarding' },
       { label: 'Meu perfil', route: '/app/profile' },
       { label: 'Administracao', route: '/app/admin/users', roles: ['ADMIN'] },
     ];
