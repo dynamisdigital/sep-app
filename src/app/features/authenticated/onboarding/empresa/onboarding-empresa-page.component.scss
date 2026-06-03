@@ -1,0 +1,220 @@
+@use "../../../../../styles/notion-typography" as notionType;
+@use "../../../../../styles/notion-components" as notion;
+
+.sep-onboarding-empresa {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-24);
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--notion-space-16) 0;
+}
+
+.sep-onboarding-empresa-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+}
+
+.sep-onboarding-empresa-title {
+  @include notionType.notion-type-section-heading;
+
+  margin: 0;
+  color: var(--notion-color-text);
+}
+
+.sep-onboarding-empresa-back {
+  @include notionType.notion-type-body;
+
+  color: var(--notion-color-blue);
+  text-decoration: none;
+  font-size: 13px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.sep-onboarding-empresa-form,
+.sep-onboarding-empresa-status-panel,
+.sep-onboarding-empresa-upload,
+.sep-onboarding-empresa-verify {
+  @include notion.notion-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-16);
+}
+
+.sep-onboarding-empresa-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-16);
+}
+
+.sep-onboarding-empresa-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-6);
+
+  label {
+    @include notionType.notion-type-body;
+
+    color: var(--notion-color-text);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  input[type="text"],
+  select {
+    @include notion.notion-input;
+  }
+}
+
+.sep-onboarding-empresa-section-title {
+  @include notionType.notion-type-card-title;
+
+  margin: 0;
+  color: var(--notion-color-text);
+}
+
+.sep-onboarding-empresa-status-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sep-onboarding-empresa-badge {
+  @include notion.notion-pill-badge;
+
+  align-self: flex-start;
+}
+
+.sep-onboarding-empresa-dados {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-6);
+  margin: 0;
+
+  div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--notion-space-12);
+  }
+
+  dt {
+    @include notionType.notion-type-body;
+
+    color: var(--notion-color-text-muted);
+    font-size: 13px;
+  }
+
+  dd {
+    @include notionType.notion-type-body;
+
+    margin: 0;
+    color: var(--notion-color-text);
+    font-size: 13px;
+    text-align: right;
+  }
+}
+
+.sep-onboarding-empresa-reps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sep-onboarding-empresa-rep {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--notion-space-8);
+}
+
+.sep-onboarding-empresa-rep-nome {
+  @include notionType.notion-type-body;
+
+  color: var(--notion-color-text);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.sep-onboarding-empresa-rep-cpf,
+.sep-onboarding-empresa-rep-cargo {
+  @include notionType.notion-type-body;
+
+  color: var(--notion-color-text-muted);
+  font-size: 12px;
+}
+
+.sep-onboarding-empresa-docs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--notion-space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sep-onboarding-empresa-doc {
+  @include notion.notion-pill-badge;
+}
+
+.sep-onboarding-empresa-empty {
+  @include notionType.notion-type-body;
+
+  margin: 0;
+  color: var(--notion-color-text-muted);
+  font-size: 13px;
+}
+
+.sep-onboarding-empresa-error {
+  @include notionType.notion-type-body;
+
+  margin: 0;
+  color: var(--notion-color-orange);
+  font-size: 12px;
+}
+
+.sep-onboarding-empresa-feedback {
+  @include notionType.notion-type-body;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-4);
+  margin: 0;
+  padding: var(--notion-space-8) var(--notion-space-12);
+  border-radius: var(--notion-radius-micro);
+  font-size: 13px;
+}
+
+.sep-onboarding-empresa-feedback-error {
+  background: rgb(221 91 0 / 8%);
+  color: var(--notion-color-orange);
+
+  a {
+    color: var(--notion-color-blue);
+  }
+}
+
+.sep-onboarding-empresa-status-head .sep-onboarding-empresa-refresh {
+  @include notion.notion-button-secondary;
+}
+
+.sep-onboarding-empresa-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sep-onboarding-empresa-submit {
+  @include notion.notion-button-primary;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}

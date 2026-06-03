@@ -1,0 +1,35 @@
+@use "../../../../../styles/notion-typography" as notionType;
+@use "../../../../../styles/notion-components" as notion;
+
+.sep-onboarding-status-badge {
+  @include notion.notion-pill-badge;
+
+  align-self: flex-start;
+
+  &.is-andamento {
+    color: var(--notion-color-badge-blue-text);
+    background: var(--notion-color-badge-blue-bg);
+  }
+
+  &.is-aprovado {
+    color: var(--notion-color-green);
+    background: rgb(26 174 57 / 10%);
+  }
+
+  &.is-reprovado {
+    color: var(--notion-color-orange);
+    background: rgb(221 91 0 / 12%);
+  }
+
+  &.is-pendente {
+    color: var(--notion-color-orange);
+    background: rgb(221 91 0 / 8%);
+  }
+}
+
+.sep-onboarding-status-result {
+  @include notionType.notion-type-body;
+
+  margin: 0;
+  color: var(--notion-color-text-muted);
+}
