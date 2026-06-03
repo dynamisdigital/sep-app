@@ -1,0 +1,41 @@
+<section class="sep-formalizacao-home">
+  <header class="sep-formalizacao-home-header">
+    <h1 class="sep-formalizacao-home-title">Formalizacao</h1>
+    <p class="sep-formalizacao-home-subtitle">
+      Formalize o contrato a partir de uma proposta aprovada.
+    </p>
+  </header>
+
+  @if (loading()) {
+    <p class="sep-formalizacao-home-state" role="status">Carregando propostas...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-formalizacao-home-state sep-formalizacao-home-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="sep-formalizacao-home-retry" (click)="carregar()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (propostas().length === 0) {
+    <div class="sep-formalizacao-home-state sep-formalizacao-home-empty">
+      <p>Voce ainda nao tem propostas aprovadas para formalizar.</p>
+      <a routerLink="/app/credito/propostas">Ver minhas propostas</a>
+    </div>
+  } @else {
+    <div class="sep-formalizacao-home-cards">
+      @for (proposta of propostas(); track proposta.id) {
+        <a
+          [routerLink]="['/app/formalizacao/proposta', proposta.id]"
+          class="sep-formalizacao-home-card"
+        >
+          <span class="sep-formalizacao-home-card-title">
+            Proposta {{ idCurto(proposta.id) }}
+          </span>
+          <span class="sep-formalizacao-home-card-body">
+            {{ formatarMoeda(proposta.valorSolicitado, proposta.moeda) }} ·
+            {{ proposta.prazoMeses }} meses
+          </span>
+        </a>
+      }
+    </div>
+  }
+</section>

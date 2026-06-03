@@ -1,0 +1,35 @@
+<section class="sep-contrato-detail">
+  @if (loading()) {
+    <p class="sep-contrato-detail-state" role="status">Carregando contrato...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-contrato-detail-state sep-contrato-detail-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+    </div>
+  } @else if (contrato(); as c) {
+    <header class="sep-contrato-detail-header">
+      <h1 class="sep-contrato-detail-title">Contrato {{ idCurto(c.id) }}</h1>
+      <span class="sep-contrato-detail-status">{{ statusLabel[c.status] }}</span>
+    </header>
+
+    <dl class="sep-contrato-detail-meta">
+      <div class="sep-contrato-detail-meta-item">
+        <dt>Proposta</dt>
+        <dd>{{ idCurto(c.propostaId) }}</dd>
+      </div>
+      <div class="sep-contrato-detail-meta-item">
+        <dt>Tipo</dt>
+        <dd>{{ c.tipo }}</dd>
+      </div>
+      <div class="sep-contrato-detail-meta-item">
+        <dt>Criado em</dt>
+        <dd>{{ formatarData(c.dataCriacao) }}</dd>
+      </div>
+      @if (c.versaoVigente; as versao) {
+        <div class="sep-contrato-detail-meta-item">
+          <dt>Versao vigente</dt>
+          <dd>nº {{ versao.numero }}</dd>
+        </div>
+      }
+    </dl>
+  }
+</section>

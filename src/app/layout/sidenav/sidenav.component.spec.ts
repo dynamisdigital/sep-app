@@ -99,6 +99,23 @@ describe('SidenavComponent', () => {
     expect(creditoLink?.getAttribute('href')).toBe('/app/credito');
   });
 
+  it('Formalizacao aparece para autenticado e aponta para /app/formalizacao', async () => {
+    const result = await render(SidenavComponent, {
+      providers: [provideRouter([]), provideHttpClient()],
+    });
+    const auth = result.fixture.debugElement.injector.get(AuthService);
+    await new Promise<void>((resolve, reject) => {
+      auth.login({ username: 'admin@empresa.com', password: '123456' }).subscribe({
+        next: () => resolve(),
+        error: reject,
+      });
+    });
+    result.fixture.detectChanges();
+
+    const link = screen.getByText('Formalizacao').closest('a');
+    expect(link?.getAttribute('href')).toBe('/app/formalizacao');
+  });
+
   it('link Meu perfil aponta para /app/profile e Administracao para /app/admin/users', async () => {
     const result = await render(SidenavComponent, {
       providers: [provideRouter([]), provideHttpClient()],

@@ -56,6 +56,12 @@ export const AUTHENTICATED_ROUTES: Routes = [
         data: { breadcrumb: 'Credito' },
       },
       {
+        path: 'formalizacao',
+        loadChildren: () =>
+          import('./formalizacao/formalizacao.routes').then((m) => m.FORMALIZACAO_ROUTES),
+        data: { breadcrumb: 'Formalizacao' },
+      },
+      {
         path: 'admin',
         canActivate: [roleGuard],
         data: { roles: ['ADMIN'], breadcrumb: 'Administracao' },

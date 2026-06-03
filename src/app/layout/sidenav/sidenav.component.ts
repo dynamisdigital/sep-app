@@ -30,6 +30,7 @@ export class SidenavComponent {
       { label: 'Dashboard', route: '/app/dashboard' },
       { label: 'Onboarding', route: '/app/onboarding' },
       { label: 'Credito', route: '/app/credito' },
+      { label: 'Formalizacao', route: '/app/formalizacao' },
       { label: 'Meu perfil', route: '/app/profile' },
       { label: 'Administracao', route: '/app/admin/users', roles: ['ADMIN'] },
     ];
