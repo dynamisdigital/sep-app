@@ -342,16 +342,17 @@ const creditoHandlers = [
     return HttpResponse.json(propostaFake(PROPOSTA_CRIADA_ID, 'EM_ANALISE'), { status: 201 });
   }),
 
-  http.get(`${baseUrl}/credito/propostas`, () =>
-    HttpResponse.json(
-      pageOf([
-        propostasFake[PROPOSTA_EM_ANALISE_ID],
-        propostasFake[PROPOSTA_PRE_APROVADA_ID],
-        propostasFake[PROPOSTA_APROVADA_ID],
-        propostasFake[PROPOSTA_PENDENCIA_ID],
-      ]),
-    ),
-  ),
+  http.get(`${baseUrl}/credito/propostas`, ({ request }) => {
+    const status = new URL(request.url).searchParams.get('status');
+    const todas = [
+      propostasFake[PROPOSTA_EM_ANALISE_ID],
+      propostasFake[PROPOSTA_PRE_APROVADA_ID],
+      propostasFake[PROPOSTA_APROVADA_ID],
+      propostasFake[PROPOSTA_PENDENCIA_ID],
+    ];
+    const filtradas = status ? todas.filter((p) => p.status === status) : todas;
+    return HttpResponse.json(pageOf(filtradas));
+  }),
 
   http.get(`${baseUrl}/credito/propostas/:id`, ({ params }) => {
     const id = params['id'] as string;
@@ -387,6 +388,9 @@ const creditoHandlers = [
       }
       if (!/^\d{11}$|^\d{14}$/.test(body.cpfCnpjTomador ?? '')) {
         return errorResponse(400, 'Bad Request', 'cpfCnpjTomador deve ter 11 ou 14 digitos', path);
+      }
+      if (!/^https?:\/\/[^\s]+$/.test(body.redirectUri ?? '')) {
+        return errorResponse(400, 'Bad Request', 'redirectUri deve ser http(s)', path);
       }
       if (id === PROPOSTA_OF_PENDENTE_ID) {
         return errorResponse(409, 'Conflict', 'Ja existe consentimento PENDENTE', path);

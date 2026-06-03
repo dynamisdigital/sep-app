@@ -63,10 +63,11 @@ describe('CreditoService', () => {
       expect(page.empty).toBe(false);
     });
 
-    it('listarPropostas() aplica filtro de status sem quebrar', async () => {
+    it('listarPropostas() aplica filtro de status na query', async () => {
       const page = await awaitObservable(service.listarPropostas({ status: 'PENDENCIA' }));
 
-      expect(page.content.length).toBeGreaterThanOrEqual(1);
+      expect(page.content.length).toBe(1);
+      expect(page.content.every((p) => p.status === 'PENDENCIA')).toBe(true);
     });
 
     it('consultarProposta() retorna proposta com score e parecer', async () => {
@@ -101,6 +102,17 @@ describe('CreditoService', () => {
 
       expect(resposta.status).toBe('PENDENTE');
       expect(resposta.urlAutorizacao).toMatch(/^https:\/\//);
+    });
+
+    it('iniciarConsentimentoOpenFinance() rejeita com 400 quando redirectUri tem scheme inseguro', async () => {
+      await expect(
+        awaitObservable(
+          service.iniciarConsentimentoOpenFinance(PROPOSTA_PRE_APROVADA_ID, {
+            cpfCnpjTomador: '52998224725',
+            redirectUri: 'javascript:alert(1)',
+          }),
+        ),
+      ).rejects.toMatchObject({ status: 400 });
     });
 
     it('iniciarConsentimentoOpenFinance() rejeita com 409 quando ja ha consentimento pendente', async () => {
