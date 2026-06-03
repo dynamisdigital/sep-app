@@ -8,7 +8,9 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { PropostaDetailPageComponent } from './proposta-detail-page.component';
 
 const PROPOSTA_PRE_APROVADA_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c02';
+const PROPOSTA_APROVADA_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c03';
 const PROPOSTA_SEM_OWNERSHIP_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771ff03';
+const OUTRO_USUARIO_ID = '1f0799c0-98b9-6d9d-bc4a-7d6f5b771001';
 const PROPOSTA_INEXISTENTE_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771dead';
 const TOMADOR_ID = '1f0799c0-98b9-6d9d-bc4a-7d6f5b771002';
 
@@ -80,6 +82,23 @@ describe('PropostaDetailPageComponent', () => {
     expect(ofLink?.getAttribute('href')).toBe(
       `/app/credito/propostas/${PROPOSTA_PRE_APROVADA_ID}/open-finance`,
     );
+  });
+
+  it('oculta atalho Open Finance quando o usuario nao e o tomador dono', async () => {
+    const { fixture } = await renderPagina(PROPOSTA_PRE_APROVADA_ID);
+    autenticarComo(fixture, OUTRO_USUARIO_ID);
+    await estabilizar(fixture);
+
+    expect(screen.queryByText('Compartilhar dados via Open Finance')).toBeNull();
+  });
+
+  it('oculta atalho Open Finance quando a proposta esta em status final', async () => {
+    const { fixture } = await renderPagina(PROPOSTA_APROVADA_ID);
+    autenticarComo(fixture, TOMADOR_ID);
+    await estabilizar(fixture);
+
+    expect(screen.getAllByText('APROVADA').length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText('Compartilhar dados via Open Finance')).toBeNull();
   });
 
   it('renderiza estado de erro com link para a lista em 404', async () => {
