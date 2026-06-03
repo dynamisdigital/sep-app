@@ -208,3 +208,112 @@ export interface StatusOnboardingEmpresaResponse {
   representantes: RepresentanteLegalResponse[];
   resultado: ResultadoOnboardingResponse | null;
 }
+
+// --- Credito e Open Finance (F-Sprint 7) ---
+// DTOs de borda espelhando os contratos reais de `sep-api` (credito Sprints 8-9).
+// Score, status de proposta, parecer e decisao de Open Finance pertencem ao backend:
+// o frontend nao calcula score, elegibilidade nem decisao final, apenas apresenta.
+
+export type StatusProposta = 'EM_ANALISE' | 'PRE_APROVADA' | 'APROVADA' | 'REJEITADA' | 'PENDENCIA';
+
+export type TipoOperacao = 'CAPITAL_GIRO' | 'OUTROS';
+
+export type StatusConsentimento = 'PENDENTE' | 'AUTORIZADO' | 'NEGADO' | 'EXPIRADO';
+
+export type DecisaoParecer = 'APROVAR' | 'REJEITAR' | 'PENDENCIA';
+
+export type ResultadoRegra = 'PASSOU' | 'FALHOU' | 'PENDENTE';
+
+export interface CriarPropostaRequest {
+  solicitacaoOnboardingId: string;
+  tipoOperacao: TipoOperacao;
+  valorSolicitado: number;
+  prazoMeses: number;
+}
+
+// Score do motor de credito: informativo. O frontend nunca recalcula.
+export interface ScoreInternoResponse {
+  valor: number;
+  statusSugerido: StatusProposta;
+  falhas: number;
+  pendencias: number;
+  dataCalculo: string;
+}
+
+export interface ParecerCreditoResponse {
+  id: string;
+  propostaId: string;
+  pareceristaId: string;
+  decisao: DecisaoParecer;
+  justificativa: string;
+  scoreMotorSnapshot: number | null;
+  versao: number;
+  dataParecer: string;
+}
+
+export interface PropostaResponse {
+  id: string;
+  tomadorId: string;
+  solicitacaoOnboardingId: string;
+  tipoOperacao: TipoOperacao;
+  valorSolicitado: number;
+  moeda: string;
+  prazoMeses: number;
+  status: StatusProposta;
+  dataCriacao: string;
+  dataModificacao: string;
+  score: ScoreInternoResponse | null;
+  parecer: ParecerCreditoResponse | null;
+}
+
+// Trilha auditavel de regras do motor — exibida apenas a FINANCEIRO/ADMIN.
+export interface RegraAvaliadaResponse {
+  nomeRegra: string;
+  resultado: ResultadoRegra;
+  motivo: string;
+  bloqueante: boolean;
+  dataAvaliacao: string;
+}
+
+export interface IniciarConsentimentoOpenFinanceRequest {
+  cpfCnpjTomador: string;
+  redirectUri: string;
+}
+
+export interface IniciarConsentimentoOpenFinanceResponse {
+  consentimentoId: string;
+  status: StatusConsentimento;
+  urlAutorizacao: string;
+  dataExpiracao: string;
+}
+
+// Snapshot consolidado de movimentacao bancaria: apenas agregados (LGPD).
+// Nunca transacoes, conta, agencia, titular ou identificadores bancarios.
+export interface MovimentacaoConsolidadaResponse {
+  mediaEntradasMensal: number;
+  mediaSaidasMensal: number;
+  saldoMedio: number;
+  numeroMesesAvaliados: number;
+  dataRecebimento: string;
+}
+
+export interface OpenFinanceStatusResponse {
+  statusConsentimento: StatusConsentimento;
+  dataInicio: string;
+  dataAutorizacao: string | null;
+  dataExpiracao: string | null;
+  ultimaMovimentacao: MovimentacaoConsolidadaResponse | null;
+}
+
+// Formato Spring Page (`Page<T>`) consumido na listagem de propostas.
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+  first: boolean;
+  last: boolean;
+  numberOfElements: number;
+  empty: boolean;
+}
