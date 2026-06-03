@@ -26,6 +26,33 @@
       </div>
     </dl>
 
+    @if (c.status === 'AGUARDANDO_ACEITE') {
+      <div class="sep-contrato-detail-aceite">
+        <button
+          type="button"
+          class="sep-contrato-detail-aceite-cta"
+          [disabled]="aceitando()"
+          (click)="aceitar(c.id)"
+        >
+          @if (aceitando()) {
+            Registrando aceite...
+          } @else {
+            Aceitar contrato
+          }
+        </button>
+        @if (aceiteErrorMessage(); as msg) {
+          <p class="sep-contrato-detail-aceite-error" role="alert">{{ msg }}</p>
+        }
+      </div>
+    } @else if (c.aceite; as aceite) {
+      <div class="sep-contrato-detail-aceite-info">
+        <p>Aceite registrado em {{ formatarData(aceite.dataAceite) }}.</p>
+        <p class="sep-contrato-detail-aceite-versao">
+          Versao aceita: {{ idCurto(aceite.versaoId) }}
+        </p>
+      </div>
+    }
+
     @if (versaoSelecionada(); as versao) {
       @if (versoes().length > 1) {
         <nav class="sep-contrato-detail-versoes" aria-label="Versoes do contrato">

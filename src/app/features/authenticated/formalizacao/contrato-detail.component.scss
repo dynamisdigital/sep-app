@@ -1,4 +1,5 @@
 @use "../../../../styles/notion-typography" as notionType;
+@use "../../../../styles/notion-components" as notion;
 
 .sep-contrato-detail {
   display: flex;
@@ -64,6 +65,41 @@
     margin: 0;
     color: var(--notion-color-text);
   }
+}
+
+.sep-contrato-detail-aceite {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+  align-items: flex-start;
+}
+
+.sep-contrato-detail-aceite-cta {
+  @include notion.notion-button-primary;
+}
+
+.sep-contrato-detail-aceite-error {
+  @include notionType.notion-type-body;
+
+  margin: 0;
+  color: var(--notion-color-orange);
+}
+
+.sep-contrato-detail-aceite-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-4);
+
+  p {
+    @include notionType.notion-type-body;
+
+    margin: 0;
+    color: var(--notion-color-text);
+  }
+}
+
+.sep-contrato-detail-aceite-info .sep-contrato-detail-aceite-versao {
+  color: var(--notion-color-text-muted);
 }
 
 .sep-contrato-detail-versoes {

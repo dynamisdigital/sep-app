@@ -458,6 +458,9 @@ const CONTRATO_ASSINADO_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e03';
 const CONTRATO_RECUSADO_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e04';
 const CONTRATO_SEM_OWNERSHIP_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771ff03';
 const CONTRATO_SEM_VERSAO_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e05';
+// Contrato dedicado ao teste de aceite feliz: o handler muta seu estado apos o
+// aceite, entao nenhum outro cenario depende dele (isolamento de teste).
+const CONTRATO_PARA_ACEITE_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e06';
 const DOCUMENTO_HASH_SHA256 = 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad';
 
 function clausulasFake() {
@@ -561,6 +564,13 @@ const contratosFake: Record<string, ReturnType<typeof contratoFake>> = {
     null,
     null,
   ),
+  [CONTRATO_PARA_ACEITE_ID]: contratoFake(
+    CONTRATO_PARA_ACEITE_ID,
+    PROPOSTA_OF_PENDENTE_ID,
+    'AGUARDANDO_ACEITE',
+    VERSAO_E01,
+    null,
+  ),
 };
 
 const versoesPorContrato: Record<string, ReturnType<typeof versaoFake>[]> = {
@@ -571,6 +581,7 @@ const versoesPorContrato: Record<string, ReturnType<typeof versaoFake>[]> = {
   [CONTRATO_ASSINADO_ID]: [VERSAO_E01],
   [CONTRATO_RECUSADO_ID]: [VERSAO_E01],
   [CONTRATO_SEM_VERSAO_ID]: [],
+  [CONTRATO_PARA_ACEITE_ID]: [VERSAO_E01],
 };
 
 const statusAssinaturaPorContrato: Record<

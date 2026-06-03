@@ -16,7 +16,8 @@ export const stepUpInterceptor: HttpInterceptorFn = (req, next) => {
   // Anexa apenas em operacoes sensiveis conhecidas para nao gastar o token em chamadas irrelevantes.
   const exigeStepUp =
     (req.url.includes('/usuarios/') && req.url.endsWith('/senha')) ||
-    req.url.endsWith('/auth/totp/disable');
+    req.url.endsWith('/auth/totp/disable') ||
+    (req.url.includes('/contratos/') && req.url.endsWith('/aceite'));
   if (!exigeStepUp) {
     return next(req);
   }

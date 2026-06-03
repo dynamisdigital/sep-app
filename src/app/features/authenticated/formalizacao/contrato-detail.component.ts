@@ -1,8 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { ContratoResponse, VersaoContratoResponse } from '../../../core/api/api.models';
+import { AuthService } from '../../../core/auth/auth.service';
 import { ContratosService } from '../../../core/contratos/contratos.service';
 import {
   STATUS_FORMALIZACAO_LABEL,
@@ -23,13 +24,17 @@ import {
 })
 export class ContratoDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly contratos = inject(ContratosService);
+  private readonly auth = inject(AuthService);
 
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly contrato = signal<ContratoResponse | null>(null);
   protected readonly versoes = signal<VersaoContratoResponse[]>([]);
   protected readonly versaoSelecionada = signal<VersaoContratoResponse | null>(null);
+  protected readonly aceitando = signal(false);
+  protected readonly aceiteErrorMessage = signal<string | null>(null);
 
   protected readonly statusLabel = STATUS_FORMALIZACAO_LABEL;
   protected readonly formatarData = formatarData;
@@ -77,5 +82,42 @@ export class ContratoDetailComponent implements OnInit {
 
   ehVersaoVigente(versao: VersaoContratoResponse): boolean {
     return this.contrato()?.versaoVigente?.id === versao.id;
+  }
+
+  // Operacao sensivel: o backend exige step-up (@RequireStepUp). O token e coletado
+  // no fluxo /app/step-up e anexado pelo stepUpInterceptor; aqui apenas disparamos o
+  // PATCH e reagimos ao resultado. A decisao de seguranca permanece no backend.
+  aceitar(id: string): void {
+    this.aceitando.set(true);
+    this.aceiteErrorMessage.set(null);
+    this.contratos.registrarAceite(id).subscribe({
+      next: (contrato) => {
+        this.aceitando.set(false);
+        this.contrato.set(contrato);
+        this.versaoSelecionada.set(contrato.versaoVigente);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.aceitando.set(false);
+        this.tratarErroAceite(err, id);
+      },
+    });
+  }
+
+  private tratarErroAceite(err: HttpErrorResponse, id: string): void {
+    // 403 com MFA habilitado: step-up exigido. Coleta o token e volta a este contrato.
+    if (err.status === 403 && this.auth.currentUser()?.mfaHabilitado) {
+      const destino = `/app/formalizacao/contratos/${id}`;
+      void this.router.navigateByUrl(`/app/step-up?next=${destino}`);
+      return;
+    }
+    // 409: estado invalido (ex.: ja aceito). Mostra mensagem e recarrega o estado real.
+    if (err.status === 409) {
+      this.aceiteErrorMessage.set('O contrato nao esta mais aguardando aceite.');
+      this.carregar(id);
+      return;
+    }
+    this.aceiteErrorMessage.set(
+      mensagemFormalizacaoErro(err, 'Nao foi possivel registrar o aceite.'),
+    );
   }
 }
