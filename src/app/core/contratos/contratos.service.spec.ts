@@ -69,10 +69,10 @@ describe('ContratosService', () => {
   });
 
   describe('listarVersoes', () => {
-    it('retorna historico ordenado com a versao vigente primeiro', async () => {
+    it('retorna o historico de versoes em ordem ascendente de numero (como o backend)', async () => {
       const versoes = await awaitObservable(service.listarVersoes(CONTRATO_EM_ASSINATURA_ID));
 
-      expect(versoes.map((v) => v.numero)).toEqual([2, 1]);
+      expect(versoes.map((v) => v.numero)).toEqual([1, 2]);
     });
   });
 

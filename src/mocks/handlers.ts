@@ -556,8 +556,9 @@ const contratosFake: Record<string, ReturnType<typeof contratoFake>> = {
 
 const versoesPorContrato: Record<string, ReturnType<typeof versaoFake>[]> = {
   [CONTRATO_AGUARDANDO_ID]: [VERSAO_E01],
-  // Historico em ordem decrescente de numero (vigente primeiro).
-  [CONTRATO_EM_ASSINATURA_ID]: [VERSAO_E02_V2, VERSAO_E02_V1],
+  // Ordem ascendente de numero, como o backend (VersaoContratoRepository
+  // findByContratoIdOrdenado: order by numero asc). A UI ordena vigente-first se quiser.
+  [CONTRATO_EM_ASSINATURA_ID]: [VERSAO_E02_V1, VERSAO_E02_V2],
   [CONTRATO_ASSINADO_ID]: [VERSAO_E01],
   [CONTRATO_RECUSADO_ID]: [VERSAO_E01],
 };
@@ -632,10 +633,18 @@ const formalizacaoHandlers = [
     if (contrato.status !== 'AGUARDANDO_ACEITE') {
       return errorResponse(409, 'Conflict', 'Contrato fora de AGUARDANDO_ACEITE', path);
     }
-    const versao = contrato.versaoVigente;
-    return HttpResponse.json(
-      contratoFake(id, contrato.propostaId, 'EM_ASSINATURA', versao, aceiteFake(versao!.id)),
-    );
+    // Persiste a transicao na sessao dev-offline: apos aceite, GET /contratos/:id e
+    // GET /assinatura/status refletem EM_ASSINATURA/ENVIADO (o backend dispara o
+    // envelope via ContratoAceitoListener). Estado e por sessao do mock.
+    const versao = contrato.versaoVigente!;
+    contrato.status = 'EM_ASSINATURA';
+    contrato.aceite = aceiteFake(versao.id);
+    statusAssinaturaPorContrato[id] = {
+      statusContrato: 'EM_ASSINATURA',
+      statusEnvelope: 'ENVIADO',
+      idEnvelopeExterno: 'env-ext-aceite',
+    };
+    return HttpResponse.json(contrato);
   }),
 
   http.get(`${baseUrl}/contratos/:id/assinatura/status`, ({ params }) => {
