@@ -20,7 +20,7 @@ describe('ParecerPanelComponent', () => {
   it('apresenta decisao, versao e justificativa do parecer', async () => {
     await render(ParecerPanelComponent, { inputs: { parecer: parecerFake(720) } });
 
-    expect(screen.getByText('PENDENCIA')).toBeTruthy();
+    expect(screen.getByText('Pendencia')).toBeTruthy();
     expect(screen.getByText('Aguardando comprovacao de faturamento.')).toBeTruthy();
     expect(screen.getByText('Score no parecer')).toBeTruthy();
   });

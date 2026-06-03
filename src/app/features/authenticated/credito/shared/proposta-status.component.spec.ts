@@ -27,4 +27,10 @@ describe('PropostaStatusComponent', () => {
 
     expect(screen.getByText('Pre-aprovada').className).toContain('is-pre');
   });
+
+  it('exibe variante pendente para PENDENCIA', async () => {
+    await render(PropostaStatusComponent, { inputs: { status: 'PENDENCIA' } });
+
+    expect(screen.getByText('Pendencia').className).toContain('is-pendente');
+  });
 });
