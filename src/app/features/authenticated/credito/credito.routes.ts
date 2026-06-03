@@ -29,4 +29,16 @@ export const CREDITO_ROUTES: Routes = [
       ),
     data: { breadcrumb: 'Detalhe da proposta' },
   },
+  {
+    path: 'propostas/:id/open-finance',
+    loadComponent: () =>
+      import('./open-finance/open-finance-page.component').then((m) => m.OpenFinancePageComponent),
+    data: { breadcrumb: 'Open Finance' },
+  },
+  {
+    path: 'propostas/:id/open-finance/retorno',
+    loadComponent: () =>
+      import('./open-finance/open-finance-page.component').then((m) => m.OpenFinancePageComponent),
+    data: { breadcrumb: 'Open Finance', retorno: true },
+  },
 ];
