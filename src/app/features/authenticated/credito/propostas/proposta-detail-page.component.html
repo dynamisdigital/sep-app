@@ -54,5 +54,11 @@
         Compartilhar dados via Open Finance
       </a>
     }
+
+    @if (podeFormalizar()) {
+      <a [routerLink]="['/app/formalizacao/proposta', proposta.id]" class="sep-proposta-detail-of">
+        Formalizar contrato
+      </a>
+    }
   }
 </section>

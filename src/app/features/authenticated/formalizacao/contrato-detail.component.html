@@ -1,0 +1,172 @@
+<section class="sep-contrato-detail">
+  @if (loading()) {
+    <p class="sep-contrato-detail-state" role="status">Carregando contrato...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-contrato-detail-state sep-contrato-detail-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+    </div>
+  } @else if (contrato(); as c) {
+    <header class="sep-contrato-detail-header">
+      <h1 class="sep-contrato-detail-title">Contrato {{ idCurto(c.id) }}</h1>
+      <span class="sep-contrato-detail-status">{{ statusLabel[c.status] }}</span>
+    </header>
+
+    <dl class="sep-contrato-detail-meta">
+      <div class="sep-contrato-detail-meta-item">
+        <dt>Proposta</dt>
+        <dd>{{ idCurto(c.propostaId) }}</dd>
+      </div>
+      <div class="sep-contrato-detail-meta-item">
+        <dt>Tipo</dt>
+        <dd>{{ c.tipo }}</dd>
+      </div>
+      <div class="sep-contrato-detail-meta-item">
+        <dt>Criado em</dt>
+        <dd>{{ formatarData(c.dataCriacao) }}</dd>
+      </div>
+    </dl>
+
+    @if (c.status === 'AGUARDANDO_ACEITE') {
+      <div class="sep-contrato-detail-aceite">
+        <button
+          type="button"
+          class="sep-contrato-detail-aceite-cta"
+          [disabled]="aceitando()"
+          (click)="aceitar(c.id)"
+        >
+          @if (aceitando()) {
+            Registrando aceite...
+          } @else {
+            Aceitar contrato
+          }
+        </button>
+        @if (aceiteErrorMessage(); as msg) {
+          <p class="sep-contrato-detail-aceite-error" role="alert">{{ msg }}</p>
+        }
+      </div>
+    } @else if (c.aceite; as aceite) {
+      <div class="sep-contrato-detail-aceite-info">
+        <p>Aceite registrado em {{ formatarData(aceite.dataAceite) }}.</p>
+        <p class="sep-contrato-detail-aceite-versao">
+          Versao aceita: {{ idCurto(aceite.versaoId) }}
+        </p>
+      </div>
+    }
+
+    @if (statusAssinatura(); as assinatura) {
+      @if (assinatura.statusEnvelope; as envelope) {
+        <section class="sep-contrato-detail-assinatura">
+          <h2 class="sep-contrato-detail-assinatura-title">Assinatura</h2>
+          <dl class="sep-contrato-detail-meta">
+            <div class="sep-contrato-detail-meta-item">
+              <dt>Envelope</dt>
+              <dd>{{ envelopeLabel[envelope] }}</dd>
+            </div>
+            @if (assinatura.dataAtualizacaoProvider; as atualizado) {
+              <div class="sep-contrato-detail-meta-item">
+                <dt>Atualizado em</dt>
+                <dd>{{ formatarData(atualizado) }}</dd>
+              </div>
+            }
+            @if (assinatura.idEnvelopeExterno; as envelopeId) {
+              <div class="sep-contrato-detail-meta-item">
+                <dt>Envelope (provider)</dt>
+                <dd>{{ idCurto(envelopeId) }}</dd>
+              </div>
+            }
+          </dl>
+          @if (envelope === 'RECUSADO' || envelope === 'EXPIRADO') {
+            <p class="sep-contrato-detail-assinatura-aviso" role="status">
+              A assinatura nao foi concluida ({{ envelopeLabel[envelope] }}). Procure o suporte para
+              reemitir.
+            </p>
+          }
+        </section>
+      }
+    }
+
+    @if (c.status === 'ASSINADO') {
+      <div class="sep-contrato-detail-documento">
+        <button
+          type="button"
+          class="sep-contrato-detail-documento-cta"
+          [disabled]="baixando()"
+          (click)="baixarDocumento(c.id)"
+        >
+          @if (baixando()) {
+            Baixando...
+          } @else {
+            Baixar documento assinado
+          }
+        </button>
+        @if (documentoHash(); as hash) {
+          <p class="sep-contrato-detail-hash">
+            <span class="sep-contrato-detail-hash-label">Hash do documento</span>
+            <code class="sep-contrato-detail-hash-value">{{ hash }}</code>
+          </p>
+        }
+        @if (documentoErro(); as msg) {
+          <p class="sep-contrato-detail-aceite-error" role="alert">{{ msg }}</p>
+        }
+      </div>
+    }
+
+    @if (versaoSelecionada(); as versao) {
+      @if (versoes().length > 1) {
+        <nav class="sep-contrato-detail-versoes" aria-label="Versoes do contrato">
+          <span class="sep-contrato-detail-versoes-label">Versoes</span>
+          <div class="sep-contrato-detail-versoes-list">
+            @for (v of versoes(); track v.id) {
+              <button
+                type="button"
+                class="sep-contrato-detail-versao-tab"
+                [class.is-active]="v.id === versao.id"
+                [attr.aria-pressed]="v.id === versao.id"
+                (click)="selecionarVersao(v)"
+              >
+                Versao {{ v.numero }}
+                @if (ehVersaoVigente(v)) {
+                  <span class="sep-contrato-detail-versao-vigente">vigente</span>
+                }
+              </button>
+            }
+          </div>
+        </nav>
+      }
+
+      <article class="sep-contrato-detail-versao">
+        <header class="sep-contrato-detail-versao-header">
+          <h2 class="sep-contrato-detail-versao-title">
+            Versao {{ versao.numero }}
+            @if (ehVersaoVigente(versao)) {
+              <span class="sep-contrato-detail-versao-vigente">vigente</span>
+            }
+          </h2>
+          <span class="sep-contrato-detail-versao-data">
+            Gerada em {{ formatarData(versao.dataGeracao) }}
+          </span>
+        </header>
+
+        <p class="sep-contrato-detail-conteudo">{{ versao.conteudoTexto }}</p>
+
+        <ol class="sep-contrato-detail-clausulas">
+          @for (clausula of versao.clausulas; track clausula.id) {
+            <li class="sep-contrato-detail-clausula">
+              <h3 class="sep-contrato-detail-clausula-titulo">{{ clausula.titulo }}</h3>
+              <p class="sep-contrato-detail-clausula-texto">{{ clausula.texto }}</p>
+            </li>
+          }
+        </ol>
+
+        <p class="sep-contrato-detail-hash">
+          <span class="sep-contrato-detail-hash-label">Hash SHA-256</span>
+          <code class="sep-contrato-detail-hash-value">{{ versao.hashSha256 }}</code>
+        </p>
+      </article>
+    } @else {
+      <p class="sep-contrato-detail-state sep-contrato-detail-empty">
+        O contrato ainda nao tem versao gerada.
+      </p>
+    }
+  }
+</section>

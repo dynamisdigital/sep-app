@@ -317,3 +317,72 @@ export interface PageResponse<T> {
   numberOfElements: number;
   empty: boolean;
 }
+
+// --- Formalizacao contratual (F-Sprint 8 / backend Sprints 10-11) ---
+// Modelos fieis aos DTOs de `contratos.web.dto`. Sao DTOs de borda: nao carregam
+// regra de negocio. Versionamento, hashes, assinatura provider e transicoes de
+// estado pertencem ao backend.
+
+export type StatusFormalizacao =
+  | 'GERADO'
+  | 'AGUARDANDO_ACEITE'
+  | 'ACEITO'
+  | 'EM_ASSINATURA'
+  | 'ASSINADO'
+  | 'RECUSADO'
+  | 'CANCELADO';
+
+export type StatusEnvelope =
+  | 'RASCUNHO'
+  | 'ENVIADO'
+  | 'VISUALIZADO'
+  | 'ASSINADO'
+  | 'RECUSADO'
+  | 'EXPIRADO';
+
+export type TipoContrato = 'MUTUO' | 'CCB' | 'OUTROS';
+
+export interface ClausulaContratoResponse {
+  id: string;
+  ordem: number;
+  titulo: string;
+  texto: string;
+}
+
+export interface VersaoContratoResponse {
+  id: string;
+  numero: number;
+  conteudoTexto: string;
+  hashSha256: string;
+  dataGeracao: string;
+  parecerOrigemId: string | null;
+  clausulas: ClausulaContratoResponse[];
+}
+
+export interface AceiteContratoResponse {
+  id: string;
+  versaoId: string;
+  tomadorId: string;
+  dataAceite: string;
+  ipOrigem: string;
+  userAgentOrigem: string;
+}
+
+export interface ContratoResponse {
+  id: string;
+  propostaId: string;
+  tomadorId: string;
+  tipo: TipoContrato;
+  status: StatusFormalizacao;
+  versaoVigente: VersaoContratoResponse | null;
+  aceite: AceiteContratoResponse | null;
+  dataCriacao: string;
+  dataModificacao: string;
+}
+
+export interface StatusAssinaturaResponse {
+  statusContrato: StatusFormalizacao;
+  statusEnvelope: StatusEnvelope | null;
+  idEnvelopeExterno: string | null;
+  dataAtualizacaoProvider: string | null;
+}
