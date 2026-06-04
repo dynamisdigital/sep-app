@@ -1,0 +1,26 @@
+<section class="sep-proposta-entry">
+  <header class="sep-proposta-entry-header">
+    <h1 class="sep-proposta-entry-title">Formalizacao da proposta</h1>
+  </header>
+
+  @if (loading()) {
+    <p class="sep-proposta-entry-state" role="status">Carregando contrato...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-proposta-entry-state sep-proposta-entry-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+    </div>
+  } @else if (semContrato()) {
+    <div class="sep-proposta-entry-state sep-proposta-entry-empty">
+      <p>O contrato desta proposta ainda nao foi gerado.</p>
+      <a routerLink="/app/formalizacao">Voltar</a>
+    </div>
+  } @else if (contrato(); as c) {
+    <div class="sep-proposta-entry-card">
+      <span class="sep-proposta-entry-card-status">{{ statusLabel[c.status] }}</span>
+      <span class="sep-proposta-entry-card-id">Contrato {{ idCurto(c.id) }}</span>
+      <a [routerLink]="['/app/formalizacao/contratos', c.id]" class="sep-proposta-entry-card-cta">
+        Ver contrato
+      </a>
+    </div>
+  }
+</section>

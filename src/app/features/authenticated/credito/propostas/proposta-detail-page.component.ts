@@ -50,6 +50,15 @@ export class PropostaDetailPageComponent implements OnInit {
     return proposta.tomadorId === usuario.id && !STATUS_FINAIS.has(proposta.status);
   });
 
+  // Formalizacao abre quando a proposta esta APROVADA. A existencia do contrato e
+  // resolvida na jornada de formalizacao (por proposta); aqui apenas oferecemos o CTA.
+  protected readonly podeFormalizar = computed(() => {
+    const proposta = this.proposta();
+    const usuario = this.auth.currentUser();
+    if (!proposta || !usuario) return false;
+    return proposta.tomadorId === usuario.id && proposta.status === 'APROVADA';
+  });
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
