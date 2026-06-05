@@ -9,13 +9,16 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import {
+  IniciarRenegociacaoRequest,
   RecebimentoResponse,
   RegistrarRecebimentoRequest,
+  RenegociacaoResponse,
   ValorAtualizadoParcelaResponse,
 } from '../../../../core/api/api.models';
+import { AuthService } from '../../../../core/auth/auth.service';
 import { CobrancaService } from '../../../../core/cobranca/cobranca.service';
 import { ParcelaComposicaoComponent } from '../shared/parcela-composicao.component';
 import { ParcelaStatusComponent } from '../shared/parcela-status.component';
@@ -37,9 +40,10 @@ function novaIdempotencyKey(): string {
   );
 }
 
-// Visao financeira da parcela: detalhe (valor atualizado) + registro manual de
-// recebimento, restrito a FINANCEIRO/ADMIN pelo roleGuard. Calculo de saldo/estado
-// pertence ao backend; a tela so envia o recebimento e reflete o resultado.
+// Hub financeiro da parcela (FINANCEIRO/ADMIN via roleGuard): detalhe + recebimento
+// manual idempotente, contato manual e proposta de renegociacao. O aceite/recusa do
+// tomador NAO entra nesta sprint (backend sem GET renegociacao nem descoberta do id —
+// gap registrado). Calculo de saldo/estado/agenda substituta pertence ao backend.
 @Component({
   selector: 'sep-parcela-financeira-page',
   imports: [ReactiveFormsModule, ParcelaStatusComponent, ParcelaComposicaoComponent],
@@ -51,6 +55,8 @@ export class ParcelaFinanceiraPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly cobranca = inject(CobrancaService);
   private readonly fb = inject(FormBuilder);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
 
   private id = '';
   private readonly idempotencyKey = signal<string | null>(null);
@@ -65,6 +71,14 @@ export class ParcelaFinanceiraPageComponent implements OnInit {
   protected readonly submitting = signal(false);
   protected readonly recebimentoErro = signal<string | null>(null);
 
+  protected readonly contatoSubmitting = signal(false);
+  protected readonly contatoOk = signal(false);
+  protected readonly contatoErro = signal<string | null>(null);
+
+  protected readonly renegSubmitting = signal(false);
+  protected readonly renegErro = signal<string | null>(null);
+  protected readonly renegCriada = signal<RenegociacaoResponse | null>(null);
+
   protected readonly formatarMoeda = formatarMoeda;
   protected readonly formatarData = formatarData;
   protected readonly formatarDataLocal = formatarDataLocal;
@@ -72,6 +86,11 @@ export class ParcelaFinanceiraPageComponent implements OnInit {
   protected readonly podeReceber = computed(() => {
     const status = this.parcela()?.status;
     return status === 'PENDENTE' || status === 'PARCIALMENTE_PAGA' || status === 'ATRASADA';
+  });
+
+  protected readonly podeRenegociar = computed(() => {
+    const status = this.parcela()?.status;
+    return status === 'ATRASADA' || status === 'INADIMPLENTE';
   });
 
   protected readonly form = this.fb.group({
@@ -83,6 +102,25 @@ export class ParcelaFinanceiraPageComponent implements OnInit {
     meioPagamento: this.fb.nonNullable.control('PIX', [Validators.required]),
     identificadorExterno: this.fb.nonNullable.control(''),
     observacao: this.fb.nonNullable.control(''),
+  });
+
+  protected readonly contatoForm = this.fb.group({
+    descricao: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(500)]),
+    diasAtraso: this.fb.control<number | null>(null, [Validators.min(0)]),
+  });
+
+  protected readonly renegForm = this.fb.group({
+    novoValorParcela: this.fb.control<number | null>(null, [
+      Validators.required,
+      Validators.min(0.01),
+    ]),
+    novoVencimento: this.fb.nonNullable.control('', [Validators.required]),
+    numeroParcelas: this.fb.control<number | null>(null, [Validators.required, Validators.min(1)]),
+    desconto: this.fb.control<number | null>(null, [Validators.required, Validators.min(0)]),
+    justificativa: this.fb.nonNullable.control('', [
+      Validators.required,
+      Validators.maxLength(1000),
+    ]),
   });
 
   constructor() {
@@ -153,6 +191,59 @@ export class ParcelaFinanceiraPageComponent implements OnInit {
     });
   }
 
+  registrarContato(): void {
+    this.contatoOk.set(false);
+    this.contatoErro.set(null);
+    if (this.contatoForm.invalid) {
+      this.contatoForm.markAllAsTouched();
+      return;
+    }
+    const { descricao, diasAtraso } = this.contatoForm.getRawValue();
+    this.contatoSubmitting.set(true);
+    this.cobranca
+      .registrarContato(this.id, { descricao, diasAtraso: diasAtraso ?? undefined })
+      .subscribe({
+        next: () => {
+          this.contatoSubmitting.set(false);
+          this.contatoOk.set(true);
+          this.contatoForm.reset();
+        },
+        error: (err: HttpErrorResponse) => {
+          this.contatoSubmitting.set(false);
+          this.contatoErro.set(mensagemCobrancaErro(err, 'Nao foi possivel registrar o contato.'));
+        },
+      });
+  }
+
+  proporRenegociacao(): void {
+    this.renegErro.set(null);
+    if (this.renegForm.invalid) {
+      this.renegForm.markAllAsTouched();
+      return;
+    }
+    const valor = this.renegForm.getRawValue();
+    const request: IniciarRenegociacaoRequest = {
+      novoValorParcela: valor.novoValorParcela as number,
+      novoVencimento: valor.novoVencimento,
+      numeroParcelas: valor.numeroParcelas as number,
+      desconto: valor.desconto as number,
+      justificativa: valor.justificativa,
+    };
+    this.renegSubmitting.set(true);
+    this.cobranca.iniciarRenegociacao(this.id, request).subscribe({
+      next: (renegociacao) => {
+        this.renegSubmitting.set(false);
+        this.renegCriada.set(renegociacao);
+        this.renegForm.reset();
+        this.carregar();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.renegSubmitting.set(false);
+        this.tratarErroRenegociacao(err);
+      },
+    });
+  }
+
   // Recebimentos desta parcela: filtro local da lista global (sem endpoint por parcela).
   private carregarRecebimentos(): void {
     this.cobranca.listarRecebimentos().subscribe({
@@ -176,5 +267,22 @@ export class ParcelaFinanceiraPageComponent implements OnInit {
     this.recebimentoErro.set(
       mensagemCobrancaErro(err, 'Nao foi possivel registrar o recebimento.'),
     );
+  }
+
+  private tratarErroRenegociacao(err: HttpErrorResponse): void {
+    // Step-up exigido (@RequireStepUp): coleta o token e volta a esta parcela. O
+    // stepUpInterceptor anexa o token no proximo POST de renegociacao (F-9.5).
+    if (err.status === 403 && this.auth.currentUser()?.mfaHabilitado) {
+      void this.router.navigateByUrl(
+        `/app/step-up?next=/app/cobranca/financeiro/parcelas/${this.id}`,
+      );
+      return;
+    }
+    if (err.status === 409) {
+      this.renegErro.set('Ja existe renegociacao ativa para esta parcela.');
+      this.carregar();
+      return;
+    }
+    this.renegErro.set(mensagemCobrancaErro(err, 'Nao foi possivel propor a renegociacao.'));
   }
 }

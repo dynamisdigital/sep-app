@@ -61,4 +61,55 @@ describe('stepUpInterceptor', () => {
     expect(state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
     expect(store.token()).toBe('step-up-tok');
   });
+
+  it('anexa o token ao propor renegociacao (POST /cobranca/parcelas/:id/renegociacao)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest(
+      'POST',
+      'http://localhost:8080/api/v1/cobranca/parcelas/abc/renegociacao',
+      {},
+    );
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.get('X-Step-Up-Token')).toBe('step-up-tok');
+    expect(store.token()).toBeNull();
+  });
+
+  it('anexa o token no aceite de renegociacao (PATCH /cobranca/renegociacoes/:id/aceite)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest(
+      'PATCH',
+      'http://localhost:8080/api/v1/cobranca/renegociacoes/abc/aceite',
+      {},
+    );
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.get('X-Step-Up-Token')).toBe('step-up-tok');
+    expect(store.token()).toBeNull();
+  });
+
+  it('NAO anexa o token na recusa de renegociacao (sem step-up no backend)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest(
+      'PATCH',
+      'http://localhost:8080/api/v1/cobranca/renegociacoes/abc/recusa',
+      {},
+    );
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(store.token()).toBe('step-up-tok');
+  });
 });
