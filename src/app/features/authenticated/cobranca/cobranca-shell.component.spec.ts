@@ -43,24 +43,29 @@ describe('CobrancaShellComponent', () => {
     expect(screen.queryByText('Agenda financeira')).toBeNull();
   });
 
-  it('FINANCEIRO: mostra telas financeiras e oculta entrada do tomador', async () => {
+  it('FINANCEIRO: navega para agenda/inadimplencia e oculta entrada do tomador', async () => {
     await renderComRole('FINANCEIRO');
 
-    expect(screen.getByText('Agenda financeira')).toBeTruthy();
-    expect(screen.getByText('Inadimplencia')).toBeTruthy();
+    const agendaLink = screen.getByText('Agenda financeira').closest('a');
+    expect(agendaLink?.getAttribute('href')).toBe('/app/cobranca/financeiro/agenda');
+    const inadimplenciaLink = screen.getByText('Inadimplencia').closest('a');
+    expect(inadimplenciaLink?.getAttribute('href')).toBe('/app/cobranca/financeiro/inadimplencia');
     expect(screen.queryByText('Ver meus contratos')).toBeNull();
   });
 
-  it('ADMIN: tambem ve as telas financeiras', async () => {
+  it('ADMIN: tambem navega para as telas financeiras', async () => {
     await renderComRole('ADMIN');
 
-    expect(screen.getByText('Agenda financeira')).toBeTruthy();
+    expect(screen.getByText('Agenda financeira').closest('a')?.getAttribute('href')).toBe(
+      '/app/cobranca/financeiro/agenda',
+    );
   });
 
-  it('BACKOFFICE: nao ve telas financeiras (backend nao autoriza cobranca a BACKOFFICE)', async () => {
+  it('BACKOFFICE: sem jornada de cobranca (nem financeiro nem tomador)', async () => {
     await renderComRole('BACKOFFICE');
 
     expect(screen.queryByText('Agenda financeira')).toBeNull();
-    expect(screen.getByText('Ver meus contratos')).toBeTruthy();
+    expect(screen.queryByText('Ver meus contratos')).toBeNull();
+    expect(screen.getByText('Seu perfil nao tem jornada de cobranca.')).toBeTruthy();
   });
 });

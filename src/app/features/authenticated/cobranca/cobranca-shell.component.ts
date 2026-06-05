@@ -3,15 +3,18 @@ import { RouterLink } from '@angular/router';
 
 import { AuthService } from '../../../core/auth/auth.service';
 
-interface CobrancaPlaceholder {
+interface CobrancaLink {
   label: string;
   description: string;
+  route: string;
 }
 
-// Landing da jornada de cobranca. O tomador acessa as parcelas a partir de um
-// contrato assinado (nao ha lista global de agendas no backend); o financeiro/admin
-// ganha as telas de acompanhamento (agenda, recebimentos, inadimplencia) nas Tasks
-// F-9.4/F-9.5, quando os placeholders viram rotas reais.
+// Landing da jornada de cobranca, ramificada por perfil:
+// - FINANCEIRO/ADMIN: telas de acompanhamento (agenda financeira, inadimplencia).
+//   Espelha a autorizacao do backend (CobrancaController = hasAnyRole FINANCEIRO/ADMIN).
+// - CLIENTE (tomador): parcelas acessadas a partir de um contrato assinado; nao ha
+//   lista global de agendas no backend, entao a entrada e via formalizacao.
+// - Demais perfis (ex.: BACKOFFICE): sem jornada de cobranca — o backend nao os autoriza.
 @Component({
   selector: 'sep-cobranca-shell',
   imports: [RouterLink],
@@ -24,13 +27,23 @@ export class CobrancaShellComponent {
 
   protected readonly currentUser = this.auth.currentUser;
 
-  protected readonly isOperador = computed(() => {
+  protected readonly isOperadorFinanceiro = computed(() => {
     const role = this.currentUser()?.role;
     return role === 'FINANCEIRO' || role === 'ADMIN';
   });
 
-  protected readonly placeholdersFinanceiro: CobrancaPlaceholder[] = [
-    { label: 'Agenda financeira', description: 'Parcelas e recebimentos manuais (em preparacao).' },
-    { label: 'Inadimplencia', description: 'Triagem de atrasos e renegociacao (em preparacao).' },
+  protected readonly isTomador = computed(() => this.currentUser()?.role === 'CLIENTE');
+
+  protected readonly linksFinanceiro: CobrancaLink[] = [
+    {
+      label: 'Agenda financeira',
+      description: 'Parcelas e recebimentos manuais.',
+      route: '/app/cobranca/financeiro/agenda',
+    },
+    {
+      label: 'Inadimplencia',
+      description: 'Triagem de atrasos e renegociacao.',
+      route: '/app/cobranca/financeiro/inadimplencia',
+    },
   ];
 }

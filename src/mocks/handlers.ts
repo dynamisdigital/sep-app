@@ -23,7 +23,26 @@ const clienteUsuario = {
   modificadoPor: 'system',
 };
 
-const usuariosFake = [adminUsuario, clienteUsuario];
+const financeiroUsuario = {
+  id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771003',
+  username: 'financeiro@empresa.com',
+  role: 'FINANCEIRO',
+  dataCriacao: now,
+  dataModificacao: now,
+  criadoPor: 'system',
+  modificadoPor: 'system',
+};
+
+const usuariosFake = [adminUsuario, clienteUsuario, financeiroUsuario];
+
+// Credenciais aceitas no dev-offline (senha unica 123456). Permite exercitar a jornada
+// de cobranca como FINANCEIRO, nao so ADMIN. currentMockUser segue o ultimo login pra
+// /auth/me e /auth/refresh refletirem a role correta apos reload.
+const loginUsuarios: Record<string, typeof adminUsuario> = {
+  'admin@empresa.com': adminUsuario,
+  'financeiro@empresa.com': financeiroUsuario,
+};
+let currentMockUser = adminUsuario;
 
 function errorResponse(status: number, error: string, message: string, path: string) {
   return HttpResponse.json(
@@ -1197,16 +1216,16 @@ const cobrancaHandlers = [
 export const handlers = [
   http.post(`${baseUrl}/auth/login`, async ({ request }) => {
     const body = (await request.json()) as { username?: string; password?: string };
-
-    if (body.username !== 'admin@empresa.com' || body.password !== '123456') {
+    const usuario = body.password === '123456' ? loginUsuarios[body.username ?? ''] : undefined;
+    if (!usuario) {
       return errorResponse(401, 'Unauthorized', 'Credenciais invalidas', '/api/v1/auth/login');
     }
-
+    currentMockUser = usuario;
     return HttpResponse.json({
       accessToken: 'mock-jwt-token',
       tokenType: 'Bearer',
       expiresIn: 3600,
-      usuario: adminUsuario,
+      usuario,
     });
   }),
 
@@ -1243,7 +1262,7 @@ export const handlers = [
       tokenType: 'Bearer',
       expiresIn: 3600,
       refreshToken: null,
-      usuario: adminUsuario,
+      usuario: currentMockUser,
       mfaRequired: false,
       mfaChallengeId: null,
     }),
@@ -1251,7 +1270,7 @@ export const handlers = [
 
   http.post(`${baseUrl}/auth/logout-all`, () => new HttpResponse(null, { status: 204 })),
 
-  http.get(`${baseUrl}/auth/me`, () => HttpResponse.json(adminUsuario)),
+  http.get(`${baseUrl}/auth/me`, () => HttpResponse.json(currentMockUser)),
 
   http.get(`${baseUrl}/usuarios`, () => HttpResponse.json(usuariosFake)),
 

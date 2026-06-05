@@ -42,10 +42,15 @@
   display: flex;
   flex-direction: column;
   gap: var(--notion-space-6);
-}
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 120ms ease;
 
-.sep-cobranca-shell-card-disabled {
-  opacity: 0.6;
+  &:hover,
+  &.sep-cobranca-shell-card-active {
+    border-color: var(--notion-color-blue);
+  }
 }
 
 .sep-cobranca-shell-card-title {
