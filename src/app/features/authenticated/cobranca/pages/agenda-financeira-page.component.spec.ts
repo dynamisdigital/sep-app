@@ -56,4 +56,18 @@ describe('AgendaFinanceiraPageComponent', () => {
 
     expect(navegar).toHaveBeenCalledWith(['/app/cobranca/financeiro/parcelas', PARCELA_PARCIAL_ID]);
   });
+
+  it('lookup com apenas espacos nao navega (evita rota sem id)', async () => {
+    const { fixture, container } = await renderPage();
+    await estabilizar(fixture);
+    const router = fixture.debugElement.injector.get(Router);
+    const navegar = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    const input = container.querySelector('input[formControlName="parcelaId"]') as HTMLInputElement;
+    fireEvent.input(input, { target: { value: '   ' } });
+    fixture.detectChanges();
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir' }));
+
+    expect(navegar).not.toHaveBeenCalled();
+  });
 });

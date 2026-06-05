@@ -62,11 +62,13 @@ export class AgendaFinanceiraPageComponent implements OnInit {
   }
 
   abrirParcela(): void {
-    if (this.lookupForm.invalid) {
+    // required aceita string so com espacos; valida o id ja sem espacos pra nao
+    // navegar para uma rota com segmento vazio.
+    const parcelaId = this.lookupForm.getRawValue().parcelaId.trim();
+    if (!parcelaId) {
       this.lookupForm.markAllAsTouched();
       return;
     }
-    const parcelaId = this.lookupForm.getRawValue().parcelaId.trim();
     void this.router.navigate(['/app/cobranca/financeiro/parcelas', parcelaId]);
   }
 }
