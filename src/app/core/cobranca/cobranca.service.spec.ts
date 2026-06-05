@@ -17,6 +17,7 @@ const CONTRATO_COM_AGENDA_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e03';
 const CONTRATO_SEM_OWNERSHIP_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771ff03';
 const CONTRATO_INEXISTENTE_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771dead';
 const PARCELA_ATRASADA_ID = 'a0000000-0000-4000-8000-000000000002';
+const PARCELA_PAGA_ID = 'a0000000-0000-4000-8000-000000000004';
 const PARCELA_PARA_RECEBIMENTO_ID = 'a0000000-0000-4000-8000-000000000006';
 const PARCELA_RENEG_ATIVA_ID = 'a0000000-0000-4000-8000-000000000007';
 const PARCELA_SEM_OWNERSHIP_ID = 'a0000000-0000-4000-8000-0000000000ff';
@@ -139,6 +140,34 @@ describe('CobrancaService', () => {
         ),
       ).rejects.toMatchObject({ status: 409 });
     });
+
+    it('rejeita com 400 quando a Idempotency-Key foge do pattern do backend', async () => {
+      await expect(
+        awaitObservable(
+          service.registrarRecebimento(
+            PARCELA_PARA_RECEBIMENTO_ID,
+            RECEBIMENTO_VALIDO,
+            'key invalida',
+          ),
+        ),
+      ).rejects.toMatchObject({ status: 400 });
+    });
+
+    it('rejeita com 404 quando a parcela nao existe', async () => {
+      await expect(
+        awaitObservable(
+          service.registrarRecebimento(PARCELA_INEXISTENTE_ID, RECEBIMENTO_VALIDO, 'key-404'),
+        ),
+      ).rejects.toMatchObject({ status: 404 });
+    });
+
+    it('rejeita com 409 quando a parcela esta em estado nao-recebivel (PAGA)', async () => {
+      await expect(
+        awaitObservable(
+          service.registrarRecebimento(PARCELA_PAGA_ID, RECEBIMENTO_VALIDO, 'key-paga'),
+        ),
+      ).rejects.toMatchObject({ status: 409 });
+    });
   });
 
   describe('listarRecebimentos', () => {
@@ -182,6 +211,14 @@ describe('CobrancaService', () => {
       expect(evento.tipo).toBe('CONTATO_MANUAL');
       expect(evento.canal).toBeNull();
       expect(evento.descricao).toContain('Cliente confirmou');
+    });
+
+    it('rejeita com 404 quando a parcela nao existe', async () => {
+      await expect(
+        awaitObservable(
+          service.registrarContato(PARCELA_INEXISTENTE_ID, { descricao: 'Contato.' }),
+        ),
+      ).rejects.toMatchObject({ status: 404 });
     });
   });
 

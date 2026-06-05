@@ -727,9 +727,11 @@ const formalizacaoHandlers = [
 // - agenda ligada ao contrato ASSINADO "...e03" (fluxo contrato assinado -> agenda).
 // - contrato "...ff03" simula agenda de outro tomador (403); contrato desconhecido -> 404.
 // - parcela "...00ff" simula recurso de outro tomador / role insuficiente (403);
-//   parcela desconhecida no detalhe -> 404.
-// - recebimento exige header Idempotency-Key (ausente -> 400; key reapresentada com
-//   payload divergente -> 409; mesma key + mesmo payload -> replay com novo=false).
+//   parcela desconhecida -> 404; estado nao-recebivel/nao-renegociavel -> 409.
+// - recebimento/contato/renegociacao validam existencia da parcela (404) como o backend.
+// - recebimento exige Idempotency-Key valida (ausente ou fora do pattern -> 400; key
+//   reapresentada com payload divergente -> 409; mesma key + mesmo payload -> replay
+//   com novo=false).
 // - parcela "...0007" ja tem renegociacao ativa (criar proposta -> 409).
 // - renegociacao exige X-Step-Up-Token na criacao e no aceite; a recusa nao exige.
 // Estado de recebimentos e de renegociacao e por sessao do mock; ids dedicados isolam testes.
@@ -749,6 +751,11 @@ const RENEG_PARA_RECUSA_ID = 'b0000000-0000-4000-8000-000000000002';
 const RENEG_DECIDIDA_ID = 'b0000000-0000-4000-8000-000000000003';
 const RENEG_CRIADA_ID = 'b0000000-0000-4000-8000-0000000000c1';
 const ESCROW_MOV_ID = 'c0000000-0000-4000-8000-0000000000e1';
+// Espelham StatusParcela.permiteRecebimento / permiteIniciarRenegociacao do backend.
+const STATUS_PERMITEM_RECEBIMENTO = ['PENDENTE', 'PARCIALMENTE_PAGA', 'ATRASADA'];
+const STATUS_PERMITEM_RENEGOCIACAO = ['ATRASADA', 'INADIMPLENTE'];
+// Mesmo pattern do CobrancaController.validarIdempotencyKey.
+const IDEMPOTENCY_KEY_PATTERN = /^[A-Za-z0-9._-]{1,100}$/;
 
 function parcelaEstatica(
   id: string,
@@ -868,6 +875,18 @@ const detalheParcela: Record<string, ReturnType<typeof valorAtualizado>> = {
     1000,
     0,
     90,
+    20,
+    0,
+  ),
+  // Parcela renegociavel (ATRASADA) que ja tem proposta ativa: criar renegociacao -> 409.
+  [PARCELA_RENEG_ATIVA_ID]: valorAtualizado(
+    PARCELA_RENEG_ATIVA_ID,
+    7,
+    'ATRASADA',
+    '2026-04-20',
+    1000,
+    0,
+    40,
     20,
     0,
   ),
@@ -1018,8 +1037,13 @@ const cobrancaHandlers = [
     const id = params['id'] as string;
     const path = `/api/v1/cobranca/parcelas/${id}/recebimentos`;
     const chave = request.headers.get('Idempotency-Key');
-    if (!chave) {
-      return errorResponse(400, 'Bad Request', "Header 'Idempotency-Key' ausente", path);
+    if (!chave || !IDEMPOTENCY_KEY_PATTERN.test(chave)) {
+      return errorResponse(
+        400,
+        'Bad Request',
+        "Header 'Idempotency-Key' ausente ou invalido",
+        path,
+      );
     }
     if (id === PARCELA_SEM_OWNERSHIP_ID) {
       return errorResponse(403, 'Forbidden', 'Sem permissao para registrar recebimento', path);
@@ -1037,6 +1061,13 @@ const cobrancaHandlers = [
         );
       }
       return HttpResponse.json({ ...anterior.response, novo: false });
+    }
+    const detalhe = detalheParcela[id];
+    if (!detalhe) {
+      return errorResponse(404, 'Not Found', 'Parcela nao encontrada', path);
+    }
+    if (!STATUS_PERMITEM_RECEBIMENTO.includes(detalhe.status)) {
+      return errorResponse(409, 'Conflict', 'Parcela em estado nao-recebivel', path);
     }
     recebimentoSeq += 1;
     const response = {
@@ -1062,6 +1093,9 @@ const cobrancaHandlers = [
     if (!body.descricao) {
       return errorResponse(400, 'Bad Request', 'descricao obrigatoria', path);
     }
+    if (!detalheParcela[id]) {
+      return errorResponse(404, 'Not Found', 'Parcela nao encontrada', path);
+    }
     eventoSeq += 1;
     return HttpResponse.json(
       {
@@ -1086,8 +1120,15 @@ const cobrancaHandlers = [
     if (!request.headers.get('X-Step-Up-Token')) {
       return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
     }
+    const detalhe = detalheParcela[id];
+    if (!detalhe) {
+      return errorResponse(404, 'Not Found', 'Parcela nao encontrada', path);
+    }
     if (id === PARCELA_RENEG_ATIVA_ID) {
       return errorResponse(409, 'Conflict', 'Ja existe renegociacao ativa pra parcela', path);
+    }
+    if (!STATUS_PERMITEM_RENEGOCIACAO.includes(detalhe.status)) {
+      return errorResponse(409, 'Conflict', 'Parcela em estado nao-renegociavel', path);
     }
     const body = (await request.json()) as {
       novoValorParcela: number;
