@@ -386,3 +386,149 @@ export interface StatusAssinaturaResponse {
   idEnvelopeExterno: string | null;
   dataAtualizacaoProvider: string | null;
 }
+
+// --- Cobranca (F-Sprint 9 / backend Sprints 12-13) ---
+// DTOs de borda fieis a `cobranca.web.dto`. Calculo de saldo, mora, multa, status e
+// transicoes pertence ao backend; estes modelos nao carregam regra de negocio nem
+// metodo calculado. Datas como string ISO; valores monetarios como number apenas
+// para exibicao.
+
+export type StatusParcela =
+  | 'PENDENTE'
+  | 'PARCIALMENTE_PAGA'
+  | 'PAGA'
+  | 'ATRASADA'
+  | 'INADIMPLENTE'
+  | 'EM_NEGOCIACAO'
+  | 'RENEGOCIADA';
+
+export type StatusRenegociacao = 'PROPOSTA' | 'ACEITA' | 'RECUSADA' | 'EXPIRADA';
+
+export type TipoEventoCobranca =
+  | 'NOTIFICACAO_AUTOMATICA'
+  | 'CONTATO_MANUAL'
+  | 'RENEGOCIACAO_PROPOSTA'
+  | 'RENEGOCIACAO_ACEITA'
+  | 'RENEGOCIACAO_RECUSADA'
+  | 'RENEGOCIACAO_EXPIRADA'
+  | 'PARCELA_INADIMPLENTE';
+
+export type CanalNotificacao = 'EMAIL' | 'SMS';
+
+export type StatusEventoCobranca = 'SUCESSO' | 'FALHA';
+
+// Composicao estatica da parcela como vem dentro da agenda. O valor atualizado por
+// mora/multa nao aparece aqui — apenas em ValorAtualizadoParcelaResponse.
+export interface ParcelaResponse {
+  id: string;
+  numero: number;
+  principal: number;
+  juros: number;
+  multa: number;
+  encargos: number;
+  total: number;
+  dataVencimento: string;
+  status: StatusParcela;
+}
+
+export interface AgendaPagamentoResponse {
+  id: string;
+  contratoId: string;
+  numeroParcelas: number;
+  valorTotal: number;
+  dataGeracao: string;
+  parcelas: ParcelaResponse[];
+}
+
+// Snapshot do valor atualizado da parcela contra 'agora', calculado no backend.
+export interface ValorAtualizadoParcelaResponse {
+  parcelaId: string;
+  numero: number;
+  status: StatusParcela;
+  dataVencimento: string;
+  principalOriginal: number;
+  jurosOriginal: number;
+  jurosMora: number;
+  multa: number;
+  valorDevidoAtualizado: number;
+  totalRecebido: number;
+  valorEmAberto: number;
+}
+
+export interface RegistrarRecebimentoRequest {
+  valorRecebido: number;
+  dataRecebimento: string;
+  meioPagamento: string;
+  identificadorExterno?: string;
+  observacao?: string;
+}
+
+// `novo`=false quando a idempotencia retorna o recebimento original.
+export interface RecebimentoResponse {
+  recebimentoId: string;
+  parcelaId: string;
+  statusParcela: StatusParcela;
+  valorRecebido: number;
+  dataRecebimento: string;
+  meioPagamento: string;
+  identificadorExterno: string | null;
+  movimentacaoEscrowId: string | null;
+  novo: boolean;
+}
+
+export interface InadimplenciaResponse {
+  parcelaId: string;
+  agendaId: string;
+  contratoId: string;
+  tomadorId: string;
+  numeroParcela: number;
+  status: StatusParcela;
+  dataVencimento: string;
+  diasAtraso: number;
+  valorOriginal: number;
+}
+
+export interface RegistrarContatoRequest {
+  descricao: string;
+  diasAtraso?: number;
+}
+
+// Evento operacional de cobranca. Para contato manual, `canal` e `template` vem null.
+export interface EventoCobrancaResponse {
+  id: string;
+  parcelaId: string;
+  tipo: TipoEventoCobranca;
+  canal: CanalNotificacao | null;
+  template: string | null;
+  status: StatusEventoCobranca;
+  diasAtraso: number | null;
+  descricao: string | null;
+  registradoPor: string | null;
+  dataEvento: string;
+}
+
+export interface IniciarRenegociacaoRequest {
+  novoValorParcela: number;
+  novoVencimento: string;
+  numeroParcelas: number;
+  desconto: number;
+  justificativa: string;
+}
+
+export interface RenegociacaoResponse {
+  id: string;
+  parcelaOriginalId: string;
+  agendaOriginalId: string;
+  tomadorId: string;
+  status: StatusRenegociacao;
+  statusParcelaAnterior: StatusParcela;
+  novoValorParcela: number;
+  novoVencimento: string;
+  numeroParcelas: number;
+  desconto: number;
+  propostaPor: string;
+  dataProposta: string;
+  dataExpiracao: string;
+  dataDecisao: string | null;
+  agendaSubstitutaId: string | null;
+}

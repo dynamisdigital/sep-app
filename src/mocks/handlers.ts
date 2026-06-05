@@ -722,6 +722,434 @@ const formalizacaoHandlers = [
   }),
 ];
 
+// --- Cobranca (F-Sprint 9 / backend Sprints 12-13) ---
+// Sentinelas deterministicas para smoke/dev-offline e testes:
+// - agenda ligada ao contrato ASSINADO "...e03" (fluxo contrato assinado -> agenda).
+// - contrato "...ff03" simula agenda de outro tomador (403); contrato desconhecido -> 404.
+// - parcela "...00ff" simula recurso de outro tomador / role insuficiente (403);
+//   parcela desconhecida no detalhe -> 404.
+// - recebimento exige header Idempotency-Key (ausente -> 400; key reapresentada com
+//   payload divergente -> 409; mesma key + mesmo payload -> replay com novo=false).
+// - parcela "...0007" ja tem renegociacao ativa (criar proposta -> 409).
+// - renegociacao exige X-Step-Up-Token na criacao e no aceite; a recusa nao exige.
+// Estado de recebimentos e de renegociacao e por sessao do mock; ids dedicados isolam testes.
+const AGENDA_ID = 'a0000000-0000-4000-8000-000000000a01';
+const AGENDA_SUBSTITUTA_ID = 'a0000000-0000-4000-8000-000000000b01';
+const COBRANCA_CONTRATO_ID = CONTRATO_ASSINADO_ID;
+const PARCELA_PENDENTE_ID = 'a0000000-0000-4000-8000-000000000001';
+const PARCELA_ATRASADA_ID = 'a0000000-0000-4000-8000-000000000002';
+const PARCELA_PARCIAL_ID = 'a0000000-0000-4000-8000-000000000003';
+const PARCELA_PAGA_ID = 'a0000000-0000-4000-8000-000000000004';
+const PARCELA_INADIMPLENTE_ID = 'a0000000-0000-4000-8000-000000000005';
+const PARCELA_PARA_RECEBIMENTO_ID = 'a0000000-0000-4000-8000-000000000006';
+const PARCELA_RENEG_ATIVA_ID = 'a0000000-0000-4000-8000-000000000007';
+const PARCELA_SEM_OWNERSHIP_ID = 'a0000000-0000-4000-8000-0000000000ff';
+const RENEG_PARA_ACEITE_ID = 'b0000000-0000-4000-8000-000000000001';
+const RENEG_PARA_RECUSA_ID = 'b0000000-0000-4000-8000-000000000002';
+const RENEG_DECIDIDA_ID = 'b0000000-0000-4000-8000-000000000003';
+const RENEG_CRIADA_ID = 'b0000000-0000-4000-8000-0000000000c1';
+const ESCROW_MOV_ID = 'c0000000-0000-4000-8000-0000000000e1';
+
+function parcelaEstatica(
+  id: string,
+  numero: number,
+  principal: number,
+  juros: number,
+  multa: number,
+  encargos: number,
+  dataVencimento: string,
+  status: string,
+) {
+  return {
+    id,
+    numero,
+    principal,
+    juros,
+    multa,
+    encargos,
+    total: principal + juros + multa + encargos,
+    dataVencimento,
+    status,
+  };
+}
+
+const agendaFake = {
+  id: AGENDA_ID,
+  contratoId: COBRANCA_CONTRATO_ID,
+  numeroParcelas: 4,
+  valorTotal: 4000.0,
+  dataGeracao: now,
+  parcelas: [
+    parcelaEstatica(PARCELA_PENDENTE_ID, 1, 1000.0, 0, 0, 0, '2026-07-15', 'PENDENTE'),
+    parcelaEstatica(PARCELA_ATRASADA_ID, 2, 1000.0, 0, 0, 0, '2026-05-15', 'ATRASADA'),
+    parcelaEstatica(PARCELA_PARCIAL_ID, 3, 1000.0, 0, 0, 0, '2026-06-15', 'PARCIALMENTE_PAGA'),
+    parcelaEstatica(PARCELA_PAGA_ID, 4, 1000.0, 0, 0, 0, '2026-04-15', 'PAGA'),
+  ],
+};
+
+function valorAtualizado(
+  parcelaId: string,
+  numero: number,
+  status: string,
+  dataVencimento: string,
+  principalOriginal: number,
+  jurosOriginal: number,
+  jurosMora: number,
+  multa: number,
+  totalRecebido: number,
+) {
+  const valorDevidoAtualizado = principalOriginal + jurosOriginal + jurosMora + multa;
+  return {
+    parcelaId,
+    numero,
+    status,
+    dataVencimento,
+    principalOriginal,
+    jurosOriginal,
+    jurosMora,
+    multa,
+    valorDevidoAtualizado,
+    totalRecebido,
+    valorEmAberto: valorDevidoAtualizado - totalRecebido,
+  };
+}
+
+const detalheParcela: Record<string, ReturnType<typeof valorAtualizado>> = {
+  [PARCELA_PENDENTE_ID]: valorAtualizado(
+    PARCELA_PENDENTE_ID,
+    1,
+    'PENDENTE',
+    '2026-07-15',
+    1000,
+    0,
+    0,
+    0,
+    0,
+  ),
+  [PARCELA_ATRASADA_ID]: valorAtualizado(
+    PARCELA_ATRASADA_ID,
+    2,
+    'ATRASADA',
+    '2026-05-15',
+    1000,
+    0,
+    12.34,
+    20,
+    0,
+  ),
+  [PARCELA_PARCIAL_ID]: valorAtualizado(
+    PARCELA_PARCIAL_ID,
+    3,
+    'PARCIALMENTE_PAGA',
+    '2026-06-15',
+    1000,
+    0,
+    0,
+    0,
+    400,
+  ),
+  [PARCELA_PAGA_ID]: valorAtualizado(PARCELA_PAGA_ID, 4, 'PAGA', '2026-04-15', 1000, 0, 0, 0, 1000),
+  [PARCELA_PARA_RECEBIMENTO_ID]: valorAtualizado(
+    PARCELA_PARA_RECEBIMENTO_ID,
+    5,
+    'ATRASADA',
+    '2026-05-01',
+    1000,
+    0,
+    30,
+    20,
+    0,
+  ),
+  [PARCELA_INADIMPLENTE_ID]: valorAtualizado(
+    PARCELA_INADIMPLENTE_ID,
+    6,
+    'INADIMPLENTE',
+    '2026-02-01',
+    1000,
+    0,
+    90,
+    20,
+    0,
+  ),
+};
+
+const inadimplenciaSeed = [
+  {
+    parcelaId: PARCELA_ATRASADA_ID,
+    agendaId: AGENDA_ID,
+    contratoId: COBRANCA_CONTRATO_ID,
+    tomadorId: TOMADOR_ID,
+    numeroParcela: 2,
+    status: 'ATRASADA',
+    dataVencimento: '2026-05-15',
+    diasAtraso: 21,
+    valorOriginal: 1000.0,
+  },
+  {
+    parcelaId: PARCELA_INADIMPLENTE_ID,
+    agendaId: AGENDA_ID,
+    contratoId: COBRANCA_CONTRATO_ID,
+    tomadorId: TOMADOR_ID,
+    numeroParcela: 6,
+    status: 'INADIMPLENTE',
+    dataVencimento: '2026-02-01',
+    diasAtraso: 124,
+    valorOriginal: 1000.0,
+  },
+];
+
+const recebimentos: Record<string, unknown>[] = [
+  {
+    recebimentoId: 'c0000000-0000-4000-8000-000000000071',
+    parcelaId: PARCELA_PARCIAL_ID,
+    statusParcela: 'PARCIALMENTE_PAGA',
+    valorRecebido: 400.0,
+    dataRecebimento: now,
+    meioPagamento: 'PIX',
+    identificadorExterno: 'comp-seed-001',
+    movimentacaoEscrowId: ESCROW_MOV_ID,
+    novo: false,
+  },
+];
+
+// Idempotency-Key -> { hash do payload, resposta original } para detectar replay vs conflito.
+const recebimentoPorChave = new Map<string, { hash: string; response: Record<string, unknown> }>();
+let recebimentoSeq = 0;
+let eventoSeq = 0;
+
+function novoId(prefixo: string, seq: number): string {
+  return `${prefixo}-0000-4000-8000-${String(seq).padStart(12, '0')}`;
+}
+
+function renegociacaoFake(
+  id: string,
+  parcelaOriginalId: string,
+  status: string,
+  dados: {
+    novoValorParcela: number;
+    novoVencimento: string;
+    numeroParcelas: number;
+    desconto: number;
+  },
+  dataDecisao: string | null = null,
+  agendaSubstitutaId: string | null = null,
+) {
+  return {
+    id,
+    parcelaOriginalId,
+    agendaOriginalId: AGENDA_ID,
+    tomadorId: TOMADOR_ID,
+    status,
+    statusParcelaAnterior: 'ATRASADA',
+    novoValorParcela: dados.novoValorParcela,
+    novoVencimento: dados.novoVencimento,
+    numeroParcelas: dados.numeroParcelas,
+    desconto: dados.desconto,
+    propostaPor: adminUsuario.id,
+    dataProposta: now,
+    dataExpiracao: '2026-06-12T18:30:00-03:00',
+    dataDecisao,
+    agendaSubstitutaId,
+  };
+}
+
+const renegociacoes: Record<string, ReturnType<typeof renegociacaoFake>> = {
+  [RENEG_PARA_ACEITE_ID]: renegociacaoFake(
+    RENEG_PARA_ACEITE_ID,
+    PARCELA_INADIMPLENTE_ID,
+    'PROPOSTA',
+    {
+      novoValorParcela: 950.0,
+      novoVencimento: '2026-07-10',
+      numeroParcelas: 6,
+      desconto: 50.0,
+    },
+  ),
+  [RENEG_PARA_RECUSA_ID]: renegociacaoFake(RENEG_PARA_RECUSA_ID, PARCELA_ATRASADA_ID, 'PROPOSTA', {
+    novoValorParcela: 980.0,
+    novoVencimento: '2026-07-10',
+    numeroParcelas: 4,
+    desconto: 20.0,
+  }),
+  [RENEG_DECIDIDA_ID]: renegociacaoFake(
+    RENEG_DECIDIDA_ID,
+    PARCELA_PARA_RECEBIMENTO_ID,
+    'ACEITA',
+    { novoValorParcela: 900.0, novoVencimento: '2026-07-10', numeroParcelas: 3, desconto: 100.0 },
+    now,
+    AGENDA_SUBSTITUTA_ID,
+  ),
+};
+
+const cobrancaHandlers = [
+  http.get(`${baseUrl}/cobranca/contratos/:contratoId/agenda`, ({ params }) => {
+    const contratoId = params['contratoId'] as string;
+    const path = `/api/v1/cobranca/contratos/${contratoId}/agenda`;
+    if (contratoId === CONTRATO_SEM_OWNERSHIP_ID) {
+      return errorResponse(403, 'Forbidden', 'Contrato de outro tomador', path);
+    }
+    if (contratoId !== COBRANCA_CONTRATO_ID) {
+      return errorResponse(404, 'Not Found', 'Agenda nao encontrada', path);
+    }
+    return HttpResponse.json(agendaFake);
+  }),
+
+  http.get(`${baseUrl}/cobranca/recebimentos`, () => HttpResponse.json(recebimentos)),
+
+  http.get(`${baseUrl}/cobranca/inadimplencia`, ({ request }) => {
+    const url = new URL(request.url);
+    const min = url.searchParams.get('dias_atraso_min');
+    const max = url.searchParams.get('dias_atraso_max');
+    const status = url.searchParams.get('status');
+    let linhas = inadimplenciaSeed;
+    if (status) {
+      linhas = linhas.filter((l) => l.status === status);
+    }
+    if (min) {
+      linhas = linhas.filter((l) => l.diasAtraso >= Number(min));
+    }
+    if (max) {
+      linhas = linhas.filter((l) => l.diasAtraso <= Number(max));
+    }
+    return HttpResponse.json(linhas);
+  }),
+
+  http.post(`${baseUrl}/cobranca/parcelas/:id/recebimentos`, async ({ params, request }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/cobranca/parcelas/${id}/recebimentos`;
+    const chave = request.headers.get('Idempotency-Key');
+    if (!chave) {
+      return errorResponse(400, 'Bad Request', "Header 'Idempotency-Key' ausente", path);
+    }
+    if (id === PARCELA_SEM_OWNERSHIP_ID) {
+      return errorResponse(403, 'Forbidden', 'Sem permissao para registrar recebimento', path);
+    }
+    const body = (await request.json()) as Record<string, unknown>;
+    const hash = JSON.stringify(body);
+    const anterior = recebimentoPorChave.get(chave);
+    if (anterior) {
+      if (anterior.hash !== hash) {
+        return errorResponse(
+          409,
+          'Conflict',
+          'Idempotency-Key reapresentada com payload divergente',
+          path,
+        );
+      }
+      return HttpResponse.json({ ...anterior.response, novo: false });
+    }
+    recebimentoSeq += 1;
+    const response = {
+      recebimentoId: novoId('c0000000', recebimentoSeq),
+      parcelaId: id,
+      statusParcela: 'PARCIALMENTE_PAGA',
+      valorRecebido: body['valorRecebido'],
+      dataRecebimento: body['dataRecebimento'],
+      meioPagamento: body['meioPagamento'],
+      identificadorExterno: body['identificadorExterno'] ?? null,
+      movimentacaoEscrowId: ESCROW_MOV_ID,
+      novo: true,
+    };
+    recebimentoPorChave.set(chave, { hash, response });
+    recebimentos.unshift(response);
+    return HttpResponse.json(response, { status: 200 });
+  }),
+
+  http.post(`${baseUrl}/cobranca/parcelas/:id/contato`, async ({ params, request }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/cobranca/parcelas/${id}/contato`;
+    const body = (await request.json()) as { descricao?: string; diasAtraso?: number };
+    if (!body.descricao) {
+      return errorResponse(400, 'Bad Request', 'descricao obrigatoria', path);
+    }
+    eventoSeq += 1;
+    return HttpResponse.json(
+      {
+        id: novoId('d0000000', eventoSeq),
+        parcelaId: id,
+        tipo: 'CONTATO_MANUAL',
+        canal: null,
+        template: null,
+        status: 'SUCESSO',
+        diasAtraso: body.diasAtraso ?? null,
+        descricao: body.descricao,
+        registradoPor: adminUsuario.id,
+        dataEvento: now,
+      },
+      { status: 201 },
+    );
+  }),
+
+  http.post(`${baseUrl}/cobranca/parcelas/:id/renegociacao`, async ({ params, request }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/cobranca/parcelas/${id}/renegociacao`;
+    if (!request.headers.get('X-Step-Up-Token')) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
+    }
+    if (id === PARCELA_RENEG_ATIVA_ID) {
+      return errorResponse(409, 'Conflict', 'Ja existe renegociacao ativa pra parcela', path);
+    }
+    const body = (await request.json()) as {
+      novoValorParcela: number;
+      novoVencimento: string;
+      numeroParcelas: number;
+      desconto: number;
+    };
+    return HttpResponse.json(renegociacaoFake(RENEG_CRIADA_ID, id, 'PROPOSTA', body), {
+      status: 201,
+    });
+  }),
+
+  http.patch(`${baseUrl}/cobranca/renegociacoes/:id/aceite`, ({ params, request }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/cobranca/renegociacoes/${id}/aceite`;
+    if (!request.headers.get('X-Step-Up-Token')) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
+    }
+    const renegociacao = renegociacoes[id];
+    if (!renegociacao) {
+      return errorResponse(404, 'Not Found', 'Renegociacao nao encontrada', path);
+    }
+    if (renegociacao.status !== 'PROPOSTA') {
+      return errorResponse(409, 'Conflict', 'Renegociacao ja decidida ou expirada', path);
+    }
+    renegociacao.status = 'ACEITA';
+    renegociacao.dataDecisao = now;
+    renegociacao.agendaSubstitutaId = AGENDA_SUBSTITUTA_ID;
+    return HttpResponse.json(renegociacao);
+  }),
+
+  http.patch(`${baseUrl}/cobranca/renegociacoes/:id/recusa`, ({ params }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/cobranca/renegociacoes/${id}/recusa`;
+    const renegociacao = renegociacoes[id];
+    if (!renegociacao) {
+      return errorResponse(404, 'Not Found', 'Renegociacao nao encontrada', path);
+    }
+    if (renegociacao.status !== 'PROPOSTA') {
+      return errorResponse(409, 'Conflict', 'Renegociacao ja decidida ou expirada', path);
+    }
+    renegociacao.status = 'RECUSADA';
+    renegociacao.dataDecisao = now;
+    return HttpResponse.json(renegociacao);
+  }),
+
+  // Por id mantido por ultimo: as rotas com sub-segmento (/recebimentos, /contato,
+  // /renegociacao) ja casaram por metodo/caminho antes deste GET de detalhe.
+  http.get(`${baseUrl}/cobranca/parcelas/:id`, ({ params }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/cobranca/parcelas/${id}`;
+    if (id === PARCELA_SEM_OWNERSHIP_ID) {
+      return errorResponse(403, 'Forbidden', 'Parcela de contrato de outro tomador', path);
+    }
+    const detalhe = detalheParcela[id];
+    if (!detalhe) {
+      return errorResponse(404, 'Not Found', 'Parcela nao encontrada', path);
+    }
+    return HttpResponse.json(detalhe);
+  }),
+];
+
 // Mocks alinhados ao PRD §21 (contratos iniciais dos endpoints).
 // Sucesso login usa admin@empresa.com / 123456.
 // 401: credenciais invalidas. 409: cadastro com duplicado@empresa.com.
@@ -821,4 +1249,5 @@ export const handlers = [
   ...onboardingHandlers,
   ...creditoHandlers,
   ...formalizacaoHandlers,
+  ...cobrancaHandlers,
 ];
