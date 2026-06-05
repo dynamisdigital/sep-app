@@ -1,0 +1,91 @@
+<section class="sep-parcela-fin">
+  @if (loading()) {
+    <p class="sep-parcela-fin-state" role="status">Carregando parcela...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-parcela-fin-state sep-parcela-fin-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="sep-parcela-fin-retry" (click)="carregar()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (naoEncontrada()) {
+    <div class="sep-parcela-fin-state sep-parcela-fin-empty">
+      <p>Parcela nao encontrada.</p>
+    </div>
+  } @else if (parcela(); as p) {
+    <header class="sep-parcela-fin-header">
+      <h1 class="sep-parcela-fin-title">Parcela {{ p.numero }}</h1>
+      <sep-parcela-status [status]="p.status" />
+    </header>
+
+    <p class="sep-parcela-fin-vencimento">Vencimento: {{ formatarDataLocal(p.dataVencimento) }}</p>
+
+    <sep-parcela-composicao [parcela]="p" />
+
+    @if (recebimentos().length > 0) {
+      <section class="sep-parcela-fin-recebimentos">
+        <h2 class="sep-parcela-fin-subtitle">Recebimentos desta parcela</h2>
+        <ul class="sep-parcela-fin-recebimentos-list">
+          @for (r of recebimentos(); track r.recebimentoId) {
+            <li class="sep-parcela-fin-recebimento">
+              <span>{{ formatarMoeda(r.valorRecebido) }}</span>
+              <span>{{ r.meioPagamento }}</span>
+              <span>{{ formatarData(r.dataRecebimento) }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    @if (podeReceber()) {
+      <form class="sep-parcela-fin-form" [formGroup]="form" (ngSubmit)="registrar()">
+        <h2 class="sep-parcela-fin-subtitle">Registrar recebimento</h2>
+
+        <label class="sep-parcela-fin-field">
+          <span>Valor recebido</span>
+          <input type="number" step="0.01" formControlName="valorRecebido" />
+        </label>
+
+        <label class="sep-parcela-fin-field">
+          <span>Data do recebimento</span>
+          <input type="datetime-local" formControlName="dataRecebimento" />
+        </label>
+
+        <label class="sep-parcela-fin-field">
+          <span>Meio de pagamento</span>
+          <select formControlName="meioPagamento">
+            @for (meio of meiosPagamento; track meio) {
+              <option [value]="meio">{{ meio }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="sep-parcela-fin-field">
+          <span>Identificador externo (opcional)</span>
+          <input type="text" formControlName="identificadorExterno" maxlength="100" />
+        </label>
+
+        <label class="sep-parcela-fin-field">
+          <span>Observacao (opcional)</span>
+          <textarea formControlName="observacao" maxlength="500" rows="2"></textarea>
+        </label>
+
+        <button type="submit" class="sep-parcela-fin-cta" [disabled]="submitting()">
+          @if (submitting()) {
+            Registrando...
+          } @else {
+            Registrar recebimento
+          }
+        </button>
+
+        @if (recebimentoErro(); as msg) {
+          <p class="sep-parcela-fin-form-error" role="alert">{{ msg }}</p>
+        }
+      </form>
+    } @else {
+      <p class="sep-parcela-fin-bloqueado" role="note">
+        Parcela nao aceita recebimento manual no estado atual.
+      </p>
+    }
+  }
+</section>

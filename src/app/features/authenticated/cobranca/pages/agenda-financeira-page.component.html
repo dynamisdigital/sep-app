@@ -1,0 +1,63 @@
+<section class="sep-financeira">
+  <header class="sep-financeira-header">
+    <h1 class="sep-financeira-title">Agenda financeira</h1>
+    <p class="sep-financeira-subtitle">Recebimentos registrados e acesso a uma parcela.</p>
+  </header>
+
+  <p class="sep-financeira-gap" role="note">
+    Sem lista global de agendas no backend: abra a parcela pelo id. A lista de recebimentos nao e
+    paginada nesta fase.
+  </p>
+
+  <form class="sep-financeira-lookup" [formGroup]="lookupForm" (ngSubmit)="abrirParcela()">
+    <label class="sep-financeira-lookup-label" for="parcelaId">Abrir parcela por id</label>
+    <div class="sep-financeira-lookup-row">
+      <input
+        id="parcelaId"
+        type="text"
+        class="sep-financeira-lookup-input"
+        formControlName="parcelaId"
+        placeholder="UUID da parcela"
+      />
+      <button type="submit" class="sep-financeira-lookup-cta">Abrir</button>
+    </div>
+  </form>
+
+  @if (loading()) {
+    <p class="sep-financeira-state" role="status">Carregando recebimentos...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-financeira-state sep-financeira-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="sep-financeira-retry" (click)="carregar()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (recebimentos().length === 0) {
+    <div class="sep-financeira-state sep-financeira-empty">
+      <p>Nenhum recebimento registrado.</p>
+    </div>
+  } @else {
+    <ul class="sep-financeira-recebimentos">
+      @for (r of recebimentos(); track r.recebimentoId) {
+        <li class="sep-financeira-recebimento">
+          <a
+            [routerLink]="['/app/cobranca/financeiro/parcelas', r.parcelaId]"
+            class="sep-financeira-recebimento-link"
+          >
+            <span class="sep-financeira-recebimento-valor">{{
+              formatarMoeda(r.valorRecebido)
+            }}</span>
+            <span class="sep-financeira-recebimento-meio">{{ r.meioPagamento }}</span>
+            <span class="sep-financeira-recebimento-data">{{
+              formatarData(r.dataRecebimento)
+            }}</span>
+            <span class="sep-financeira-recebimento-parcela">
+              Parcela {{ idCurto(r.parcelaId) }}
+            </span>
+            <sep-parcela-status [status]="r.statusParcela" />
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</section>

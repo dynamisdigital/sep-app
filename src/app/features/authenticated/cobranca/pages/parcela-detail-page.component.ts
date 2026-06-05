@@ -4,13 +4,9 @@ import { ActivatedRoute } from '@angular/router';
 
 import { ValorAtualizadoParcelaResponse } from '../../../../core/api/api.models';
 import { CobrancaService } from '../../../../core/cobranca/cobranca.service';
+import { ParcelaComposicaoComponent } from '../shared/parcela-composicao.component';
 import { ParcelaStatusComponent } from '../shared/parcela-status.component';
-import {
-  formatarDataLocal,
-  formatarMoeda,
-  idCurto,
-  mensagemCobrancaErro,
-} from '../shared/cobranca-format';
+import { formatarDataLocal, mensagemCobrancaErro } from '../shared/cobranca-format';
 
 // Detalhe da parcela com o valor atualizado contra 'agora' calculado no backend:
 // composicao original, mora/multa, total recebido e saldo em aberto. Leitura apenas;
@@ -18,7 +14,7 @@ import {
 // tratado pelo errorInterceptor global (redirect /access-denied).
 @Component({
   selector: 'sep-parcela-detail-page',
-  imports: [ParcelaStatusComponent],
+  imports: [ParcelaStatusComponent, ParcelaComposicaoComponent],
   templateUrl: './parcela-detail-page.component.html',
   styleUrl: './parcela-detail-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,9 +30,7 @@ export class ParcelaDetailPageComponent implements OnInit {
   protected readonly naoEncontrada = signal(false);
   protected readonly parcela = signal<ValorAtualizadoParcelaResponse | null>(null);
 
-  protected readonly formatarMoeda = formatarMoeda;
   protected readonly formatarDataLocal = formatarDataLocal;
-  protected readonly idCurto = idCurto;
 
   ngOnInit(): void {
     this.id = this.route.snapshot.paramMap.get('id') ?? '';

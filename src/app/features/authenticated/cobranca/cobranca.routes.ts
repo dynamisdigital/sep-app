@@ -30,7 +30,18 @@ export const COBRANCA_ROUTES: Routes = [
     canActivate: [roleGuard],
     data: { roles: ['FINANCEIRO', 'ADMIN'], breadcrumb: 'Agenda financeira' },
     loadComponent: () =>
-      import('./cobranca-em-preparacao.component').then((m) => m.CobrancaEmPreparacaoComponent),
+      import('./pages/agenda-financeira-page.component').then(
+        (m) => m.AgendaFinanceiraPageComponent,
+      ),
+  },
+  {
+    path: 'financeiro/parcelas/:id',
+    canActivate: [roleGuard],
+    data: { roles: ['FINANCEIRO', 'ADMIN'], breadcrumb: 'Parcela' },
+    loadComponent: () =>
+      import('./pages/parcela-financeira-page.component').then(
+        (m) => m.ParcelaFinanceiraPageComponent,
+      ),
   },
   {
     path: 'financeiro/inadimplencia',

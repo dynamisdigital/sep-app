@@ -1,0 +1,31 @@
+@let p = parcela();
+<dl class="sep-parcela-composicao">
+  <div class="sep-parcela-linha">
+    <dt>Principal</dt>
+    <dd>{{ formatarMoeda(p.principalOriginal) }}</dd>
+  </div>
+  <div class="sep-parcela-linha">
+    <dt>Juros</dt>
+    <dd>{{ formatarMoeda(p.jurosOriginal) }}</dd>
+  </div>
+  <div class="sep-parcela-linha">
+    <dt>Juros de mora</dt>
+    <dd>{{ formatarMoeda(p.jurosMora) }}</dd>
+  </div>
+  <div class="sep-parcela-linha">
+    <dt>Multa</dt>
+    <dd>{{ formatarMoeda(p.multa) }}</dd>
+  </div>
+  <div class="sep-parcela-linha">
+    <dt>Total recebido</dt>
+    <dd>{{ formatarMoeda(p.totalRecebido) }}</dd>
+  </div>
+  <div class="sep-parcela-linha sep-parcela-linha-destaque">
+    <dt>Valor devido atualizado</dt>
+    <dd>{{ formatarMoeda(p.valorDevidoAtualizado) }}</dd>
+  </div>
+  <div class="sep-parcela-linha sep-parcela-linha-destaque">
+    <dt>Valor em aberto</dt>
+    <dd>{{ formatarMoeda(p.valorEmAberto) }}</dd>
+  </div>
+</dl>

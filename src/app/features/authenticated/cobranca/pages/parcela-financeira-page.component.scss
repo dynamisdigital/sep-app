@@ -1,0 +1,134 @@
+@use "../../../../../styles/notion-typography" as notionType;
+@use "../../../../../styles/notion-components" as notion;
+
+.sep-parcela-fin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-16);
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--notion-space-16) 0;
+}
+
+.sep-parcela-fin-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--notion-space-12);
+}
+
+.sep-parcela-fin-title {
+  @include notionType.notion-type-section-heading;
+
+  margin: 0;
+  color: var(--notion-color-text);
+}
+
+.sep-parcela-fin-vencimento {
+  @include notionType.notion-type-body;
+
+  margin: 0;
+  color: var(--notion-color-text-muted);
+}
+
+.sep-parcela-fin-subtitle {
+  @include notionType.notion-type-card-title;
+
+  margin: 0;
+  color: var(--notion-color-text);
+}
+
+.sep-parcela-fin-state {
+  @include notionType.notion-type-body;
+
+  color: var(--notion-color-text-muted);
+}
+
+.sep-parcela-fin-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+  align-items: flex-start;
+  color: var(--notion-color-orange);
+}
+
+.sep-parcela-fin-retry {
+  @include notion.notion-button-secondary;
+}
+
+.sep-parcela-fin-empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+  align-items: flex-start;
+}
+
+.sep-parcela-fin-recebimentos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+}
+
+.sep-parcela-fin-recebimentos-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sep-parcela-fin-recebimento {
+  @include notionType.notion-type-body;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--notion-space-12);
+  color: var(--notion-color-text-muted);
+}
+
+.sep-parcela-fin-form {
+  @include notion.notion-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-12);
+}
+
+.sep-parcela-fin-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-4);
+
+  span {
+    @include notionType.notion-type-caption;
+
+    color: var(--notion-color-text-muted);
+  }
+
+  input,
+  select,
+  textarea {
+    @include notion.notion-input;
+  }
+}
+
+.sep-parcela-fin-cta {
+  @include notion.notion-button-primary;
+
+  align-self: flex-start;
+}
+
+.sep-parcela-fin-form-error {
+  @include notionType.notion-type-body;
+
+  margin: 0;
+  color: var(--notion-color-orange);
+}
+
+.sep-parcela-fin-bloqueado {
+  @include notionType.notion-type-body;
+
+  margin: 0;
+  color: var(--notion-color-text-muted);
+}
