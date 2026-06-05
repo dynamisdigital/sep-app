@@ -1,0 +1,49 @@
+<section class="sep-agenda">
+  @if (loading()) {
+    <p class="sep-agenda-state" role="status">Carregando agenda...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-agenda-state sep-agenda-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="sep-agenda-retry" (click)="carregar()">Tentar novamente</button>
+    </div>
+  } @else if (indisponivel()) {
+    <div class="sep-agenda-state sep-agenda-empty">
+      <p>Agenda em geracao ou indisponivel para este contrato.</p>
+    </div>
+  } @else if (agenda(); as a) {
+    <header class="sep-agenda-header">
+      <h1 class="sep-agenda-title">Agenda de cobranca</h1>
+      <p class="sep-agenda-subtitle">Contrato {{ idCurto(a.contratoId) }}</p>
+    </header>
+
+    <dl class="sep-agenda-resumo">
+      <div class="sep-agenda-resumo-item">
+        <dt>Parcelas</dt>
+        <dd>{{ a.numeroParcelas }}</dd>
+      </div>
+      <div class="sep-agenda-resumo-item">
+        <dt>Valor total</dt>
+        <dd>{{ formatarMoeda(a.valorTotal) }}</dd>
+      </div>
+      <div class="sep-agenda-resumo-item">
+        <dt>Gerada em</dt>
+        <dd>{{ formatarData(a.dataGeracao) }}</dd>
+      </div>
+    </dl>
+
+    <ul class="sep-agenda-parcelas">
+      @for (parcela of a.parcelas; track parcela.id) {
+        <li class="sep-agenda-parcela">
+          <a [routerLink]="['/app/cobranca/parcelas', parcela.id]" class="sep-agenda-parcela-link">
+            <span class="sep-agenda-parcela-numero">Parcela {{ parcela.numero }}</span>
+            <sep-parcela-status [status]="parcela.status" />
+            <span class="sep-agenda-parcela-vencimento">
+              Vence {{ formatarDataLocal(parcela.dataVencimento) }}
+            </span>
+            <span class="sep-agenda-parcela-total">{{ formatarMoeda(parcela.total) }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</section>

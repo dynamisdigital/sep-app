@@ -263,3 +263,12 @@
   color: var(--notion-color-text-muted);
   word-break: break-all;
 }
+
+.sep-contrato-detail-cobranca {
+  display: flex;
+}
+
+.sep-contrato-detail-cobranca-link {
+  color: var(--notion-color-blue);
+  text-decoration: none;
+}

@@ -1,0 +1,127 @@
+@use "../../../../../styles/notion-typography" as notionType;
+@use "../../../../../styles/notion-components" as notion;
+
+.sep-agenda {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-24);
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--notion-space-16) 0;
+}
+
+.sep-agenda-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-6);
+}
+
+.sep-agenda-title {
+  @include notionType.notion-type-section-heading;
+
+  margin: 0;
+  color: var(--notion-color-text);
+}
+
+.sep-agenda-subtitle {
+  @include notionType.notion-type-body;
+
+  margin: 0;
+  color: var(--notion-color-text-muted);
+}
+
+.sep-agenda-state {
+  @include notionType.notion-type-body;
+
+  color: var(--notion-color-text-muted);
+}
+
+.sep-agenda-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+  align-items: flex-start;
+  color: var(--notion-color-orange);
+}
+
+.sep-agenda-retry {
+  @include notion.notion-button-secondary;
+}
+
+.sep-agenda-empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+  align-items: flex-start;
+}
+
+.sep-agenda-resumo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--notion-space-16);
+  margin: 0;
+}
+
+.sep-agenda-resumo-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-2);
+
+  dt {
+    @include notionType.notion-type-caption;
+
+    color: var(--notion-color-text-muted);
+  }
+
+  dd {
+    @include notionType.notion-type-body;
+
+    margin: 0;
+    color: var(--notion-color-text);
+  }
+}
+
+.sep-agenda-parcelas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sep-agenda-parcela-link {
+  @include notion.notion-card;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--notion-space-12);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 120ms ease;
+
+  &:hover {
+    border-color: var(--notion-color-blue);
+  }
+}
+
+.sep-agenda-parcela-numero {
+  @include notionType.notion-type-card-title;
+
+  color: var(--notion-color-text);
+}
+
+.sep-agenda-parcela-vencimento {
+  @include notionType.notion-type-body;
+
+  color: var(--notion-color-text-muted);
+}
+
+.sep-agenda-parcela-total {
+  @include notionType.notion-type-body;
+
+  margin-left: auto;
+  color: var(--notion-color-text);
+}

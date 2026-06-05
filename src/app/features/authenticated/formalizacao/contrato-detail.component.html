@@ -109,6 +109,15 @@
           <p class="sep-contrato-detail-aceite-error" role="alert">{{ msg }}</p>
         }
       </div>
+
+      <div class="sep-contrato-detail-cobranca">
+        <a
+          [routerLink]="['/app/cobranca/contratos', c.id, 'agenda']"
+          class="sep-contrato-detail-cobranca-link"
+        >
+          Ver agenda de cobranca
+        </a>
+      </div>
     }
 
     @if (versaoSelecionada(); as versao) {

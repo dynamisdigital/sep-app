@@ -1,0 +1,134 @@
+@use "../../../../../styles/notion-typography" as notionType;
+@use "../../../../../styles/notion-components" as notion;
+
+.sep-financeira {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-16);
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--notion-space-16) 0;
+}
+
+.sep-financeira-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-6);
+}
+
+.sep-financeira-title {
+  @include notionType.notion-type-section-heading;
+
+  margin: 0;
+  color: var(--notion-color-text);
+}
+
+.sep-financeira-subtitle {
+  @include notionType.notion-type-body;
+
+  margin: 0;
+  color: var(--notion-color-text-muted);
+}
+
+.sep-financeira-gap {
+  @include notionType.notion-type-caption;
+
+  margin: 0;
+  color: var(--notion-color-text-muted);
+}
+
+.sep-financeira-lookup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-6);
+}
+
+.sep-financeira-lookup-label {
+  @include notionType.notion-type-caption;
+
+  color: var(--notion-color-text-muted);
+}
+
+.sep-financeira-lookup-row {
+  display: flex;
+  gap: var(--notion-space-8);
+}
+
+.sep-financeira-lookup-input {
+  @include notion.notion-input;
+
+  flex: 1;
+}
+
+.sep-financeira-lookup-cta {
+  @include notion.notion-button-secondary;
+}
+
+.sep-financeira-state {
+  @include notionType.notion-type-body;
+
+  color: var(--notion-color-text-muted);
+}
+
+.sep-financeira-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+  align-items: flex-start;
+  color: var(--notion-color-orange);
+}
+
+.sep-financeira-retry {
+  @include notion.notion-button-secondary;
+}
+
+.sep-financeira-empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+  align-items: flex-start;
+}
+
+.sep-financeira-recebimentos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sep-financeira-recebimento-link {
+  @include notion.notion-card;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--notion-space-12);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 120ms ease;
+
+  &:hover {
+    border-color: var(--notion-color-blue);
+  }
+}
+
+.sep-financeira-recebimento-valor {
+  @include notionType.notion-type-card-title;
+
+  color: var(--notion-color-text);
+}
+
+.sep-financeira-recebimento-meio,
+.sep-financeira-recebimento-data,
+.sep-financeira-recebimento-parcela {
+  @include notionType.notion-type-body;
+
+  color: var(--notion-color-text-muted);
+}
+
+.sep-financeira-recebimento-parcela {
+  margin-left: auto;
+}

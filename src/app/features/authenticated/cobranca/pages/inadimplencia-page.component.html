@@ -1,0 +1,60 @@
+<section class="sep-inad">
+  <header class="sep-inad-header">
+    <h1 class="sep-inad-title">Inadimplencia</h1>
+    <p class="sep-inad-subtitle">Parcelas atrasadas e inadimplentes para triagem.</p>
+  </header>
+
+  <form class="sep-inad-filtros" [formGroup]="filtros" (ngSubmit)="carregar()">
+    <label class="sep-inad-filtro">
+      <span>Dias de atraso (min)</span>
+      <input type="number" min="0" formControlName="diasAtrasoMin" />
+    </label>
+    <label class="sep-inad-filtro">
+      <span>Dias de atraso (max)</span>
+      <input type="number" min="0" formControlName="diasAtrasoMax" />
+    </label>
+    <label class="sep-inad-filtro">
+      <span>Status</span>
+      <select formControlName="status">
+        <option value="">Todos</option>
+        @for (status of statusFiltraveis; track status) {
+          <option [value]="status">{{ status }}</option>
+        }
+      </select>
+    </label>
+    <button type="submit" class="sep-inad-aplicar">Aplicar</button>
+  </form>
+
+  @if (loading()) {
+    <p class="sep-inad-state" role="status">Carregando inadimplencia...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-inad-state sep-inad-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="sep-inad-retry" (click)="carregar()">Tentar novamente</button>
+    </div>
+  } @else if (linhas().length === 0) {
+    <div class="sep-inad-state sep-inad-empty">
+      <p>Nenhuma parcela em atraso para os filtros aplicados.</p>
+    </div>
+  } @else {
+    <ul class="sep-inad-lista">
+      @for (linha of linhas(); track linha.parcelaId) {
+        <li class="sep-inad-linha">
+          <a
+            [routerLink]="['/app/cobranca/financeiro/parcelas', linha.parcelaId]"
+            class="sep-inad-linha-link"
+          >
+            <span class="sep-inad-linha-parcela">Parcela {{ linha.numeroParcela }}</span>
+            <sep-parcela-status [status]="linha.status" />
+            <span class="sep-inad-linha-atraso">{{ linha.diasAtraso }} dias</span>
+            <span class="sep-inad-linha-vencimento">
+              Venceu {{ formatarDataLocal(linha.dataVencimento) }}
+            </span>
+            <span class="sep-inad-linha-contrato">Contrato {{ idCurto(linha.contratoId) }}</span>
+            <span class="sep-inad-linha-valor">{{ formatarMoeda(linha.valorOriginal) }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</section>
