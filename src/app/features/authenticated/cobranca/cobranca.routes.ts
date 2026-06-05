@@ -14,6 +14,18 @@ export const COBRANCA_ROUTES: Routes = [
     loadComponent: () => import('./cobranca-shell.component').then((m) => m.CobrancaShellComponent),
   },
   {
+    path: 'contratos/:contratoId/agenda',
+    loadComponent: () =>
+      import('./pages/agenda-tomador-page.component').then((m) => m.AgendaTomadorPageComponent),
+    data: { breadcrumb: 'Agenda' },
+  },
+  {
+    path: 'parcelas/:id',
+    loadComponent: () =>
+      import('./pages/parcela-detail-page.component').then((m) => m.ParcelaDetailPageComponent),
+    data: { breadcrumb: 'Parcela' },
+  },
+  {
     path: 'financeiro/agenda',
     canActivate: [roleGuard],
     data: { roles: ['FINANCEIRO', 'ADMIN'], breadcrumb: 'Agenda financeira' },

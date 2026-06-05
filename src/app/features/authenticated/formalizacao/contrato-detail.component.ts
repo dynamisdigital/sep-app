@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import {
   ContratoResponse,
@@ -22,7 +22,7 @@ import {
 // visualizacao local; nao muta o contrato nem a versao vigente do backend.
 @Component({
   selector: 'sep-contrato-detail',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './contrato-detail.component.html',
   styleUrl: './contrato-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
