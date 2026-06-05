@@ -2,8 +2,9 @@ import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { CobrancaService } from '../../../../core/cobranca/cobranca.service';
 import { ParcelaFinanceiraPageComponent } from './parcela-financeira-page.component';
 
 const PARCELA_ATRASADA_ID = 'a0000000-0000-4000-8000-000000000002';
@@ -71,5 +72,29 @@ describe('ParcelaFinanceiraPageComponent', () => {
 
     expect(screen.getByText('Recebimentos desta parcela')).toBeTruthy();
     expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('envia dataRecebimento como ISO UTC (OffsetDateTime aceito pelo backend)', async () => {
+    const { fixture, container } = await renderParcela(PARCELA_ATRASADA_ID);
+    await estabilizar(fixture);
+    const service = fixture.debugElement.injector.get(CobrancaService);
+    const spy = vi.spyOn(service, 'registrarRecebimento');
+
+    const valor = container.querySelector(
+      'input[formControlName="valorRecebido"]',
+    ) as HTMLInputElement;
+    fireEvent.input(valor, { target: { value: '500' } });
+    const data = container.querySelector(
+      'input[formControlName="dataRecebimento"]',
+    ) as HTMLInputElement;
+    fireEvent.input(data, { target: { value: '2026-06-05T10:00' } });
+    fixture.detectChanges();
+
+    fireEvent.click(screen.getByRole('button', { name: /Registrar recebimento/ }));
+    await estabilizar(fixture);
+
+    expect(spy).toHaveBeenCalledTimes(1);
+    const request = spy.mock.calls[0][1];
+    expect(request.dataRecebimento).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
   });
 });
