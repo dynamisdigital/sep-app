@@ -41,33 +41,38 @@
       <form class="sep-parcela-fin-form" [formGroup]="form" (ngSubmit)="registrar()">
         <h2 class="sep-parcela-fin-subtitle">Registrar recebimento</h2>
 
-        <label class="sep-parcela-fin-field">
+        <label class="sep-parcela-fin-field" for="rec-valor">
           <span>Valor recebido</span>
-          <input type="number" step="0.01" formControlName="valorRecebido" />
+          <input id="rec-valor" type="number" step="0.01" formControlName="valorRecebido" />
         </label>
 
-        <label class="sep-parcela-fin-field">
+        <label class="sep-parcela-fin-field" for="rec-data">
           <span>Data do recebimento</span>
-          <input type="datetime-local" formControlName="dataRecebimento" />
+          <input id="rec-data" type="datetime-local" formControlName="dataRecebimento" />
         </label>
 
-        <label class="sep-parcela-fin-field">
+        <label class="sep-parcela-fin-field" for="rec-meio">
           <span>Meio de pagamento</span>
-          <select formControlName="meioPagamento">
+          <select id="rec-meio" formControlName="meioPagamento">
             @for (meio of meiosPagamento; track meio) {
               <option [value]="meio">{{ meio }}</option>
             }
           </select>
         </label>
 
-        <label class="sep-parcela-fin-field">
+        <label class="sep-parcela-fin-field" for="rec-ident">
           <span>Identificador externo (opcional)</span>
-          <input type="text" formControlName="identificadorExterno" maxlength="100" />
+          <input
+            id="rec-ident"
+            type="text"
+            formControlName="identificadorExterno"
+            maxlength="100"
+          />
         </label>
 
-        <label class="sep-parcela-fin-field">
+        <label class="sep-parcela-fin-field" for="rec-obs">
           <span>Observacao (opcional)</span>
-          <textarea formControlName="observacao" maxlength="500" rows="2"></textarea>
+          <textarea id="rec-obs" formControlName="observacao" maxlength="500" rows="2"></textarea>
         </label>
 
         <button type="submit" class="sep-parcela-fin-cta" [disabled]="submitting()">
@@ -91,14 +96,19 @@
     <form class="sep-parcela-fin-form" [formGroup]="contatoForm" (ngSubmit)="registrarContato()">
       <h2 class="sep-parcela-fin-subtitle">Registrar contato</h2>
 
-      <label class="sep-parcela-fin-field">
+      <label class="sep-parcela-fin-field" for="cont-descricao">
         <span>Descricao</span>
-        <textarea formControlName="descricao" maxlength="500" rows="2"></textarea>
+        <textarea
+          id="cont-descricao"
+          formControlName="descricao"
+          maxlength="500"
+          rows="2"
+        ></textarea>
       </label>
 
-      <label class="sep-parcela-fin-field">
+      <label class="sep-parcela-fin-field" for="cont-dias">
         <span>Dias de atraso (opcional)</span>
-        <input type="number" min="0" formControlName="diasAtraso" />
+        <input id="cont-dias" type="number" min="0" formControlName="diasAtraso" />
       </label>
 
       <button type="submit" class="sep-parcela-fin-cta" [disabled]="contatoSubmitting()">
@@ -136,29 +146,34 @@
         >
           <h2 class="sep-parcela-fin-subtitle">Propor renegociacao</h2>
 
-          <label class="sep-parcela-fin-field">
+          <label class="sep-parcela-fin-field" for="reneg-valor">
             <span>Novo valor por parcela</span>
-            <input type="number" step="0.01" formControlName="novoValorParcela" />
+            <input id="reneg-valor" type="number" step="0.01" formControlName="novoValorParcela" />
           </label>
 
-          <label class="sep-parcela-fin-field">
+          <label class="sep-parcela-fin-field" for="reneg-venc">
             <span>Vencimento inicial</span>
-            <input type="date" formControlName="novoVencimento" />
+            <input id="reneg-venc" type="date" formControlName="novoVencimento" />
           </label>
 
-          <label class="sep-parcela-fin-field">
+          <label class="sep-parcela-fin-field" for="reneg-num">
             <span>Numero de parcelas</span>
-            <input type="number" min="1" formControlName="numeroParcelas" />
+            <input id="reneg-num" type="number" min="1" formControlName="numeroParcelas" />
           </label>
 
-          <label class="sep-parcela-fin-field">
+          <label class="sep-parcela-fin-field" for="reneg-desc">
             <span>Desconto</span>
-            <input type="number" step="0.01" min="0" formControlName="desconto" />
+            <input id="reneg-desc" type="number" step="0.01" min="0" formControlName="desconto" />
           </label>
 
-          <label class="sep-parcela-fin-field">
+          <label class="sep-parcela-fin-field" for="reneg-just">
             <span>Justificativa</span>
-            <textarea formControlName="justificativa" maxlength="1000" rows="2"></textarea>
+            <textarea
+              id="reneg-just"
+              formControlName="justificativa"
+              maxlength="1000"
+              rows="2"
+            ></textarea>
           </label>
 
           <button type="submit" class="sep-parcela-fin-cta" [disabled]="renegSubmitting()">

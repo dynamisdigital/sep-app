@@ -26,9 +26,8 @@ test('tomador: agenda do contrato e detalhe da parcela', async ({ page }) => {
 
   await page.goto(`/app/cobranca/contratos/${CONTRATO_ASSINADO_ID}/agenda`);
   await expect(page.getByText('Agenda de cobranca')).toBeVisible();
-  await expect(page.getByText('Parcela 1')).toBeVisible();
 
-  await page.getByText('Parcela 1').click();
+  await page.getByRole('link', { name: /Parcela 1/ }).click();
   await page.waitForURL(/\/app\/cobranca\/parcelas\/.+/, { timeout: 10_000 });
   await expect(page.getByText('Valor em aberto')).toBeVisible();
 });
