@@ -52,7 +52,7 @@ function renderParcela(id: string, comStepUp = false) {
   });
 }
 
-function autenticarComMfa(fixture: ComponentFixture<unknown>): void {
+function autenticarFinanceiro(fixture: ComponentFixture<unknown>, mfaHabilitado: boolean): void {
   const auth = fixture.debugElement.injector.get(AuthService) as unknown as {
     currentUserState: { set: (u: unknown) => void };
   };
@@ -60,7 +60,7 @@ function autenticarComMfa(fixture: ComponentFixture<unknown>): void {
     id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771003',
     username: 'financeiro@empresa.com',
     role: 'FINANCEIRO',
-    mfaHabilitado: true,
+    mfaHabilitado,
     dataCriacao: '2026-04-24T18:30:00-03:00',
     dataModificacao: '2026-04-24T18:30:00-03:00',
     criadoPor: 'system',
@@ -238,7 +238,7 @@ describe('ParcelaFinanceiraPageComponent', () => {
   it('renegociacao sem step-up (403) redireciona para a confirmacao adicional', async () => {
     const { fixture, container } = await renderParcela(PARCELA_ATRASADA_ID, true);
     await estabilizar(fixture);
-    autenticarComMfa(fixture);
+    autenticarFinanceiro(fixture, true);
     const router = fixture.debugElement.injector.get(Router);
     const navegar = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
 
@@ -251,6 +251,23 @@ describe('ParcelaFinanceiraPageComponent', () => {
     expect(navegar).toHaveBeenCalledWith(
       `/app/step-up?next=/app/cobranca/financeiro/parcelas/${PARCELA_ATRASADA_ID}`,
     );
+  });
+
+  it('renegociacao 403 sem MFA habilitado mostra erro e nao redireciona', async () => {
+    const { fixture, container } = await renderParcela(PARCELA_ATRASADA_ID, true);
+    await estabilizar(fixture);
+    autenticarFinanceiro(fixture, false);
+    const router = fixture.debugElement.injector.get(Router);
+    const navegar = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+
+    preencherRenegociacao(container);
+    fixture.detectChanges();
+
+    fireEvent.click(screen.getByRole('button', { name: /Propor renegociacao/ }));
+    await estabilizar(fixture);
+
+    expect(navegar).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toBeTruthy();
   });
 });
 
