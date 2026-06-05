@@ -1,0 +1,57 @@
+@use "../../../../../styles/notion-typography" as notionType;
+@use "../../../../../styles/notion-components" as notion;
+
+.sep-parcela {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-16);
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--notion-space-16) 0;
+}
+
+.sep-parcela-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--notion-space-12);
+}
+
+.sep-parcela-title {
+  @include notionType.notion-type-section-heading;
+
+  margin: 0;
+  color: var(--notion-color-text);
+}
+
+.sep-parcela-vencimento {
+  @include notionType.notion-type-body;
+
+  margin: 0;
+  color: var(--notion-color-text-muted);
+}
+
+.sep-parcela-state {
+  @include notionType.notion-type-body;
+
+  color: var(--notion-color-text-muted);
+}
+
+.sep-parcela-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+  align-items: flex-start;
+  color: var(--notion-color-orange);
+}
+
+.sep-parcela-retry {
+  @include notion.notion-button-secondary;
+}
+
+.sep-parcela-empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+  align-items: flex-start;
+}

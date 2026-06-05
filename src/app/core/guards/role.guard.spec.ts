@@ -48,6 +48,22 @@ describe('roleGuard', () => {
     expect(runGuard(['ADMIN'])).toBe(true);
   });
 
+  it('user FINANCEIRO passa por rota que exige FINANCEIRO', () => {
+    const auth = TestBed.inject(AuthService) as unknown as {
+      currentUserState: { set: (u: unknown) => void };
+    };
+    auth.currentUserState.set({
+      id: 'fin-1',
+      username: 'financeiro@empresa.com',
+      role: 'FINANCEIRO',
+      dataCriacao: '2026-04-24T18:30:00-03:00',
+      dataModificacao: '2026-04-24T18:30:00-03:00',
+      criadoPor: 'system',
+      modificadoPor: 'system',
+    });
+    expect(runGuard(['FINANCEIRO', 'ADMIN'])).toBe(true);
+  });
+
   it('user ADMIN bloqueado em rota que exige CLIENTE', async () => {
     const auth = TestBed.inject(AuthService);
     await new Promise<void>((resolve, reject) => {

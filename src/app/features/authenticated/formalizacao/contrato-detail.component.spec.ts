@@ -164,6 +164,23 @@ describe('ContratoDetailComponent', () => {
     expect(screen.getByText(/nao esta mais aguardando aceite/)).toBeTruthy();
   });
 
+  it('contrato ASSINADO exibe CTA para a agenda de cobranca', async () => {
+    const { fixture } = await renderDetail(CONTRATO_ASSINADO_ID);
+    await estabilizar(fixture);
+
+    const cta = screen.getByText('Ver agenda de cobranca').closest('a');
+    expect(cta?.getAttribute('href')).toBe(
+      `/app/cobranca/contratos/${CONTRATO_ASSINADO_ID}/agenda`,
+    );
+  });
+
+  it('contrato AGUARDANDO_ACEITE nao sugere agenda de cobranca', async () => {
+    const { fixture } = await renderDetail(CONTRATO_AGUARDANDO_ID);
+    await estabilizar(fixture);
+
+    expect(screen.queryByText('Ver agenda de cobranca')).toBeNull();
+  });
+
   it('exibe o status do envelope de assinatura', async () => {
     const { fixture } = await renderDetail(CONTRATO_EM_ASSINATURA_ID);
     await estabilizar(fixture);
