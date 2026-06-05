@@ -56,4 +56,11 @@ describe('CobrancaShellComponent', () => {
 
     expect(screen.getByText('Agenda financeira')).toBeTruthy();
   });
+
+  it('BACKOFFICE: nao ve telas financeiras (backend nao autoriza cobranca a BACKOFFICE)', async () => {
+    await renderComRole('BACKOFFICE');
+
+    expect(screen.queryByText('Agenda financeira')).toBeNull();
+    expect(screen.getByText('Ver meus contratos')).toBeTruthy();
+  });
 });
