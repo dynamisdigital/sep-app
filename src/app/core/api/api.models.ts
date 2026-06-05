@@ -2,7 +2,11 @@
 // (MFA TOTP + refresh rotativo + step-up).
 // Usados por AuthService, MfaService e demais features que consomem a API SEP.
 
-export type UsuarioRole = 'ADMIN' | 'CLIENTE';
+// Role principal (denormalizada) retornada pelo backend no login/me. O backend
+// suporta roles cumulativas (Set), mas expoe ao web apenas a de maior precedencia
+// (ADMIN > FINANCEIRO > BACKOFFICE > CLIENTE). FINANCEIRO/BACKOFFICE sao perfis
+// operacionais internos usados a partir da jornada de cobranca (F-Sprint 9).
+export type UsuarioRole = 'ADMIN' | 'CLIENTE' | 'FINANCEIRO' | 'BACKOFFICE';
 
 export interface UsuarioResponse {
   id: string;

@@ -62,6 +62,11 @@ export const AUTHENTICATED_ROUTES: Routes = [
         data: { breadcrumb: 'Formalizacao' },
       },
       {
+        path: 'cobranca',
+        loadChildren: () => import('./cobranca/cobranca.routes').then((m) => m.COBRANCA_ROUTES),
+        data: { breadcrumb: 'Cobranca' },
+      },
+      {
         path: 'admin',
         canActivate: [roleGuard],
         data: { roles: ['ADMIN'], breadcrumb: 'Administracao' },

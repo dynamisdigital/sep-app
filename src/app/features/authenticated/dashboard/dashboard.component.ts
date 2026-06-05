@@ -1,13 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { UsuarioRole } from '../../../core/api/api.models';
 import { AuthService } from '../../../core/auth/auth.service';
 
 interface DashboardShortcut {
   label: string;
   description: string;
   route: string;
-  roles?: ('ADMIN' | 'CLIENTE')[];
+  roles?: UsuarioRole[];
 }
 
 interface DashboardPlaceholder {
