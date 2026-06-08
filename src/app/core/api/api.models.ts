@@ -536,3 +536,154 @@ export interface RenegociacaoResponse {
   dataDecisao: string | null;
   agendaSubstitutaId: string | null;
 }
+
+// --- Backoffice e financeiro operacional (F-Sprint 10 / backend Sprint 14 + Pix 20-21) ---
+// DTOs de borda fieis a `backoffice.web.dto`. Transicoes de status, validacao de estado,
+// audit trail, anti-abuso e autorizacao real pertencem ao backend; estes modelos nao
+// carregam regra de negocio nem metodo calculado para SLA, prioridade ou permissao de
+// transicao. Datas como string ISO; valores monetarios como number apenas para exibicao.
+
+export type TipoItemFila =
+  | 'ONBOARDING_PENDENTE'
+  | 'ONBOARDING_ERRO'
+  | 'PROPOSTA_PENDENTE'
+  | 'CONTRATO_NAO_ASSINADO'
+  | 'COBRANCA_INADIMPLENTE'
+  | 'WEBHOOK_FALHOU'
+  | 'DESEMBOLSO_PIX_FALHOU'
+  | 'RECEBIMENTO_PIX_DIVERGENTE'
+  | 'OUTRO';
+
+export type PrioridadeItem = 'BAIXA' | 'MEDIA' | 'ALTA' | 'CRITICA';
+
+export type StatusItemFila = 'ABERTO' | 'EM_TRATAMENTO' | 'RESOLVIDO' | 'IGNORADO';
+
+export type TipoEntidadeReferenciada =
+  | 'ONBOARDING'
+  | 'PROPOSTA'
+  | 'CONTRATO'
+  | 'PARCELA_COBRANCA'
+  | 'WEBHOOK_EVENT_LOG'
+  | 'PIX_TRANSFERENCIA'
+  | 'PIX_RECEBIMENTO'
+  | 'OUTRO';
+
+// Categorias de reprocesso de provider. PIX_TRANSFERENCIA tem handler real (reconsulta de
+// status); KYC/KYB/PLD/OPEN_FINANCE/ASSINATURA_DIGITAL podem ser stubs no backend — a UI
+// nao deve prometer retentativa real quando o backend nao garante.
+export type TipoChamadaProvider =
+  | 'KYC'
+  | 'KYB'
+  | 'PLD'
+  | 'OPEN_FINANCE'
+  | 'ASSINATURA_DIGITAL'
+  | 'PIX_TRANSFERENCIA';
+
+export type StatusReprocesso = 'PENDENTE' | 'SUCESSO' | 'FALHA';
+
+export type TipoReprocesso = 'WEBHOOK' | 'PROVIDER';
+
+export interface ItemFilaResponse {
+  id: string;
+  tipo: TipoItemFila;
+  prioridade: PrioridadeItem;
+  status: StatusItemFila;
+  tipoEntidade: TipoEntidadeReferenciada;
+  entidadeId: string;
+  titulo: string;
+  atribuidoA: string | null;
+  dataAbertura: string;
+  dataResolucao: string | null;
+}
+
+export interface ComentarioInternoResponse {
+  id: string;
+  autorId: string;
+  conteudo: string;
+  dataCriacao: string;
+}
+
+export interface ObjetoOriginalResponse {
+  tipoEntidade: TipoEntidadeReferenciada;
+  entidadeId: string;
+  status: string;
+  descricaoCurta: string;
+}
+
+export interface ItemFilaDetalheResponse extends ItemFilaResponse {
+  descricao: string;
+  comentarios: ComentarioInternoResponse[];
+  objetoOriginal: ObjetoOriginalResponse | null;
+}
+
+export interface ComentarioRequest {
+  conteudo: string;
+}
+
+// Backend exige justificativa de 20 a 10000 caracteres em resolver/ignorar.
+export interface ResolverRequest {
+  justificativa: string;
+}
+
+export interface IgnorarRequest {
+  justificativa: string;
+}
+
+// Body opcional dos reprocessos; quando informado, vincula o registro ao item da fila.
+export interface ReprocessoRequest {
+  itemId?: string;
+}
+
+export interface ReprocessoResponse {
+  id: string;
+  itemId: string | null;
+  tipo: TipoReprocesso;
+  // null em reprocesso de WEBHOOK; preenchido em reprocesso de PROVIDER.
+  tipoChamada: TipoChamadaProvider | null;
+  identificadorExterno: string;
+  status: StatusReprocesso;
+  resultado: string | null;
+  dataDisparo: string;
+  disparadoPor: string;
+}
+
+export interface ContadorPorTipo {
+  tipo: TipoItemFila;
+  total: number;
+}
+
+export interface ContadorPorPrioridade {
+  prioridade: PrioridadeItem;
+  total: number;
+}
+
+export interface ContadorPorStatus {
+  status: StatusItemFila;
+  total: number;
+}
+
+export interface ContadorPorStatusProposta {
+  status: string;
+  total: number;
+}
+
+export interface InadimplenciaConsolidada {
+  valorTotal: number;
+  numeroParcelas: number;
+}
+
+// Snapshot consolidado (GET /backoffice/dashboard, Cache-Control: no-store).
+// tempoMedioResolucao30d e um Duration serializado pelo backend como numero de segundos
+// (Jackson WRITE_DURATIONS_AS_TIMESTAMPS); a apresentacao formata para exibicao.
+export interface DashboardResponse {
+  contadoresPorTipo: ContadorPorTipo[];
+  contadoresPorPrioridade: ContadorPorPrioridade[];
+  contadoresPorStatus: ContadorPorStatus[];
+  tempoMedioResolucao30d: number;
+  itensCriticosAbertosMais48h: number;
+  topCincoTiposMaisFrequentes: ContadorPorTipo[];
+  recebimentosDoDia: number;
+  inadimplenciaTotal: InadimplenciaConsolidada;
+  propostasPorStatus: ContadorPorStatusProposta[];
+  geradoEm: string;
+}

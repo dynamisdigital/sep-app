@@ -33,14 +33,25 @@ const financeiroUsuario = {
   modificadoPor: 'system',
 };
 
-const usuariosFake = [adminUsuario, clienteUsuario, financeiroUsuario];
+const backofficeUsuario = {
+  id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771004',
+  username: 'backoffice@empresa.com',
+  role: 'BACKOFFICE',
+  dataCriacao: now,
+  dataModificacao: now,
+  criadoPor: 'system',
+  modificadoPor: 'system',
+};
 
-// Credenciais aceitas no dev-offline (senha unica 123456). Permite exercitar a jornada
-// de cobranca como FINANCEIRO, nao so ADMIN. currentMockUser segue o ultimo login pra
-// /auth/me e /auth/refresh refletirem a role correta apos reload.
+const usuariosFake = [adminUsuario, clienteUsuario, financeiroUsuario, backofficeUsuario];
+
+// Credenciais aceitas no dev-offline (senha unica 123456). Permite exercitar as jornadas
+// de cobranca (FINANCEIRO) e de backoffice (BACKOFFICE), nao so ADMIN. currentMockUser
+// segue o ultimo login pra /auth/me e /auth/refresh refletirem a role correta apos reload.
 const loginUsuarios: Record<string, typeof adminUsuario> = {
   'admin@empresa.com': adminUsuario,
   'financeiro@empresa.com': financeiroUsuario,
+  'backoffice@empresa.com': backofficeUsuario,
 };
 let currentMockUser = adminUsuario;
 
@@ -1213,6 +1224,440 @@ const cobrancaHandlers = [
 // Mocks alinhados ao PRD §21 (contratos iniciais dos endpoints).
 // Sucesso login usa admin@empresa.com / 123456.
 // 401: credenciais invalidas. 409: cadastro com duplicado@empresa.com.
+// --- Backoffice e financeiro operacional (F-Sprint 10 / backend Sprint 14 + Pix 20-21) ---
+// Identificadores deterministicos para dev-offline e specs do BackofficeService. Fixtures
+// nao guardam payload bruto de webhook/provider, CPF/CNPJ completo, chave Pix, dados
+// bancarios ou tokens — apenas ids, status e textos operacionais.
+const ITEM_ABERTO_ID = 'c0000000-0000-4000-8000-000000000001'; // ABERTO / WEBHOOK_FALHOU
+const ITEM_EM_TRATAMENTO_ID = 'c0000000-0000-4000-8000-000000000002'; // EM_TRATAMENTO / COBRANCA_INADIMPLENTE
+const ITEM_RESOLVIDO_ID = 'c0000000-0000-4000-8000-000000000003'; // RESOLVIDO (final)
+const ITEM_IGNORADO_ID = 'c0000000-0000-4000-8000-000000000004'; // IGNORADO (final)
+const ITEM_DESEMBOLSO_PIX_ID = 'c0000000-0000-4000-8000-000000000005'; // ABERTO / DESEMBOLSO_PIX_FALHOU
+// id 'c0000000-...-0000000000aa' (usado nas specs) cai no 404 generico de item nao encontrado.
+const WEBHOOK_EVENT_ID = 'd0000000-0000-4000-8000-000000000001';
+const PIX_ENTIDADE_ID = 'd0000000-0000-4000-8000-000000000002';
+
+const TIPOS_CHAMADA_PROVIDER = [
+  'KYC',
+  'KYB',
+  'PLD',
+  'OPEN_FINANCE',
+  'ASSINATURA_DIGITAL',
+  'PIX_TRANSFERENCIA',
+];
+
+const itensFilaFake = [
+  {
+    id: ITEM_ABERTO_ID,
+    tipo: 'WEBHOOK_FALHOU',
+    prioridade: 'ALTA',
+    status: 'ABERTO',
+    tipoEntidade: 'WEBHOOK_EVENT_LOG',
+    entidadeId: WEBHOOK_EVENT_ID,
+    titulo: 'Webhook celcoin/kyc falhou no processamento',
+    atribuidoA: null,
+    dataAbertura: '2026-06-06T09:00:00-03:00',
+    dataResolucao: null,
+  },
+  {
+    id: ITEM_EM_TRATAMENTO_ID,
+    tipo: 'COBRANCA_INADIMPLENTE',
+    prioridade: 'CRITICA',
+    status: 'EM_TRATAMENTO',
+    tipoEntidade: 'PARCELA_COBRANCA',
+    entidadeId: 'a0000000-0000-4000-8000-000000000002',
+    titulo: 'Parcela inadimplente ha 35 dias',
+    atribuidoA: backofficeUsuario.id,
+    dataAbertura: '2026-06-05T11:30:00-03:00',
+    dataResolucao: null,
+  },
+  {
+    id: ITEM_RESOLVIDO_ID,
+    tipo: 'ONBOARDING_PENDENTE',
+    prioridade: 'MEDIA',
+    status: 'RESOLVIDO',
+    tipoEntidade: 'ONBOARDING',
+    entidadeId: '2f0799c0-98b9-6d9d-bc4a-7d6f5b771f01',
+    titulo: 'Onboarding aguardando revisao manual',
+    atribuidoA: financeiroUsuario.id,
+    dataAbertura: '2026-06-03T08:15:00-03:00',
+    dataResolucao: '2026-06-04T16:40:00-03:00',
+  },
+  {
+    id: ITEM_IGNORADO_ID,
+    tipo: 'OUTRO',
+    prioridade: 'BAIXA',
+    status: 'IGNORADO',
+    tipoEntidade: 'OUTRO',
+    entidadeId: 'e0000000-0000-4000-8000-000000000009',
+    titulo: 'Item duplicado de outro fluxo',
+    atribuidoA: backofficeUsuario.id,
+    dataAbertura: '2026-06-02T14:00:00-03:00',
+    dataResolucao: '2026-06-02T15:10:00-03:00',
+  },
+  {
+    id: ITEM_DESEMBOLSO_PIX_ID,
+    tipo: 'DESEMBOLSO_PIX_FALHOU',
+    prioridade: 'ALTA',
+    status: 'ABERTO',
+    tipoEntidade: 'PIX_TRANSFERENCIA',
+    entidadeId: PIX_ENTIDADE_ID,
+    titulo: 'Desembolso Pix retornou falha do provedor',
+    atribuidoA: null,
+    dataAbertura: '2026-06-06T10:20:00-03:00',
+    dataResolucao: null,
+  },
+];
+
+const comentariosPorItem: Record<string, unknown[]> = {
+  [ITEM_EM_TRATAMENTO_ID]: [
+    {
+      id: 'f0000000-0000-4000-8000-000000000001',
+      autorId: backofficeUsuario.id,
+      conteudo: 'Tomador contatado; aguardando comprovante.',
+      dataCriacao: '2026-06-05T12:00:00-03:00',
+    },
+  ],
+};
+
+const objetoOriginalPorItem: Record<string, unknown> = {
+  [ITEM_ABERTO_ID]: {
+    tipoEntidade: 'WEBHOOK_EVENT_LOG',
+    entidadeId: WEBHOOK_EVENT_ID,
+    status: 'FALHOU',
+    descricaoCurta: 'Evento celcoin/kyc nao processado',
+  },
+  [ITEM_EM_TRATAMENTO_ID]: {
+    tipoEntidade: 'PARCELA_COBRANCA',
+    entidadeId: 'a0000000-0000-4000-8000-000000000002',
+    status: 'INADIMPLENTE',
+    descricaoCurta: 'Parcela 3/12 vencida',
+  },
+  [ITEM_DESEMBOLSO_PIX_ID]: {
+    tipoEntidade: 'PIX_TRANSFERENCIA',
+    entidadeId: PIX_ENTIDADE_ID,
+    status: 'FALHOU',
+    descricaoCurta: 'Transferencia Pix recusada pelo provedor',
+  },
+};
+
+// Anti-abuso 429: conta reprocessos por entidade (reinicia a cada carga do modulo).
+const contadorReprocessos = new Map<string, number>();
+
+// Espelha @PreAuthorize do backend: CLIENTE nao acessa o backoffice.
+function negarSeNaoOperador(path: string) {
+  if (currentMockUser.role === 'CLIENTE') {
+    return errorResponse(403, 'Forbidden', 'Sem permissao para o backoffice', path);
+  }
+  return null;
+}
+
+// @RequireStepUp no backend: sem X-Step-Up-Token o aspecto barra antes da regra.
+function faltaStepUp(request: Request): boolean {
+  return !request.headers.get('X-Step-Up-Token');
+}
+
+function paginar<T>(itens: T[], page: number, size: number) {
+  const totalPages = Math.max(1, Math.ceil(itens.length / size));
+  const inicio = page * size;
+  const slice = itens.slice(inicio, inicio + size);
+  return {
+    content: slice,
+    totalElements: itens.length,
+    totalPages,
+    number: page,
+    size,
+    first: page === 0,
+    last: page >= totalPages - 1,
+    numberOfElements: slice.length,
+    empty: slice.length === 0,
+  };
+}
+
+const backofficeHandlers = [
+  http.get(`${baseUrl}/backoffice/dashboard`, () => {
+    const negado = negarSeNaoOperador('/api/v1/backoffice/dashboard');
+    if (negado) {
+      return negado;
+    }
+    return HttpResponse.json(
+      {
+        contadoresPorTipo: [
+          { tipo: 'WEBHOOK_FALHOU', total: 3 },
+          { tipo: 'COBRANCA_INADIMPLENTE', total: 5 },
+          { tipo: 'DESEMBOLSO_PIX_FALHOU', total: 1 },
+          { tipo: 'ONBOARDING_PENDENTE', total: 2 },
+        ],
+        contadoresPorPrioridade: [
+          { prioridade: 'CRITICA', total: 2 },
+          { prioridade: 'ALTA', total: 4 },
+          { prioridade: 'MEDIA', total: 3 },
+          { prioridade: 'BAIXA', total: 2 },
+        ],
+        contadoresPorStatus: [
+          { status: 'ABERTO', total: 6 },
+          { status: 'EM_TRATAMENTO', total: 3 },
+          { status: 'RESOLVIDO', total: 10 },
+          { status: 'IGNORADO', total: 4 },
+        ],
+        tempoMedioResolucao30d: 7200,
+        itensCriticosAbertosMais48h: 2,
+        topCincoTiposMaisFrequentes: [
+          { tipo: 'COBRANCA_INADIMPLENTE', total: 5 },
+          { tipo: 'WEBHOOK_FALHOU', total: 3 },
+          { tipo: 'ONBOARDING_PENDENTE', total: 2 },
+        ],
+        recebimentosDoDia: 18450.75,
+        inadimplenciaTotal: { valorTotal: 92000.0, numeroParcelas: 5 },
+        propostasPorStatus: [
+          { status: 'EM_ANALISE', total: 4 },
+          { status: 'APROVADA', total: 7 },
+          { status: 'REPROVADA', total: 1 },
+        ],
+        geradoEm: now,
+      },
+      { headers: { 'Cache-Control': 'no-store' } },
+    );
+  }),
+
+  http.get(`${baseUrl}/backoffice/fila`, ({ request }) => {
+    const negado = negarSeNaoOperador('/api/v1/backoffice/fila');
+    if (negado) {
+      return negado;
+    }
+    const url = new URL(request.url);
+    const status = url.searchParams.get('status');
+    const tipo = url.searchParams.get('tipo');
+    const prioridade = url.searchParams.get('prioridade');
+    const page = Number(url.searchParams.get('page') ?? '0');
+    const size = Number(url.searchParams.get('size') ?? '20');
+
+    const filtrados = itensFilaFake.filter(
+      (item) =>
+        (!status || item.status === status) &&
+        (!tipo || item.tipo === tipo) &&
+        (!prioridade || item.prioridade === prioridade),
+    );
+    return HttpResponse.json(paginar(filtrados, page, size));
+  }),
+
+  http.get(`${baseUrl}/backoffice/fila/:id`, ({ params }) => {
+    const id = params['id'] as string;
+    const negado = negarSeNaoOperador(`/api/v1/backoffice/fila/${id}`);
+    if (negado) {
+      return negado;
+    }
+    const item = itensFilaFake.find((i) => i.id === id);
+    if (!item) {
+      return errorResponse(
+        404,
+        'Not Found',
+        'Item nao encontrado',
+        `/api/v1/backoffice/fila/${id}`,
+      );
+    }
+    return HttpResponse.json({
+      ...item,
+      descricao: `Detalhe operacional do item ${item.tipo}.`,
+      comentarios: comentariosPorItem[id] ?? [],
+      objetoOriginal: objetoOriginalPorItem[id] ?? null,
+    });
+  }),
+
+  http.post(`${baseUrl}/backoffice/fila/:id/assumir`, ({ params }) => {
+    const id = params['id'] as string;
+    const negado = negarSeNaoOperador(`/api/v1/backoffice/fila/${id}/assumir`);
+    if (negado) {
+      return negado;
+    }
+    const item = itensFilaFake.find((i) => i.id === id);
+    if (!item) {
+      return errorResponse(
+        404,
+        'Not Found',
+        'Item nao encontrado',
+        `/api/v1/backoffice/fila/${id}/assumir`,
+      );
+    }
+    if (item.status !== 'ABERTO') {
+      return errorResponse(
+        409,
+        'Conflict',
+        'Item nao esta ABERTO',
+        `/api/v1/backoffice/fila/${id}/assumir`,
+      );
+    }
+    return HttpResponse.json({
+      ...item,
+      status: 'EM_TRATAMENTO',
+      atribuidoA: currentMockUser.id,
+    });
+  }),
+
+  http.post(`${baseUrl}/backoffice/fila/:id/comentarios`, async ({ params, request }) => {
+    const id = params['id'] as string;
+    const negado = negarSeNaoOperador(`/api/v1/backoffice/fila/${id}/comentarios`);
+    if (negado) {
+      return negado;
+    }
+    if (!itensFilaFake.some((i) => i.id === id)) {
+      return errorResponse(
+        404,
+        'Not Found',
+        'Item nao encontrado',
+        `/api/v1/backoffice/fila/${id}/comentarios`,
+      );
+    }
+    const body = (await request.json()) as { conteudo?: string };
+    if (!body.conteudo || body.conteudo.trim().length === 0) {
+      return errorResponse(
+        400,
+        'Bad Request',
+        'Conteudo do comentario e obrigatorio',
+        `/api/v1/backoffice/fila/${id}/comentarios`,
+      );
+    }
+    return HttpResponse.json(
+      {
+        id: 'f0000000-0000-4000-8000-0000000000c1',
+        autorId: currentMockUser.id,
+        conteudo: body.conteudo,
+        dataCriacao: now,
+      },
+      { status: 201 },
+    );
+  }),
+
+  http.patch(`${baseUrl}/backoffice/fila/:id/resolver`, async ({ params, request }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/backoffice/fila/${id}/resolver`;
+    const negado = negarSeNaoOperador(path);
+    if (negado) {
+      return negado;
+    }
+    if (faltaStepUp(request)) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
+    }
+    const item = itensFilaFake.find((i) => i.id === id);
+    if (!item) {
+      return errorResponse(404, 'Not Found', 'Item nao encontrado', path);
+    }
+    const body = (await request.json()) as { justificativa?: string };
+    if (!body.justificativa || body.justificativa.trim().length < 20) {
+      return errorResponse(400, 'Bad Request', 'Justificativa minima de 20 caracteres', path);
+    }
+    if (item.status !== 'EM_TRATAMENTO') {
+      return errorResponse(409, 'Conflict', 'Item nao esta em EM_TRATAMENTO', path);
+    }
+    return HttpResponse.json({ ...item, status: 'RESOLVIDO', dataResolucao: now });
+  }),
+
+  http.patch(`${baseUrl}/backoffice/fila/:id/ignorar`, async ({ params, request }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/backoffice/fila/${id}/ignorar`;
+    const negado = negarSeNaoOperador(path);
+    if (negado) {
+      return negado;
+    }
+    if (faltaStepUp(request)) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
+    }
+    const item = itensFilaFake.find((i) => i.id === id);
+    if (!item) {
+      return errorResponse(404, 'Not Found', 'Item nao encontrado', path);
+    }
+    const body = (await request.json()) as { justificativa?: string };
+    if (!body.justificativa || body.justificativa.trim().length < 20) {
+      return errorResponse(400, 'Bad Request', 'Justificativa minima de 20 caracteres', path);
+    }
+    if (item.status === 'RESOLVIDO' || item.status === 'IGNORADO') {
+      return errorResponse(409, 'Conflict', 'Item ja esta em status final', path);
+    }
+    return HttpResponse.json({ ...item, status: 'IGNORADO', dataResolucao: now });
+  }),
+
+  http.post(
+    `${baseUrl}/backoffice/reprocessos/webhook/:webhookEventId`,
+    async ({ params, request }) => {
+      const webhookEventId = params['webhookEventId'] as string;
+      const path = `/api/v1/backoffice/reprocessos/webhook/${webhookEventId}`;
+      const negado = negarSeNaoOperador(path);
+      if (negado) {
+        return negado;
+      }
+      if (faltaStepUp(request)) {
+        return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
+      }
+      const chave = `webhook:${webhookEventId}`;
+      const usos = contadorReprocessos.get(chave) ?? 0;
+      if (usos >= 3) {
+        return errorResponse(429, 'Too Many Requests', 'Limite anti-abuso 3/24h excedido', path);
+      }
+      contadorReprocessos.set(chave, usos + 1);
+      const body = (await request.json().catch(() => ({}))) as { itemId?: string };
+      return HttpResponse.json(
+        {
+          id: 'a1000000-0000-4000-8000-000000000001',
+          itemId: body.itemId ?? null,
+          tipo: 'WEBHOOK',
+          tipoChamada: null,
+          identificadorExterno: webhookEventId,
+          status: 'SUCESSO',
+          resultado: 'Webhook reenfileirado para reprocessamento',
+          dataDisparo: now,
+          disparadoPor: currentMockUser.id,
+        },
+        { status: 201 },
+      );
+    },
+  ),
+
+  http.post(
+    `${baseUrl}/backoffice/reprocessos/provider/:tipoChamada/:entidadeId`,
+    async ({ params, request }) => {
+      const tipoChamada = params['tipoChamada'] as string;
+      const entidadeId = params['entidadeId'] as string;
+      const path = `/api/v1/backoffice/reprocessos/provider/${tipoChamada}/${entidadeId}`;
+      const negado = negarSeNaoOperador(path);
+      if (negado) {
+        return negado;
+      }
+      if (faltaStepUp(request)) {
+        return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
+      }
+      if (!TIPOS_CHAMADA_PROVIDER.includes(tipoChamada)) {
+        return errorResponse(400, 'Bad Request', 'tipoChamada nao suportado', path);
+      }
+      const chave = `provider:${tipoChamada}:${entidadeId}`;
+      const usos = contadorReprocessos.get(chave) ?? 0;
+      if (usos >= 3) {
+        return errorResponse(429, 'Too Many Requests', 'Limite anti-abuso 3/24h excedido', path);
+      }
+      contadorReprocessos.set(chave, usos + 1);
+      const body = (await request.json().catch(() => ({}))) as { itemId?: string };
+      // PIX_TRANSFERENCIA tem handler real (reconsulta de status); os demais sao stubs no
+      // backend — sinalizamos sem prometer retentativa real.
+      const handlerReal = tipoChamada === 'PIX_TRANSFERENCIA';
+      return HttpResponse.json(
+        {
+          id: 'a1000000-0000-4000-8000-000000000002',
+          itemId: body.itemId ?? null,
+          tipo: 'PROVIDER',
+          tipoChamada,
+          identificadorExterno: entidadeId,
+          status: handlerReal ? 'SUCESSO' : 'PENDENTE',
+          resultado: handlerReal
+            ? 'Status da transferencia reconsultado no provedor'
+            : 'Estrategia de reprocesso ainda nao implementada no backend',
+          dataDisparo: now,
+          disparadoPor: currentMockUser.id,
+        },
+        { status: 201 },
+      );
+    },
+  ),
+];
+
 export const handlers = [
   http.post(`${baseUrl}/auth/login`, async ({ request }) => {
     const body = (await request.json()) as { username?: string; password?: string };
@@ -1310,4 +1755,5 @@ export const handlers = [
   ...creditoHandlers,
   ...formalizacaoHandlers,
   ...cobrancaHandlers,
+  ...backofficeHandlers,
 ];
