@@ -39,6 +39,10 @@ test('operador assume e comenta um item aberto', async ({ page }) => {
   await loginBackoffice(page);
 
   await page.goto(`/app/backoffice/fila/${ITEM_ABERTO_ID}`);
+  // Antes de assumir o item esta ABERTO; depois transiciona para EM_TRATAMENTO. Assertar o
+  // estado inicial torna a transicao inequivoca (o texto "Em tratamento" so surge pos-acao).
+  // exact evita casar com o rotulo "Aberto em" da secao de metadados.
+  await expect(page.getByText('Aberto', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Assumir item' }).click();
   await expect(page.getByText('Em tratamento')).toBeVisible({ timeout: 10_000 });
 
