@@ -1,0 +1,111 @@
+<section class="sep-bo-fila">
+  <header class="sep-bo-fila-header">
+    <h1 class="sep-bo-fila-title">Fila operacional</h1>
+  </header>
+
+  <form class="sep-bo-fila-filtros" [formGroup]="filtros" (ngSubmit)="aplicarFiltros()">
+    <label class="sep-bo-field">
+      <span class="sep-bo-field-label">Tipo</span>
+      <select formControlName="tipo" class="sep-bo-field-control">
+        <option value="">Todos</option>
+        @for (t of tiposItem; track t) {
+          <option [value]="t">{{ tipoLabel[t] }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="sep-bo-field">
+      <span class="sep-bo-field-label">Prioridade</span>
+      <select formControlName="prioridade" class="sep-bo-field-control">
+        <option value="">Todas</option>
+        @for (p of prioridades; track p) {
+          <option [value]="p">{{ prioridadeLabel[p] }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="sep-bo-field">
+      <span class="sep-bo-field-label">Status</span>
+      <select formControlName="status" class="sep-bo-field-control">
+        <option value="">Todos</option>
+        @for (s of statusItens; track s) {
+          <option [value]="s">{{ statusLabel[s] }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="sep-bo-field">
+      <span class="sep-bo-field-label">Aberto de</span>
+      <input type="date" formControlName="dataAberturaDe" class="sep-bo-field-control" />
+    </label>
+
+    <label class="sep-bo-field">
+      <span class="sep-bo-field-label">Aberto ate</span>
+      <input type="date" formControlName="dataAberturaAte" class="sep-bo-field-control" />
+    </label>
+
+    <label class="sep-bo-field">
+      <span class="sep-bo-field-label">Atribuido a (id)</span>
+      <input
+        type="text"
+        formControlName="atribuidoA"
+        class="sep-bo-field-control"
+        placeholder="UUID do operador"
+      />
+    </label>
+
+    <button type="submit" class="sep-bo-fila-aplicar">Aplicar filtros</button>
+  </form>
+
+  @if (loading()) {
+    <p class="sep-bo-fila-state">Carregando...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-bo-fila-state sep-bo-fila-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="sep-bo-fila-aplicar" (click)="aplicarFiltros()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (page(); as p) {
+    @if (p.empty) {
+      <p class="sep-bo-fila-state">Nenhum item para os filtros selecionados.</p>
+    } @else {
+      <ul class="sep-bo-fila-lista">
+        @for (item of p.content; track item.id) {
+          <li class="sep-bo-fila-row">
+            <a class="sep-bo-fila-link" [routerLink]="['/app/backoffice/fila', item.id]">
+              <sep-backoffice-chip [prioridade]="item.prioridade" />
+              <sep-backoffice-chip [status]="item.status" />
+              <span class="sep-bo-fila-titulo">{{ item.titulo }}</span>
+              <span class="sep-bo-fila-tipo">{{ tipoLabel[item.tipo] }}</span>
+              <span class="sep-bo-fila-data">{{ formatarDataHora(item.dataAbertura) }}</span>
+              <span class="sep-bo-fila-atribuido">
+                {{ item.atribuidoA ? idCurto(item.atribuidoA) : 'Sem atribuicao' }}
+              </span>
+            </a>
+          </li>
+        }
+      </ul>
+
+      <nav class="sep-bo-fila-paginacao" aria-label="Paginacao da fila">
+        <button
+          type="button"
+          class="sep-bo-fila-pag-botao"
+          [disabled]="p.first"
+          (click)="irParaPagina(p.number - 1)"
+        >
+          Anterior
+        </button>
+        <span class="sep-bo-fila-pag-info">Pagina {{ p.number + 1 }} de {{ p.totalPages }}</span>
+        <button
+          type="button"
+          class="sep-bo-fila-pag-botao"
+          [disabled]="p.last"
+          (click)="irParaPagina(p.number + 1)"
+        >
+          Proxima
+        </button>
+      </nav>
+    }
+  }
+</section>

@@ -33,6 +33,11 @@ export class SidenavComponent {
       { label: 'Credito', route: '/app/credito' },
       { label: 'Formalizacao', route: '/app/formalizacao' },
       { label: 'Cobranca', route: '/app/cobranca' },
+      {
+        label: 'Backoffice',
+        route: '/app/backoffice',
+        roles: ['BACKOFFICE', 'FINANCEIRO', 'ADMIN'],
+      },
       { label: 'Meu perfil', route: '/app/profile' },
       { label: 'Administracao', route: '/app/admin/users', roles: ['ADMIN'] },
     ];

@@ -1,0 +1,45 @@
+@use "../../../../../styles/notion-typography" as notionType;
+
+:host {
+  display: block;
+}
+
+.sep-bo-reproc-resultado {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-6);
+}
+
+.sep-bo-reproc-status {
+  @include notionType.notion-type-badge;
+
+  align-self: flex-start;
+  padding: 0 var(--notion-space-8);
+  border: 1px solid currentcolor;
+  border-radius: var(--notion-radius-pill);
+
+  &[data-status="SUCESSO"] {
+    color: var(--notion-color-green);
+  }
+
+  &[data-status="FALHA"] {
+    color: var(--notion-color-pink);
+  }
+
+  &[data-status="PENDENTE"] {
+    color: var(--notion-color-orange);
+  }
+}
+
+.sep-bo-reproc-texto {
+  @include notionType.notion-type-body;
+
+  margin: 0;
+  color: var(--notion-color-text);
+}
+
+.sep-bo-reproc-meta {
+  @include notionType.notion-type-caption;
+
+  color: var(--notion-color-text-muted);
+}
