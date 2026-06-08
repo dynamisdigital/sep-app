@@ -147,4 +147,19 @@ describe('ItemFilaDetailPageComponent', () => {
 
     expect(screen.getByText('Sucesso')).toBeTruthy();
   });
+
+  it('reprocessar webhook sem step-up redireciona para a confirmacao adicional', async () => {
+    const { fixture } = await renderPagina(ITEM_ABERTO_ID);
+    await estabilizar(fixture);
+    autenticarComMfa(fixture);
+    const router = fixture.debugElement.injector.get(Router);
+    const navegar = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+
+    (screen.getByText('Reprocessar webhook').closest('button') as HTMLButtonElement).click();
+    await estabilizar(fixture);
+
+    expect(navegar).toHaveBeenCalledWith(
+      `/app/step-up?next=/app/backoffice/fila/${ITEM_ABERTO_ID}`,
+    );
+  });
 });
