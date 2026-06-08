@@ -1357,6 +1357,25 @@ function faltaStepUp(request: Request): boolean {
   return !request.headers.get('X-Step-Up-Token');
 }
 
+// Ordena por dataAbertura (asc/desc) no formato Spring "campo,dir"; demais campos sao
+// mantidos na ordem original (o backend nao garante sort lexicografico de prioridade).
+function ordenarFila<T extends { dataAbertura: string }>(itens: T[], sort: string | null): T[] {
+  if (!sort) {
+    return itens;
+  }
+  const [campo, dir] = sort.split(',');
+  if (campo !== 'dataAbertura') {
+    return itens;
+  }
+  const fator = dir === 'desc' ? -1 : 1;
+  return [...itens].sort(
+    (a, b) => fator * (new Date(a.dataAbertura).getTime() - new Date(b.dataAbertura).getTime()),
+  );
+}
+
+// Sequencia de comentarios criados no dev-offline para gerar ids unicos.
+let comentarioSeq = 0;
+
 function paginar<T>(itens: T[], page: number, size: number) {
   const totalPages = Math.max(1, Math.ceil(itens.length / size));
   const inicio = page * size;
@@ -1429,6 +1448,10 @@ const backofficeHandlers = [
     const status = url.searchParams.get('status');
     const tipo = url.searchParams.get('tipo');
     const prioridade = url.searchParams.get('prioridade');
+    const dataDe = url.searchParams.get('data_abertura_de');
+    const dataAte = url.searchParams.get('data_abertura_ate');
+    const atribuidoA = url.searchParams.get('atribuido_a');
+    const sort = url.searchParams.get('sort');
     const page = Number(url.searchParams.get('page') ?? '0');
     const size = Number(url.searchParams.get('size') ?? '20');
 
@@ -1436,9 +1459,15 @@ const backofficeHandlers = [
       (item) =>
         (!status || item.status === status) &&
         (!tipo || item.tipo === tipo) &&
-        (!prioridade || item.prioridade === prioridade),
+        (!prioridade || item.prioridade === prioridade) &&
+        (!atribuidoA || item.atribuidoA === atribuidoA) &&
+        (!dataDe || new Date(item.dataAbertura).getTime() >= new Date(dataDe).getTime()) &&
+        (!dataAte || new Date(item.dataAbertura).getTime() <= new Date(dataAte).getTime()),
     );
-    return HttpResponse.json(paginar(filtrados, page, size));
+    // Sort no formato Spring (campo,dir). O backend remove sort por prioridade (VARCHAR);
+    // o mock so ordena por dataAbertura, espelhando o que o backend garante.
+    const ordenados = ordenarFila(filtrados, sort);
+    return HttpResponse.json(paginar(ordenados, page, size));
   }),
 
   http.get(`${baseUrl}/backoffice/fila/:id`, ({ params }) => {
@@ -1487,11 +1516,10 @@ const backofficeHandlers = [
         `/api/v1/backoffice/fila/${id}/assumir`,
       );
     }
-    return HttpResponse.json({
-      ...item,
-      status: 'EM_TRATAMENTO',
-      atribuidoA: currentMockUser.id,
-    });
+    // Persiste a transicao para a base offline refletir o estado em reloads de lista/detalhe.
+    item.status = 'EM_TRATAMENTO';
+    item.atribuidoA = currentMockUser.id;
+    return HttpResponse.json(item);
   }),
 
   http.post(`${baseUrl}/backoffice/fila/:id/comentarios`, async ({ params, request }) => {
@@ -1517,15 +1545,16 @@ const backofficeHandlers = [
         `/api/v1/backoffice/fila/${id}/comentarios`,
       );
     }
-    return HttpResponse.json(
-      {
-        id: 'f0000000-0000-4000-8000-0000000000c1',
-        autorId: currentMockUser.id,
-        conteudo: body.conteudo,
-        dataCriacao: now,
-      },
-      { status: 201 },
-    );
+    comentarioSeq += 1;
+    const comentario = {
+      id: `f0000000-0000-4000-8000-${String(comentarioSeq).padStart(12, '0')}`,
+      autorId: currentMockUser.id,
+      conteudo: body.conteudo,
+      dataCriacao: now,
+    };
+    // Persiste para o comentario aparecer no detalhe em reloads da base offline.
+    (comentariosPorItem[id] ??= []).push(comentario);
+    return HttpResponse.json(comentario, { status: 201 });
   }),
 
   http.patch(`${baseUrl}/backoffice/fila/:id/resolver`, async ({ params, request }) => {
@@ -1549,7 +1578,9 @@ const backofficeHandlers = [
     if (item.status !== 'EM_TRATAMENTO') {
       return errorResponse(409, 'Conflict', 'Item nao esta em EM_TRATAMENTO', path);
     }
-    return HttpResponse.json({ ...item, status: 'RESOLVIDO', dataResolucao: now });
+    item.status = 'RESOLVIDO';
+    item.dataResolucao = now;
+    return HttpResponse.json(item);
   }),
 
   http.patch(`${baseUrl}/backoffice/fila/:id/ignorar`, async ({ params, request }) => {
@@ -1573,7 +1604,9 @@ const backofficeHandlers = [
     if (item.status === 'RESOLVIDO' || item.status === 'IGNORADO') {
       return errorResponse(409, 'Conflict', 'Item ja esta em status final', path);
     }
-    return HttpResponse.json({ ...item, status: 'IGNORADO', dataResolucao: now });
+    item.status = 'IGNORADO';
+    item.dataResolucao = now;
+    return HttpResponse.json(item);
   }),
 
   http.post(
