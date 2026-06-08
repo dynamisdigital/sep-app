@@ -30,7 +30,7 @@ export class BackofficeShellComponent {
     {
       label: 'Fila operacional',
       descricao: 'Triagem de itens, comentarios, resolucao e ignore.',
-      route: null,
+      route: '/app/backoffice/fila',
     },
     {
       label: 'Reprocessos',

@@ -14,15 +14,19 @@ describe('BackofficeShellComponent', () => {
     expect(screen.getByText('Reprocessos')).toBeTruthy();
   });
 
-  // Cada Task habilita o card da sua tela. Apos F-10.3 o Dashboard e navegavel; fila e
-  // reprocessos seguem desabilitados ate F-10.4/F-10.6.
-  it('habilita o card Dashboard e mantem fila/reprocessos desabilitados', async () => {
+  // Cada Task habilita o card da sua tela. Apos F-10.4, Dashboard e Fila sao navegaveis;
+  // Reprocessos segue desabilitado ate F-10.6.
+  it('habilita Dashboard e Fila e mantem Reprocessos desabilitado', async () => {
     const { container } = await render(BackofficeShellComponent, {
       providers: [provideRouter([])],
     });
 
-    const dashboard = screen.getByText('Dashboard').closest('a');
-    expect(dashboard?.getAttribute('href')).toBe('/app/backoffice/dashboard');
-    expect(container.querySelectorAll('.sep-backoffice-shell-card-disabled').length).toBe(2);
+    expect(screen.getByText('Dashboard').closest('a')?.getAttribute('href')).toBe(
+      '/app/backoffice/dashboard',
+    );
+    expect(screen.getByText('Fila operacional').closest('a')?.getAttribute('href')).toBe(
+      '/app/backoffice/fila',
+    );
+    expect(container.querySelectorAll('.sep-backoffice-shell-card-disabled').length).toBe(1);
   });
 });

@@ -1,0 +1,80 @@
+<section class="sep-bo-item">
+  <a class="sep-bo-item-voltar" routerLink="/app/backoffice/fila">&larr; Voltar para a fila</a>
+
+  @if (loading()) {
+    <p class="sep-bo-item-state">Carregando...</p>
+  } @else if (naoEncontrado()) {
+    <p class="sep-bo-item-state">Item nao encontrado.</p>
+  } @else if (errorMessage()) {
+    <p class="sep-bo-item-state sep-bo-item-error" role="alert">{{ errorMessage() }}</p>
+  } @else if (item(); as it) {
+    <header class="sep-bo-item-header">
+      <h1 class="sep-bo-item-title">{{ it.titulo }}</h1>
+      <div class="sep-bo-item-chips">
+        <sep-backoffice-chip [prioridade]="it.prioridade" />
+        <sep-backoffice-chip [status]="it.status" />
+        <span class="sep-bo-item-tipo">{{ tipoLabel[it.tipo] }}</span>
+      </div>
+    </header>
+
+    <dl class="sep-bo-item-meta">
+      <div class="sep-bo-item-meta-row">
+        <dt>Aberto em</dt>
+        <dd>{{ formatarDataHora(it.dataAbertura) }}</dd>
+      </div>
+      @if (it.dataResolucao) {
+        <div class="sep-bo-item-meta-row">
+          <dt>Resolvido em</dt>
+          <dd>{{ formatarDataHora(it.dataResolucao) }}</dd>
+        </div>
+      }
+      <div class="sep-bo-item-meta-row">
+        <dt>Atribuido a</dt>
+        <dd>{{ it.atribuidoA ? idCurto(it.atribuidoA) : 'Sem atribuicao' }}</dd>
+      </div>
+    </dl>
+
+    @if (it.descricao) {
+      <article class="sep-bo-item-panel">
+        <h2 class="sep-bo-item-panel-title">Descricao</h2>
+        <p class="sep-bo-item-descricao">{{ it.descricao }}</p>
+      </article>
+    }
+
+    @if (it.objetoOriginal; as obj) {
+      <article class="sep-bo-item-panel">
+        <h2 class="sep-bo-item-panel-title">Objeto original</h2>
+        <dl class="sep-bo-item-meta">
+          <div class="sep-bo-item-meta-row">
+            <dt>Origem</dt>
+            <dd>{{ entidadeLabel[obj.tipoEntidade] }}</dd>
+          </div>
+          <div class="sep-bo-item-meta-row">
+            <dt>Status</dt>
+            <dd>{{ obj.status }}</dd>
+          </div>
+          <div class="sep-bo-item-meta-row">
+            <dt>Resumo</dt>
+            <dd>{{ obj.descricaoCurta }}</dd>
+          </div>
+        </dl>
+      </article>
+    }
+
+    <article class="sep-bo-item-panel">
+      <h2 class="sep-bo-item-panel-title">Comentarios internos</h2>
+      <ul class="sep-bo-item-comentarios">
+        @for (c of it.comentarios; track c.id) {
+          <li class="sep-bo-item-comentario">
+            <span class="sep-bo-item-comentario-meta">
+              {{ idCurto(c.autorId) }} &middot; {{ formatarDataHora(c.dataCriacao) }}
+            </span>
+            <span class="sep-bo-item-comentario-texto">{{ c.conteudo }}</span>
+          </li>
+        } @empty {
+          <li class="sep-bo-item-state">Nenhum comentario.</li>
+        }
+      </ul>
+    </article>
+  }
+</section>

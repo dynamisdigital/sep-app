@@ -1,0 +1,129 @@
+@use "../../../../../styles/notion-typography" as notionType;
+@use "../../../../../styles/notion-components" as notion;
+
+.sep-bo-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-16);
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--notion-space-16) 0;
+}
+
+.sep-bo-item-voltar {
+  @include notionType.notion-type-caption;
+
+  align-self: flex-start;
+  color: var(--notion-color-blue);
+  text-decoration: none;
+}
+
+.sep-bo-item-state {
+  @include notionType.notion-type-body;
+
+  color: var(--notion-color-text-muted);
+}
+
+.sep-bo-item-error {
+  color: var(--notion-color-pink);
+}
+
+.sep-bo-item-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+}
+
+.sep-bo-item-title {
+  @include notionType.notion-type-section-heading;
+
+  margin: 0;
+  color: var(--notion-color-text);
+}
+
+.sep-bo-item-chips {
+  display: flex;
+  gap: var(--notion-space-8);
+  align-items: center;
+}
+
+.sep-bo-item-tipo {
+  @include notionType.notion-type-caption;
+
+  color: var(--notion-color-text-muted);
+}
+
+.sep-bo-item-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-6);
+  margin: 0;
+}
+
+.sep-bo-item-meta-row {
+  @include notionType.notion-type-body;
+
+  display: flex;
+  gap: var(--notion-space-8);
+
+  dt {
+    min-width: 140px;
+    color: var(--notion-color-text-muted);
+  }
+
+  dd {
+    margin: 0;
+    color: var(--notion-color-text);
+  }
+}
+
+.sep-bo-item-panel {
+  @include notion.notion-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+}
+
+.sep-bo-item-panel-title {
+  @include notionType.notion-type-card-title;
+
+  margin: 0;
+  color: var(--notion-color-text);
+}
+
+.sep-bo-item-descricao {
+  @include notionType.notion-type-body;
+
+  margin: 0;
+  color: var(--notion-color-text);
+  white-space: pre-line;
+}
+
+.sep-bo-item-comentarios {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sep-bo-item-comentario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-2);
+}
+
+.sep-bo-item-comentario-meta {
+  @include notionType.notion-type-caption;
+
+  color: var(--notion-color-text-muted);
+}
+
+.sep-bo-item-comentario-texto {
+  @include notionType.notion-type-body;
+
+  color: var(--notion-color-text);
+  white-space: pre-line;
+}

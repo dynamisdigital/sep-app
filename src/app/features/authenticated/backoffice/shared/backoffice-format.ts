@@ -4,6 +4,7 @@ import {
   ApiErrorResponse,
   PrioridadeItem,
   StatusItemFila,
+  TipoEntidadeReferenciada,
   TipoItemFila,
 } from '../../../../core/api/api.models';
 
@@ -65,6 +66,38 @@ export const STATUS_ITEM_FILA_LABEL: Record<StatusItemFila, string> = {
   RESOLVIDO: 'Resolvido',
   IGNORADO: 'Ignorado',
 };
+
+export const TIPO_ENTIDADE_LABEL: Record<TipoEntidadeReferenciada, string> = {
+  ONBOARDING: 'Onboarding',
+  PROPOSTA: 'Proposta',
+  CONTRATO: 'Contrato',
+  PARCELA_COBRANCA: 'Parcela de cobranca',
+  WEBHOOK_EVENT_LOG: 'Webhook',
+  PIX_TRANSFERENCIA: 'Transferencia Pix',
+  PIX_RECEBIMENTO: 'Recebimento Pix',
+  OUTRO: 'Outro',
+};
+
+// Opcoes para selects de filtro, na ordem de declaracao dos labels.
+export const TIPOS_ITEM_FILA = Object.keys(TIPO_ITEM_FILA_LABEL) as TipoItemFila[];
+export const PRIORIDADES_ITEM = Object.keys(PRIORIDADE_ITEM_LABEL) as PrioridadeItem[];
+export const STATUS_ITENS_FILA = Object.keys(STATUS_ITEM_FILA_LABEL) as StatusItemFila[];
+
+// Sufixo do UUID para identificacao curta em listas (o id completo segue no link/detalhe).
+export function idCurto(id: string): string {
+  return id.slice(-8);
+}
+
+// Converte uma data local (yyyy-MM-dd do input) em OffsetDateTime para o backend. O fuso
+// America/Sao_Paulo e fixo em -03:00 (sem horario de verao desde 2019). "de" usa inicio do
+// dia; "ate" usa fim do dia, para o intervalo cobrir o dia inteiro.
+export function inicioDoDiaIso(dataLocal: string): string {
+  return `${dataLocal}T00:00:00-03:00`;
+}
+
+export function fimDoDiaIso(dataLocal: string): string {
+  return `${dataLocal}T23:59:59-03:00`;
+}
 
 // Extrai a mensagem amigavel do corpo de erro padronizado da API, com fallback.
 // 401/403/423 sao tratados pelo errorInterceptor global; aqui cobrimos 404/409/422/5xx.

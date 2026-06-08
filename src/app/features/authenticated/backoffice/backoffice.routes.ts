@@ -18,4 +18,16 @@ export const BACKOFFICE_ROUTES: Routes = [
       ),
     data: { breadcrumb: 'Dashboard' },
   },
+  {
+    path: 'fila',
+    loadComponent: () =>
+      import('./pages/fila-operacional-page.component').then((m) => m.FilaOperacionalPageComponent),
+    data: { breadcrumb: 'Fila operacional' },
+  },
+  {
+    path: 'fila/:id',
+    loadComponent: () =>
+      import('./pages/item-fila-detail-page.component').then((m) => m.ItemFilaDetailPageComponent),
+    data: { breadcrumb: 'Item da fila' },
+  },
 ];

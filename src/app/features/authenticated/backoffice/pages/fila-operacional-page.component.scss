@@ -1,0 +1,119 @@
+@use "../../../../../styles/notion-typography" as notionType;
+@use "../../../../../styles/notion-components" as notion;
+
+.sep-bo-fila {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-24);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--notion-space-16) 0;
+}
+
+.sep-bo-fila-title {
+  @include notionType.notion-type-section-heading;
+
+  margin: 0;
+  color: var(--notion-color-text);
+}
+
+.sep-bo-fila-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--notion-space-16);
+  align-items: flex-end;
+}
+
+.sep-bo-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-6);
+}
+
+.sep-bo-field-label {
+  @include notionType.notion-type-caption;
+
+  color: var(--notion-color-text-muted);
+}
+
+.sep-bo-field-control {
+  @include notion.notion-input;
+}
+
+.sep-bo-fila-aplicar {
+  @include notion.notion-button-primary;
+}
+
+.sep-bo-fila-state {
+  @include notionType.notion-type-body;
+
+  color: var(--notion-color-text-muted);
+}
+
+.sep-bo-fila-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+  align-items: flex-start;
+}
+
+.sep-bo-fila-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sep-bo-fila-link {
+  @include notion.notion-card;
+
+  display: grid;
+  grid-template-columns: auto auto 1fr auto auto auto;
+  gap: var(--notion-space-12);
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 120ms ease;
+
+  &:hover {
+    border-color: var(--notion-color-blue);
+  }
+}
+
+.sep-bo-fila-titulo {
+  @include notionType.notion-type-body-semibold;
+
+  color: var(--notion-color-text);
+}
+
+.sep-bo-fila-tipo,
+.sep-bo-fila-data,
+.sep-bo-fila-atribuido {
+  @include notionType.notion-type-caption;
+
+  color: var(--notion-color-text-muted);
+}
+
+.sep-bo-fila-paginacao {
+  display: flex;
+  gap: var(--notion-space-16);
+  align-items: center;
+}
+
+.sep-bo-fila-pag-botao {
+  @include notion.notion-button-secondary;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.sep-bo-fila-pag-info {
+  @include notionType.notion-type-caption;
+
+  color: var(--notion-color-text-muted);
+}
