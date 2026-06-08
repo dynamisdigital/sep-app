@@ -133,6 +133,47 @@ describe('SidenavComponent', () => {
     expect(link?.getAttribute('href')).toBe('/app/cobranca');
   });
 
+  it('BACKOFFICE: ve Backoffice (->/app/backoffice) mas oculta Administracao', async () => {
+    const result = await render(SidenavComponent, {
+      providers: [provideRouter([]), provideHttpClient()],
+    });
+    const auth = result.fixture.debugElement.injector.get(AuthService);
+    await new Promise<void>((resolve, reject) => {
+      auth.login({ username: 'backoffice@empresa.com', password: '123456' }).subscribe({
+        next: () => resolve(),
+        error: reject,
+      });
+    });
+    result.fixture.detectChanges();
+
+    expect(screen.getByText('Backoffice').closest('a')?.getAttribute('href')).toBe(
+      '/app/backoffice',
+    );
+    expect(screen.queryByText('Administracao')).toBeNull();
+  });
+
+  it('CLIENTE: nao ve o menu Backoffice', async () => {
+    window.localStorage.setItem(ACCESS_TOKEN_KEY, 'mock-jwt-token');
+    const result = await render(SidenavComponent, {
+      providers: [provideRouter([]), provideHttpClient()],
+    });
+    const auth = result.fixture.debugElement.injector.get(AuthService) as unknown as {
+      currentUserState: { set: (u: unknown) => void };
+    };
+    auth.currentUserState.set({
+      id: 'cli-1',
+      username: 'cliente@empresa.com',
+      role: 'CLIENTE',
+      dataCriacao: '2026-04-24T18:30:00-03:00',
+      dataModificacao: '2026-04-24T18:30:00-03:00',
+      criadoPor: 'system',
+      modificadoPor: 'system',
+    });
+    result.fixture.detectChanges();
+
+    expect(screen.queryByText('Backoffice')).toBeNull();
+  });
+
   it('link Meu perfil aponta para /app/profile e Administracao para /app/admin/users', async () => {
     const result = await render(SidenavComponent, {
       providers: [provideRouter([]), provideHttpClient()],
