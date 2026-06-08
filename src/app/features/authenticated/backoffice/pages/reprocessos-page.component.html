@@ -1,0 +1,84 @@
+<section class="sep-bo-reproc">
+  <header class="sep-bo-reproc-header">
+    <h1 class="sep-bo-reproc-title">Reprocessos</h1>
+    <p class="sep-bo-reproc-sub">
+      Reenvio manual de webhook e chamadas de provider. Exige confirmacao adicional (step-up).
+    </p>
+  </header>
+
+  <div class="sep-bo-reproc-abas" role="tablist">
+    <button
+      type="button"
+      role="tab"
+      class="sep-bo-reproc-aba"
+      [class.sep-bo-reproc-aba-ativa]="aba() === 'webhook'"
+      [attr.aria-selected]="aba() === 'webhook'"
+      (click)="selecionarAba('webhook')"
+    >
+      Webhook
+    </button>
+    <button
+      type="button"
+      role="tab"
+      class="sep-bo-reproc-aba"
+      [class.sep-bo-reproc-aba-ativa]="aba() === 'provider'"
+      [attr.aria-selected]="aba() === 'provider'"
+      (click)="selecionarAba('provider')"
+    >
+      Provider
+    </button>
+  </div>
+
+  @if (aba() === 'webhook') {
+    <form class="sep-bo-reproc-form" [formGroup]="webhookForm" (ngSubmit)="reprocessarWebhook()">
+      <label class="sep-bo-field">
+        <span class="sep-bo-field-label">ID do evento de webhook</span>
+        <input type="text" formControlName="webhookEventId" class="sep-bo-field-control" />
+      </label>
+      <label class="sep-bo-field">
+        <span class="sep-bo-field-label">ID do item da fila (opcional)</span>
+        <input type="text" formControlName="itemId" class="sep-bo-field-control" />
+      </label>
+      <button type="submit" class="sep-bo-reproc-enviar" [disabled]="enviando()">
+        Reprocessar webhook
+      </button>
+    </form>
+  } @else {
+    <form class="sep-bo-reproc-form" [formGroup]="providerForm" (ngSubmit)="reprocessarProvider()">
+      <label class="sep-bo-field">
+        <span class="sep-bo-field-label">Tipo de chamada</span>
+        <select formControlName="tipoChamada" class="sep-bo-field-control">
+          @for (t of tiposChamada; track t) {
+            <option [value]="t">{{ chamadaLabel[t] }}</option>
+          }
+        </select>
+      </label>
+      <label class="sep-bo-field">
+        <span class="sep-bo-field-label">ID da entidade</span>
+        <input type="text" formControlName="entidadeId" class="sep-bo-field-control" />
+      </label>
+      <label class="sep-bo-field">
+        <span class="sep-bo-field-label">ID do item da fila (opcional)</span>
+        <input type="text" formControlName="itemId" class="sep-bo-field-control" />
+      </label>
+      <p class="sep-bo-reproc-aviso">
+        Apenas Transferencia Pix tem reconsulta real de status; outros tipos podem nao ter
+        retentativa efetiva no backend.
+      </p>
+      <button type="submit" class="sep-bo-reproc-enviar" [disabled]="enviando()">
+        Reprocessar provider
+      </button>
+    </form>
+  }
+
+  @if (erro(); as msg) {
+    <p class="sep-bo-reproc-erro" role="alert">{{ msg }}</p>
+  }
+
+  @if (resultado(); as r) {
+    <article class="sep-bo-reproc-painel">
+      <h2 class="sep-bo-reproc-painel-title">Resultado</h2>
+      <sep-reprocesso-resultado [reprocesso]="r" />
+    </article>
+  }
+</section>

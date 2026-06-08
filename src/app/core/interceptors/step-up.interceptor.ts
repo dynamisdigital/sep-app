@@ -17,6 +17,7 @@ export const stepUpInterceptor: HttpInterceptorFn = (req, next) => {
   // O guard de metodo evita consumir o token (uso unico) num GET acidental para uma URL
   // terminada em /aceite. Cobranca (F-9.5): propor renegociacao (POST) e aceite do tomador
   // (PATCH) exigem step-up; a recusa NAO entra (o backend nao exige step-up na recusa).
+  // Backoffice (F-10.5): resolver e ignorar item da fila exigem step-up (@RequireStepUp).
   const exigeStepUp =
     (req.url.includes('/usuarios/') && req.url.endsWith('/senha')) ||
     req.url.endsWith('/auth/totp/disable') ||
@@ -26,7 +27,11 @@ export const stepUpInterceptor: HttpInterceptorFn = (req, next) => {
       req.url.endsWith('/renegociacao')) ||
     (req.method === 'PATCH' &&
       req.url.includes('/cobranca/renegociacoes/') &&
-      req.url.endsWith('/aceite'));
+      req.url.endsWith('/aceite')) ||
+    (req.method === 'PATCH' &&
+      req.url.includes('/backoffice/fila/') &&
+      (req.url.endsWith('/resolver') || req.url.endsWith('/ignorar'))) ||
+    (req.method === 'POST' && req.url.includes('/backoffice/reprocessos/'));
   if (!exigeStepUp) {
     return next(req);
   }

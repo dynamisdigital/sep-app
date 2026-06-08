@@ -67,6 +67,13 @@ export const AUTHENTICATED_ROUTES: Routes = [
         data: { breadcrumb: 'Cobranca' },
       },
       {
+        path: 'backoffice',
+        canActivate: [roleGuard],
+        data: { roles: ['BACKOFFICE', 'FINANCEIRO', 'ADMIN'], breadcrumb: 'Backoffice' },
+        loadChildren: () =>
+          import('./backoffice/backoffice.routes').then((m) => m.BACKOFFICE_ROUTES),
+      },
+      {
         path: 'admin',
         canActivate: [roleGuard],
         data: { roles: ['ADMIN'], breadcrumb: 'Administracao' },

@@ -1,0 +1,34 @@
+<section class="sep-backoffice-shell">
+  <header class="sep-backoffice-shell-header">
+    <h1 class="sep-backoffice-shell-title">Backoffice</h1>
+    <p class="sep-backoffice-shell-subtitle">
+      Operacao assistida: dashboard, fila e reprocessos para FINANCEIRO, BACKOFFICE e ADMIN.
+    </p>
+  </header>
+
+  <div class="sep-backoffice-shell-cards">
+    @for (secao of secoes; track secao.label) {
+      @if (secao.route) {
+        <a
+          [routerLink]="secao.route"
+          routerLinkActive="sep-backoffice-shell-card-active"
+          class="sep-backoffice-shell-card"
+        >
+          <span class="sep-backoffice-shell-card-title">{{ secao.label }}</span>
+          <span class="sep-backoffice-shell-card-body">{{ secao.descricao }}</span>
+        </a>
+      } @else {
+        <div
+          class="sep-backoffice-shell-card sep-backoffice-shell-card-disabled"
+          aria-disabled="true"
+        >
+          <span class="sep-backoffice-shell-card-title">
+            {{ secao.label }}
+            <span class="sep-backoffice-shell-card-badge">Em breve</span>
+          </span>
+          <span class="sep-backoffice-shell-card-body">{{ secao.descricao }}</span>
+        </div>
+      }
+    }
+  </div>
+</section>
