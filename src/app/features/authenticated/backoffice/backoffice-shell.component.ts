@@ -35,7 +35,7 @@ export class BackofficeShellComponent {
     {
       label: 'Reprocessos',
       descricao: 'Reenvio de webhook e provider com step-up.',
-      route: null,
+      route: '/app/backoffice/reprocessos',
     },
   ];
 }

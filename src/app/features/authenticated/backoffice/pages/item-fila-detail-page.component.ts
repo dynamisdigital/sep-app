@@ -10,10 +10,11 @@ import {
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import { ItemFilaDetalheResponse } from '../../../../core/api/api.models';
+import { ItemFilaDetalheResponse, ReprocessoResponse } from '../../../../core/api/api.models';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { BackofficeService } from '../../../../core/backoffice/backoffice.service';
 import { BackofficeChipComponent } from '../shared/backoffice-chip.component';
+import { ReprocessoResultadoComponent } from '../shared/reprocesso-resultado.component';
 import {
   TIPO_ENTIDADE_LABEL,
   TIPO_ITEM_FILA_LABEL,
@@ -25,7 +26,8 @@ import {
 const JUSTIFICATIVA_MIN = 20;
 const TEXTO_MAX = 10000;
 
-type AcaoSensivel = 'resolver' | 'ignorar';
+// Acoes que exigem step-up (gate @RequireStepUp no backend).
+type AcaoComStepUp = 'resolver' | 'ignorar' | 'reprocesso';
 
 // Detalhe e conducao do item da fila. Apresenta dados, descricao, comentarios e o resumo do
 // objeto original (sem payload bruto) e permite o fluxo assistido: assumir, comentar, resolver
@@ -35,7 +37,7 @@ type AcaoSensivel = 'resolver' | 'ignorar';
 // de confirmacao adicional.
 @Component({
   selector: 'sep-item-fila-detail-page',
-  imports: [ReactiveFormsModule, RouterLink, BackofficeChipComponent],
+  imports: [ReactiveFormsModule, RouterLink, BackofficeChipComponent, ReprocessoResultadoComponent],
   templateUrl: './item-fila-detail-page.component.html',
   styleUrl: './item-fila-detail-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,6 +62,7 @@ export class ItemFilaDetailPageComponent implements OnInit {
 
   protected readonly acaoEmAndamento = signal(false);
   protected readonly acaoErro = signal<string | null>(null);
+  protected readonly acaoResultado = signal<ReprocessoResponse | null>(null);
 
   // Visibilidade das acoes por status (UX); a transicao real e validada no backend (409).
   protected readonly podeAssumir = computed(() => this.item()?.status === 'ABERTO');
@@ -68,6 +71,16 @@ export class ItemFilaDetailPageComponent implements OnInit {
     const status = this.item()?.status;
     return status === 'ABERTO' || status === 'EM_TRATAMENTO';
   });
+
+  // Atalhos de reprocesso quando o item tem handler real: WEBHOOK_FALHOU reenfileira o webhook;
+  // DESEMBOLSO_PIX_FALHOU reconsulta a transferencia Pix. RECEBIMENTO_PIX_DIVERGENTE e demais
+  // tipos seguem so com tratamento manual (comentar/resolver/ignorar).
+  protected readonly podeReprocessarWebhook = computed(
+    () => this.item()?.tipo === 'WEBHOOK_FALHOU',
+  );
+  protected readonly podeReprocessarProvider = computed(
+    () => this.item()?.tipo === 'DESEMBOLSO_PIX_FALHOU',
+  );
 
   protected readonly comentarioForm = this.fb.nonNullable.group({
     conteudo: ['', [Validators.required, Validators.maxLength(TEXTO_MAX)]],
@@ -163,14 +176,47 @@ export class ItemFilaDetailPageComponent implements OnInit {
       });
   }
 
+  reprocessarWebhook(): void {
+    const item = this.item();
+    if (!item || this.acaoEmAndamento()) {
+      return;
+    }
+    this.iniciarAcao();
+    this.backoffice.reprocessarWebhook(item.entidadeId, { itemId: item.id }).subscribe({
+      next: (resultado) => this.aoReprocessar(resultado),
+      error: (err: HttpErrorResponse) => this.tratarErro(err, item.id, 'reprocesso'),
+    });
+  }
+
+  reprocessarProvider(): void {
+    const item = this.item();
+    if (!item || this.acaoEmAndamento()) {
+      return;
+    }
+    this.iniciarAcao();
+    this.backoffice
+      .reprocessarProvider('PIX_TRANSFERENCIA', item.entidadeId, { itemId: item.id })
+      .subscribe({
+        next: (resultado) => this.aoReprocessar(resultado),
+        error: (err: HttpErrorResponse) => this.tratarErro(err, item.id, 'reprocesso'),
+      });
+  }
+
   private iniciarAcao(): void {
     this.acaoEmAndamento.set(true);
     this.acaoErro.set(null);
+    this.acaoResultado.set(null);
   }
 
   private aoConcluir(id: string): void {
     this.acaoEmAndamento.set(false);
     this.carregar(id);
+  }
+
+  // O reprocesso nao muda o estado do item; apenas exibimos o resultado retornado.
+  private aoReprocessar(resultado: ReprocessoResponse): void {
+    this.acaoEmAndamento.set(false);
+    this.acaoResultado.set(resultado);
   }
 
   private carregar(id: string): void {
@@ -196,16 +242,18 @@ export class ItemFilaDetailPageComponent implements OnInit {
   private tratarErro(
     err: HttpErrorResponse,
     id: string,
-    acao: AcaoSensivel | 'assumir' | 'comentar',
+    acao: AcaoComStepUp | 'assumir' | 'comentar',
   ): void {
     this.acaoEmAndamento.set(false);
-    // resolver/ignorar exigem step-up: 403 com MFA habilitado coleta o token e volta a este item.
-    if (
-      err.status === 403 &&
-      (acao === 'resolver' || acao === 'ignorar') &&
-      this.auth.currentUser()?.mfaHabilitado
-    ) {
+    // resolver/ignorar/reprocesso exigem step-up: 403 com MFA coleta o token e volta a este item.
+    const exigeStepUp = acao === 'resolver' || acao === 'ignorar' || acao === 'reprocesso';
+    if (err.status === 403 && exigeStepUp && this.auth.currentUser()?.mfaHabilitado) {
       void this.router.navigateByUrl(`/app/step-up?next=/app/backoffice/fila/${id}`);
+      return;
+    }
+    // 429: anti-abuso de reprocesso (3/24h por entidade); sem retentativa automatica.
+    if (err.status === 429) {
+      this.acaoErro.set('Limite de 3 reprocessos por entidade em 24h atingido. Tente mais tarde.');
       return;
     }
     // 409: o item mudou de estado. Mostra mensagem e recarrega a situacao real.

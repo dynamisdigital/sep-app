@@ -4,6 +4,8 @@ import {
   ApiErrorResponse,
   PrioridadeItem,
   StatusItemFila,
+  StatusReprocesso,
+  TipoChamadaProvider,
   TipoEntidadeReferenciada,
   TipoItemFila,
 } from '../../../../core/api/api.models';
@@ -78,10 +80,30 @@ export const TIPO_ENTIDADE_LABEL: Record<TipoEntidadeReferenciada, string> = {
   OUTRO: 'Outro',
 };
 
+// Categorias de reprocesso de provider. PIX_TRANSFERENCIA tem reconsulta real de status;
+// os demais podem ser stubs no backend — a UI nao promete retentativa efetiva.
+export const TIPO_CHAMADA_PROVIDER_LABEL: Record<TipoChamadaProvider, string> = {
+  KYC: 'KYC',
+  KYB: 'KYB',
+  PLD: 'PLD',
+  OPEN_FINANCE: 'Open Finance',
+  ASSINATURA_DIGITAL: 'Assinatura digital',
+  PIX_TRANSFERENCIA: 'Transferencia Pix',
+};
+
+export const STATUS_REPROCESSO_LABEL: Record<StatusReprocesso, string> = {
+  PENDENTE: 'Pendente',
+  SUCESSO: 'Sucesso',
+  FALHA: 'Falha',
+};
+
 // Opcoes para selects de filtro, na ordem de declaracao dos labels.
 export const TIPOS_ITEM_FILA = Object.keys(TIPO_ITEM_FILA_LABEL) as TipoItemFila[];
 export const PRIORIDADES_ITEM = Object.keys(PRIORIDADE_ITEM_LABEL) as PrioridadeItem[];
 export const STATUS_ITENS_FILA = Object.keys(STATUS_ITEM_FILA_LABEL) as StatusItemFila[];
+export const TIPOS_CHAMADA_PROVIDER = Object.keys(
+  TIPO_CHAMADA_PROVIDER_LABEL,
+) as TipoChamadaProvider[];
 
 // Sufixo do UUID para identificacao curta em listas (o id completo segue no link/detalhe).
 export function idCurto(id: string): string {

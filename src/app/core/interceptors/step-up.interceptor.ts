@@ -30,7 +30,8 @@ export const stepUpInterceptor: HttpInterceptorFn = (req, next) => {
       req.url.endsWith('/aceite')) ||
     (req.method === 'PATCH' &&
       req.url.includes('/backoffice/fila/') &&
-      (req.url.endsWith('/resolver') || req.url.endsWith('/ignorar')));
+      (req.url.endsWith('/resolver') || req.url.endsWith('/ignorar'))) ||
+    (req.method === 'POST' && req.url.includes('/backoffice/reprocessos/'));
   if (!exigeStepUp) {
     return next(req);
   }

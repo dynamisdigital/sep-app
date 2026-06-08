@@ -135,4 +135,16 @@ describe('ItemFilaDetailPageComponent', () => {
 
     expect(screen.getByText('Resolvido')).toBeTruthy();
   });
+
+  // ITEM_ABERTO_ID e do tipo WEBHOOK_FALHOU: o atalho de reprocesso de webhook fica disponivel.
+  it('reprocessar webhook com step-up mostra o resultado', async () => {
+    const { fixture } = await renderPagina(ITEM_ABERTO_ID, true);
+    await estabilizar(fixture);
+    fixture.debugElement.injector.get(StepUpTokenStore).set('step-up-tok');
+
+    (screen.getByText('Reprocessar webhook').closest('button') as HTMLButtonElement).click();
+    await estabilizar(fixture);
+
+    expect(screen.getByText('Sucesso')).toBeTruthy();
+  });
 });

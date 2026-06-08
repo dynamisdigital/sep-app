@@ -61,13 +61,13 @@
       </article>
     }
 
+    @if (acaoErro(); as msg) {
+      <p class="sep-bo-item-error" role="alert">{{ msg }}</p>
+    }
+
     @if (podeAssumir() || podeResolver() || podeIgnorar()) {
       <article class="sep-bo-item-panel">
         <h2 class="sep-bo-item-panel-title">Acoes</h2>
-
-        @if (acaoErro(); as msg) {
-          <p class="sep-bo-item-error" role="alert">{{ msg }}</p>
-        }
 
         @if (podeAssumir()) {
           <button
@@ -120,6 +120,38 @@
               Ignorar
             </button>
           </form>
+        }
+      </article>
+    }
+
+    @if (podeReprocessarWebhook() || podeReprocessarProvider()) {
+      <article class="sep-bo-item-panel">
+        <h2 class="sep-bo-item-panel-title">Reprocesso</h2>
+
+        @if (podeReprocessarWebhook()) {
+          <button
+            type="button"
+            class="sep-bo-item-acao-primaria"
+            [disabled]="acaoEmAndamento()"
+            (click)="reprocessarWebhook()"
+          >
+            Reprocessar webhook
+          </button>
+        }
+
+        @if (podeReprocessarProvider()) {
+          <button
+            type="button"
+            class="sep-bo-item-acao-primaria"
+            [disabled]="acaoEmAndamento()"
+            (click)="reprocessarProvider()"
+          >
+            Reprocessar transferencia Pix
+          </button>
+        }
+
+        @if (acaoResultado(); as r) {
+          <sep-reprocesso-resultado [reprocesso]="r" />
         }
       </article>
     }

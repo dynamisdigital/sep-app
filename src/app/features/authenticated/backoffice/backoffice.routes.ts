@@ -30,4 +30,10 @@ export const BACKOFFICE_ROUTES: Routes = [
       import('./pages/item-fila-detail-page.component').then((m) => m.ItemFilaDetailPageComponent),
     data: { breadcrumb: 'Item da fila' },
   },
+  {
+    path: 'reprocessos',
+    loadComponent: () =>
+      import('./pages/reprocessos-page.component').then((m) => m.ReprocessosPageComponent),
+    data: { breadcrumb: 'Reprocessos' },
+  },
 ];
