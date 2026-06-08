@@ -1,0 +1,111 @@
+<section class="sep-bo-dashboard">
+  <header class="sep-bo-dashboard-header">
+    <h1 class="sep-bo-dashboard-title">Dashboard operacional</h1>
+    @if (dashboard(); as d) {
+      <p class="sep-bo-dashboard-updated">Gerado em {{ formatarDataHora(d.geradoEm) }}</p>
+    }
+  </header>
+
+  @if (loading()) {
+    <p class="sep-bo-dashboard-state">Carregando...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-bo-dashboard-state sep-bo-dashboard-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="sep-bo-dashboard-retry" (click)="carregar()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (dashboard(); as d) {
+    <div class="sep-bo-kpis">
+      <article class="sep-bo-kpi">
+        <span class="sep-bo-kpi-label">Recebimentos do dia</span>
+        <span class="sep-bo-kpi-value">{{ formatarMoeda(d.recebimentosDoDia) }}</span>
+      </article>
+      <article class="sep-bo-kpi">
+        <span class="sep-bo-kpi-label">Inadimplencia total</span>
+        <span class="sep-bo-kpi-value">{{ formatarMoeda(d.inadimplenciaTotal.valorTotal) }}</span>
+        <span class="sep-bo-kpi-hint">{{ d.inadimplenciaTotal.numeroParcelas }} parcela(s)</span>
+      </article>
+      <article class="sep-bo-kpi">
+        <span class="sep-bo-kpi-label">Tempo medio de resolucao (30d)</span>
+        <span class="sep-bo-kpi-value">{{ formatarDuracao(d.tempoMedioResolucao30d) }}</span>
+      </article>
+      <article class="sep-bo-kpi">
+        <span class="sep-bo-kpi-label">Criticos abertos +48h</span>
+        <span class="sep-bo-kpi-value">{{ d.itensCriticosAbertosMais48h }}</span>
+      </article>
+    </div>
+
+    <div class="sep-bo-grid">
+      <article class="sep-bo-panel">
+        <h2 class="sep-bo-panel-title">Itens por status</h2>
+        <ul class="sep-bo-list">
+          @for (c of d.contadoresPorStatus; track c.status) {
+            <li class="sep-bo-list-row">
+              <span>{{ statusLabel[c.status] }}</span>
+              <span class="sep-bo-list-total">{{ c.total }}</span>
+            </li>
+          } @empty {
+            <li class="sep-bo-list-empty">Sem itens.</li>
+          }
+        </ul>
+      </article>
+
+      <article class="sep-bo-panel">
+        <h2 class="sep-bo-panel-title">Itens por prioridade</h2>
+        <ul class="sep-bo-list">
+          @for (c of d.contadoresPorPrioridade; track c.prioridade) {
+            <li class="sep-bo-list-row">
+              <span>{{ prioridadeLabel[c.prioridade] }}</span>
+              <span class="sep-bo-list-total">{{ c.total }}</span>
+            </li>
+          } @empty {
+            <li class="sep-bo-list-empty">Sem itens.</li>
+          }
+        </ul>
+      </article>
+
+      <article class="sep-bo-panel">
+        <h2 class="sep-bo-panel-title">Itens por tipo</h2>
+        <ul class="sep-bo-list">
+          @for (c of d.contadoresPorTipo; track c.tipo) {
+            <li class="sep-bo-list-row">
+              <span>{{ tipoLabel[c.tipo] }}</span>
+              <span class="sep-bo-list-total">{{ c.total }}</span>
+            </li>
+          } @empty {
+            <li class="sep-bo-list-empty">Sem itens.</li>
+          }
+        </ul>
+      </article>
+
+      <article class="sep-bo-panel">
+        <h2 class="sep-bo-panel-title">Top 5 tipos mais frequentes</h2>
+        <ul class="sep-bo-list">
+          @for (c of d.topCincoTiposMaisFrequentes; track c.tipo) {
+            <li class="sep-bo-list-row">
+              <span>{{ tipoLabel[c.tipo] }}</span>
+              <span class="sep-bo-list-total">{{ c.total }}</span>
+            </li>
+          } @empty {
+            <li class="sep-bo-list-empty">Sem itens.</li>
+          }
+        </ul>
+      </article>
+
+      <article class="sep-bo-panel">
+        <h2 class="sep-bo-panel-title">Propostas por status</h2>
+        <ul class="sep-bo-list">
+          @for (c of d.propostasPorStatus; track c.status) {
+            <li class="sep-bo-list-row">
+              <span>{{ c.status }}</span>
+              <span class="sep-bo-list-total">{{ c.total }}</span>
+            </li>
+          } @empty {
+            <li class="sep-bo-list-empty">Sem propostas.</li>
+          }
+        </ul>
+      </article>
+    </div>
+  }
+</section>

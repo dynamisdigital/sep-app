@@ -25,7 +25,7 @@ export class BackofficeShellComponent {
     {
       label: 'Dashboard',
       descricao: 'Visao consolidada operacional e financeira.',
-      route: null,
+      route: '/app/backoffice/dashboard',
     },
     {
       label: 'Fila operacional',

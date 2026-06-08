@@ -10,4 +10,12 @@ export const BACKOFFICE_ROUTES: Routes = [
     loadComponent: () =>
       import('./backoffice-shell.component').then((m) => m.BackofficeShellComponent),
   },
+  {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('./pages/backoffice-dashboard-page.component').then(
+        (m) => m.BackofficeDashboardPageComponent,
+      ),
+    data: { breadcrumb: 'Dashboard' },
+  },
 ];

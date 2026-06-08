@@ -14,14 +14,15 @@ describe('BackofficeShellComponent', () => {
     expect(screen.getByText('Reprocessos')).toBeTruthy();
   });
 
-  // Nesta etapa (C2) as telas das secoes ainda nao foram entregues; os cards ficam
-  // desabilitados em vez de apontar para rota inexistente. Cada Task posterior habilita o seu.
-  it('mantem as secoes desabilitadas enquanto as telas nao existem', async () => {
+  // Cada Task habilita o card da sua tela. Apos F-10.3 o Dashboard e navegavel; fila e
+  // reprocessos seguem desabilitados ate F-10.4/F-10.6.
+  it('habilita o card Dashboard e mantem fila/reprocessos desabilitados', async () => {
     const { container } = await render(BackofficeShellComponent, {
       providers: [provideRouter([])],
     });
 
-    expect(container.querySelectorAll('.sep-backoffice-shell-card-disabled').length).toBe(3);
-    expect(container.querySelector('a.sep-backoffice-shell-card')).toBeNull();
+    const dashboard = screen.getByText('Dashboard').closest('a');
+    expect(dashboard?.getAttribute('href')).toBe('/app/backoffice/dashboard');
+    expect(container.querySelectorAll('.sep-backoffice-shell-card-disabled').length).toBe(2);
   });
 });
