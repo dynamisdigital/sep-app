@@ -61,8 +61,88 @@
       </article>
     }
 
+    @if (podeAssumir() || podeResolver() || podeIgnorar()) {
+      <article class="sep-bo-item-panel">
+        <h2 class="sep-bo-item-panel-title">Acoes</h2>
+
+        @if (acaoErro(); as msg) {
+          <p class="sep-bo-item-error" role="alert">{{ msg }}</p>
+        }
+
+        @if (podeAssumir()) {
+          <button
+            type="button"
+            class="sep-bo-item-acao-primaria"
+            [disabled]="acaoEmAndamento()"
+            (click)="assumir()"
+          >
+            Assumir item
+          </button>
+        }
+
+        @if (podeResolver()) {
+          <form class="sep-bo-item-form" [formGroup]="resolverForm" (ngSubmit)="resolver()">
+            <label class="sep-bo-field">
+              <span class="sep-bo-field-label"
+                >Justificativa para resolver (min. 20 caracteres)</span
+              >
+              <textarea
+                formControlName="justificativa"
+                class="sep-bo-textarea"
+                rows="3"
+                [maxlength]="textoMax"
+              ></textarea>
+            </label>
+            <button type="submit" class="sep-bo-item-acao-primaria" [disabled]="acaoEmAndamento()">
+              Resolver
+            </button>
+          </form>
+        }
+
+        @if (podeIgnorar()) {
+          <form class="sep-bo-item-form" [formGroup]="ignorarForm" (ngSubmit)="ignorar()">
+            <label class="sep-bo-field">
+              <span class="sep-bo-field-label"
+                >Justificativa para ignorar (min. 20 caracteres)</span
+              >
+              <textarea
+                formControlName="justificativa"
+                class="sep-bo-textarea"
+                rows="3"
+                [maxlength]="textoMax"
+              ></textarea>
+            </label>
+            <button
+              type="submit"
+              class="sep-bo-item-acao-secundaria"
+              [disabled]="acaoEmAndamento()"
+            >
+              Ignorar
+            </button>
+          </form>
+        }
+      </article>
+    }
+
     <article class="sep-bo-item-panel">
       <h2 class="sep-bo-item-panel-title">Comentarios internos</h2>
+
+      <form class="sep-bo-item-form" [formGroup]="comentarioForm" (ngSubmit)="comentar()">
+        <label class="sep-bo-field">
+          <span class="sep-bo-field-label">Novo comentario</span>
+          <textarea
+            formControlName="conteudo"
+            class="sep-bo-textarea"
+            rows="2"
+            [maxlength]="textoMax"
+            placeholder="Registre uma nota interna"
+          ></textarea>
+        </label>
+        <button type="submit" class="sep-bo-item-acao-secundaria" [disabled]="acaoEmAndamento()">
+          Comentar
+        </button>
+      </form>
+
       <ul class="sep-bo-item-comentarios">
         @for (c of it.comentarios; track c.id) {
           <li class="sep-bo-item-comentario">
