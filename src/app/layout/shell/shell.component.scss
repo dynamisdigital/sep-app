@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: var(--notion-color-canvas);
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
 }
 
 .sep-shell-body {
@@ -21,8 +21,8 @@
 
 .sep-shell-content {
   flex: 1;
-  padding: var(--notion-space-24);
-  background: var(--notion-color-canvas);
+  padding: var(--sep-space-24);
+  background: hsl(var(--background));
 }
 
 @media (width <= 833px) {

@@ -1,32 +1,32 @@
-@use "../../../../../styles/notion-typography" as notionType;
-@use "../../../../../styles/notion-components" as notion;
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
 
 .sep-onboarding-empresa {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-24);
+  gap: var(--sep-space-24);
   max-width: 640px;
   margin: 0 auto;
-  padding: var(--notion-space-16) 0;
+  padding: var(--sep-space-16) 0;
 }
 
 .sep-onboarding-empresa-header {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-8);
+  gap: var(--sep-space-8);
 }
 
 .sep-onboarding-empresa-title {
-  @include notionType.notion-type-section-heading;
+  @include sepType.sep-type-page-title;
 
   margin: 0;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
 }
 
 .sep-onboarding-empresa-back {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
-  color: var(--notion-color-blue);
+  color: hsl(var(--primary));
   text-decoration: none;
   font-size: 13px;
 
@@ -39,43 +39,44 @@
 .sep-onboarding-empresa-status-panel,
 .sep-onboarding-empresa-upload,
 .sep-onboarding-empresa-verify {
-  @include notion.notion-card;
+  @include sepDs.sep-card;
 
+  padding: var(--sep-space-24);
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-16);
+  gap: var(--sep-space-16);
 }
 
 .sep-onboarding-empresa-detail {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-16);
+  gap: var(--sep-space-16);
 }
 
 .sep-onboarding-empresa-field {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-6);
+  gap: var(--sep-space-6);
 
   label {
-    @include notionType.notion-type-body;
+    @include sepType.sep-type-body;
 
-    color: var(--notion-color-text);
+    color: hsl(var(--foreground));
     font-size: 13px;
     font-weight: 500;
   }
 
   input[type="text"],
   select {
-    @include notion.notion-input;
+    @include sepDs.sep-input;
   }
 }
 
 .sep-onboarding-empresa-section-title {
-  @include notionType.notion-type-card-title;
+  @include sepType.sep-type-card-title;
 
   margin: 0;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
 }
 
 .sep-onboarding-empresa-status-head {
@@ -85,7 +86,7 @@
 }
 
 .sep-onboarding-empresa-badge {
-  @include notion.notion-pill-badge;
+  @include sepDs.sep-badge-soft(--primary);
 
   align-self: flex-start;
 }
@@ -93,27 +94,27 @@
 .sep-onboarding-empresa-dados {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-6);
+  gap: var(--sep-space-6);
   margin: 0;
 
   div {
     display: flex;
     justify-content: space-between;
-    gap: var(--notion-space-12);
+    gap: var(--sep-space-12);
   }
 
   dt {
-    @include notionType.notion-type-body;
+    @include sepType.sep-type-body;
 
-    color: var(--notion-color-text-muted);
+    color: hsl(var(--muted-foreground));
     font-size: 13px;
   }
 
   dd {
-    @include notionType.notion-type-body;
+    @include sepType.sep-type-body;
 
     margin: 0;
-    color: var(--notion-color-text);
+    color: hsl(var(--foreground));
     font-size: 13px;
     text-align: right;
   }
@@ -122,7 +123,7 @@
 .sep-onboarding-empresa-reps {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-8);
+  gap: var(--sep-space-8);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -132,77 +133,77 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--notion-space-8);
+  gap: var(--sep-space-8);
 }
 
 .sep-onboarding-empresa-rep-nome {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
   font-size: 13px;
   font-weight: 500;
 }
 
 .sep-onboarding-empresa-rep-cpf,
 .sep-onboarding-empresa-rep-cargo {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
   font-size: 12px;
 }
 
 .sep-onboarding-empresa-docs {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--notion-space-6);
+  gap: var(--sep-space-6);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .sep-onboarding-empresa-doc {
-  @include notion.notion-pill-badge;
+  @include sepDs.sep-badge-soft(--primary);
 }
 
 .sep-onboarding-empresa-empty {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   margin: 0;
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
   font-size: 13px;
 }
 
 .sep-onboarding-empresa-error {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   margin: 0;
-  color: var(--notion-color-orange);
+  color: hsl(var(--warning));
   font-size: 12px;
 }
 
 .sep-onboarding-empresa-feedback {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-4);
+  gap: var(--sep-space-4);
   margin: 0;
-  padding: var(--notion-space-8) var(--notion-space-12);
-  border-radius: var(--notion-radius-micro);
+  padding: var(--sep-space-8) var(--sep-space-12);
+  border-radius: var(--sep-radius-sm);
   font-size: 13px;
 }
 
 .sep-onboarding-empresa-feedback-error {
-  background: rgb(221 91 0 / 8%);
-  color: var(--notion-color-orange);
+  background: hsl(var(--warning) / 8%);
+  color: hsl(var(--warning));
 
   a {
-    color: var(--notion-color-blue);
+    color: hsl(var(--primary));
   }
 }
 
 .sep-onboarding-empresa-status-head .sep-onboarding-empresa-refresh {
-  @include notion.notion-button-secondary;
+  @include sepDs.sep-button-outline;
 }
 
 .sep-onboarding-empresa-actions {
@@ -211,7 +212,7 @@
 }
 
 .sep-onboarding-empresa-submit {
-  @include notion.notion-button-primary;
+  @include sepDs.sep-button-primary;
 
   &:disabled {
     cursor: not-allowed;

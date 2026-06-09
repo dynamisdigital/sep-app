@@ -1,19 +1,19 @@
-@use "../../../styles/notion-typography" as notionType;
+@use "../../../styles/sep-ds-components" as sepDs;
 
 .sep-sidenav {
   display: flex;
   flex-direction: column;
   width: 240px;
   height: 100%;
-  padding: var(--notion-space-16);
-  background: var(--notion-color-warm-white);
-  border-right: var(--notion-border-whisper);
+  padding: var(--sep-space-16);
+  background: hsl(var(--sidebar-background));
+  border-right: 1px solid hsl(var(--sidebar-border));
   transition: width 180ms ease;
 }
 
 .sep-sidenav-collapsed {
   width: 64px;
-  padding: var(--notion-space-16) var(--notion-space-8);
+  padding: var(--sep-space-16) var(--sep-space-8);
 
   .sep-sidenav-link {
     overflow: hidden;
@@ -25,7 +25,7 @@
 .sep-sidenav-list {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-4);
+  gap: var(--sep-space-4);
   padding: 0;
   margin: 0;
   list-style: none;
@@ -36,32 +36,15 @@
 }
 
 .sep-sidenav-link {
-  @include notionType.notion-type-nav-button;
-
-  display: block;
-  padding: var(--notion-space-8) var(--notion-space-12);
-  color: var(--notion-color-text);
-  background: transparent;
-  border-radius: var(--notion-radius-micro);
-  text-decoration: none;
-
-  &:hover {
-    background: rgb(0 0 0 / 5%);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--notion-color-blue-focus);
-    outline-offset: 2px;
-  }
+  @include sepDs.sep-nav-link;
 }
 
 .sep-sidenav-link-active {
-  color: var(--notion-color-blue);
-  background: var(--notion-color-badge-blue-bg);
+  @include sepDs.sep-nav-link-active;
 }
 
 .sep-sidenav-link-disabled {
-  color: var(--notion-color-text-subtle);
+  color: hsl(var(--muted-foreground));
   cursor: not-allowed;
 }
 
@@ -70,7 +53,7 @@
     width: 100%;
     height: auto;
     border-right: none;
-    border-bottom: var(--notion-border-whisper);
+    border-bottom: 1px solid hsl(var(--sidebar-border));
   }
 
   .sep-sidenav-collapsed {

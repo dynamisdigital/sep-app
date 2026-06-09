@@ -1,84 +1,84 @@
-@use "../../../../../styles/notion-typography" as notionType;
-@use "../../../../../styles/notion-components" as notion;
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
 
 .sep-bo-reproc {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-16);
+  gap: var(--sep-space-16);
   max-width: 720px;
   margin: 0 auto;
-  padding: var(--notion-space-16) 0;
+  padding: var(--sep-space-16) 0;
 }
 
 .sep-bo-reproc-header {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-6);
+  gap: var(--sep-space-6);
 }
 
 .sep-bo-reproc-title {
-  @include notionType.notion-type-section-heading;
+  @include sepType.sep-type-page-title;
 
   margin: 0;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
 }
 
 .sep-bo-reproc-sub {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   margin: 0;
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }
 
 .sep-bo-reproc-abas {
   display: flex;
-  gap: var(--notion-space-8);
+  gap: var(--sep-space-8);
 }
 
 .sep-bo-reproc-aba {
-  @include notion.notion-button-secondary;
+  @include sepDs.sep-button-outline;
 
   &.sep-bo-reproc-aba-ativa {
-    border-color: var(--notion-color-blue);
-    color: var(--notion-color-blue);
+    border-color: hsl(var(--primary));
+    color: hsl(var(--primary));
   }
 }
 
 .sep-bo-reproc-form {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-12);
+  gap: var(--sep-space-12);
   align-items: flex-start;
 }
 
 .sep-bo-field {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-6);
+  gap: var(--sep-space-6);
   width: 100%;
 }
 
 .sep-bo-field-label {
-  @include notionType.notion-type-caption;
+  @include sepType.sep-type-caption;
 
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }
 
 .sep-bo-field-control {
-  @include notion.notion-input;
+  @include sepDs.sep-input;
 
   width: 100%;
 }
 
 .sep-bo-reproc-aviso {
-  @include notionType.notion-type-caption;
+  @include sepType.sep-type-caption;
 
   margin: 0;
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }
 
 .sep-bo-reproc-enviar {
-  @include notion.notion-button-primary;
+  @include sepDs.sep-button-primary;
 
   &:disabled {
     opacity: 0.5;
@@ -87,23 +87,24 @@
 }
 
 .sep-bo-reproc-erro {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   margin: 0;
-  color: var(--notion-color-pink);
+  color: hsl(var(--destructive));
 }
 
 .sep-bo-reproc-painel {
-  @include notion.notion-card;
+  @include sepDs.sep-card;
 
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-8);
+  gap: var(--sep-space-8);
+  padding: var(--sep-space-24);
 }
 
 .sep-bo-reproc-painel-title {
-  @include notionType.notion-type-card-title;
+  @include sepType.sep-type-card-title;
 
   margin: 0;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
 }

@@ -67,9 +67,9 @@ import { StepUpTokenStore } from '../../../core/auth/step-up-token.store';
         margin: 48px auto;
       }
       .sep-step-up-card {
-        background: var(--notion-color-canvas);
-        border: var(--notion-border-whisper);
-        border-radius: var(--notion-radius-card);
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--sep-radius-lg);
         padding: 24px;
         display: flex;
         flex-direction: column;
@@ -78,10 +78,11 @@ import { StepUpTokenStore } from '../../../core/auth/step-up-token.store';
       h1 {
         margin: 0;
         font-size: 22px;
+        color: hsl(var(--foreground));
       }
       p {
         margin: 0;
-        color: var(--notion-color-text-muted);
+        color: hsl(var(--muted-foreground));
       }
       label {
         display: flex;
@@ -89,12 +90,14 @@ import { StepUpTokenStore } from '../../../core/auth/step-up-token.store';
         gap: 6px;
         span {
           font-size: 13px;
-          color: var(--notion-color-text-muted);
+          color: hsl(var(--muted-foreground));
         }
         input {
           padding: 10px 12px;
-          border: var(--notion-border-input);
-          border-radius: var(--notion-radius-subtle);
+          color: hsl(var(--foreground));
+          background: hsl(var(--background));
+          border: 1px solid hsl(var(--input));
+          border-radius: var(--sep-radius-sm);
           font-size: 16px;
           letter-spacing: 0.15em;
           text-align: center;
@@ -103,9 +106,9 @@ import { StepUpTokenStore } from '../../../core/auth/step-up-token.store';
       .sep-step-up-cta {
         align-self: flex-start;
         padding: 10px 18px;
-        border-radius: var(--notion-radius-micro);
-        background: var(--notion-color-blue);
-        color: #fff;
+        border-radius: var(--sep-radius-md);
+        background: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
         border: none;
         font-weight: 600;
         cursor: pointer;
@@ -115,12 +118,12 @@ import { StepUpTokenStore } from '../../../core/auth/step-up-token.store';
         }
       }
       .sep-step-up-error {
-        color: #b00020;
+        color: hsl(var(--destructive));
         font-size: 14px;
       }
       .sep-step-up-cancel {
         font-size: 14px;
-        color: var(--notion-color-text-muted);
+        color: hsl(var(--muted-foreground));
         text-decoration: none;
       }
     `,

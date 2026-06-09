@@ -1,47 +1,48 @@
-@use "../../../../styles/notion-typography" as notionType;
-@use "../../../../styles/notion-components" as notion;
+@use "../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../styles/sep-ds-components" as sepDs;
 
 .sep-backoffice-shell {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-32);
+  gap: var(--sep-space-32);
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--notion-space-16) 0;
+  padding: var(--sep-space-16) 0;
 }
 
 .sep-backoffice-shell-header {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-8);
+  gap: var(--sep-space-8);
 }
 
 .sep-backoffice-shell-title {
-  @include notionType.notion-type-section-heading;
+  @include sepType.sep-type-page-title;
 
   margin: 0;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
 }
 
 .sep-backoffice-shell-subtitle {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   margin: 0;
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }
 
 .sep-backoffice-shell-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--notion-space-16);
+  gap: var(--sep-space-16);
 }
 
 .sep-backoffice-shell-card {
-  @include notion.notion-card;
+  @include sepDs.sep-card;
 
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-6);
+  gap: var(--sep-space-6);
+  padding: var(--sep-space-24);
   text-decoration: none;
   color: inherit;
 }
@@ -53,7 +54,7 @@ a.sep-backoffice-shell-card {
 
   &:hover,
   &.sep-backoffice-shell-card-active {
-    border-color: var(--notion-color-blue);
+    border-color: hsl(var(--primary));
   }
 }
 
@@ -62,27 +63,27 @@ a.sep-backoffice-shell-card {
 }
 
 .sep-backoffice-shell-card-title {
-  @include notionType.notion-type-card-title;
+  @include sepType.sep-type-card-title;
 
   display: flex;
-  gap: var(--notion-space-8);
+  gap: var(--sep-space-8);
   align-items: center;
   margin: 0;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
 }
 
 .sep-backoffice-shell-card-badge {
-  @include notionType.notion-type-badge;
+  @include sepType.sep-type-badge;
 
-  padding: 0 var(--notion-space-6);
-  border-radius: var(--notion-radius-subtle);
-  background: var(--notion-color-badge-blue-bg);
-  color: var(--notion-color-badge-blue-text);
+  padding: 0 var(--sep-space-6);
+  border-radius: var(--sep-radius-sm);
+  background: hsl(var(--primary) / 12%);
+  color: hsl(var(--primary));
 }
 
 .sep-backoffice-shell-card-body {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   margin: 0;
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }

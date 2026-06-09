@@ -1,19 +1,19 @@
-@use "../../../../../styles/notion-typography" as notionType;
-@use "../../../../../styles/notion-components" as notion;
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
 
 .sep-users-list {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-24);
+  gap: var(--sep-space-24);
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--notion-space-16) 0;
+  padding: var(--sep-space-16) 0;
 }
 
 .sep-users-list-header {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-12);
+  gap: var(--sep-space-12);
 
   @media (width >= 768px) {
     flex-direction: row;
@@ -23,64 +23,65 @@
 }
 
 .sep-users-list-title {
-  @include notionType.notion-type-section-heading;
+  @include sepType.sep-type-page-title;
 
   margin: 0;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
 }
 
 .sep-users-list-filter {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-4);
+  gap: var(--sep-space-4);
   min-width: 280px;
 }
 
 .sep-users-list-filter-label {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   font-size: 12px;
-  color: var(--notion-color-text-subtle);
+  color: hsl(var(--muted-foreground));
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
 .sep-users-list-filter input {
-  @include notion.notion-input;
+  @include sepDs.sep-input;
 }
 
 .sep-users-list-state {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   margin: 0;
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }
 
 .sep-users-list-error {
-  @include notion.notion-card;
+  @include sepDs.sep-card;
 
+  padding: var(--sep-space-24);
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-8);
-  border-color: var(--notion-color-orange);
+  gap: var(--sep-space-8);
+  border-color: hsl(var(--warning));
 
   p {
     margin: 0;
-    color: var(--notion-color-orange);
+    color: hsl(var(--warning));
   }
 }
 
 .sep-users-list-retry {
-  @include notion.notion-button-secondary;
+  @include sepDs.sep-button-outline;
 
   align-self: flex-start;
 }
 
 .sep-users-list-table-wrapper {
   overflow-x: auto;
-  border: var(--notion-border-whisper);
-  border-radius: var(--notion-radius-card);
-  background: var(--notion-color-canvas);
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--sep-radius-lg);
+  background: hsl(var(--card));
 }
 
 .sep-users-list-table {
@@ -89,14 +90,14 @@
   font-size: 14px;
 
   thead th {
-    @include notionType.notion-type-body;
+    @include sepType.sep-type-body;
 
-    padding: var(--notion-space-12) var(--notion-space-16);
-    background: var(--notion-color-warm-white);
-    border-bottom: var(--notion-border-whisper);
+    padding: var(--sep-space-12) var(--sep-space-16);
+    background: hsl(var(--muted));
+    border-bottom: 1px solid hsl(var(--border));
     text-align: left;
     font-weight: 500;
-    color: var(--notion-color-text-muted);
+    color: hsl(var(--muted-foreground));
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -104,9 +105,9 @@
   }
 
   tbody td {
-    padding: var(--notion-space-12) var(--notion-space-16);
-    border-bottom: var(--notion-border-whisper);
-    color: var(--notion-color-text);
+    padding: var(--sep-space-12) var(--sep-space-16);
+    border-bottom: 1px solid hsl(var(--border));
+    color: hsl(var(--foreground));
     vertical-align: middle;
   }
 
@@ -121,7 +122,7 @@
 }
 
 .sep-users-list-detail-link {
-  color: var(--notion-color-blue);
+  color: hsl(var(--primary));
   text-decoration: none;
   font-size: 13px;
 

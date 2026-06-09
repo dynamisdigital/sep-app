@@ -1,121 +1,127 @@
-@use "../../../../styles/apple-typography" as appleType;
-@use "../../../../styles/apple-components" as apple;
+@use "../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../styles/sep-ds-components" as sepDs;
 
 :host {
   display: block;
-  background: var(--apple-color-canvas-parchment);
+  background: hsl(var(--background));
 }
 
 .register-page {
   display: flex;
   flex-direction: column;
-  gap: var(--apple-space-xxl);
+  gap: var(--sep-space-32);
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: var(--apple-space-xl);
+  padding: var(--sep-space-32);
 }
 
 .register-back {
-  @include appleType.apple-type-tagline;
+  @include sepType.sep-type-button;
 
-  color: var(--apple-color-ink);
+  color: hsl(var(--muted-foreground));
   text-decoration: none;
+
+  &:hover {
+    color: hsl(var(--foreground));
+  }
 }
 
 .register-card {
+  @include sepDs.sep-card;
+
   display: flex;
   flex-direction: column;
-  gap: var(--apple-space-lg);
+  gap: var(--sep-space-24);
   width: 100%;
   max-width: 480px;
-  padding: var(--apple-space-xl);
+  padding: var(--sep-space-32);
 }
 
 .register-title {
-  @include appleType.apple-type-display-md;
+  @include sepType.sep-type-page-title;
 
   margin: 0;
+  color: hsl(var(--foreground));
   text-align: center;
 }
 
 .register-form {
   display: flex;
   flex-direction: column;
-  gap: var(--apple-space-md);
+  gap: var(--sep-space-17);
 }
 
 .register-field {
   display: flex;
   flex-direction: column;
-  gap: var(--apple-space-xxs);
+  gap: var(--sep-space-4);
 }
 
 .register-label {
-  @include appleType.apple-type-caption;
-
-  color: var(--apple-color-ink-muted-80);
+  @include sepDs.sep-label;
 }
 
 .register-input {
-  @include apple.apple-search-input;
+  @include sepDs.sep-input;
 }
 
 select.register-input {
   appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%231d1d1f' d='M6 8L0 0h12z'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%23667085' d='M6 8L0 0h12z'/></svg>");
   background-repeat: no-repeat;
-  background-position: right var(--apple-space-md) center;
+  background-position: right var(--sep-space-12) center;
 }
 
 .register-error {
-  @include appleType.apple-type-fine-print;
+  @include sepType.sep-type-micro;
 
   margin: 0;
-  color: var(--apple-color-ink-muted-80);
+  color: hsl(var(--destructive));
 }
 
 .register-error-form {
-  padding: var(--apple-space-xs) var(--apple-space-md);
+  padding: var(--sep-space-8) var(--sep-space-16);
   text-align: center;
-  background: rgb(0 0 0 / 4%);
-  border-radius: var(--apple-radius-sm);
+  background: hsl(var(--destructive) / 10%);
+  border-radius: var(--sep-radius-sm);
 }
 
 .register-cta {
-  @include apple.apple-button-primary;
+  @include sepDs.sep-button-primary;
 
   width: 100%;
-  margin-top: var(--apple-space-xs);
+  margin-top: var(--sep-space-8);
 
   &:disabled {
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.5;
   }
 }
 
 .register-link-row {
-  @include appleType.apple-type-caption;
+  @include sepType.sep-type-caption;
 
   display: flex;
-  gap: var(--apple-space-xxs);
+  gap: var(--sep-space-4);
   justify-content: center;
   margin: 0;
-  color: var(--apple-color-ink-muted-80);
+  color: hsl(var(--muted-foreground));
 }
 
 .register-link {
-  @include apple.apple-text-link;
+  @include sepType.sep-type-button;
 
+  color: hsl(var(--primary));
   text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 @media (width <= 419px) {
   .register-card {
-    padding: var(--apple-space-lg);
-  }
-
-  .register-title {
-    font-size: 26px;
+    padding: var(--sep-space-24);
   }
 }
