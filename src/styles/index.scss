@@ -1,11 +1,66 @@
 // Indice central de estilos globais.
-// Apple: superficies publicas (landing, login, cadastro).
-// Notion: superficies autenticadas (dashboard e telas com JWT).
-// Fronteira: estado de autenticacao (`/auth/me`).
+// Design vigente (Epic 17 / F-Sprint 14): New Design System SEP.
+// Fonte oficial: docs-sep/New Design System Sep.md.
+// Apple/Notion sao LEGADO HISTORICO das F-Sprints 0-10. Permanecem importados
+// apenas enquanto telas existentes ainda os referenciam; serao removidos ao
+// concluir a migracao (Task F-14.6).
 
+// ===== New Design System SEP =====
+@use "sep-ds-tokens";
+@use "sep-ds-typography" as sepType;
+@use "sep-ds-components";
+
+// ===== Legado historico (remover na F-14.6) =====
 @use "apple-tokens";
 @use "apple-typography";
 @use "apple-components";
 @use "notion-tokens";
 @use "notion-typography";
 @use "notion-components";
+
+// ===== Globais do New Design System SEP =====
+
+// Cor de borda padrao do sistema (equivalente ao `border-border` da origem).
+* {
+  border-color: hsl(var(--border));
+}
+
+html {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+body {
+  @include sepType.sep-type-body;
+
+  min-height: 100vh;
+  margin: 0;
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+// Transicao suave de tema nos controles e superficies interativas.
+a,
+button,
+input,
+textarea,
+select,
+svg {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.2s ease,
+    fill 0.3s ease,
+    stroke 0.3s ease;
+}
+
+// Foco visivel padrao via ring do sistema. Componentes podem sobrescrever.
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}

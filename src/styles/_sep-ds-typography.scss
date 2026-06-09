@@ -1,0 +1,141 @@
+// Tipografia do New Design System SEP.
+// Fonte oficial: docs-sep/New Design System Sep.md (secao Tipografia).
+// O design de origem usa a pilha padrao (sem fonte custom); mantemos Inter como
+// primeira opcao com fallback de sistema. Cores ficam nos tokens, nao aqui.
+
+$sep-font:
+  "Inter",
+  -apple-system,
+  system-ui,
+  "Segoe UI",
+  roboto,
+  helvetica,
+  arial,
+  sans-serif;
+
+// 24px / 700 — titulo de pagina (`text-2xl font-bold`).
+@mixin sep-type-page-title {
+  font-family: $sep-font;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.25px;
+}
+
+// 24px / 600 / tight — CardTitle shadcn (`text-2xl font-semibold tracking-tight`).
+@mixin sep-type-card-title-lg {
+  font-family: $sep-font;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.4px;
+}
+
+// 20px / 600 — titulo de secao (`text-xl font-semibold`).
+@mixin sep-type-section-title {
+  font-family: $sep-font;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.2px;
+}
+
+// 18px / 600 — titulo de card compacto (`text-lg font-semibold`).
+@mixin sep-type-card-title {
+  font-family: $sep-font;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: normal;
+}
+
+// 16px / 400 — texto padrao de leitura (`text-base`).
+@mixin sep-type-body {
+  font-family: $sep-font;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: normal;
+}
+
+// 16px / 500 — texto de UI enfatizado.
+@mixin sep-type-body-medium {
+  font-family: $sep-font;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: normal;
+}
+
+// 16px / 600 — labels fortes, estados ativos.
+@mixin sep-type-body-semibold {
+  font-family: $sep-font;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: normal;
+}
+
+// 14px / 500 — labels de formulario (`text-sm font-medium`).
+@mixin sep-type-label {
+  font-family: $sep-font;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.43;
+  letter-spacing: normal;
+}
+
+// 14px / 400 — descricoes e captions (`text-sm`).
+@mixin sep-type-caption {
+  font-family: $sep-font;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: normal;
+}
+
+// 14px / 500 — texto de botao e navegacao (`text-sm font-medium`).
+@mixin sep-type-button {
+  font-family: $sep-font;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.43;
+  letter-spacing: normal;
+}
+
+// 12px / 600 / uppercase — labels de grupo no menu (`text-xs uppercase tracking-wider`).
+@mixin sep-type-menu-label {
+  font-family: $sep-font;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.33;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+// 12px / 500 — indicadores pequenos, timestamps (`text-xs font-medium`).
+@mixin sep-type-micro {
+  font-family: $sep-font;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.33;
+  letter-spacing: normal;
+}
+
+// 12px / 600 — pill badges (`text-xs font-semibold`).
+@mixin sep-type-badge {
+  font-family: $sep-font;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.33;
+  letter-spacing: normal;
+}
+
+// 48px / 700 — numeros principais do dashboard (`text-5xl font-bold`).
+@mixin sep-type-metric {
+  font-family: $sep-font;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -1px;
+}
