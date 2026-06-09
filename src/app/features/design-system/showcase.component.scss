@@ -1,392 +1,424 @@
-@use "../../../styles/apple-typography" as appleType;
-@use "../../../styles/apple-components" as apple;
-@use "../../../styles/notion-typography" as notionType;
-@use "../../../styles/notion-components" as notion;
+@use "../../../styles/sep-ds-typography" as sepType;
+@use "../../../styles/sep-ds-components" as sepDs;
 
-.showcase {
-  min-height: 100vh;
-  background: var(--notion-color-canvas);
+.ds {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-32);
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--sep-space-24);
+  color: hsl(var(--foreground));
 }
 
-.showcase-nav {
-  position: sticky;
-  top: 0;
-  z-index: 10;
+.ds-header {
   display: flex;
-  gap: var(--notion-space-16);
+  flex-wrap: wrap;
+  gap: var(--sep-space-16);
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.ds-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+}
+
+.ds-lead {
+  @include sepType.sep-type-caption;
+
+  max-width: 640px;
+  margin: var(--sep-space-4) 0 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.ds-theme-toggle {
+  @include sepDs.sep-button-outline;
+  @include sepDs.sep-button-size-sm;
+}
+
+.ds-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-12);
+}
+
+.ds-section-title {
+  @include sepType.sep-type-menu-label;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+// ===== Paleta =====
+
+.ds-palette {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--sep-space-12);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.ds-swatch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-4);
+}
+
+.ds-swatch-chip {
+  height: 48px;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--sep-radius-md);
+}
+
+.ds-swatch-label {
+  @include sepType.sep-type-label;
+}
+
+.ds-swatch-token {
+  @include sepType.sep-type-micro;
+
+  color: hsl(var(--muted-foreground));
+  font-family: monospace;
+}
+
+// ===== Tipografia =====
+
+.ds-type {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+}
+
+.ds-type-page-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+}
+
+.ds-type-section-title {
+  @include sepType.sep-type-section-title;
+
+  margin: 0;
+}
+
+.ds-type-card-title {
+  @include sepType.sep-type-card-title;
+
+  margin: 0;
+}
+
+.ds-type-body {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+}
+
+.ds-type-label {
+  @include sepType.sep-type-label;
+
+  margin: 0;
+}
+
+.ds-type-caption {
+  @include sepType.sep-type-caption;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.ds-type-micro {
+  @include sepType.sep-type-micro;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.ds-type-metric {
+  @include sepType.sep-type-metric;
+
+  margin: 0;
+  color: hsl(var(--primary));
+}
+
+// ===== Botoes =====
+
+.ds-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sep-space-12);
   align-items: center;
-  min-height: 56px;
-  padding: 0 var(--notion-space-24);
-  background: var(--notion-color-canvas);
-  border-bottom: var(--notion-border-whisper);
 }
 
-.showcase-nav-link {
-  @include notion.notion-nav-link;
+.ds-row-baseline {
+  align-items: center;
 }
 
-// ===== Apple =====
-
-.apple-showcase {
-  @include apple.apple-product-tile-light;
+// Base + modifier (evita duplicar a base do botao por variante no CSS final).
+.ds-btn {
+  @include sepDs.sep-button-base;
 }
 
-.apple-showcase-title {
-  @include appleType.apple-type-hero-display;
+.ds-btn--primary {
+  color: hsl(var(--primary-foreground));
+  background: hsl(var(--primary));
 
-  margin: 0 0 var(--apple-space-md);
+  &:hover {
+    background: hsl(var(--primary-hover));
+  }
 }
 
-.apple-showcase-lead {
-  @include appleType.apple-type-lead;
+.ds-btn--secondary {
+  color: hsl(var(--secondary-foreground));
+  background: hsl(var(--secondary));
 
-  max-width: 720px;
-  margin: 0 0 var(--apple-space-xxl);
-  color: var(--apple-color-ink-muted-80);
+  &:hover {
+    background: hsl(var(--secondary-hover));
+  }
 }
 
-.apple-showcase-h2 {
-  @include appleType.apple-type-display-md;
+.ds-btn--outline {
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+  border-color: hsl(var(--input));
 
-  margin: var(--apple-space-xxl) 0 var(--apple-space-md);
+  &:hover {
+    color: hsl(var(--accent-foreground));
+    background: hsl(var(--accent));
+  }
 }
 
-.apple-showcase-palette {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--apple-space-md);
+.ds-btn--ghost {
+  color: hsl(var(--foreground));
+
+  &:hover {
+    color: hsl(var(--accent-foreground));
+    background: hsl(var(--accent));
+  }
+}
+
+.ds-btn--destructive {
+  color: hsl(var(--destructive-foreground));
+  background: hsl(var(--destructive));
+
+  &:hover {
+    background: hsl(var(--destructive) / 90%);
+  }
+}
+
+.ds-btn--link {
+  height: auto;
   padding: 0;
-  margin: 0;
-  list-style: none;
+  color: hsl(var(--primary));
+  border: 0;
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
 }
 
-.apple-showcase-swatch {
+.ds-btn--sm {
+  @include sepDs.sep-button-size-sm;
+}
+
+.ds-btn--lg {
+  @include sepDs.sep-button-size-lg;
+}
+
+.ds-btn--icon {
+  @include sepDs.sep-button-size-icon;
+}
+
+// ===== Formularios =====
+
+.ds-field {
   display: flex;
   flex-direction: column;
-  gap: var(--apple-space-xs);
-  padding: var(--apple-space-md);
-  background: var(--apple-color-surface-pearl);
-  border: 1px solid var(--apple-color-hairline);
-  border-radius: var(--apple-radius-lg);
-}
-
-.apple-showcase-swatch-chip {
-  display: block;
-  width: 100%;
-  height: 64px;
-  background: var(--swatch-bg);
-  border: 1px solid var(--apple-color-hairline);
-  border-radius: var(--apple-radius-sm);
-}
-
-.apple-showcase-swatch-label {
-  @include appleType.apple-type-body-strong;
-}
-
-.apple-showcase-swatch-hex {
-  @include appleType.apple-type-caption;
-
-  color: var(--apple-color-ink-muted-48);
-}
-
-.apple-showcase-type {
-  display: flex;
-  flex-direction: column;
-  gap: var(--apple-space-md);
-}
-
-.apple-showcase-type-hero {
-  @include appleType.apple-type-hero-display;
-
-  margin: 0;
-}
-
-.apple-showcase-type-display-lg {
-  @include appleType.apple-type-display-lg;
-
-  margin: 0;
-}
-
-.apple-showcase-type-lead {
-  @include appleType.apple-type-lead;
-
-  margin: 0;
-}
-
-.apple-showcase-type-body {
-  @include appleType.apple-type-body;
-
-  margin: 0;
-}
-
-.apple-showcase-type-caption {
-  @include appleType.apple-type-caption;
-
-  margin: 0;
-}
-
-.apple-showcase-type-fine {
-  @include appleType.apple-type-fine-print;
-
-  margin: 0;
-}
-
-.apple-showcase-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--apple-space-md);
-}
-
-.apple-showcase-btn-primary {
-  @include apple.apple-button-primary;
-}
-
-.apple-showcase-btn-secondary {
-  @include apple.apple-button-secondary-pill;
-}
-
-.apple-showcase-btn-utility {
-  @include apple.apple-button-dark-utility;
-}
-
-.apple-showcase-btn-pearl {
-  @include apple.apple-button-pearl-capsule;
-}
-
-.apple-showcase-search {
-  @include apple.apple-search-input;
-
-  max-width: 480px;
-}
-
-.apple-showcase-tiles {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--apple-space-md);
-}
-
-.apple-showcase-tile-light {
-  @include apple.apple-product-tile-light;
-
-  padding: var(--apple-space-xl);
-  border: 1px solid var(--apple-color-hairline);
-}
-
-.apple-showcase-tile-dark {
-  @include apple.apple-product-tile-dark;
-
-  padding: var(--apple-space-xl);
-}
-
-.apple-showcase-tile-title {
-  @include appleType.apple-type-display-lg;
-
-  margin: 0;
-}
-
-.apple-showcase-utility-card {
-  @include apple.apple-store-utility-card;
-}
-
-.apple-showcase-utility-title {
-  @include appleType.apple-type-body-strong;
-
-  margin: 0;
-}
-
-.apple-showcase-utility-price {
-  @include appleType.apple-type-body;
-
-  margin: var(--apple-space-xs) 0 0;
-}
-
-// ===== Notion =====
-
-.notion-showcase {
-  padding: var(--notion-space-section) var(--notion-space-24);
-  color: var(--notion-color-text);
-  background: var(--notion-color-warm-white);
-}
-
-.notion-showcase-title {
-  @include notionType.notion-type-display-hero;
-
-  margin: 0 0 var(--notion-space-16);
-}
-
-.notion-showcase-lead {
-  @include notionType.notion-type-body-large;
-
-  max-width: 720px;
-  margin: 0 0 var(--notion-space-32);
-  color: var(--notion-color-text-muted);
-}
-
-.notion-showcase-h2 {
-  @include notionType.notion-type-section-heading;
-
-  margin: var(--notion-space-section) 0 var(--notion-space-24);
-}
-
-.notion-showcase-palette {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--notion-space-16);
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-
-.notion-showcase-swatch {
-  display: flex;
-  flex-direction: column;
-  gap: var(--notion-space-8);
-  padding: var(--notion-space-16);
-  background: var(--notion-color-canvas);
-  border: var(--notion-border-whisper);
-  border-radius: var(--notion-radius-card);
-  box-shadow: var(--notion-shadow-card);
-}
-
-.notion-showcase-swatch-chip {
-  display: block;
-  width: 100%;
-  height: 56px;
-  background: var(--swatch-bg);
-  border: var(--notion-border-whisper);
-  border-radius: var(--notion-radius-standard);
-}
-
-.notion-showcase-swatch-label {
-  @include notionType.notion-type-body-semibold;
-}
-
-.notion-showcase-swatch-hex {
-  @include notionType.notion-type-micro-label;
-
-  color: var(--notion-color-text-muted);
-}
-
-.notion-showcase-type {
-  display: flex;
-  flex-direction: column;
-  gap: var(--notion-space-16);
-}
-
-.notion-showcase-type-hero {
-  @include notionType.notion-type-display-hero;
-
-  margin: 0;
-}
-
-.notion-showcase-type-section {
-  @include notionType.notion-type-section-heading;
-
-  margin: 0;
-}
-
-.notion-showcase-type-card {
-  @include notionType.notion-type-card-title;
-
-  margin: 0;
-}
-
-.notion-showcase-type-body {
-  @include notionType.notion-type-body;
-
-  margin: 0;
-}
-
-.notion-showcase-type-caption {
-  @include notionType.notion-type-caption;
-
-  margin: 0;
-  color: var(--notion-color-text-muted);
-}
-
-.notion-showcase-badge {
-  @include notion.notion-pill-badge;
-}
-
-.notion-showcase-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--notion-space-16);
-}
-
-.notion-showcase-btn-primary {
-  @include notion.notion-button-primary;
-}
-
-.notion-showcase-btn-secondary {
-  @include notion.notion-button-secondary;
-}
-
-.notion-showcase-btn-ghost {
-  @include notion.notion-button-ghost;
-}
-
-.notion-showcase-input {
-  @include notion.notion-input;
-
+  gap: var(--sep-space-4);
   max-width: 360px;
 }
 
-.notion-showcase-cards {
+.ds-label {
+  @include sepDs.sep-label;
+}
+
+.ds-input {
+  @include sepDs.sep-input;
+}
+
+.ds-segmented {
+  @include sepDs.sep-segmented;
+}
+
+// ===== Badges =====
+
+// Base + modifier (evita duplicar a base do badge por variante no CSS final).
+.ds-badge {
+  @include sepDs.sep-badge-base;
+}
+
+.ds-badge--primary {
+  color: hsl(var(--primary-foreground));
+  background: hsl(var(--primary));
+}
+
+.ds-badge--secondary {
+  color: hsl(var(--secondary-foreground));
+  background: hsl(var(--secondary));
+}
+
+.ds-badge--outline {
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--border));
+}
+
+.ds-badge--success {
+  color: hsl(var(--success));
+  background: hsl(var(--success) / 12%);
+  border-color: hsl(var(--success) / 20%);
+}
+
+.ds-badge--warning {
+  color: hsl(var(--warning));
+  background: hsl(var(--warning) / 12%);
+  border-color: hsl(var(--warning) / 20%);
+}
+
+.ds-badge--destructive {
+  color: hsl(var(--destructive));
+  background: hsl(var(--destructive) / 12%);
+  border-color: hsl(var(--destructive) / 20%);
+}
+
+// ===== Cards =====
+
+.ds-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--notion-space-24);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--sep-space-16);
 }
 
-.notion-showcase-card {
-  @include notion.notion-feature-card;
+.ds-card {
+  @include sepDs.sep-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+  padding: var(--sep-space-24);
 }
 
-.notion-showcase-card-title {
-  @include notionType.notion-type-card-title;
+.ds-card-elevated {
+  @include sepDs.sep-card-elevated;
 
-  margin: 0 0 var(--notion-space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+  padding: var(--sep-space-24);
 }
 
-.notion-showcase-card-body {
-  @include notionType.notion-type-body;
+.ds-card-metric {
+  @include sepDs.sep-card-elevated;
 
-  margin: 0;
-  color: var(--notion-color-text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-4);
+  align-items: center;
+  padding: var(--sep-space-24);
+  text-align: center;
 }
 
-.notion-showcase-metric {
-  @include notion.notion-metric-card;
+// ===== Tabela =====
+
+.ds-table-wrapper {
+  @include sepDs.sep-table-wrapper;
 }
 
-.notion-showcase-metric-value {
-  @include notionType.notion-type-subheading-large;
-
-  margin: 0;
+.ds-table {
+  @include sepDs.sep-table;
 }
 
-.notion-showcase-metric-label {
-  @include notionType.notion-type-caption;
-
-  margin: 0;
-  color: var(--notion-color-text-muted);
+.ds-th {
+  @include sepDs.sep-table-head;
 }
 
-.notion-showcase-sections {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--notion-space-16);
+.ds-tr {
+  @include sepDs.sep-table-row;
 }
 
-.notion-showcase-section-white {
-  @include notion.notion-section;
-
-  border: var(--notion-border-whisper);
-  border-radius: var(--notion-radius-card);
+.ds-td {
+  @include sepDs.sep-table-cell;
 }
 
-.notion-showcase-section-warm {
-  @include notion.notion-warm-section;
+// ===== Overlays =====
 
-  border-radius: var(--notion-radius-card);
+.ds-dialog {
+  @include sepDs.sep-dialog;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+  max-width: 320px;
+  padding: var(--sep-space-24);
+}
+
+.ds-popover {
+  @include sepDs.sep-popover;
+
+  max-width: 240px;
+  padding: var(--sep-space-12);
+}
+
+// ===== Loaders e skeletons =====
+
+.ds-spinner {
+  @include sepDs.sep-spinner;
+}
+
+.ds-skeleton-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+}
+
+.ds-skeleton {
+  @include sepDs.sep-skeleton;
+}
+
+.ds-skeleton-line {
+  width: 240px;
+  height: 12px;
+}
+
+.ds-skeleton-short {
+  width: 140px;
+}
+
+// ===== Navegacao =====
+
+.ds-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-4);
+  max-width: 240px;
+  padding: var(--sep-space-8);
+  background: hsl(var(--sidebar-background));
+  border: 1px solid hsl(var(--sidebar-border));
+  border-radius: var(--sep-radius-lg);
+}
+
+.ds-nav-link {
+  @include sepDs.sep-nav-link;
+}
+
+.ds-nav-link-active {
+  @include sepDs.sep-nav-link;
+  @include sepDs.sep-nav-link-active;
+}
+
+code {
+  font-family: monospace;
 }
