@@ -1,9 +1,9 @@
-@use "../../../styles/notion-typography" as notionType;
-@use "../../../styles/notion-components" as notion;
+@use "../../../styles/sep-ds-typography" as sepType;
+@use "../../../styles/sep-ds-components" as sepDs;
 
 :host {
   display: block;
-  background: var(--notion-color-warm-white);
+  background: hsl(var(--background));
 }
 
 .access-denied {
@@ -11,41 +11,43 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: var(--notion-space-24);
+  padding: var(--sep-space-24);
 }
 
 .access-denied-panel {
-  @include notion.notion-card;
+  @include sepDs.sep-card;
 
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-16);
+  gap: var(--sep-space-16);
   align-items: center;
   max-width: 480px;
+  padding: var(--sep-space-24);
   text-align: center;
 }
 
 .access-denied-badge {
-  @include notion.notion-pill-badge;
+  @include sepDs.sep-badge-soft(--destructive);
 
   margin: 0;
 }
 
 .access-denied-title {
-  @include notionType.notion-type-section-heading;
+  @include sepType.sep-type-page-title;
 
   margin: 0;
+  color: hsl(var(--foreground));
 }
 
 .access-denied-body {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   margin: 0;
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }
 
 .access-denied-link {
-  @include notion.notion-button-primary;
+  @include sepDs.sep-button-primary;
 
   text-decoration: none;
 }

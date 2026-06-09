@@ -1,114 +1,120 @@
-@use "../../../../styles/apple-typography" as appleType;
-@use "../../../../styles/apple-components" as apple;
+@use "../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../styles/sep-ds-components" as sepDs;
 
 :host {
   display: block;
-  background: var(--apple-color-canvas-parchment);
+  background: hsl(var(--background));
 }
 
 .login-page {
   display: flex;
   flex-direction: column;
-  gap: var(--apple-space-xxl);
+  gap: var(--sep-space-32);
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: var(--apple-space-xl);
+  padding: var(--sep-space-32);
 }
 
 .login-back {
-  @include appleType.apple-type-tagline;
+  @include sepType.sep-type-button;
 
-  color: var(--apple-color-ink);
+  color: hsl(var(--muted-foreground));
   text-decoration: none;
+
+  &:hover {
+    color: hsl(var(--foreground));
+  }
 }
 
 .login-card {
+  @include sepDs.sep-card;
+
   display: flex;
   flex-direction: column;
-  gap: var(--apple-space-lg);
+  gap: var(--sep-space-24);
   width: 100%;
   max-width: 480px;
-  padding: var(--apple-space-xl);
+  padding: var(--sep-space-32);
 }
 
 .login-title {
-  @include appleType.apple-type-display-md;
+  @include sepType.sep-type-page-title;
 
   margin: 0;
+  color: hsl(var(--foreground));
   text-align: center;
 }
 
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: var(--apple-space-md);
+  gap: var(--sep-space-17);
 }
 
 .login-field {
   display: flex;
   flex-direction: column;
-  gap: var(--apple-space-xxs);
+  gap: var(--sep-space-4);
 }
 
 .login-label {
-  @include appleType.apple-type-caption;
-
-  color: var(--apple-color-ink-muted-80);
+  @include sepDs.sep-label;
 }
 
 .login-input {
-  @include apple.apple-search-input;
+  @include sepDs.sep-input;
 }
 
 .login-error {
-  @include appleType.apple-type-fine-print;
+  @include sepType.sep-type-micro;
 
   margin: 0;
-  color: var(--apple-color-ink-muted-80);
+  color: hsl(var(--destructive));
 }
 
 .login-error-form {
-  padding: var(--apple-space-xs) var(--apple-space-md);
+  padding: var(--sep-space-8) var(--sep-space-16);
   text-align: center;
-  background: rgb(0 0 0 / 4%);
-  border-radius: var(--apple-radius-sm);
+  background: hsl(var(--destructive) / 10%);
+  border-radius: var(--sep-radius-sm);
 }
 
 .login-cta {
-  @include apple.apple-button-primary;
+  @include sepDs.sep-button-primary;
 
   width: 100%;
-  margin-top: var(--apple-space-xs);
+  margin-top: var(--sep-space-8);
 
   &:disabled {
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.5;
   }
 }
 
 .login-link-row {
-  @include appleType.apple-type-caption;
+  @include sepType.sep-type-caption;
 
   display: flex;
-  gap: var(--apple-space-xxs);
+  gap: var(--sep-space-4);
   justify-content: center;
   margin: 0;
-  color: var(--apple-color-ink-muted-80);
+  color: hsl(var(--muted-foreground));
 }
 
 .login-link {
-  @include apple.apple-text-link;
+  @include sepType.sep-type-button;
 
+  color: hsl(var(--primary));
   text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 @media (width <= 419px) {
   .login-card {
-    padding: var(--apple-space-lg);
-  }
-
-  .login-title {
-    font-size: 26px;
+    padding: var(--sep-space-24);
   }
 }

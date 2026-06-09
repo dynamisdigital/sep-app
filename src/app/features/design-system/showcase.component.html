@@ -1,129 +1,179 @@
-<main class="showcase">
-  <nav class="showcase-nav" aria-label="Design systems">
-    <a routerLink="/design-system" class="showcase-nav-link">Todos</a>
-    <a routerLink="/design-system/apple" class="showcase-nav-link">Apple</a>
-    <a routerLink="/design-system/notion" class="showcase-nav-link">Notion</a>
-  </nav>
-
-  @if (showApple()) {
-    <section class="apple-showcase" aria-labelledby="apple-title">
-      <h1 id="apple-title" class="apple-showcase-title">Apple</h1>
-      <p class="apple-showcase-lead">
-        Superficies publicas (landing, login, cadastro). Single Action Blue accent, SF Pro tight, no
-        shadows on chrome.
+<main class="ds">
+  <header class="ds-header">
+    <div>
+      <h1 class="ds-title">New Design System SEP</h1>
+      <p class="ds-lead">
+        Fonte visual vigente do web (Epic 17). Fundo frio claro, azul de comando, verde de suporte,
+        estados semanticos, raio base 0.75rem e suporte a tema claro/escuro.
       </p>
+    </div>
+    <button
+      type="button"
+      class="ds-theme-toggle"
+      [attr.aria-pressed]="isDark()"
+      (click)="toggleTheme()"
+    >
+      {{ isDark() ? 'Tema: escuro' : 'Tema: claro' }}
+    </button>
+  </header>
 
-      <h2 class="apple-showcase-h2">Paleta</h2>
-      <ul class="apple-showcase-palette">
-        @for (color of appleColors; track color.token) {
-          <li class="apple-showcase-swatch" [style.--swatch-bg]="'var(' + color.token + ')'">
-            <span class="apple-showcase-swatch-chip"></span>
-            <span class="apple-showcase-swatch-label">{{ color.label }}</span>
-            <code class="apple-showcase-swatch-hex">{{ color.hex }}</code>
-          </li>
-        }
-      </ul>
+  <section class="ds-section" aria-labelledby="ds-palette">
+    <h2 id="ds-palette" class="ds-section-title">Paleta (light / dark)</h2>
+    <ul class="ds-palette">
+      @for (color of colors; track color.token) {
+        <li class="ds-swatch">
+          <span class="ds-swatch-chip" [style.background]="'hsl(var(' + color.token + '))'"></span>
+          <span class="ds-swatch-label">{{ color.label }}</span>
+          <code class="ds-swatch-token">{{ color.token }}</code>
+        </li>
+      }
+    </ul>
+  </section>
 
-      <h2 class="apple-showcase-h2">Tipografia</h2>
-      <div class="apple-showcase-type">
-        <p class="apple-showcase-type-hero">Hero Display 56 / 600</p>
-        <p class="apple-showcase-type-display-lg">Display Large 40 / 600</p>
-        <p class="apple-showcase-type-lead">Lead 28 / 400</p>
-        <p class="apple-showcase-type-body">
-          Body 17 / 400 — paragrafo padrao Apple corre em 17px, nao 16px.
-        </p>
-        <p class="apple-showcase-type-caption">Caption 14 / 400 — secundario.</p>
-        <p class="apple-showcase-type-fine">Fine print 12 / 400 — rodape e legais.</p>
+  <section class="ds-section" aria-labelledby="ds-type">
+    <h2 id="ds-type" class="ds-section-title">Tipografia</h2>
+    <div class="ds-type">
+      <p class="ds-type-page-title">Page title 24 / 700</p>
+      <p class="ds-type-section-title">Section title 20 / 600</p>
+      <p class="ds-type-card-title">Card title 18 / 600</p>
+      <p class="ds-type-body">Body 16 / 400 — texto padrao de leitura.</p>
+      <p class="ds-type-label">Label 14 / 500</p>
+      <p class="ds-type-caption">Caption 14 / 400 — descricoes.</p>
+      <p class="ds-type-micro">Micro 12 / 500 — metadata.</p>
+      <p class="ds-type-metric">42</p>
+    </div>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-buttons">
+    <h2 id="ds-buttons" class="ds-section-title">Botoes</h2>
+    <div class="ds-row">
+      <button type="button" class="ds-btn ds-btn--primary">Primary</button>
+      <button type="button" class="ds-btn ds-btn--secondary">Secondary</button>
+      <button type="button" class="ds-btn ds-btn--outline">Outline</button>
+      <button type="button" class="ds-btn ds-btn--ghost">Ghost</button>
+      <button type="button" class="ds-btn ds-btn--destructive">Destructive</button>
+      <button type="button" class="ds-btn ds-btn--link">Link</button>
+    </div>
+    <div class="ds-row">
+      <button type="button" class="ds-btn ds-btn--primary ds-btn--sm">Small</button>
+      <button type="button" class="ds-btn ds-btn--primary">Default</button>
+      <button type="button" class="ds-btn ds-btn--primary ds-btn--lg">Large</button>
+      <button type="button" class="ds-btn ds-btn--primary ds-btn--icon" aria-label="Acao">+</button>
+      <button type="button" class="ds-btn ds-btn--primary" disabled>Disabled</button>
+    </div>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-forms">
+    <h2 id="ds-forms" class="ds-section-title">Formularios</h2>
+    <div class="ds-field">
+      <label class="ds-label" for="ds-input">Nome</label>
+      <input id="ds-input" class="ds-input" type="text" placeholder="Digite aqui" />
+    </div>
+    <div class="ds-segmented">
+      <button type="button" class="ds-btn ds-btn--primary ds-btn--sm">Mes</button>
+      <button type="button" class="ds-btn ds-btn--ghost ds-btn--sm">Semana</button>
+      <button type="button" class="ds-btn ds-btn--ghost ds-btn--sm">Dia</button>
+    </div>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-badges">
+    <h2 id="ds-badges" class="ds-section-title">Badges</h2>
+    <div class="ds-row">
+      <span class="ds-badge ds-badge--primary">Primary</span>
+      <span class="ds-badge ds-badge--secondary">Secondary</span>
+      <span class="ds-badge ds-badge--outline">Outline</span>
+      <span class="ds-badge ds-badge--success">Success</span>
+      <span class="ds-badge ds-badge--warning">Warning</span>
+      <span class="ds-badge ds-badge--destructive">Destructive</span>
+    </div>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-cards">
+    <h2 id="ds-cards" class="ds-section-title">Cards</h2>
+    <div class="ds-cards">
+      <div class="ds-card">
+        <h3 class="ds-type-card-title">Card base</h3>
+        <p class="ds-type-caption">Borda, raio lg e shadow-sm.</p>
       </div>
-
-      <h2 class="apple-showcase-h2">Botoes</h2>
-      <div class="apple-showcase-buttons">
-        <button type="button" class="apple-showcase-btn-primary">Comprar</button>
-        <button type="button" class="apple-showcase-btn-secondary">Saiba mais</button>
-        <button type="button" class="apple-showcase-btn-utility">Sign in</button>
-        <button type="button" class="apple-showcase-btn-pearl">Compare</button>
+      <div class="ds-card-elevated">
+        <h3 class="ds-type-card-title">Card elevado</h3>
+        <p class="ds-type-caption">shadow-md, sem borda.</p>
       </div>
-
-      <h2 class="apple-showcase-h2">Input</h2>
-      <input
-        type="search"
-        class="apple-showcase-search"
-        placeholder="Buscar produtos"
-        aria-label="Buscar produtos"
-      />
-
-      <h2 class="apple-showcase-h2">Cards & tiles</h2>
-      <div class="apple-showcase-tiles">
-        <div class="apple-showcase-tile-light">
-          <p class="apple-showcase-tile-title">Tile Light</p>
-        </div>
-        <div class="apple-showcase-tile-dark">
-          <p class="apple-showcase-tile-title">Tile Dark</p>
-        </div>
-        <div class="apple-showcase-utility-card">
-          <p class="apple-showcase-utility-title">Utility Card</p>
-          <p class="apple-showcase-utility-price">R$ 9.999</p>
-        </div>
+      <div class="ds-card-metric">
+        <span class="ds-type-caption">Operacoes</span>
+        <span class="ds-type-metric">128</span>
+        <span class="ds-type-caption">no mes</span>
       </div>
-    </section>
-  }
+    </div>
+  </section>
 
-  @if (showNotion()) {
-    <section class="notion-showcase" aria-labelledby="notion-title">
-      <h1 id="notion-title" class="notion-showcase-title">Notion</h1>
-      <p class="notion-showcase-lead">
-        Superficies autenticadas (dashboard, telas com JWT) e todo o mobile. Warm neutrals,
-        NotionInter compressao, whisper borders.
-      </p>
+  <section class="ds-section" aria-labelledby="ds-table">
+    <h2 id="ds-table" class="ds-section-title">Tabela</h2>
+    <div class="ds-table-wrapper">
+      <table class="ds-table">
+        <thead>
+          <tr>
+            <th class="ds-th">Cliente</th>
+            <th class="ds-th">Status</th>
+            <th class="ds-th">Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="ds-tr">
+            <td class="ds-td">Empresa A</td>
+            <td class="ds-td"><span class="ds-badge ds-badge--success">Pago</span></td>
+            <td class="ds-td">R$ 12.400</td>
+          </tr>
+          <tr class="ds-tr">
+            <td class="ds-td">Empresa B</td>
+            <td class="ds-td"><span class="ds-badge ds-badge--warning">Em atraso</span></td>
+            <td class="ds-td">R$ 8.900</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
 
-      <h2 class="notion-showcase-h2">Paleta</h2>
-      <ul class="notion-showcase-palette">
-        @for (color of notionColors; track color.token) {
-          <li class="notion-showcase-swatch" [style.--swatch-bg]="'var(' + color.token + ')'">
-            <span class="notion-showcase-swatch-chip"></span>
-            <span class="notion-showcase-swatch-label">{{ color.label }}</span>
-            <code class="notion-showcase-swatch-hex">{{ color.hex }}</code>
-          </li>
-        }
-      </ul>
-
-      <h2 class="notion-showcase-h2">Tipografia</h2>
-      <div class="notion-showcase-type">
-        <p class="notion-showcase-type-hero">Display Hero 64 / 700 / -2.125</p>
-        <p class="notion-showcase-type-section">Section 48 / 700 / -1.5</p>
-        <p class="notion-showcase-type-card">Card Title 22 / 700 / -0.25</p>
-        <p class="notion-showcase-type-body">Body 16 / 400 — texto padrao de leitura.</p>
-        <p class="notion-showcase-type-caption">Caption 14 / 500 — metadata.</p>
-        <span class="notion-showcase-badge">novo</span>
+  <section class="ds-section" aria-labelledby="ds-overlays">
+    <h2 id="ds-overlays" class="ds-section-title">Overlays</h2>
+    <div class="ds-row">
+      <div class="ds-dialog">
+        <h3 class="ds-type-card-title">Dialog</h3>
+        <p class="ds-type-caption">Superficie de dialogo (bg background, shadow-lg).</p>
       </div>
-
-      <h2 class="notion-showcase-h2">Botoes</h2>
-      <div class="notion-showcase-buttons">
-        <button type="button" class="notion-showcase-btn-primary">Get Notion</button>
-        <button type="button" class="notion-showcase-btn-secondary">Saiba mais</button>
-        <button type="button" class="notion-showcase-btn-ghost">Cancelar</button>
+      <div class="ds-popover">
+        <p class="ds-type-caption">Popover / dropdown (bg popover, shadow-md).</p>
       </div>
+    </div>
+  </section>
 
-      <h2 class="notion-showcase-h2">Input</h2>
-      <input type="text" class="notion-showcase-input" placeholder="Email" aria-label="Email" />
-
-      <h2 class="notion-showcase-h2">Cards</h2>
-      <div class="notion-showcase-cards">
-        <div class="notion-showcase-card">
-          <h3 class="notion-showcase-card-title">Feature card</h3>
-          <p class="notion-showcase-card-body">Whisper border + 4-layer shadow stack.</p>
-        </div>
-        <div class="notion-showcase-metric">
-          <p class="notion-showcase-metric-value">R$ 4.200</p>
-          <p class="notion-showcase-metric-label">ROI medio</p>
-        </div>
+  <section class="ds-section" aria-labelledby="ds-feedback">
+    <h2 id="ds-feedback" class="ds-section-title">Loaders e skeletons</h2>
+    <div class="ds-row ds-row-baseline">
+      <span class="ds-spinner" role="status" aria-label="Carregando"></span>
+      <div class="ds-skeleton-group">
+        <span class="ds-skeleton ds-skeleton-line"></span>
+        <span class="ds-skeleton ds-skeleton-line ds-skeleton-short"></span>
       </div>
+    </div>
+  </section>
 
-      <h2 class="notion-showcase-h2">Secoes</h2>
-      <div class="notion-showcase-sections">
-        <div class="notion-showcase-section-white">Section White</div>
-        <div class="notion-showcase-section-warm">Section Warm</div>
-      </div>
-    </section>
-  }
+  <section class="ds-section" aria-labelledby="ds-nav">
+    <h2 id="ds-nav" class="ds-section-title">Navegacao</h2>
+    <nav class="ds-nav">
+      <span class="ds-nav-link ds-nav-link-active">Item ativo</span>
+      <span class="ds-nav-link">Item</span>
+      <span class="ds-nav-link">Outro item</span>
+    </nav>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-charts">
+    <h2 id="ds-charts" class="ds-section-title">Graficos</h2>
+    <p class="ds-type-caption">
+      Sem biblioteca de grafico nesta fase. Quando uma jornada exigir (F-11/F-13), o wrapper deve
+      usar os tokens do sistema: eixos em <code>--muted-foreground</code>, grades em
+      <code>--muted</code>, series em <code>--primary</code> / <code>--success</code> /
+      <code>--destructive</code>, altura base <code>300px</code>. Introducao de lib via ADR.
+    </p>
+  </section>
 </main>

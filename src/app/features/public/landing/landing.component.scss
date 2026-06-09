@@ -1,189 +1,189 @@
-@use "../../../../styles/apple-typography" as appleType;
-@use "../../../../styles/apple-components" as apple;
+@use "../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../styles/sep-ds-components" as sepDs;
 
 :host {
   display: block;
-  background: var(--apple-color-canvas);
-  color: var(--apple-color-ink);
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
 }
 
 // ===== Global nav =====
 
 .global-nav {
   display: flex;
-  gap: 24px;
+  gap: var(--sep-space-24);
   align-items: center;
   width: 100%;
-  min-height: 44px;
-  padding: 0 var(--apple-space-lg);
-  color: var(--apple-color-on-dark);
-  background: var(--apple-color-surface-black);
+  min-height: 56px;
+  padding: 0 var(--sep-space-24);
+  background: hsl(var(--card));
+  border-bottom: 1px solid hsl(var(--border));
 }
 
 .global-nav-brand {
-  @include appleType.apple-type-tagline;
+  @include sepType.sep-type-section-title;
 
-  color: var(--apple-color-on-dark);
+  color: hsl(var(--primary));
   text-decoration: none;
 }
 
 .global-nav-list {
   display: flex;
   flex: 1;
-  gap: 24px;
+  gap: var(--sep-space-24);
   padding: 0;
   margin: 0;
   list-style: none;
 }
 
 .global-nav-link {
-  @include appleType.apple-type-nav-link;
+  @include sepType.sep-type-button;
 
-  color: var(--apple-color-on-dark);
+  color: hsl(var(--muted-foreground));
   text-decoration: none;
+
+  &:hover {
+    color: hsl(var(--foreground));
+  }
 }
 
 .global-nav-cta {
-  @include apple.apple-button-dark-utility;
+  @include sepDs.sep-button-primary;
+  @include sepDs.sep-button-size-sm;
 
   text-decoration: none;
 }
 
 // ===== Tiles =====
 
-.apple-page {
+.landing-page {
   display: block;
 }
 
 .tile {
   display: flex;
   flex-direction: column;
-  gap: var(--apple-space-md);
+  gap: var(--sep-space-17);
   align-items: center;
-  min-height: calc(100vh - 44px);
-  padding: var(--apple-space-section) var(--apple-space-xl);
+  min-height: calc(100vh - 56px);
+  padding: var(--sep-space-80) var(--sep-space-32);
   text-align: center;
 }
 
 .tile-hero {
-  background: var(--apple-color-canvas-parchment);
+  background: var(--gradient-hero);
 }
 
 .tile-light {
-  background: var(--apple-color-canvas);
+  background: hsl(var(--card));
 }
 
-.tile-dark {
-  color: var(--apple-color-on-dark);
-  background: var(--apple-color-surface-tile-1);
+.tile-feature {
+  background: hsl(var(--muted));
 }
 
-.tile-dark-2 {
-  color: var(--apple-color-on-dark);
-  background: var(--apple-color-surface-tile-2);
+.tile-feature-alt {
+  background: hsl(var(--accent));
 }
 
 .tile-headline {
-  @include appleType.apple-type-hero-display;
+  @include sepType.sep-type-page-title;
 
   max-width: 880px;
   margin: 0;
-  color: var(--apple-color-ink);
-}
-
-.tile-headline-dark {
-  @include appleType.apple-type-display-lg;
-
-  max-width: 880px;
-  margin: 0;
-  color: var(--apple-color-on-dark);
+  font-size: 48px;
+  line-height: 1.1;
+  color: hsl(var(--foreground));
 }
 
 .tile-lead {
-  @include appleType.apple-type-lead;
+  @include sepType.sep-type-body;
 
   max-width: 760px;
   margin: 0;
-  color: var(--apple-color-ink-muted-80);
-}
-
-.tile-lead-dark {
-  @include appleType.apple-type-lead;
-
-  max-width: 760px;
-  margin: 0;
-  color: var(--apple-color-body-muted);
+  font-size: 20px;
+  line-height: 1.5;
+  color: hsl(var(--muted-foreground));
 }
 
 .tile-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--apple-space-md);
+  gap: var(--sep-space-17);
   justify-content: center;
-  margin-top: var(--apple-space-lg);
+  margin-top: var(--sep-space-24);
 }
 
 .cta-primary {
-  @include apple.apple-button-primary;
+  @include sepDs.sep-button-primary;
+  @include sepDs.sep-button-size-lg;
 
   text-decoration: none;
 }
 
 .cta-secondary {
-  @include apple.apple-button-secondary-pill;
+  @include sepDs.sep-button-outline;
+  @include sepDs.sep-button-size-lg;
 
   text-decoration: none;
 }
 
 .tile-fine {
-  @include appleType.apple-type-fine-print;
+  @include sepType.sep-type-micro;
 
-  margin-top: var(--apple-space-lg);
-  color: var(--apple-color-ink-muted-48);
+  margin-top: var(--sep-space-24);
+  color: hsl(var(--muted-foreground));
 }
 
 .tile-image {
   width: 100%;
   max-width: 600px;
-  margin-top: var(--apple-space-lg);
-  box-shadow: var(--apple-shadow-product);
+  margin-top: var(--sep-space-24);
+  border-radius: var(--sep-radius-lg);
+  box-shadow: var(--shadow-lg);
 }
 
 // ===== Footer =====
 
-.apple-footer {
-  @include apple.apple-footer;
-
+.landing-footer {
   display: flex;
   flex-direction: column;
-  gap: var(--apple-space-md);
+  gap: var(--sep-space-17);
   align-items: center;
+  padding: var(--sep-space-48) var(--sep-space-24);
+  color: hsl(var(--muted-foreground));
   text-align: center;
+  background: hsl(var(--muted));
 }
 
 .footer-copy {
-  @include appleType.apple-type-caption;
+  @include sepType.sep-type-caption;
 
   margin: 0;
 }
 
 .footer-links {
   display: flex;
-  gap: var(--apple-space-lg);
+  gap: var(--sep-space-24);
 }
 
 .footer-link {
-  @include apple.apple-text-link;
+  @include sepType.sep-type-button;
 
+  color: hsl(var(--primary));
   text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .footer-fine {
-  @include appleType.apple-type-micro-legal;
+  @include sepType.sep-type-micro;
 
   max-width: 720px;
   margin: 0;
-  color: var(--apple-color-ink-muted-48);
+  color: hsl(var(--muted-foreground));
 }
 
 // ===== Responsivo =====
@@ -196,8 +196,8 @@
 
 @media (width <= 833px) {
   .tile {
-    padding: var(--apple-space-xxl) var(--apple-space-lg);
     min-height: auto;
+    padding: var(--sep-space-48) var(--sep-space-24);
   }
 
   .global-nav-list {
@@ -207,10 +207,6 @@
 
 @media (width <= 640px) {
   .tile-headline {
-    font-size: 34px;
-  }
-
-  .tile-headline-dark {
     font-size: 32px;
   }
 }

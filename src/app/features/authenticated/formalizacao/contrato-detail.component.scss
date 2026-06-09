@@ -1,222 +1,222 @@
-@use "../../../../styles/notion-typography" as notionType;
-@use "../../../../styles/notion-components" as notion;
+@use "../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../styles/sep-ds-components" as sepDs;
 
 .sep-contrato-detail {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-24);
+  gap: var(--sep-space-24);
   max-width: 720px;
   margin: 0 auto;
-  padding: var(--notion-space-16) 0;
+  padding: var(--sep-space-16) 0;
 }
 
 .sep-contrato-detail-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--notion-space-16);
+  gap: var(--sep-space-16);
 }
 
 .sep-contrato-detail-title {
-  @include notionType.notion-type-section-heading;
+  @include sepType.sep-type-page-title;
 
   margin: 0;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
 }
 
 .sep-contrato-detail-status {
-  @include notionType.notion-type-badge;
+  @include sepType.sep-type-badge;
 
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }
 
 .sep-contrato-detail-state {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }
 
 .sep-contrato-detail-error {
-  color: var(--notion-color-orange);
+  color: hsl(var(--warning));
 }
 
 .sep-contrato-detail-meta {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--notion-space-16);
+  gap: var(--sep-space-16);
   margin: 0;
 }
 
 .sep-contrato-detail-meta-item {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-4);
+  gap: var(--sep-space-4);
 
   dt {
-    @include notionType.notion-type-caption;
+    @include sepType.sep-type-caption;
 
     margin: 0;
-    color: var(--notion-color-text-muted);
+    color: hsl(var(--muted-foreground));
   }
 
   dd {
-    @include notionType.notion-type-body;
+    @include sepType.sep-type-body;
 
     margin: 0;
-    color: var(--notion-color-text);
+    color: hsl(var(--foreground));
   }
 }
 
 .sep-contrato-detail-aceite {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-8);
+  gap: var(--sep-space-8);
   align-items: flex-start;
 }
 
 .sep-contrato-detail-aceite-cta {
-  @include notion.notion-button-primary;
+  @include sepDs.sep-button-primary;
 }
 
 .sep-contrato-detail-aceite-error {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   margin: 0;
-  color: var(--notion-color-orange);
+  color: hsl(var(--warning));
 }
 
 .sep-contrato-detail-aceite-info {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-4);
+  gap: var(--sep-space-4);
 
   p {
-    @include notionType.notion-type-body;
+    @include sepType.sep-type-body;
 
     margin: 0;
-    color: var(--notion-color-text);
+    color: hsl(var(--foreground));
   }
 }
 
 .sep-contrato-detail-aceite-info .sep-contrato-detail-aceite-versao {
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }
 
 .sep-contrato-detail-assinatura {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-12);
+  gap: var(--sep-space-12);
 }
 
 .sep-contrato-detail-assinatura-title {
-  @include notionType.notion-type-card-title;
+  @include sepType.sep-type-card-title;
 
   margin: 0;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
 }
 
 .sep-contrato-detail-assinatura-aviso {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   margin: 0;
-  color: var(--notion-color-orange);
+  color: hsl(var(--warning));
 }
 
 .sep-contrato-detail-documento {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-8);
+  gap: var(--sep-space-8);
   align-items: flex-start;
 }
 
 .sep-contrato-detail-documento-cta {
-  @include notion.notion-button-secondary;
+  @include sepDs.sep-button-outline;
 }
 
 .sep-contrato-detail-versoes {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-8);
+  gap: var(--sep-space-8);
 }
 
 .sep-contrato-detail-versoes-label {
-  @include notionType.notion-type-caption;
+  @include sepType.sep-type-caption;
 
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }
 
 .sep-contrato-detail-versoes-list {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--notion-space-8);
+  gap: var(--sep-space-8);
 }
 
 .sep-contrato-detail-versao-tab {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   display: inline-flex;
   align-items: center;
-  gap: var(--notion-space-6);
-  padding: var(--notion-space-4) var(--notion-space-12);
-  border: var(--notion-border-whisper);
-  border-radius: var(--notion-radius-subtle);
+  gap: var(--sep-space-6);
+  padding: var(--sep-space-4) var(--sep-space-12);
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--sep-radius-sm);
   background: transparent;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
   cursor: pointer;
 
   &.is-active {
-    border-color: var(--notion-color-blue);
-    color: var(--notion-color-blue);
+    border-color: hsl(var(--primary));
+    color: hsl(var(--primary));
   }
 }
 
 .sep-contrato-detail-versao {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-16);
+  gap: var(--sep-space-16);
 }
 
 .sep-contrato-detail-versao-header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--notion-space-16);
+  gap: var(--sep-space-16);
 }
 
 .sep-contrato-detail-versao-title {
-  @include notionType.notion-type-card-title;
+  @include sepType.sep-type-card-title;
 
   display: inline-flex;
   align-items: center;
-  gap: var(--notion-space-8);
+  gap: var(--sep-space-8);
   margin: 0;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
 }
 
 .sep-contrato-detail-versao-vigente {
-  @include notionType.notion-type-caption;
+  @include sepType.sep-type-caption;
 
-  color: var(--notion-color-blue);
+  color: hsl(var(--primary));
 }
 
 .sep-contrato-detail-versao-data {
-  @include notionType.notion-type-caption;
+  @include sepType.sep-type-caption;
 
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }
 
 .sep-contrato-detail-conteudo {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   margin: 0;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
   white-space: pre-wrap;
 }
 
 .sep-contrato-detail-clausulas {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-16);
+  gap: var(--sep-space-16);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -226,41 +226,41 @@
 .sep-contrato-detail-clausula {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-4);
+  gap: var(--sep-space-4);
 }
 
 .sep-contrato-detail-clausula-titulo {
-  @include notionType.notion-type-body-semibold;
+  @include sepType.sep-type-body-semibold;
 
   margin: 0;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
 }
 
 .sep-contrato-detail-clausula-texto {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   margin: 0;
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
   white-space: pre-wrap;
 }
 
 .sep-contrato-detail-hash {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-4);
+  gap: var(--sep-space-4);
   margin: 0;
 }
 
 .sep-contrato-detail-hash-label {
-  @include notionType.notion-type-caption;
+  @include sepType.sep-type-caption;
 
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }
 
 .sep-contrato-detail-hash-value {
   font-family: monospace;
   font-size: 12px;
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
   word-break: break-all;
 }
 
@@ -269,6 +269,6 @@
 }
 
 .sep-contrato-detail-cobranca-link {
-  color: var(--notion-color-blue);
+  color: hsl(var(--primary));
   text-decoration: none;
 }

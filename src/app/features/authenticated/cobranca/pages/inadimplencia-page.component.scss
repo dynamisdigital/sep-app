@@ -1,131 +1,132 @@
-@use "../../../../../styles/notion-typography" as notionType;
-@use "../../../../../styles/notion-components" as notion;
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
 
 .sep-inad {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-16);
+  gap: var(--sep-space-16);
   max-width: 960px;
   margin: 0 auto;
-  padding: var(--notion-space-16) 0;
+  padding: var(--sep-space-16) 0;
 }
 
 .sep-inad-header {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-6);
+  gap: var(--sep-space-6);
 }
 
 .sep-inad-title {
-  @include notionType.notion-type-section-heading;
+  @include sepType.sep-type-page-title;
 
   margin: 0;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
 }
 
 .sep-inad-subtitle {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   margin: 0;
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }
 
 .sep-inad-filtros {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: var(--notion-space-12);
+  gap: var(--sep-space-12);
 }
 
 .sep-inad-filtro {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-4);
+  gap: var(--sep-space-4);
 
   span {
-    @include notionType.notion-type-caption;
+    @include sepType.sep-type-caption;
 
-    color: var(--notion-color-text-muted);
+    color: hsl(var(--muted-foreground));
   }
 
   input,
   select {
-    @include notion.notion-input;
+    @include sepDs.sep-input;
   }
 }
 
 .sep-inad-aplicar {
-  @include notion.notion-button-secondary;
+  @include sepDs.sep-button-outline;
 }
 
 .sep-inad-state {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }
 
 .sep-inad-error {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-8);
+  gap: var(--sep-space-8);
   align-items: flex-start;
-  color: var(--notion-color-orange);
+  color: hsl(var(--warning));
 }
 
 .sep-inad-retry {
-  @include notion.notion-button-secondary;
+  @include sepDs.sep-button-outline;
 }
 
 .sep-inad-empty {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-8);
+  gap: var(--sep-space-8);
   align-items: flex-start;
 }
 
 .sep-inad-lista {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-8);
+  gap: var(--sep-space-8);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .sep-inad-linha-link {
-  @include notion.notion-card;
+  @include sepDs.sep-card;
 
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--notion-space-12);
+  gap: var(--sep-space-12);
+  padding: var(--sep-space-24);
   text-decoration: none;
   color: inherit;
   cursor: pointer;
   transition: border-color 120ms ease;
 
   &:hover {
-    border-color: var(--notion-color-blue);
+    border-color: hsl(var(--primary));
   }
 }
 
 .sep-inad-linha-parcela {
-  @include notionType.notion-type-card-title;
+  @include sepType.sep-type-card-title;
 
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
 }
 
 .sep-inad-linha-atraso,
 .sep-inad-linha-vencimento,
 .sep-inad-linha-contrato {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }
 
 .sep-inad-linha-valor {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   margin-left: auto;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
 }

@@ -1,0 +1,391 @@
+// Componentes base do New Design System SEP — biblioteca de mixins SCSS.
+// Fonte oficial: docs-sep/New Design System Sep.md (Botoes, Cards, Inputs, Badges,
+// Tabelas, Dialogs/Dropdowns, Animacoes). Traduz os padroes shadcn/Tailwind de
+// origem para Angular/SCSS, consumindo os tokens de `_sep-ds-tokens.scss`.
+
+@use "sep-ds-typography" as sepType;
+
+// ===== Animacoes globais =====
+
+@keyframes sep-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes sep-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// ===== Botoes =====
+
+@mixin sep-button-base {
+  @include sepType.sep-type-button;
+
+  display: inline-flex;
+  gap: var(--sep-space-8);
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 var(--sep-space-16);
+  white-space: nowrap;
+  border: 1px solid transparent;
+  border-radius: var(--sep-radius-md);
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+}
+
+@mixin sep-button-size-sm {
+  height: 36px;
+  padding: 0 var(--sep-space-12);
+}
+
+@mixin sep-button-size-lg {
+  height: 44px;
+  padding: 0 var(--sep-space-32);
+}
+
+@mixin sep-button-size-icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+}
+
+@mixin sep-button-primary {
+  @include sep-button-base;
+
+  color: hsl(var(--primary-foreground));
+  background: hsl(var(--primary));
+
+  &:hover {
+    background: hsl(var(--primary-hover));
+  }
+}
+
+@mixin sep-button-secondary {
+  @include sep-button-base;
+
+  color: hsl(var(--secondary-foreground));
+  background: hsl(var(--secondary));
+
+  &:hover {
+    background: hsl(var(--secondary-hover));
+  }
+}
+
+@mixin sep-button-outline {
+  @include sep-button-base;
+
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+  border-color: hsl(var(--input));
+
+  &:hover {
+    color: hsl(var(--accent-foreground));
+    background: hsl(var(--accent));
+  }
+}
+
+@mixin sep-button-ghost {
+  @include sep-button-base;
+
+  color: hsl(var(--foreground));
+  background: transparent;
+
+  &:hover {
+    color: hsl(var(--accent-foreground));
+    background: hsl(var(--accent));
+  }
+}
+
+@mixin sep-button-destructive {
+  @include sep-button-base;
+
+  color: hsl(var(--destructive-foreground));
+  background: hsl(var(--destructive));
+
+  &:hover {
+    background: hsl(var(--destructive) / 90%);
+  }
+}
+
+@mixin sep-button-link {
+  @include sep-button-base;
+
+  height: auto;
+  padding: 0;
+  color: hsl(var(--primary));
+  background: transparent;
+  border: 0;
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+
+// ===== Cards =====
+
+@mixin sep-card {
+  color: hsl(var(--card-foreground));
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--sep-radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+// Card operacional/metrica: elevacao maior e realce sutil ao passar o mouse.
+@mixin sep-card-elevated {
+  @include sep-card;
+
+  border-color: transparent;
+  box-shadow: var(--shadow-md);
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease,
+    border-color 0.3s ease;
+}
+
+@mixin sep-card-interactive {
+  @include sep-card-elevated;
+
+  cursor: pointer;
+
+  &:hover {
+    border-color: hsl(var(--primary) / 20%);
+    box-shadow: var(--shadow-lg);
+    transform: scale(1.02);
+  }
+}
+
+// ===== Inputs e formularios =====
+
+@mixin sep-input {
+  @include sepType.sep-type-caption;
+
+  display: flex;
+  width: 100%;
+  height: 40px;
+  padding: var(--sep-space-8) var(--sep-space-12);
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--input));
+  border-radius: var(--sep-radius-md);
+
+  &::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+
+  &:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+@mixin sep-label {
+  @include sepType.sep-type-label;
+
+  color: hsl(var(--muted-foreground));
+}
+
+@mixin sep-field-error {
+  @include sepType.sep-type-micro;
+
+  color: hsl(var(--destructive));
+}
+
+// Grupo de filtros segmentados.
+@mixin sep-segmented {
+  display: inline-flex;
+  gap: var(--sep-space-2);
+  padding: var(--sep-space-4);
+  background: hsl(var(--muted) / 40%);
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--sep-radius-lg);
+}
+
+// ===== Badges =====
+
+@mixin sep-badge-base {
+  @include sepType.sep-type-badge;
+
+  display: inline-flex;
+  gap: var(--sep-space-4);
+  align-items: center;
+  padding: var(--sep-space-2) var(--sep-space-8);
+  border: 1px solid transparent;
+  border-radius: var(--sep-radius-pill);
+  white-space: nowrap;
+}
+
+@mixin sep-badge-primary {
+  @include sep-badge-base;
+
+  color: hsl(var(--primary-foreground));
+  background: hsl(var(--primary));
+}
+
+@mixin sep-badge-secondary {
+  @include sep-badge-base;
+
+  color: hsl(var(--secondary-foreground));
+  background: hsl(var(--secondary));
+}
+
+@mixin sep-badge-outline {
+  @include sep-badge-base;
+
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--border));
+}
+
+// Badge semantico suave: fundo translucido + texto na cor do tom.
+// Passar o nome de um token de cor, ex.: `@include sep-badge-soft(--success)`.
+@mixin sep-badge-soft($tone) {
+  @include sep-badge-base;
+
+  color: hsl(var(#{$tone}));
+  background: hsl(var(#{$tone}) / 12%);
+  border-color: hsl(var(#{$tone}) / 20%);
+}
+
+// ===== Navegacao (sidebar/menu) =====
+
+@mixin sep-nav-link {
+  @include sepType.sep-type-button;
+
+  display: flex;
+  gap: var(--sep-space-8);
+  align-items: center;
+  padding: var(--sep-space-8) var(--sep-space-12);
+  color: hsl(var(--sidebar-foreground));
+  background: transparent;
+  border-radius: var(--sep-radius-md);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+
+  &:hover {
+    background: hsl(var(--sidebar-accent));
+  }
+
+  &:focus-visible {
+    outline: 2px solid hsl(var(--sidebar-ring));
+    outline-offset: 2px;
+  }
+}
+
+@mixin sep-nav-link-active {
+  color: hsl(var(--sidebar-accent-foreground));
+  background: hsl(var(--sidebar-accent));
+  font-weight: 500;
+}
+
+// ===== Tabelas e listas densas =====
+
+@mixin sep-table-wrapper {
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--sep-radius-lg);
+}
+
+@mixin sep-table {
+  width: 100%;
+  border-collapse: collapse;
+  caption-side: bottom;
+}
+
+@mixin sep-table-head {
+  @include sepType.sep-type-label;
+
+  height: 48px;
+  padding: 0 var(--sep-space-16);
+  color: hsl(var(--muted-foreground));
+  text-align: left;
+  vertical-align: middle;
+  background: hsl(var(--muted) / 50%);
+}
+
+@mixin sep-table-row {
+  border-bottom: 1px solid hsl(var(--border));
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: hsl(var(--muted) / 50%);
+  }
+}
+
+@mixin sep-table-cell {
+  @include sepType.sep-type-caption;
+
+  padding: var(--sep-space-12) var(--sep-space-16);
+  color: hsl(var(--foreground));
+  vertical-align: middle;
+}
+
+// ===== Overlays: dialog, popover, dropdown =====
+
+@mixin sep-dialog {
+  color: hsl(var(--popover-foreground));
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--sep-radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+@mixin sep-popover {
+  color: hsl(var(--popover-foreground));
+  background: hsl(var(--popover));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--sep-radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+@mixin sep-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 50%);
+}
+
+// ===== Loaders e skeletons =====
+
+@mixin sep-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid hsl(var(--muted));
+  border-bottom-color: hsl(var(--primary));
+  border-radius: var(--sep-radius-full);
+  animation: sep-spin 0.7s linear infinite;
+}
+
+@mixin sep-skeleton {
+  background: hsl(var(--muted));
+  border-radius: var(--sep-radius-md);
+  animation: sep-pulse 1.5s ease-in-out infinite;
+}
