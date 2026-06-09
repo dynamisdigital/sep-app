@@ -1,46 +1,46 @@
-@use "../../../../styles/notion-typography" as notionType;
-@use "../../../../styles/notion-components" as notion;
+@use "../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../styles/sep-ds-components" as sepDs;
 
 .sep-profile {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-24);
+  gap: var(--sep-space-24);
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--notion-space-16) 0;
+  padding: var(--sep-space-16) 0;
 }
 
 .sep-profile-header {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-12);
+  gap: var(--sep-space-12);
 }
 
 .sep-profile-title {
-  @include notionType.notion-type-section-heading;
+  @include sepType.sep-type-page-title;
 
   margin: 0;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
 }
 
 .sep-profile-actions {
   display: flex;
-  gap: var(--notion-space-12);
+  gap: var(--sep-space-12);
   flex-wrap: wrap;
 }
 
 .sep-profile-action-link {
-  @include notion.notion-button-secondary;
+  @include sepDs.sep-button-outline;
 }
 
 .sep-profile-action-button {
-  @include notion.notion-button-ghost;
+  @include sepDs.sep-button-ghost;
 }
 
 .sep-profile-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--notion-space-24);
+  gap: var(--sep-space-24);
 
   @media (width >= 768px) {
     grid-template-columns: repeat(2, 1fr);
@@ -48,42 +48,44 @@
 }
 
 .sep-profile-card {
-  @include notion.notion-card;
+  @include sepDs.sep-card;
+
+  padding: var(--sep-space-24);
 }
 
 .sep-profile-card-title {
-  @include notionType.notion-type-card-title;
+  @include sepType.sep-type-card-title;
 
-  margin: 0 0 var(--notion-space-16);
-  color: var(--notion-color-text);
+  margin: 0 0 var(--sep-space-16);
+  color: hsl(var(--foreground));
 }
 
 .sep-profile-list {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-12);
+  gap: var(--sep-space-12);
   margin: 0;
 }
 
 .sep-profile-list-row {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-3);
+  gap: var(--sep-space-3);
 
   dt {
-    @include notionType.notion-type-body;
+    @include sepType.sep-type-body;
 
-    color: var(--notion-color-text-subtle);
+    color: hsl(var(--muted-foreground));
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
 
   dd {
-    @include notionType.notion-type-body;
+    @include sepType.sep-type-body;
 
     margin: 0;
-    color: var(--notion-color-text);
+    color: hsl(var(--foreground));
   }
 }
 
@@ -94,7 +96,7 @@
 }
 
 .sep-profile-empty {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }

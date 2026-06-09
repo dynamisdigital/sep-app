@@ -1,92 +1,93 @@
-@use "../../../../styles/notion-typography" as notionType;
-@use "../../../../styles/notion-components" as notion;
+@use "../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../styles/sep-ds-components" as sepDs;
 
 .sep-formalizacao-home {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-32);
+  gap: var(--sep-space-32);
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--notion-space-16) 0;
+  padding: var(--sep-space-16) 0;
 }
 
 .sep-formalizacao-home-header {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-8);
+  gap: var(--sep-space-8);
 }
 
 .sep-formalizacao-home-title {
-  @include notionType.notion-type-section-heading;
+  @include sepType.sep-type-page-title;
 
   margin: 0;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
 }
 
 .sep-formalizacao-home-subtitle {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   margin: 0;
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }
 
 .sep-formalizacao-home-state {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }
 
 .sep-formalizacao-home-error {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-8);
+  gap: var(--sep-space-8);
   align-items: flex-start;
-  color: var(--notion-color-orange);
+  color: hsl(var(--warning));
 }
 
 .sep-formalizacao-home-retry {
-  @include notion.notion-button-secondary;
+  @include sepDs.sep-button-outline;
 }
 
 .sep-formalizacao-home-empty {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-8);
+  gap: var(--sep-space-8);
   align-items: flex-start;
 }
 
 .sep-formalizacao-home-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--notion-space-16);
+  gap: var(--sep-space-16);
 }
 
 .sep-formalizacao-home-card {
-  @include notion.notion-card;
+  @include sepDs.sep-card;
 
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-6);
+  gap: var(--sep-space-6);
+  padding: var(--sep-space-24);
   text-decoration: none;
   color: inherit;
   cursor: pointer;
   transition: border-color 120ms ease;
 
   &:hover {
-    border-color: var(--notion-color-blue);
+    border-color: hsl(var(--primary));
   }
 }
 
 .sep-formalizacao-home-card-title {
-  @include notionType.notion-type-card-title;
+  @include sepType.sep-type-card-title;
 
   margin: 0;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
 }
 
 .sep-formalizacao-home-card-body {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   margin: 0;
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }

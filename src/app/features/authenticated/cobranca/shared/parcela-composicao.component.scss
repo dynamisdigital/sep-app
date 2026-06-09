@@ -1,40 +1,41 @@
-@use "../../../../../styles/notion-typography" as notionType;
-@use "../../../../../styles/notion-components" as notion;
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
 
 .sep-parcela-composicao {
-  @include notion.notion-card;
+  @include sepDs.sep-card;
 
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-8);
+  gap: var(--sep-space-8);
   margin: 0;
+  padding: var(--sep-space-24);
 }
 
 .sep-parcela-linha {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--notion-space-12);
+  gap: var(--sep-space-12);
 
   dt {
-    @include notionType.notion-type-body;
+    @include sepType.sep-type-body;
 
-    color: var(--notion-color-text-muted);
+    color: hsl(var(--muted-foreground));
   }
 
   dd {
-    @include notionType.notion-type-body;
+    @include sepType.sep-type-body;
 
     margin: 0;
-    color: var(--notion-color-text);
+    color: hsl(var(--foreground));
   }
 }
 
 .sep-parcela-linha-destaque {
   dt,
   dd {
-    @include notionType.notion-type-body-semibold;
+    @include sepType.sep-type-body-semibold;
 
-    color: var(--notion-color-text);
+    color: hsl(var(--foreground));
   }
 }

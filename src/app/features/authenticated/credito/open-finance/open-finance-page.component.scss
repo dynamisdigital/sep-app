@@ -1,123 +1,124 @@
-@use "../../../../../styles/notion-typography" as notionType;
-@use "../../../../../styles/notion-components" as notion;
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
 
 .sep-open-finance {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-24);
+  gap: var(--sep-space-24);
   max-width: 720px;
   margin: 0 auto;
-  padding: var(--notion-space-16) 0;
+  padding: var(--sep-space-16) 0;
 }
 
 .sep-open-finance-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--notion-space-16);
+  gap: var(--sep-space-16);
 }
 
 .sep-open-finance-title {
-  @include notionType.notion-type-section-heading;
+  @include sepType.sep-type-page-title;
 
   margin: 0;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
 }
 
 .sep-open-finance-subtitle {
-  @include notionType.notion-type-card-title;
+  @include sepType.sep-type-card-title;
 
   margin: 0;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
 }
 
 .sep-open-finance-back {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
-  color: var(--notion-color-blue);
+  color: hsl(var(--primary));
   text-decoration: none;
 }
 
 .sep-open-finance-intro,
 .sep-open-finance-retorno,
 .sep-open-finance-state {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   margin: 0;
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }
 
 .sep-open-finance-error,
 .sep-open-finance-pendente {
-  color: var(--notion-color-orange);
+  color: hsl(var(--warning));
 }
 
 .sep-open-finance-status,
 .sep-open-finance-form {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-16);
+  gap: var(--sep-space-16);
 }
 
 .sep-open-finance-card {
-  @include notion.notion-card;
+  @include sepDs.sep-card;
 
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-12);
+  gap: var(--sep-space-12);
+  padding: var(--sep-space-24);
 }
 
 .sep-open-finance-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: var(--notion-space-16);
+  gap: var(--sep-space-16);
   margin: 0;
 
   dt {
-    @include notionType.notion-type-caption;
+    @include sepType.sep-type-caption;
 
-    color: var(--notion-color-text-muted);
+    color: hsl(var(--muted-foreground));
   }
 
   dd {
-    @include notionType.notion-type-body;
+    @include sepType.sep-type-body;
 
-    margin: var(--notion-space-2) 0 0;
-    color: var(--notion-color-text);
+    margin: var(--sep-space-2) 0 0;
+    color: hsl(var(--foreground));
   }
 }
 
 .sep-open-finance-field {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-6);
+  gap: var(--sep-space-6);
 
   label {
-    @include notionType.notion-type-caption;
+    @include sepType.sep-type-caption;
 
-    color: var(--notion-color-text-muted);
+    color: hsl(var(--muted-foreground));
   }
 
   input {
-    @include notion.notion-input;
+    @include sepDs.sep-input;
   }
 }
 
 .sep-open-finance-field-error {
-  @include notionType.notion-type-caption;
+  @include sepType.sep-type-caption;
 
   margin: 0;
-  color: var(--notion-color-orange);
+  color: hsl(var(--warning));
 }
 
 .sep-open-finance-refresh {
-  @include notion.notion-button-secondary;
+  @include sepDs.sep-button-outline;
 
   align-self: flex-start;
 }
 
 .sep-open-finance-submit {
-  @include notion.notion-button-primary;
+  @include sepDs.sep-button-primary;
 
   align-self: flex-start;
 
