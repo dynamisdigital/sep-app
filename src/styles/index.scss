@@ -1,22 +1,11 @@
 // Indice central de estilos globais.
 // Design vigente (Epic 17 / F-Sprint 14): New Design System SEP.
 // Fonte oficial: docs-sep/New Design System Sep.md.
-// Apple/Notion sao LEGADO HISTORICO das F-Sprints 0-10. Permanecem importados
-// apenas enquanto telas existentes ainda os referenciam; serao removidos ao
-// concluir a migracao (Task F-14.6).
 
 // ===== New Design System SEP =====
 @use "sep-ds-tokens";
 @use "sep-ds-typography" as sepType;
 @use "sep-ds-components";
-
-// ===== Legado historico (remover na F-14.6) =====
-@use "apple-tokens";
-@use "apple-typography";
-@use "apple-components";
-@use "notion-tokens";
-@use "notion-typography";
-@use "notion-components";
 
 // ===== Globais do New Design System SEP =====
 
