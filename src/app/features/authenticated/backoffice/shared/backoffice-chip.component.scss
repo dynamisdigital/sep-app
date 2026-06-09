@@ -1,44 +1,44 @@
-@use "../../../../../styles/notion-typography" as notionType;
+@use "../../../../../styles/sep-ds-typography" as sepType;
 
 :host {
-  @include notionType.notion-type-badge;
+  @include sepType.sep-type-badge;
 
   display: inline-flex;
   align-items: center;
-  padding: 0 var(--notion-space-8);
+  padding: 0 var(--sep-space-8);
   border: 1px solid currentcolor;
-  border-radius: var(--notion-radius-pill);
+  border-radius: var(--sep-radius-pill);
   white-space: nowrap;
 }
 
 :host([data-prioridade="CRITICA"]) {
-  color: var(--notion-color-pink);
+  color: hsl(var(--destructive));
 }
 
 :host([data-prioridade="ALTA"]) {
-  color: var(--notion-color-orange);
+  color: hsl(var(--warning));
 }
 
 :host([data-prioridade="MEDIA"]) {
-  color: var(--notion-color-blue);
+  color: hsl(var(--primary));
 }
 
 :host([data-prioridade="BAIXA"]) {
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }
 
 :host([data-status="ABERTO"]) {
-  color: var(--notion-color-blue);
+  color: hsl(var(--primary));
 }
 
 :host([data-status="EM_TRATAMENTO"]) {
-  color: var(--notion-color-orange);
+  color: hsl(var(--warning));
 }
 
 :host([data-status="RESOLVIDO"]) {
-  color: var(--notion-color-green);
+  color: hsl(var(--success));
 }
 
 :host([data-status="IGNORADO"]) {
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }

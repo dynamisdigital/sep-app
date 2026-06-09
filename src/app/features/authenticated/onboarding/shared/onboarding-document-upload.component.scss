@@ -1,36 +1,33 @@
-@use "../../../../../styles/notion-typography" as notionType;
-@use "../../../../../styles/notion-components" as notion;
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
 
 :host {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-16);
+  gap: var(--sep-space-16);
 }
 
 .sep-onboarding-upload-field {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-6);
+  gap: var(--sep-space-6);
 
   label {
-    @include notionType.notion-type-body;
+    @include sepType.sep-type-label;
 
-    color: var(--notion-color-text);
-    font-size: 13px;
-    font-weight: 500;
+    color: hsl(var(--muted-foreground));
   }
 
   select {
-    @include notion.notion-input;
+    @include sepDs.sep-input;
   }
 }
 
 .sep-onboarding-upload-error {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-micro;
 
   margin: 0;
-  color: var(--notion-color-orange);
-  font-size: 12px;
+  color: hsl(var(--destructive));
 }
 
 .sep-onboarding-upload-actions {
@@ -39,10 +36,10 @@
 }
 
 .sep-onboarding-upload-submit {
-  @include notion.notion-button-primary;
+  @include sepDs.sep-button-primary;
 
   &:disabled {
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.5;
   }
 }
