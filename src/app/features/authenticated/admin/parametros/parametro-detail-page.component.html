@@ -1,0 +1,112 @@
+<section class="sep-parametro-detail">
+  <header class="sep-parametro-detail-header">
+    <h1 class="sep-parametro-detail-title">Detalhe do parametro</h1>
+    <a routerLink="/app/admin/parametros" class="sep-parametro-detail-back">Voltar para lista</a>
+  </header>
+
+  @if (loading() && !parametro()) {
+    <p class="sep-parametro-detail-state" role="status">Carregando parametro...</p>
+  }
+
+  @if (errorMessage(); as msg) {
+    <p class="sep-parametro-detail-error" role="alert">{{ msg }}</p>
+  }
+
+  @if (parametro(); as p) {
+    <article class="sep-parametro-detail-card">
+      <h2 class="sep-parametro-detail-card-title">{{ p.chave }}</h2>
+      <dl class="sep-parametro-detail-list">
+        <div class="sep-parametro-detail-row">
+          <dt>Tipo</dt>
+          <dd>{{ p.tipo }}</dd>
+        </div>
+        <div class="sep-parametro-detail-row">
+          <dt>Valor atual</dt>
+          <dd class="sep-parametro-detail-mono">{{ p.valor }}</dd>
+        </div>
+        <div class="sep-parametro-detail-row">
+          <dt>Versao</dt>
+          <dd>{{ p.versao }}</dd>
+        </div>
+        <div class="sep-parametro-detail-row">
+          <dt>Descricao</dt>
+          <dd>{{ p.descricao }}</dd>
+        </div>
+        <div class="sep-parametro-detail-row">
+          <dt>Modificado em</dt>
+          <dd>{{ p.dataModificacao }}</dd>
+        </div>
+      </dl>
+    </article>
+
+    <article class="sep-parametro-detail-card">
+      <h2 class="sep-parametro-detail-card-title">Alterar valor</h2>
+      <form class="sep-parametro-detail-form" [formGroup]="form" (ngSubmit)="salvar()" novalidate>
+        <div class="sep-parametro-detail-field">
+          <label for="novoValor">Novo valor ({{ p.tipo }})</label>
+          <input id="novoValor" type="text" formControlName="novoValor" autocomplete="off" />
+          @if (form.controls.novoValor.touched && form.controls.novoValor.errors?.['required']) {
+            <p class="sep-parametro-detail-field-error">Informe o novo valor.</p>
+          }
+        </div>
+
+        <div class="sep-parametro-detail-field">
+          <label for="justificativa">Justificativa</label>
+          <textarea
+            id="justificativa"
+            rows="3"
+            formControlName="justificativa"
+            autocomplete="off"
+          ></textarea>
+          @if (
+            form.controls.justificativa.touched && form.controls.justificativa.errors?.['required']
+          ) {
+            <p class="sep-parametro-detail-field-error">Informe a justificativa.</p>
+          }
+        </div>
+
+        @if (formErro(); as msg) {
+          <p class="sep-parametro-detail-feedback-error" role="alert">{{ msg }}</p>
+        }
+        @if (sucesso(); as msg) {
+          <p class="sep-parametro-detail-feedback-success" role="status">{{ msg }}</p>
+        }
+
+        <div class="sep-parametro-detail-actions">
+          <button
+            type="submit"
+            class="sep-parametro-detail-submit"
+            [disabled]="salvando() || form.invalid"
+          >
+            {{ salvando() ? 'Salvando...' : 'Salvar valor' }}
+          </button>
+        </div>
+      </form>
+    </article>
+
+    <article class="sep-parametro-detail-card">
+      <h2 class="sep-parametro-detail-card-title">Historico de versoes</h2>
+      @if (historico().length === 0) {
+        <p class="sep-parametro-detail-state">Sem alteracoes registradas.</p>
+      } @else {
+        <ol class="sep-parametro-detail-historico">
+          @for (versao of historico(); track versao.versao) {
+            <li class="sep-parametro-detail-versao">
+              <div class="sep-parametro-detail-versao-head">
+                <span class="sep-parametro-detail-versao-num">v{{ versao.versao }}</span>
+                <span class="sep-parametro-detail-versao-data">{{ versao.dataCriacao }}</span>
+              </div>
+              <p class="sep-parametro-detail-versao-mudanca">
+                <span class="sep-parametro-detail-mono">{{ versao.valorAnterior ?? '—' }}</span>
+                →
+                <span class="sep-parametro-detail-mono">{{ versao.valorNovo }}</span>
+              </p>
+              <p class="sep-parametro-detail-versao-justificativa">{{ versao.justificativa }}</p>
+              <p class="sep-parametro-detail-versao-ator">Por: {{ versao.atorId }}</p>
+            </li>
+          }
+        </ol>
+      }
+    </article>
+  }
+</section>

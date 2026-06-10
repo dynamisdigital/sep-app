@@ -256,4 +256,41 @@ describe('stepUpInterceptor', () => {
     expect(state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
     expect(store.token()).toBe('step-up-tok');
   });
+
+  it('anexa o token ao alterar parametro (PATCH /governanca/parametros/:chave)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest(
+      'PATCH',
+      'http://localhost:8080/api/v1/governanca/parametros/credito.valor.maximo.pf',
+      {},
+    );
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.get('X-Step-Up-Token')).toBe('step-up-tok');
+    expect(store.token()).toBeNull();
+  });
+
+  it('NAO anexa o token na leitura de parametros (GET /governanca/parametros e detalhe)', () => {
+    store.set('step-up-tok');
+    const lista = new HttpRequest('GET', 'http://localhost:8080/api/v1/governanca/parametros');
+    const detalhe = new HttpRequest(
+      'GET',
+      'http://localhost:8080/api/v1/governanca/parametros/credito.valor.maximo.pf',
+    );
+    const listaCap = captureNext();
+    const detalheCap = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(lista, listaCap.handler).subscribe();
+      stepUpInterceptor(detalhe, detalheCap.handler).subscribe();
+    });
+
+    expect(listaCap.state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(detalheCap.state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(store.token()).toBe('step-up-tok');
+  });
 });

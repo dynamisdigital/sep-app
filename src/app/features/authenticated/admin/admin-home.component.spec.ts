@@ -19,11 +19,10 @@ describe('AdminHomeComponent', () => {
     expect(link?.getAttribute('href')).toBe('/app/admin/users');
   });
 
-  it('Parametros operacionais fica desabilitado (sem link) ate F-12.4', async () => {
+  it('Parametros operacionais e um link para /app/admin/parametros', async () => {
     await render(AdminHomeComponent, { providers: [provideRouter([])] });
 
-    const card = screen.getByText('Parametros operacionais').closest('a');
-    expect(card).toBeNull();
-    expect(screen.getByText('Disponivel em breve')).toBeTruthy();
+    const link = screen.getByText('Parametros operacionais').closest('a');
+    expect(link?.getAttribute('href')).toBe('/app/admin/parametros');
   });
 });

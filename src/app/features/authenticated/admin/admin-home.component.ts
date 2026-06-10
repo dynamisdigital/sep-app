@@ -8,10 +8,10 @@ interface AdminCard {
   disabled?: boolean;
 }
 
-// Landing da area Administracao (ADMIN-only; guard herdado da rota pai).
-// Parametros operacionais entram em F-12.4: ate la o card fica desabilitado, sem
-// apontar para rota inexistente. Roles cumulativas nao tem card proprio — sao
-// geridas no detalhe do usuario (/app/admin/users/:id) em F-12.3.
+// Landing da area Administracao (ADMIN-only; guard herdado da rota pai). Cards levam a
+// Usuarios e Parametros operacionais. Roles cumulativas nao tem card proprio — sao geridas
+// no detalhe do usuario (/app/admin/users/:id). O suporte a card desabilitado permanece
+// para futuras areas ainda nao entregues.
 @Component({
   selector: 'sep-admin-home',
   imports: [RouterLink],
@@ -29,7 +29,7 @@ export class AdminHomeComponent {
     {
       label: 'Parametros operacionais',
       description: 'Catalogo versionado de parametros e historico de alteracoes.',
-      disabled: true,
+      route: '/app/admin/parametros',
     },
   ];
 }

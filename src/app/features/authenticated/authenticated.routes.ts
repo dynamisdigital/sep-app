@@ -96,6 +96,22 @@ export const AUTHENTICATED_ROUTES: Routes = [
               import('./admin/users/user-detail.component').then((m) => m.UserDetailComponent),
             data: { breadcrumb: 'Detalhe de usuario' },
           },
+          {
+            path: 'parametros',
+            loadComponent: () =>
+              import('./admin/parametros/parametros-page.component').then(
+                (m) => m.ParametrosPageComponent,
+              ),
+            data: { breadcrumb: 'Parametros' },
+          },
+          {
+            path: 'parametros/:chave',
+            loadComponent: () =>
+              import('./admin/parametros/parametro-detail-page.component').then(
+                (m) => m.ParametroDetailPageComponent,
+              ),
+            data: { breadcrumb: 'Detalhe do parametro' },
+          },
         ],
       },
     ],
