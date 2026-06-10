@@ -687,3 +687,58 @@ export interface DashboardResponse {
   propostasPorStatus: ContadorPorStatusProposta[];
   geradoEm: string;
 }
+
+// --- Governanca: roles cumulativas + parametros operacionais (F-Sprint 12 / backend Sprint 18) ---
+// Toda a area e ADMIN-only no backend. Precedencia de role, validacao de tipo, versionamento
+// e auditoria ficam no backend; estes sao DTOs de borda, sem regra de negocio.
+
+// Tipo do valor de um parametro operacional. O valor trafega como string; a interpretacao
+// por tipo e responsabilidade da apresentacao, nao do modelo de borda.
+export type TipoParametro = 'INTEGER' | 'DECIMAL' | 'BOOLEAN' | 'STRING';
+
+// GET /usuarios/{id}/roles: conjunto cumulativo + a principal (maior precedencia), ambas
+// resolvidas no backend. O DTO real nao expoe identificacao do usuario.
+export interface UsuarioRolesResponse {
+  roles: UsuarioRole[];
+  principal: UsuarioRole;
+}
+
+// PUT /usuarios/{id}/roles: substitui o conjunto. Deve ser nao vazio (validado no backend).
+export interface SubstituirRolesRequest {
+  roles: UsuarioRole[];
+}
+
+// Item de GET /governanca/parametros e retorno de PATCH.
+export interface ParametroOperacional {
+  id: string;
+  chave: string;
+  tipo: TipoParametro;
+  valor: string;
+  descricao: string;
+  ativo: boolean;
+  versao: number;
+  dataModificacao: string;
+}
+
+// Entrada do historico de alteracoes de um parametro. valorAnterior e nullable (a versao
+// inicial nao tem valor anterior). ator identificado apenas por id (DTO real nao traz nome).
+export interface VersaoParametro {
+  versao: number;
+  valorAnterior: string | null;
+  valorNovo: string;
+  atorId: string;
+  justificativa: string;
+  dataCriacao: string;
+}
+
+// GET /governanca/parametros/{chave}: detalhe + historico (mais recente primeiro).
+export interface ParametroComHistorico {
+  parametro: ParametroOperacional;
+  historico: VersaoParametro[];
+}
+
+// PATCH /governanca/parametros/{chave}: novo valor + justificativa (ambos obrigatorios).
+export interface AlterarParametroRequest {
+  novoValor: string;
+  justificativa: string;
+}

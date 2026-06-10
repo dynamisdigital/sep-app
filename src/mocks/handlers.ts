@@ -43,7 +43,25 @@ const backofficeUsuario = {
   modificadoPor: 'system',
 };
 
-const usuariosFake = [adminUsuario, clienteUsuario, financeiroUsuario, backofficeUsuario];
+// Usuario multi-role (FINANCEIRO + BACKOFFICE) para exercitar a gestao de roles cumulativas
+// da governanca (F-Sprint 12). role aqui e a principal denormalizada (FINANCEIRO > BACKOFFICE).
+const multiroleUsuario = {
+  id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771005',
+  username: 'multirole@empresa.com',
+  role: 'FINANCEIRO',
+  dataCriacao: now,
+  dataModificacao: now,
+  criadoPor: 'system',
+  modificadoPor: 'system',
+};
+
+const usuariosFake = [
+  adminUsuario,
+  clienteUsuario,
+  financeiroUsuario,
+  backofficeUsuario,
+  multiroleUsuario,
+];
 
 // Credenciais aceitas no dev-offline (senha unica 123456). Permite exercitar as jornadas
 // de cobranca (FINANCEIRO) e de backoffice (BACKOFFICE), nao so ADMIN. currentMockUser
@@ -1691,6 +1709,292 @@ const backofficeHandlers = [
   ),
 ];
 
+// --- Governanca: roles cumulativas + parametros operacionais (F-Sprint 12 / backend Sprint 18) ---
+// Toda a area e ADMIN-only (hasRole('ADMIN')), inclusive leitura. Mutacoes exigem step-up
+// (@RequireStepUp): sem X-Step-Up-Token o backend responde 403 antes da regra. Regras de
+// auto-protecao replicadas para o dev-offline: ADMIN nao altera as proprias roles (403) e a
+// ultima role nao pode ser removida (400).
+
+// Precedencia resolvida no backend; replicada aqui so para derivar a role principal offline.
+const PRECEDENCIA_ROLE = ['ADMIN', 'FINANCEIRO', 'BACKOFFICE', 'CLIENTE'];
+function principalDe(roles: string[]): string {
+  return PRECEDENCIA_ROLE.find((r) => roles.includes(r)) ?? roles[0];
+}
+
+// Conjunto cumulativo por usuario (id -> roles), coerente com a role principal dos fakes.
+const rolesPorUsuario: Record<string, string[]> = {
+  [adminUsuario.id]: ['ADMIN'],
+  [clienteUsuario.id]: ['CLIENTE'],
+  [financeiroUsuario.id]: ['FINANCEIRO'],
+  [backofficeUsuario.id]: ['BACKOFFICE'],
+  [multiroleUsuario.id]: ['FINANCEIRO', 'BACKOFFICE'],
+};
+
+function rolesResponse(id: string) {
+  const roles = rolesPorUsuario[id];
+  return { roles, principal: principalDe(roles) };
+}
+
+// Espelha hasRole('ADMIN'): nenhuma role interna ou CLIENTE acessa a governanca.
+function negarSeNaoAdmin(path: string) {
+  if (currentMockUser.role !== 'ADMIN') {
+    return errorResponse(403, 'Forbidden', 'Apenas ADMIN acessa a governanca', path);
+  }
+  return null;
+}
+
+// Seed fiel ao V43 (Sprint 18): todos INTEGER/DECIMAL, valor textual tipado, ativo, versao 1.
+let parametroSeq = 0;
+function parametro(chave: string, tipo: string, valor: string, descricao: string, versao = 1) {
+  parametroSeq += 1;
+  return {
+    id: `5f0799c0-0000-4000-8000-${String(parametroSeq).padStart(12, '0')}`,
+    chave,
+    tipo,
+    valor,
+    descricao,
+    ativo: true,
+    versao,
+    dataModificacao: now,
+  };
+}
+
+const parametrosFake = [
+  parametro('credito.valor.maximo.pf', 'DECIMAL', '50000.00', 'Valor maximo de proposta para PF'),
+  parametro('credito.valor.maximo.pj', 'DECIMAL', '200000.00', 'Valor maximo de proposta para PJ'),
+  parametro('credito.prazo.maximo.pf.meses', 'INTEGER', '12', 'Prazo maximo em meses para PF'),
+  parametro('credito.prazo.maximo.pj.meses', 'INTEGER', '24', 'Prazo maximo em meses para PJ'),
+  // versao 3 com historico de 2 alteracoes para exercitar a trilha auditavel (F-12.4/F-12.5).
+  parametro(
+    'credito.score.pre-aprovacao',
+    'INTEGER',
+    '700',
+    'Score minimo para pre-aprovacao no motor de credito',
+    3,
+  ),
+  parametro(
+    'backoffice.proposta.pendente.horas',
+    'INTEGER',
+    '24',
+    'Limite (h) para proposta EM_ANALISE virar pendencia',
+  ),
+  parametro(
+    'backoffice.contrato.aceito.horas',
+    'INTEGER',
+    '48',
+    'Limite (h) para contrato ACEITO sem assinatura virar pendencia',
+  ),
+  parametro(
+    'backoffice.webhook.pendente.horas',
+    'INTEGER',
+    '1',
+    'Limite (h) para webhook FALHOU/PENDENTE virar pendencia',
+  ),
+  parametro(
+    'credito.open-finance.bonus.entradas.altas',
+    'INTEGER',
+    '200',
+    'Bonus de score (entradas >= 3x parcela) no motor Open Finance',
+  ),
+  parametro(
+    'credito.open-finance.bonus.entradas.minimas',
+    'INTEGER',
+    '100',
+    'Bonus de score (entradas >= 1x parcela) no motor Open Finance',
+  ),
+  parametro(
+    'credito.open-finance.penalidade.saldo.negativo',
+    'INTEGER',
+    '150',
+    'Penalidade de score por saldo medio negativo recorrente',
+  ),
+];
+
+// Historico imutavel por chave (mais recente primeiro). A versao da entrada e a versao
+// resultante apos a alteracao; valorAnterior e null apenas na versao inicial (nao gravada).
+const historicoPorChave: Record<string, ReturnType<typeof versaoParametro>[]> = {
+  'credito.score.pre-aprovacao': [
+    versaoParametro(3, '720', '700', 'Retorno ao score padrao apos revisao de risco.'),
+    versaoParametro(2, '700', '720', 'Aperto temporario em janela de maior inadimplencia.'),
+  ],
+};
+
+function versaoParametro(
+  versao: number,
+  valorAnterior: string | null,
+  valorNovo: string,
+  justificativa: string,
+) {
+  return {
+    versao,
+    valorAnterior,
+    valorNovo,
+    atorId: adminUsuario.id,
+    justificativa,
+    dataCriacao: now,
+  };
+}
+
+// Espelha a validacao de tipo do dominio (ParametroOperacional.alterarValor).
+function valorValidoParaTipo(tipo: string, valor: string): boolean {
+  switch (tipo) {
+    case 'INTEGER':
+      return /^-?\d+$/.test(valor);
+    case 'DECIMAL':
+      return /^-?\d+(\.\d+)?$/.test(valor);
+    case 'BOOLEAN':
+      return valor === 'true' || valor === 'false';
+    default:
+      return valor.trim().length > 0;
+  }
+}
+
+const governancaHandlers = [
+  http.get(`${baseUrl}/usuarios/:id/roles`, ({ params }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/usuarios/${id}/roles`;
+    const negado = negarSeNaoAdmin(path);
+    if (negado) {
+      return negado;
+    }
+    if (!rolesPorUsuario[id]) {
+      return errorResponse(404, 'Not Found', 'usuario nao encontrado', path);
+    }
+    return HttpResponse.json(rolesResponse(id));
+  }),
+
+  http.put(`${baseUrl}/usuarios/:id/roles`, async ({ params, request }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/usuarios/${id}/roles`;
+    const negado = negarSeNaoAdmin(path);
+    if (negado) {
+      return negado;
+    }
+    if (faltaStepUp(request)) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
+    }
+    if (id === currentMockUser.id) {
+      return errorResponse(403, 'Forbidden', 'Nao e permitido alterar as proprias roles', path);
+    }
+    if (!rolesPorUsuario[id]) {
+      return errorResponse(404, 'Not Found', 'usuario nao encontrado', path);
+    }
+    const body = (await request.json()) as { roles?: string[] };
+    if (!body.roles || body.roles.length === 0) {
+      return errorResponse(400, 'Bad Request', 'Conjunto de roles nao pode ser vazio', path);
+    }
+    rolesPorUsuario[id] = [...new Set(body.roles)];
+    return HttpResponse.json(rolesResponse(id));
+  }),
+
+  http.post(`${baseUrl}/usuarios/:id/roles/:role`, ({ params, request }) => {
+    const id = params['id'] as string;
+    const role = params['role'] as string;
+    const path = `/api/v1/usuarios/${id}/roles/${role}`;
+    const negado = negarSeNaoAdmin(path);
+    if (negado) {
+      return negado;
+    }
+    if (faltaStepUp(request)) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
+    }
+    if (id === currentMockUser.id) {
+      return errorResponse(403, 'Forbidden', 'Nao e permitido alterar as proprias roles', path);
+    }
+    if (!rolesPorUsuario[id]) {
+      return errorResponse(404, 'Not Found', 'usuario nao encontrado', path);
+    }
+    rolesPorUsuario[id] = [...new Set([...rolesPorUsuario[id], role])];
+    return HttpResponse.json(rolesResponse(id));
+  }),
+
+  http.delete(`${baseUrl}/usuarios/:id/roles/:role`, ({ params, request }) => {
+    const id = params['id'] as string;
+    const role = params['role'] as string;
+    const path = `/api/v1/usuarios/${id}/roles/${role}`;
+    const negado = negarSeNaoAdmin(path);
+    if (negado) {
+      return negado;
+    }
+    if (faltaStepUp(request)) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
+    }
+    if (id === currentMockUser.id) {
+      return errorResponse(403, 'Forbidden', 'Nao e permitido alterar as proprias roles', path);
+    }
+    if (!rolesPorUsuario[id]) {
+      return errorResponse(404, 'Not Found', 'usuario nao encontrado', path);
+    }
+    const atuais = rolesPorUsuario[id];
+    if (atuais.length <= 1 && atuais.includes(role)) {
+      return errorResponse(400, 'Bad Request', 'Nao e possivel remover a ultima role', path);
+    }
+    rolesPorUsuario[id] = atuais.filter((r) => r !== role);
+    return HttpResponse.json(rolesResponse(id));
+  }),
+
+  http.get(`${baseUrl}/governanca/parametros`, () => {
+    const path = '/api/v1/governanca/parametros';
+    const negado = negarSeNaoAdmin(path);
+    if (negado) {
+      return negado;
+    }
+    return HttpResponse.json(parametrosFake);
+  }),
+
+  http.get(`${baseUrl}/governanca/parametros/:chave`, ({ params }) => {
+    const chave = params['chave'] as string;
+    const path = `/api/v1/governanca/parametros/${chave}`;
+    const negado = negarSeNaoAdmin(path);
+    if (negado) {
+      return negado;
+    }
+    const parametroAtual = parametrosFake.find((p) => p.chave === chave);
+    if (!parametroAtual) {
+      return errorResponse(404, 'Not Found', 'parametro nao encontrado', path);
+    }
+    return HttpResponse.json({
+      parametro: parametroAtual,
+      historico: historicoPorChave[chave] ?? [],
+    });
+  }),
+
+  http.patch(`${baseUrl}/governanca/parametros/:chave`, async ({ params, request }) => {
+    const chave = params['chave'] as string;
+    const path = `/api/v1/governanca/parametros/${chave}`;
+    const negado = negarSeNaoAdmin(path);
+    if (negado) {
+      return negado;
+    }
+    if (faltaStepUp(request)) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
+    }
+    const parametroAtual = parametrosFake.find((p) => p.chave === chave);
+    if (!parametroAtual) {
+      return errorResponse(404, 'Not Found', 'parametro nao encontrado', path);
+    }
+    const body = (await request.json()) as { novoValor?: string; justificativa?: string };
+    if (!body.justificativa || body.justificativa.trim().length === 0) {
+      return errorResponse(400, 'Bad Request', 'Justificativa obrigatoria', path);
+    }
+    if (!body.novoValor || !valorValidoParaTipo(parametroAtual.tipo, body.novoValor)) {
+      return errorResponse(
+        400,
+        'Bad Request',
+        `Valor invalido para o tipo ${parametroAtual.tipo}`,
+        path,
+      );
+    }
+    const anterior = parametroAtual.valor;
+    parametroAtual.valor = body.novoValor;
+    parametroAtual.versao += 1;
+    (historicoPorChave[chave] ??= []).unshift(
+      versaoParametro(parametroAtual.versao, anterior, body.novoValor, body.justificativa),
+    );
+    return HttpResponse.json(parametroAtual);
+  }),
+];
+
 export const handlers = [
   http.post(`${baseUrl}/auth/login`, async ({ request }) => {
     const body = (await request.json()) as { username?: string; password?: string };
@@ -1789,4 +2093,5 @@ export const handlers = [
   ...formalizacaoHandlers,
   ...cobrancaHandlers,
   ...backofficeHandlers,
+  ...governancaHandlers,
 ];
