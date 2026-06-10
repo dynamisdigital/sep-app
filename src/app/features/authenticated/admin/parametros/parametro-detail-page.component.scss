@@ -162,6 +162,14 @@
   @include sepDs.sep-button-primary;
 }
 
+.sep-parametro-detail-historico-caption {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+  font-size: 12px;
+}
+
 .sep-parametro-detail-historico {
   display: flex;
   flex-direction: column;

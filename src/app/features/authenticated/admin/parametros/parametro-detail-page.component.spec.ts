@@ -76,6 +76,7 @@ describe('ParametroDetailPageComponent', () => {
     await setup(CHAVE_COM_HISTORICO);
 
     expect(screen.getByText(CHAVE_COM_HISTORICO, { selector: 'h2' })).toBeTruthy();
+    expect(screen.getByText(/Trilha auditavel/)).toBeTruthy();
     expect(screen.getByText('v3')).toBeTruthy();
     expect(screen.getByText('v2')).toBeTruthy();
     expect(screen.getByText('Retorno ao score padrao apos revisao de risco.')).toBeTruthy();

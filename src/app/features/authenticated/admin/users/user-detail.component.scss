@@ -170,3 +170,11 @@
   margin: 0;
   color: hsl(var(--success));
 }
+
+.sep-user-detail-roles-audit {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+  font-size: 12px;
+}

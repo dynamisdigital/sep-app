@@ -137,6 +137,12 @@ describe('UserDetailComponent', () => {
       expect(screen.getByText('FINANCEIRO', { selector: 'strong' })).toBeTruthy();
     });
 
+    it('exibe a nota de auditoria de roles (trilha detalhada nao exibida na web)', async () => {
+      await setupRoles(MULTIROLE_ID);
+
+      expect(screen.getByText(/Alteracoes de roles sao auditadas no backend/)).toBeTruthy();
+    });
+
     it('aplica o toggle e salva o conjunto via PUT com step-up, mostrando sucesso', async () => {
       const result = await setupRoles(MULTIROLE_ID, { token: 'step-up-tok', operadorId: ADMIN_ID });
 
