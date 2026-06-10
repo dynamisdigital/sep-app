@@ -7,6 +7,10 @@ const adminUsuario = {
   id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771001',
   username: 'admin@empresa.com',
   role: 'ADMIN',
+  // MFA ativo + sem redefinicao pendente: pre-condicao de step-up no dev-offline. As telas
+  // sensiveis so redirecionam para /app/step-up quando currentUser().mfaHabilitado e true.
+  precisaRedefinirSenha: false,
+  mfaHabilitado: true,
   dataCriacao: now,
   dataModificacao: now,
   criadoPor: 'system',
@@ -1722,13 +1726,16 @@ function principalDe(roles: string[]): string {
 }
 
 // Conjunto cumulativo por usuario (id -> roles), coerente com a role principal dos fakes.
-const rolesPorUsuario: Record<string, string[]> = {
-  [adminUsuario.id]: ['ADMIN'],
-  [clienteUsuario.id]: ['CLIENTE'],
-  [financeiroUsuario.id]: ['FINANCEIRO'],
-  [backofficeUsuario.id]: ['BACKOFFICE'],
-  [multiroleUsuario.id]: ['FINANCEIRO', 'BACKOFFICE'],
-};
+function seedRolesPorUsuario(): Record<string, string[]> {
+  return {
+    [adminUsuario.id]: ['ADMIN'],
+    [clienteUsuario.id]: ['CLIENTE'],
+    [financeiroUsuario.id]: ['FINANCEIRO'],
+    [backofficeUsuario.id]: ['BACKOFFICE'],
+    [multiroleUsuario.id]: ['FINANCEIRO', 'BACKOFFICE'],
+  };
+}
+let rolesPorUsuario = seedRolesPorUsuario();
 
 function rolesResponse(id: string) {
   const roles = rolesPorUsuario[id];
@@ -1744,6 +1751,7 @@ function negarSeNaoAdmin(path: string) {
 }
 
 // Seed fiel ao V43 (Sprint 18): todos INTEGER/DECIMAL, valor textual tipado, ativo, versao 1.
+// id deterministico por posicao (parametroSeq reinicia em cada seed) para estabilidade.
 let parametroSeq = 0;
 function parametro(chave: string, tipo: string, valor: string, descricao: string, versao = 1) {
   parametroSeq += 1;
@@ -1759,66 +1767,68 @@ function parametro(chave: string, tipo: string, valor: string, descricao: string
   };
 }
 
-const parametrosFake = [
-  parametro('credito.valor.maximo.pf', 'DECIMAL', '50000.00', 'Valor maximo de proposta para PF'),
-  parametro('credito.valor.maximo.pj', 'DECIMAL', '200000.00', 'Valor maximo de proposta para PJ'),
-  parametro('credito.prazo.maximo.pf.meses', 'INTEGER', '12', 'Prazo maximo em meses para PF'),
-  parametro('credito.prazo.maximo.pj.meses', 'INTEGER', '24', 'Prazo maximo em meses para PJ'),
-  // versao 3 com historico de 2 alteracoes para exercitar a trilha auditavel (F-12.4/F-12.5).
-  parametro(
-    'credito.score.pre-aprovacao',
-    'INTEGER',
-    '700',
-    'Score minimo para pre-aprovacao no motor de credito',
-    3,
-  ),
-  parametro(
-    'backoffice.proposta.pendente.horas',
-    'INTEGER',
-    '24',
-    'Limite (h) para proposta EM_ANALISE virar pendencia',
-  ),
-  parametro(
-    'backoffice.contrato.aceito.horas',
-    'INTEGER',
-    '48',
-    'Limite (h) para contrato ACEITO sem assinatura virar pendencia',
-  ),
-  parametro(
-    'backoffice.webhook.pendente.horas',
-    'INTEGER',
-    '1',
-    'Limite (h) para webhook FALHOU/PENDENTE virar pendencia',
-  ),
-  parametro(
-    'credito.open-finance.bonus.entradas.altas',
-    'INTEGER',
-    '200',
-    'Bonus de score (entradas >= 3x parcela) no motor Open Finance',
-  ),
-  parametro(
-    'credito.open-finance.bonus.entradas.minimas',
-    'INTEGER',
-    '100',
-    'Bonus de score (entradas >= 1x parcela) no motor Open Finance',
-  ),
-  parametro(
-    'credito.open-finance.penalidade.saldo.negativo',
-    'INTEGER',
-    '150',
-    'Penalidade de score por saldo medio negativo recorrente',
-  ),
-];
+function seedParametros() {
+  parametroSeq = 0;
+  return [
+    parametro('credito.valor.maximo.pf', 'DECIMAL', '50000.00', 'Valor maximo de proposta para PF'),
+    parametro(
+      'credito.valor.maximo.pj',
+      'DECIMAL',
+      '200000.00',
+      'Valor maximo de proposta para PJ',
+    ),
+    parametro('credito.prazo.maximo.pf.meses', 'INTEGER', '12', 'Prazo maximo em meses para PF'),
+    parametro('credito.prazo.maximo.pj.meses', 'INTEGER', '24', 'Prazo maximo em meses para PJ'),
+    // versao 3 com historico de 2 alteracoes para exercitar a trilha auditavel (F-12.4/F-12.5).
+    parametro(
+      'credito.score.pre-aprovacao',
+      'INTEGER',
+      '700',
+      'Score minimo para pre-aprovacao no motor de credito',
+      3,
+    ),
+    parametro(
+      'backoffice.proposta.pendente.horas',
+      'INTEGER',
+      '24',
+      'Limite (h) para proposta EM_ANALISE virar pendencia',
+    ),
+    parametro(
+      'backoffice.contrato.aceito.horas',
+      'INTEGER',
+      '48',
+      'Limite (h) para contrato ACEITO sem assinatura virar pendencia',
+    ),
+    parametro(
+      'backoffice.webhook.pendente.horas',
+      'INTEGER',
+      '1',
+      'Limite (h) para webhook FALHOU/PENDENTE virar pendencia',
+    ),
+    parametro(
+      'credito.open-finance.bonus.entradas.altas',
+      'INTEGER',
+      '200',
+      'Bonus de score (entradas >= 3x parcela) no motor Open Finance',
+    ),
+    parametro(
+      'credito.open-finance.bonus.entradas.minimas',
+      'INTEGER',
+      '100',
+      'Bonus de score (entradas >= 1x parcela) no motor Open Finance',
+    ),
+    parametro(
+      'credito.open-finance.penalidade.saldo.negativo',
+      'INTEGER',
+      '150',
+      'Penalidade de score por saldo medio negativo recorrente',
+    ),
+  ];
+}
+let parametrosFake = seedParametros();
 
 // Historico imutavel por chave (mais recente primeiro). A versao da entrada e a versao
 // resultante apos a alteracao; valorAnterior e null apenas na versao inicial (nao gravada).
-const historicoPorChave: Record<string, ReturnType<typeof versaoParametro>[]> = {
-  'credito.score.pre-aprovacao': [
-    versaoParametro(3, '720', '700', 'Retorno ao score padrao apos revisao de risco.'),
-    versaoParametro(2, '700', '720', 'Aperto temporario em janela de maior inadimplencia.'),
-  ],
-};
-
 function versaoParametro(
   versao: number,
   valorAnterior: string | null,
@@ -1835,18 +1845,43 @@ function versaoParametro(
   };
 }
 
-// Espelha a validacao de tipo do dominio (ParametroOperacional.alterarValor).
+function seedHistorico(): Record<string, ReturnType<typeof versaoParametro>[]> {
+  return {
+    'credito.score.pre-aprovacao': [
+      versaoParametro(3, '720', '700', 'Retorno ao score padrao apos revisao de risco.'),
+      versaoParametro(2, '700', '720', 'Aperto temporario em janela de maior inadimplencia.'),
+    ],
+  };
+}
+let historicoPorChave = seedHistorico();
+
+// Espelha TipoParametroOperacional.aceita (backend): trim em todos; INTEGER em range de int;
+// DECIMAL via BigDecimal (sinal, decimais, notacao cientifica); BOOLEAN case-insensitive.
 function valorValidoParaTipo(tipo: string, valor: string): boolean {
+  const v = valor.trim();
   switch (tipo) {
-    case 'INTEGER':
-      return /^-?\d+$/.test(valor);
+    case 'INTEGER': {
+      if (!/^[+-]?\d+$/.test(v)) {
+        return false;
+      }
+      const n = Number(v);
+      return n >= -2147483648 && n <= 2147483647;
+    }
     case 'DECIMAL':
-      return /^-?\d+(\.\d+)?$/.test(valor);
+      return /^[+-]?(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?$/.test(v);
     case 'BOOLEAN':
-      return valor === 'true' || valor === 'false';
+      return /^(true|false)$/i.test(v);
     default:
-      return valor.trim().length > 0;
+      return v.length > 0;
   }
+}
+
+// Restaura o estado mutavel da governanca (roles, parametros, historico) para o seed.
+// Usado pelos testes para garantir independencia (F.I.R.S.T.) ao exercitar mutacoes 200.
+export function resetGovernancaState(): void {
+  rolesPorUsuario = seedRolesPorUsuario();
+  parametrosFake = seedParametros();
+  historicoPorChave = seedHistorico();
 }
 
 const governancaHandlers = [

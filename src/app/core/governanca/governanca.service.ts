@@ -39,8 +39,9 @@ export class GovernancaService {
   }
 
   // Step-up exigido pelo backend; anexado pelo stepUpInterceptor (ver nota da classe).
+  // Sem body: a role-alvo vai no path; backend nao espera corpo (espelha @PostMapping sem @RequestBody).
   adicionarRole(usuarioId: string, role: UsuarioRole): Observable<UsuarioRolesResponse> {
-    return this.http.post<UsuarioRolesResponse>(`${USUARIOS_URL}/${usuarioId}/roles/${role}`, {});
+    return this.http.post<UsuarioRolesResponse>(`${USUARIOS_URL}/${usuarioId}/roles/${role}`, null);
   }
 
   // Step-up exigido pelo backend; anexado pelo stepUpInterceptor (ver nota da classe).

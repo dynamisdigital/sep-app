@@ -1,8 +1,9 @@
-import { provideHttpClient } from '@angular/common/http';
+import { HttpInterceptorFn, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Observable } from 'rxjs';
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { resetGovernancaState } from '../../../mocks/handlers';
 import { GovernancaService } from './governanca.service';
 
 function awaitObservable<T>(obs: Observable<T>): Promise<T> {
@@ -12,16 +13,31 @@ function awaitObservable<T>(obs: Observable<T>): Promise<T> {
 }
 
 // Sentinelas espelhando os fakes de governanca dos handlers MSW (src/mocks/handlers.ts).
+const ADMIN_ID = '1f0799c0-98b9-6d9d-bc4a-7d6f5b771001';
 const FINANCEIRO_ID = '1f0799c0-98b9-6d9d-bc4a-7d6f5b771003';
 const MULTIROLE_ID = '1f0799c0-98b9-6d9d-bc4a-7d6f5b771005';
 const USUARIO_INEXISTENTE_ID = '1f0799c0-98b9-6d9d-bc4a-7d6f5b7710aa';
 const PARAMETRO_COM_HISTORICO = 'credito.score.pre-aprovacao';
 
+// O stepUpInterceptor real so reconhece as URLs de governanca a partir das Tasks F-12.3/F-12.4
+// (e e testado la, em step-up.interceptor.spec.ts). Aqui um interceptor de teste simula a
+// presenca do X-Step-Up-Token quando `anexarStepUp` esta ligado, permitindo exercitar o
+// caminho feliz (200) e as regras de dominio (auto-edicao 403, ultima role 400) do MSW.
+let anexarStepUp = false;
+const stepUpDeTeste: HttpInterceptorFn = (req, next) =>
+  anexarStepUp
+    ? next(req.clone({ setHeaders: { 'X-Step-Up-Token': 'mock-step-up-token' } }))
+    : next(req);
+
 describe('GovernancaService', () => {
   let service: GovernancaService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideHttpClient()] });
+    resetGovernancaState();
+    anexarStepUp = false;
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(withInterceptors([stepUpDeTeste]))],
+    });
     service = TestBed.inject(GovernancaService);
   });
 
@@ -48,8 +64,7 @@ describe('GovernancaService', () => {
     });
   });
 
-  // O step-up e anexado pelo stepUpInterceptor, nao pelo service. Sem o header X-Step-Up-Token
-  // o backend (@RequireStepUp) responde 403 — comportamento real exercitado aqui.
+  // Sem o header X-Step-Up-Token (anexarStepUp = false) o backend (@RequireStepUp) responde 403.
   describe('mutacoes de roles sem step-up', () => {
     it('substituirRoles rejeita com 403', async () => {
       await expect(
@@ -69,6 +84,47 @@ describe('GovernancaService', () => {
       await expect(
         awaitObservable(service.removerRole(MULTIROLE_ID, 'BACKOFFICE')),
       ).rejects.toMatchObject({ status: 403 });
+    });
+  });
+
+  // Com step-up presente: valida URL/metodo/body (o conjunto retornado prova o body enviado)
+  // e as regras de dominio que o MSW replica do backend.
+  describe('mutacoes de roles com step-up', () => {
+    beforeEach(() => {
+      anexarStepUp = true;
+    });
+
+    it('substituirRoles aplica o conjunto enviado e retorna roles + principal', async () => {
+      const resposta = await awaitObservable(
+        service.substituirRoles(FINANCEIRO_ID, { roles: ['FINANCEIRO', 'BACKOFFICE'] }),
+      );
+
+      expect(new Set(resposta.roles)).toEqual(new Set(['FINANCEIRO', 'BACKOFFICE']));
+      expect(resposta.principal).toBe('FINANCEIRO');
+    });
+
+    it('adicionarRole inclui a role mantendo as existentes', async () => {
+      const resposta = await awaitObservable(service.adicionarRole(FINANCEIRO_ID, 'BACKOFFICE'));
+
+      expect(new Set(resposta.roles)).toEqual(new Set(['FINANCEIRO', 'BACKOFFICE']));
+    });
+
+    it('removerRole remove a role do conjunto', async () => {
+      const resposta = await awaitObservable(service.removerRole(MULTIROLE_ID, 'BACKOFFICE'));
+
+      expect(resposta.roles).toEqual(['FINANCEIRO']);
+    });
+
+    it('rejeita com 403 ao editar as proprias roles do admin (auto-protecao)', async () => {
+      await expect(
+        awaitObservable(service.substituirRoles(ADMIN_ID, { roles: ['ADMIN'] })),
+      ).rejects.toMatchObject({ status: 403 });
+    });
+
+    it('rejeita com 400 ao remover a ultima role do usuario', async () => {
+      await expect(
+        awaitObservable(service.removerRole(FINANCEIRO_ID, 'FINANCEIRO')),
+      ).rejects.toMatchObject({ status: 400 });
     });
   });
 
@@ -110,6 +166,42 @@ describe('GovernancaService', () => {
           }),
         ),
       ).rejects.toMatchObject({ status: 403 });
+    });
+  });
+
+  describe('alterarParametro com step-up', () => {
+    beforeEach(() => {
+      anexarStepUp = true;
+    });
+
+    it('altera o valor, incrementa a versao e registra no historico', async () => {
+      const atualizado = await awaitObservable(
+        service.alterarParametro('credito.valor.maximo.pf', {
+          novoValor: '60000.00',
+          justificativa: 'Reajuste do teto PF apos revisao de politica.',
+        }),
+      );
+
+      expect(atualizado.valor).toBe('60000.00');
+      expect(atualizado.versao).toBe(2);
+
+      const detalhe = await awaitObservable(service.consultarParametro('credito.valor.maximo.pf'));
+      expect(detalhe.historico[0]).toMatchObject({
+        versao: 2,
+        valorAnterior: '50000.00',
+        valorNovo: '60000.00',
+      });
+    });
+
+    it('rejeita com 400 valor incompativel com o tipo', async () => {
+      await expect(
+        awaitObservable(
+          service.alterarParametro('credito.prazo.maximo.pf.meses', {
+            novoValor: 'doze',
+            justificativa: 'Valor textual invalido para INTEGER.',
+          }),
+        ),
+      ).rejects.toMatchObject({ status: 400 });
     });
   });
 });
