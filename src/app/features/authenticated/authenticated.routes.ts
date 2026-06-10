@@ -78,7 +78,12 @@ export const AUTHENTICATED_ROUTES: Routes = [
         canActivate: [roleGuard],
         data: { roles: ['ADMIN'], breadcrumb: 'Administracao' },
         children: [
-          { path: '', pathMatch: 'full', redirectTo: 'users' },
+          {
+            path: '',
+            pathMatch: 'full',
+            loadComponent: () =>
+              import('./admin/admin-home.component').then((m) => m.AdminHomeComponent),
+          },
           {
             path: 'users',
             loadComponent: () =>
