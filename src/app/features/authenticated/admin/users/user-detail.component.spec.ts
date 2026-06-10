@@ -137,8 +137,17 @@ describe('UserDetailComponent', () => {
       expect(screen.getByText('FINANCEIRO', { selector: 'strong' })).toBeTruthy();
     });
 
-    it('salva o conjunto via PUT com step-up e mostra sucesso', async () => {
+    it('aplica o toggle e salva o conjunto via PUT com step-up, mostrando sucesso', async () => {
       const result = await setupRoles(MULTIROLE_ID, { token: 'step-up-tok', operadorId: ADMIN_ID });
+
+      const adminCheckbox = screen.getByRole('checkbox', { name: 'ADMIN' }) as HTMLInputElement;
+      expect(adminCheckbox.checked).toBe(false);
+
+      fireEvent.click(adminCheckbox);
+      result.fixture.detectChanges();
+      expect((screen.getByRole('checkbox', { name: 'ADMIN' }) as HTMLInputElement).checked).toBe(
+        true,
+      );
 
       fireEvent.click(screen.getByText('Salvar roles'));
       await result.fixture.whenStable();
@@ -146,6 +155,8 @@ describe('UserDetailComponent', () => {
       result.fixture.detectChanges();
 
       expect(screen.getByText('Roles atualizadas.')).toBeTruthy();
+      // O conjunto enviado inclui ADMIN: a principal retornada pelo backend passa a ser ADMIN.
+      expect(screen.getByText('ADMIN', { selector: 'strong' })).toBeTruthy();
     });
 
     it('bloqueia auto-edicao do proprio admin', async () => {
