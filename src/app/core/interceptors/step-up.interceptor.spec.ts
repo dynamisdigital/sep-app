@@ -197,4 +197,63 @@ describe('stepUpInterceptor', () => {
     expect(state.lastReq?.headers.get('X-Step-Up-Token')).toBe('step-up-tok');
     expect(store.token()).toBeNull();
   });
+
+  it('anexa o token ao substituir roles (PUT /usuarios/:id/roles)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest('PUT', 'http://localhost:8080/api/v1/usuarios/abc/roles', {});
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.get('X-Step-Up-Token')).toBe('step-up-tok');
+    expect(store.token()).toBeNull();
+  });
+
+  it('anexa o token ao adicionar role (POST /usuarios/:id/roles/:role)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest(
+      'POST',
+      'http://localhost:8080/api/v1/usuarios/abc/roles/FINANCEIRO',
+      null,
+    );
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.get('X-Step-Up-Token')).toBe('step-up-tok');
+    expect(store.token()).toBeNull();
+  });
+
+  it('anexa o token ao remover role (DELETE /usuarios/:id/roles/:role)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest(
+      'DELETE',
+      'http://localhost:8080/api/v1/usuarios/abc/roles/BACKOFFICE',
+    );
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.get('X-Step-Up-Token')).toBe('step-up-tok');
+    expect(store.token()).toBeNull();
+  });
+
+  it('NAO anexa o token na leitura de roles (GET /usuarios/:id/roles)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest('GET', 'http://localhost:8080/api/v1/usuarios/abc/roles');
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(store.token()).toBe('step-up-tok');
+  });
 });
