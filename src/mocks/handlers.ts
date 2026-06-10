@@ -1873,15 +1873,17 @@ const governancaHandlers = [
     if (faltaStepUp(request)) {
       return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
     }
+    // Ordem identica ao backend (GerenciarRolesUsuarioUseCase.substituir): conjunto vazio (400)
+    // antes da auto-protecao (403) e da existencia do alvo (404).
+    const body = (await request.json()) as { roles?: string[] };
+    if (!body.roles || body.roles.length === 0) {
+      return errorResponse(400, 'Bad Request', 'Conjunto de roles nao pode ser vazio', path);
+    }
     if (id === currentMockUser.id) {
       return errorResponse(403, 'Forbidden', 'Nao e permitido alterar as proprias roles', path);
     }
     if (!rolesPorUsuario[id]) {
       return errorResponse(404, 'Not Found', 'usuario nao encontrado', path);
-    }
-    const body = (await request.json()) as { roles?: string[] };
-    if (!body.roles || body.roles.length === 0) {
-      return errorResponse(400, 'Bad Request', 'Conjunto de roles nao pode ser vazio', path);
     }
     rolesPorUsuario[id] = [...new Set(body.roles)];
     return HttpResponse.json(rolesResponse(id));
