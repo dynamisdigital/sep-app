@@ -436,16 +436,8 @@
   @include sepDs.sep-icon-chip(--primary);
 }
 
-.ds-icon-chip--secondary {
-  @include sepDs.sep-icon-chip(--secondary);
-}
-
 .ds-icon-chip--warning {
   @include sepDs.sep-icon-chip(--warning);
-}
-
-.ds-icon-chip--devolutiva {
-  @include sepDs.sep-icon-chip(--devolutiva);
 }
 
 .ds-quick-grid {
@@ -456,10 +448,6 @@
 
 .ds-quick-tile--primary {
   @include sepDs.sep-quick-tile(--primary);
-}
-
-.ds-quick-tile--warning {
-  @include sepDs.sep-quick-tile(--warning);
 }
 
 .ds-quick-tile--devolutiva {
