@@ -1,0 +1,82 @@
+@use "../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../styles/sep-ds-components" as sepDs;
+
+.sep-cobranca-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-32);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-cobranca-shell-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+}
+
+.sep-cobranca-shell-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-cobranca-shell-subtitle {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-cobranca-shell-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--sep-space-16);
+}
+
+.sep-cobranca-shell-card {
+  @include sepDs.sep-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+  padding: var(--sep-space-24);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 120ms ease;
+
+  &:hover,
+  &.sep-cobranca-shell-card-active {
+    border-color: hsl(var(--primary));
+  }
+}
+
+.sep-cobranca-shell-card-title {
+  @include sepType.sep-type-card-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-cobranca-shell-card-body {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-cobranca-shell-empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+}
+
+.sep-cobranca-shell-link {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--primary));
+}

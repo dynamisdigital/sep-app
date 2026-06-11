@@ -1,0 +1,57 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-parcela {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-16);
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-parcela-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sep-space-12);
+}
+
+.sep-parcela-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-parcela-vencimento {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-parcela-state {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-parcela-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+  color: hsl(var(--warning));
+}
+
+.sep-parcela-retry {
+  @include sepDs.sep-button-outline;
+}
+
+.sep-parcela-empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+}

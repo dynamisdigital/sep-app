@@ -1,0 +1,66 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-proposta-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-24);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-proposta-detail-back,
+.sep-proposta-detail-of {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--primary));
+  text-decoration: none;
+}
+
+.sep-proposta-detail-of {
+  @include sepDs.sep-button-primary;
+
+  align-self: flex-start;
+}
+
+.sep-proposta-detail-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-proposta-detail-state {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-proposta-detail-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+  color: hsl(var(--warning));
+}
+
+.sep-proposta-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--sep-space-16);
+  margin: 0;
+
+  dt {
+    @include sepType.sep-type-caption;
+
+    color: hsl(var(--muted-foreground));
+  }
+
+  dd {
+    @include sepType.sep-type-body;
+
+    margin: var(--sep-space-2) 0 0;
+    color: hsl(var(--foreground));
+  }
+}

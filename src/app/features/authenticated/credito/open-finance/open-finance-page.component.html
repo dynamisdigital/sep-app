@@ -1,0 +1,120 @@
+<section class="sep-open-finance">
+  <header class="sep-open-finance-header">
+    <h1 class="sep-open-finance-title">Open Finance</h1>
+    @if (propostaId(); as id) {
+      <a [routerLink]="['/app/credito/propostas', id]" class="sep-open-finance-back">
+        Voltar para a proposta
+      </a>
+    }
+  </header>
+
+  @if (ehRetorno()) {
+    <p class="sep-open-finance-retorno" role="status">
+      Voce voltou da autorizacao. Atualize para consultar o status mais recente.
+    </p>
+  }
+
+  @if (carregando()) {
+    <p class="sep-open-finance-state" role="status">Consultando status...</p>
+  }
+
+  @if (errorMessage(); as msg) {
+    <p class="sep-open-finance-state sep-open-finance-error" role="alert">{{ msg }}</p>
+  }
+
+  @if (consentimentoPendente()) {
+    <p class="sep-open-finance-state sep-open-finance-pendente" role="alert">
+      Ja existe um consentimento pendente para esta proposta. Atualize o status abaixo.
+    </p>
+  }
+
+  @if (status(); as status) {
+    <div class="sep-open-finance-status">
+      <h2 class="sep-open-finance-subtitle">Consentimento</h2>
+      <dl class="sep-open-finance-grid">
+        <div>
+          <dt>Status</dt>
+          <dd>{{ status.statusConsentimento }}</dd>
+        </div>
+        <div>
+          <dt>Iniciado em</dt>
+          <dd>{{ formatarData(status.dataInicio) }}</dd>
+        </div>
+        @if (status.dataAutorizacao) {
+          <div>
+            <dt>Autorizado em</dt>
+            <dd>{{ formatarData(status.dataAutorizacao) }}</dd>
+          </div>
+        }
+        @if (status.dataExpiracao) {
+          <div>
+            <dt>Expira em</dt>
+            <dd>{{ formatarData(status.dataExpiracao) }}</dd>
+          </div>
+        }
+      </dl>
+
+      @if (status.ultimaMovimentacao; as mov) {
+        <section class="sep-open-finance-card">
+          <h2 class="sep-open-finance-subtitle">Movimentacao consolidada</h2>
+          <dl class="sep-open-finance-grid">
+            <div>
+              <dt>Media de entradas</dt>
+              <dd>{{ formatarMoeda(mov.mediaEntradasMensal, 'BRL') }}</dd>
+            </div>
+            <div>
+              <dt>Media de saidas</dt>
+              <dd>{{ formatarMoeda(mov.mediaSaidasMensal, 'BRL') }}</dd>
+            </div>
+            <div>
+              <dt>Saldo medio</dt>
+              <dd>{{ formatarMoeda(mov.saldoMedio, 'BRL') }}</dd>
+            </div>
+            <div>
+              <dt>Meses avaliados</dt>
+              <dd>{{ mov.numeroMesesAvaliados }}</dd>
+            </div>
+            <div>
+              <dt>Recebido em</dt>
+              <dd>{{ formatarData(mov.dataRecebimento) }}</dd>
+            </div>
+          </dl>
+        </section>
+      }
+    </div>
+
+    <button type="button" class="sep-open-finance-refresh" (click)="atualizarStatus()">
+      Atualizar status
+    </button>
+  }
+
+  @if (semConsentimento()) {
+    <form
+      class="sep-open-finance-form"
+      [formGroup]="form"
+      (ngSubmit)="iniciar()"
+      novalidate
+      autocomplete="off"
+    >
+      <p class="sep-open-finance-intro">
+        Compartilhe sua movimentacao bancaria via Open Finance para apoiar a analise. O acesso e
+        opcional e autorizado por voce no provedor.
+      </p>
+      <div class="sep-open-finance-field">
+        <label for="cpfCnpjTomador">CPF ou CNPJ do titular</label>
+        <input
+          id="cpfCnpjTomador"
+          type="text"
+          inputmode="numeric"
+          formControlName="cpfCnpjTomador"
+        />
+        @if (form.controls.cpfCnpjTomador.touched && form.controls.cpfCnpjTomador.invalid) {
+          <p class="sep-open-finance-field-error">Informe 11 (CPF) ou 14 (CNPJ) digitos.</p>
+        }
+      </div>
+      <button type="submit" class="sep-open-finance-submit" [disabled]="enviando() || form.invalid">
+        {{ enviando() ? 'Iniciando...' : 'Iniciar consentimento' }}
+      </button>
+    </form>
+  }
+</section>

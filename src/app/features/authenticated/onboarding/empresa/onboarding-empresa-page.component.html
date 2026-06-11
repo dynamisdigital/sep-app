@@ -1,0 +1,198 @@
+<section class="sep-onboarding-empresa">
+  <header class="sep-onboarding-empresa-header">
+    <h1 class="sep-onboarding-empresa-title">Onboarding - Empresa</h1>
+    <a routerLink="/app/onboarding" class="sep-onboarding-empresa-back">Voltar para Onboarding</a>
+  </header>
+
+  @if (!id()) {
+    <form
+      class="sep-onboarding-empresa-form"
+      [formGroup]="form"
+      (ngSubmit)="iniciar()"
+      novalidate
+      autocomplete="off"
+    >
+      <div class="sep-onboarding-empresa-field">
+        <label for="cnpj">CNPJ</label>
+        <input id="cnpj" type="text" inputmode="numeric" formControlName="cnpj" />
+        @if (form.controls.cnpj.touched && form.controls.cnpj.errors?.['required']) {
+          <p class="sep-onboarding-empresa-error">Informe o CNPJ.</p>
+        }
+      </div>
+
+      <div class="sep-onboarding-empresa-field">
+        <label for="razaoSocial">Razao social</label>
+        <input id="razaoSocial" type="text" formControlName="razaoSocial" />
+        @if (form.controls.razaoSocial.touched && form.controls.razaoSocial.errors?.['required']) {
+          <p class="sep-onboarding-empresa-error">Informe a razao social.</p>
+        }
+      </div>
+
+      <div class="sep-onboarding-empresa-field">
+        <label for="nomeFantasia">Nome fantasia (opcional)</label>
+        <input id="nomeFantasia" type="text" formControlName="nomeFantasia" />
+      </div>
+
+      <div class="sep-onboarding-empresa-field">
+        <label for="tipoSocietario">Tipo societario (opcional)</label>
+        <select id="tipoSocietario" formControlName="tipoSocietario">
+          <option value="">Selecione</option>
+          @for (tipo of tiposSocietarios; track tipo) {
+            <option [value]="tipo">{{ tipo }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="sep-onboarding-empresa-field">
+        <label for="porte">Porte (opcional)</label>
+        <select id="porte" formControlName="porte">
+          <option value="">Selecione</option>
+          @for (p of portes; track p) {
+            <option [value]="p">{{ p }}</option>
+          }
+        </select>
+      </div>
+
+      @if (conflito()) {
+        <div
+          class="sep-onboarding-empresa-feedback sep-onboarding-empresa-feedback-error"
+          role="alert"
+        >
+          <p>Este CNPJ ja possui um onboarding ativo.</p>
+          <a routerLink="/app/onboarding">Voltar e consultar a solicitacao existente.</a>
+        </div>
+      }
+      @if (errorMessage(); as msg) {
+        <p
+          class="sep-onboarding-empresa-feedback sep-onboarding-empresa-feedback-error"
+          role="alert"
+        >
+          {{ msg }}
+        </p>
+      }
+
+      <div class="sep-onboarding-empresa-actions">
+        <button
+          type="submit"
+          class="sep-onboarding-empresa-submit"
+          [disabled]="submitting() || form.invalid"
+        >
+          {{ submitting() ? 'Iniciando...' : 'Iniciar onboarding' }}
+        </button>
+      </div>
+    </form>
+  } @else {
+    <div class="sep-onboarding-empresa-detail">
+      <div class="sep-onboarding-empresa-status-panel">
+        <div class="sep-onboarding-empresa-status-head">
+          <h2 class="sep-onboarding-empresa-section-title">Status</h2>
+          <button
+            type="button"
+            class="sep-onboarding-empresa-refresh"
+            (click)="atualizarStatus()"
+            [disabled]="carregandoStatus()"
+          >
+            {{ carregandoStatus() ? 'Atualizando...' : 'Atualizar' }}
+          </button>
+        </div>
+        @if (status(); as s) {
+          <sep-onboarding-status [status]="s.status" [resultado]="s.resultado" />
+
+          <h3 class="sep-onboarding-empresa-section-title">Dados da empresa</h3>
+          <dl class="sep-onboarding-empresa-dados">
+            <div>
+              <dt>CNPJ</dt>
+              <dd>{{ s.dadosEmpresa.cnpj }}</dd>
+            </div>
+            <div>
+              <dt>Razao social</dt>
+              <dd>{{ s.dadosEmpresa.razaoSocial }}</dd>
+            </div>
+            @if (s.dadosEmpresa.nomeFantasia) {
+              <div>
+                <dt>Nome fantasia</dt>
+                <dd>{{ s.dadosEmpresa.nomeFantasia }}</dd>
+              </div>
+            }
+            @if (s.dadosEmpresa.tipoSocietario) {
+              <div>
+                <dt>Tipo societario</dt>
+                <dd>{{ s.dadosEmpresa.tipoSocietario }}</dd>
+              </div>
+            }
+            @if (s.dadosEmpresa.porte) {
+              <div>
+                <dt>Porte</dt>
+                <dd>{{ s.dadosEmpresa.porte }}</dd>
+              </div>
+            }
+          </dl>
+
+          <h3 class="sep-onboarding-empresa-section-title">Representantes</h3>
+          @if (s.representantes.length) {
+            <ul class="sep-onboarding-empresa-reps">
+              @for (rep of s.representantes; track rep.id) {
+                <li class="sep-onboarding-empresa-rep">
+                  <span class="sep-onboarding-empresa-rep-nome">{{ rep.nome }}</span>
+                  <span class="sep-onboarding-empresa-rep-cpf">{{ rep.cpfMascarado }}</span>
+                  <span class="sep-onboarding-empresa-rep-cargo">{{ rep.cargo }}</span>
+                  @if (rep.pld; as pld) {
+                    <span class="sep-onboarding-empresa-badge">PLD: {{ pld.statusPld }}</span>
+                  }
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="sep-onboarding-empresa-empty">Nenhum representante.</p>
+          }
+
+          <h3 class="sep-onboarding-empresa-section-title">Documentos enviados</h3>
+          @if (s.documentosEnviados.length) {
+            <ul class="sep-onboarding-empresa-docs">
+              @for (doc of s.documentosEnviados; track doc.id) {
+                <li class="sep-onboarding-empresa-doc">{{ doc.tipo }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="sep-onboarding-empresa-empty">Nenhum documento enviado.</p>
+          }
+        } @else if (!carregandoStatus()) {
+          <p class="sep-onboarding-empresa-empty">Status indisponivel.</p>
+        }
+      </div>
+
+      <div class="sep-onboarding-empresa-upload">
+        <h2 class="sep-onboarding-empresa-section-title">Enviar documento</h2>
+        <sep-onboarding-document-upload
+          [tipos]="tiposDocumento"
+          [enviando]="enviandoDocumento()"
+          (enviar)="aoEnviarDocumento($event)"
+        />
+        @if (documentoError(); as msg) {
+          <p class="sep-onboarding-empresa-error" role="alert">{{ msg }}</p>
+        }
+      </div>
+
+      <div class="sep-onboarding-empresa-verify">
+        <h2 class="sep-onboarding-empresa-section-title">Verificacao</h2>
+        <button
+          type="button"
+          class="sep-onboarding-empresa-submit"
+          (click)="verificar()"
+          [disabled]="verificando()"
+        >
+          {{ verificando() ? 'Enviando...' : 'Enviar para verificacao' }}
+        </button>
+      </div>
+
+      @if (errorMessage(); as msg) {
+        <p
+          class="sep-onboarding-empresa-feedback sep-onboarding-empresa-feedback-error"
+          role="alert"
+        >
+          {{ msg }}
+        </p>
+      }
+    </div>
+  }
+</section>

@@ -1,0 +1,61 @@
+<section class="sep-parametros">
+  <header class="sep-parametros-header">
+    <h1 class="sep-parametros-title">Parametros operacionais</h1>
+    <a routerLink="/app/admin" class="sep-parametros-back">Voltar para Administracao</a>
+  </header>
+
+  @if (loading()) {
+    <p class="sep-parametros-state" role="status">Carregando parametros...</p>
+  }
+
+  @if (errorMessage(); as msg) {
+    <div class="sep-parametros-error" role="alert">
+      <p>{{ msg }}</p>
+      <button type="button" (click)="carregar()" class="sep-parametros-retry">
+        Tentar novamente
+      </button>
+    </div>
+  }
+
+  @if (!loading() && !errorMessage()) {
+    @if (parametros().length === 0) {
+      <p class="sep-parametros-state">Nenhum parametro encontrado.</p>
+    } @else {
+      <div class="sep-parametros-table-wrapper">
+        <table class="sep-parametros-table">
+          <thead>
+            <tr>
+              <th scope="col">Chave</th>
+              <th scope="col">Tipo</th>
+              <th scope="col">Valor</th>
+              <th scope="col">Versao</th>
+              <th scope="col" class="sep-parametros-th-action">Acoes</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (parametro of parametros(); track parametro.chave) {
+              <tr>
+                <td>
+                  <span class="sep-parametros-chave">{{ parametro.chave }}</span>
+                  <span class="sep-parametros-descricao">{{ parametro.descricao }}</span>
+                </td>
+                <td>{{ parametro.tipo }}</td>
+                <td class="sep-parametros-valor">{{ parametro.valor }}</td>
+                <td>{{ parametro.versao }}</td>
+                <td>
+                  <a
+                    [routerLink]="['/app/admin/parametros', parametro.chave]"
+                    class="sep-parametros-detail-link"
+                    [attr.aria-label]="'Ver detalhe de ' + parametro.chave"
+                  >
+                    Ver detalhe
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</section>

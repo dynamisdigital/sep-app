@@ -1,0 +1,45 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+
+:host {
+  display: block;
+}
+
+.sep-bo-reproc-resultado {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+}
+
+.sep-bo-reproc-status {
+  @include sepType.sep-type-badge;
+
+  align-self: flex-start;
+  padding: 0 var(--sep-space-8);
+  border: 1px solid currentcolor;
+  border-radius: var(--sep-radius-pill);
+
+  &[data-status="SUCESSO"] {
+    color: hsl(var(--success));
+  }
+
+  &[data-status="FALHA"] {
+    color: hsl(var(--destructive));
+  }
+
+  &[data-status="PENDENTE"] {
+    color: hsl(var(--warning));
+  }
+}
+
+.sep-bo-reproc-texto {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-bo-reproc-meta {
+  @include sepType.sep-type-caption;
+
+  color: hsl(var(--muted-foreground));
+}

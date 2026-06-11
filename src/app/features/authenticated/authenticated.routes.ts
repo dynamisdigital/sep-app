@@ -45,11 +45,51 @@ export const AUTHENTICATED_ROUTES: Routes = [
         data: { breadcrumb: 'Confirmacao adicional' },
       },
       {
+        path: 'onboarding',
+        loadChildren: () =>
+          import('./onboarding/onboarding.routes').then((m) => m.ONBOARDING_ROUTES),
+        data: { breadcrumb: 'Onboarding' },
+      },
+      {
+        path: 'credito',
+        loadChildren: () => import('./credito/credito.routes').then((m) => m.CREDITO_ROUTES),
+        data: { breadcrumb: 'Credito' },
+      },
+      {
+        path: 'formalizacao',
+        loadChildren: () =>
+          import('./formalizacao/formalizacao.routes').then((m) => m.FORMALIZACAO_ROUTES),
+        data: { breadcrumb: 'Formalizacao' },
+      },
+      {
+        path: 'cobranca',
+        loadChildren: () => import('./cobranca/cobranca.routes').then((m) => m.COBRANCA_ROUTES),
+        data: { breadcrumb: 'Cobranca' },
+      },
+      {
+        path: 'pix',
+        canActivate: [roleGuard],
+        data: { roles: ['FINANCEIRO', 'ADMIN', 'BACKOFFICE'], breadcrumb: 'Pix' },
+        loadChildren: () => import('./pix/pix.routes').then((m) => m.PIX_ROUTES),
+      },
+      {
+        path: 'backoffice',
+        canActivate: [roleGuard],
+        data: { roles: ['BACKOFFICE', 'FINANCEIRO', 'ADMIN'], breadcrumb: 'Backoffice' },
+        loadChildren: () =>
+          import('./backoffice/backoffice.routes').then((m) => m.BACKOFFICE_ROUTES),
+      },
+      {
         path: 'admin',
         canActivate: [roleGuard],
         data: { roles: ['ADMIN'], breadcrumb: 'Administracao' },
         children: [
-          { path: '', pathMatch: 'full', redirectTo: 'users' },
+          {
+            path: '',
+            pathMatch: 'full',
+            loadComponent: () =>
+              import('./admin/admin-home.component').then((m) => m.AdminHomeComponent),
+          },
           {
             path: 'users',
             loadComponent: () =>
@@ -61,6 +101,22 @@ export const AUTHENTICATED_ROUTES: Routes = [
             loadComponent: () =>
               import('./admin/users/user-detail.component').then((m) => m.UserDetailComponent),
             data: { breadcrumb: 'Detalhe de usuario' },
+          },
+          {
+            path: 'parametros',
+            loadComponent: () =>
+              import('./admin/parametros/parametros-page.component').then(
+                (m) => m.ParametrosPageComponent,
+              ),
+            data: { breadcrumb: 'Parametros' },
+          },
+          {
+            path: 'parametros/:chave',
+            loadComponent: () =>
+              import('./admin/parametros/parametro-detail-page.component').then(
+                (m) => m.ParametroDetailPageComponent,
+              ),
+            data: { breadcrumb: 'Detalhe do parametro' },
           },
         ],
       },

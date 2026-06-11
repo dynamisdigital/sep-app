@@ -1,0 +1,129 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-open-finance {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-24);
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-open-finance-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sep-space-16);
+}
+
+.sep-open-finance-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-open-finance-subtitle {
+  @include sepType.sep-type-card-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-open-finance-back {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--primary));
+  text-decoration: none;
+}
+
+.sep-open-finance-intro,
+.sep-open-finance-retorno,
+.sep-open-finance-state {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-open-finance-error,
+.sep-open-finance-pendente {
+  color: hsl(var(--warning));
+}
+
+.sep-open-finance-status,
+.sep-open-finance-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-16);
+}
+
+.sep-open-finance-card {
+  @include sepDs.sep-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-12);
+  padding: var(--sep-space-24);
+}
+
+.sep-open-finance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--sep-space-16);
+  margin: 0;
+
+  dt {
+    @include sepType.sep-type-caption;
+
+    color: hsl(var(--muted-foreground));
+  }
+
+  dd {
+    @include sepType.sep-type-body;
+
+    margin: var(--sep-space-2) 0 0;
+    color: hsl(var(--foreground));
+  }
+}
+
+.sep-open-finance-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+
+  label {
+    @include sepType.sep-type-caption;
+
+    color: hsl(var(--muted-foreground));
+  }
+
+  input {
+    @include sepDs.sep-input;
+  }
+}
+
+.sep-open-finance-field-error {
+  @include sepType.sep-type-caption;
+
+  margin: 0;
+  color: hsl(var(--warning));
+}
+
+.sep-open-finance-refresh {
+  @include sepDs.sep-button-outline;
+
+  align-self: flex-start;
+}
+
+.sep-open-finance-submit {
+  @include sepDs.sep-button-primary;
+
+  align-self: flex-start;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}

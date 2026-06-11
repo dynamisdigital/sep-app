@@ -1,0 +1,89 @@
+@use "../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../styles/sep-ds-components" as sepDs;
+
+.sep-backoffice-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-32);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-backoffice-shell-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+}
+
+.sep-backoffice-shell-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-backoffice-shell-subtitle {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-backoffice-shell-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--sep-space-16);
+}
+
+.sep-backoffice-shell-card {
+  @include sepDs.sep-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+  padding: var(--sep-space-24);
+  text-decoration: none;
+  color: inherit;
+}
+
+// Hover/foco apenas nos cards navegaveis (ancoras); o card desabilitado e um div.
+a.sep-backoffice-shell-card {
+  cursor: pointer;
+  transition: border-color 120ms ease;
+
+  &:hover,
+  &.sep-backoffice-shell-card-active {
+    border-color: hsl(var(--primary));
+  }
+}
+
+.sep-backoffice-shell-card-disabled {
+  opacity: 0.7;
+}
+
+.sep-backoffice-shell-card-title {
+  @include sepType.sep-type-card-title;
+
+  display: flex;
+  gap: var(--sep-space-8);
+  align-items: center;
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-backoffice-shell-card-badge {
+  @include sepType.sep-type-badge;
+
+  padding: 0 var(--sep-space-6);
+  border-radius: var(--sep-radius-sm);
+  background: hsl(var(--primary) / 12%);
+  color: hsl(var(--primary));
+}
+
+.sep-backoffice-shell-card-body {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}

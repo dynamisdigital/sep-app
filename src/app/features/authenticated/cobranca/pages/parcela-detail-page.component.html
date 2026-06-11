@@ -1,0 +1,23 @@
+<section class="sep-parcela">
+  @if (loading()) {
+    <p class="sep-parcela-state" role="status">Carregando parcela...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-parcela-state sep-parcela-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="sep-parcela-retry" (click)="carregar()">Tentar novamente</button>
+    </div>
+  } @else if (naoEncontrada()) {
+    <div class="sep-parcela-state sep-parcela-empty">
+      <p>Parcela nao encontrada.</p>
+    </div>
+  } @else if (parcela(); as p) {
+    <header class="sep-parcela-header">
+      <h1 class="sep-parcela-title">Parcela {{ p.numero }}</h1>
+      <sep-parcela-status [status]="p.status" />
+    </header>
+
+    <p class="sep-parcela-vencimento">Vencimento: {{ formatarDataLocal(p.dataVencimento) }}</p>
+
+    <sep-parcela-composicao [parcela]="p" />
+  }
+</section>

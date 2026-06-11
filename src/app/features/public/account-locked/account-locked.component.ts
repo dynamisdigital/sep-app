@@ -25,44 +25,46 @@ import { RouterLink } from '@angular/router';
     `
       :host {
         display: block;
-        background: var(--apple-color-canvas-parchment);
+        background: hsl(var(--background));
       }
       .sep-account-locked {
         display: flex;
         align-items: center;
         justify-content: center;
         min-height: 100vh;
-        padding: var(--apple-space-xl);
+        padding: var(--sep-space-32);
       }
       .sep-account-locked-card {
         max-width: 480px;
-        background: var(--apple-color-canvas-light);
-        border-radius: var(--apple-radius-lg);
-        padding: var(--apple-space-xl);
-        box-shadow: var(--apple-shadow-product);
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--sep-radius-lg);
+        padding: var(--sep-space-32);
+        box-shadow: var(--shadow-md);
         display: flex;
         flex-direction: column;
-        gap: var(--apple-space-md);
+        gap: var(--sep-space-17);
         text-align: center;
       }
       .sep-account-locked-badge {
         align-self: center;
-        background: #fbecec;
-        color: #b00020;
+        background: hsl(var(--destructive) / 12%);
+        color: hsl(var(--destructive));
         padding: 4px 12px;
-        border-radius: 999px;
+        border-radius: var(--sep-radius-pill);
         font-size: 13px;
         font-weight: 600;
       }
       h1 {
         margin: 0;
+        color: hsl(var(--foreground));
       }
       p {
         margin: 0;
-        color: var(--apple-color-ink-muted-80);
+        color: hsl(var(--muted-foreground));
       }
       .sep-account-locked-link {
-        color: var(--apple-color-ink);
+        color: hsl(var(--primary));
         text-decoration: none;
         font-weight: 600;
       }

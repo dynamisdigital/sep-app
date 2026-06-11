@@ -1,19 +1,19 @@
-@use "../../../../../styles/notion-typography" as notionType;
-@use "../../../../../styles/notion-components" as notion;
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
 
 .sep-user-detail {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-24);
+  gap: var(--sep-space-24);
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--notion-space-16) 0;
+  padding: var(--sep-space-16) 0;
 }
 
 .sep-user-detail-header {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-8);
+  gap: var(--sep-space-8);
 
   @media (width >= 768px) {
     flex-direction: row;
@@ -23,16 +23,16 @@
 }
 
 .sep-user-detail-title {
-  @include notionType.notion-type-section-heading;
+  @include sepType.sep-type-page-title;
 
   margin: 0;
-  color: var(--notion-color-text);
+  color: hsl(var(--foreground));
 }
 
 .sep-user-detail-back {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
-  color: var(--notion-color-blue);
+  color: hsl(var(--primary));
   text-decoration: none;
   font-size: 13px;
 
@@ -42,23 +42,23 @@
 }
 
 .sep-user-detail-state {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   margin: 0;
-  color: var(--notion-color-text-muted);
+  color: hsl(var(--muted-foreground));
 }
 
 .sep-user-detail-error {
-  @include notionType.notion-type-body;
+  @include sepType.sep-type-body;
 
   margin: 0;
-  color: var(--notion-color-orange);
+  color: hsl(var(--warning));
 }
 
 .sep-user-detail-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--notion-space-24);
+  gap: var(--sep-space-24);
 
   @media (width >= 768px) {
     grid-template-columns: repeat(2, 1fr);
@@ -66,42 +66,44 @@
 }
 
 .sep-user-detail-card {
-  @include notion.notion-card;
+  @include sepDs.sep-card;
+
+  padding: var(--sep-space-24);
 }
 
 .sep-user-detail-card-title {
-  @include notionType.notion-type-card-title;
+  @include sepType.sep-type-card-title;
 
-  margin: 0 0 var(--notion-space-16);
-  color: var(--notion-color-text);
+  margin: 0 0 var(--sep-space-16);
+  color: hsl(var(--foreground));
 }
 
 .sep-user-detail-list {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-12);
+  gap: var(--sep-space-12);
   margin: 0;
 }
 
 .sep-user-detail-row {
   display: flex;
   flex-direction: column;
-  gap: var(--notion-space-3);
+  gap: var(--sep-space-3);
 
   dt {
-    @include notionType.notion-type-body;
+    @include sepType.sep-type-body;
 
-    color: var(--notion-color-text-subtle);
+    color: hsl(var(--muted-foreground));
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
 
   dd {
-    @include notionType.notion-type-body;
+    @include sepType.sep-type-body;
 
     margin: 0;
-    color: var(--notion-color-text);
+    color: hsl(var(--foreground));
   }
 }
 
@@ -109,4 +111,70 @@
   font-family: ui-monospace, "SF Mono", monospace;
   font-size: 13px;
   word-break: break-all;
+}
+
+.sep-user-detail-roles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-16);
+}
+
+.sep-user-detail-principal {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+
+  strong {
+    color: hsl(var(--foreground));
+  }
+}
+
+.sep-user-detail-roles-set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sep-space-12);
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  &:disabled {
+    opacity: 0.6;
+  }
+}
+
+.sep-user-detail-role {
+  @include sepType.sep-type-body;
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sep-space-6);
+  color: hsl(var(--foreground));
+  cursor: pointer;
+}
+
+.sep-user-detail-roles-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sep-space-12);
+}
+
+.sep-user-detail-roles-save {
+  @include sepDs.sep-button-primary;
+}
+
+.sep-user-detail-success {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--success));
+}
+
+.sep-user-detail-roles-audit {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+  font-size: 12px;
 }

@@ -1,0 +1,9 @@
+<span class="sep-onboarding-status-badge" [class]="'is-' + variante()">{{ status() }}</span>
+@if (resultado(); as r) {
+  <p class="sep-onboarding-status-result">
+    Resultado: {{ r.statusFinal }}
+    @if (r.motivo) {
+      - {{ r.motivo }}
+    }
+  </p>
+}

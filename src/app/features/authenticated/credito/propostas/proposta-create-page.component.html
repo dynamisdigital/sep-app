@@ -1,0 +1,88 @@
+<section class="sep-proposta-create">
+  <header class="sep-proposta-create-header">
+    <h1 class="sep-proposta-create-title">Nova proposta</h1>
+    <a routerLink="/app/credito/propostas" class="sep-proposta-create-back"
+      >Voltar para propostas</a
+    >
+  </header>
+
+  <form
+    class="sep-proposta-create-form"
+    [formGroup]="form"
+    (ngSubmit)="solicitar()"
+    novalidate
+    autocomplete="off"
+  >
+    <div class="sep-proposta-create-field">
+      <label for="solicitacaoOnboardingId">Onboarding aprovado</label>
+      <input id="solicitacaoOnboardingId" type="text" formControlName="solicitacaoOnboardingId" />
+      @if (
+        form.controls.solicitacaoOnboardingId.touched &&
+        form.controls.solicitacaoOnboardingId.errors?.['required']
+      ) {
+        <p class="sep-proposta-create-error">Informe o onboarding aprovado.</p>
+      }
+    </div>
+
+    <div class="sep-proposta-create-field">
+      <label for="tipoOperacao">Tipo de operacao</label>
+      <select id="tipoOperacao" formControlName="tipoOperacao">
+        @for (tipo of tiposOperacao; track tipo) {
+          <option [value]="tipo">{{ tipo }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="sep-proposta-create-field">
+      <label for="valorSolicitado">Valor solicitado (BRL)</label>
+      <input
+        id="valorSolicitado"
+        type="number"
+        inputmode="decimal"
+        min="0.01"
+        step="0.01"
+        formControlName="valorSolicitado"
+      />
+      @if (form.controls.valorSolicitado.touched && form.controls.valorSolicitado.invalid) {
+        <p class="sep-proposta-create-error">Informe um valor maior que zero.</p>
+      }
+    </div>
+
+    <div class="sep-proposta-create-field">
+      <label for="prazoMeses">Prazo (meses)</label>
+      <input
+        id="prazoMeses"
+        type="number"
+        inputmode="numeric"
+        min="1"
+        step="1"
+        formControlName="prazoMeses"
+      />
+      @if (form.controls.prazoMeses.touched && form.controls.prazoMeses.invalid) {
+        <p class="sep-proposta-create-error">Informe um prazo de pelo menos 1 mes.</p>
+      }
+    </div>
+
+    @if (onboardingPendente()) {
+      <div class="sep-proposta-create-feedback sep-proposta-create-feedback-error" role="alert">
+        <p>O onboarding informado ainda nao esta aprovado.</p>
+        <a routerLink="/app/onboarding">Acompanhar o onboarding</a>
+      </div>
+    }
+    @if (errorMessage(); as msg) {
+      <p class="sep-proposta-create-feedback sep-proposta-create-feedback-error" role="alert">
+        {{ msg }}
+      </p>
+    }
+
+    <div class="sep-proposta-create-actions">
+      <button
+        type="submit"
+        class="sep-proposta-create-submit"
+        [disabled]="submitting() || form.invalid"
+      >
+        {{ submitting() ? 'Enviando...' : 'Solicitar credito' }}
+      </button>
+    </div>
+  </form>
+</section>

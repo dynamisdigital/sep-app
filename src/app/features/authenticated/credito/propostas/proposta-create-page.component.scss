@@ -1,0 +1,89 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-proposta-create {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-24);
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-proposta-create-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sep-space-16);
+}
+
+.sep-proposta-create-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-proposta-create-back {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--primary));
+  text-decoration: none;
+}
+
+.sep-proposta-create-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-16);
+}
+
+.sep-proposta-create-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+
+  label {
+    @include sepType.sep-type-caption;
+
+    color: hsl(var(--muted-foreground));
+  }
+
+  input,
+  select {
+    @include sepDs.sep-input;
+  }
+}
+
+.sep-proposta-create-error {
+  @include sepType.sep-type-caption;
+
+  margin: 0;
+  color: hsl(var(--warning));
+}
+
+.sep-proposta-create-feedback {
+  @include sepType.sep-type-body;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+  margin: 0;
+}
+
+.sep-proposta-create-feedback-error {
+  color: hsl(var(--warning));
+}
+
+.sep-proposta-create-actions {
+  display: flex;
+}
+
+.sep-proposta-create-submit {
+  @include sepDs.sep-button-primary;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}

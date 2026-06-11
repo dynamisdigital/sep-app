@@ -1,0 +1,45 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-16);
+}
+
+.sep-onboarding-upload-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+
+  label {
+    @include sepType.sep-type-label;
+
+    color: hsl(var(--muted-foreground));
+  }
+
+  select {
+    @include sepDs.sep-input;
+  }
+}
+
+.sep-onboarding-upload-error {
+  @include sepType.sep-type-micro;
+
+  margin: 0;
+  color: hsl(var(--destructive));
+}
+
+.sep-onboarding-upload-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sep-onboarding-upload-submit {
+  @include sepDs.sep-button-primary;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}

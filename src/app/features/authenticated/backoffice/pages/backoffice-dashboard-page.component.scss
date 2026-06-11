@@ -1,0 +1,133 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-bo-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-24);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-bo-dashboard-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+}
+
+.sep-bo-dashboard-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-bo-dashboard-updated {
+  @include sepType.sep-type-caption;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-bo-dashboard-state {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-bo-dashboard-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+}
+
+.sep-bo-dashboard-retry {
+  @include sepDs.sep-button-outline;
+}
+
+.sep-bo-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--sep-space-16);
+}
+
+.sep-bo-kpi {
+  @include sepDs.sep-card-elevated;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  padding: var(--sep-space-24);
+}
+
+.sep-bo-kpi-label {
+  @include sepType.sep-type-caption;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-bo-kpi-value {
+  @include sepType.sep-type-metric;
+
+  font-size: 32px;
+  color: hsl(var(--foreground));
+}
+
+.sep-bo-kpi-hint {
+  @include sepType.sep-type-caption;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-bo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--sep-space-16);
+}
+
+.sep-bo-panel {
+  @include sepDs.sep-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  padding: var(--sep-space-24);
+}
+
+.sep-bo-panel-title {
+  @include sepType.sep-type-card-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-bo-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sep-bo-list-row {
+  @include sepType.sep-type-body;
+
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sep-space-8);
+  color: hsl(var(--foreground));
+}
+
+.sep-bo-list-total {
+  color: hsl(var(--muted-foreground));
+  font-variant-numeric: tabular-nums;
+}
+
+.sep-bo-list-empty {
+  @include sepType.sep-type-caption;
+
+  color: hsl(var(--muted-foreground));
+}

@@ -1,0 +1,132 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-inad {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-16);
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-inad-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+}
+
+.sep-inad-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-inad-subtitle {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-inad-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--sep-space-12);
+}
+
+.sep-inad-filtro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-4);
+
+  span {
+    @include sepType.sep-type-caption;
+
+    color: hsl(var(--muted-foreground));
+  }
+
+  input,
+  select {
+    @include sepDs.sep-input;
+  }
+}
+
+.sep-inad-aplicar {
+  @include sepDs.sep-button-outline;
+}
+
+.sep-inad-state {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-inad-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+  color: hsl(var(--warning));
+}
+
+.sep-inad-retry {
+  @include sepDs.sep-button-outline;
+}
+
+.sep-inad-empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+}
+
+.sep-inad-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sep-inad-linha-link {
+  @include sepDs.sep-card;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sep-space-12);
+  padding: var(--sep-space-24);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 120ms ease;
+
+  &:hover {
+    border-color: hsl(var(--primary));
+  }
+}
+
+.sep-inad-linha-parcela {
+  @include sepType.sep-type-card-title;
+
+  color: hsl(var(--foreground));
+}
+
+.sep-inad-linha-atraso,
+.sep-inad-linha-vencimento,
+.sep-inad-linha-contrato {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-inad-linha-valor {
+  @include sepType.sep-type-body;
+
+  margin-left: auto;
+  color: hsl(var(--foreground));
+}

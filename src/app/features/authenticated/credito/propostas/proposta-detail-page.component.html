@@ -1,0 +1,64 @@
+<section class="sep-proposta-detail">
+  <header class="sep-proposta-detail-header">
+    <a routerLink="/app/credito/propostas" class="sep-proposta-detail-back"
+      >Voltar para propostas</a
+    >
+  </header>
+
+  @if (loading()) {
+    <p class="sep-proposta-detail-state" role="status">Carregando proposta...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-proposta-detail-state sep-proposta-detail-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <a routerLink="/app/credito/propostas">Ir para a lista de propostas</a>
+    </div>
+  } @else if (proposta(); as proposta) {
+    <h1 class="sep-proposta-detail-title">Proposta</h1>
+
+    <dl class="sep-proposta-detail-grid">
+      <div>
+        <dt>Tipo</dt>
+        <dd>{{ proposta.tipoOperacao }}</dd>
+      </div>
+      <div>
+        <dt>Valor solicitado</dt>
+        <dd>{{ formatarMoeda(proposta.valorSolicitado, proposta.moeda) }}</dd>
+      </div>
+      <div>
+        <dt>Prazo</dt>
+        <dd>{{ proposta.prazoMeses }} meses</dd>
+      </div>
+      <div>
+        <dt>Status</dt>
+        <dd><sep-proposta-status [status]="proposta.status" /></dd>
+      </div>
+      <div>
+        <dt>Criada em</dt>
+        <dd>{{ formatarData(proposta.dataCriacao) }}</dd>
+      </div>
+    </dl>
+
+    @if (proposta.score; as score) {
+      <sep-score-panel [score]="score" />
+    }
+
+    @if (proposta.parecer; as parecer) {
+      <sep-parecer-panel [parecer]="parecer" />
+    }
+
+    @if (podeIniciarOpenFinance()) {
+      <a
+        [routerLink]="['/app/credito/propostas', proposta.id, 'open-finance']"
+        class="sep-proposta-detail-of"
+      >
+        Compartilhar dados via Open Finance
+      </a>
+    }
+
+    @if (podeFormalizar()) {
+      <a [routerLink]="['/app/formalizacao/proposta', proposta.id]" class="sep-proposta-detail-of">
+        Formalizar contrato
+      </a>
+    }
+  }
+</section>

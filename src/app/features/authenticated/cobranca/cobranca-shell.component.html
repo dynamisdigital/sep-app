@@ -1,0 +1,30 @@
+<section class="sep-cobranca-shell">
+  <header class="sep-cobranca-shell-header">
+    <h1 class="sep-cobranca-shell-title">Cobranca</h1>
+    <p class="sep-cobranca-shell-subtitle">Acompanhe parcelas, recebimentos e renegociacoes.</p>
+  </header>
+
+  @if (isOperadorFinanceiro()) {
+    <div class="sep-cobranca-shell-cards">
+      @for (item of linksFinanceiro; track item.label) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="sep-cobranca-shell-card-active"
+          class="sep-cobranca-shell-card"
+        >
+          <span class="sep-cobranca-shell-card-title">{{ item.label }}</span>
+          <span class="sep-cobranca-shell-card-body">{{ item.description }}</span>
+        </a>
+      }
+    </div>
+  } @else if (isTomador()) {
+    <div class="sep-cobranca-shell-empty">
+      <p>Suas parcelas aparecem a partir de um contrato assinado.</p>
+      <a routerLink="/app/formalizacao" class="sep-cobranca-shell-link">Ver meus contratos</a>
+    </div>
+  } @else {
+    <div class="sep-cobranca-shell-empty">
+      <p>Seu perfil nao tem jornada de cobranca.</p>
+    </div>
+  }
+</section>

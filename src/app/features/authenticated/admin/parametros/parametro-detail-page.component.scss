@@ -1,0 +1,234 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-parametro-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-24);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-parametro-detail-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+
+  @media (width >= 768px) {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+.sep-parametro-detail-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-parametro-detail-back {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--primary));
+  text-decoration: none;
+  font-size: 13px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.sep-parametro-detail-state {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-parametro-detail-error {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--warning));
+}
+
+.sep-parametro-detail-card {
+  @include sepDs.sep-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-16);
+  padding: var(--sep-space-24);
+}
+
+.sep-parametro-detail-card-title {
+  @include sepType.sep-type-card-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+  word-break: break-all;
+}
+
+.sep-parametro-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-12);
+  margin: 0;
+}
+
+.sep-parametro-detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-3);
+
+  dt {
+    @include sepType.sep-type-body;
+
+    color: hsl(var(--muted-foreground));
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  dd {
+    @include sepType.sep-type-body;
+
+    margin: 0;
+    color: hsl(var(--foreground));
+  }
+}
+
+.sep-parametro-detail-mono {
+  font-family: ui-monospace, "SF Mono", monospace;
+  font-size: 13px;
+  word-break: break-all;
+}
+
+.sep-parametro-detail-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-16);
+}
+
+.sep-parametro-detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+
+  label {
+    @include sepDs.sep-label;
+  }
+
+  input {
+    @include sepDs.sep-input;
+  }
+
+  textarea {
+    @include sepDs.sep-input;
+
+    min-height: 72px;
+    resize: vertical;
+  }
+}
+
+.sep-parametro-detail-field-error {
+  @include sepDs.sep-field-error;
+
+  margin: 0;
+}
+
+.sep-parametro-detail-feedback-error {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--warning));
+}
+
+.sep-parametro-detail-feedback-success {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--success));
+}
+
+.sep-parametro-detail-actions {
+  display: flex;
+}
+
+.sep-parametro-detail-submit {
+  @include sepDs.sep-button-primary;
+}
+
+.sep-parametro-detail-historico-caption {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+  font-size: 12px;
+}
+
+.sep-parametro-detail-historico {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-16);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sep-parametro-detail-versao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-4);
+  padding-bottom: var(--sep-space-16);
+  border-bottom: 1px solid hsl(var(--border));
+
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+}
+
+.sep-parametro-detail-versao-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sep-space-8);
+}
+
+.sep-parametro-detail-versao-num {
+  @include sepType.sep-type-card-title;
+
+  color: hsl(var(--foreground));
+}
+
+.sep-parametro-detail-versao-data {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--muted-foreground));
+  font-size: 12px;
+}
+
+.sep-parametro-detail-versao-mudanca {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-parametro-detail-versao-justificativa {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-parametro-detail-versao-ator {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+  font-size: 12px;
+}

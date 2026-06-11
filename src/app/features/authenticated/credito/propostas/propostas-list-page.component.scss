@@ -1,0 +1,82 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-propostas-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-24);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-propostas-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sep-space-16);
+}
+
+.sep-propostas-list-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-propostas-list-new {
+  @include sepDs.sep-button-primary;
+
+  text-decoration: none;
+}
+
+.sep-propostas-list-state {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-propostas-list-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+  color: hsl(var(--warning));
+}
+
+.sep-propostas-list-retry {
+  @include sepDs.sep-button-outline;
+}
+
+.sep-propostas-list-empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+}
+
+.sep-propostas-list-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    @include sepType.sep-type-body;
+
+    padding: var(--sep-space-8) var(--sep-space-12);
+    text-align: left;
+    border-bottom: 1px solid hsl(var(--border));
+    color: hsl(var(--foreground));
+  }
+
+  th {
+    @include sepType.sep-type-caption;
+
+    color: hsl(var(--muted-foreground));
+  }
+
+  a {
+    color: hsl(var(--primary));
+    text-decoration: none;
+  }
+}

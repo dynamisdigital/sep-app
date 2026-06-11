@@ -1,0 +1,120 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-bo-fila {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-24);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-bo-fila-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-bo-fila-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sep-space-16);
+  align-items: flex-end;
+}
+
+.sep-bo-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+}
+
+.sep-bo-field-label {
+  @include sepType.sep-type-caption;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-bo-field-control {
+  @include sepDs.sep-input;
+}
+
+.sep-bo-fila-aplicar {
+  @include sepDs.sep-button-primary;
+}
+
+.sep-bo-fila-state {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-bo-fila-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+}
+
+.sep-bo-fila-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sep-bo-fila-link {
+  @include sepDs.sep-card;
+
+  display: grid;
+  grid-template-columns: auto auto 1fr auto auto auto;
+  gap: var(--sep-space-12);
+  padding: var(--sep-space-24);
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 120ms ease;
+
+  &:hover {
+    border-color: hsl(var(--primary));
+  }
+}
+
+.sep-bo-fila-titulo {
+  @include sepType.sep-type-body-semibold;
+
+  color: hsl(var(--foreground));
+}
+
+.sep-bo-fila-tipo,
+.sep-bo-fila-data,
+.sep-bo-fila-atribuido {
+  @include sepType.sep-type-caption;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-bo-fila-paginacao {
+  display: flex;
+  gap: var(--sep-space-16);
+  align-items: center;
+}
+
+.sep-bo-fila-pag-botao {
+  @include sepDs.sep-button-outline;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.sep-bo-fila-pag-info {
+  @include sepType.sep-type-caption;
+
+  color: hsl(var(--muted-foreground));
+}

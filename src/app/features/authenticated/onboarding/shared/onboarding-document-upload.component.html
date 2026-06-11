@@ -1,0 +1,38 @@
+<div class="sep-onboarding-upload-field">
+  <label for="tipoDocumento">Tipo</label>
+  <select
+    id="tipoDocumento"
+    [value]="tipoSelecionado()"
+    (change)="selecionarTipo($any($event.target).value)"
+  >
+    @for (tipo of tipos(); track tipo) {
+      <option [value]="tipo">{{ tipo }}</option>
+    }
+  </select>
+</div>
+
+<div class="sep-onboarding-upload-field">
+  <label for="arquivo">Arquivo (PDF, JPEG ou PNG, ate 10MB)</label>
+  <input
+    #fileInput
+    id="arquivo"
+    type="file"
+    accept="application/pdf,image/jpeg,image/png"
+    (change)="selecionarArquivo($event)"
+  />
+</div>
+
+@if (erro(); as msg) {
+  <p class="sep-onboarding-upload-error" role="alert">{{ msg }}</p>
+}
+
+<div class="sep-onboarding-upload-actions">
+  <button
+    type="button"
+    class="sep-onboarding-upload-submit"
+    (click)="emitir()"
+    [disabled]="enviando() || !arquivo()"
+  >
+    {{ enviando() ? 'Enviando...' : 'Enviar documento' }}
+  </button>
+</div>

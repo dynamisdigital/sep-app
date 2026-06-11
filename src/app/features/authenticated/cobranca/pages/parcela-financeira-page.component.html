@@ -1,0 +1,194 @@
+<section class="sep-parcela-fin">
+  @if (loading()) {
+    <p class="sep-parcela-fin-state" role="status">Carregando parcela...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-parcela-fin-state sep-parcela-fin-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="sep-parcela-fin-retry" (click)="carregar()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (naoEncontrada()) {
+    <div class="sep-parcela-fin-state sep-parcela-fin-empty">
+      <p>Parcela nao encontrada.</p>
+    </div>
+  } @else if (parcela(); as p) {
+    <header class="sep-parcela-fin-header">
+      <h1 class="sep-parcela-fin-title">Parcela {{ p.numero }}</h1>
+      <sep-parcela-status [status]="p.status" />
+    </header>
+
+    <p class="sep-parcela-fin-vencimento">Vencimento: {{ formatarDataLocal(p.dataVencimento) }}</p>
+
+    <sep-parcela-composicao [parcela]="p" />
+
+    @if (recebimentos().length > 0) {
+      <section class="sep-parcela-fin-recebimentos">
+        <h2 class="sep-parcela-fin-subtitle">Recebimentos desta parcela</h2>
+        <ul class="sep-parcela-fin-recebimentos-list">
+          @for (r of recebimentos(); track r.recebimentoId) {
+            <li class="sep-parcela-fin-recebimento">
+              <span>{{ formatarMoeda(r.valorRecebido) }}</span>
+              <span>{{ r.meioPagamento }}</span>
+              <span>{{ formatarData(r.dataRecebimento) }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    @if (podeReceber()) {
+      <form class="sep-parcela-fin-form" [formGroup]="form" (ngSubmit)="registrar()">
+        <h2 class="sep-parcela-fin-subtitle">Registrar recebimento</h2>
+
+        <label class="sep-parcela-fin-field" for="rec-valor">
+          <span>Valor recebido</span>
+          <input id="rec-valor" type="number" step="0.01" formControlName="valorRecebido" />
+        </label>
+
+        <label class="sep-parcela-fin-field" for="rec-data">
+          <span>Data do recebimento</span>
+          <input id="rec-data" type="datetime-local" formControlName="dataRecebimento" />
+        </label>
+
+        <label class="sep-parcela-fin-field" for="rec-meio">
+          <span>Meio de pagamento</span>
+          <select id="rec-meio" formControlName="meioPagamento">
+            @for (meio of meiosPagamento; track meio) {
+              <option [value]="meio">{{ meio }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="sep-parcela-fin-field" for="rec-ident">
+          <span>Identificador externo (opcional)</span>
+          <input
+            id="rec-ident"
+            type="text"
+            formControlName="identificadorExterno"
+            maxlength="100"
+          />
+        </label>
+
+        <label class="sep-parcela-fin-field" for="rec-obs">
+          <span>Observacao (opcional)</span>
+          <textarea id="rec-obs" formControlName="observacao" maxlength="500" rows="2"></textarea>
+        </label>
+
+        <button type="submit" class="sep-parcela-fin-cta" [disabled]="submitting()">
+          @if (submitting()) {
+            Registrando...
+          } @else {
+            Registrar recebimento
+          }
+        </button>
+
+        @if (recebimentoErro(); as msg) {
+          <p class="sep-parcela-fin-form-error" role="alert">{{ msg }}</p>
+        }
+      </form>
+    } @else {
+      <p class="sep-parcela-fin-bloqueado" role="note">
+        Parcela nao aceita recebimento manual no estado atual.
+      </p>
+    }
+
+    <form class="sep-parcela-fin-form" [formGroup]="contatoForm" (ngSubmit)="registrarContato()">
+      <h2 class="sep-parcela-fin-subtitle">Registrar contato</h2>
+
+      <label class="sep-parcela-fin-field" for="cont-descricao">
+        <span>Descricao</span>
+        <textarea
+          id="cont-descricao"
+          formControlName="descricao"
+          maxlength="500"
+          rows="2"
+        ></textarea>
+      </label>
+
+      <label class="sep-parcela-fin-field" for="cont-dias">
+        <span>Dias de atraso (opcional)</span>
+        <input id="cont-dias" type="number" min="0" formControlName="diasAtraso" />
+      </label>
+
+      <button type="submit" class="sep-parcela-fin-cta" [disabled]="contatoSubmitting()">
+        @if (contatoSubmitting()) {
+          Registrando...
+        } @else {
+          Registrar contato
+        }
+      </button>
+
+      @if (contatoOk()) {
+        <p class="sep-parcela-fin-form-ok" role="status">Contato registrado.</p>
+      }
+      @if (contatoErro(); as msg) {
+        <p class="sep-parcela-fin-form-error" role="alert">{{ msg }}</p>
+      }
+    </form>
+
+    @if (podeRenegociar()) {
+      @if (renegCriada(); as reneg) {
+        <section class="sep-parcela-fin-reneg-criada" role="status">
+          <h2 class="sep-parcela-fin-subtitle">Proposta de renegociacao criada</h2>
+          <p>
+            Novo valor: {{ formatarMoeda(reneg.novoValorParcela) }} em {{ reneg.numeroParcelas }}x
+          </p>
+          <p>Vencimento inicial: {{ formatarDataLocal(reneg.novoVencimento) }}</p>
+          <p>Desconto: {{ formatarMoeda(reneg.desconto) }}</p>
+          <p>Expira em: {{ formatarData(reneg.dataExpiracao) }}</p>
+        </section>
+      } @else {
+        <form
+          class="sep-parcela-fin-form"
+          [formGroup]="renegForm"
+          (ngSubmit)="proporRenegociacao()"
+        >
+          <h2 class="sep-parcela-fin-subtitle">Propor renegociacao</h2>
+
+          <label class="sep-parcela-fin-field" for="reneg-valor">
+            <span>Novo valor por parcela</span>
+            <input id="reneg-valor" type="number" step="0.01" formControlName="novoValorParcela" />
+          </label>
+
+          <label class="sep-parcela-fin-field" for="reneg-venc">
+            <span>Vencimento inicial</span>
+            <input id="reneg-venc" type="date" formControlName="novoVencimento" />
+          </label>
+
+          <label class="sep-parcela-fin-field" for="reneg-num">
+            <span>Numero de parcelas</span>
+            <input id="reneg-num" type="number" min="1" formControlName="numeroParcelas" />
+          </label>
+
+          <label class="sep-parcela-fin-field" for="reneg-desc">
+            <span>Desconto</span>
+            <input id="reneg-desc" type="number" step="0.01" min="0" formControlName="desconto" />
+          </label>
+
+          <label class="sep-parcela-fin-field" for="reneg-just">
+            <span>Justificativa</span>
+            <textarea
+              id="reneg-just"
+              formControlName="justificativa"
+              maxlength="1000"
+              rows="2"
+            ></textarea>
+          </label>
+
+          <button type="submit" class="sep-parcela-fin-cta" [disabled]="renegSubmitting()">
+            @if (renegSubmitting()) {
+              Enviando...
+            } @else {
+              Propor renegociacao
+            }
+          </button>
+
+          @if (renegErro(); as msg) {
+            <p class="sep-parcela-fin-form-error" role="alert">{{ msg }}</p>
+          }
+        </form>
+      }
+    }
+  }
+</section>

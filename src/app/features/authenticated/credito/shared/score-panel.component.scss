@@ -1,0 +1,38 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-score-panel {
+  @include sepDs.sep-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-12);
+  padding: var(--sep-space-24);
+}
+
+.sep-score-panel-title {
+  @include sepType.sep-type-card-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-score-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--sep-space-16);
+  margin: 0;
+
+  dt {
+    @include sepType.sep-type-caption;
+
+    color: hsl(var(--muted-foreground));
+  }
+
+  dd {
+    @include sepType.sep-type-body;
+
+    margin: var(--sep-space-2) 0 0;
+    color: hsl(var(--foreground));
+  }
+}

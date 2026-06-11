@@ -1,0 +1,41 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-parcela-composicao {
+  @include sepDs.sep-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  margin: 0;
+  padding: var(--sep-space-24);
+}
+
+.sep-parcela-linha {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sep-space-12);
+
+  dt {
+    @include sepType.sep-type-body;
+
+    color: hsl(var(--muted-foreground));
+  }
+
+  dd {
+    @include sepType.sep-type-body;
+
+    margin: 0;
+    color: hsl(var(--foreground));
+  }
+}
+
+.sep-parcela-linha-destaque {
+  dt,
+  dd {
+    @include sepType.sep-type-body-semibold;
+
+    color: hsl(var(--foreground));
+  }
+}

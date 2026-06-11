@@ -1,0 +1,44 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+
+:host {
+  @include sepType.sep-type-badge;
+
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--sep-space-8);
+  border: 1px solid currentcolor;
+  border-radius: var(--sep-radius-pill);
+  white-space: nowrap;
+}
+
+:host([data-prioridade="CRITICA"]) {
+  color: hsl(var(--destructive));
+}
+
+:host([data-prioridade="ALTA"]) {
+  color: hsl(var(--warning));
+}
+
+:host([data-prioridade="MEDIA"]) {
+  color: hsl(var(--primary));
+}
+
+:host([data-prioridade="BAIXA"]) {
+  color: hsl(var(--muted-foreground));
+}
+
+:host([data-status="ABERTO"]) {
+  color: hsl(var(--primary));
+}
+
+:host([data-status="EM_TRATAMENTO"]) {
+  color: hsl(var(--warning));
+}
+
+:host([data-status="RESOLVIDO"]) {
+  color: hsl(var(--success));
+}
+
+:host([data-status="IGNORADO"]) {
+  color: hsl(var(--muted-foreground));
+}

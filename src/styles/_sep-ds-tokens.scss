@@ -1,0 +1,132 @@
+// Tokens do New Design System SEP — fonte visual vigente do web (Epic 17 / F-Sprint 14).
+// Fonte oficial: docs-sep/New Design System Sep.md.
+// Cores em HSL (formato `H S% L%`), consumidas via `hsl(var(--token))`.
+// Light em `:root`, dark em `.dark` (alternado por ThemeService via classe no documento).
+// Substitui os antigos design systems Apple/Notion (F-Sprints 0-10), ja removidos.
+
+:root {
+  // ===== Cores (HSL: H S% L%) =====
+  --background: 207 44% 97%;
+  --foreground: 216 28% 24%;
+  --card: 0 0% 100%;
+  --card-foreground: 216 28% 24%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 216 28% 24%;
+  --primary: 213 58% 43%;
+  --primary-foreground: 0 0% 100%;
+  --primary-hover: 213 58% 36%;
+  --secondary: 145 50% 50%;
+  --secondary-foreground: 0 0% 100%;
+  --secondary-hover: 145 50% 43%;
+  --muted: 210 20% 94%;
+  --muted-foreground: 214 16% 65%;
+  --accent: 145 40% 92%;
+  --accent-foreground: 216 28% 24%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 100%;
+  --success: 145 50% 50%;
+  --success-foreground: 0 0% 100%;
+  --devolutiva: 145 40% 47%;
+  --devolutiva-foreground: 0 0% 100%;
+  --border: 214 20% 88%;
+  --input: 214 20% 88%;
+  --ring: 213 58% 43%;
+
+  // ===== Raio =====
+  // Raio base 0.75rem (12px); derivados seguem a config Tailwind de origem.
+  --radius: 0.75rem;
+  --sep-radius-lg: var(--radius);
+  --sep-radius-md: calc(var(--radius) - 2px);
+  --sep-radius-sm: calc(var(--radius) - 4px);
+  --sep-radius-pill: 9999px;
+  --sep-radius-full: 9999px;
+
+  // ===== Gradientes =====
+  --gradient-primary: linear-gradient(135deg, hsl(213deg 58% 43%), hsl(145deg 50% 50%));
+  --gradient-secondary: linear-gradient(135deg, hsl(145deg 50% 50%), hsl(213deg 58% 43%));
+  --gradient-background: linear-gradient(180deg, hsl(207deg 44% 97%), hsl(210deg 20% 94%));
+  --gradient-hero: linear-gradient(135deg, hsl(213deg 58% 43% / 10%), hsl(145deg 50% 50% / 10%));
+
+  // ===== Sombras =====
+  --shadow-sm: 0 2px 8px -2px hsl(213deg 58% 43% / 10%);
+  --shadow-md: 0 4px 16px -4px hsl(213deg 58% 43% / 15%);
+  --shadow-lg: 0 8px 32px -8px hsl(213deg 58% 43% / 20%);
+  --shadow-card: 0 4px 20px -4px hsl(213deg 58% 43% / 10%);
+  --shadow-elegant: 0 10px 30px -10px hsl(213deg 58% 43% / 20%);
+  --shadow-glow: 0 0 40px hsl(213deg 58% 43% / 15%);
+
+  // ===== Transicao =====
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  // ===== Sidebar =====
+  --sidebar-background: 207 44% 97%;
+  --sidebar-foreground: 216 28% 24%;
+  --sidebar-primary: 213 58% 43%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 210 20% 94%;
+  --sidebar-accent-foreground: 216 28% 24%;
+  --sidebar-border: 214 20% 88%;
+  --sidebar-ring: 213 58% 43%;
+
+  // ===== Espacamento =====
+  // Escala neutra (base 8px). Valores px-named para migracao 1:1 do legado.
+  // O documento de origem nao define escala de espacamento (Tailwind usa classes);
+  // mantemos os valores estruturais atuais sob nomes neutros (sem prefixo apple/notion).
+  --sep-space-2: 2px;
+  --sep-space-3: 3px;
+  --sep-space-4: 4px;
+  --sep-space-5: 5px;
+  --sep-space-6: 6px;
+  --sep-space-7: 7px;
+  --sep-space-8: 8px;
+  --sep-space-11: 11px;
+  --sep-space-12: 12px;
+  --sep-space-14: 14px;
+  --sep-space-16: 16px;
+  --sep-space-17: 17px;
+  --sep-space-24: 24px;
+  --sep-space-32: 32px;
+  --sep-space-48: 48px;
+  --sep-space-80: 80px;
+  --sep-space-section: 80px;
+}
+
+.dark {
+  --background: 220 20% 10%;
+  --foreground: 210 40% 98%;
+  --card: 220 20% 13%;
+  --card-foreground: 210 40% 98%;
+  --popover: 220 20% 13%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 213 58% 52%;
+  --primary-foreground: 220 20% 10%;
+  --primary-hover: 213 58% 58%;
+  --secondary: 145 50% 55%;
+  --secondary-foreground: 220 20% 10%;
+  --secondary-hover: 145 50% 60%;
+  --muted: 220 15% 18%;
+  --muted-foreground: 214 16% 65%;
+  --accent: 145 30% 20%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 72% 55%;
+  --destructive-foreground: 210 40% 98%;
+  --warning: 38 92% 55%;
+  --warning-foreground: 220 20% 10%;
+  --success: 145 50% 55%;
+  --success-foreground: 220 20% 10%;
+  --devolutiva: 145 40% 50%;
+  --devolutiva-foreground: 220 20% 10%;
+  --border: 220 15% 20%;
+  --input: 220 15% 20%;
+  --ring: 213 58% 52%;
+  --sidebar-background: 220 20% 10%;
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-primary: 213 58% 52%;
+  --sidebar-primary-foreground: 220 20% 10%;
+  --sidebar-accent: 220 15% 18%;
+  --sidebar-accent-foreground: 210 40% 98%;
+  --sidebar-border: 220 15% 20%;
+  --sidebar-ring: 213 58% 52%;
+}

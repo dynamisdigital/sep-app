@@ -1,0 +1,135 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-financeira {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-16);
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-financeira-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+}
+
+.sep-financeira-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-financeira-subtitle {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-financeira-gap {
+  @include sepType.sep-type-caption;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-financeira-lookup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+}
+
+.sep-financeira-lookup-label {
+  @include sepType.sep-type-caption;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-financeira-lookup-row {
+  display: flex;
+  gap: var(--sep-space-8);
+}
+
+.sep-financeira-lookup-input {
+  @include sepDs.sep-input;
+
+  flex: 1;
+}
+
+.sep-financeira-lookup-cta {
+  @include sepDs.sep-button-outline;
+}
+
+.sep-financeira-state {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-financeira-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+  color: hsl(var(--warning));
+}
+
+.sep-financeira-retry {
+  @include sepDs.sep-button-outline;
+}
+
+.sep-financeira-empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+}
+
+.sep-financeira-recebimentos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sep-financeira-recebimento-link {
+  @include sepDs.sep-card;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sep-space-12);
+  padding: var(--sep-space-24);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 120ms ease;
+
+  &:hover {
+    border-color: hsl(var(--primary));
+  }
+}
+
+.sep-financeira-recebimento-valor {
+  @include sepType.sep-type-card-title;
+
+  color: hsl(var(--foreground));
+}
+
+.sep-financeira-recebimento-meio,
+.sep-financeira-recebimento-data,
+.sep-financeira-recebimento-parcela {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-financeira-recebimento-parcela {
+  margin-left: auto;
+}

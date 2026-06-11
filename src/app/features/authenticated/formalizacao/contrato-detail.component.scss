@@ -1,0 +1,274 @@
+@use "../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../styles/sep-ds-components" as sepDs;
+
+.sep-contrato-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-24);
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-contrato-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sep-space-16);
+}
+
+.sep-contrato-detail-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-contrato-detail-status {
+  @include sepType.sep-type-badge;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-contrato-detail-state {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-contrato-detail-error {
+  color: hsl(var(--warning));
+}
+
+.sep-contrato-detail-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--sep-space-16);
+  margin: 0;
+}
+
+.sep-contrato-detail-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-4);
+
+  dt {
+    @include sepType.sep-type-caption;
+
+    margin: 0;
+    color: hsl(var(--muted-foreground));
+  }
+
+  dd {
+    @include sepType.sep-type-body;
+
+    margin: 0;
+    color: hsl(var(--foreground));
+  }
+}
+
+.sep-contrato-detail-aceite {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+}
+
+.sep-contrato-detail-aceite-cta {
+  @include sepDs.sep-button-primary;
+}
+
+.sep-contrato-detail-aceite-error {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--warning));
+}
+
+.sep-contrato-detail-aceite-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-4);
+
+  p {
+    @include sepType.sep-type-body;
+
+    margin: 0;
+    color: hsl(var(--foreground));
+  }
+}
+
+.sep-contrato-detail-aceite-info .sep-contrato-detail-aceite-versao {
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-contrato-detail-assinatura {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-12);
+}
+
+.sep-contrato-detail-assinatura-title {
+  @include sepType.sep-type-card-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-contrato-detail-assinatura-aviso {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--warning));
+}
+
+.sep-contrato-detail-documento {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+}
+
+.sep-contrato-detail-documento-cta {
+  @include sepDs.sep-button-outline;
+}
+
+.sep-contrato-detail-versoes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+}
+
+.sep-contrato-detail-versoes-label {
+  @include sepType.sep-type-caption;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-contrato-detail-versoes-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sep-space-8);
+}
+
+.sep-contrato-detail-versao-tab {
+  @include sepType.sep-type-body;
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sep-space-6);
+  padding: var(--sep-space-4) var(--sep-space-12);
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--sep-radius-sm);
+  background: transparent;
+  color: hsl(var(--foreground));
+  cursor: pointer;
+
+  &.is-active {
+    border-color: hsl(var(--primary));
+    color: hsl(var(--primary));
+  }
+}
+
+.sep-contrato-detail-versao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-16);
+}
+
+.sep-contrato-detail-versao-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sep-space-16);
+}
+
+.sep-contrato-detail-versao-title {
+  @include sepType.sep-type-card-title;
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sep-space-8);
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-contrato-detail-versao-vigente {
+  @include sepType.sep-type-caption;
+
+  color: hsl(var(--primary));
+}
+
+.sep-contrato-detail-versao-data {
+  @include sepType.sep-type-caption;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-contrato-detail-conteudo {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+  white-space: pre-wrap;
+}
+
+.sep-contrato-detail-clausulas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-16);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: clausula;
+}
+
+.sep-contrato-detail-clausula {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-4);
+}
+
+.sep-contrato-detail-clausula-titulo {
+  @include sepType.sep-type-body-semibold;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-contrato-detail-clausula-texto {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+  white-space: pre-wrap;
+}
+
+.sep-contrato-detail-hash {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-4);
+  margin: 0;
+}
+
+.sep-contrato-detail-hash-label {
+  @include sepType.sep-type-caption;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-contrato-detail-hash-value {
+  font-family: monospace;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+  word-break: break-all;
+}
+
+.sep-contrato-detail-cobranca {
+  display: flex;
+}
+
+.sep-contrato-detail-cobranca-link {
+  color: hsl(var(--primary));
+  text-decoration: none;
+}

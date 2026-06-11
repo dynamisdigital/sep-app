@@ -1,0 +1,110 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-bo-reproc {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-16);
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-bo-reproc-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+}
+
+.sep-bo-reproc-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-bo-reproc-sub {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-bo-reproc-abas {
+  display: flex;
+  gap: var(--sep-space-8);
+}
+
+.sep-bo-reproc-aba {
+  @include sepDs.sep-button-outline;
+
+  &.sep-bo-reproc-aba-ativa {
+    border-color: hsl(var(--primary));
+    color: hsl(var(--primary));
+  }
+}
+
+.sep-bo-reproc-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-12);
+  align-items: flex-start;
+}
+
+.sep-bo-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+  width: 100%;
+}
+
+.sep-bo-field-label {
+  @include sepType.sep-type-caption;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-bo-field-control {
+  @include sepDs.sep-input;
+
+  width: 100%;
+}
+
+.sep-bo-reproc-aviso {
+  @include sepType.sep-type-caption;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-bo-reproc-enviar {
+  @include sepDs.sep-button-primary;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.sep-bo-reproc-erro {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--destructive));
+}
+
+.sep-bo-reproc-painel {
+  @include sepDs.sep-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  padding: var(--sep-space-24);
+}
+
+.sep-bo-reproc-painel-title {
+  @include sepType.sep-type-card-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}

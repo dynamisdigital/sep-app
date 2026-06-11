@@ -1,0 +1,10 @@
+<div class="sep-bo-reproc-resultado">
+  <span class="sep-bo-reproc-status" [attr.data-status]="reprocesso().status">
+    {{ statusLabel[reprocesso().status] }}
+  </span>
+  <p class="sep-bo-reproc-texto">{{ reprocesso().resultado ?? 'Reprocesso registrado.' }}</p>
+  <span class="sep-bo-reproc-meta">
+    {{ idCurto(reprocesso().identificadorExterno) }} &middot;
+    {{ formatarDataHora(reprocesso().dataDisparo) }}
+  </span>
+</div>

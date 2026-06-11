@@ -1,0 +1,359 @@
+import { HttpInterceptorFn, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { Observable } from 'rxjs';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+
+import { resetPixState } from '../../../mocks/handlers';
+import { SolicitarDesembolsoPixRequest } from '../api/api.models';
+import { PixService } from './pix.service';
+
+function awaitObservable<T>(obs: Observable<T>): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    obs.subscribe({ next: resolve, error: reject });
+  });
+}
+
+// Sentinelas espelhando os handlers MSW de Pix (src/mocks/handlers.ts).
+const CONTRATO_ELEGIVEL_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b772a01';
+const CONTRATO_INELEGIVEL_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b772a02';
+const CONTRATO_INEXISTENTE_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b772dead';
+
+const TRANSFERENCIA_CONCLUIDA_ID = 'e0000000-0000-4000-8000-000000000001';
+const TRANSFERENCIA_PROCESSANDO_ID = 'e0000000-0000-4000-8000-000000000002';
+const TRANSFERENCIA_PROVIDER_OFF_ID = 'e0000000-0000-4000-8000-000000000003';
+const TRANSFERENCIA_INEXISTENTE_ID = 'e0000000-0000-4000-8000-0000000000aa';
+
+const PARCELA_RECEBIVEL_ID = 'a0000000-0000-4000-8000-000000000006';
+const PARCELA_NOVA_ID = 'a0000000-0000-4000-8000-0000000000c3';
+const PARCELA_INELEGIVEL_ID = 'a0000000-0000-4000-8000-0000000000c1';
+const PARCELA_INEXISTENTE_ID = 'a0000000-0000-4000-8000-0000000000c2';
+
+const REFERENCIA_ATIVA_ID = 'e1000000-0000-4000-8000-000000000001';
+const REFERENCIA_INEXISTENTE_ID = 'e1000000-0000-4000-8000-0000000000aa';
+const RECEBIMENTO_CONCILIADO_ID = 'e2000000-0000-4000-8000-000000000001';
+const RECEBIMENTO_NAO_IDENTIFICADO_ID = 'e2000000-0000-4000-8000-000000000002';
+const RECEBIMENTO_INEXISTENTE_ID = 'e2000000-0000-4000-8000-0000000000aa';
+
+const CHAVE_PIX_DESTINO = 'joao.tomador@banco.com';
+const DESEMBOLSO_VALIDO: SolicitarDesembolsoPixRequest = {
+  contratoId: CONTRATO_ELEGIVEL_ID,
+  valor: 10000.0,
+  chavePixDestino: CHAVE_PIX_DESTINO,
+};
+
+// O stepUpInterceptor real so reconhece as rotas Pix sensiveis a partir da Task F-13.3 (testado
+// la). Aqui um interceptor de teste simula a presenca do X-Step-Up-Token quando `anexarStepUp`
+// esta ligado, exercitando o caminho feliz e provando que o proprio service nao anexa o token.
+let anexarStepUp = false;
+const stepUpDeTeste: HttpInterceptorFn = (req, next) =>
+  anexarStepUp
+    ? next(req.clone({ setHeaders: { 'X-Step-Up-Token': 'mock-step-up-token' } }))
+    : next(req);
+
+describe('PixService (comportamento via MSW)', () => {
+  let service: PixService;
+
+  beforeEach(() => {
+    resetPixState();
+    anexarStepUp = false;
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(withInterceptors([stepUpDeTeste]))],
+    });
+    service = TestBed.inject(PixService);
+  });
+
+  describe('solicitarDesembolso', () => {
+    // Sem o header X-Step-Up-Token (anexarStepUp = false) o backend (@RequireStepUpEstrito)
+    // responde 403 — prova que o service nao supre o token sozinho.
+    it('rejeita com 403 quando nao ha step-up', async () => {
+      await expect(
+        awaitObservable(service.solicitarDesembolso(DESEMBOLSO_VALIDO, 'key-sem-stepup')),
+      ).rejects.toMatchObject({ status: 403 });
+    });
+
+    describe('com step-up', () => {
+      beforeEach(() => {
+        anexarStepUp = true;
+      });
+
+      it('cria o desembolso (novo=true) sem devolver a chave Pix em claro', async () => {
+        const resposta = await awaitObservable(
+          service.solicitarDesembolso(DESEMBOLSO_VALIDO, 'key-novo-1'),
+        );
+
+        expect(resposta.novo).toBe(true);
+        expect(resposta.transferenciaId).toBeTruthy();
+        expect(resposta.contratoId).toBe(CONTRATO_ELEGIVEL_ID);
+        expect(resposta.status).toBe('CRIADA');
+        expect(resposta.chaveDestinoMascara).not.toBe(CHAVE_PIX_DESTINO);
+        expect(resposta.chaveDestinoMascara).not.toContain('@');
+      });
+
+      it('faz replay (novo=false) com a mesma key e o mesmo payload', async () => {
+        await awaitObservable(service.solicitarDesembolso(DESEMBOLSO_VALIDO, 'key-replay-1'));
+        const replay = await awaitObservable(
+          service.solicitarDesembolso(DESEMBOLSO_VALIDO, 'key-replay-1'),
+        );
+
+        expect(replay.novo).toBe(false);
+      });
+
+      it('rejeita com 409 quando a mesma key vem com payload divergente', async () => {
+        await awaitObservable(service.solicitarDesembolso(DESEMBOLSO_VALIDO, 'key-conflito-1'));
+        await expect(
+          awaitObservable(
+            service.solicitarDesembolso({ ...DESEMBOLSO_VALIDO, valor: 9999.0 }, 'key-conflito-1'),
+          ),
+        ).rejects.toMatchObject({ status: 409 });
+      });
+
+      it('rejeita com 400 quando a Idempotency-Key foge do pattern do backend', async () => {
+        await expect(
+          awaitObservable(service.solicitarDesembolso(DESEMBOLSO_VALIDO, 'key invalida')),
+        ).rejects.toMatchObject({ status: 400 });
+      });
+
+      it('rejeita com 404 quando o contrato nao existe', async () => {
+        await expect(
+          awaitObservable(
+            service.solicitarDesembolso(
+              { ...DESEMBOLSO_VALIDO, contratoId: CONTRATO_INEXISTENTE_ID },
+              'key-404',
+            ),
+          ),
+        ).rejects.toMatchObject({ status: 404 });
+      });
+
+      it('rejeita com 422 quando o contrato e inelegivel', async () => {
+        await expect(
+          awaitObservable(
+            service.solicitarDesembolso(
+              { ...DESEMBOLSO_VALIDO, contratoId: CONTRATO_INELEGIVEL_ID },
+              'key-422',
+            ),
+          ),
+        ).rejects.toMatchObject({ status: 422 });
+      });
+    });
+  });
+
+  describe('consultarDesembolso', () => {
+    // Leitura local: nao exige step-up (anexarStepUp = false) e nunca chama o provider.
+    it('retorna o status local com providerIndisponivel=false', async () => {
+      const resposta = await awaitObservable(
+        service.consultarDesembolso(TRANSFERENCIA_CONCLUIDA_ID),
+      );
+
+      expect(resposta.status).toBe('CONCLUIDA');
+      expect(resposta.providerIndisponivel).toBe(false);
+    });
+
+    it('rejeita com 404 quando a transferencia nao existe', async () => {
+      await expect(
+        awaitObservable(service.consultarDesembolso(TRANSFERENCIA_INEXISTENTE_ID)),
+      ).rejects.toMatchObject({ status: 404 });
+    });
+  });
+
+  describe('consultarStatusDesembolso', () => {
+    it('rejeita com 403 quando nao ha step-up', async () => {
+      await expect(
+        awaitObservable(service.consultarStatusDesembolso(TRANSFERENCIA_PROCESSANDO_ID)),
+      ).rejects.toMatchObject({ status: 403 });
+    });
+
+    describe('com step-up', () => {
+      beforeEach(() => {
+        anexarStepUp = true;
+      });
+
+      it('reconcilia o status avancando PROCESSANDO para CONCLUIDA', async () => {
+        const resposta = await awaitObservable(
+          service.consultarStatusDesembolso(TRANSFERENCIA_PROCESSANDO_ID),
+        );
+
+        expect(resposta.status).toBe('CONCLUIDA');
+        expect(resposta.providerIndisponivel).toBe(false);
+      });
+
+      it('nao mascara provider indisponivel como sucesso', async () => {
+        const resposta = await awaitObservable(
+          service.consultarStatusDesembolso(TRANSFERENCIA_PROVIDER_OFF_ID),
+        );
+
+        expect(resposta.providerIndisponivel).toBe(true);
+        expect(resposta.status).toBe('SOLICITADA');
+      });
+
+      it('rejeita com 404 quando a transferencia nao existe', async () => {
+        await expect(
+          awaitObservable(service.consultarStatusDesembolso(TRANSFERENCIA_INEXISTENTE_ID)),
+        ).rejects.toMatchObject({ status: 404 });
+      });
+    });
+  });
+
+  describe('gerarReferenciaRecebimento', () => {
+    // Geracao de referencia nao exige step-up (anexarStepUp = false).
+    it('gera referencia nova (novo=true, status ATIVA) com txid e copia-cola', async () => {
+      const resposta = await awaitObservable(
+        service.gerarReferenciaRecebimento({ parcelaId: PARCELA_NOVA_ID }),
+      );
+
+      expect(resposta.novo).toBe(true);
+      expect(resposta.status).toBe('ATIVA');
+      expect(resposta.txid).toBeTruthy();
+      expect(resposta.codigoCopiaCola).toBeTruthy();
+      expect(resposta.parcelaId).toBe(PARCELA_NOVA_ID);
+    });
+
+    it('reaproveita a referencia ATIVA existente da parcela (novo=false)', async () => {
+      const resposta = await awaitObservable(
+        service.gerarReferenciaRecebimento({ parcelaId: PARCELA_RECEBIVEL_ID }),
+      );
+
+      expect(resposta.novo).toBe(false);
+      expect(resposta.referenciaId).toBe(REFERENCIA_ATIVA_ID);
+    });
+
+    it('rejeita com 422 quando a parcela e inelegivel', async () => {
+      await expect(
+        awaitObservable(service.gerarReferenciaRecebimento({ parcelaId: PARCELA_INELEGIVEL_ID })),
+      ).rejects.toMatchObject({ status: 422 });
+    });
+
+    it('rejeita com 404 quando a parcela nao existe', async () => {
+      await expect(
+        awaitObservable(service.gerarReferenciaRecebimento({ parcelaId: PARCELA_INEXISTENTE_ID })),
+      ).rejects.toMatchObject({ status: 404 });
+    });
+  });
+
+  describe('consultarReferenciaRecebimento', () => {
+    it('retorna a referencia ATIVA da parcela', async () => {
+      const resposta = await awaitObservable(
+        service.consultarReferenciaRecebimento(REFERENCIA_ATIVA_ID),
+      );
+
+      expect(resposta.status).toBe('ATIVA');
+      expect(resposta.parcelaId).toBe(PARCELA_RECEBIVEL_ID);
+    });
+
+    it('rejeita com 404 quando a referencia nao existe', async () => {
+      await expect(
+        awaitObservable(service.consultarReferenciaRecebimento(REFERENCIA_INEXISTENTE_ID)),
+      ).rejects.toMatchObject({ status: 404 });
+    });
+  });
+
+  describe('consultarRecebimento', () => {
+    it('retorna recebimento CONCILIADO vinculado a parcela', async () => {
+      const resposta = await awaitObservable(
+        service.consultarRecebimento(RECEBIMENTO_CONCILIADO_ID),
+      );
+
+      expect(resposta.status).toBe('CONCILIADO');
+      expect(resposta.parcelaId).toBe(PARCELA_RECEBIVEL_ID);
+      expect(resposta.recebimentoCobrancaId).toBeTruthy();
+      expect(resposta.motivoDivergencia).toBeNull();
+    });
+
+    it('expoe recebimento NAO_IDENTIFICADO com motivo e sem vinculo', async () => {
+      const resposta = await awaitObservable(
+        service.consultarRecebimento(RECEBIMENTO_NAO_IDENTIFICADO_ID),
+      );
+
+      expect(resposta.status).toBe('NAO_IDENTIFICADO');
+      expect(resposta.referenciaId).toBeNull();
+      expect(resposta.parcelaId).toBeNull();
+      expect(resposta.motivoDivergencia).toBeTruthy();
+    });
+
+    it('rejeita com 404 quando o recebimento nao existe', async () => {
+      await expect(
+        awaitObservable(service.consultarRecebimento(RECEBIMENTO_INEXISTENTE_ID)),
+      ).rejects.toMatchObject({ status: 404 });
+    });
+  });
+});
+
+// Contrato HTTP exato: URL, metodo, body e headers. Prova que so o desembolso envia
+// Idempotency-Key, que as leituras nao a enviam e que o service nunca anexa X-Step-Up-Token
+// (essa responsabilidade e do stepUpInterceptor).
+describe('PixService (contrato HTTP)', () => {
+  let service: PixService;
+  let httpMock: HttpTestingController;
+  const base = 'http://localhost:8080/api/v1';
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    service = TestBed.inject(PixService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  it('solicitarDesembolso: POST com body, Idempotency-Key e sem X-Step-Up-Token', () => {
+    service.solicitarDesembolso(DESEMBOLSO_VALIDO, 'key-contrato-1').subscribe();
+
+    const req = httpMock.expectOne(`${base}/pix/desembolsos`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(DESEMBOLSO_VALIDO);
+    expect(req.request.headers.get('Idempotency-Key')).toBe('key-contrato-1');
+    expect(req.request.headers.has('X-Step-Up-Token')).toBe(false);
+    req.flush({});
+  });
+
+  it('consultarDesembolso: GET sem Idempotency-Key nem body', () => {
+    service.consultarDesembolso(TRANSFERENCIA_CONCLUIDA_ID).subscribe();
+
+    const req = httpMock.expectOne(`${base}/pix/desembolsos/${TRANSFERENCIA_CONCLUIDA_ID}`);
+    expect(req.request.method).toBe('GET');
+    expect(req.request.body).toBeNull();
+    expect(req.request.headers.has('Idempotency-Key')).toBe(false);
+    req.flush({});
+  });
+
+  it('consultarStatusDesembolso: POST /status sem Idempotency-Key nem X-Step-Up-Token', () => {
+    service.consultarStatusDesembolso(TRANSFERENCIA_PROCESSANDO_ID).subscribe();
+
+    const req = httpMock.expectOne(
+      `${base}/pix/desembolsos/${TRANSFERENCIA_PROCESSANDO_ID}/status`,
+    );
+    expect(req.request.method).toBe('POST');
+    expect(req.request.headers.has('Idempotency-Key')).toBe(false);
+    expect(req.request.headers.has('X-Step-Up-Token')).toBe(false);
+    req.flush({});
+  });
+
+  it('gerarReferenciaRecebimento: POST com body parcelaId e sem Idempotency-Key', () => {
+    service.gerarReferenciaRecebimento({ parcelaId: PARCELA_NOVA_ID }).subscribe();
+
+    const req = httpMock.expectOne(`${base}/pix/recebimentos/referencias`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ parcelaId: PARCELA_NOVA_ID });
+    expect(req.request.headers.has('Idempotency-Key')).toBe(false);
+    req.flush({});
+  });
+
+  it('consultarReferenciaRecebimento: GET na referencia', () => {
+    service.consultarReferenciaRecebimento(REFERENCIA_ATIVA_ID).subscribe();
+
+    const req = httpMock.expectOne(`${base}/pix/recebimentos/referencias/${REFERENCIA_ATIVA_ID}`);
+    expect(req.request.method).toBe('GET');
+    req.flush({});
+  });
+
+  it('consultarRecebimento: GET no recebimento', () => {
+    service.consultarRecebimento(RECEBIMENTO_CONCILIADO_ID).subscribe();
+
+    const req = httpMock.expectOne(`${base}/pix/recebimentos/${RECEBIMENTO_CONCILIADO_ID}`);
+    expect(req.request.method).toBe('GET');
+    req.flush({});
+  });
+});

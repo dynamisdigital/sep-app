@@ -1,0 +1,68 @@
+@use "../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../styles/sep-ds-components" as sepDs;
+
+.sep-onboarding-home {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-32);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-onboarding-home-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+}
+
+.sep-onboarding-home-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-onboarding-home-subtitle {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-onboarding-home-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--sep-space-16);
+}
+
+.sep-onboarding-home-card {
+  @include sepDs.sep-card;
+
+  padding: var(--sep-space-24);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 120ms ease;
+
+  &:hover {
+    border-color: hsl(var(--primary));
+  }
+}
+
+.sep-onboarding-home-card-title {
+  @include sepType.sep-type-card-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-onboarding-home-card-body {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}

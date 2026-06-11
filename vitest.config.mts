@@ -7,6 +7,9 @@ export default defineConfig(({ mode }) => ({
   test: {
     globals: true,
     environment: 'happy-dom',
+    // O pool 'forks' (default) acumula memoria do happy-dom entre arquivos e
+    // segfaulta ao passar de ~24 specs. O pool 'threads' isola sem esse vazamento.
+    pool: 'threads',
     setupFiles: ['./src/test-setup.ts'],
     include: ['src/**/*.spec.ts'],
     server: {
