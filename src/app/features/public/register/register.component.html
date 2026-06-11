@@ -1,70 +1,86 @@
 <main class="register-page">
-  <a routerLink="/" class="register-back" aria-label="Voltar para a pagina inicial">SEP</a>
+  <aside class="register-brand">
+    <div class="register-brand-inner">
+      <span class="register-brand-mark">SEP</span>
+      <p class="register-brand-tagline">Sociedade de Emprestimo entre Pessoas</p>
+      <ul class="register-brand-list">
+        <li>Ambiente regulado pela Resolucao CMN 4.656/2018</li>
+        <li>Segregacao patrimonial via conta escrow</li>
+        <li>KYC e prevencao a lavagem de dinheiro</li>
+      </ul>
+    </div>
+  </aside>
 
-  <section class="register-card" aria-labelledby="register-title">
-    <h1 id="register-title" class="register-title">Criar conta SEP</h1>
+  <section class="register-form-panel">
+    <a routerLink="/" class="register-back" aria-label="Voltar para a pagina inicial"
+      >Voltar ao inicio</a
+    >
 
-    <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="register-form">
-      <div class="register-field">
-        <label for="register-username" class="register-label">E-mail</label>
-        <input
-          id="register-username"
-          type="email"
-          autocomplete="email"
-          formControlName="username"
-          class="register-input"
-          [attr.aria-invalid]="form.controls.username.invalid && form.controls.username.touched"
-        />
-        @if (form.controls.username.touched && form.controls.username.errors?.['required']) {
-          <p class="register-error" role="alert">E-mail obrigatorio.</p>
+    <div class="register-card" aria-labelledby="register-title">
+      <h1 id="register-title" class="register-title">Criar conta SEP</h1>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="register-form">
+        <div class="register-field">
+          <label for="register-username" class="register-label">E-mail</label>
+          <input
+            id="register-username"
+            type="email"
+            autocomplete="email"
+            formControlName="username"
+            class="register-input"
+            [attr.aria-invalid]="form.controls.username.invalid && form.controls.username.touched"
+          />
+          @if (form.controls.username.touched && form.controls.username.errors?.['required']) {
+            <p class="register-error" role="alert">E-mail obrigatorio.</p>
+          }
+          @if (form.controls.username.touched && form.controls.username.errors?.['email']) {
+            <p class="register-error" role="alert">Informe um e-mail valido.</p>
+          }
+        </div>
+
+        <div class="register-field">
+          <label for="register-password" class="register-label">Senha</label>
+          <input
+            id="register-password"
+            type="password"
+            autocomplete="new-password"
+            formControlName="password"
+            class="register-input"
+            [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched"
+          />
+          @if (form.controls.password.touched && form.controls.password.errors?.['required']) {
+            <p class="register-error" role="alert">Senha obrigatoria.</p>
+          }
+        </div>
+
+        <div class="register-field">
+          <label for="register-role" class="register-label">Perfil</label>
+          <select id="register-role" formControlName="role" class="register-input">
+            <option value="CLIENTE">Cliente</option>
+            <option value="ADMIN">Administrador</option>
+          </select>
+          @if (form.controls.role.touched && form.controls.role.errors?.['required']) {
+            <p class="register-error" role="alert">Perfil obrigatorio.</p>
+          }
+        </div>
+
+        @if (errorMessage()) {
+          <p class="register-error register-error-form" role="alert">{{ errorMessage() }}</p>
         }
-        @if (form.controls.username.touched && form.controls.username.errors?.['email']) {
-          <p class="register-error" role="alert">Informe um e-mail valido.</p>
-        }
-      </div>
 
-      <div class="register-field">
-        <label for="register-password" class="register-label">Senha</label>
-        <input
-          id="register-password"
-          type="password"
-          autocomplete="new-password"
-          formControlName="password"
-          class="register-input"
-          [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched"
-        />
-        @if (form.controls.password.touched && form.controls.password.errors?.['required']) {
-          <p class="register-error" role="alert">Senha obrigatoria.</p>
-        }
-      </div>
+        <button type="submit" class="register-cta" [disabled]="loading()">
+          @if (loading()) {
+            <span>Criando...</span>
+          } @else {
+            <span>Criar conta</span>
+          }
+        </button>
 
-      <div class="register-field">
-        <label for="register-role" class="register-label">Perfil</label>
-        <select id="register-role" formControlName="role" class="register-input">
-          <option value="CLIENTE">Cliente</option>
-          <option value="ADMIN">Administrador</option>
-        </select>
-        @if (form.controls.role.touched && form.controls.role.errors?.['required']) {
-          <p class="register-error" role="alert">Perfil obrigatorio.</p>
-        }
-      </div>
-
-      @if (errorMessage()) {
-        <p class="register-error register-error-form" role="alert">{{ errorMessage() }}</p>
-      }
-
-      <button type="submit" class="register-cta" [disabled]="loading()">
-        @if (loading()) {
-          <span>Criando...</span>
-        } @else {
-          <span>Criar conta</span>
-        }
-      </button>
-
-      <p class="register-link-row">
-        Ja tem conta?
-        <a routerLink="/login" class="register-link">Entrar</a>
-      </p>
-    </form>
+        <p class="register-link-row">
+          Ja tem conta?
+          <a routerLink="/login" class="register-link">Entrar</a>
+        </p>
+      </form>
+    </div>
   </section>
 </main>
