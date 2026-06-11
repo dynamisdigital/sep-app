@@ -29,7 +29,7 @@
 
   font-size: 44px;
   line-height: 1;
-  letter-spacing: -1px;
+  letter-spacing: normal;
   color: hsl(var(--gradient-foreground));
 }
 
@@ -57,19 +57,9 @@
     color: hsl(var(--gradient-foreground) / 90%);
   }
 
-  li::before {
-    display: inline-flex;
+  .login-brand-check {
     flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    font-size: 12px;
-    font-weight: 700;
     color: hsl(var(--gradient-foreground));
-    content: "\2713";
-    background: hsl(var(--gradient-foreground) / 18%);
-    border-radius: var(--sep-radius-full);
   }
 }
 

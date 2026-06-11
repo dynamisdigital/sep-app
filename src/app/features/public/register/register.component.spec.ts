@@ -2,12 +2,19 @@ import { describe, expect, it } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/angular';
 import { provideRouter, Router } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
+import { importProvidersFrom } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { RegisterComponent } from './register.component';
 import { AuthService } from '../../../core/auth/auth.service';
+import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
 
 async function setup() {
   return render(RegisterComponent, {
-    providers: [provideRouter([]), provideHttpClient()],
+    providers: [
+      provideRouter([]),
+      provideHttpClient(),
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+    ],
   });
 }
 
