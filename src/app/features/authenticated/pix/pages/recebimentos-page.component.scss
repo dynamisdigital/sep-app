@@ -1,0 +1,98 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-recebimentos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-24);
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-recebimentos-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+}
+
+.sep-recebimentos-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-recebimentos-subtitle {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-recebimentos-card {
+  @include sepDs.sep-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-16);
+  padding: var(--sep-space-24);
+}
+
+.sep-recebimentos-card .sep-recebimentos-subtitle {
+  @include sepType.sep-type-card-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-recebimentos-aviso {
+  @include sepType.sep-type-caption;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-recebimentos-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+
+  span {
+    @include sepType.sep-type-caption;
+
+    color: hsl(var(--muted-foreground));
+  }
+
+  input {
+    padding: var(--sep-space-11) var(--sep-space-12);
+    color: hsl(var(--foreground));
+    background: hsl(var(--background));
+    border: 1px solid hsl(var(--input));
+    border-radius: var(--sep-radius-sm);
+    font-size: 15px;
+  }
+}
+
+.sep-recebimentos-cta {
+  align-self: flex-start;
+  padding: var(--sep-space-11) var(--sep-space-17);
+  border-radius: var(--sep-radius-md);
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.sep-recebimentos-error {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--destructive));
+}

@@ -67,6 +67,12 @@ export const AUTHENTICATED_ROUTES: Routes = [
         data: { breadcrumb: 'Cobranca' },
       },
       {
+        path: 'pix',
+        canActivate: [roleGuard],
+        data: { roles: ['FINANCEIRO', 'ADMIN', 'BACKOFFICE'], breadcrumb: 'Pix' },
+        loadChildren: () => import('./pix/pix.routes').then((m) => m.PIX_ROUTES),
+      },
+      {
         path: 'backoffice',
         canActivate: [roleGuard],
         data: { roles: ['BACKOFFICE', 'FINANCEIRO', 'ADMIN'], breadcrumb: 'Backoffice' },

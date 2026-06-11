@@ -1263,6 +1263,7 @@ const ITEM_EM_TRATAMENTO_ID = 'c0000000-0000-4000-8000-000000000002'; // EM_TRAT
 const ITEM_RESOLVIDO_ID = 'c0000000-0000-4000-8000-000000000003'; // RESOLVIDO (final)
 const ITEM_IGNORADO_ID = 'c0000000-0000-4000-8000-000000000004'; // IGNORADO (final)
 const ITEM_DESEMBOLSO_PIX_ID = 'c0000000-0000-4000-8000-000000000005'; // ABERTO / DESEMBOLSO_PIX_FALHOU
+const ITEM_RECEBIMENTO_PIX_ID = 'c0000000-0000-4000-8000-000000000006'; // ABERTO / RECEBIMENTO_PIX_DIVERGENTE
 // id 'c0000000-...-0000000000aa' (usado nas specs) cai no 404 generico de item nao encontrado.
 const WEBHOOK_EVENT_ID = 'd0000000-0000-4000-8000-000000000001';
 const PIX_ENTIDADE_ID = 'd0000000-0000-4000-8000-000000000002';
@@ -1335,6 +1336,18 @@ const itensFilaFake = [
     titulo: 'Desembolso Pix retornou falha do provedor',
     atribuidoA: null,
     dataAbertura: '2026-06-06T10:20:00-03:00',
+    dataResolucao: null,
+  },
+  {
+    id: ITEM_RECEBIMENTO_PIX_ID,
+    tipo: 'RECEBIMENTO_PIX_DIVERGENTE',
+    prioridade: 'ALTA',
+    status: 'ABERTO',
+    tipoEntidade: 'PIX_RECEBIMENTO',
+    entidadeId: 'e2000000-0000-4000-8000-000000000002',
+    titulo: 'Recebimento Pix sem referencia identificada',
+    atribuidoA: null,
+    dataAbertura: '2026-06-06T10:40:00-03:00',
     dataResolucao: null,
   },
 ];
@@ -2040,6 +2053,309 @@ const governancaHandlers = [
   }),
 ];
 
+// --- Pix operacional (F-Sprint 13 / backend Sprints 19-21) ---
+// Identificadores deterministicos para dev-offline e specs do PixService. Fixtures nao guardam
+// chave Pix em claro, payload bruto de provider, dados bancarios nem CPF/CNPJ. A chave destino
+// chega no request de desembolso, mas o mock so devolve a versao mascarada — nunca a original.
+const CONTRATO_DESEMBOLSO_INELEGIVEL_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b772a02';
+const CONTRATO_DESEMBOLSO_INEXISTENTE_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b772dead';
+
+const TRANSFERENCIA_CONCLUIDA_ID = 'e0000000-0000-4000-8000-000000000001';
+const TRANSFERENCIA_PROCESSANDO_ID = 'e0000000-0000-4000-8000-000000000002';
+const TRANSFERENCIA_PROVIDER_OFF_ID = 'e0000000-0000-4000-8000-000000000003';
+
+// A parcela recebivel reusa o sentinel da cobranca para o vinculo do recebimento conciliado.
+const PIX_PARCELA_RECEBIVEL_ID = PARCELA_PARA_RECEBIMENTO_ID;
+const PIX_PARCELA_INELEGIVEL_ID = 'a0000000-0000-4000-8000-0000000000c1';
+const PIX_PARCELA_INEXISTENTE_ID = 'a0000000-0000-4000-8000-0000000000c2';
+
+const REFERENCIA_ATIVA_ID = 'e1000000-0000-4000-8000-000000000001';
+const RECEBIMENTO_CONCILIADO_ID = 'e2000000-0000-4000-8000-000000000001';
+const RECEBIMENTO_NAO_IDENTIFICADO_ID = 'e2000000-0000-4000-8000-000000000002';
+
+const VALOR_DESEMBOLSO_ELEGIVEL = 10000.0;
+const VALOR_PARCELA_PIX = 1000.0;
+
+interface DesembolsoMockState {
+  transferenciaId: string;
+  contratoId: string;
+  status: string;
+  valor: number;
+  chaveDestinoMascara: string;
+}
+
+// Mascara a chave Pix destino sem nunca devolver a original (mantem so os primeiros 3 chars).
+function mascararChavePix(chave: string): string {
+  return `${chave.slice(0, 3)}***`;
+}
+
+// FINANCEIRO/ADMIN: solicitar desembolso e gerar referencia (espelha @PreAuthorize do backend).
+function negarSeNaoFinanceiroPix(path: string) {
+  if (currentMockUser.role !== 'FINANCEIRO' && currentMockUser.role !== 'ADMIN') {
+    return errorResponse(403, 'Forbidden', 'Sem permissao para a operacao Pix', path);
+  }
+  return null;
+}
+
+// Leituras Pix sao internas: FINANCEIRO/ADMIN/BACKOFFICE. CLIENTE nao acessa.
+function negarSeNaoInternoPix(path: string) {
+  if (currentMockUser.role === 'CLIENTE') {
+    return errorResponse(403, 'Forbidden', 'Sem permissao para a operacao Pix', path);
+  }
+  return null;
+}
+
+function seedTransferenciasPix(): Record<string, DesembolsoMockState> {
+  const base = (transferenciaId: string, status: string): DesembolsoMockState => ({
+    transferenciaId,
+    contratoId: '6f0799c0-98b9-6d9d-bc4a-7d6f5b772a01',
+    status,
+    valor: VALOR_DESEMBOLSO_ELEGIVEL,
+    chaveDestinoMascara: 'joa***',
+  });
+  return {
+    [TRANSFERENCIA_CONCLUIDA_ID]: base(TRANSFERENCIA_CONCLUIDA_ID, 'CONCLUIDA'),
+    [TRANSFERENCIA_PROCESSANDO_ID]: base(TRANSFERENCIA_PROCESSANDO_ID, 'PROCESSANDO'),
+    [TRANSFERENCIA_PROVIDER_OFF_ID]: base(TRANSFERENCIA_PROVIDER_OFF_ID, 'SOLICITADA'),
+  };
+}
+
+// Recurso de referencia (sem o flag `novo`, que e definido por operacao: POST novo/reaproveitado,
+// GET sempre false). codigoCopiaCola e dado de pagamento nao sensivel.
+function referenciaAtivaSeed(): Record<string, unknown> {
+  return {
+    referenciaId: REFERENCIA_ATIVA_ID,
+    parcelaId: PIX_PARCELA_RECEBIVEL_ID,
+    txid: `SEP${REFERENCIA_ATIVA_ID.replace(/-/g, '')}`,
+    codigoCopiaCola: `00020126360014br.gov.bcb.pix0114${REFERENCIA_ATIVA_ID.slice(0, 8)}5204000053039865802BR6304ABCD`,
+    valorEsperado: VALOR_PARCELA_PIX,
+    status: 'ATIVA',
+  };
+}
+
+function seedReferenciasPorId(): Record<string, Record<string, unknown>> {
+  return { [REFERENCIA_ATIVA_ID]: referenciaAtivaSeed() };
+}
+
+function seedReferenciaPorParcela(): Map<string, Record<string, unknown>> {
+  return new Map<string, Record<string, unknown>>([
+    [PIX_PARCELA_RECEBIVEL_ID, referenciaAtivaSeed()],
+  ]);
+}
+
+// Recebimentos sao read-only no front (conciliacao/baixa ficam no backend). A divergencia aparece
+// como estado claro: NAO_IDENTIFICADO sem vinculo de parcela/referencia, com motivo preenchido.
+const recebimentosPix: Record<string, Record<string, unknown>> = {
+  [RECEBIMENTO_CONCILIADO_ID]: {
+    recebimentoId: RECEBIMENTO_CONCILIADO_ID,
+    status: 'CONCILIADO',
+    valor: VALOR_PARCELA_PIX,
+    endToEndId: 'E0000000020260424183000abcdef01',
+    referenciaId: REFERENCIA_ATIVA_ID,
+    parcelaId: PIX_PARCELA_RECEBIVEL_ID,
+    recebimentoCobrancaId: 'c0000000-0000-4000-8000-000000000010',
+    motivoDivergencia: null,
+    recebidoEm: now,
+  },
+  [RECEBIMENTO_NAO_IDENTIFICADO_ID]: {
+    recebimentoId: RECEBIMENTO_NAO_IDENTIFICADO_ID,
+    status: 'NAO_IDENTIFICADO',
+    valor: 250.0,
+    endToEndId: 'E0000000020260424183000fedcba02',
+    referenciaId: null,
+    parcelaId: null,
+    recebimentoCobrancaId: null,
+    motivoDivergencia: 'Referencia Pix nao localizada para o txid recebido',
+    recebidoEm: now,
+  },
+};
+
+let transferenciasPix = seedTransferenciasPix();
+let referenciasPix = seedReferenciasPorId();
+let referenciaPorParcela = seedReferenciaPorParcela();
+const desembolsoPorChave = new Map<string, { hash: string; response: Record<string, unknown> }>();
+let pixSeq = 100;
+
+// Restaura o estado mutavel do Pix (transferencias, referencias e idempotencia) para o seed.
+// Usado pelos testes para garantir independencia (F.I.R.S.T.) ao exercitar criacao/replay.
+export function resetPixState(): void {
+  transferenciasPix = seedTransferenciasPix();
+  referenciasPix = seedReferenciasPorId();
+  referenciaPorParcela = seedReferenciaPorParcela();
+  desembolsoPorChave.clear();
+  pixSeq = 100;
+}
+
+const pixHandlers = [
+  http.post(`${baseUrl}/pix/desembolsos`, async ({ request }) => {
+    const path = '/api/v1/pix/desembolsos';
+    const negado = negarSeNaoFinanceiroPix(path);
+    if (negado) {
+      return negado;
+    }
+    if (faltaStepUp(request)) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
+    }
+    const chave = request.headers.get('Idempotency-Key');
+    if (!chave || !IDEMPOTENCY_KEY_PATTERN.test(chave)) {
+      return errorResponse(
+        400,
+        'Bad Request',
+        "Header 'Idempotency-Key' ausente ou invalido",
+        path,
+      );
+    }
+    const body = (await request.json()) as {
+      contratoId?: string;
+      valor?: number;
+      chavePixDestino?: string;
+    };
+    const hash = JSON.stringify(body);
+    const anterior = desembolsoPorChave.get(chave);
+    if (anterior) {
+      if (anterior.hash !== hash) {
+        return errorResponse(
+          409,
+          'Conflict',
+          'Idempotency-Key reapresentada com payload divergente',
+          path,
+        );
+      }
+      return HttpResponse.json({ ...anterior.response, novo: false });
+    }
+    if (body.contratoId === CONTRATO_DESEMBOLSO_INEXISTENTE_ID) {
+      return errorResponse(404, 'Not Found', 'Contrato nao encontrado', path);
+    }
+    if (body.contratoId === CONTRATO_DESEMBOLSO_INELEGIVEL_ID) {
+      return errorResponse(
+        422,
+        'Unprocessable Entity',
+        'Contrato inelegivel para desembolso (nao assinado, sem agenda ou escrow inoperante)',
+        path,
+      );
+    }
+    pixSeq += 1;
+    const transferenciaId = novoId('e0000000', pixSeq);
+    const novo: DesembolsoMockState = {
+      transferenciaId,
+      contratoId: body.contratoId ?? '',
+      status: 'CRIADA',
+      valor: body.valor ?? 0,
+      chaveDestinoMascara: mascararChavePix(body.chavePixDestino ?? ''),
+    };
+    transferenciasPix[transferenciaId] = novo;
+    const response = { ...novo, novo: true };
+    desembolsoPorChave.set(chave, { hash, response });
+    return HttpResponse.json(response, { status: 201 });
+  }),
+
+  http.post(`${baseUrl}/pix/desembolsos/:id/status`, ({ params, request }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/pix/desembolsos/${id}/status`;
+    const negado = negarSeNaoInternoPix(path);
+    if (negado) {
+      return negado;
+    }
+    if (faltaStepUp(request)) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
+    }
+    const transferencia = transferenciasPix[id];
+    if (!transferencia) {
+      return errorResponse(404, 'Not Found', 'Transferencia nao encontrada', path);
+    }
+    // Provider indisponivel: devolve o status local sem mascarar a falha como sucesso.
+    if (id === TRANSFERENCIA_PROVIDER_OFF_ID) {
+      return HttpResponse.json({ ...transferencia, providerIndisponivel: true });
+    }
+    // Reconciliacao so avanca: PROCESSANDO -> CONCLUIDA ao reconsultar o provider.
+    if (transferencia.status === 'PROCESSANDO') {
+      transferencia.status = 'CONCLUIDA';
+    }
+    return HttpResponse.json({ ...transferencia, providerIndisponivel: false });
+  }),
+
+  http.get(`${baseUrl}/pix/desembolsos/:id`, ({ params }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/pix/desembolsos/${id}`;
+    const negado = negarSeNaoInternoPix(path);
+    if (negado) {
+      return negado;
+    }
+    const transferencia = transferenciasPix[id];
+    if (!transferencia) {
+      return errorResponse(404, 'Not Found', 'Transferencia nao encontrada', path);
+    }
+    // Leitura local: nunca chama o provider, entao providerIndisponivel e sempre false.
+    return HttpResponse.json({ ...transferencia, providerIndisponivel: false });
+  }),
+
+  http.post(`${baseUrl}/pix/recebimentos/referencias`, async ({ request }) => {
+    const path = '/api/v1/pix/recebimentos/referencias';
+    const negado = negarSeNaoFinanceiroPix(path);
+    if (negado) {
+      return negado;
+    }
+    const body = (await request.json()) as { parcelaId?: string };
+    const parcelaId = body.parcelaId ?? '';
+    if (parcelaId === PIX_PARCELA_INEXISTENTE_ID) {
+      return errorResponse(404, 'Not Found', 'Parcela nao encontrada', path);
+    }
+    if (parcelaId === PIX_PARCELA_INELEGIVEL_ID) {
+      return errorResponse(
+        422,
+        'Unprocessable Entity',
+        'Parcela nao recebivel ou sem valor em aberto',
+        path,
+      );
+    }
+    const existente = referenciaPorParcela.get(parcelaId);
+    if (existente) {
+      return HttpResponse.json({ ...existente, novo: false });
+    }
+    pixSeq += 1;
+    const referenciaId = novoId('e1000000', pixSeq);
+    const referencia: Record<string, unknown> = {
+      referenciaId,
+      parcelaId,
+      txid: `SEP${referenciaId.replace(/-/g, '')}`,
+      codigoCopiaCola: `00020126360014br.gov.bcb.pix0114${referenciaId.slice(0, 8)}5204000053039865802BR6304ABCD`,
+      valorEsperado: VALOR_PARCELA_PIX,
+      status: 'ATIVA',
+    };
+    referenciasPix[referenciaId] = referencia;
+    referenciaPorParcela.set(parcelaId, referencia);
+    return HttpResponse.json({ ...referencia, novo: true }, { status: 201 });
+  }),
+
+  http.get(`${baseUrl}/pix/recebimentos/referencias/:id`, ({ params }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/pix/recebimentos/referencias/${id}`;
+    const negado = negarSeNaoInternoPix(path);
+    if (negado) {
+      return negado;
+    }
+    const referencia = referenciasPix[id];
+    if (!referencia) {
+      return errorResponse(404, 'Not Found', 'Referencia nao encontrada', path);
+    }
+    return HttpResponse.json({ ...referencia, novo: false });
+  }),
+
+  http.get(`${baseUrl}/pix/recebimentos/:id`, ({ params }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/pix/recebimentos/${id}`;
+    const negado = negarSeNaoInternoPix(path);
+    if (negado) {
+      return negado;
+    }
+    const recebimento = recebimentosPix[id];
+    if (!recebimento) {
+      return errorResponse(404, 'Not Found', 'Recebimento nao encontrado', path);
+    }
+    return HttpResponse.json(recebimento);
+  }),
+];
+
 export const handlers = [
   http.post(`${baseUrl}/auth/login`, async ({ request }) => {
     const body = (await request.json()) as { username?: string; password?: string };
@@ -2139,4 +2455,5 @@ export const handlers = [
   ...cobrancaHandlers,
   ...backofficeHandlers,
   ...governancaHandlers,
+  ...pixHandlers,
 ];

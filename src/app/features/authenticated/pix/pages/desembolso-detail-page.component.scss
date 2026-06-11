@@ -1,0 +1,105 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-desembolso-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-16);
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-desembolso-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sep-space-12);
+}
+
+.sep-desembolso-detail-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-desembolso-detail-grid {
+  @include sepDs.sep-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-12);
+  margin: 0;
+  padding: var(--sep-space-24);
+}
+
+.sep-desembolso-detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-3);
+
+  dt {
+    @include sepType.sep-type-caption;
+
+    color: hsl(var(--muted-foreground));
+  }
+
+  dd {
+    @include sepType.sep-type-body;
+
+    margin: 0;
+    color: hsl(var(--foreground));
+    word-break: break-all;
+  }
+}
+
+.sep-desembolso-detail-alerta {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  padding: var(--sep-space-12) var(--sep-space-16);
+  color: hsl(var(--destructive));
+  background: hsl(var(--destructive) / 10%);
+  border-radius: var(--sep-radius-md);
+}
+
+.sep-desembolso-detail-cta {
+  align-self: flex-start;
+  padding: var(--sep-space-11) var(--sep-space-17);
+  border-radius: var(--sep-radius-md);
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.sep-desembolso-detail-state {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-desembolso-detail-error-msg {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--destructive));
+}
+
+.sep-desembolso-detail-retry {
+  align-self: flex-start;
+  margin-top: var(--sep-space-8);
+  padding: var(--sep-space-8) var(--sep-space-16);
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--sep-radius-sm);
+  background: transparent;
+  color: hsl(var(--foreground));
+  cursor: pointer;
+}
