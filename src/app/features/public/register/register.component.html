@@ -1,5 +1,5 @@
 <main class="register-page">
-  <aside class="register-brand">
+  <aside class="register-brand" aria-hidden="true">
     <div class="register-brand-inner">
       <span class="register-brand-mark">SEP</span>
       <p class="register-brand-tagline">Sociedade de Emprestimo entre Pessoas</p>
@@ -11,12 +11,12 @@
     </div>
   </aside>
 
-  <section class="register-form-panel">
+  <section class="register-form-panel" aria-labelledby="register-title">
     <a routerLink="/" class="register-back" aria-label="Voltar para a pagina inicial"
       >Voltar ao inicio</a
     >
 
-    <div class="register-card" aria-labelledby="register-title">
+    <div class="register-card">
       <h1 id="register-title" class="register-title">Criar conta SEP</h1>
 
       <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="register-form">

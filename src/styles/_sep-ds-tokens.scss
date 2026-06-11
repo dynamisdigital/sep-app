@@ -50,6 +50,10 @@
   --gradient-background: linear-gradient(180deg, hsl(207deg 44% 97%), hsl(210deg 20% 94%));
   --gradient-hero: linear-gradient(135deg, hsl(213deg 58% 43% / 10%), hsl(145deg 50% 50% / 10%));
 
+  // Texto/icone sobre superficies de gradiente. O gradiente e invariante ao tema,
+  // entao o foreground e sempre branco (nao usar --primary-foreground, que inverte no dark).
+  --gradient-foreground: 0 0% 100%;
+
   // ===== Sombras =====
   --shadow-sm: 0 2px 8px -2px hsl(213deg 58% 43% / 10%);
   --shadow-md: 0 4px 16px -4px hsl(213deg 58% 43% / 15%);

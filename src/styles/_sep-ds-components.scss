@@ -144,7 +144,7 @@
 @mixin sep-button-gradient {
   @include sep-button-base;
 
-  color: hsl(var(--primary-foreground));
+  color: hsl(var(--gradient-foreground));
   background: var(--gradient-primary);
   border: 0;
 
@@ -460,6 +460,6 @@
   gap: var(--sep-space-24);
   padding: var(--sep-space-48);
   overflow: hidden;
-  color: hsl(var(--primary-foreground));
+  color: hsl(var(--gradient-foreground));
   background: var(--gradient-primary);
 }

@@ -30,14 +30,14 @@
   font-size: 44px;
   line-height: 1;
   letter-spacing: -1px;
-  color: hsl(var(--primary-foreground));
+  color: hsl(var(--gradient-foreground));
 }
 
 .login-brand-tagline {
   @include sepType.sep-type-body-medium;
 
   margin: 0;
-  color: hsl(var(--primary-foreground) / 90%);
+  color: hsl(var(--gradient-foreground) / 90%);
 }
 
 .login-brand-list {
@@ -54,7 +54,7 @@
     display: flex;
     gap: var(--sep-space-8);
     align-items: center;
-    color: hsl(var(--primary-foreground) / 90%);
+    color: hsl(var(--gradient-foreground) / 90%);
   }
 
   li::before {
@@ -66,9 +66,9 @@
     height: 20px;
     font-size: 12px;
     font-weight: 700;
-    color: hsl(var(--primary-foreground));
+    color: hsl(var(--gradient-foreground));
     content: "\2713";
-    background: hsl(var(--primary-foreground) / 18%);
+    background: hsl(var(--gradient-foreground) / 18%);
     border-radius: var(--sep-radius-full);
   }
 }
