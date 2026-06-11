@@ -2,9 +2,12 @@ import { describe, expect, it, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/angular';
 import { Router, provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
+import { importProvidersFrom } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 
 import { HeaderComponent } from './header.component';
 import { AuthService } from '../../core/auth/auth.service';
+import { LUCIDE_ICONS } from '../../core/icons/lucide-icons';
 
 const ACCESS_TOKEN_KEY = 'SEP_ACCESS_TOKEN';
 
@@ -15,7 +18,11 @@ describe('HeaderComponent', () => {
 
   it('mostra brand SEP', async () => {
     await render(HeaderComponent, {
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
     });
 
     expect(screen.getByText('SEP')).toBeTruthy();
@@ -23,7 +30,11 @@ describe('HeaderComponent', () => {
 
   it('mostra usuario autenticado e badge de role', async () => {
     const result = await render(HeaderComponent, {
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
     });
     const auth = result.fixture.debugElement.injector.get(AuthService);
     await new Promise<void>((resolve, reject) => {
@@ -40,7 +51,11 @@ describe('HeaderComponent', () => {
 
   it('logout limpa sessao e navega para /login', async () => {
     const result = await render(HeaderComponent, {
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
     });
     const auth = result.fixture.debugElement.injector.get(AuthService);
     const router = result.fixture.debugElement.injector.get(Router);

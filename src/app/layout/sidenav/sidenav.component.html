@@ -1,21 +1,28 @@
 <nav class="sep-sidenav" [class.sep-sidenav-collapsed]="collapsed" aria-label="Menu lateral">
-  <ul class="sep-sidenav-list">
-    @for (item of visibleItems(); track item.label) {
-      <li class="sep-sidenav-item">
-        @if (item.disabled) {
-          <span class="sep-sidenav-link sep-sidenav-link-disabled" aria-disabled="true">
-            {{ item.label }}
-          </span>
-        } @else {
-          <a
-            [routerLink]="item.route"
-            routerLinkActive="sep-sidenav-link-active"
-            class="sep-sidenav-link"
-          >
-            {{ item.label }}
-          </a>
+  @for (group of visibleGroups(); track $index) {
+    <div class="sep-sidenav-group">
+      @if (group.label) {
+        <span class="sep-sidenav-group-label">{{ group.label }}</span>
+      }
+      <ul class="sep-sidenav-list">
+        @for (item of group.items; track item.label) {
+          <li class="sep-sidenav-item">
+            <a
+              [routerLink]="item.route"
+              routerLinkActive="sep-sidenav-link-active"
+              class="sep-sidenav-link"
+            >
+              <lucide-icon
+                [name]="item.icon"
+                [size]="18"
+                class="sep-sidenav-icon"
+                aria-hidden="true"
+              />
+              <span class="sep-sidenav-label">{{ item.label }}</span>
+            </a>
+          </li>
         }
-      </li>
-    }
-  </ul>
+      </ul>
+    </div>
+  }
 </nav>
