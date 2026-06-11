@@ -1,0 +1,66 @@
+<section class="sep-recebimentos">
+  <header class="sep-recebimentos-header">
+    <h1 class="sep-recebimentos-title">Recebimentos Pix</h1>
+    <p class="sep-recebimentos-subtitle">
+      Referencias Pix de parcelas e acompanhamento de recebimentos conciliados ou divergentes.
+    </p>
+  </header>
+
+  @if (podeGerar()) {
+    <form class="sep-recebimentos-card" [formGroup]="form" (ngSubmit)="gerar()">
+      <h2 class="sep-recebimentos-subtitle">Gerar referencia de parcela</h2>
+      <p class="sep-recebimentos-aviso" role="note">
+        Gera (ou reaproveita) a referencia Pix com copia-cola para uma parcela elegivel. A
+        elegibilidade e a conciliacao ficam no backend.
+      </p>
+
+      <label class="sep-recebimentos-field" for="rec-parcela">
+        <span>Parcela</span>
+        <input
+          id="rec-parcela"
+          type="text"
+          formControlName="parcelaId"
+          placeholder="ID da parcela"
+        />
+      </label>
+
+      <button type="submit" class="sep-recebimentos-cta" [disabled]="submitting()">
+        @if (submitting()) {
+          Gerando...
+        } @else {
+          Gerar referencia
+        }
+      </button>
+
+      @if (erro(); as msg) {
+        <p class="sep-recebimentos-error" role="alert">{{ msg }}</p>
+      }
+    </form>
+  }
+
+  <form
+    class="sep-recebimentos-card"
+    [formGroup]="consultaReferenciaForm"
+    (ngSubmit)="consultarReferencia()"
+  >
+    <h2 class="sep-recebimentos-subtitle">Consultar referencia</h2>
+    <label class="sep-recebimentos-field" for="rec-ref-id">
+      <span>ID da referencia</span>
+      <input id="rec-ref-id" type="text" formControlName="referenciaId" />
+    </label>
+    <button type="submit" class="sep-recebimentos-cta">Abrir referencia</button>
+  </form>
+
+  <form
+    class="sep-recebimentos-card"
+    [formGroup]="consultaRecebimentoForm"
+    (ngSubmit)="consultarRecebimento()"
+  >
+    <h2 class="sep-recebimentos-subtitle">Consultar recebimento</h2>
+    <label class="sep-recebimentos-field" for="rec-rec-id">
+      <span>ID do recebimento</span>
+      <input id="rec-rec-id" type="text" formControlName="recebimentoId" />
+    </label>
+    <button type="submit" class="sep-recebimentos-cta">Abrir recebimento</button>
+  </form>
+</section>

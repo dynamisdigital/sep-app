@@ -23,4 +23,26 @@ export const PIX_ROUTES: Routes = [
       ),
     data: { breadcrumb: 'Desembolso' },
   },
+  {
+    path: 'recebimentos',
+    loadComponent: () =>
+      import('./pages/recebimentos-page.component').then((m) => m.RecebimentosPageComponent),
+    data: { breadcrumb: 'Recebimentos' },
+  },
+  {
+    path: 'recebimentos/referencias/:id',
+    loadComponent: () =>
+      import('./pages/referencia-detail-page.component').then(
+        (m) => m.ReferenciaDetailPageComponent,
+      ),
+    data: { breadcrumb: 'Referencia' },
+  },
+  {
+    path: 'recebimentos/:id',
+    loadComponent: () =>
+      import('./pages/recebimento-detail-page.component').then(
+        (m) => m.RecebimentoDetailPageComponent,
+      ),
+    data: { breadcrumb: 'Recebimento' },
+  },
 ];

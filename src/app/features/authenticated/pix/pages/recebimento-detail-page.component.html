@@ -1,0 +1,70 @@
+<section class="sep-recebimento-detail">
+  @if (loading()) {
+    <p class="sep-recebimento-detail-state" role="status">Carregando recebimento...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-recebimento-detail-state sep-recebimento-detail-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="sep-recebimento-detail-retry" (click)="carregar()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (naoEncontrado()) {
+    <div class="sep-recebimento-detail-state">
+      <p>Recebimento nao encontrado.</p>
+    </div>
+  } @else if (recebimento(); as r) {
+    <header class="sep-recebimento-detail-header">
+      <h1 class="sep-recebimento-detail-title">Recebimento {{ idCurto(r.recebimentoId) }}</h1>
+      <sep-pix-recebimento-status [status]="r.status" />
+    </header>
+
+    @if (r.motivoDivergencia; as motivo) {
+      <p class="sep-recebimento-detail-alerta" role="alert">{{ motivo }}</p>
+    }
+
+    <dl class="sep-recebimento-detail-grid">
+      <div class="sep-recebimento-detail-row">
+        <dt>Valor</dt>
+        <dd>{{ formatarMoeda(r.valor) }}</dd>
+      </div>
+      <div class="sep-recebimento-detail-row">
+        <dt>Recebido em</dt>
+        <dd>{{ formatarDataHora(r.recebidoEm) }}</dd>
+      </div>
+      @if (r.endToEndId; as e2e) {
+        <div class="sep-recebimento-detail-row">
+          <dt>End-to-end id</dt>
+          <dd>{{ e2e }}</dd>
+        </div>
+      }
+      @if (r.referenciaId; as referenciaId) {
+        <div class="sep-recebimento-detail-row">
+          <dt>Referencia</dt>
+          <dd>
+            <a [routerLink]="['/app/pix/recebimentos/referencias', referenciaId]">
+              {{ referenciaId }}
+            </a>
+          </dd>
+        </div>
+      }
+      @if (r.parcelaId; as parcelaId) {
+        <div class="sep-recebimento-detail-row">
+          <dt>Parcela</dt>
+          <dd>
+            @if (podeVerParcela()) {
+              <a [routerLink]="['/app/cobranca/financeiro/parcelas', parcelaId]">{{ parcelaId }}</a>
+            } @else {
+              {{ parcelaId }}
+            }
+          </dd>
+        </div>
+      }
+    </dl>
+
+    @if (!r.parcelaId) {
+      <p class="sep-recebimento-detail-nota" role="note">
+        Recebimento sem parcela vinculada. Tratamento operacional segue pelo backoffice.
+      </p>
+    }
+  }
+</section>

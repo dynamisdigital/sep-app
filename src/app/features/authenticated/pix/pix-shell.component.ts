@@ -30,7 +30,7 @@ export class PixShellComponent {
     {
       label: 'Recebimentos',
       description: 'Referencias Pix de parcelas e recebimentos conciliados.',
-      disabled: true,
+      route: '/app/pix/recebimentos',
     },
     {
       label: 'Divergencias',
