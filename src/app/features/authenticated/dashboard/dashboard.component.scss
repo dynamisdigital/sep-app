@@ -7,13 +7,28 @@
   gap: var(--sep-space-32);
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+  padding-bottom: var(--sep-space-16);
 }
 
+// ===== Header sticky translucido =====
+
 .sep-dashboard-header {
+  position: sticky;
+  top: var(--header-height);
+  z-index: 5;
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-8);
+  gap: var(--sep-space-4);
+  padding: var(--sep-space-16) 0 var(--sep-space-12);
+  background: color-mix(in srgb, hsl(var(--background)) 92%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.sep-dashboard-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sep-space-12);
+  align-items: center;
 }
 
 .sep-dashboard-title {
@@ -25,9 +40,16 @@
 
 .sep-dashboard-badge {
   @include sepDs.sep-badge-soft(--primary);
-
-  align-self: flex-start;
 }
+
+.sep-dashboard-subtitle {
+  @include sepType.sep-type-caption;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+// ===== Secoes =====
 
 .sep-dashboard-section {
   display: flex;
@@ -42,54 +64,90 @@
   color: hsl(var(--muted-foreground));
 }
 
-.sep-dashboard-cards {
+// ===== Acesso rapido (tiles coloridos) =====
+
+.sep-quick-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: var(--sep-space-16);
 }
 
-.sep-dashboard-card {
-  @include sepDs.sep-card;
-
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-6);
-  padding: var(--sep-space-24);
+.sep-quick-tile--primary {
+  @include sepDs.sep-quick-tile(--primary);
 }
 
-.sep-dashboard-card-link {
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-
-  &:hover {
-    border-color: hsl(var(--primary) / 30%);
-    box-shadow: var(--shadow-md);
-  }
+.sep-quick-tile--warning {
+  @include sepDs.sep-quick-tile(--warning);
 }
 
-.sep-dashboard-card-placeholder {
-  opacity: 0.65;
+.sep-quick-tile--devolutiva {
+  @include sepDs.sep-quick-tile(--devolutiva);
 }
 
-.sep-dashboard-card-title {
-  @include sepType.sep-type-card-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
+.sep-quick-tile-label {
+  @include sepType.sep-type-button;
 }
 
-.sep-dashboard-card-body {
-  @include sepType.sep-type-body;
+.sep-quick-tile-desc {
+  @include sepType.sep-type-micro;
 
-  margin: 0;
   color: hsl(var(--muted-foreground));
 }
 
-.sep-dashboard-card-tag {
+// ===== Proximas jornadas (cards com chip de icone) =====
+
+.sep-journey-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--sep-space-16);
+}
+
+.sep-journey-card {
+  @include sepDs.sep-card;
+
+  display: flex;
+  gap: var(--sep-space-12);
+  align-items: flex-start;
+  padding: var(--sep-space-24);
+  opacity: 0.85;
+}
+
+.sep-journey-icon--primary {
+  @include sepDs.sep-icon-chip(--primary);
+}
+
+.sep-journey-icon--secondary {
+  @include sepDs.sep-icon-chip(--secondary);
+}
+
+.sep-journey-icon--devolutiva {
+  @include sepDs.sep-icon-chip(--devolutiva);
+}
+
+.sep-journey-icon--warning {
+  @include sepDs.sep-icon-chip(--warning);
+}
+
+.sep-journey-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--sep-space-4);
+}
+
+.sep-journey-title {
+  @include sepType.sep-type-card-title;
+
+  color: hsl(var(--foreground));
+}
+
+.sep-journey-desc {
+  @include sepType.sep-type-caption;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-journey-tag {
   @include sepDs.sep-badge-soft(--muted-foreground);
 
   align-self: flex-start;

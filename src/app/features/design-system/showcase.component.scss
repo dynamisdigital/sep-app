@@ -419,6 +419,62 @@
   @include sepDs.sep-nav-link-active;
 }
 
+// ===== Tiles, chips e marca (F-15) =====
+
+.ds-btn--gradient {
+  color: hsl(var(--gradient-foreground));
+  background: var(--gradient-primary);
+  border: 0;
+
+  &:hover {
+    filter: brightness(1.05);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.ds-icon-chip--primary {
+  @include sepDs.sep-icon-chip(--primary);
+}
+
+.ds-icon-chip--warning {
+  @include sepDs.sep-icon-chip(--warning);
+}
+
+.ds-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--sep-space-16);
+}
+
+.ds-quick-tile--primary {
+  @include sepDs.sep-quick-tile(--primary);
+}
+
+.ds-quick-tile--devolutiva {
+  @include sepDs.sep-quick-tile(--devolutiva);
+}
+
+.ds-auth-panel {
+  @include sepDs.sep-auth-brand-panel;
+
+  gap: var(--sep-space-8);
+  max-width: 360px;
+  padding: var(--sep-space-32);
+  border-radius: var(--sep-radius-lg);
+}
+
+.ds-auth-panel-mark {
+  @include sepType.sep-type-page-title;
+
+  color: hsl(var(--gradient-foreground));
+}
+
+.ds-auth-panel-text {
+  @include sepType.sep-type-caption;
+
+  color: hsl(var(--gradient-foreground) / 90%);
+}
+
 code {
   font-family: monospace;
 }

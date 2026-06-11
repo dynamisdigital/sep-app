@@ -1,11 +1,13 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Output, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 
 import { AuthService } from '../../core/auth/auth.service';
 import { ThemeService } from '../../core/theme/theme.service';
 
 @Component({
   selector: 'sep-header',
+  imports: [LucideAngularModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

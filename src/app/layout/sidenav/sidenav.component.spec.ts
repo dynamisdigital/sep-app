@@ -1,8 +1,11 @@
 import { provideHttpClient } from '@angular/common/http';
+import { importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { LUCIDE_ICONS } from '../../core/icons/lucide-icons';
 import { AuthService } from '../../core/auth/auth.service';
 import { SidenavComponent } from './sidenav.component';
 
@@ -15,7 +18,11 @@ describe('SidenavComponent', () => {
 
   it('sem usuario: mostra dashboard mas oculta administracao', async () => {
     await render(SidenavComponent, {
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
     });
 
     expect(screen.getByText('Dashboard')).toBeTruthy();
@@ -24,7 +31,11 @@ describe('SidenavComponent', () => {
 
   it('ADMIN: mostra Dashboard, Meu perfil e Administracao', async () => {
     const result = await render(SidenavComponent, {
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
     });
     const auth = result.fixture.debugElement.injector.get(AuthService);
     await new Promise<void>((resolve, reject) => {
@@ -43,7 +54,11 @@ describe('SidenavComponent', () => {
   it('CLIENTE: ve Dashboard e Meu perfil mas oculta Administracao', async () => {
     window.localStorage.setItem(ACCESS_TOKEN_KEY, 'mock-jwt-token');
     const result = await render(SidenavComponent, {
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
     });
     const auth = result.fixture.debugElement.injector.get(AuthService) as unknown as {
       currentUserState: { set: (u: unknown) => void };
@@ -67,7 +82,11 @@ describe('SidenavComponent', () => {
 
   it('Onboarding aponta para /app/onboarding', async () => {
     const result = await render(SidenavComponent, {
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
     });
     const auth = result.fixture.debugElement.injector.get(AuthService);
     await new Promise<void>((resolve, reject) => {
@@ -84,7 +103,11 @@ describe('SidenavComponent', () => {
 
   it('Credito aparece para autenticado e aponta para /app/credito', async () => {
     const result = await render(SidenavComponent, {
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
     });
     const auth = result.fixture.debugElement.injector.get(AuthService);
     await new Promise<void>((resolve, reject) => {
@@ -101,7 +124,11 @@ describe('SidenavComponent', () => {
 
   it('Formalizacao aparece para autenticado e aponta para /app/formalizacao', async () => {
     const result = await render(SidenavComponent, {
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
     });
     const auth = result.fixture.debugElement.injector.get(AuthService);
     await new Promise<void>((resolve, reject) => {
@@ -118,7 +145,11 @@ describe('SidenavComponent', () => {
 
   it('Cobranca aparece para autenticado e aponta para /app/cobranca', async () => {
     const result = await render(SidenavComponent, {
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
     });
     const auth = result.fixture.debugElement.injector.get(AuthService);
     await new Promise<void>((resolve, reject) => {
@@ -135,7 +166,11 @@ describe('SidenavComponent', () => {
 
   it('BACKOFFICE: ve Backoffice (->/app/backoffice) mas oculta Administracao', async () => {
     const result = await render(SidenavComponent, {
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
     });
     const auth = result.fixture.debugElement.injector.get(AuthService);
     await new Promise<void>((resolve, reject) => {
@@ -155,7 +190,11 @@ describe('SidenavComponent', () => {
 
   it('Pix aparece para FINANCEIRO e aponta para /app/pix', async () => {
     const result = await render(SidenavComponent, {
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
     });
     const auth = result.fixture.debugElement.injector.get(AuthService);
     await new Promise<void>((resolve, reject) => {
@@ -172,7 +211,11 @@ describe('SidenavComponent', () => {
   it('CLIENTE: nao ve o menu Pix', async () => {
     window.localStorage.setItem(ACCESS_TOKEN_KEY, 'mock-jwt-token');
     const result = await render(SidenavComponent, {
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
     });
     const auth = result.fixture.debugElement.injector.get(AuthService) as unknown as {
       currentUserState: { set: (u: unknown) => void };
@@ -194,7 +237,11 @@ describe('SidenavComponent', () => {
   it('CLIENTE: nao ve o menu Backoffice', async () => {
     window.localStorage.setItem(ACCESS_TOKEN_KEY, 'mock-jwt-token');
     const result = await render(SidenavComponent, {
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
     });
     const auth = result.fixture.debugElement.injector.get(AuthService) as unknown as {
       currentUserState: { set: (u: unknown) => void };
@@ -215,7 +262,11 @@ describe('SidenavComponent', () => {
 
   it('link Meu perfil aponta para /app/profile e Administracao para /app/admin', async () => {
     const result = await render(SidenavComponent, {
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
     });
     const auth = result.fixture.debugElement.injector.get(AuthService);
     await new Promise<void>((resolve, reject) => {

@@ -1,12 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/angular';
 import { provideRouter } from '@angular/router';
+import { importProvidersFrom } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { LandingComponent } from './landing.component';
+import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
 
 describe('LandingComponent', () => {
   it('renderiza headline principal', async () => {
     await render(LandingComponent, {
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS))],
     });
 
     expect(
@@ -16,7 +19,7 @@ describe('LandingComponent', () => {
 
   it('expoe links para /login e /register', async () => {
     await render(LandingComponent, {
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS))],
     });
 
     const loginLinks = screen.getAllByRole('link', { name: /entrar/i });
@@ -28,7 +31,7 @@ describe('LandingComponent', () => {
 
   it('expoe secao de seguranca/escrow', async () => {
     await render(LandingComponent, {
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS))],
     });
 
     expect(screen.getByRole('heading', { name: /seguranca por desenho/i })).toBeTruthy();
