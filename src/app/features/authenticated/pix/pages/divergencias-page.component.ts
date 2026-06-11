@@ -6,7 +6,7 @@ import { forkJoin } from 'rxjs';
 import { ItemFilaResponse } from '../../../../core/api/api.models';
 import { BackofficeService } from '../../../../core/backoffice/backoffice.service';
 import { BackofficeChipComponent } from '../../backoffice/shared/backoffice-chip.component';
-import { formatarDataHora, idCurto, mensagemPixErro } from '../shared/pix-format';
+import { formatarDataHora, mensagemPixErro } from '../shared/pix-format';
 
 // Painel de divergencias Pix. Nao e uma fila propria: reaproveita a fila operacional do backoffice
 // filtrada pelos tipos Pix (RECEBIMENTO_PIX_DIVERGENTE e DESEMBOLSO_PIX_FALHOU) e leva cada item ao
@@ -24,7 +24,6 @@ export class DivergenciasPageComponent implements OnInit {
   private readonly backoffice = inject(BackofficeService);
 
   protected readonly formatarDataHora = formatarDataHora;
-  protected readonly idCurto = idCurto;
 
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
