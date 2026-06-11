@@ -2612,7 +2612,7 @@ const credoraHandlers = [
     return HttpResponse.json({
       status: credora['status'],
       elegibilidade: credora['elegibilidade'],
-      motivoInelegibilidade: credora['motivoInelegibilidade'] ?? null,
+      motivoInelegibilidade: credora['motivoInelegibilidade'],
     });
   }),
 

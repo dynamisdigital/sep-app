@@ -56,7 +56,9 @@ export class CredoraService {
     );
   }
 
-  // DELETE idempotente por ownership: 204 inclusive quando nao ha interesse ativo.
+  // DELETE NAO idempotente: 204 quando havia interesse ATIVO; o backend responde 404
+  // (InteresseNaoEncontrado) quando nao ha. O service propaga o erro sem mascarar — a UI trata o
+  // 404 como "sem interesse ativo".
   cancelarInteresse(oportunidadeId: string): Observable<void> {
     return this.http.delete<void>(`${OPORTUNIDADES_URL}/${oportunidadeId}/interesses/me`);
   }
