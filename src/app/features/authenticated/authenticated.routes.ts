@@ -78,7 +78,12 @@ export const AUTHENTICATED_ROUTES: Routes = [
         canActivate: [roleGuard],
         data: { roles: ['ADMIN'], breadcrumb: 'Administracao' },
         children: [
-          { path: '', pathMatch: 'full', redirectTo: 'users' },
+          {
+            path: '',
+            pathMatch: 'full',
+            loadComponent: () =>
+              import('./admin/admin-home.component').then((m) => m.AdminHomeComponent),
+          },
           {
             path: 'users',
             loadComponent: () =>
@@ -90,6 +95,22 @@ export const AUTHENTICATED_ROUTES: Routes = [
             loadComponent: () =>
               import('./admin/users/user-detail.component').then((m) => m.UserDetailComponent),
             data: { breadcrumb: 'Detalhe de usuario' },
+          },
+          {
+            path: 'parametros',
+            loadComponent: () =>
+              import('./admin/parametros/parametros-page.component').then(
+                (m) => m.ParametrosPageComponent,
+              ),
+            data: { breadcrumb: 'Parametros' },
+          },
+          {
+            path: 'parametros/:chave',
+            loadComponent: () =>
+              import('./admin/parametros/parametro-detail-page.component').then(
+                (m) => m.ParametroDetailPageComponent,
+              ),
+            data: { breadcrumb: 'Detalhe do parametro' },
           },
         ],
       },

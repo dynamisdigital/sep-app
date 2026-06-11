@@ -1,0 +1,144 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-parametros {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-24);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-parametros-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+
+  @media (width >= 768px) {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+.sep-parametros-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-parametros-back {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--primary));
+  text-decoration: none;
+  font-size: 13px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.sep-parametros-state {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-parametros-error {
+  @include sepDs.sep-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  padding: var(--sep-space-24);
+  border-color: hsl(var(--warning));
+
+  p {
+    margin: 0;
+    color: hsl(var(--warning));
+  }
+}
+
+.sep-parametros-retry {
+  @include sepDs.sep-button-outline;
+
+  align-self: flex-start;
+}
+
+.sep-parametros-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--sep-radius-lg);
+  background: hsl(var(--card));
+}
+
+.sep-parametros-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+
+  thead th {
+    @include sepType.sep-type-body;
+
+    padding: var(--sep-space-12) var(--sep-space-16);
+    background: hsl(var(--muted));
+    border-bottom: 1px solid hsl(var(--border));
+    text-align: left;
+    font-weight: 500;
+    color: hsl(var(--muted-foreground));
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  tbody td {
+    padding: var(--sep-space-12) var(--sep-space-16);
+    border-bottom: 1px solid hsl(var(--border));
+    color: hsl(var(--foreground));
+    vertical-align: top;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+.sep-parametros-chave {
+  display: block;
+  font-family: ui-monospace, "SF Mono", monospace;
+  font-size: 13px;
+}
+
+.sep-parametros-descricao {
+  @include sepType.sep-type-body;
+
+  display: block;
+  margin-top: var(--sep-space-3);
+  color: hsl(var(--muted-foreground));
+  font-size: 12px;
+}
+
+.sep-parametros-valor {
+  font-family: ui-monospace, "SF Mono", monospace;
+  font-size: 13px;
+}
+
+.sep-parametros-th-action {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.sep-parametros-detail-link {
+  color: hsl(var(--primary));
+  text-decoration: none;
+  font-size: 13px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

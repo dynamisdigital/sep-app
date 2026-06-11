@@ -54,6 +54,55 @@
         </dl>
       </article>
     </div>
+
+    <article class="sep-user-detail-card sep-user-detail-roles">
+      <h2 class="sep-user-detail-card-title">Roles cumulativas</h2>
+
+      @if (rolesCarregando()) {
+        <p class="sep-user-detail-state" role="status">Carregando roles...</p>
+      } @else if (rolesErro(); as msg) {
+        <p class="sep-user-detail-error" role="alert">{{ msg }}</p>
+      } @else {
+        <p class="sep-user-detail-principal">
+          Role principal: <strong>{{ rolePrincipal() }}</strong>
+        </p>
+
+        @if (ehProprioUsuario()) {
+          <p class="sep-user-detail-state">Voce nao pode alterar as proprias roles.</p>
+        }
+
+        <fieldset class="sep-user-detail-roles-set" [disabled]="ehProprioUsuario() || salvando()">
+          @for (role of rolesDisponiveis; track role) {
+            <label class="sep-user-detail-role">
+              <input type="checkbox" [checked]="selecao()[role]" (change)="alternarRole(role)" />
+              <span>{{ role }}</span>
+            </label>
+          }
+        </fieldset>
+
+        <div class="sep-user-detail-roles-actions">
+          <button
+            type="button"
+            class="sep-user-detail-roles-save"
+            [disabled]="ehProprioUsuario() || selecaoVazia() || salvando()"
+            (click)="salvarRoles()"
+          >
+            {{ salvando() ? 'Salvando...' : 'Salvar roles' }}
+          </button>
+          @if (selecaoVazia()) {
+            <span class="sep-user-detail-state">Selecione ao menos uma role.</span>
+          }
+          @if (rolesSucesso(); as ok) {
+            <span class="sep-user-detail-success" role="status">{{ ok }}</span>
+          }
+        </div>
+
+        <p class="sep-user-detail-roles-audit">
+          Alteracoes de roles sao auditadas no backend. A trilha detalhada de roles nao e exibida na
+          web nesta versao.
+        </p>
+      }
+    </article>
   } @else if (!loading() && !errorMessage()) {
     <p class="sep-user-detail-state">Nenhum usuario carregado.</p>
   }
