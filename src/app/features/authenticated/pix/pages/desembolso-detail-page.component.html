@@ -1,0 +1,60 @@
+<section class="sep-desembolso-detail">
+  @if (loading()) {
+    <p class="sep-desembolso-detail-state" role="status">Carregando desembolso...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-desembolso-detail-state sep-desembolso-detail-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="sep-desembolso-detail-retry" (click)="carregar()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (naoEncontrado()) {
+    <div class="sep-desembolso-detail-state sep-desembolso-detail-empty">
+      <p>Desembolso nao encontrado.</p>
+    </div>
+  } @else if (desembolso(); as d) {
+    <header class="sep-desembolso-detail-header">
+      <h1 class="sep-desembolso-detail-title">Desembolso {{ idCurto(d.transferenciaId) }}</h1>
+      <sep-pix-transferencia-status [status]="d.status" />
+    </header>
+
+    <dl class="sep-desembolso-detail-grid">
+      <div class="sep-desembolso-detail-row">
+        <dt>Valor</dt>
+        <dd>{{ formatarMoeda(d.valor) }}</dd>
+      </div>
+      <div class="sep-desembolso-detail-row">
+        <dt>Contrato</dt>
+        <dd>{{ d.contratoId }}</dd>
+      </div>
+      <div class="sep-desembolso-detail-row">
+        <dt>Chave Pix destino</dt>
+        <dd>{{ d.chaveDestinoMascara }}</dd>
+      </div>
+    </dl>
+
+    @if (d.providerIndisponivel) {
+      <p class="sep-desembolso-detail-alerta" role="alert">
+        Provedor indisponivel na ultima reconsulta. O status exibido e o ultimo conhecido localmente
+        — nao confirma a transferencia.
+      </p>
+    }
+
+    <button
+      type="button"
+      class="sep-desembolso-detail-cta"
+      [disabled]="reconsultando()"
+      (click)="reconsultar()"
+    >
+      @if (reconsultando()) {
+        Reconsultando...
+      } @else {
+        Reconsultar status no provedor
+      }
+    </button>
+
+    @if (reconsultaErro(); as msg) {
+      <p class="sep-desembolso-detail-error-msg" role="alert">{{ msg }}</p>
+    }
+  }
+</section>

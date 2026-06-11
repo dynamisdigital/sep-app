@@ -742,3 +742,96 @@ export interface AlterarParametroRequest {
   novoValor: string;
   justificativa: string;
 }
+
+// --- Pix operacional (F-Sprint 13 / backend Sprints 19-21) ---
+// Borda de API do modulo pix do sep-api. O frontend so apresenta estado e dispara comandos
+// autorizados; elegibilidade, idempotencia, conciliacao, escrow e provider ficam no backend.
+// Tipos espelham os DTOs reais em pix.web.dto, sem campo calculado de conveniencia visual.
+
+// Estados de uma transferencia Pix de desembolso (StatusPixTransferencia no backend).
+export type StatusPixTransferencia =
+  | 'CRIADA'
+  | 'SOLICITADA'
+  | 'PROCESSANDO'
+  | 'CONCLUIDA'
+  | 'FALHOU'
+  | 'CANCELADA';
+
+// Estados de uma referencia Pix de recebimento de parcela (StatusPixReferenciaRecebimento).
+export type StatusPixReferenciaRecebimento =
+  | 'ATIVA'
+  | 'PAGA'
+  | 'EXPIRADA'
+  | 'CANCELADA'
+  | 'DIVERGENTE';
+
+// Estados de um recebimento Pix identificado por evento de provider (StatusPixRecebimento).
+export type StatusPixRecebimento =
+  | 'RECEBIDO'
+  | 'EM_PROCESSAMENTO'
+  | 'CONCILIADO'
+  | 'NAO_IDENTIFICADO'
+  | 'FALHOU';
+
+// POST /pix/desembolsos: solicita desembolso assistido. A chave Pix em claro existe apenas
+// aqui; nunca e persistida, logada ou reexibida. Exige Idempotency-Key (header) e step-up.
+export interface SolicitarDesembolsoPixRequest {
+  contratoId: string;
+  valor: number;
+  chavePixDestino: string;
+}
+
+// Resposta de POST /pix/desembolsos. novo=false quando o retorno e idempotente (transferencia
+// ja existia). A chave destino so volta mascarada.
+export interface PixDesembolsoResponse {
+  transferenciaId: string;
+  contratoId: string;
+  status: StatusPixTransferencia;
+  valor: number;
+  chaveDestinoMascara: string;
+  novo: boolean;
+}
+
+// Resposta de GET /pix/desembolsos/{id} (leitura local) e de POST /pix/desembolsos/{id}/status
+// (reconciliacao no provider). providerIndisponivel=true quando o provider foi consultado mas
+// falhou e o status local foi devolvido — nao e sucesso.
+export interface PixStatusDesembolsoResponse {
+  transferenciaId: string;
+  contratoId: string;
+  status: StatusPixTransferencia;
+  valor: number;
+  chaveDestinoMascara: string;
+  providerIndisponivel: boolean;
+}
+
+// POST /pix/recebimentos/referencias: gera/reaproveita a referencia Pix de uma parcela.
+export interface GerarReferenciaRecebimentoPixRequest {
+  parcelaId: string;
+}
+
+// Resposta de POST /pix/recebimentos/referencias e GET /referencias/{id}. novo=false quando
+// reaproveitada/consultada. codigoCopiaCola e o Pix copia-cola exposto pelo backend.
+export interface PixReferenciaRecebimentoResponse {
+  referenciaId: string;
+  parcelaId: string;
+  txid: string;
+  codigoCopiaCola: string;
+  valorEsperado: number;
+  status: StatusPixReferenciaRecebimento;
+  novo: boolean;
+}
+
+// GET /pix/recebimentos/{id}: recebimento conciliado ou divergente, exposto a papeis internos.
+// Campos de vinculo/divergencia sao nullable: um recebimento NAO_IDENTIFICADO nao tem
+// referencia/parcela/baixa, e motivoDivergencia so vem quando ha divergencia.
+export interface PixRecebimentoResponse {
+  recebimentoId: string;
+  status: StatusPixRecebimento;
+  valor: number;
+  endToEndId: string | null;
+  referenciaId: string | null;
+  parcelaId: string | null;
+  recebimentoCobrancaId: string | null;
+  motivoDivergencia: string | null;
+  recebidoEm: string;
+}

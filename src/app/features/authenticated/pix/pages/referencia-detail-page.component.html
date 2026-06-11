@@ -1,0 +1,54 @@
+<section class="sep-referencia-detail">
+  @if (loading()) {
+    <p class="sep-referencia-detail-state" role="status">Carregando referencia...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-referencia-detail-state sep-referencia-detail-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="sep-referencia-detail-retry" (click)="carregar()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (naoEncontrada()) {
+    <div class="sep-referencia-detail-state">
+      <p>Referencia nao encontrada.</p>
+    </div>
+  } @else if (referencia(); as r) {
+    <header class="sep-referencia-detail-header">
+      <h1 class="sep-referencia-detail-title">Referencia {{ idCurto(r.referenciaId) }}</h1>
+      <sep-pix-referencia-status [status]="r.status" />
+    </header>
+
+    @if (r.status === 'DIVERGENTE') {
+      <p class="sep-referencia-detail-alerta" role="alert">
+        Referencia divergente. O recebimento vinculado precisa de tratamento operacional.
+      </p>
+    }
+
+    <dl class="sep-referencia-detail-grid">
+      <div class="sep-referencia-detail-row">
+        <dt>Valor esperado</dt>
+        <dd>{{ formatarMoeda(r.valorEsperado) }}</dd>
+      </div>
+      <div class="sep-referencia-detail-row">
+        <dt>Txid</dt>
+        <dd>{{ r.txid }}</dd>
+      </div>
+      <div class="sep-referencia-detail-row">
+        <dt>Pix copia-cola</dt>
+        <dd class="sep-referencia-detail-copia">{{ r.codigoCopiaCola }}</dd>
+      </div>
+      <div class="sep-referencia-detail-row">
+        <dt>Parcela</dt>
+        <dd>
+          @if (podeVerParcela()) {
+            <a [routerLink]="['/app/cobranca/financeiro/parcelas', r.parcelaId]">
+              {{ r.parcelaId }}
+            </a>
+          } @else {
+            {{ r.parcelaId }}
+          }
+        </dd>
+      </div>
+    </dl>
+  }
+</section>

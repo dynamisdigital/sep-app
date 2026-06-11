@@ -1,0 +1,120 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-divergencias {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-24);
+  max-width: 860px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-divergencias-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+}
+
+.sep-divergencias-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-divergencias-subtitle {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-divergencias-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-12);
+}
+
+.sep-divergencias-grupo .sep-divergencias-subtitle {
+  @include sepType.sep-type-section-title;
+
+  color: hsl(var(--foreground));
+}
+
+.sep-divergencias-vazio {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-divergencias-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sep-divergencias-item {
+  @include sepDs.sep-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  padding: var(--sep-space-16);
+}
+
+.sep-divergencias-item-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sep-space-12);
+}
+
+.sep-divergencias-item-titulo {
+  @include sepType.sep-type-body-medium;
+
+  color: hsl(var(--foreground));
+}
+
+.sep-divergencias-chips {
+  display: flex;
+  gap: var(--sep-space-6);
+}
+
+.sep-divergencias-item-data {
+  @include sepType.sep-type-caption;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-divergencias-item-acoes {
+  display: flex;
+  gap: var(--sep-space-16);
+
+  a {
+    @include sepType.sep-type-body;
+
+    color: hsl(var(--primary));
+  }
+}
+
+.sep-divergencias-state {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-divergencias-retry {
+  align-self: flex-start;
+  margin-top: var(--sep-space-8);
+  padding: var(--sep-space-8) var(--sep-space-16);
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--sep-radius-sm);
+  background: transparent;
+  color: hsl(var(--foreground));
+  cursor: pointer;
+}

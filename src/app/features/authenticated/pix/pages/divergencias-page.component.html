@@ -1,0 +1,85 @@
+<section class="sep-divergencias">
+  <header class="sep-divergencias-header">
+    <h1 class="sep-divergencias-title">Divergencias Pix</h1>
+    <p class="sep-divergencias-subtitle">
+      Itens operacionais Pix da fila do backoffice. O tratamento (assumir, comentar, resolver,
+      ignorar) acontece no backoffice; recebimento divergente nao tem reprocesso de provedor e
+      desembolso falho apenas reconsulta status.
+    </p>
+  </header>
+
+  @if (loading()) {
+    <p class="sep-divergencias-state" role="status">Carregando divergencias...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-divergencias-state sep-divergencias-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="sep-divergencias-retry" (click)="carregar()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else {
+    <section class="sep-divergencias-grupo">
+      <h2 class="sep-divergencias-subtitle">
+        Recebimentos Pix divergentes ({{ recebimentosDivergentes().length }})
+      </h2>
+      @if (recebimentosDivergentes().length === 0) {
+        <p class="sep-divergencias-vazio">Nenhum recebimento Pix divergente em aberto.</p>
+      } @else {
+        <ul class="sep-divergencias-lista">
+          @for (item of recebimentosDivergentes(); track item.id) {
+            <li class="sep-divergencias-item">
+              <div class="sep-divergencias-item-topo">
+                <span class="sep-divergencias-item-titulo">{{ item.titulo }}</span>
+                <div class="sep-divergencias-chips">
+                  <sep-backoffice-chip [prioridade]="item.prioridade" />
+                  <sep-backoffice-chip [status]="item.status" />
+                </div>
+              </div>
+              <span class="sep-divergencias-item-data">
+                Aberto em {{ formatarDataHora(item.dataAbertura) }}
+              </span>
+              <div class="sep-divergencias-item-acoes">
+                <a [routerLink]="['/app/backoffice/fila', item.id]">Tratar no backoffice</a>
+                @if (item.tipoEntidade === 'PIX_RECEBIMENTO') {
+                  <a [routerLink]="['/app/pix/recebimentos', item.entidadeId]">Ver recebimento</a>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <section class="sep-divergencias-grupo">
+      <h2 class="sep-divergencias-subtitle">
+        Desembolsos Pix com falha ({{ desembolsosFalhos().length }})
+      </h2>
+      @if (desembolsosFalhos().length === 0) {
+        <p class="sep-divergencias-vazio">Nenhum desembolso Pix com falha em aberto.</p>
+      } @else {
+        <ul class="sep-divergencias-lista">
+          @for (item of desembolsosFalhos(); track item.id) {
+            <li class="sep-divergencias-item">
+              <div class="sep-divergencias-item-topo">
+                <span class="sep-divergencias-item-titulo">{{ item.titulo }}</span>
+                <div class="sep-divergencias-chips">
+                  <sep-backoffice-chip [prioridade]="item.prioridade" />
+                  <sep-backoffice-chip [status]="item.status" />
+                </div>
+              </div>
+              <span class="sep-divergencias-item-data">
+                Aberto em {{ formatarDataHora(item.dataAbertura) }}
+              </span>
+              <div class="sep-divergencias-item-acoes">
+                <a [routerLink]="['/app/backoffice/fila', item.id]">Tratar no backoffice</a>
+                @if (item.tipoEntidade === 'PIX_TRANSFERENCIA') {
+                  <a [routerLink]="['/app/pix/desembolsos', item.entidadeId]">Reconsultar status</a>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
+</section>

@@ -23,6 +23,10 @@ export const stepUpInterceptor: HttpInterceptorFn = (req, next) => {
   // por isso o guard de metodo: o PUT termina em /roles; POST/DELETE tem /roles/ no path.
   // Governanca (F-12.4): alterar parametro operacional (PATCH /governanca/parametros/:chave)
   // exige step-up; os GET de lista/detalhe nao (guard de metodo PATCH).
+  // Pix (F-13.3): solicitar desembolso (POST /pix/desembolsos, step-up estrito) e reconciliar
+  // status no provider (POST /pix/desembolsos/:id/status) exigem step-up. O guard de metodo POST
+  // cobre os dois e exclui os GET de leitura; gerar referencia (POST /pix/recebimentos/...) NAO
+  // exige step-up e fica fora deste path.
   const exigeStepUp =
     (req.url.includes('/usuarios/') && req.url.endsWith('/senha')) ||
     (req.method === 'PUT' && req.url.includes('/usuarios/') && req.url.endsWith('/roles')) ||
@@ -41,7 +45,8 @@ export const stepUpInterceptor: HttpInterceptorFn = (req, next) => {
     (req.method === 'PATCH' &&
       req.url.includes('/backoffice/fila/') &&
       (req.url.endsWith('/resolver') || req.url.endsWith('/ignorar'))) ||
-    (req.method === 'POST' && req.url.includes('/backoffice/reprocessos/'));
+    (req.method === 'POST' && req.url.includes('/backoffice/reprocessos/')) ||
+    (req.method === 'POST' && req.url.includes('/pix/desembolsos'));
   if (!exigeStepUp) {
     return next(req);
   }

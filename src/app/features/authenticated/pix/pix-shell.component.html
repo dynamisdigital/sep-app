@@ -1,0 +1,25 @@
+<section class="sep-pix-shell">
+  <header class="sep-pix-shell-header">
+    <h1 class="sep-pix-shell-title">Pix operacional</h1>
+    <p class="sep-pix-shell-subtitle">
+      Desembolso assistido, recebimentos de parcelas e conciliacao de divergencias.
+    </p>
+  </header>
+
+  <div class="sep-pix-shell-cards">
+    @for (card of cards; track card.label) {
+      @if (card.disabled) {
+        <div class="sep-pix-shell-card sep-pix-shell-card-disabled" aria-disabled="true">
+          <span class="sep-pix-shell-card-title">{{ card.label }}</span>
+          <span class="sep-pix-shell-card-body">{{ card.description }}</span>
+          <span class="sep-pix-shell-card-soon">Disponivel em breve</span>
+        </div>
+      } @else {
+        <a [routerLink]="card.route" class="sep-pix-shell-card">
+          <span class="sep-pix-shell-card-title">{{ card.label }}</span>
+          <span class="sep-pix-shell-card-body">{{ card.description }}</span>
+        </a>
+      }
+    }
+  </div>
+</section>
