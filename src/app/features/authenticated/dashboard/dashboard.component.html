@@ -18,7 +18,6 @@
         <a
           [routerLink]="shortcut.route"
           [class]="'sep-quick-tile sep-quick-tile--' + shortcut.tone"
-          [attr.title]="shortcut.description"
         >
           <lucide-icon
             [name]="shortcut.icon"
@@ -27,6 +26,7 @@
             aria-hidden="true"
           />
           <span class="sep-quick-tile-label">{{ shortcut.label }}</span>
+          <span class="sep-quick-tile-desc">{{ shortcut.description }}</span>
         </a>
       }
     </div>

@@ -7,6 +7,7 @@ import { LucideAngularModule } from 'lucide-angular';
 
 import { HeaderComponent } from './header.component';
 import { AuthService } from '../../core/auth/auth.service';
+import { ThemeService } from '../../core/theme/theme.service';
 import { LUCIDE_ICONS } from '../../core/icons/lucide-icons';
 
 const ACCESS_TOKEN_KEY = 'SEP_ACCESS_TOKEN';
@@ -81,5 +82,40 @@ describe('HeaderComponent', () => {
     expect(window.localStorage.getItem(ACCESS_TOKEN_KEY)).toBeNull();
     expect(auth.currentUser()).toBeNull();
     expect(navigatedTo).toBe('/login');
+  });
+
+  it('toggle de tema alterna entre claro e escuro', async () => {
+    const result = await render(HeaderComponent, {
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
+    });
+    const theme = result.fixture.debugElement.injector.get(ThemeService);
+    const before = theme.isDark();
+
+    fireEvent.click(screen.getByRole('button', { name: /tema/i }));
+    result.fixture.detectChanges();
+
+    expect(theme.isDark()).toBe(!before);
+  });
+
+  it('botao de menu emite toggleSidenav', async () => {
+    const result = await render(HeaderComponent, {
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
+    });
+    let emitted = false;
+    result.fixture.componentInstance.toggleSidenav.subscribe(() => {
+      emitted = true;
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Alternar menu lateral' }));
+
+    expect(emitted).toBe(true);
   });
 });
