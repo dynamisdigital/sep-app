@@ -174,7 +174,7 @@ describe('SidenavComponent', () => {
     expect(screen.queryByText('Backoffice')).toBeNull();
   });
 
-  it('link Meu perfil aponta para /app/profile e Administracao para /app/admin/users', async () => {
+  it('link Meu perfil aponta para /app/profile e Administracao para /app/admin', async () => {
     const result = await render(SidenavComponent, {
       providers: [provideRouter([]), provideHttpClient()],
     });
@@ -190,6 +190,6 @@ describe('SidenavComponent', () => {
     const perfilLink = screen.getByText('Meu perfil').closest('a');
     const adminLink = screen.getByText('Administracao').closest('a');
     expect(perfilLink?.getAttribute('href')).toBe('/app/profile');
-    expect(adminLink?.getAttribute('href')).toBe('/app/admin/users');
+    expect(adminLink?.getAttribute('href')).toBe('/app/admin');
   });
 });

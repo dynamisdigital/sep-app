@@ -39,7 +39,7 @@ export class SidenavComponent {
         roles: ['BACKOFFICE', 'FINANCEIRO', 'ADMIN'],
       },
       { label: 'Meu perfil', route: '/app/profile' },
-      { label: 'Administracao', route: '/app/admin/users', roles: ['ADMIN'] },
+      { label: 'Administracao', route: '/app/admin', roles: ['ADMIN'] },
     ];
 
     return items.filter((item) => {
