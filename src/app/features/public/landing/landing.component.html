@@ -1,62 +1,94 @@
-<nav class="global-nav" aria-label="Navegacao principal">
-  <a routerLink="/" class="global-nav-brand">SEP</a>
-  <ul class="global-nav-list">
-    <li><a routerLink="/" class="global-nav-link">Credito PJ</a></li>
-    <li><a routerLink="/" class="global-nav-link">Seguranca</a></li>
+<nav class="landing-nav" aria-label="Navegacao principal">
+  <a routerLink="/" class="landing-nav-brand">SEP</a>
+  <ul class="landing-nav-list">
+    <li><a routerLink="/" class="landing-nav-link">Credito PJ</a></li>
+    <li><a routerLink="/" class="landing-nav-link">Seguranca</a></li>
   </ul>
-  <a routerLink="/login" class="global-nav-cta">Entrar</a>
+  <a routerLink="/login" class="landing-nav-cta">Entrar</a>
 </nav>
 
 <main class="landing-page">
-  <section class="tile tile-hero" aria-labelledby="hero-title">
-    <h1 id="hero-title" class="tile-headline">Capital de giro com experiencia simples.</h1>
-    <p class="tile-lead">
-      Uma base digital para conectar empresas que precisam de credito a empresas que querem aportar
-      recursos com rastreabilidade.
-    </p>
-    <div class="tile-actions">
-      <a routerLink="/register" class="cta-primary">Criar conta</a>
-      <a routerLink="/login" class="cta-secondary">Entrar</a>
+  <section class="landing-hero-band" aria-labelledby="hero-title">
+    <div class="landing-hero">
+      <div class="landing-hero-text">
+        <h1 id="hero-title" class="landing-hero-headline">
+          Capital de giro com experiencia simples.
+        </h1>
+        <p class="landing-hero-lead">
+          Uma base digital para conectar empresas que precisam de credito a empresas que querem
+          aportar recursos com rastreabilidade.
+        </p>
+        <div class="landing-hero-actions">
+          <a routerLink="/register" class="landing-cta-primary">Criar conta</a>
+          <a routerLink="/login" class="landing-cta-secondary">Entrar</a>
+        </div>
+        <ul class="landing-hero-trust">
+          <li>
+            <lucide-icon
+              name="circle-check"
+              [size]="18"
+              class="landing-trust-icon"
+              aria-hidden="true"
+            />
+            <span>Regulado pela Resolucao CMN 4.656/2018</span>
+          </li>
+          <li>
+            <lucide-icon
+              name="circle-check"
+              [size]="18"
+              class="landing-trust-icon"
+              aria-hidden="true"
+            />
+            <span>Segregacao patrimonial via conta escrow</span>
+          </li>
+          <li>
+            <lucide-icon
+              name="circle-check"
+              [size]="18"
+              class="landing-trust-icon"
+              aria-hidden="true"
+            />
+            <span>KYC e prevencao a lavagem de dinheiro</span>
+          </li>
+        </ul>
+      </div>
+
+      <aside class="landing-hero-brand" aria-label="Sobre a SEP">
+        <div class="landing-hero-brand-inner">
+          <span class="landing-hero-brand-mark">SEP</span>
+          <p class="landing-hero-brand-tagline">Sociedade de Emprestimo entre Pessoas</p>
+          <p class="landing-hero-brand-text">
+            Capital de giro PJ com rastreabilidade, do cadastro a formalizacao.
+          </p>
+        </div>
+      </aside>
     </div>
-    <p class="tile-fine">
-      Operamos sob a Resolucao CMN 4.656/2018. KYC/KYB e segregacao patrimonial obrigatorios.
-    </p>
   </section>
 
-  <section class="tile tile-feature" aria-labelledby="seguranca-title">
-    <h2 id="seguranca-title" class="tile-headline">Seguranca por desenho.</h2>
-    <p class="tile-lead">
-      Auditoria reforcada, segregacao patrimonial via conta escrow e PLD com consultas a COAF, OFAC,
-      INTERPOL e MTE. Sua operacao registrada do inicio ao fim.
-    </p>
-    <img class="tile-image" src="/assets/landing/sep-escrow.svg" alt="" aria-hidden="true" />
-  </section>
-
-  <section class="tile tile-light" aria-labelledby="tomador-title">
-    <h2 id="tomador-title" class="tile-headline">Tomador.</h2>
-    <p class="tile-lead">
-      Cadastro publico, KYC documental, analise de credito assistida e formalizacao com CCB digital.
-      Acompanhamento ponta a ponta.
-    </p>
-    <img class="tile-image" src="/assets/landing/sep-credito.svg" alt="" aria-hidden="true" />
-  </section>
-
-  <section class="tile tile-feature-alt" aria-labelledby="credora-title">
-    <h2 id="credora-title" class="tile-headline">Empresa credora.</h2>
-    <p class="tile-lead">
-      Visibilidade da carteira, recebimentos via escrow segregado e trilha auditavel das operacoes
-      financiadas.
-    </p>
-    <img class="tile-image" src="/assets/landing/sep-capital.svg" alt="" aria-hidden="true" />
+  <section class="landing-features" aria-labelledby="features-title">
+    <h2 id="features-title" class="landing-features-title">Como funciona</h2>
+    <div class="landing-features-grid">
+      @for (feature of features; track feature.title) {
+        <article [class]="'landing-feature landing-feature--' + feature.tone">
+          <span class="landing-feature-icon">
+            <lucide-icon [name]="feature.icon" [size]="22" aria-hidden="true" />
+          </span>
+          <h3 class="landing-feature-title">{{ feature.title }}</h3>
+          <p class="landing-feature-desc">{{ feature.description }}</p>
+        </article>
+      }
+    </div>
   </section>
 
   <footer class="landing-footer" aria-label="Rodape">
-    <p class="footer-copy">SEP — Sociedade de Emprestimo entre Pessoas. Capital de giro PJ.</p>
-    <div class="footer-links">
-      <a routerLink="/login" class="footer-link">Entrar</a>
-      <a routerLink="/register" class="footer-link">Criar conta</a>
+    <p class="landing-footer-copy">
+      SEP — Sociedade de Emprestimo entre Pessoas. Capital de giro PJ.
+    </p>
+    <div class="landing-footer-links">
+      <a routerLink="/login" class="landing-footer-link">Entrar</a>
+      <a routerLink="/register" class="landing-footer-link">Criar conta</a>
     </div>
-    <p class="footer-fine">
+    <p class="landing-footer-fine">
       Resolucao CMN 4.656/2018. Esta plataforma nao oferece rendimento garantido nem aprovacao
       automatica de credito.
     </p>

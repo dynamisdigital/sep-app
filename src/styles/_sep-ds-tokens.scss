@@ -40,6 +40,7 @@
   --sep-radius-lg: var(--radius);
   --sep-radius-md: calc(var(--radius) - 2px);
   --sep-radius-sm: calc(var(--radius) - 4px);
+  --sep-radius-xl: 1rem;
   --sep-radius-pill: 9999px;
   --sep-radius-full: 9999px;
 
@@ -48,6 +49,10 @@
   --gradient-secondary: linear-gradient(135deg, hsl(145deg 50% 50%), hsl(213deg 58% 43%));
   --gradient-background: linear-gradient(180deg, hsl(207deg 44% 97%), hsl(210deg 20% 94%));
   --gradient-hero: linear-gradient(135deg, hsl(213deg 58% 43% / 10%), hsl(145deg 50% 50% / 10%));
+
+  // Texto/icone sobre superficies de gradiente. O gradiente e invariante ao tema,
+  // entao o foreground e sempre branco (nao usar --primary-foreground, que inverte no dark).
+  --gradient-foreground: 0 0% 100%;
 
   // ===== Sombras =====
   --shadow-sm: 0 2px 8px -2px hsl(213deg 58% 43% / 10%);
@@ -91,6 +96,9 @@
   --sep-space-48: 48px;
   --sep-space-80: 80px;
   --sep-space-section: 80px;
+
+  // ===== Layout =====
+  --header-height: 56px;
 }
 
 .dark {

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 
 import { ThemeService } from '../../core/theme/theme.service';
 
@@ -11,7 +12,7 @@ interface SwatchToken {
 @Component({
   selector: 'sep-design-system-showcase',
   standalone: true,
-  imports: [],
+  imports: [LucideAngularModule],
   templateUrl: './showcase.component.html',
   styleUrl: './showcase.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

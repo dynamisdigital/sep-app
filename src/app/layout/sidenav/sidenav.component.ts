@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 
 import { UsuarioRole } from '../../core/api/api.models';
 import { AuthService } from '../../core/auth/auth.service';
@@ -7,13 +8,18 @@ import { AuthService } from '../../core/auth/auth.service';
 interface MenuItem {
   label: string;
   route: string;
+  icon: string;
   roles?: UsuarioRole[];
-  disabled?: boolean;
+}
+
+interface MenuGroup {
+  label: string | null;
+  items: MenuItem[];
 }
 
 @Component({
   selector: 'sep-sidenav',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, LucideAngularModule],
   templateUrl: './sidenav.component.html',
   styleUrl: './sidenav.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,33 +31,55 @@ export class SidenavComponent {
 
   protected readonly currentUser = this.auth.currentUser;
 
-  protected readonly visibleItems = computed<MenuItem[]>(() => {
+  protected readonly visibleGroups = computed<MenuGroup[]>(() => {
     const user = this.currentUser();
-    const items: MenuItem[] = [
-      { label: 'Dashboard', route: '/app/dashboard' },
-      { label: 'Onboarding', route: '/app/onboarding' },
-      { label: 'Credito', route: '/app/credito' },
-      { label: 'Formalizacao', route: '/app/formalizacao' },
-      { label: 'Cobranca', route: '/app/cobranca' },
+    const groups: MenuGroup[] = [
       {
-        label: 'Backoffice',
-        route: '/app/backoffice',
-        roles: ['BACKOFFICE', 'FINANCEIRO', 'ADMIN'],
+        label: null,
+        items: [{ label: 'Dashboard', route: '/app/dashboard', icon: 'layout-dashboard' }],
       },
       {
-        label: 'Pix',
-        route: '/app/pix',
-        roles: ['FINANCEIRO', 'ADMIN', 'BACKOFFICE'],
+        label: 'Jornadas',
+        items: [
+          { label: 'Onboarding', route: '/app/onboarding', icon: 'shield' },
+          { label: 'Credito', route: '/app/credito', icon: 'credit-card' },
+          { label: 'Formalizacao', route: '/app/formalizacao', icon: 'file-text' },
+          { label: 'Cobranca', route: '/app/cobranca', icon: 'banknote' },
+        ],
       },
-      { label: 'Meu perfil', route: '/app/profile' },
-      { label: 'Administracao', route: '/app/admin', roles: ['ADMIN'] },
+      {
+        label: 'Operacao',
+        items: [
+          {
+            label: 'Backoffice',
+            route: '/app/backoffice',
+            icon: 'settings',
+            roles: ['BACKOFFICE', 'FINANCEIRO', 'ADMIN'],
+          },
+          {
+            label: 'Pix',
+            route: '/app/pix',
+            icon: 'wallet',
+            roles: ['FINANCEIRO', 'ADMIN', 'BACKOFFICE'],
+          },
+        ],
+      },
+      {
+        label: 'Conta',
+        items: [
+          { label: 'Meu perfil', route: '/app/profile', icon: 'user-check' },
+          { label: 'Administracao', route: '/app/admin', icon: 'users', roles: ['ADMIN'] },
+        ],
+      },
     ];
 
-    return items.filter((item) => {
-      if (item.roles && (!user || !item.roles.includes(user.role))) {
-        return false;
-      }
-      return true;
-    });
+    return groups
+      .map((group) => ({
+        ...group,
+        items: group.items.filter(
+          (item) => !item.roles || (user != null && item.roles.includes(user.role)),
+        ),
+      }))
+      .filter((group) => group.items.length > 0);
   });
 }

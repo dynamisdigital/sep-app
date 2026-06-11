@@ -1,8 +1,11 @@
 import { provideHttpClient } from '@angular/common/http';
+import { importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
 import { AuthService } from '../../../core/auth/auth.service';
 import { DashboardComponent } from './dashboard.component';
 
@@ -27,7 +30,11 @@ describe('DashboardComponent', () => {
 
   it('sem usuario: mostra titulo Dashboard generico', async () => {
     await render(DashboardComponent, {
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
     });
 
     expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeTruthy();
@@ -35,7 +42,11 @@ describe('DashboardComponent', () => {
 
   it('ADMIN: mostra saudacao, role e atalho de Administracao', async () => {
     const result = await render(DashboardComponent, {
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
     });
     await logarAdmin(result);
     result.fixture.detectChanges();
@@ -50,7 +61,11 @@ describe('DashboardComponent', () => {
   it('CLIENTE: ve atalhos de perfil e senha mas nao ve Administracao', async () => {
     window.localStorage.setItem(ACCESS_TOKEN_KEY, 'mock-jwt-token');
     const result = await render(DashboardComponent, {
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
     });
     const auth = result.fixture.debugElement.injector.get(AuthService) as unknown as {
       currentUserState: { set: (u: unknown) => void };
@@ -73,7 +88,11 @@ describe('DashboardComponent', () => {
 
   it('cards placeholder existem como articles sem href', async () => {
     await render(DashboardComponent, {
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
     });
 
     expect(screen.getByText('Onboarding')).toBeTruthy();
@@ -86,7 +105,11 @@ describe('DashboardComponent', () => {
 
   it('atalho Meu perfil aponta para /app/profile', async () => {
     const result = await render(DashboardComponent, {
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
     });
     await logarAdmin(result);
     result.fixture.detectChanges();
