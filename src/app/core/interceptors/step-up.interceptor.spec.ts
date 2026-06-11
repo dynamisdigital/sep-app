@@ -293,4 +293,64 @@ describe('stepUpInterceptor', () => {
     expect(detalheCap.state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
     expect(store.token()).toBe('step-up-tok');
   });
+
+  it('anexa o token ao solicitar desembolso Pix (POST /pix/desembolsos)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest('POST', 'http://localhost:8080/api/v1/pix/desembolsos', {});
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.get('X-Step-Up-Token')).toBe('step-up-tok');
+    expect(store.token()).toBeNull();
+  });
+
+  it('anexa o token ao reconciliar status do desembolso (POST /pix/desembolsos/:id/status)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest(
+      'POST',
+      'http://localhost:8080/api/v1/pix/desembolsos/abc/status',
+      null,
+    );
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.get('X-Step-Up-Token')).toBe('step-up-tok');
+    expect(store.token()).toBeNull();
+  });
+
+  it('NAO anexa o token na leitura local do desembolso (GET /pix/desembolsos/:id)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest('GET', 'http://localhost:8080/api/v1/pix/desembolsos/abc');
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(store.token()).toBe('step-up-tok');
+  });
+
+  it('NAO anexa o token ao gerar referencia Pix (POST /pix/recebimentos/referencias, sem step-up)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest(
+      'POST',
+      'http://localhost:8080/api/v1/pix/recebimentos/referencias',
+      {},
+    );
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(store.token()).toBe('step-up-tok');
+  });
 });

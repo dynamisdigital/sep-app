@@ -1,0 +1,70 @@
+<section class="sep-desembolsos">
+  <header class="sep-desembolsos-header">
+    <h1 class="sep-desembolsos-title">Desembolsos Pix</h1>
+    <p class="sep-desembolsos-subtitle">
+      Desembolso assistido para contratos elegiveis e consulta de status de transferencia.
+    </p>
+  </header>
+
+  @if (podeSolicitar()) {
+    <form class="sep-desembolsos-card" [formGroup]="form" (ngSubmit)="solicitar()">
+      <h2 class="sep-desembolsos-subtitle">Novo desembolso</h2>
+      <p class="sep-desembolsos-aviso" role="note">
+        Operacao assistida e sensivel: exige confirmacao adicional (step-up) antes de enviar ao
+        provedor. A chave Pix do destinatario nao e armazenada nem reexibida.
+      </p>
+
+      <label class="sep-desembolsos-field" for="des-contrato">
+        <span>Contrato</span>
+        <input
+          id="des-contrato"
+          type="text"
+          formControlName="contratoId"
+          placeholder="ID do contrato assinado"
+        />
+      </label>
+
+      <label class="sep-desembolsos-field" for="des-valor">
+        <span>Valor</span>
+        <input id="des-valor" type="number" step="0.01" min="0.01" formControlName="valor" />
+      </label>
+
+      <label class="sep-desembolsos-field" for="des-chave">
+        <span>Chave Pix do destinatario</span>
+        <input
+          id="des-chave"
+          type="text"
+          formControlName="chavePixDestino"
+          autocomplete="off"
+          inputmode="text"
+        />
+      </label>
+
+      <button type="submit" class="sep-desembolsos-cta" [disabled]="submitting()">
+        @if (submitting()) {
+          Enviando...
+        } @else {
+          Solicitar desembolso
+        }
+      </button>
+
+      @if (erro(); as msg) {
+        <p class="sep-desembolsos-error" role="alert">{{ msg }}</p>
+      }
+    </form>
+  }
+
+  <form class="sep-desembolsos-card" [formGroup]="consultaForm" (ngSubmit)="consultar()">
+    <h2 class="sep-desembolsos-subtitle">Consultar desembolso</h2>
+    <p class="sep-desembolsos-aviso" role="note">
+      Informe o identificador da transferencia para abrir o status e a conciliacao.
+    </p>
+
+    <label class="sep-desembolsos-field" for="des-consulta-id">
+      <span>ID da transferencia</span>
+      <input id="des-consulta-id" type="text" formControlName="transferenciaId" />
+    </label>
+
+    <button type="submit" class="sep-desembolsos-cta">Abrir desembolso</button>
+  </form>
+</section>

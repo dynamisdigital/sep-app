@@ -13,12 +13,21 @@ describe('PixShellComponent', () => {
     expect(screen.getByText('Divergencias')).toBeTruthy();
   });
 
-  // Em F-13.2 as operacoes ainda nao tem rota (entram em F-13.3/F-13.4/F-13.5): os cards
-  // aparecem desabilitados, sem link quebrado.
-  it('apresenta as operacoes como desabilitadas enquanto a rota nao foi entregue', async () => {
+  // Desembolsos entrou em F-13.3 como card ativo (link). Recebimentos e Divergencias seguem
+  // desabilitados ate F-13.4/F-13.5: cards sem link quebrado.
+  it('Desembolsos e um link para /app/pix/desembolsos', async () => {
     await render(PixShellComponent, { providers: [provideRouter([])] });
 
-    expect(screen.getAllByText('Disponivel em breve')).toHaveLength(3);
-    expect(screen.queryByText('Desembolsos')?.closest('a')).toBeNull();
+    expect(screen.getByText('Desembolsos').closest('a')?.getAttribute('href')).toBe(
+      '/app/pix/desembolsos',
+    );
+  });
+
+  it('mantem Recebimentos e Divergencias desabilitados ate suas Tasks', async () => {
+    await render(PixShellComponent, { providers: [provideRouter([])] });
+
+    expect(screen.getAllByText('Disponivel em breve')).toHaveLength(2);
+    expect(screen.queryByText('Recebimentos')?.closest('a')).toBeNull();
+    expect(screen.queryByText('Divergencias')?.closest('a')).toBeNull();
   });
 });

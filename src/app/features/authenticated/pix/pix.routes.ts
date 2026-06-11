@@ -9,4 +9,18 @@ export const PIX_ROUTES: Routes = [
     path: '',
     loadComponent: () => import('./pix-shell.component').then((m) => m.PixShellComponent),
   },
+  {
+    path: 'desembolsos',
+    loadComponent: () =>
+      import('./pages/desembolsos-page.component').then((m) => m.DesembolsosPageComponent),
+    data: { breadcrumb: 'Desembolsos' },
+  },
+  {
+    path: 'desembolsos/:id',
+    loadComponent: () =>
+      import('./pages/desembolso-detail-page.component').then(
+        (m) => m.DesembolsoDetailPageComponent,
+      ),
+    data: { breadcrumb: 'Desembolso' },
+  },
 ];

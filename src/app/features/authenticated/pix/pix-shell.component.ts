@@ -25,7 +25,7 @@ export class PixShellComponent {
     {
       label: 'Desembolsos',
       description: 'Desembolso Pix assistido e status de transferencia.',
-      disabled: true,
+      route: '/app/pix/desembolsos',
     },
     {
       label: 'Recebimentos',
