@@ -35,7 +35,7 @@ export class PixShellComponent {
     {
       label: 'Divergencias',
       description: 'Recebimentos nao identificados e conciliacao operacional assistida.',
-      disabled: true,
+      route: '/app/pix/divergencias',
     },
   ];
 }

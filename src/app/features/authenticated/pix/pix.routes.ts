@@ -45,4 +45,10 @@ export const PIX_ROUTES: Routes = [
       ),
     data: { breadcrumb: 'Recebimento' },
   },
+  {
+    path: 'divergencias',
+    loadComponent: () =>
+      import('./pages/divergencias-page.component').then((m) => m.DivergenciasPageComponent),
+    data: { breadcrumb: 'Divergencias' },
+  },
 ];

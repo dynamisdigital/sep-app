@@ -1263,6 +1263,7 @@ const ITEM_EM_TRATAMENTO_ID = 'c0000000-0000-4000-8000-000000000002'; // EM_TRAT
 const ITEM_RESOLVIDO_ID = 'c0000000-0000-4000-8000-000000000003'; // RESOLVIDO (final)
 const ITEM_IGNORADO_ID = 'c0000000-0000-4000-8000-000000000004'; // IGNORADO (final)
 const ITEM_DESEMBOLSO_PIX_ID = 'c0000000-0000-4000-8000-000000000005'; // ABERTO / DESEMBOLSO_PIX_FALHOU
+const ITEM_RECEBIMENTO_PIX_ID = 'c0000000-0000-4000-8000-000000000006'; // ABERTO / RECEBIMENTO_PIX_DIVERGENTE
 // id 'c0000000-...-0000000000aa' (usado nas specs) cai no 404 generico de item nao encontrado.
 const WEBHOOK_EVENT_ID = 'd0000000-0000-4000-8000-000000000001';
 const PIX_ENTIDADE_ID = 'd0000000-0000-4000-8000-000000000002';
@@ -1335,6 +1336,18 @@ const itensFilaFake = [
     titulo: 'Desembolso Pix retornou falha do provedor',
     atribuidoA: null,
     dataAbertura: '2026-06-06T10:20:00-03:00',
+    dataResolucao: null,
+  },
+  {
+    id: ITEM_RECEBIMENTO_PIX_ID,
+    tipo: 'RECEBIMENTO_PIX_DIVERGENTE',
+    prioridade: 'ALTA',
+    status: 'ABERTO',
+    tipoEntidade: 'PIX_RECEBIMENTO',
+    entidadeId: 'e2000000-0000-4000-8000-000000000002',
+    titulo: 'Recebimento Pix sem referencia identificada',
+    atribuidoA: null,
+    dataAbertura: '2026-06-06T10:40:00-03:00',
     dataResolucao: null,
   },
 ];
