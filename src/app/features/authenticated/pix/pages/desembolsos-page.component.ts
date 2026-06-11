@@ -102,6 +102,11 @@ export class DesembolsosPageComponent {
       return;
     }
     const id = this.consultaForm.getRawValue().transferenciaId.trim();
+    // Validators.required aceita string so-espacos; apos o trim um id vazio nao vira rota.
+    if (!id) {
+      this.consultaForm.controls.transferenciaId.setErrors({ required: true });
+      return;
+    }
     void this.router.navigate(['/app/pix/desembolsos', id]);
   }
 

@@ -193,4 +193,21 @@ describe('DesembolsosPageComponent', () => {
 
     expect(navegar).toHaveBeenCalledWith(['/app/pix/desembolsos', TRANSFERENCIA_CRIADA_ID]);
   });
+
+  it('consultar com id apenas de espacos nao navega', async () => {
+    const { fixture, container } = await renderPage();
+    autenticar(fixture, 'BACKOFFICE', true);
+    fixture.detectChanges();
+    const router = fixture.debugElement.injector.get(Router);
+    const navegar = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    const input = container.querySelector(
+      'input[formControlName="transferenciaId"]',
+    ) as HTMLInputElement;
+    fireEvent.input(input, { target: { value: '   ' } });
+    fixture.detectChanges();
+    fireEvent.click(screen.getByRole('button', { name: /Abrir desembolso/ }));
+
+    expect(navegar).not.toHaveBeenCalled();
+  });
 });
