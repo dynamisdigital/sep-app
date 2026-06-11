@@ -1,20 +1,32 @@
 <section class="sep-dashboard">
   <header class="sep-dashboard-header">
     @if (currentUser(); as user) {
-      <h1 class="sep-dashboard-title">Ola, {{ user.username }}</h1>
-      <span class="sep-dashboard-badge">{{ user.role }}</span>
+      <div class="sep-dashboard-heading">
+        <h1 class="sep-dashboard-title">Ola, {{ user.username }}</h1>
+        <span class="sep-dashboard-badge">{{ user.role }}</span>
+      </div>
+      <p class="sep-dashboard-subtitle">Bem-vindo ao painel da SEP.</p>
     } @else {
       <h1 class="sep-dashboard-title">Dashboard</h1>
     }
   </header>
 
   <div class="sep-dashboard-section">
-    <h2 class="sep-dashboard-section-title">Atalhos</h2>
-    <div class="sep-dashboard-cards">
+    <h2 class="sep-dashboard-section-title">Acesso rapido</h2>
+    <div class="sep-quick-grid">
       @for (shortcut of shortcuts(); track shortcut.route) {
-        <a [routerLink]="shortcut.route" class="sep-dashboard-card sep-dashboard-card-link">
-          <span class="sep-dashboard-card-title">{{ shortcut.label }}</span>
-          <span class="sep-dashboard-card-body">{{ shortcut.description }}</span>
+        <a
+          [routerLink]="shortcut.route"
+          [class]="'sep-quick-tile sep-quick-tile--' + shortcut.tone"
+          [attr.title]="shortcut.description"
+        >
+          <lucide-icon
+            [name]="shortcut.icon"
+            [size]="24"
+            class="sep-tile-icon"
+            aria-hidden="true"
+          />
+          <span class="sep-quick-tile-label">{{ shortcut.label }}</span>
         </a>
       }
     </div>
@@ -22,12 +34,17 @@
 
   <div class="sep-dashboard-section">
     <h2 class="sep-dashboard-section-title">Proximas jornadas</h2>
-    <div class="sep-dashboard-cards">
+    <div class="sep-journey-grid">
       @for (placeholder of placeholders; track placeholder.label) {
-        <article class="sep-dashboard-card sep-dashboard-card-placeholder" aria-disabled="true">
-          <span class="sep-dashboard-card-title">{{ placeholder.label }}</span>
-          <span class="sep-dashboard-card-body">{{ placeholder.description }}</span>
-          <span class="sep-dashboard-card-tag">Em preparacao</span>
+        <article class="sep-journey-card" aria-disabled="true">
+          <span [class]="'sep-journey-icon sep-journey-icon--' + placeholder.tone">
+            <lucide-icon [name]="placeholder.icon" [size]="20" aria-hidden="true" />
+          </span>
+          <div class="sep-journey-body">
+            <span class="sep-journey-title">{{ placeholder.label }}</span>
+            <span class="sep-journey-desc">{{ placeholder.description }}</span>
+            <span class="sep-journey-tag">Em preparacao</span>
+          </div>
         </article>
       }
     </div>
