@@ -38,6 +38,11 @@ export class SidenavComponent {
         route: '/app/backoffice',
         roles: ['BACKOFFICE', 'FINANCEIRO', 'ADMIN'],
       },
+      {
+        label: 'Pix',
+        route: '/app/pix',
+        roles: ['FINANCEIRO', 'ADMIN', 'BACKOFFICE'],
+      },
       { label: 'Meu perfil', route: '/app/profile' },
       { label: 'Administracao', route: '/app/admin', roles: ['ADMIN'] },
     ];
