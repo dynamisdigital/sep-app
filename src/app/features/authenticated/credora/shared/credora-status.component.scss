@@ -1,0 +1,22 @@
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-credora-status-badge {
+  @include sepDs.sep-badge-base;
+
+  align-self: flex-start;
+
+  &.is-ativa {
+    color: hsl(var(--success));
+    background: hsl(var(--success) / 12%);
+  }
+
+  &.is-cadastrada {
+    color: hsl(var(--primary));
+    background: hsl(var(--primary) / 12%);
+  }
+
+  &.is-suspensa {
+    color: hsl(var(--destructive));
+    background: hsl(var(--destructive) / 12%);
+  }
+}
