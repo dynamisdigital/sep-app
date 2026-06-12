@@ -30,6 +30,10 @@
             <p class="sep-credora-perfil-motivo">Motivo: {{ motivo }}</p>
           }
         </div>
+      } @else if (el.status === 'SUSPENSA') {
+        <p class="sep-credora-perfil-aviso sep-credora-perfil-aviso-bloqueio" role="alert">
+          Sua credora esta suspensa e nao pode manifestar interesse no momento.
+        </p>
       } @else if (el.elegibilidade === 'PENDENTE') {
         <p class="sep-credora-perfil-aviso" role="status">
           Sua elegibilidade esta em analise. Voce sera habilitado a manifestar interesse quando o
@@ -42,6 +46,11 @@
             Ver oportunidades
           </a>
         </div>
+      } @else {
+        <p class="sep-credora-perfil-aviso" role="status">
+          Seu cadastro foi concluido e a ativacao esta em processamento. Voce sera habilitado a
+          manifestar interesse apos a ativacao.
+        </p>
       }
     }
 

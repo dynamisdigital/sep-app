@@ -5,18 +5,18 @@ import { render, screen } from '@testing-library/angular';
 import { Observable, of, throwError } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
 import {
   ElegibilidadeCredoraResponse,
   EmpresaCredoraResponse,
 } from '../../../../core/api/api.models';
 import { CredoraService } from '../../../../core/credora/credora.service';
 import { CredoraPerfilPageComponent } from './credora-perfil-page.component';
+
+async function flush(times = 5): Promise<void> {
+  for (let i = 0; i < times; i += 1) {
+    await Promise.resolve();
+  }
+}
 
 const EMPRESA: EmpresaCredoraResponse = {
   id: 'cr-1',
@@ -82,6 +82,19 @@ describe('CredoraPerfilPageComponent', () => {
     });
 
     expect(screen.getByText('Motivo: Onboarding PJ reprovado na verificacao PLD')).toBeTruthy();
+    expect(screen.queryByText('Ver oportunidades')).toBeNull();
+  });
+
+  it('SUSPENSA: explica o estado e nao oferece interesse', async () => {
+    await renderPagina({
+      consultarMinhaCredora: () => of({ ...EMPRESA, status: 'SUSPENSA' }),
+      consultarElegibilidade: () =>
+        of({ status: 'SUSPENSA', elegibilidade: 'ELEGIVEL', motivoInelegibilidade: null }),
+    });
+
+    expect(
+      screen.getByText('Sua credora esta suspensa e nao pode manifestar interesse no momento.'),
+    ).toBeTruthy();
     expect(screen.queryByText('Ver oportunidades')).toBeNull();
   });
 

@@ -65,6 +65,43 @@ describe('CredoraCadastroPageComponent', () => {
     expect(navigateSpy).toHaveBeenCalledWith(['/app/credora/perfil']);
   });
 
+  it('envia onboardingId, tipoCredora e capacidadeAporte do form', async () => {
+    const cadastrarCredora = vi.fn(() => of({} as EmpresaCredoraResponse));
+    const { fixture } = await renderPagina(cadastrarCredora);
+
+    preencherOnboarding();
+    fireEvent.change(screen.getByLabelText('Tipo de credora'), {
+      target: { value: 'INSTITUICAO_FINANCEIRA' },
+    });
+    fireEvent.input(screen.getByLabelText('Capacidade de aporte (BRL, opcional)'), {
+      target: { value: '500000' },
+    });
+    fixture.detectChanges();
+    fireEvent.click(screen.getByRole('button', { name: 'Cadastrar credora' }));
+    await estabilizar(fixture);
+
+    expect(cadastrarCredora).toHaveBeenCalledWith({
+      onboardingId: ONBOARDING_ID,
+      tipoCredora: 'INSTITUICAO_FINANCEIRA',
+      capacidadeAporte: 500000,
+    });
+  });
+
+  it('omite capacidadeAporte quando o campo fica em branco', async () => {
+    const cadastrarCredora = vi.fn(() => of({} as EmpresaCredoraResponse));
+    const { fixture } = await renderPagina(cadastrarCredora);
+
+    preencherOnboarding();
+    fixture.detectChanges();
+    fireEvent.click(screen.getByRole('button', { name: 'Cadastrar credora' }));
+    await estabilizar(fixture);
+
+    expect(cadastrarCredora).toHaveBeenCalledWith({
+      onboardingId: ONBOARDING_ID,
+      tipoCredora: 'EMPRESA',
+    });
+  });
+
   it('409 (credora ja existente) roteia para o perfil em vez de erro', async () => {
     const { fixture, navigateSpy } = await renderPagina(() =>
       throwError(() => erro(409, 'Credora ja existe (CRD-409-001)')),
