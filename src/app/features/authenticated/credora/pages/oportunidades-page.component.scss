@@ -1,0 +1,83 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-oportunidades {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-24);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-oportunidades-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sep-space-16);
+}
+
+.sep-oportunidades-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-oportunidades-back {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--primary));
+  text-decoration: none;
+}
+
+.sep-oportunidades-state {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-oportunidades-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+  color: hsl(var(--destructive));
+}
+
+.sep-oportunidades-retry {
+  @include sepDs.sep-button-outline;
+}
+
+.sep-oportunidades-empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+}
+
+.sep-oportunidades-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    @include sepType.sep-type-body;
+
+    padding: var(--sep-space-8) var(--sep-space-12);
+    text-align: left;
+    border-bottom: 1px solid hsl(var(--border));
+    color: hsl(var(--foreground));
+  }
+
+  th {
+    @include sepType.sep-type-caption;
+
+    color: hsl(var(--muted-foreground));
+  }
+
+  a {
+    color: hsl(var(--primary));
+    text-decoration: none;
+  }
+}

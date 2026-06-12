@@ -45,6 +45,7 @@ export class SidenavComponent {
           { label: 'Credito', route: '/app/credito', icon: 'credit-card' },
           { label: 'Formalizacao', route: '/app/formalizacao', icon: 'file-text' },
           { label: 'Cobranca', route: '/app/cobranca', icon: 'banknote' },
+          { label: 'Credora', route: '/app/credora', icon: 'briefcase', roles: ['CLIENTE'] },
         ],
       },
       {

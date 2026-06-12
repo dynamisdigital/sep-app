@@ -67,6 +67,44 @@ const multiroleUsuario = {
   modificadoPor: 'system',
 };
 
+// Personas da jornada credora (F-Sprint 11): a credora e um usuario CLIENTE — nao existe role
+// CREDORA. O gating real e por presenca de credora + elegibilidade no backend, nao por role.
+const credoraUsuario = {
+  id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771006',
+  username: 'credora@empresa.com',
+  role: 'CLIENTE',
+  precisaRedefinirSenha: false,
+  mfaHabilitado: false,
+  dataCriacao: now,
+  dataModificacao: now,
+  criadoPor: 'system',
+  modificadoPor: 'system',
+};
+
+const credoraInelegivelUsuario = {
+  id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771007',
+  username: 'credora-inelegivel@empresa.com',
+  role: 'CLIENTE',
+  precisaRedefinirSenha: false,
+  mfaHabilitado: false,
+  dataCriacao: now,
+  dataModificacao: now,
+  criadoPor: 'system',
+  modificadoPor: 'system',
+};
+
+const credoraNovoUsuario = {
+  id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771008',
+  username: 'credora-novo@empresa.com',
+  role: 'CLIENTE',
+  precisaRedefinirSenha: false,
+  mfaHabilitado: false,
+  dataCriacao: now,
+  dataModificacao: now,
+  criadoPor: 'system',
+  modificadoPor: 'system',
+};
+
 const usuariosFake = [
   adminUsuario,
   clienteUsuario,
@@ -82,6 +120,9 @@ const loginUsuarios: Record<string, typeof adminUsuario> = {
   'admin@empresa.com': adminUsuario,
   'financeiro@empresa.com': financeiroUsuario,
   'backoffice@empresa.com': backofficeUsuario,
+  'credora@empresa.com': credoraUsuario,
+  'credora-inelegivel@empresa.com': credoraInelegivelUsuario,
+  'credora-novo@empresa.com': credoraNovoUsuario,
 };
 let currentMockUser = adminUsuario;
 
@@ -2356,6 +2397,330 @@ const pixHandlers = [
   }),
 ];
 
+// --- Credora (F-Sprint 11 / backend Sprints 16-17) ---
+// A jornada credora e por usuario autenticado (CLIENTE) dono de uma credora — nao ha role CREDORA.
+// As leituras /me, /oportunidades e /carteira respondem 404 quando o usuario nao tem credora; o
+// gating real e ownership + elegibilidade no backend. Fixtures nao guardam CNPJ nao mascarado de
+// terceiros, dados bancarios, chave Pix nem dado sensivel do tomador na carteira. CNPJ ja chega
+// formatado como o backend (EmpresaCredoraWebMapper).
+const CREDORA_ELEGIVEL_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b780001';
+const CREDORA_INELEGIVEL_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b780002';
+
+// Sentinelas de onboarding para o cadastro: aprovado-PJ-do-proprio-usuario (201), PF (422),
+// de-outro-usuario (403); qualquer outro id -> 404.
+const ONBOARDING_PJ_APROVADO_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78a001';
+const ONBOARDING_PF_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78a002';
+const ONBOARDING_DE_OUTRO_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78a003';
+
+const OPORTUNIDADE_DISPONIVEL_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78b001';
+const OPORTUNIDADE_DISPONIVEL_2_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78b002';
+const OPORTUNIDADE_ENCERRADA_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78b003';
+const OPERACAO_ASSOCIADA_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78c001';
+
+function credoraElegivelSeed(): Record<string, unknown> {
+  return {
+    id: CREDORA_ELEGIVEL_ID,
+    usuarioId: credoraUsuario.id,
+    onboardingId: ONBOARDING_PJ_APROVADO_ID,
+    cnpj: '12.345.678/0001-90',
+    razaoSocial: 'Aurora Capital Investimentos LTDA',
+    status: 'ATIVA',
+    elegibilidade: 'ELEGIVEL',
+    motivoInelegibilidade: null,
+    tipoCredora: 'EMPRESA',
+    capacidadeAporte: 500000.0,
+    dataCriacao: now,
+    dataModificacao: now,
+  };
+}
+
+function credoraInelegivelSeed(): Record<string, unknown> {
+  return {
+    id: CREDORA_INELEGIVEL_ID,
+    usuarioId: credoraInelegivelUsuario.id,
+    onboardingId: '7f0799c0-98b9-6d9d-bc4a-7d6f5b78a009',
+    cnpj: '98.765.432/0001-10',
+    razaoSocial: 'Boreal Fomento Mercantil LTDA',
+    status: 'CADASTRADA',
+    elegibilidade: 'INELEGIVEL',
+    motivoInelegibilidade: 'Onboarding PJ reprovado na verificacao PLD',
+    tipoCredora: 'EMPRESA',
+    capacidadeAporte: null,
+    dataCriacao: now,
+    dataModificacao: now,
+  };
+}
+
+function seedCredorasPorUsuario(): Record<string, Record<string, unknown>> {
+  // credora@empresa.com -> ATIVA/ELEGIVEL; credora-inelegivel@empresa.com -> CADASTRADA/INELEGIVEL;
+  // credora-novo@empresa.com -> ausente (404), cadastra a partir do onboarding PJ aprovado.
+  return {
+    [credoraUsuario.id]: credoraElegivelSeed(),
+    [credoraInelegivelUsuario.id]: credoraInelegivelSeed(),
+  };
+}
+
+function seedOportunidadesCredora(): Record<string, Record<string, unknown>> {
+  return {
+    [OPORTUNIDADE_DISPONIVEL_ID]: {
+      id: OPORTUNIDADE_DISPONIVEL_ID,
+      propostaId: '7f0799c0-98b9-6d9d-bc4a-7d6f5b78d001',
+      contratoId: '7f0799c0-98b9-6d9d-bc4a-7d6f5b78e001',
+      valor: 25000.0,
+      prazoMeses: 12,
+      taxaJurosMensal: 0.025,
+      status: 'DISPONIVEL',
+      dataCriacao: now,
+    },
+    [OPORTUNIDADE_DISPONIVEL_2_ID]: {
+      id: OPORTUNIDADE_DISPONIVEL_2_ID,
+      propostaId: '7f0799c0-98b9-6d9d-bc4a-7d6f5b78d002',
+      contratoId: null,
+      valor: 40000.0,
+      prazoMeses: 24,
+      taxaJurosMensal: 0.019,
+      status: 'DISPONIVEL',
+      dataCriacao: now,
+    },
+    [OPORTUNIDADE_ENCERRADA_ID]: {
+      id: OPORTUNIDADE_ENCERRADA_ID,
+      propostaId: '7f0799c0-98b9-6d9d-bc4a-7d6f5b78d003',
+      contratoId: '7f0799c0-98b9-6d9d-bc4a-7d6f5b78e003',
+      valor: 15000.0,
+      prazoMeses: 6,
+      taxaJurosMensal: 0.031,
+      status: 'ENCERRADA',
+      dataCriacao: now,
+    },
+  };
+}
+
+function operacaoAssociadaSeed(): Record<string, unknown> {
+  // Carteira nasce por associacao assistida do admin (nao por interesse). Cobranca e so agregada.
+  return {
+    id: OPERACAO_ASSOCIADA_ID,
+    contratoId: '7f0799c0-98b9-6d9d-bc4a-7d6f5b78e001',
+    oportunidadeId: OPORTUNIDADE_DISPONIVEL_ID,
+    status: 'ASSOCIADA',
+    justificativa: 'Associacao assistida apos formalizacao do contrato',
+    valor: 25000.0,
+    prazoMeses: 12,
+    taxaJurosMensal: 0.025,
+    contratoStatus: 'ASSINADO',
+    cobranca: {
+      numeroParcelas: 12,
+      valorTotal: 27000.0,
+      parcelasPagas: 2,
+      parcelasAtrasadas: 0,
+      totalRecebido: 4500.0,
+      proximoVencimento: '2026-07-10',
+    },
+    dataCriacao: now,
+  };
+}
+
+function seedCarteiraPorUsuario(): Record<string, Record<string, unknown>[]> {
+  // Apenas a credora elegivel tem operacao associada; a inelegivel tem carteira vazia.
+  return { [credoraUsuario.id]: [operacaoAssociadaSeed()] };
+}
+
+let credorasPorUsuario = seedCredorasPorUsuario();
+let oportunidadesCredora = seedOportunidadesCredora();
+let carteiraPorUsuario = seedCarteiraPorUsuario();
+let interessesAtivos = new Set<string>();
+let credoraSeq = 200;
+
+// Restaura o estado mutavel da credora (cadastro, interesses) para o seed, garantindo testes
+// independentes (F.I.R.S.T.) ao exercitar cadastro/interesse.
+export function resetCredoraState(): void {
+  credorasPorUsuario = seedCredorasPorUsuario();
+  oportunidadesCredora = seedOportunidadesCredora();
+  carteiraPorUsuario = seedCarteiraPorUsuario();
+  interessesAtivos = new Set<string>();
+  credoraSeq = 200;
+}
+
+function credoraAtual(): Record<string, unknown> | undefined {
+  return credorasPorUsuario[currentMockUser.id];
+}
+
+function chaveInteresse(oportunidadeId: string): string {
+  return `${currentMockUser.id}:${oportunidadeId}`;
+}
+
+const credoraHandlers = [
+  http.post(`${baseUrl}/credores`, async ({ request }) => {
+    const path = '/api/v1/credores';
+    const body = (await request.json()) as {
+      onboardingId?: string;
+      tipoCredora?: string;
+      capacidadeAporte?: number;
+    };
+    const onboardingId = body.onboardingId ?? '';
+    if (onboardingId === ONBOARDING_PF_ID) {
+      return errorResponse(
+        422,
+        'Unprocessable Entity',
+        'Onboarding nao e PJ ou KYB incompleto (CRD-422-001)',
+        path,
+      );
+    }
+    if (onboardingId === ONBOARDING_DE_OUTRO_ID) {
+      return errorResponse(
+        403,
+        'Forbidden',
+        'Onboarding pertence a outro usuario (CRD-403-001)',
+        path,
+      );
+    }
+    if (onboardingId !== ONBOARDING_PJ_APROVADO_ID) {
+      return errorResponse(404, 'Not Found', 'Onboarding nao encontrado', path);
+    }
+    if (credoraAtual()) {
+      return errorResponse(
+        409,
+        'Conflict',
+        'Usuario, onboarding ou CNPJ ja vinculado a uma credora (CRD-409-001)',
+        path,
+      );
+    }
+    credoraSeq += 1;
+    const nova: Record<string, unknown> = {
+      id: novoId('7f0799c0', credoraSeq),
+      usuarioId: currentMockUser.id,
+      onboardingId,
+      cnpj: '11.222.333/0001-44',
+      razaoSocial: 'Nova Credora Participacoes LTDA',
+      status: 'ATIVA',
+      elegibilidade: 'ELEGIVEL',
+      motivoInelegibilidade: null,
+      tipoCredora: body.tipoCredora ?? 'EMPRESA',
+      capacidadeAporte: body.capacidadeAporte ?? null,
+      dataCriacao: now,
+      dataModificacao: now,
+    };
+    credorasPorUsuario[currentMockUser.id] = nova;
+    return HttpResponse.json(nova, { status: 201 });
+  }),
+
+  http.get(`${baseUrl}/credores/me/elegibilidade`, () => {
+    const path = '/api/v1/credores/me/elegibilidade';
+    const credora = credoraAtual();
+    if (!credora) {
+      return errorResponse(404, 'Not Found', 'Usuario nao possui credora', path);
+    }
+    return HttpResponse.json({
+      status: credora['status'],
+      elegibilidade: credora['elegibilidade'],
+      motivoInelegibilidade: credora['motivoInelegibilidade'],
+    });
+  }),
+
+  http.get(`${baseUrl}/credores/me`, () => {
+    const path = '/api/v1/credores/me';
+    const credora = credoraAtual();
+    if (!credora) {
+      return errorResponse(404, 'Not Found', 'Usuario nao possui credora', path);
+    }
+    return HttpResponse.json(credora);
+  }),
+
+  http.get(`${baseUrl}/credores/oportunidades`, () => {
+    const path = '/api/v1/credores/oportunidades';
+    if (!credoraAtual()) {
+      return errorResponse(404, 'Not Found', 'Usuario nao possui credora', path);
+    }
+    const disponiveis = Object.values(oportunidadesCredora).filter(
+      (o) => o['status'] === 'DISPONIVEL',
+    );
+    return HttpResponse.json(disponiveis);
+  }),
+
+  http.get(`${baseUrl}/credores/oportunidades/:id`, ({ params }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/credores/oportunidades/${id}`;
+    if (!credoraAtual()) {
+      return errorResponse(404, 'Not Found', 'Usuario nao possui credora', path);
+    }
+    const oportunidade = oportunidadesCredora[id];
+    if (!oportunidade) {
+      return errorResponse(404, 'Not Found', 'Oportunidade nao encontrada', path);
+    }
+    return HttpResponse.json(oportunidade);
+  }),
+
+  http.post(`${baseUrl}/credores/oportunidades/:id/interesses`, ({ params }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/credores/oportunidades/${id}/interesses`;
+    const credora = credoraAtual();
+    if (!credora) {
+      return errorResponse(404, 'Not Found', 'Usuario nao possui credora', path);
+    }
+    const oportunidade = oportunidadesCredora[id];
+    if (!oportunidade) {
+      return errorResponse(404, 'Not Found', 'Oportunidade nao encontrada', path);
+    }
+    if (credora['status'] !== 'ATIVA' || credora['elegibilidade'] !== 'ELEGIVEL') {
+      return errorResponse(
+        422,
+        'Unprocessable Entity',
+        'Credora nao elegivel para manifestar interesse',
+        path,
+      );
+    }
+    if (oportunidade['status'] !== 'DISPONIVEL') {
+      return errorResponse(422, 'Unprocessable Entity', 'Oportunidade indisponivel', path);
+    }
+    const chave = chaveInteresse(id);
+    if (interessesAtivos.has(chave)) {
+      return errorResponse(409, 'Conflict', 'Interesse ativo ja existe', path);
+    }
+    interessesAtivos.add(chave);
+    credoraSeq += 1;
+    return HttpResponse.json(
+      { id: novoId('7f000001', credoraSeq), oportunidadeId: id, status: 'ATIVO', dataCriacao: now },
+      { status: 201 },
+    );
+  }),
+
+  http.delete(`${baseUrl}/credores/oportunidades/:id/interesses/me`, ({ params }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/credores/oportunidades/${id}/interesses/me`;
+    if (!credoraAtual()) {
+      return errorResponse(404, 'Not Found', 'Usuario nao possui credora', path);
+    }
+    // Espelha CancelarInteresseCredoraUseCase: NAO e idempotente — sem interesse ATIVO responde 404.
+    const chave = chaveInteresse(id);
+    if (!interessesAtivos.has(chave)) {
+      return errorResponse(404, 'Not Found', 'Interesse ativo nao encontrado', path);
+    }
+    interessesAtivos.delete(chave);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.get(`${baseUrl}/credores/carteira/:id`, ({ params }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/credores/carteira/${id}`;
+    if (!credoraAtual()) {
+      return errorResponse(404, 'Not Found', 'Usuario nao possui credora', path);
+    }
+    const operacao = (carteiraPorUsuario[currentMockUser.id] ?? []).find((o) => o['id'] === id);
+    if (!operacao) {
+      // Ownership: operacao de outra credora ou inexistente -> 404 (nao vaza existencia).
+      return errorResponse(404, 'Not Found', 'Operacao nao encontrada', path);
+    }
+    return HttpResponse.json(operacao);
+  }),
+
+  http.get(`${baseUrl}/credores/carteira`, () => {
+    const path = '/api/v1/credores/carteira';
+    if (!credoraAtual()) {
+      return errorResponse(404, 'Not Found', 'Usuario nao possui credora', path);
+    }
+    return HttpResponse.json(carteiraPorUsuario[currentMockUser.id] ?? []);
+  }),
+];
+
 export const handlers = [
   http.post(`${baseUrl}/auth/login`, async ({ request }) => {
     const body = (await request.json()) as { username?: string; password?: string };
@@ -2456,4 +2821,5 @@ export const handlers = [
   ...backofficeHandlers,
   ...governancaHandlers,
   ...pixHandlers,
+  ...credoraHandlers,
 ];

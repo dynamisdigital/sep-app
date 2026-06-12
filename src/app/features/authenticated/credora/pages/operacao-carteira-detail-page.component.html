@@ -1,0 +1,106 @@
+<section class="sep-operacao-detail">
+  <a routerLink="/app/credora/carteira" class="sep-operacao-detail-back">Voltar para a carteira</a>
+
+  @if (loading()) {
+    <p class="sep-operacao-detail-state" role="status">Carregando operacao...</p>
+  } @else if (errorMessage(); as msg) {
+    <div class="sep-operacao-detail-state sep-operacao-detail-error" role="alert">
+      <p>{{ msg }}</p>
+      <button type="button" class="sep-operacao-detail-retry" (click)="carregar()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (naoEncontrada()) {
+    <div class="sep-operacao-detail-state">
+      <p>Operacao nao encontrada.</p>
+    </div>
+  } @else if (operacao(); as op) {
+    <header class="sep-operacao-detail-header">
+      <h1 class="sep-operacao-detail-title">Operacao {{ idCurto(op.id) }}</h1>
+      <sep-operacao-status [status]="op.status" />
+    </header>
+
+    <dl class="sep-operacao-detail-grid">
+      <div class="sep-operacao-detail-row">
+        <dt>Valor</dt>
+        <dd>
+          @if (op.valor !== null) {
+            {{ formatarMoeda(op.valor) }}
+          } @else {
+            &mdash;
+          }
+        </dd>
+      </div>
+      <div class="sep-operacao-detail-row">
+        <dt>Prazo</dt>
+        <dd>
+          @if (op.prazoMeses !== null) {
+            {{ op.prazoMeses }} meses
+          } @else {
+            &mdash;
+          }
+        </dd>
+      </div>
+      <div class="sep-operacao-detail-row">
+        <dt>Taxa de juros</dt>
+        <dd>
+          @if (op.taxaJurosMensal !== null) {
+            {{ formatarTaxaMensal(op.taxaJurosMensal) }}
+          } @else {
+            &mdash;
+          }
+        </dd>
+      </div>
+      <div class="sep-operacao-detail-row">
+        <dt>Status do contrato</dt>
+        <dd>{{ op.contratoStatus ?? '—' }}</dd>
+      </div>
+      <div class="sep-operacao-detail-row">
+        <dt>Justificativa</dt>
+        <dd>{{ op.justificativa }}</dd>
+      </div>
+      <div class="sep-operacao-detail-row">
+        <dt>Associada em</dt>
+        <dd>{{ formatarData(op.dataCriacao) }}</dd>
+      </div>
+    </dl>
+
+    @if (op.cobranca; as cobranca) {
+      <section class="sep-operacao-detail-cobranca">
+        <h2 class="sep-operacao-detail-subtitle">Resumo de cobranca</h2>
+        <dl class="sep-operacao-detail-grid">
+          <div class="sep-operacao-detail-row">
+            <dt>Parcelas</dt>
+            <dd>{{ cobranca.parcelasPagas }} pagas de {{ cobranca.numeroParcelas }}</dd>
+          </div>
+          <div class="sep-operacao-detail-row">
+            <dt>Parcelas em atraso</dt>
+            <dd>{{ cobranca.parcelasAtrasadas }}</dd>
+          </div>
+          <div class="sep-operacao-detail-row">
+            <dt>Valor total</dt>
+            <dd>{{ formatarMoeda(cobranca.valorTotal) }}</dd>
+          </div>
+          <div class="sep-operacao-detail-row">
+            <dt>Total recebido</dt>
+            <dd>{{ formatarMoeda(cobranca.totalRecebido) }}</dd>
+          </div>
+          <div class="sep-operacao-detail-row">
+            <dt>Proximo vencimento</dt>
+            <dd>
+              @if (cobranca.proximoVencimento; as vencimento) {
+                {{ formatarData(vencimento) }}
+              } @else {
+                &mdash;
+              }
+            </dd>
+          </div>
+        </dl>
+      </section>
+    } @else {
+      <p class="sep-operacao-detail-sem-cobranca" role="status">
+        Sem resumo de cobranca disponivel para esta operacao.
+      </p>
+    }
+  }
+</section>

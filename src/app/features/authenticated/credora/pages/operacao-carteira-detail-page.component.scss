@@ -1,0 +1,100 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-operacao-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-16);
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-operacao-detail-back {
+  @include sepType.sep-type-body;
+
+  align-self: flex-start;
+  color: hsl(var(--primary));
+  text-decoration: none;
+}
+
+.sep-operacao-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sep-space-12);
+}
+
+.sep-operacao-detail-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-operacao-detail-cobranca {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+}
+
+.sep-operacao-detail-subtitle {
+  @include sepType.sep-type-card-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-operacao-detail-grid {
+  @include sepDs.sep-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-12);
+  margin: 0;
+  padding: var(--sep-space-24);
+}
+
+.sep-operacao-detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-3);
+
+  dt {
+    @include sepType.sep-type-caption;
+
+    color: hsl(var(--muted-foreground));
+  }
+
+  dd {
+    @include sepType.sep-type-body;
+
+    margin: 0;
+    color: hsl(var(--foreground));
+  }
+}
+
+.sep-operacao-detail-sem-cobranca {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-operacao-detail-state {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-operacao-detail-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+  color: hsl(var(--destructive));
+}
+
+.sep-operacao-detail-retry {
+  @include sepDs.sep-button-outline;
+}
