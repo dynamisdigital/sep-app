@@ -1,0 +1,56 @@
+<section class="sep-carteira">
+  <header class="sep-carteira-header">
+    <h1 class="sep-carteira-title">Carteira</h1>
+    <a routerLink="/app/credora" class="sep-carteira-back">Voltar para a jornada credora</a>
+  </header>
+
+  @if (loading()) {
+    <p class="sep-carteira-state" role="status">Carregando carteira...</p>
+  } @else if (errorMessage(); as msg) {
+    <div class="sep-carteira-state sep-carteira-error" role="alert">
+      <p>{{ msg }}</p>
+      <button type="button" class="sep-carteira-retry" (click)="carregar()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (operacoes().length === 0) {
+    <div class="sep-carteira-state sep-carteira-empty">
+      <p>Voce ainda nao tem operacoes financiadas.</p>
+      <p class="sep-carteira-empty-nota">
+        A carteira nasce por associacao operacional assistida. Manifestar interesse em oportunidades
+        nao gera operacao de carteira.
+      </p>
+    </div>
+  } @else {
+    <table class="sep-carteira-table">
+      <thead>
+        <tr>
+          <th scope="col">Operacao</th>
+          <th scope="col">Valor</th>
+          <th scope="col">Status</th>
+          <th scope="col">Associada em</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (operacao of operacoes(); track operacao.id) {
+          <tr>
+            <td>
+              <a [routerLink]="['/app/credora/carteira', operacao.id]">
+                {{ idCurto(operacao.id) }}
+              </a>
+            </td>
+            <td>
+              @if (operacao.valor !== null) {
+                {{ formatarMoeda(operacao.valor) }}
+              } @else {
+                &mdash;
+              }
+            </td>
+            <td><sep-operacao-status [status]="operacao.status" /></td>
+            <td>{{ formatarData(operacao.dataCriacao) }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>
