@@ -46,5 +46,45 @@
         <dd>{{ formatarData(o.dataCriacao) }}</dd>
       </div>
     </dl>
+
+    @if (o.status === 'DISPONIVEL') {
+      <div class="sep-oportunidade-detail-acao">
+        @if (interesseAtivo()) {
+          <p class="sep-oportunidade-detail-interesse-ok" role="status">
+            Interesse registrado nesta oportunidade.
+          </p>
+          <button
+            type="button"
+            class="sep-oportunidade-detail-cancelar"
+            [disabled]="enviando()"
+            (click)="cancelarInteresse()"
+          >
+            {{ enviando() ? 'Cancelando...' : 'Cancelar interesse' }}
+          </button>
+        } @else if (podeManifestar()) {
+          <button
+            type="button"
+            class="sep-oportunidade-detail-manifestar"
+            [disabled]="enviando()"
+            (click)="manifestarInteresse()"
+          >
+            {{ enviando() ? 'Enviando...' : 'Manifestar interesse' }}
+          </button>
+        } @else {
+          <p class="sep-oportunidade-detail-bloqueio" role="status">
+            Sua credora precisa estar ativa e elegivel para manifestar interesse.
+          </p>
+        }
+
+        @if (acaoErro(); as msg) {
+          <p class="sep-oportunidade-detail-acao-erro" role="alert">{{ msg }}</p>
+        }
+
+        <p class="sep-oportunidade-detail-nota">
+          Manifestar interesse nao gera aporte, alocacao nem operacao de carteira. A carteira nasce
+          por associacao operacional assistida.
+        </p>
+      </div>
+    }
   }
 </section>

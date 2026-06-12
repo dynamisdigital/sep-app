@@ -71,6 +71,59 @@
   }
 }
 
+.sep-oportunidade-detail-acao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+}
+
+.sep-oportunidade-detail-manifestar {
+  @include sepDs.sep-button-primary;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.sep-oportunidade-detail-cancelar {
+  @include sepDs.sep-button-outline;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.sep-oportunidade-detail-interesse-ok {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--success));
+}
+
+.sep-oportunidade-detail-bloqueio {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-oportunidade-detail-acao-erro {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--destructive));
+}
+
+.sep-oportunidade-detail-nota {
+  @include sepType.sep-type-caption;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
 .sep-oportunidade-detail-state {
   @include sepType.sep-type-body;
 
