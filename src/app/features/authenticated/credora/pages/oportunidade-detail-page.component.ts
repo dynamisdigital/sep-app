@@ -40,10 +40,10 @@ export class OportunidadeDetailPageComponent implements OnInit {
   protected readonly idCurto = idCurto;
 
   ngOnInit(): void {
+    // O parametro :id e garantido pela rota; carrega incondicionalmente para nunca deixar o
+    // estado de loading preso caso o id venha vazio.
     this.id = this.route.snapshot.paramMap.get('id') ?? '';
-    if (this.id) {
-      this.carregar();
-    }
+    this.carregar();
   }
 
   carregar(): void {
