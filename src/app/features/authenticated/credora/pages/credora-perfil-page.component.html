@@ -1,0 +1,74 @@
+<section class="sep-credora-perfil">
+  @if (loading()) {
+    <p class="sep-credora-perfil-state" role="status">Carregando perfil...</p>
+  } @else if (errorMessage(); as msg) {
+    <div class="sep-credora-perfil-state sep-credora-perfil-error" role="alert">
+      <p>{{ msg }}</p>
+      <button type="button" class="sep-credora-perfil-retry" (click)="carregar()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (empresa(); as e) {
+    <header class="sep-credora-perfil-header">
+      <div class="sep-credora-perfil-heading">
+        <h1 class="sep-credora-perfil-title">{{ e.razaoSocial }}</h1>
+        <p class="sep-credora-perfil-cnpj">{{ e.cnpj }}</p>
+      </div>
+      <div class="sep-credora-perfil-badges">
+        <sep-credora-status [status]="e.status" />
+        @if (elegibilidade(); as el) {
+          <sep-elegibilidade-status [elegibilidade]="el.elegibilidade" />
+        }
+      </div>
+    </header>
+
+    @if (elegibilidade(); as el) {
+      @if (el.elegibilidade === 'INELEGIVEL') {
+        <div class="sep-credora-perfil-aviso sep-credora-perfil-aviso-bloqueio" role="alert">
+          <p>Sua credora esta inelegivel e nao pode manifestar interesse em oportunidades.</p>
+          @if (el.motivoInelegibilidade; as motivo) {
+            <p class="sep-credora-perfil-motivo">Motivo: {{ motivo }}</p>
+          }
+        </div>
+      } @else if (el.status === 'SUSPENSA') {
+        <p class="sep-credora-perfil-aviso sep-credora-perfil-aviso-bloqueio" role="alert">
+          Sua credora esta suspensa e nao pode manifestar interesse no momento.
+        </p>
+      } @else if (el.elegibilidade === 'PENDENTE') {
+        <p class="sep-credora-perfil-aviso" role="status">
+          Sua elegibilidade esta em analise. Voce sera habilitado a manifestar interesse quando o
+          backend concluir a verificacao do onboarding.
+        </p>
+      } @else if (podeManifestarInteresse()) {
+        <div class="sep-credora-perfil-aviso sep-credora-perfil-aviso-ok">
+          <p>Sua credora esta apta a manifestar interesse em oportunidades disponiveis.</p>
+          <a routerLink="/app/credora/oportunidades" class="sep-credora-perfil-cta">
+            Ver oportunidades
+          </a>
+        </div>
+      } @else {
+        <p class="sep-credora-perfil-aviso" role="status">
+          Seu cadastro foi concluido e a ativacao esta em processamento. Voce sera habilitado a
+          manifestar interesse apos a ativacao.
+        </p>
+      }
+    }
+
+    <dl class="sep-credora-perfil-grid">
+      <div class="sep-credora-perfil-row">
+        <dt>Tipo de credora</dt>
+        <dd>{{ tipoLabel[e.tipoCredora] }}</dd>
+      </div>
+      <div class="sep-credora-perfil-row">
+        <dt>Capacidade de aporte</dt>
+        <dd>
+          @if (e.capacidadeAporte !== null) {
+            {{ formatarMoeda(e.capacidadeAporte) }}
+          } @else {
+            Nao informada
+          }
+        </dd>
+      </div>
+    </dl>
+  }
+</section>

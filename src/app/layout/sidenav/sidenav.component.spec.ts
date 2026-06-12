@@ -260,6 +260,52 @@ describe('SidenavComponent', () => {
     expect(screen.queryByText('Backoffice')).toBeNull();
   });
 
+  it('CLIENTE: ve Credora e aponta para /app/credora', async () => {
+    window.localStorage.setItem(ACCESS_TOKEN_KEY, 'mock-jwt-token');
+    const result = await render(SidenavComponent, {
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
+    });
+    const auth = result.fixture.debugElement.injector.get(AuthService) as unknown as {
+      currentUserState: { set: (u: unknown) => void };
+    };
+    auth.currentUserState.set({
+      id: 'cli-1',
+      username: 'cliente@empresa.com',
+      role: 'CLIENTE',
+      dataCriacao: '2026-04-24T18:30:00-03:00',
+      dataModificacao: '2026-04-24T18:30:00-03:00',
+      criadoPor: 'system',
+      modificadoPor: 'system',
+    });
+    result.fixture.detectChanges();
+
+    expect(screen.getByText('Credora').closest('a')?.getAttribute('href')).toBe('/app/credora');
+  });
+
+  it('ADMIN: nao ve o menu Credora (persona e CLIENTE)', async () => {
+    const result = await render(SidenavComponent, {
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
+    });
+    const auth = result.fixture.debugElement.injector.get(AuthService);
+    await new Promise<void>((resolve, reject) => {
+      auth.login({ username: 'admin@empresa.com', password: '123456' }).subscribe({
+        next: () => resolve(),
+        error: reject,
+      });
+    });
+    result.fixture.detectChanges();
+
+    expect(screen.queryByText('Credora')).toBeNull();
+  });
+
   it('link Meu perfil aponta para /app/profile e Administracao para /app/admin', async () => {
     const result = await render(SidenavComponent, {
       providers: [

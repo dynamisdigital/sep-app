@@ -67,6 +67,11 @@ export const AUTHENTICATED_ROUTES: Routes = [
         data: { breadcrumb: 'Cobranca' },
       },
       {
+        path: 'credora',
+        loadChildren: () => import('./credora/credora.routes').then((m) => m.CREDORA_ROUTES),
+        data: { breadcrumb: 'Credora' },
+      },
+      {
         path: 'pix',
         canActivate: [roleGuard],
         data: { roles: ['FINANCEIRO', 'ADMIN', 'BACKOFFICE'], breadcrumb: 'Pix' },

@@ -1,0 +1,67 @@
+<section class="sep-credora-cadastro">
+  <header class="sep-credora-cadastro-header">
+    <h1 class="sep-credora-cadastro-title">Cadastrar credora</h1>
+    <a routerLink="/app/credora" class="sep-credora-cadastro-back">Voltar para a jornada credora</a>
+  </header>
+
+  <p class="sep-credora-cadastro-intro">
+    O cadastro parte de um onboarding PJ aprovado do seu usuario. Razao social, CNPJ e elegibilidade
+    sao derivados do onboarding pelo backend.
+  </p>
+
+  <form
+    class="sep-credora-cadastro-form"
+    [formGroup]="form"
+    (ngSubmit)="cadastrar()"
+    novalidate
+    autocomplete="off"
+  >
+    <div class="sep-credora-cadastro-field">
+      <label for="onboardingId">Onboarding PJ aprovado</label>
+      <input id="onboardingId" type="text" formControlName="onboardingId" />
+      @if (form.controls.onboardingId.touched && form.controls.onboardingId.errors?.['required']) {
+        <p class="sep-credora-cadastro-error">Informe o onboarding PJ aprovado.</p>
+      }
+    </div>
+
+    <div class="sep-credora-cadastro-field">
+      <label for="tipoCredora">Tipo de credora</label>
+      <select id="tipoCredora" formControlName="tipoCredora">
+        @for (tipo of tiposCredora; track tipo) {
+          <option [value]="tipo">{{ tipoLabel[tipo] }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="sep-credora-cadastro-field">
+      <label for="capacidadeAporte">Capacidade de aporte (BRL, opcional)</label>
+      <input
+        id="capacidadeAporte"
+        type="number"
+        inputmode="decimal"
+        min="0.01"
+        step="0.01"
+        formControlName="capacidadeAporte"
+      />
+      @if (form.controls.capacidadeAporte.touched && form.controls.capacidadeAporte.invalid) {
+        <p class="sep-credora-cadastro-error">
+          Informe um valor maior que zero ou deixe em branco.
+        </p>
+      }
+    </div>
+
+    @if (errorMessage(); as msg) {
+      <p class="sep-credora-cadastro-feedback" role="alert">{{ msg }}</p>
+    }
+
+    <div class="sep-credora-cadastro-actions">
+      <button
+        type="submit"
+        class="sep-credora-cadastro-submit"
+        [disabled]="submitting() || form.invalid"
+      >
+        {{ submitting() ? 'Cadastrando...' : 'Cadastrar credora' }}
+      </button>
+    </div>
+  </form>
+</section>

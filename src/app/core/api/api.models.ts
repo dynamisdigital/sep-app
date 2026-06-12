@@ -835,3 +835,112 @@ export interface PixRecebimentoResponse {
   motivoDivergencia: string | null;
   recebidoEm: string;
 }
+
+// --- Credora (F-Sprint 11 / backend Sprints 16-17) ---
+// DTOs de borda espelhando os contratos reais de `sep-api` (modulo credores). Elegibilidade,
+// ownership, regras de interesse, associacao de carteira e auditoria pertencem ao backend: o
+// frontend nunca recalcula elegibilidade nem deriva estado de interesse, apenas apresenta os DTOs.
+// Datas chegam como string ISO (OffsetDateTime/LocalDate no backend); valores monetarios e taxas
+// como number apenas para exibicao.
+
+// Status cadastral da credora (StatusCredora no backend).
+export type StatusCredora = 'CADASTRADA' | 'ATIVA' | 'SUSPENSA';
+
+// Elegibilidade operacional derivada do onboarding PJ (StatusElegibilidade no backend).
+export type StatusElegibilidade = 'PENDENTE' | 'ELEGIVEL' | 'INELEGIVEL';
+
+// Natureza da credora (TipoCredora no backend).
+export type TipoCredora = 'EMPRESA' | 'INSTITUICAO_FINANCEIRA';
+
+// Disponibilidade de uma oportunidade de investimento (StatusOportunidade no backend).
+export type StatusOportunidade = 'DISPONIVEL' | 'ENCERRADA';
+
+// Estado de uma manifestacao de interesse (StatusInteresseCredora no backend).
+export type StatusInteresseCredora = 'ATIVO' | 'CANCELADO';
+
+// Estado de uma operacao da carteira financiada (StatusOperacaoFinanciada no backend).
+export type StatusOperacaoFinanciada = 'ASSOCIADA' | 'ENCERRADA';
+
+// POST /credores: cadastra a credora a partir de um onboarding PJ aprovado do proprio usuario.
+// cnpj/razaoSocial nao sao enviados — derivam do KYB do onboarding referenciado.
+export interface CadastrarCredoraRequest {
+  onboardingId: string;
+  tipoCredora: TipoCredora;
+  capacidadeAporte?: number;
+}
+
+// GET /credores/me e resposta de POST /credores. cnpj ja chega formatado (00.000.000/0000-00);
+// motivoInelegibilidade e capacidadeAporte podem vir nulos.
+export interface EmpresaCredoraResponse {
+  id: string;
+  usuarioId: string;
+  onboardingId: string;
+  cnpj: string;
+  razaoSocial: string;
+  status: StatusCredora;
+  elegibilidade: StatusElegibilidade;
+  motivoInelegibilidade: string | null;
+  tipoCredora: TipoCredora;
+  capacidadeAporte: number | null;
+  dataCriacao: string;
+  dataModificacao: string;
+}
+
+// GET /credores/me/elegibilidade: status cadastral + elegibilidade derivada, sem recalculo no front.
+export interface ElegibilidadeCredoraResponse {
+  status: StatusCredora;
+  elegibilidade: StatusElegibilidade;
+  motivoInelegibilidade: string | null;
+}
+
+// GET /credores/oportunidades e /oportunidades/{id}. O backend NAO expoe estado de interesse por
+// item: o front nunca infere interesse a partir desta resposta. contratoId nulo quando ainda nao
+// ha contrato vinculado.
+export interface OportunidadeResponse {
+  id: string;
+  propostaId: string;
+  contratoId: string | null;
+  valor: number;
+  prazoMeses: number;
+  taxaJurosMensal: number;
+  status: StatusOportunidade;
+  dataCriacao: string;
+}
+
+// Resposta de POST /credores/oportunidades/{id}/interesses.
+export interface InteresseResponse {
+  id: string;
+  oportunidadeId: string;
+  status: StatusInteresseCredora;
+  dataCriacao: string;
+}
+
+// Resumo agregado de cobranca de uma operacao da carteira (CarteiraCobrancaResumo no backend).
+// Apenas numeros agregados — sem dado sensivel do tomador. proximoVencimento nulo quando nao ha
+// parcela em aberto.
+export interface CarteiraCobrancaResumo {
+  numeroParcelas: number;
+  valorTotal: number;
+  parcelasPagas: number;
+  parcelasAtrasadas: number;
+  totalRecebido: number;
+  proximoVencimento: string | null;
+}
+
+// GET /credores/carteira e /carteira/{id}: DTO unico de lista e detalhe, enriquecido com snapshot
+// da oportunidade e resumo de cobranca. valor/prazoMeses/taxaJurosMensal/oportunidadeId nulos
+// quando a operacao nao referencia oportunidade; contratoStatus/cobranca nulos quando a leitura
+// cross-module nao retorna dados.
+export interface OperacaoCarteiraResponse {
+  id: string;
+  contratoId: string;
+  oportunidadeId: string | null;
+  status: StatusOperacaoFinanciada;
+  justificativa: string;
+  valor: number | null;
+  prazoMeses: number | null;
+  taxaJurosMensal: number | null;
+  contratoStatus: string | null;
+  cobranca: CarteiraCobrancaResumo | null;
+  dataCriacao: string;
+}

@@ -1,0 +1,32 @@
+<section class="sep-credora-shell">
+  <header class="sep-credora-shell-header">
+    <h1 class="sep-credora-shell-title">Credora</h1>
+    <p class="sep-credora-shell-subtitle">
+      Cadastre sua empresa credora e acompanhe oportunidades e carteira.
+    </p>
+  </header>
+
+  @if (loading()) {
+    <p class="sep-credora-shell-status">Carregando...</p>
+  } @else if (errorMessage(); as erro) {
+    <p class="sep-credora-shell-status sep-credora-shell-error">{{ erro }}</p>
+  } @else if (empresaCredora()) {
+    <div class="sep-credora-shell-cards">
+      @for (item of links; track item.label) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="sep-credora-shell-card-active"
+          class="sep-credora-shell-card"
+        >
+          <span class="sep-credora-shell-card-title">{{ item.label }}</span>
+          <span class="sep-credora-shell-card-body">{{ item.description }}</span>
+        </a>
+      }
+    </div>
+  } @else {
+    <div class="sep-credora-shell-empty">
+      <p>Voce ainda nao tem uma empresa credora cadastrada.</p>
+      <a routerLink="/app/credora/cadastro" class="sep-credora-shell-link">Cadastrar credora</a>
+    </div>
+  }
+</section>

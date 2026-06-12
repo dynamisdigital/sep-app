@@ -1,0 +1,133 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-credora-perfil {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-16);
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-credora-perfil-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sep-space-16);
+}
+
+.sep-credora-perfil-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-3);
+}
+
+.sep-credora-perfil-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-credora-perfil-cnpj {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-credora-perfil-badges {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-6);
+  align-items: flex-end;
+}
+
+.sep-credora-perfil-aviso {
+  @include sepType.sep-type-body;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+  margin: 0;
+  padding: var(--sep-space-12) var(--sep-space-16);
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--muted) / 40%);
+  border-radius: var(--sep-radius-md);
+}
+
+.sep-credora-perfil-aviso-ok {
+  color: hsl(var(--success));
+  background: hsl(var(--success) / 10%);
+}
+
+.sep-credora-perfil-aviso-bloqueio {
+  color: hsl(var(--destructive));
+  background: hsl(var(--destructive) / 10%);
+}
+
+.sep-credora-perfil-motivo {
+  margin: 0;
+}
+
+.sep-credora-perfil-cta {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--primary));
+  text-decoration: none;
+}
+
+.sep-credora-perfil-grid {
+  @include sepDs.sep-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-12);
+  margin: 0;
+  padding: var(--sep-space-24);
+}
+
+.sep-credora-perfil-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-3);
+
+  dt {
+    @include sepType.sep-type-caption;
+
+    color: hsl(var(--muted-foreground));
+  }
+
+  dd {
+    @include sepType.sep-type-body;
+
+    margin: 0;
+    color: hsl(var(--foreground));
+  }
+}
+
+.sep-credora-perfil-state {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-credora-perfil-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+  color: hsl(var(--destructive));
+}
+
+.sep-credora-perfil-retry {
+  align-self: flex-start;
+  padding: var(--sep-space-8) var(--sep-space-16);
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--sep-radius-sm);
+  background: transparent;
+  color: hsl(var(--foreground));
+  cursor: pointer;
+}

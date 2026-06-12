@@ -1,0 +1,54 @@
+<section class="sep-oportunidades">
+  <header class="sep-oportunidades-header">
+    <h1 class="sep-oportunidades-title">Oportunidades</h1>
+    <a routerLink="/app/credora" class="sep-oportunidades-back">Voltar para a jornada credora</a>
+  </header>
+
+  @if (loading()) {
+    <p class="sep-oportunidades-state" role="status">Carregando oportunidades...</p>
+  } @else if (errorMessage(); as msg) {
+    <div class="sep-oportunidades-state sep-oportunidades-error" role="alert">
+      <p>{{ msg }}</p>
+      <button type="button" class="sep-oportunidades-retry" (click)="carregar()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (oportunidades().length === 0) {
+    <div class="sep-oportunidades-state sep-oportunidades-empty">
+      <p>Nao ha oportunidades disponiveis no momento.</p>
+    </div>
+  } @else {
+    <table class="sep-oportunidades-table">
+      <thead>
+        <tr>
+          <th scope="col">Oportunidade</th>
+          <th scope="col">Valor</th>
+          <th scope="col">Prazo</th>
+          <th scope="col">Taxa</th>
+          <th scope="col">Status</th>
+          <th scope="col">Criada em</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (oportunidade of oportunidades(); track oportunidade.id) {
+          <tr>
+            <td>
+              @if (oportunidade.status === 'DISPONIVEL') {
+                <a [routerLink]="['/app/credora/oportunidades', oportunidade.id]">
+                  {{ idCurto(oportunidade.id) }}
+                </a>
+              } @else {
+                {{ idCurto(oportunidade.id) }}
+              }
+            </td>
+            <td>{{ formatarMoeda(oportunidade.valor) }}</td>
+            <td>{{ oportunidade.prazoMeses }} meses</td>
+            <td>{{ formatarTaxaMensal(oportunidade.taxaJurosMensal) }}</td>
+            <td><sep-oportunidade-status [status]="oportunidade.status" /></td>
+            <td>{{ formatarData(oportunidade.dataCriacao) }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

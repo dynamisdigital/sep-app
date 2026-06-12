@@ -1,0 +1,90 @@
+<section class="sep-oportunidade-detail">
+  <a routerLink="/app/credora/oportunidades" class="sep-oportunidade-detail-back">
+    Voltar para oportunidades
+  </a>
+
+  @if (loading()) {
+    <p class="sep-oportunidade-detail-state" role="status">Carregando oportunidade...</p>
+  } @else if (errorMessage(); as msg) {
+    <div class="sep-oportunidade-detail-state sep-oportunidade-detail-error" role="alert">
+      <p>{{ msg }}</p>
+      <button type="button" class="sep-oportunidade-detail-retry" (click)="carregar()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (naoEncontrada()) {
+    <div class="sep-oportunidade-detail-state">
+      <p>Oportunidade nao encontrada.</p>
+    </div>
+  } @else if (oportunidade(); as o) {
+    <header class="sep-oportunidade-detail-header">
+      <h1 class="sep-oportunidade-detail-title">Oportunidade {{ idCurto(o.id) }}</h1>
+      <sep-oportunidade-status [status]="o.status" />
+    </header>
+
+    @if (o.status === 'ENCERRADA') {
+      <p class="sep-oportunidade-detail-aviso" role="status">
+        Esta oportunidade esta encerrada e nao aceita manifestacao de interesse.
+      </p>
+    }
+
+    <dl class="sep-oportunidade-detail-grid">
+      <div class="sep-oportunidade-detail-row">
+        <dt>Valor</dt>
+        <dd>{{ formatarMoeda(o.valor) }}</dd>
+      </div>
+      <div class="sep-oportunidade-detail-row">
+        <dt>Prazo</dt>
+        <dd>{{ o.prazoMeses }} meses</dd>
+      </div>
+      <div class="sep-oportunidade-detail-row">
+        <dt>Taxa de juros</dt>
+        <dd>{{ formatarTaxaMensal(o.taxaJurosMensal) }}</dd>
+      </div>
+      <div class="sep-oportunidade-detail-row">
+        <dt>Criada em</dt>
+        <dd>{{ formatarData(o.dataCriacao) }}</dd>
+      </div>
+    </dl>
+
+    @if (o.status === 'DISPONIVEL') {
+      <div class="sep-oportunidade-detail-acao">
+        @if (interesseAtivo()) {
+          <p class="sep-oportunidade-detail-interesse-ok" role="status">
+            Interesse registrado nesta oportunidade.
+          </p>
+          <button
+            type="button"
+            class="sep-oportunidade-detail-cancelar"
+            [disabled]="enviando()"
+            (click)="cancelarInteresse()"
+          >
+            {{ enviando() ? 'Cancelando...' : 'Cancelar interesse' }}
+          </button>
+        } @else if (podeManifestar()) {
+          <button
+            type="button"
+            class="sep-oportunidade-detail-manifestar"
+            [disabled]="enviando()"
+            (click)="manifestarInteresse()"
+          >
+            {{ enviando() ? 'Enviando...' : 'Manifestar interesse' }}
+          </button>
+        } @else {
+          <p class="sep-oportunidade-detail-bloqueio" role="status">
+            Sua credora precisa estar ativa e elegivel para manifestar interesse.
+          </p>
+        }
+
+        @if (acaoErro(); as msg) {
+          <p class="sep-oportunidade-detail-acao-erro" role="alert">{{ msg }}</p>
+        }
+
+        <p class="sep-oportunidade-detail-nota">
+          Manifestar interesse nao gera aporte, alocacao nem operacao de carteira. A carteira nasce
+          por associacao operacional assistida.
+        </p>
+      </div>
+    }
+  }
+</section>

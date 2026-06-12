@@ -1,0 +1,22 @@
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-elegibilidade-status-badge {
+  @include sepDs.sep-badge-base;
+
+  align-self: flex-start;
+
+  &.is-elegivel {
+    color: hsl(var(--success));
+    background: hsl(var(--success) / 12%);
+  }
+
+  &.is-pendente {
+    color: hsl(var(--warning));
+    background: hsl(var(--warning) / 10%);
+  }
+
+  &.is-inelegivel {
+    color: hsl(var(--destructive));
+    background: hsl(var(--destructive) / 12%);
+  }
+}
