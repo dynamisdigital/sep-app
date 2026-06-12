@@ -78,6 +78,34 @@ describe('OperacaoCarteiraDetailPageComponent', () => {
     expect(screen.getByText('Sem resumo de cobranca disponivel para esta operacao.')).toBeTruthy();
   });
 
+  it('campos nulos do snapshot aparecem como tracinho, sem "null"', async () => {
+    const { fixture } = await renderDetail(() =>
+      of({
+        ...OPERACAO,
+        valor: null,
+        prazoMeses: null,
+        taxaJurosMensal: null,
+        contratoStatus: null,
+        cobranca: null,
+      }),
+    );
+    await estabilizar(fixture);
+
+    // valor, prazo, taxa e status do contrato nulos -> 4 tracinhos.
+    expect(screen.getAllByText('—').length).toBe(4);
+    expect(screen.queryByText('null')).toBeNull();
+  });
+
+  it('erro nao-404 mostra mensagem e acao de tentar novamente', async () => {
+    const { fixture } = await renderDetail(() =>
+      throwError(() => new HttpErrorResponse({ status: 500 })),
+    );
+    await estabilizar(fixture);
+
+    expect(screen.getByText('Nao foi possivel carregar a operacao.')).toBeTruthy();
+    expect(screen.getByText('Tentar novamente')).toBeTruthy();
+  });
+
   it('404 por ownership mostra operacao nao encontrada', async () => {
     const { fixture } = await renderDetail(() =>
       throwError(() => new HttpErrorResponse({ status: 404 })),
