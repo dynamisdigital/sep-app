@@ -5,7 +5,7 @@ import { credoraPresenceGuard } from '../../../core/guards/credora-presence.guar
 // Rotas filhas de /app/credora (jornada credora, Epic 10 / backend Sprints 16-17). A autenticacao e
 // herdada do authGuard do shell autenticado (rota pai). O cadastro e acessivel sem credora; perfil,
 // oportunidades e carteira exigem credora cadastrada (credoraPresenceGuard redireciona ao cadastro
-// no 404). Oportunidades e carteira ainda usam o placeholder ate as Tasks F-11.4 a F-11.6.
+// no 404). Carteira ainda usa o placeholder ate as Tasks F-11.6.
 const carregarPlaceholder = () =>
   import('./credora-placeholder-page.component').then((m) => m.CredoraPlaceholderPageComponent);
 
@@ -30,13 +30,17 @@ export const CREDORA_ROUTES: Routes = [
   {
     path: 'oportunidades',
     canActivate: [credoraPresenceGuard],
-    loadComponent: carregarPlaceholder,
+    loadComponent: () =>
+      import('./pages/oportunidades-page.component').then((m) => m.OportunidadesPageComponent),
     data: { breadcrumb: 'Oportunidades' },
   },
   {
     path: 'oportunidades/:id',
     canActivate: [credoraPresenceGuard],
-    loadComponent: carregarPlaceholder,
+    loadComponent: () =>
+      import('./pages/oportunidade-detail-page.component').then(
+        (m) => m.OportunidadeDetailPageComponent,
+      ),
     data: { breadcrumb: 'Detalhe da oportunidade' },
   },
   {

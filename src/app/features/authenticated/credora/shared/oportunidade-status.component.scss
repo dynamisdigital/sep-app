@@ -1,0 +1,17 @@
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-oportunidade-status-badge {
+  @include sepDs.sep-badge-base;
+
+  align-self: flex-start;
+
+  &.is-disponivel {
+    color: hsl(var(--success));
+    background: hsl(var(--success) / 12%);
+  }
+
+  &.is-encerrada {
+    color: hsl(var(--muted-foreground));
+    background: hsl(var(--muted) / 40%);
+  }
+}
