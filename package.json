@@ -52,7 +52,7 @@
     "@angular/cli": "^20.3.25",
     "@angular/compiler-cli": "^20.3.0",
     "@angular/platform-browser-dynamic": "^20.3.19",
-    "@eslint/js": "^9.39.4",
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.59.1",
     "@testing-library/angular": "^18.1.1",
     "@testing-library/dom": "^10.4.1",
