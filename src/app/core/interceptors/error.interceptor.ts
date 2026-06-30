@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 
+import { withSupportReference } from '../api/support-reference';
 import { AuthService } from '../auth/auth.service';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
@@ -31,7 +32,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         // Mantido como erro propagado; tela de login/verify exibe a mensagem.
       }
 
-      return throwError(() => error);
+      return throwError(() =>
+        error instanceof HttpErrorResponse ? withSupportReference(error) : error,
+      );
     }),
   );
 };

@@ -84,4 +84,55 @@ describe('errorInterceptor', () => {
 
     expect(navigatedTo).toBe('/access-denied');
   });
+
+  it('5xx inclui codigo de suporte quando traceId existe', () => {
+    const req = new HttpRequest('GET', 'http://localhost:8080/api/v1/propostas');
+    const error = new HttpErrorResponse({
+      status: 500,
+      url: req.url,
+      error: {
+        status: 500,
+        message: 'Erro interno.',
+        traceId: 'trace-abc',
+      },
+    });
+    let propagated: HttpErrorResponse | null = null;
+
+    TestBed.runInInjectionContext(() => {
+      errorInterceptor(req, makeNext(error)).subscribe({
+        next: () => undefined,
+        error: (err: HttpErrorResponse) => {
+          propagated = err;
+        },
+      });
+    });
+
+    expect(propagated?.error.message).toBe('Erro interno. Código de suporte: trace-abc.');
+    expect(navigatedTo).toBeNull();
+  });
+
+  it('4xx preserva mensagem sem codigo de suporte', () => {
+    const req = new HttpRequest('POST', 'http://localhost:8080/api/v1/propostas', {});
+    const error = new HttpErrorResponse({
+      status: 422,
+      url: req.url,
+      error: {
+        status: 422,
+        message: 'Proposta invalida.',
+        traceId: 'trace-abc',
+      },
+    });
+    let propagated: HttpErrorResponse | null = null;
+
+    TestBed.runInInjectionContext(() => {
+      errorInterceptor(req, makeNext(error)).subscribe({
+        next: () => undefined,
+        error: (err: HttpErrorResponse) => {
+          propagated = err;
+        },
+      });
+    });
+
+    expect(propagated?.error.message).toBe('Proposta invalida.');
+  });
 });
