@@ -1,0 +1,83 @@
+# Configuracao do Dependabot para o sep-app.
+# Estrategia: agrupar amplamente para reduzir o numero de PRs, com limite baixo e
+# ignore de majors que quebram a stack Angular 20 (CI Node 20, vitest 4 + @analogjs
+# 1.x fixados no Angular 20). Ordem dos grupos importa: cada dependencia entra no
+# PRIMEIRO grupo cujo pattern casa.
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
+    groups:
+      # Pacotes Angular sobem em conjunto (sync de versao), SO minor/patch.
+      # Majors (ex: Angular 20 -> 22) sao migracao manual via `ng update` e
+      # estao no ignore abaixo — Dependabot nao deve propor.
+      angular:
+        patterns:
+          - '@angular/*'
+          - '@angular-devkit/*'
+          - '@angular-eslint/*'
+          - 'angular-eslint'
+        update-types:
+          - 'minor'
+          - 'patch'
+      # Stack de teste/bundler: vitest e @vitest/coverage-v8 precisam da MESMA
+      # versao; vite/@analogjs acompanham.
+      test-tooling:
+        patterns:
+          - 'vitest'
+          - '@vitest/*'
+          - 'vite'
+          - '@analogjs/*'
+        update-types:
+          - 'minor'
+          - 'patch'
+      # Catch-all de baixo risco: tudo que nao for Angular/test-tooling, em UMA
+      # PR de minor + patch.
+      minor-and-patch:
+        patterns:
+          - '*'
+        update-types:
+          - 'minor'
+          - 'patch'
+    # Sem grupo de majors: o Dependabot nao abre PRs de major automaticamente.
+    # Os ignore abaixo reforcam por dependencia o que ja era politica.
+    ignore:
+      # Majors do Angular (20 -> 21/22...) exigem `ng update` + Node 22+ e
+      # quebram a stack atual (CI Node 20; @analogjs 1.x + vitest 4 nao entendem
+      # o `ngDeclare` do Angular 22). Migracao deliberada, nunca por bump automatico.
+      - dependency-name: '@angular/*'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: '@angular-devkit/*'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: '@angular-eslint/*'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: 'angular-eslint'
+        update-types:
+          - 'version-update:semver-major'
+      # Majors de @analogjs/vitest nao sao aplicaveis no Angular 20: @analogjs 2.x
+      # exige Angular 21+. Manter na serie atual ate uma futura migracao de Angular.
+      - dependency-name: '@analogjs/*'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: 'vitest'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: '@vitest/*'
+        update-types:
+          - 'version-update:semver-major'
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
+    groups:
+      github-actions:
+        patterns:
+          - '*'
