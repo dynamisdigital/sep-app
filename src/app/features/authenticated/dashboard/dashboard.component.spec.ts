@@ -53,7 +53,7 @@ describe('DashboardComponent', () => {
 
     expect(screen.getByText(/ola, admin@empresa.com/i)).toBeTruthy();
     expect(screen.getByText('ADMIN')).toBeTruthy();
-    expect(screen.getByText('Administracao de usuarios')).toBeTruthy();
+    expect(screen.getByText('Administração de usuários')).toBeTruthy();
     expect(screen.getByText('Meu perfil')).toBeTruthy();
     expect(screen.getByText('Alterar senha')).toBeTruthy();
   });
@@ -83,7 +83,7 @@ describe('DashboardComponent', () => {
 
     expect(screen.getByText('Meu perfil')).toBeTruthy();
     expect(screen.getByText('Alterar senha')).toBeTruthy();
-    expect(screen.queryByText('Administracao de usuarios')).toBeNull();
+    expect(screen.queryByText('Administração de usuários')).toBeNull();
   });
 
   it('cards placeholder existem como articles sem href', async () => {
@@ -96,9 +96,9 @@ describe('DashboardComponent', () => {
     });
 
     expect(screen.getByText('Onboarding')).toBeTruthy();
-    expect(screen.getByText('Analise de credito')).toBeTruthy();
-    expect(screen.getByText('Formalizacao')).toBeTruthy();
-    expect(screen.getByText('Cobranca')).toBeTruthy();
+    expect(screen.getByText('Análise de crédito')).toBeTruthy();
+    expect(screen.getByText('Formalização')).toBeTruthy();
+    expect(screen.getByText('Cobrança')).toBeTruthy();
     const onboarding = screen.getByText('Onboarding').closest('article');
     expect(onboarding?.getAttribute('aria-disabled')).toBe('true');
   });

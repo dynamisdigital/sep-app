@@ -10,11 +10,11 @@ import { RouterLink } from '@angular/router';
         <span class="sep-account-locked-badge">423</span>
         <h1>Conta bloqueada temporariamente</h1>
         <p>
-          Detectamos varias tentativas de login com credenciais invalidas. Por seguranca, sua conta
-          ficara bloqueada por alguns minutos. Tente novamente em breve.
+          Detectamos várias tentativas de login com credenciais inválidas. Por segurança, sua conta
+          ficará bloqueada por alguns minutos. Tente novamente em breve.
         </p>
         <p>
-          Se voce nao reconhece essas tentativas, troque sua senha e revise os dispositivos
+          Se você não reconhece essas tentativas, troque sua senha e revise os dispositivos
           conectados assim que o acesso for restabelecido.
         </p>
         <a routerLink="/login" class="sep-account-locked-link">Voltar ao login</a>

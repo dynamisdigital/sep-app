@@ -23,23 +23,23 @@ export class LandingComponent {
     {
       icon: 'shield',
       tone: 'primary',
-      title: 'Seguranca por desenho.',
+      title: 'Segurança por desenho.',
       description:
-        'Auditoria reforcada, segregacao patrimonial via conta escrow e PLD com consultas a COAF, OFAC, INTERPOL e MTE. Sua operacao registrada do inicio ao fim.',
+        'Auditoria reforçada, segregação patrimonial via conta escrow e PLD com consultas a COAF, OFAC, INTERPOL e MTE. Sua operação registrada do início ao fim.',
     },
     {
       icon: 'credit-card',
       tone: 'secondary',
       title: 'Tomador.',
       description:
-        'Cadastro publico, KYC documental, analise de credito assistida e formalizacao com CCB digital. Acompanhamento ponta a ponta.',
+        'Cadastro público, KYC documental, análise de crédito assistida e formalização com CCB digital. Acompanhamento ponta a ponta.',
     },
     {
       icon: 'wallet',
       tone: 'devolutiva',
       title: 'Empresa credora.',
       description:
-        'Visibilidade da carteira, recebimentos via escrow segregado e trilha auditavel das operacoes financiadas.',
+        'Visibilidade da carteira, recebimentos via escrow segregado e trilha auditável das operações financiadas.',
     },
   ];
 }

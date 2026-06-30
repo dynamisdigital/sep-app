@@ -26,7 +26,7 @@ describe('SidenavComponent', () => {
     });
 
     expect(screen.getByText('Dashboard')).toBeTruthy();
-    expect(screen.queryByText('Administracao')).toBeNull();
+    expect(screen.queryByText('Administração')).toBeNull();
   });
 
   it('ADMIN: mostra Dashboard, Meu perfil e Administracao', async () => {
@@ -48,7 +48,7 @@ describe('SidenavComponent', () => {
 
     expect(screen.getByText('Dashboard')).toBeTruthy();
     expect(screen.getByText('Meu perfil')).toBeTruthy();
-    expect(screen.getByText('Administracao')).toBeTruthy();
+    expect(screen.getByText('Administração')).toBeTruthy();
   });
 
   it('CLIENTE: ve Dashboard e Meu perfil mas oculta Administracao', async () => {
@@ -77,7 +77,7 @@ describe('SidenavComponent', () => {
     expect(screen.getByText('Dashboard')).toBeTruthy();
     expect(screen.getByText('Onboarding')).toBeTruthy();
     expect(screen.getByText('Meu perfil')).toBeTruthy();
-    expect(screen.queryByText('Administracao')).toBeNull();
+    expect(screen.queryByText('Administração')).toBeNull();
   });
 
   it('Onboarding aponta para /app/onboarding', async () => {
@@ -118,7 +118,7 @@ describe('SidenavComponent', () => {
     });
     result.fixture.detectChanges();
 
-    const creditoLink = screen.getByText('Credito').closest('a');
+    const creditoLink = screen.getByText('Crédito').closest('a');
     expect(creditoLink?.getAttribute('href')).toBe('/app/credito');
   });
 
@@ -139,7 +139,7 @@ describe('SidenavComponent', () => {
     });
     result.fixture.detectChanges();
 
-    const link = screen.getByText('Formalizacao').closest('a');
+    const link = screen.getByText('Formalização').closest('a');
     expect(link?.getAttribute('href')).toBe('/app/formalizacao');
   });
 
@@ -160,7 +160,7 @@ describe('SidenavComponent', () => {
     });
     result.fixture.detectChanges();
 
-    const link = screen.getByText('Cobranca').closest('a');
+    const link = screen.getByText('Cobrança').closest('a');
     expect(link?.getAttribute('href')).toBe('/app/cobranca');
   });
 
@@ -185,7 +185,7 @@ describe('SidenavComponent', () => {
       '/app/backoffice',
     );
     expect(screen.getByText('Pix').closest('a')?.getAttribute('href')).toBe('/app/pix');
-    expect(screen.queryByText('Administracao')).toBeNull();
+    expect(screen.queryByText('Administração')).toBeNull();
   });
 
   it('Pix aparece para FINANCEIRO e aponta para /app/pix', async () => {
@@ -324,7 +324,7 @@ describe('SidenavComponent', () => {
     result.fixture.detectChanges();
 
     const perfilLink = screen.getByText('Meu perfil').closest('a');
-    const adminLink = screen.getByText('Administracao').closest('a');
+    const adminLink = screen.getByText('Administração').closest('a');
     expect(perfilLink?.getAttribute('href')).toBe('/app/profile');
     expect(adminLink?.getAttribute('href')).toBe('/app/admin');
   });

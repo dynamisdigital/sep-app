@@ -33,7 +33,7 @@ export class ParametrosPageComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         const apiErr = err.error as ApiErrorResponse | undefined;
-        this.errorMessage.set(apiErr?.message ?? 'Nao foi possivel carregar os parametros.');
+        this.errorMessage.set(apiErr?.message ?? 'Não foi possível carregar os parâmetros.');
         this.loading.set(false);
       },
     });

@@ -1955,7 +1955,7 @@ const governancaHandlers = [
       return negado;
     }
     if (!rolesPorUsuario[id]) {
-      return errorResponse(404, 'Not Found', 'usuario nao encontrado', path);
+      return errorResponse(404, 'Not Found', 'usuário não encontrado', path);
     }
     return HttpResponse.json(rolesResponse(id));
   }),
@@ -1980,7 +1980,7 @@ const governancaHandlers = [
       return errorResponse(403, 'Forbidden', 'Nao e permitido alterar as proprias roles', path);
     }
     if (!rolesPorUsuario[id]) {
-      return errorResponse(404, 'Not Found', 'usuario nao encontrado', path);
+      return errorResponse(404, 'Not Found', 'usuário não encontrado', path);
     }
     rolesPorUsuario[id] = [...new Set(body.roles)];
     return HttpResponse.json(rolesResponse(id));
@@ -2001,7 +2001,7 @@ const governancaHandlers = [
       return errorResponse(403, 'Forbidden', 'Nao e permitido alterar as proprias roles', path);
     }
     if (!rolesPorUsuario[id]) {
-      return errorResponse(404, 'Not Found', 'usuario nao encontrado', path);
+      return errorResponse(404, 'Not Found', 'usuário não encontrado', path);
     }
     rolesPorUsuario[id] = [...new Set([...rolesPorUsuario[id], role])];
     return HttpResponse.json(rolesResponse(id));
@@ -2022,7 +2022,7 @@ const governancaHandlers = [
       return errorResponse(403, 'Forbidden', 'Nao e permitido alterar as proprias roles', path);
     }
     if (!rolesPorUsuario[id]) {
-      return errorResponse(404, 'Not Found', 'usuario nao encontrado', path);
+      return errorResponse(404, 'Not Found', 'usuário não encontrado', path);
     }
     const atuais = rolesPorUsuario[id];
     if (atuais.length <= 1 && atuais.includes(role)) {
@@ -2786,7 +2786,7 @@ export const handlers = [
     const id = params['id'] as string;
     const found = usuariosFake.find((u) => u.id === id);
     if (!found) {
-      return errorResponse(404, 'Not Found', 'usuario nao encontrado', `/api/v1/usuarios/${id}`);
+      return errorResponse(404, 'Not Found', 'usuário não encontrado', `/api/v1/usuarios/${id}`);
     }
     return HttpResponse.json(found);
   }),
@@ -2799,7 +2799,7 @@ export const handlers = [
       return errorResponse(
         400,
         'Bad Request',
-        'senha atual invalida',
+        'senha atual inválida',
         `/api/v1/usuarios/${id}/senha`,
       );
     }

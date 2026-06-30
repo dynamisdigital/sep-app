@@ -13,7 +13,7 @@ describe('LandingComponent', () => {
     });
 
     expect(
-      screen.getByRole('heading', { level: 1, name: /capital de giro com experiencia simples/i }),
+      screen.getByRole('heading', { level: 1, name: /capital de giro com experiência simples/i }),
     ).toBeTruthy();
   });
 
@@ -34,7 +34,7 @@ describe('LandingComponent', () => {
       providers: [provideRouter([]), importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS))],
     });
 
-    expect(screen.getByRole('heading', { name: /seguranca por desenho/i })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /segurança por desenho/i })).toBeTruthy();
     expect(screen.getAllByText(/escrow/i).length).toBeGreaterThan(0);
   });
 });

@@ -42,7 +42,7 @@ export const AUTHENTICATED_ROUTES: Routes = [
       {
         path: 'step-up',
         loadComponent: () => import('./step-up/step-up.component').then((m) => m.StepUpComponent),
-        data: { breadcrumb: 'Confirmacao adicional' },
+        data: { breadcrumb: 'Confirmação adicional' },
       },
       {
         path: 'onboarding',
@@ -53,18 +53,18 @@ export const AUTHENTICATED_ROUTES: Routes = [
       {
         path: 'credito',
         loadChildren: () => import('./credito/credito.routes').then((m) => m.CREDITO_ROUTES),
-        data: { breadcrumb: 'Credito' },
+        data: { breadcrumb: 'Crédito' },
       },
       {
         path: 'formalizacao',
         loadChildren: () =>
           import('./formalizacao/formalizacao.routes').then((m) => m.FORMALIZACAO_ROUTES),
-        data: { breadcrumb: 'Formalizacao' },
+        data: { breadcrumb: 'Formalização' },
       },
       {
         path: 'cobranca',
         loadChildren: () => import('./cobranca/cobranca.routes').then((m) => m.COBRANCA_ROUTES),
-        data: { breadcrumb: 'Cobranca' },
+        data: { breadcrumb: 'Cobrança' },
       },
       {
         path: 'credora',
@@ -87,7 +87,7 @@ export const AUTHENTICATED_ROUTES: Routes = [
       {
         path: 'admin',
         canActivate: [roleGuard],
-        data: { roles: ['ADMIN'], breadcrumb: 'Administracao' },
+        data: { roles: ['ADMIN'], breadcrumb: 'Administração' },
         children: [
           {
             path: '',
@@ -99,13 +99,13 @@ export const AUTHENTICATED_ROUTES: Routes = [
             path: 'users',
             loadComponent: () =>
               import('./admin/users/users-list.component').then((m) => m.UsersListComponent),
-            data: { breadcrumb: 'Usuarios' },
+            data: { breadcrumb: 'Usuários' },
           },
           {
             path: 'users/:id',
             loadComponent: () =>
               import('./admin/users/user-detail.component').then((m) => m.UserDetailComponent),
-            data: { breadcrumb: 'Detalhe de usuario' },
+            data: { breadcrumb: 'Detalhe de usuário' },
           },
           {
             path: 'parametros',
@@ -113,7 +113,7 @@ export const AUTHENTICATED_ROUTES: Routes = [
               import('./admin/parametros/parametros-page.component').then(
                 (m) => m.ParametrosPageComponent,
               ),
-            data: { breadcrumb: 'Parametros' },
+            data: { breadcrumb: 'Parâmetros' },
           },
           {
             path: 'parametros/:chave',
@@ -121,7 +121,7 @@ export const AUTHENTICATED_ROUTES: Routes = [
               import('./admin/parametros/parametro-detail-page.component').then(
                 (m) => m.ParametroDetailPageComponent,
               ),
-            data: { breadcrumb: 'Detalhe do parametro' },
+            data: { breadcrumb: 'Detalhe do parâmetro' },
           },
         ],
       },

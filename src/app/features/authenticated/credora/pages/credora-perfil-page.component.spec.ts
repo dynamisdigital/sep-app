@@ -58,7 +58,7 @@ describe('CredoraPerfilPageComponent', () => {
 
     expect(screen.getByText('Aurora Capital Investimentos LTDA')).toBeTruthy();
     expect(screen.getByText('Ativa')).toBeTruthy();
-    expect(screen.getByText('Elegivel')).toBeTruthy();
+    expect(screen.getByText('Elegível')).toBeTruthy();
     expect(screen.getByText('Ver oportunidades').closest('a')?.getAttribute('href')).toBe(
       '/app/credora/oportunidades',
     );
@@ -93,7 +93,7 @@ describe('CredoraPerfilPageComponent', () => {
     });
 
     expect(
-      screen.getByText('Sua credora esta suspensa e nao pode manifestar interesse no momento.'),
+      screen.getByText('Sua credora está suspensa e não pode manifestar interesse no momento.'),
     ).toBeTruthy();
     expect(screen.queryByText('Ver oportunidades')).toBeNull();
   });

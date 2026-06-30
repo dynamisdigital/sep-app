@@ -6,11 +6,11 @@ type VarianteProposta = 'andamento' | 'pre' | 'aprovado' | 'reprovado' | 'penden
 
 // Label operacional curto por status. A tela apenas apresenta; nao decide transicao.
 const LABELS: Record<StatusProposta, string> = {
-  EM_ANALISE: 'Em analise',
-  PRE_APROVADA: 'Pre-aprovada',
+  EM_ANALISE: 'Em análise',
+  PRE_APROVADA: 'Pré-aprovada',
   APROVADA: 'Aprovada',
   REJEITADA: 'Rejeitada',
-  PENDENCIA: 'Pendencia',
+  PENDENCIA: 'Pendência',
 };
 
 const VARIANTES: Record<StatusProposta, VarianteProposta> = {

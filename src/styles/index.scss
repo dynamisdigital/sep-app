@@ -9,8 +9,11 @@
 
 // ===== Globais do New Design System SEP =====
 
-// Cor de borda padrao do sistema (equivalente ao `border-border` da origem).
-* {
+// Cor de borda padrao do sistema (equivalente ao `border-border` da origem) e box-sizing universal.
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
   border-color: hsl(var(--border));
 }
 

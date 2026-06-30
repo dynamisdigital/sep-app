@@ -64,7 +64,7 @@ describe('ChangePasswordComponent', () => {
     fireEvent.input(confirmacao, { target: { value: '999999' } });
     fireEvent.blur(confirmacao);
 
-    expect(screen.getByText(/confirmacao nao corresponde/i)).toBeTruthy();
+    expect(screen.getByText(/confirmação não corresponde/i)).toBeTruthy();
   });
 
   it('submit valido chama API e mostra sucesso', async () => {
@@ -106,6 +106,6 @@ describe('ChangePasswordComponent', () => {
     await flush();
     result.fixture.detectChanges();
 
-    expect(screen.getByRole('alert').textContent).toMatch(/senha atual invalida/i);
+    expect(screen.getByRole('alert').textContent).toMatch(/senha atual inválida/i);
   });
 });

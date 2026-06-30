@@ -1,6 +1,6 @@
 <section class="sep-users-list">
   <header class="sep-users-list-header">
-    <h1 class="sep-users-list-title">Administracao de usuarios</h1>
+    <h1 class="sep-users-list-title">Administração de usuários</h1>
     <div class="sep-users-list-filter">
       <label for="filtro-email" class="sep-users-list-filter-label">Filtrar por e-mail</label>
       <input
@@ -14,7 +14,7 @@
   </header>
 
   @if (loading()) {
-    <p class="sep-users-list-state" role="status">Carregando usuarios...</p>
+    <p class="sep-users-list-state" role="status">Carregando usuários...</p>
   }
 
   @if (errorMessage(); as msg) {
@@ -28,7 +28,7 @@
 
   @if (!loading() && !errorMessage()) {
     @if (usuariosFiltrados().length === 0) {
-      <p class="sep-users-list-state">Nenhum usuario encontrado.</p>
+      <p class="sep-users-list-state">Nenhum usuário encontrado.</p>
     } @else {
       <div class="sep-users-list-table-wrapper">
         <table class="sep-users-list-table">
@@ -38,7 +38,7 @@
               <th scope="col">Perfil</th>
               <th scope="col">Criado em</th>
               <th scope="col">Modificado em</th>
-              <th scope="col" class="sep-users-list-th-action">Acoes</th>
+              <th scope="col" class="sep-users-list-th-action">Ações</th>
             </tr>
           </thead>
           <tbody>

@@ -111,7 +111,7 @@ describe('UserDetailComponent', () => {
   it('mostra erro quando id nao existe', async () => {
     await setup('id-inexistente');
 
-    expect(screen.getByRole('alert').textContent).toMatch(/usuario nao encontrado/i);
+    expect(screen.getByRole('alert').textContent).toMatch(/usuário não encontrado/i);
   });
 
   it('link voltar aponta para /app/admin/users', async () => {
@@ -140,7 +140,7 @@ describe('UserDetailComponent', () => {
     it('exibe a nota de auditoria de roles (trilha detalhada nao exibida na web)', async () => {
       await setupRoles(MULTIROLE_ID);
 
-      expect(screen.getByText(/Alteracoes de roles sao auditadas no backend/)).toBeTruthy();
+      expect(screen.getByText(/Alterações de roles são auditadas no backend/)).toBeTruthy();
     });
 
     it('aplica o toggle e salva o conjunto via PUT com step-up, mostrando sucesso', async () => {
@@ -168,7 +168,7 @@ describe('UserDetailComponent', () => {
     it('bloqueia auto-edicao do proprio admin', async () => {
       await setupRoles(ADMIN_ID, { operadorId: ADMIN_ID });
 
-      expect(screen.getByText('Voce nao pode alterar as proprias roles.')).toBeTruthy();
+      expect(screen.getByText('Você não pode alterar as próprias roles.')).toBeTruthy();
       expect((screen.getByText('Salvar roles') as HTMLButtonElement).disabled).toBe(true);
     });
 

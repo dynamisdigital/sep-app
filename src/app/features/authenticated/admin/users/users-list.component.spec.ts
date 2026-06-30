@@ -55,7 +55,7 @@ describe('UsersListComponent', () => {
     });
     result.fixture.detectChanges();
 
-    expect(screen.getByText(/nenhum usuario encontrado/i)).toBeTruthy();
+    expect(screen.getByText(/nenhum usuário encontrado/i)).toBeTruthy();
   });
 
   it('link de detalhe aponta para /app/admin/users/{id}', async () => {

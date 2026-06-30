@@ -5,6 +5,13 @@
   display: block;
   color: hsl(var(--foreground));
   background: hsl(var(--background));
+  box-sizing: border-box;
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 }
 
 // ===== Nav (sticky translucido) =====
@@ -203,7 +210,7 @@
 
 .landing-features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
   gap: var(--sep-space-16);
 }
 
@@ -311,6 +318,7 @@
 
   .landing-hero-brand {
     min-height: 220px;
+    padding: var(--sep-space-24);
   }
 
   .landing-nav-list {

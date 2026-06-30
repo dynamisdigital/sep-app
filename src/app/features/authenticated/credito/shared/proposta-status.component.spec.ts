@@ -19,18 +19,18 @@ describe('PropostaStatusComponent', () => {
   it('exibe variante andamento para EM_ANALISE', async () => {
     await render(PropostaStatusComponent, { inputs: { status: 'EM_ANALISE' } });
 
-    expect(screen.getByText('Em analise').className).toContain('is-andamento');
+    expect(screen.getByText('Em análise').className).toContain('is-andamento');
   });
 
   it('exibe variante pre para PRE_APROVADA', async () => {
     await render(PropostaStatusComponent, { inputs: { status: 'PRE_APROVADA' } });
 
-    expect(screen.getByText('Pre-aprovada').className).toContain('is-pre');
+    expect(screen.getByText('Pré-aprovada').className).toContain('is-pre');
   });
 
   it('exibe variante pendente para PENDENCIA', async () => {
     await render(PropostaStatusComponent, { inputs: { status: 'PENDENCIA' } });
 
-    expect(screen.getByText('Pendencia').className).toContain('is-pendente');
+    expect(screen.getByText('Pendência').className).toContain('is-pendente');
   });
 });

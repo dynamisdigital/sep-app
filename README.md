@@ -5,6 +5,10 @@ Frontend web Angular 20.x da plataforma SEP (Sociedade de Emprestimo entre Pesso
 > Documentacao consolidada do produto vive no repositorio [`docs-SEP`](../docs-SEP):
 > [PRD](../docs-SEP/docs-sep/PRD.md), [CONTEXT](../docs-SEP/docs-sep/CONTEXT.md), [AGENT.md](../docs-SEP/AGENT.md), [ADRs](../docs-SEP/adr/), [specs](../docs-SEP/specs/), [steps web](../docs-SEP/steps-fase-1/web/) e [docs especificos do web](../docs-SEP/repos/sep-app/).
 
+## Infográfico Geral
+
+> Infográfico visual do projeto pendente de geração. A IA de imagem não estava disponível no momento da criação desta documentação.
+
 ## Setup do desenvolvedor
 
 Apos clonar o repositorio:

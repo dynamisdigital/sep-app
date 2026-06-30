@@ -18,12 +18,12 @@ export class CreditoHomeComponent {
   protected readonly atalhos: CreditoAtalho[] = [
     {
       label: 'Minhas propostas',
-      description: 'Acompanhe o status das suas propostas de credito.',
+      description: 'Acompanhe o status das suas propostas de crédito.',
       route: '/app/credito/propostas',
     },
     {
       label: 'Nova proposta',
-      description: 'Solicite credito a partir de um onboarding aprovado.',
+      description: 'Solicite crédito a partir de um onboarding aprovado.',
       route: '/app/credito/propostas/nova',
     },
   ];

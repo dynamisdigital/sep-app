@@ -53,8 +53,8 @@ export class DashboardComponent {
         tone: 'warning',
       },
       {
-        label: 'Administracao de usuarios',
-        description: 'Gerencie e consulte usuarios cadastrados.',
+        label: 'Administração de usuários',
+        description: 'Gerencie e consulte usuários cadastrados.',
         route: '/app/admin/users',
         icon: 'users',
         tone: 'devolutiva',
@@ -70,25 +70,25 @@ export class DashboardComponent {
   protected readonly placeholders: DashboardPlaceholder[] = [
     {
       label: 'Onboarding',
-      description: 'KYC/KYB e validacoes cadastrais.',
+      description: 'KYC/KYB e validações cadastrais.',
       icon: 'shield',
       tone: 'primary',
     },
     {
-      label: 'Analise de credito',
-      description: 'Proposta, parecer e decisao.',
+      label: 'Análise de crédito',
+      description: 'Proposta, parecer e decisão.',
       icon: 'credit-card',
       tone: 'secondary',
     },
     {
-      label: 'Formalizacao',
+      label: 'Formalização',
       description: 'Aceite e assinatura digital.',
       icon: 'file-text',
       tone: 'devolutiva',
     },
     {
-      label: 'Cobranca',
-      description: 'Parcelas e inadimplencia.',
+      label: 'Cobrança',
+      description: 'Parcelas e inadimplência.',
       icon: 'banknote',
       tone: 'warning',
     },

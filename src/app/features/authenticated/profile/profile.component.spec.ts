@@ -31,7 +31,7 @@ describe('ProfileComponent', () => {
     });
 
     expect(screen.getByText('Meu perfil')).toBeTruthy();
-    expect(screen.getByText(/nenhum dado de usuario/i)).toBeTruthy();
+    expect(screen.getByText(/nenhum dado de usuário/i)).toBeTruthy();
   });
 
   it('renderiza e-mail, role e id do usuario logado', async () => {

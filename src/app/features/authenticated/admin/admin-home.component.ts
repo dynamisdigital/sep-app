@@ -22,13 +22,13 @@ interface AdminCard {
 export class AdminHomeComponent {
   protected readonly cards: AdminCard[] = [
     {
-      label: 'Usuarios',
-      description: 'Lista de usuarios, detalhe e gestao de roles.',
+      label: 'Usuários',
+      description: 'Lista de usuários, detalhe e gestão de roles.',
       route: '/app/admin/users',
     },
     {
-      label: 'Parametros operacionais',
-      description: 'Catalogo versionado de parametros e historico de alteracoes.',
+      label: 'Parâmetros operacionais',
+      description: 'Catálogo versionado de parâmetros e histórico de alterações.',
       route: '/app/admin/parametros',
     },
   ];

@@ -7,7 +7,7 @@ import { formatarData } from './credito-format';
 const DECISAO_LABELS: Record<DecisaoParecer, string> = {
   APROVAR: 'Aprovado',
   REJEITAR: 'Rejeitado',
-  PENDENCIA: 'Pendencia',
+  PENDENCIA: 'Pendência',
 };
 
 // Painel do ultimo parecer. Exibe apenas o parecer recebido da API; o web nao

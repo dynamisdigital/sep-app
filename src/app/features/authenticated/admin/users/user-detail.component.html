@@ -1,11 +1,11 @@
 <section class="sep-user-detail">
   <header class="sep-user-detail-header">
-    <h1 class="sep-user-detail-title">Detalhe de usuario</h1>
+    <h1 class="sep-user-detail-title">Detalhe de usuário</h1>
     <a routerLink="/app/admin/users" class="sep-user-detail-back">Voltar para lista</a>
   </header>
 
   @if (loading()) {
-    <p class="sep-user-detail-state" role="status">Carregando usuario...</p>
+    <p class="sep-user-detail-state" role="status">Carregando usuário...</p>
   }
 
   @if (errorMessage(); as msg) {
@@ -15,7 +15,7 @@
   @if (usuario(); as u) {
     <div class="sep-user-detail-grid">
       <article class="sep-user-detail-card">
-        <h2 class="sep-user-detail-card-title">Identificacao</h2>
+        <h2 class="sep-user-detail-card-title">Identificação</h2>
         <dl class="sep-user-detail-list">
           <div class="sep-user-detail-row">
             <dt>ID</dt>
@@ -68,7 +68,7 @@
         </p>
 
         @if (ehProprioUsuario()) {
-          <p class="sep-user-detail-state">Voce nao pode alterar as proprias roles.</p>
+          <p class="sep-user-detail-state">Você não pode alterar as próprias roles.</p>
         }
 
         <fieldset class="sep-user-detail-roles-set" [disabled]="ehProprioUsuario() || salvando()">
@@ -98,12 +98,12 @@
         </div>
 
         <p class="sep-user-detail-roles-audit">
-          Alteracoes de roles sao auditadas no backend. A trilha detalhada de roles nao e exibida na
-          web nesta versao.
+          Alterações de roles são auditadas no backend. A trilha detalhada de roles não é exibida na
+          web nesta versão.
         </p>
       }
     </article>
   } @else if (!loading() && !errorMessage()) {
-    <p class="sep-user-detail-state">Nenhum usuario carregado.</p>
+    <p class="sep-user-detail-state">Nenhum usuário carregado.</p>
   }
 </section>

@@ -1,10 +1,10 @@
 <section class="sep-setup-totp">
   <header class="sep-setup-totp-header">
     <a routerLink="/app/profile" class="sep-setup-totp-back">← Perfil</a>
-    <h1>Habilitar autenticacao em duas etapas (TOTP)</h1>
+    <h1>Habilitar autenticação em duas etapas (TOTP)</h1>
     <p>
-      Voce vai escanear um QR code com um aplicativo autenticador (Google Authenticator, Authy,
-      1Password, etc.) e digitar o primeiro codigo gerado para concluir o setup. Salve os backup
+      Você vai escanear um QR code com um aplicativo autenticador (Google Authenticator, Authy,
+      1Password, etc.) e digitar o primeiro código gerado para concluir o setup. Salve os backup
       codes em local seguro.
     </p>
   </header>
@@ -40,15 +40,15 @@
           class="sep-setup-totp-qr"
           data-testid="sep-setup-totp-qr"
         />
-        <p>Caso o app nao consiga escanear, use a chave manual:</p>
+        <p>Caso o app não consiga escanear, use a chave manual:</p>
         <code class="sep-setup-totp-secret" data-testid="sep-setup-totp-secret">{{
           dados.secretBase32
         }}</code>
 
         <h2>2. Guarde seus backup codes</h2>
         <p>
-          Cada codigo abaixo pode ser usado uma unica vez caso voce perca acesso ao app
-          autenticador. Imprima ou anote em local seguro — eles nao serao exibidos de novo.
+          Cada código abaixo pode ser usado uma única vez caso você perca acesso ao app
+          autenticador. Imprima ou anote em local seguro — eles não serão exibidos de novo.
         </p>
         <ul class="sep-setup-totp-codes" data-testid="sep-setup-totp-backup-codes">
           @for (codigo of dados.backupCodes; track codigo) {
@@ -56,10 +56,10 @@
           }
         </ul>
 
-        <h2>3. Confirme com o primeiro codigo gerado</h2>
+        <h2>3. Confirme com o primeiro código gerado</h2>
         <form [formGroup]="form" (ngSubmit)="confirmar()">
           <label>
-            <span>Codigo TOTP</span>
+            <span>Código TOTP</span>
             <input
               type="text"
               inputmode="numeric"
@@ -91,7 +91,7 @@
   @if (confirmado()) {
     <div class="sep-setup-totp-success" role="status" data-testid="sep-setup-totp-success">
       <h2>MFA ativado</h2>
-      <p>Voce ja podera usar o codigo TOTP no proximo login.</p>
+      <p>Você já poderá usar o código TOTP no próximo login.</p>
       <button type="button" class="sep-setup-totp-cta" (click)="voltarAoPerfil()">
         Voltar ao perfil
       </button>

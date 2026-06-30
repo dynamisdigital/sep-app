@@ -29,10 +29,10 @@ describe('PropostasListPageComponent', () => {
     const { fixture } = await renderPagina();
     await estabilizar(fixture);
 
-    expect(screen.getByText('Em analise')).toBeTruthy();
-    expect(screen.getByText('Pre-aprovada')).toBeTruthy();
+    expect(screen.getByText('Em análise')).toBeTruthy();
+    expect(screen.getByText('Pré-aprovada')).toBeTruthy();
     expect(screen.getByText('Aprovada')).toBeTruthy();
-    expect(screen.getByText('Pendencia')).toBeTruthy();
+    expect(screen.getByText('Pendência')).toBeTruthy();
   });
 
   it('liga cada linha ao detalhe da proposta', async () => {

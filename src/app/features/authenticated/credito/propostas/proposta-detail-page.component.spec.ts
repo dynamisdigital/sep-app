@@ -64,10 +64,10 @@ describe('PropostaDetailPageComponent', () => {
     const { fixture } = await renderPagina(PROPOSTA_PRE_APROVADA_ID);
     await estabilizar(fixture);
 
-    expect(screen.getAllByText('Pre-aprovada').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Pré-aprovada').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('Score')).toBeTruthy();
     expect(screen.getAllByText('720').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText('Ultimo parecer')).toBeTruthy();
+    expect(screen.getByText('Último parecer')).toBeTruthy();
     expect(
       screen.getByText('Aguardando comprovacao de faturamento via Open Finance.'),
     ).toBeTruthy();
