@@ -44,7 +44,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
 
       - name: Format check
         run: npm run format:check
@@ -83,7 +83,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
 
       - name: Build
         run: npm run build
