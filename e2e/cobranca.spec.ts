@@ -49,7 +49,7 @@ test('financeiro: painel de inadimplencia lista parcelas em atraso', async ({ pa
   await login(page, 'financeiro@empresa.com');
 
   await page.goto('/app/cobranca/financeiro/inadimplencia');
-  await expect(page.getByText('Inadimplencia')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Inadimplencia' })).toBeVisible();
   await expect(page.getByText('Parcela 2')).toBeVisible();
   await expect(page.getByText('Parcela 6')).toBeVisible();
 });

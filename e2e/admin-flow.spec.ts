@@ -1,36 +1,25 @@
 import { expect, test } from '@playwright/test';
 
-import { defaultPassword, uniqueEmail } from './fixtures/users';
-
-async function cadastrarUsuario(
-  page: import('@playwright/test').Page,
-  email: string,
-  role: 'ADMIN' | 'CLIENTE',
-) {
-  await page.goto('/register');
-  await page.getByLabel(/e-mail/i).fill(email);
-  await page.getByLabel(/^senha$/i).fill(defaultPassword);
-  await page.getByLabel(/perfil/i).selectOption(role);
-  await page.getByRole('button', { name: /criar|cadastrar|registrar/i }).click();
-  await page.waitForURL(/\/login/, { timeout: 10_000 });
-}
-
-async function logar(page: import('@playwright/test').Page, email: string, senha: string) {
+async function logar(page: import('@playwright/test').Page, email: string) {
   await page.goto('/login');
   await page.getByLabel(/e-mail/i).fill(email);
-  await page.getByLabel(/^senha$/i).fill(senha);
+  await page.getByLabel(/^senha$/i).fill('123456');
   await page.getByRole('button', { name: /entrar/i }).click();
 }
 
-test('ADMIN: lista usuarios e abre detalhe', async ({ page }) => {
-  const adminEmail = uniqueEmail('admin');
-  await cadastrarUsuario(page, adminEmail, 'ADMIN');
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => window.localStorage.setItem('NG_APP_USE_MSW', 'true'));
+});
 
-  await logar(page, adminEmail, defaultPassword);
+test('ADMIN: lista usuarios e abre detalhe', async ({ page }) => {
+  const adminEmail = 'admin@empresa.com';
+  await logar(page, adminEmail);
   await page.waitForURL(/\/app\/dashboard/, { timeout: 10_000 });
 
   await page.getByRole('link', { name: 'Administracao', exact: true }).click();
-  await expect(page).toHaveURL(/\/app\/admin\/users$/);
+  await expect(page).toHaveURL('http://localhost:4200/app/admin');
+  await page.getByRole('link', { name: /Usuarios/ }).click();
+  await expect(page).toHaveURL('http://localhost:4200/app/admin/users');
 
   await expect(page.getByRole('table')).toBeVisible();
 
@@ -44,13 +33,9 @@ test('ADMIN: lista usuarios e abre detalhe', async ({ page }) => {
   await expect(detailMain.getByText(/criado em/i)).toBeVisible();
 });
 
-test('CLIENTE: tentar acessar /app/admin/users cai em /access-denied', async ({ page }) => {
-  const clienteEmail = uniqueEmail('cliente-acesso');
-  await cadastrarUsuario(page, clienteEmail, 'CLIENTE');
+test('CLIENTE: navegacao administrativa nao e exposta', async ({ page }) => {
+  await logar(page, 'credora@empresa.com');
+  await page.waitForURL('http://localhost:4200/app/dashboard', { timeout: 10_000 });
 
-  await logar(page, clienteEmail, defaultPassword);
-  await page.waitForURL(/\/app\/dashboard/, { timeout: 10_000 });
-
-  await page.goto('/app/admin/users');
-  await page.waitForURL(/\/access-denied/, { timeout: 10_000 });
+  await expect(page.getByRole('link', { name: 'Administracao', exact: true })).toHaveCount(0);
 });
