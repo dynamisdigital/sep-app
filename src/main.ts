@@ -7,10 +7,16 @@ async function prepare(): Promise<void> {
   // MSW dispara em 2 cenarios:
   // - environment.useMsw=true (build configuracao dev-offline)
   // - localStorage.NG_APP_USE_MSW='true' (override em dev sem mudar build)
-  const forceMsw =
-    typeof window !== 'undefined' && window.localStorage?.getItem('NG_APP_USE_MSW') === 'true';
+  // - localhost/127.0.0.1 (login e jornadas locais de teste sem backend real)
+  const mswOverride =
+    typeof window !== 'undefined' ? window.localStorage?.getItem('NG_APP_USE_MSW') : null;
+  const isLocalTestHost =
+    typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname);
 
-  if (environment.useMsw || forceMsw) {
+  if (
+    mswOverride !== 'false' &&
+    (environment.useMsw || mswOverride === 'true' || isLocalTestHost)
+  ) {
     const { worker } = await import('./mocks/browser');
     await worker.start({ onUnhandledRequest: 'bypass' });
   }

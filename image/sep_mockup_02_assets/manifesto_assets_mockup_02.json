@@ -1,0 +1,250 @@
+[
+  {
+    "arquivo": "logos/logo_sep_header_completo.png",
+    "categoria": "logos",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [88, 48, 455, 101],
+    "modo_transparencia": "logo",
+    "dimensoes_png": [367, 53]
+  },
+  {
+    "arquivo": "logos/logo_sep_simbolo_header.png",
+    "categoria": "logos",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [87, 46, 155, 105],
+    "modo_transparencia": "logo",
+    "dimensoes_png": [68, 59]
+  },
+  {
+    "arquivo": "logos/logo_sep_wordmark.png",
+    "categoria": "logos",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [160, 50, 260, 96],
+    "modo_transparencia": "logo",
+    "dimensoes_png": [100, 46]
+  },
+  {
+    "arquivo": "logos/logo_sep_texto_extenso_header.png",
+    "categoria": "logos",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [280, 50, 458, 101],
+    "modo_transparencia": "logo",
+    "dimensoes_png": [178, 51]
+  },
+  {
+    "arquivo": "visuals/visual_globo_digital_lateral.png",
+    "categoria": "visuals",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [0, 128, 202, 500],
+    "modo_transparencia": "visual",
+    "dimensoes_png": [202, 372]
+  },
+  {
+    "arquivo": "visuals/visual_login_lock_hud.png",
+    "categoria": "visuals",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [1087, 132, 1290, 296],
+    "modo_transparencia": "visual",
+    "dimensoes_png": [203, 164]
+  },
+  {
+    "arquivo": "visuals/visual_ondas_neon_inferiores.png",
+    "categoria": "visuals",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [0, 755, 898, 866],
+    "modo_transparencia": "visual",
+    "dimensoes_png": [898, 111]
+  },
+  {
+    "arquivo": "visuals/visual_cidade_neon_inferior_direita.png",
+    "categoria": "visuals",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [730, 605, 898, 805],
+    "modo_transparencia": "visual",
+    "dimensoes_png": [168, 200]
+  },
+  {
+    "arquivo": "visuals/visual_circuitos_fundo_central.png",
+    "categoria": "visuals",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [600, 26, 895, 520],
+    "modo_transparencia": "visual",
+    "dimensoes_png": [295, 494]
+  },
+  {
+    "arquivo": "visuals/visual_status_ambiente_seguro_badge.png",
+    "categoria": "visuals",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [1307, 32, 1510, 94],
+    "modo_transparencia": "group",
+    "dimensoes_png": [177, 58]
+  },
+  {
+    "arquivo": "ui-groups/ui_plataforma_segura_auditavel_card.png",
+    "categoria": "ui-groups",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [140, 608, 769, 764],
+    "modo_transparencia": "group",
+    "dimensoes_png": [629, 156]
+  },
+  {
+    "arquivo": "ui-groups/ui_badges_confianca_hero.png",
+    "categoria": "ui-groups",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [144, 508, 713, 572],
+    "modo_transparencia": "group",
+    "dimensoes_png": [569, 64]
+  },
+  {
+    "arquivo": "ui-groups/ui_login_form_card.png",
+    "categoria": "ui-groups",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [937, 107, 1456, 885],
+    "modo_transparencia": "group",
+    "dimensoes_png": [519, 778]
+  },
+  {
+    "arquivo": "icons/icon_badge_ambiente_regulado.png",
+    "categoria": "icons",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [145, 507, 201, 574],
+    "modo_transparencia": "icon",
+    "dimensoes_png": [56, 67]
+  },
+  {
+    "arquivo": "icons/icon_badge_segregacao_patrimonial.png",
+    "categoria": "icons",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [351, 507, 404, 574],
+    "modo_transparencia": "icon",
+    "dimensoes_png": [53, 67]
+  },
+  {
+    "arquivo": "icons/icon_badge_kyc_kyb_pld.png",
+    "categoria": "icons",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [590, 507, 640, 574],
+    "modo_transparencia": "icon",
+    "dimensoes_png": [50, 67]
+  },
+  {
+    "arquivo": "icons/icon_panel_escrow_contratos.png",
+    "categoria": "icons",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [199, 668, 230, 703],
+    "modo_transparencia": "icon",
+    "dimensoes_png": [31, 35]
+  },
+  {
+    "arquivo": "icons/icon_panel_auditoria_rastreabilidade.png",
+    "categoria": "icons",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [356, 668, 388, 704],
+    "modo_transparencia": "icon",
+    "dimensoes_png": [32, 36]
+  },
+  {
+    "arquivo": "icons/icon_panel_criptografia_ponta.png",
+    "categoria": "icons",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [512, 668, 542, 704],
+    "modo_transparencia": "icon",
+    "dimensoes_png": [30, 36]
+  },
+  {
+    "arquivo": "icons/icon_panel_monitoramento_continuo.png",
+    "categoria": "icons",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [666, 668, 699, 704],
+    "modo_transparencia": "icon",
+    "dimensoes_png": [33, 36]
+  },
+  {
+    "arquivo": "icons/icon_top_ambiente_seguro.png",
+    "categoria": "icons",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [1324, 40, 1357, 83],
+    "modo_transparencia": "icon",
+    "dimensoes_png": [33, 43]
+  },
+  {
+    "arquivo": "icons/icon_login_email.png",
+    "categoria": "icons",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [990, 419, 1018, 442],
+    "modo_transparencia": "icon",
+    "dimensoes_png": [28, 23]
+  },
+  {
+    "arquivo": "icons/icon_login_senha_lock.png",
+    "categoria": "icons",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [991, 510, 1016, 537],
+    "modo_transparencia": "icon",
+    "dimensoes_png": [25, 27]
+  },
+  {
+    "arquivo": "icons/icon_login_eye.png",
+    "categoria": "icons",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [1376, 513, 1406, 535],
+    "modo_transparencia": "icon",
+    "dimensoes_png": [30, 22]
+  },
+  {
+    "arquivo": "icons/icon_login_check_lembrar.png",
+    "categoria": "icons",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [977, 570, 1000, 590],
+    "modo_transparencia": "icon",
+    "dimensoes_png": [23, 20]
+  },
+  {
+    "arquivo": "icons/icon_login_entrar.png",
+    "categoria": "icons",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [1103, 625, 1130, 650],
+    "modo_transparencia": "icon",
+    "dimensoes_png": [27, 25]
+  },
+  {
+    "arquivo": "icons/icon_login_biometria.png",
+    "categoria": "icons",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [1100, 733, 1133, 762],
+    "modo_transparencia": "icon",
+    "dimensoes_png": [33, 29]
+  },
+  {
+    "arquivo": "icons/icon_login_acesso_monitorado.png",
+    "categoria": "icons",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [989, 810, 1034, 849],
+    "modo_transparencia": "icon",
+    "dimensoes_png": [45, 39]
+  },
+  {
+    "arquivo": "icons/icon_bottom_seguranca_primeiro_lugar.png",
+    "categoria": "icons",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [48, 915, 95, 973],
+    "modo_transparencia": "icon",
+    "dimensoes_png": [47, 58]
+  },
+  {
+    "arquivo": "icons/icon_bottom_disponibilidade_99_9.png",
+    "categoria": "icons",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [356, 912, 423, 979],
+    "modo_transparencia": "icon",
+    "dimensoes_png": [67, 67]
+  },
+  {
+    "arquivo": "icons/icon_bottom_suporte_especializado.png",
+    "categoria": "icons",
+    "origem_mockup": "Mockup_02.png",
+    "box_xyxy": [620, 914, 671, 974],
+    "modo_transparencia": "icon",
+    "dimensoes_png": [51, 60]
+  }
+]

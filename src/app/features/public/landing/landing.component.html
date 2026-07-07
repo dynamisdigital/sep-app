@@ -1,96 +1,168 @@
-<nav class="landing-nav" aria-label="Navegação principal">
-  <a routerLink="/" class="landing-nav-brand">SEP</a>
-  <ul class="landing-nav-list">
-    <li><a routerLink="/" class="landing-nav-link">Crédito PJ</a></li>
-    <li><a routerLink="/" class="landing-nav-link">Segurança</a></li>
-  </ul>
-  <a routerLink="/login" class="landing-nav-cta">Entrar</a>
-</nav>
-
 <main class="landing-page">
-  <section class="landing-hero-band" aria-labelledby="hero-title">
-    <div class="landing-hero">
-      <div class="landing-hero-text">
-        <h1 id="hero-title" class="landing-hero-headline">
-          Capital de giro com experiência simples.
+  <div class="landing-shell">
+    <header class="landing-header">
+      <a routerLink="/" class="landing-brand" aria-label="SEP - Página inicial">
+        <img
+          [src]="assetBase + '/logos/logo_sep_simbolo_header.png'"
+          alt=""
+          class="landing-brand-symbol"
+          aria-hidden="true"
+        />
+        <span class="landing-brand-text">
+          <strong>SEP</strong>
+          <span>Sociedade de Empréstimo<br />entre Pessoas</span>
+        </span>
+      </a>
+
+      <nav class="landing-nav" aria-label="Navegação principal">
+        <a routerLink="/" fragment="credito-pj">Crédito PJ</a>
+        <a routerLink="/" fragment="seguranca">Segurança</a>
+        <a routerLink="/" fragment="como-funciona">Como funciona</a>
+        <a routerLink="/" fragment="sobre-sep">Sobre o SEP</a>
+        <a routerLink="/" fragment="contato">Contato</a>
+      </nav>
+
+      <a routerLink="/login" class="landing-login">Entrar</a>
+    </header>
+
+    <section class="hero-section" id="credito-pj" aria-labelledby="hero-title">
+      <img
+        [src]="assetBase + '/visuals/visual_globo_digital_lateral.png'"
+        alt=""
+        class="hero-globe"
+        aria-hidden="true"
+      />
+
+      <div class="hero-copy">
+        <p class="hero-kicker">Capital inteligente</p>
+        <h1 id="hero-title">
+          Capital de giro com <span>rastreabilidade,</span> segurança e experiência simples.
         </h1>
-        <p class="landing-hero-lead">
+        <p class="hero-lead">
           Uma base digital para conectar empresas que precisam de crédito a empresas que querem
-          aportar recursos com rastreabilidade.
+          aportar recursos com controle, auditoria e segregação patrimonial.
         </p>
-        <div class="landing-hero-actions">
-          <a routerLink="/register" class="landing-cta-primary">Criar conta</a>
-          <a routerLink="/login" class="landing-cta-secondary">Entrar</a>
+
+        <div class="hero-actions" aria-label="Ações principais">
+          <a routerLink="/register" class="action-primary">Criar conta</a>
+          <a routerLink="/login" class="action-secondary">Entrar na plataforma</a>
         </div>
-        <ul class="landing-hero-trust">
-          <li>
-            <lucide-icon
-              name="circle-check"
-              [size]="18"
-              class="landing-trust-icon"
-              aria-hidden="true"
-            />
-            <span>Regulado pela Resolução CMN 4.656/2018</span>
-          </li>
-          <li>
-            <lucide-icon
-              name="circle-check"
-              [size]="18"
-              class="landing-trust-icon"
-              aria-hidden="true"
-            />
-            <span>Segregação patrimonial via conta escrow</span>
-          </li>
-          <li>
-            <lucide-icon
-              name="circle-check"
-              [size]="18"
-              class="landing-trust-icon"
-              aria-hidden="true"
-            />
-            <span>KYC e prevenção à lavagem de dinheiro</span>
-          </li>
+
+        <ul class="trust-badges" aria-label="Garantias institucionais">
+          @for (badge of trustBadges; track badge.title) {
+            <li>
+              <img [src]="badge.icon" [alt]="badge.title" />
+              <span>
+                <strong>{{ badge.title }}</strong>
+                {{ badge.description }}
+              </span>
+            </li>
+          }
         </ul>
       </div>
 
-      <aside class="landing-hero-brand" aria-label="Sobre a SEP">
-        <div class="landing-hero-brand-inner">
-          <span class="landing-hero-brand-mark">SEP</span>
-          <p class="landing-hero-brand-tagline">Sociedade de Empréstimo entre Pessoas</p>
-          <p class="landing-hero-brand-text">
-            Capital de giro PJ com rastreabilidade, do cadastro à formalização.
-          </p>
+      <aside class="platform-card" id="seguranca" aria-label="Plataforma SEP regulada">
+        <div class="regulated-label">
+          <span>Plataforma regulada</span>
+          <img
+            [src]="assetBase + '/icons/icon_plataforma_regulada_escudo_pequeno.png'"
+            alt=""
+            aria-hidden="true"
+          />
         </div>
-      </aside>
-    </div>
-  </section>
 
-  <section class="landing-features" aria-labelledby="features-title">
-    <h2 id="features-title" class="landing-features-title">Como funciona</h2>
-    <div class="landing-features-grid">
-      @for (feature of features; track feature.title) {
-        <article [class]="'landing-feature landing-feature--' + feature.tone">
-          <span class="landing-feature-icon">
-            <lucide-icon [name]="feature.icon" [size]="22" aria-hidden="true" />
-          </span>
-          <h3 class="landing-feature-title">{{ feature.title }}</h3>
-          <p class="landing-feature-desc">{{ feature.description }}</p>
+        <div class="platform-identity">
+          <div class="platform-logo" aria-label="SEP - Sociedade de Empréstimo entre Pessoas">
+            <img
+              [src]="assetBase + '/logos/logo_sep_simbolo_header.png'"
+              alt=""
+              class="platform-logo-symbol"
+              aria-hidden="true"
+            />
+            <span class="platform-logo-text">
+              <strong>SEP</strong>
+              <span>Sociedade de Empréstimo<br />entre Pessoas</span>
+            </span>
+          </div>
+          <div>
+            <p>Capital de giro PJ com rastreabilidade,</p>
+            <p>do cadastro à formalização.</p>
+          </div>
+        </div>
+
+        <img
+          [src]="assetBase + '/visuals/visual_escudo_seguro_hud.png'"
+          alt=""
+          class="shield-hud"
+          aria-hidden="true"
+        />
+
+        <ul class="platform-pills" aria-label="Controles da plataforma">
+          @for (pill of platformPills; track pill.title) {
+            <li>
+              <img [src]="pill.icon" [alt]="pill.title" />
+              <span>
+                <strong>{{ pill.title }}</strong>
+                {{ pill.description }}
+              </span>
+            </li>
+          }
+        </ul>
+      </aside>
+    </section>
+
+    <section class="workflow-section" id="como-funciona" aria-labelledby="workflow-title">
+      <h2 id="workflow-title">Como funciona</h2>
+      <div class="workflow-grid">
+        @for (step of workflowSteps; track step.title; let index = $index) {
+          <article class="workflow-card">
+            <span class="step-number">0{{ index + 1 }}</span>
+            <img [src]="step.icon" [alt]="step.title" />
+            <div>
+              <h3>{{ step.title }}</h3>
+              <p>{{ step.description }}</p>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="indicators-section" id="sobre-sep" aria-label="Indicadores SEP">
+      @for (indicator of indicators; track indicator.title) {
+        <article class="indicator-item">
+          <img [src]="indicator.icon" [alt]="indicator.title" />
+          <div>
+            <h3>{{ indicator.title }}</h3>
+            <p>{{ indicator.description }}</p>
+          </div>
         </article>
       }
-    </div>
-  </section>
+    </section>
 
-  <footer class="landing-footer" aria-label="Rodapé">
-    <p class="landing-footer-copy">
-      SEP — Sociedade de Empréstimo entre Pessoas. Capital de giro PJ.
-    </p>
-    <div class="landing-footer-links">
-      <a routerLink="/login" class="landing-footer-link">Entrar</a>
-      <a routerLink="/register" class="landing-footer-link">Criar conta</a>
-    </div>
-    <p class="landing-footer-fine">
-      Resolução CMN 4.656/2018. Esta plataforma não oferece rendimento garantido nem aprovação
-      automática de crédito.
-    </p>
-  </footer>
+    <footer class="landing-footer" id="contato">
+      <div class="footer-brand">
+        <img
+          [src]="assetBase + '/logos/logo_sep_simbolo_footer.png'"
+          alt=""
+          class="footer-logo"
+          aria-hidden="true"
+        />
+        <strong>SEP</strong>
+        <p>SEP — Sociedade de Empréstimo entre Pessoas. Capital de giro PJ.</p>
+      </div>
+
+      <nav class="footer-links" aria-label="Links institucionais">
+        <a routerLink="/" fragment="sobre-sep">Sobre o SEP</a>
+        <a routerLink="/" fragment="seguranca">Segurança</a>
+        <a routerLink="/">Privacidade</a>
+        <a routerLink="/">Termos de uso</a>
+        <a routerLink="/" fragment="contato">Contato</a>
+      </nav>
+
+      <p class="legal-copy">
+        Regulado pela Resolução CMN 4.656/2018. Esta plataforma não oferece rendimento garantido nem
+        aprovação automática de crédito.
+      </p>
+    </footer>
+  </div>
 </main>

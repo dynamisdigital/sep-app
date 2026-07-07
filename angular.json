@@ -55,6 +55,11 @@
               },
               {
                 "glob": "**/*",
+                "input": "image",
+                "output": "/image"
+              },
+              {
+                "glob": "**/*",
                 "input": "src/assets",
                 "output": "/assets"
               }

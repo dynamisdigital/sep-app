@@ -7,7 +7,7 @@ Frontend web Angular 20.x da plataforma SEP (Sociedade de Emprestimo entre Pesso
 
 ## Infográfico Geral
 
-> Infográfico visual do projeto pendente de geração. A IA de imagem não estava disponível no momento da criação desta documentação.
+![Infográfico Geral do Projeto](docs/assets/infograficos/infografico_visao_geral_projeto.png)
 
 ## Setup do desenvolvedor
 

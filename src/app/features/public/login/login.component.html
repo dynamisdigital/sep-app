@@ -1,99 +1,236 @@
 <main class="login-page">
-  <aside class="login-brand" aria-label="Sobre a SEP">
-    <div class="login-brand-inner">
-      <span class="login-brand-mark">SEP</span>
-      <p class="login-brand-tagline">Sociedade de Emprestimo entre Pessoas</p>
-      <ul class="login-brand-list">
-        <li>
-          <lucide-icon
-            name="circle-check"
-            [size]="18"
-            class="login-brand-check"
-            aria-hidden="true"
-          />
-          <span>Ambiente regulado pela Resolucao CMN 4.656/2018</span>
-        </li>
-        <li>
-          <lucide-icon
-            name="circle-check"
-            [size]="18"
-            class="login-brand-check"
-            aria-hidden="true"
-          />
-          <span>Segregacao patrimonial via conta escrow</span>
-        </li>
-        <li>
-          <lucide-icon
-            name="circle-check"
-            [size]="18"
-            class="login-brand-check"
-            aria-hidden="true"
-          />
-          <span>KYC e prevencao a lavagem de dinheiro</span>
-        </li>
-      </ul>
-    </div>
-  </aside>
+  <a routerLink="/" class="login-home-link" aria-label="Voltar para a página inicial">
+    <span aria-hidden="true">&larr;</span>
+  </a>
 
-  <section class="login-form-panel" aria-labelledby="login-title">
-    <a routerLink="/" class="login-back" aria-label="Voltar para a pagina inicial"
-      >Voltar ao inicio</a
-    >
+  <section class="login-institutional" aria-labelledby="login-hero-title">
+    <img
+      [src]="assetBase + '/visuals/visual_circuitos_fundo_central.png'"
+      alt=""
+      class="login-circuits"
+      aria-hidden="true"
+    />
+    <img
+      [src]="assetBase + '/visuals/visual_globo_digital_lateral.png'"
+      alt=""
+      class="login-globe"
+      aria-hidden="true"
+    />
+    <img
+      [src]="assetBase + '/visuals/visual_ondas_neon_inferiores.png'"
+      alt=""
+      class="login-waves"
+      aria-hidden="true"
+    />
+    <img
+      [src]="assetBase + '/visuals/visual_cidade_neon_inferior_direita.png'"
+      alt=""
+      class="login-city"
+      aria-hidden="true"
+    />
+
+    <a routerLink="/" class="login-logo" aria-label="SEP - Página inicial">
+      <img
+        [src]="assetBase + '/logos/logo_sep_simbolo_header.png'"
+        alt=""
+        class="login-logo-symbol"
+        aria-hidden="true"
+      />
+      <span class="login-logo-copy">
+        <strong>SEP</strong>
+        <span>Sociedade de Empréstimo<br />entre Pessoas</span>
+      </span>
+    </a>
+
+    <div class="login-hero-copy">
+      <p class="login-kicker">Capital inteligente</p>
+      <h1 id="login-hero-title">
+        Capital de giro com <span>rastreabilidade,</span> segurança e experiência simples.
+      </h1>
+      <p>
+        Conectamos empresas que precisam de crédito a empresas que desejam aportar recursos com
+        controle, auditoria e segregação patrimonial.
+      </p>
+    </div>
+
+    <ul class="login-hero-badges" aria-label="Garantias da plataforma">
+      @for (badge of heroBadges; track badge.title) {
+        <li>
+          <img [src]="badge.icon" [alt]="badge.title" />
+          <span>
+            <strong>{{ badge.title }}</strong>
+            {{ badge.description }}
+          </span>
+        </li>
+      }
+    </ul>
+
+    <section class="audit-panel" aria-labelledby="audit-title">
+      <header>
+        <h2 id="audit-title">Plataforma segura e auditável</h2>
+        <span><i aria-hidden="true"></i>Ambiente regulado</span>
+      </header>
+      <ul>
+        @for (item of auditItems; track item.title) {
+          <li>
+            <img [src]="item.icon" [alt]="item.title" />
+            <span>{{ item.title }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="login-bottom-indicators" aria-label="Indicadores institucionais">
+      @for (indicator of bottomIndicators; track indicator.title) {
+        <article>
+          <img [src]="indicator.icon" [alt]="indicator.title" />
+          <div>
+            @if (indicator.metric) {
+              <strong class="login-indicator-metric">{{ indicator.metric }}</strong>
+            }
+            <h2>{{ indicator.title }}</h2>
+            <p>{{ indicator.description }}</p>
+          </div>
+        </article>
+      }
+    </section>
+  </section>
+
+  <section class="login-access" aria-labelledby="login-title">
+    <div class="safe-status" aria-label="Ambiente seguro, verificado e protegido">
+      <img [src]="assetBase + '/icons/icon_top_ambiente_seguro.png'" alt="" aria-hidden="true" />
+      <span>
+        <strong>Ambiente seguro</strong>
+        Verificado e protegido
+      </span>
+      <i aria-hidden="true"></i>
+    </div>
 
     <div class="login-card">
-      <h1 id="login-title" class="login-title">Entrar na SEP</h1>
+      <img
+        [src]="assetBase + '/visuals/visual_login_lock_hud.png'"
+        alt=""
+        class="login-lock-hud"
+        aria-hidden="true"
+      />
+
+      <header class="login-card-header">
+        <h2 id="login-title">Acesso à plataforma SEP</h2>
+        <p>Entre com suas credenciais para continuar</p>
+      </header>
 
       <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="login-form">
         <div class="login-field">
-          <label for="login-username" class="login-label">E-mail</label>
-          <input
-            id="login-username"
-            type="email"
-            autocomplete="email"
-            formControlName="username"
-            class="login-input"
-            [attr.aria-invalid]="form.controls.username.invalid && form.controls.username.touched"
-          />
+          <label for="login-username">E-mail</label>
+          <div class="login-control">
+            <img [src]="assetBase + '/icons/icon_login_email.png'" alt="" aria-hidden="true" />
+            <input
+              id="login-username"
+              type="email"
+              autocomplete="email"
+              formControlName="username"
+              placeholder="backoffice@empresa.com"
+              [attr.aria-invalid]="form.controls.username.invalid && form.controls.username.touched"
+            />
+          </div>
           @if (form.controls.username.touched && form.controls.username.errors?.['required']) {
-            <p class="login-error" role="alert">E-mail obrigatorio.</p>
+            <p class="login-error" role="alert">E-mail obrigatório.</p>
           }
           @if (form.controls.username.touched && form.controls.username.errors?.['email']) {
-            <p class="login-error" role="alert">Informe um e-mail valido.</p>
+            <p class="login-error" role="alert">Informe um e-mail válido.</p>
           }
         </div>
 
         <div class="login-field">
-          <label for="login-password" class="login-label">Senha</label>
-          <input
-            id="login-password"
-            type="password"
-            autocomplete="current-password"
-            formControlName="password"
-            class="login-input"
-            [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched"
-          />
+          <label for="login-password">Senha</label>
+          <div class="login-control">
+            <img [src]="assetBase + '/icons/icon_login_senha_lock.png'" alt="" aria-hidden="true" />
+            <input
+              id="login-password"
+              [type]="showPassword() ? 'text' : 'password'"
+              autocomplete="current-password"
+              formControlName="password"
+              placeholder="••••••••••••"
+              [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="
+                showPassword() ? 'Ocultar conteúdo protegido' : 'Mostrar conteúdo protegido'
+              "
+              [attr.aria-pressed]="showPassword()"
+            >
+              <img [src]="assetBase + '/icons/icon_login_eye.png'" alt="" aria-hidden="true" />
+            </button>
+          </div>
           @if (form.controls.password.touched && form.controls.password.errors?.['required']) {
             <p class="login-error" role="alert">Informe sua senha.</p>
           }
         </div>
 
+        <div class="login-options">
+          <label class="remember-option" for="remember-login">
+            <input
+              id="remember-login"
+              type="checkbox"
+              [checked]="rememberMe()"
+              (change)="updateRememberMe($any($event.target).checked)"
+            />
+            <span aria-hidden="true">
+              <img [src]="assetBase + '/icons/icon_login_check_lembrar.png'" alt="" />
+            </span>
+            Lembrar de mim
+          </label>
+          <a routerLink="/login" fragment="recuperar-senha">Esqueceu sua senha?</a>
+        </div>
+
         @if (errorMessage()) {
-          <p class="login-error login-error-form" role="alert">{{ errorMessage() }}</p>
+          <p class="login-error login-error-form" role="alert" aria-live="polite">
+            {{ errorMessage() }}
+          </p>
         }
 
-        <button type="submit" class="login-cta" [disabled]="loading()">
+        <button type="submit" class="login-submit" [disabled]="loading()">
+          <img [src]="assetBase + '/icons/icon_login_entrar.png'" alt="" aria-hidden="true" />
           @if (loading()) {
-            <span>Entrando...</span>
+            <span>Acessando...</span>
           } @else {
-            <span>Entrar</span>
+            <span>Entrar na plataforma</span>
           }
         </button>
-
-        <p class="login-link-row">
-          Ainda nao tem conta?
-          <a routerLink="/register" class="login-link">Criar conta</a>
-        </p>
       </form>
+
+      <div class="login-divider"><span>ou continue com</span></div>
+
+      <button type="button" class="biometry-button">
+        <img [src]="assetBase + '/icons/icon_login_biometria.png'" alt="" aria-hidden="true" />
+        Acesso com biometria
+      </button>
+
+      <aside class="protected-card" aria-label="Acesso protegido e monitorado">
+        <img
+          [src]="assetBase + '/icons/icon_login_acesso_monitorado.png'"
+          alt=""
+          aria-hidden="true"
+        />
+        <span>
+          <strong>Acesso protegido e monitorado</strong>
+          Todas as operações são registradas e auditadas.
+        </span>
+      </aside>
     </div>
+
+    <footer class="login-footer">
+      <p>
+        Ao acessar, você concorda com nossos
+        <a routerLink="/">Termos de uso</a>
+        e
+        <a routerLink="/">Política de privacidade</a>.
+      </p>
+      <p>© 2026 SEP — Sociedade de Empréstimo entre Pessoas.</p>
+      <p>Todos os direitos reservados.</p>
+    </footer>
   </section>
 </main>

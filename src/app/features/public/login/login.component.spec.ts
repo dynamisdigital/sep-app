@@ -2,19 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/angular';
 import { provideRouter, Router } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
-import { importProvidersFrom } from '@angular/core';
-import { LucideAngularModule } from 'lucide-angular';
 import { LoginComponent } from './login.component';
 import { AuthService } from '../../../core/auth/auth.service';
-import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
 
 async function setup() {
   return render(LoginComponent, {
-    providers: [
-      provideRouter([]),
-      provideHttpClient(),
-      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
-    ],
+    providers: [provideRouter([]), provideHttpClient()],
   });
 }
 
@@ -25,6 +18,14 @@ async function flush(times = 5): Promise<void> {
 }
 
 describe('LoginComponent', () => {
+  it('exibe atalho discreto para voltar a pagina inicial', async () => {
+    await setup();
+
+    const homeLink = screen.getByRole('link', { name: /voltar para a página inicial/i });
+
+    expect(homeLink.getAttribute('href')).toBe('/');
+  });
+
   it('campos vazios: submit nao chama login', async () => {
     const result = await setup();
     const auth = result.fixture.debugElement.injector.get(AuthService);
@@ -37,7 +38,7 @@ describe('LoginComponent', () => {
     fireEvent.click(screen.getByRole('button', { name: /entrar/i }));
 
     expect(called).toBe(false);
-    expect(screen.getByText('E-mail obrigatorio.')).toBeTruthy();
+    expect(screen.getByText('E-mail obrigatório.')).toBeTruthy();
     expect(screen.getByText('Informe sua senha.')).toBeTruthy();
   });
 
@@ -47,7 +48,7 @@ describe('LoginComponent', () => {
     fireEvent.input(screen.getByLabelText(/senha/i), { target: { value: '123456' } });
     fireEvent.click(screen.getByRole('button', { name: /entrar/i }));
 
-    expect(screen.getByText('Informe um e-mail valido.')).toBeTruthy();
+    expect(screen.getByText('Informe um e-mail válido.')).toBeTruthy();
   });
 
   it('senha vazia mantem botao desabilitado', async () => {
@@ -57,6 +58,22 @@ describe('LoginComponent', () => {
     fireEvent.click(screen.getByRole('button', { name: /entrar/i }));
 
     expect(screen.getByText('Informe sua senha.')).toBeTruthy();
+  });
+
+  it('alternancia de visibilidade preserva o valor da senha', async () => {
+    await setup();
+    const password = screen.getByLabelText(/senha/i) as HTMLInputElement;
+
+    fireEvent.input(password, { target: { value: '123456' } });
+    fireEvent.click(screen.getByRole('button', { name: /mostrar conteúdo protegido/i }));
+
+    expect(password.type).toBe('text');
+    expect(password.value).toBe('123456');
+
+    fireEvent.click(screen.getByRole('button', { name: /ocultar conteúdo protegido/i }));
+
+    expect(password.type).toBe('password');
+    expect(password.value).toBe('123456');
   });
 
   it('credenciais validas: redireciona para /app/dashboard', async () => {
@@ -90,6 +107,8 @@ describe('LoginComponent', () => {
     await flush();
     result.fixture.detectChanges();
 
-    expect(screen.getByText('E-mail ou senha invalidos.')).toBeTruthy();
+    expect(
+      screen.getByText('Não foi possível acessar a plataforma com as credenciais informadas.'),
+    ).toBeTruthy();
   });
 });

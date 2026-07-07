@@ -6,7 +6,7 @@ A arquitetura do **sep-app 16062026** baseia-se no padrão arquitetural DevOps G
 
 ## Infográfico Geral
 
-> Infográfico visual do projeto pendente de geração. A IA de imagem não estava disponível no momento da criação desta documentação.
+![Infográfico Geral do Projeto](../../docs/assets/infograficos/infografico_visao_geral_projeto.png)
 
 ## 2. Camadas do Sistema
 

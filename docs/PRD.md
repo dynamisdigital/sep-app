@@ -9,7 +9,7 @@ O **sep-app 16062026** é concebido como: Frontend web Angular 20.x da plataform
 
 ## Infográfico Geral
 
-> Infográfico visual do projeto pendente de geração. A IA de imagem não estava disponível no momento da criação desta documentação.
+![Infográfico Geral do Projeto](../docs/assets/infograficos/infografico_visao_geral_projeto.png)
 
 ## 2. Requisitos Funcionais (RF)
 

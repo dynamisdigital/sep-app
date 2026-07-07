@@ -1,25 +1,25 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/angular';
 import { provideRouter } from '@angular/router';
-import { importProvidersFrom } from '@angular/core';
-import { LucideAngularModule } from 'lucide-angular';
 import { LandingComponent } from './landing.component';
-import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
 
 describe('LandingComponent', () => {
   it('renderiza headline principal', async () => {
     await render(LandingComponent, {
-      providers: [provideRouter([]), importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS))],
+      providers: [provideRouter([])],
     });
 
     expect(
-      screen.getByRole('heading', { level: 1, name: /capital de giro com experiência simples/i }),
+      screen.getByRole('heading', {
+        level: 1,
+        name: /capital de giro com rastreabilidade, segurança e experiência simples/i,
+      }),
     ).toBeTruthy();
   });
 
   it('expoe links para /login e /register', async () => {
     await render(LandingComponent, {
-      providers: [provideRouter([]), importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS))],
+      providers: [provideRouter([])],
     });
 
     const loginLinks = screen.getAllByRole('link', { name: /entrar/i });
@@ -31,10 +31,25 @@ describe('LandingComponent', () => {
 
   it('expoe secao de seguranca/escrow', async () => {
     await render(LandingComponent, {
-      providers: [provideRouter([]), importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS))],
+      providers: [provideRouter([])],
     });
 
-    expect(screen.getByRole('heading', { name: /segurança por desenho/i })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /formalização e escrow/i })).toBeTruthy();
     expect(screen.getAllByText(/escrow/i).length).toBeGreaterThan(0);
+  });
+
+  it('usa assets extraidos do mockup na landing', async () => {
+    await render(LandingComponent, {
+      providers: [provideRouter([])],
+    });
+
+    expect(screen.getAllByText('SEP').length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/sociedade de empréstimo entre pessoas/i).length).toBeGreaterThan(0);
+    expect(document.querySelector('.landing-brand-symbol')?.getAttribute('src')).toContain(
+      '/image/sep_mockup_01_assets/logos/logo_sep_simbolo_header.png',
+    );
+    expect(screen.getByAltText(/regulado pela/i).getAttribute('src')).toContain(
+      '/image/sep_mockup_01_assets/icons/icon_regulacao_cmn.png',
+    );
   });
 });
