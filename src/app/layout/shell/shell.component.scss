@@ -25,6 +25,22 @@
   background: hsl(var(--background));
 }
 
+.sep-shell-immersive {
+  background: #020814;
+
+  .sep-shell-body,
+  .sep-shell-main,
+  .sep-shell-content {
+    min-height: 100vh;
+  }
+
+  .sep-shell-content {
+    padding: 0;
+    overflow: hidden;
+    background: #020814;
+  }
+}
+
 @media (width <= 833px) {
   .sep-shell-body {
     flex-direction: column;

@@ -16,7 +16,7 @@ export const BACKOFFICE_ROUTES: Routes = [
       import('./pages/backoffice-dashboard-page.component').then(
         (m) => m.BackofficeDashboardPageComponent,
       ),
-    data: { breadcrumb: 'Dashboard' },
+    data: { breadcrumb: 'Dashboard', immersive: true },
   },
   {
     path: 'fila',

@@ -1,111 +1,278 @@
-<section class="sep-bo-dashboard">
-  <header class="sep-bo-dashboard-header">
-    <h1 class="sep-bo-dashboard-title">Dashboard operacional</h1>
-    @if (dashboard(); as d) {
-      <p class="sep-bo-dashboard-updated">Gerado em {{ formatarDataHora(d.geradoEm) }}</p>
-    }
-  </header>
+<section class="op-dashboard" aria-labelledby="op-dashboard-title">
+  <a routerLink="/app/dashboard" class="op-back-link" aria-label="Voltar para a tela anterior">
+    <span aria-hidden="true">&larr;</span>
+  </a>
 
-  @if (loading()) {
-    <p class="sep-bo-dashboard-state">Carregando...</p>
-  } @else if (errorMessage()) {
-    <div class="sep-bo-dashboard-state sep-bo-dashboard-error" role="alert">
-      <p>{{ errorMessage() }}</p>
-      <button type="button" class="sep-bo-dashboard-retry" (click)="carregar()">
-        Tentar novamente
+  <aside class="op-sidebar" aria-label="Navegação operacional">
+    <header class="op-sidebar-head">
+      <button type="button" class="op-menu-button" aria-label="Menu">
+        <img [src]="assetBase + '/icons/icon_menu_hamburger.png'" alt="" />
       </button>
-    </div>
-  } @else if (dashboard(); as d) {
-    <div class="sep-bo-kpis">
-      <article class="sep-bo-kpi">
-        <span class="sep-bo-kpi-label">Recebimentos do dia</span>
-        <span class="sep-bo-kpi-value">{{ formatarMoeda(d.recebimentosDoDia) }}</span>
-      </article>
-      <article class="sep-bo-kpi">
-        <span class="sep-bo-kpi-label">Inadimplencia total</span>
-        <span class="sep-bo-kpi-value">{{ formatarMoeda(d.inadimplenciaTotal.valorTotal) }}</span>
-        <span class="sep-bo-kpi-hint">{{ d.inadimplenciaTotal.numeroParcelas }} parcela(s)</span>
-      </article>
-      <article class="sep-bo-kpi">
-        <span class="sep-bo-kpi-label">Tempo medio de resolucao (30d)</span>
-        <span class="sep-bo-kpi-value">{{ formatarDuracao(d.tempoMedioResolucao30d) }}</span>
-      </article>
-      <article class="sep-bo-kpi">
-        <span class="sep-bo-kpi-label">Criticos abertos +48h</span>
-        <span class="sep-bo-kpi-value">{{ d.itensCriticosAbertosMais48h }}</span>
-      </article>
-    </div>
+      <a class="op-brand" routerLink="/app/backoffice/dashboard" aria-label="Dashboard SEP">
+        <img [src]="assetBase + '/logos/logo_sep_header_completo.png'" alt="SEP" />
+      </a>
+    </header>
 
-    <div class="sep-bo-grid">
-      <article class="sep-bo-panel">
-        <h2 class="sep-bo-panel-title">Itens por status</h2>
-        <ul class="sep-bo-list">
-          @for (c of d.contadoresPorStatus; track c.status) {
-            <li class="sep-bo-list-row">
-              <span>{{ statusLabel[c.status] }}</span>
-              <span class="sep-bo-list-total">{{ c.total }}</span>
-            </li>
-          } @empty {
-            <li class="sep-bo-list-empty">Sem itens.</li>
-          }
-        </ul>
-      </article>
+    <nav class="op-nav">
+      @for (item of itemsBySection('primary'); track item.route) {
+        <a
+          class="op-nav-link op-nav-link-primary"
+          [class.op-nav-link-active]="item.active"
+          [routerLink]="item.route"
+          routerLinkActive="op-nav-link-active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <img [src]="assetBase + '/' + item.icon" alt="" aria-hidden="true" />
+          <span>{{ item.label }}</span>
+        </a>
+      }
 
-      <article class="sep-bo-panel">
-        <h2 class="sep-bo-panel-title">Itens por prioridade</h2>
-        <ul class="sep-bo-list">
-          @for (c of d.contadoresPorPrioridade; track c.prioridade) {
-            <li class="sep-bo-list-row">
-              <span>{{ prioridadeLabel[c.prioridade] }}</span>
-              <span class="sep-bo-list-total">{{ c.total }}</span>
-            </li>
-          } @empty {
-            <li class="sep-bo-list-empty">Sem itens.</li>
+      @for (section of sidebarSections; track section.id) {
+        <div class="op-nav-section">
+          <p>{{ section.label }}</p>
+          @for (item of itemsBySection(section.id); track item.route) {
+            <a
+              class="op-nav-link"
+              [class.op-nav-link-active]="item.active"
+              [routerLink]="item.route"
+              routerLinkActive="op-nav-link-active"
+            >
+              <img [src]="assetBase + '/' + item.icon" alt="" aria-hidden="true" />
+              <span>{{ item.label }}</span>
+              @if (item.badge) {
+                <small>{{ item.badge }}</small>
+              }
+            </a>
           }
-        </ul>
-      </article>
+        </div>
+      }
+    </nav>
 
-      <article class="sep-bo-panel">
-        <h2 class="sep-bo-panel-title">Itens por tipo</h2>
-        <ul class="sep-bo-list">
-          @for (c of d.contadoresPorTipo; track c.tipo) {
-            <li class="sep-bo-list-row">
-              <span>{{ tipoLabel[c.tipo] }}</span>
-              <span class="sep-bo-list-total">{{ c.total }}</span>
-            </li>
-          } @empty {
-            <li class="sep-bo-list-empty">Sem itens.</li>
-          }
-        </ul>
-      </article>
+    <a class="op-side-user op-glow-card" routerLink="/app/profile">
+      <span>{{ currentUser().username.charAt(0).toUpperCase() }}</span>
+      <div>
+        <strong>{{ currentUser().username }}</strong>
+        <em>Online</em>
+        <small>Perfil<br />{{ currentUser().role }}</small>
+      </div>
+      <b aria-hidden="true">›</b>
+    </a>
 
-      <article class="sep-bo-panel">
-        <h2 class="sep-bo-panel-title">Top 5 tipos mais frequentes</h2>
-        <ul class="sep-bo-list">
-          @for (c of d.topCincoTiposMaisFrequentes; track c.tipo) {
-            <li class="sep-bo-list-row">
-              <span>{{ tipoLabel[c.tipo] }}</span>
-              <span class="sep-bo-list-total">{{ c.total }}</span>
-            </li>
-          } @empty {
-            <li class="sep-bo-list-empty">Sem itens.</li>
-          }
-        </ul>
-      </article>
+    <footer class="op-side-footer">
+      <img [src]="assetBase + '/logos/logo_sep_footer_completo.png'" alt="SEP" />
+      <span>v0.6.1</span>
+    </footer>
+  </aside>
 
-      <article class="sep-bo-panel">
-        <h2 class="sep-bo-panel-title">Propostas por status</h2>
-        <ul class="sep-bo-list">
-          @for (c of d.propostasPorStatus; track c.status) {
-            <li class="sep-bo-list-row">
-              <span>{{ c.status }}</span>
-              <span class="sep-bo-list-total">{{ c.total }}</span>
-            </li>
-          } @empty {
-            <li class="sep-bo-list-empty">Sem propostas.</li>
-          }
-        </ul>
-      </article>
-    </div>
-  }
+  <div class="op-main">
+    <header class="op-topbar">
+      <div class="op-topbar-left">
+        <div class="op-regulated op-glow-card">
+          <img [src]="assetBase + '/icons/icon_badge_ambiente_regulado_topbar.png'" alt="" />
+          <div>
+            <span>Ambiente</span>
+            <strong>Regulado</strong>
+          </div>
+          <b aria-hidden="true">›</b>
+        </div>
+        <div class="op-clock op-glow-card">
+          <img [src]="assetBase + '/icons/icon_horario_sistema.png'" alt="" />
+          <div>
+            <span>Horário do sistema</span>
+            <strong>11:58:44</strong>
+          </div>
+          <small>30/05/2026</small>
+        </div>
+      </div>
+
+      <div class="op-topbar-actions">
+        <button type="button" class="op-icon-button" aria-label="Pesquisar">
+          <img [src]="assetBase + '/icons/icon_search_topbar.png'" alt="" />
+        </button>
+        <button type="button" class="op-icon-button op-notification" aria-label="Notificações">
+          <img [src]="assetBase + '/icons/icon_bell_notification.png'" alt="" />
+          <span>6</span>
+        </button>
+        <button type="button" class="op-icon-button" aria-label="Ajuda">
+          <img [src]="assetBase + '/icons/icon_help_topbar.png'" alt="" />
+        </button>
+        <a class="op-user op-glow-card" routerLink="/app/profile">
+          <span>D</span>
+          <div>
+            <strong>{{ currentUser().username }}</strong>
+            <small>{{ currentUser().role }}</small>
+          </div>
+          <b aria-hidden="true">⌄</b>
+        </a>
+        <button type="button" class="op-icon-button" aria-label="Tema">
+          <img [src]="assetBase + '/icons/icon_theme_sun_topbar.png'" alt="" />
+        </button>
+      </div>
+    </header>
+
+    <main class="op-content">
+      <section class="op-welcome">
+        <div class="op-welcome-copy op-reveal-text">
+          <p>Bom dia,</p>
+          <h1 id="op-dashboard-title">{{ currentUser().username }}</h1>
+          <span>Backoffice</span>
+          <small>Bem-vindo ao painel operacional da SEP.</small>
+        </div>
+        <button type="button" class="op-customize">
+          <span aria-hidden="true">⌘</span>
+          Personalizar dashboard
+        </button>
+      </section>
+
+      <section class="op-metrics" aria-label="Métricas operacionais">
+        @for (metric of metrics; track metric.label) {
+          <article class="op-metric op-glow-card" [attr.data-tone]="metric.tone">
+            <div class="op-metric-top">
+              <img [src]="assetBase + '/' + metric.icon" alt="" />
+              <div>
+                <h2>{{ metric.label }}</h2>
+                <small>{{ metric.context }}</small>
+              </div>
+            </div>
+            <strong>{{ metric.value }}</strong>
+            @if (metric.visual) {
+              <img class="op-sparkline" [src]="assetBase + '/' + metric.visual" alt="" />
+            }
+            <p>{{ metric.trend }}</p>
+          </article>
+        }
+      </section>
+
+      <div class="op-lower-grid">
+        <section class="op-panel op-journeys-panel">
+          <div class="op-panel-title">
+            <h2>Próximas jornadas</h2>
+            <button type="button">Todas <span>⌄</span></button>
+          </div>
+          <div class="op-journeys">
+            @for (journey of journeys; track journey.title) {
+              <article class="op-journey op-glow-card" [attr.data-tone]="journey.statusTone">
+                <div class="op-journey-main">
+                  <img [src]="assetBase + '/' + journey.icon" alt="" />
+                  <div>
+                    <h3>{{ journey.title }}</h3>
+                    <p>{{ journey.description }}</p>
+                    <em>{{ journey.status }}</em>
+                  </div>
+                </div>
+                <div class="op-progress" aria-hidden="true">
+                  <span [style.width.%]="journey.progress"></span>
+                </div>
+                <div class="op-journey-footer">
+                  <span>Pendências</span>
+                  <strong>{{ journey.pending }}</strong>
+                </div>
+                <a [routerLink]="journey.route">Acessar jornada <b>→</b></a>
+              </article>
+            }
+          </div>
+        </section>
+
+        <section class="op-panel op-summary">
+          <div class="op-panel-title">
+            <h2>Resumo operacional</h2>
+            <button type="button">Hoje <span>⌄</span></button>
+          </div>
+          <div class="op-summary-list">
+            @for (item of summary; track item.label) {
+              <div class="op-summary-item" [class.op-danger]="item.severity === 'danger'">
+                <img [src]="assetBase + '/' + item.icon" alt="" />
+                <span>{{ item.label }}</span>
+                <strong>{{ item.value }}</strong>
+                <em>{{ item.trend }}</em>
+              </div>
+            }
+          </div>
+        </section>
+
+        <section class="op-panel op-performance">
+          <div class="op-panel-title">
+            <div>
+              <h2>Indicadores de performance</h2>
+              <small>Visão geral dos últimos 7 dias</small>
+            </div>
+            <button type="button">7 dias <span>⌄</span></button>
+          </div>
+          <div class="op-performance-grid">
+            @for (item of performance; track item.label) {
+              <article class="op-performance-item">
+                <img [src]="assetBase + '/' + item.visual" alt="" />
+                <strong>{{ item.value }}</strong>
+                <span>{{ item.label }}</span>
+                <small>{{ item.detail }}</small>
+              </article>
+            }
+          </div>
+        </section>
+
+        <section class="op-panel op-health">
+          <div class="op-panel-title">
+            <div>
+              <h2>Saúde da plataforma</h2>
+              <small>Status dos serviços</small>
+            </div>
+          </div>
+          <div class="op-health-list">
+            @for (item of health; track item.label) {
+              <div class="op-health-item">
+                <img [src]="assetBase + '/' + item.icon" alt="" />
+                <span>{{ item.label }}</span>
+                <em>{{ item.status }}</em>
+              </div>
+            }
+          </div>
+          <footer>
+            <span>Todos os sistemas operacionais</span>
+            <strong>100%</strong>
+          </footer>
+        </section>
+
+        <section class="op-panel op-activity">
+          <div class="op-panel-title">
+            <h2>Atividades recentes</h2>
+            <button type="button">Ver todas</button>
+          </div>
+          <ol>
+            @for (activity of activities; track activity.title) {
+              <li [attr.data-tone]="activity.tone">
+                <time>{{ activity.time }}</time>
+                <img [src]="assetBase + '/' + activity.icon" alt="" />
+                <div>
+                  <strong>{{ activity.title }}</strong>
+                  <p>{{ activity.detail }}</p>
+                </div>
+                <span>{{ activity.status }}</span>
+              </li>
+            }
+          </ol>
+        </section>
+      </div>
+    </main>
+
+    <footer class="op-footer">
+      <div class="op-footer-status">
+        @for (item of footerStatus; track item.label) {
+          <div class="op-footer-item">
+            <img [src]="assetBase + '/' + item.icon" alt="" />
+            <span>{{ item.label }}</span>
+            <small>{{ item.detail }}</small>
+          </div>
+        }
+      </div>
+      <div class="op-access">
+        <span>Último acesso: 30/05/2026 11:52:31</span>
+        <small>IP: 187.45.32.18 · São Paulo, SP</small>
+      </div>
+      <img
+        class="op-footer-hud"
+        [src]="assetBase + '/visuals/visual_footer_escudo_hud.png'"
+        alt=""
+      />
+    </footer>
+  </div>
 </section>

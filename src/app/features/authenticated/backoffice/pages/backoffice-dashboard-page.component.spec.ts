@@ -1,64 +1,63 @@
 import { provideHttpClient } from '@angular/common/http';
-import { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
-import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
-import { server } from '../../../../../mocks/server';
+import { AuthService } from '../../../../core/auth/auth.service';
 import { BackofficeDashboardPageComponent } from './backoffice-dashboard-page.component';
 
-const DASHBOARD_URL = 'http://localhost:8080/api/v1/backoffice/dashboard';
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
-
-function renderPagina() {
-  return render(BackofficeDashboardPageComponent, {
+async function renderPagina() {
+  const result = await render(BackofficeDashboardPageComponent, {
     providers: [provideHttpClient(), provideRouter([])],
   });
+  const auth = result.fixture.debugElement.injector.get(AuthService) as AuthService & {
+    currentUserState: { set: (u: unknown) => void };
+  };
+  auth.currentUserState.set({
+    id: 'usuario-backoffice',
+    username: 'backoffice@empresa.com',
+    role: 'BACKOFFICE',
+    dataCriacao: '2026-07-08T00:00:00Z',
+    dataModificacao: '2026-07-08T00:00:00Z',
+    criadoPor: 'sistema',
+    modificadoPor: 'sistema',
+    precisaRedefinirSenha: false,
+    mfaHabilitado: false,
+  });
+  result.fixture.detectChanges();
+  return result;
 }
 
 describe('BackofficeDashboardPageComponent', () => {
-  it('apresenta KPIs, contadores e valores monetarios do backend', async () => {
-    const { fixture } = await renderPagina();
-    await estabilizar(fixture);
+  it('renderiza o painel operacional autenticado com usuário backoffice', async () => {
+    await renderPagina();
 
-    expect(screen.getByText('Recebimentos do dia')).toBeTruthy();
-    expect(screen.getByText('Inadimplencia total')).toBeTruthy();
-    expect(screen.getByText(/18\.450,75/)).toBeTruthy();
-    expect(screen.getByText('Em tratamento')).toBeTruthy();
-    // O mesmo tipo pode aparecer em "por tipo" e em "top 5"; basta render em pelo menos um painel.
-    expect(screen.getAllByText('Cobranca inadimplente').length).toBeGreaterThan(0);
+    expect(screen.getByRole('heading', { name: 'backoffice@empresa.com' })).toBeTruthy();
+    expect(screen.getAllByText('backoffice@empresa.com').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('BACKOFFICE').length).toBeGreaterThan(0);
+    expect(screen.getByText('Personalizar dashboard')).toBeTruthy();
   });
 
-  it('formata o tempo medio de resolucao a partir dos segundos do backend', async () => {
-    const { fixture } = await renderPagina();
-    await estabilizar(fixture);
+  it('exibe métricas, jornadas e blocos operacionais do mockup 03', async () => {
+    await renderPagina();
 
-    // 7200s -> 2h
-    expect(screen.getByText('2h')).toBeTruthy();
+    expect(screen.getAllByText('Onboarding').length).toBeGreaterThan(0);
+    expect(screen.getByText('Volume operacional')).toBeTruthy();
+    expect(screen.getByText('Próximas jornadas')).toBeTruthy();
+    expect(screen.getByText('Resumo operacional')).toBeTruthy();
+    expect(screen.getByText('Atividades recentes')).toBeTruthy();
+    expect(screen.getByText('Indicadores de performance')).toBeTruthy();
+    expect(screen.getByText('Saúde da plataforma')).toBeTruthy();
   });
 
-  it('mostra estado de erro com retry quando o backend falha', async () => {
-    server.use(
-      http.get(DASHBOARD_URL, () =>
-        HttpResponse.json({ message: 'Erro no servidor' }, { status: 500 }),
-      ),
-    );
-    const { fixture } = await renderPagina();
-    await estabilizar(fixture);
+  it('usa os assets públicos do mockup 03 e preserva links principais', async () => {
+    await renderPagina();
 
-    expect(screen.getByText('Erro no servidor')).toBeTruthy();
-    expect(screen.getByText('Tentar novamente')).toBeTruthy();
+    const logo = screen.getAllByRole('img', { name: 'SEP' })[0] as HTMLImageElement;
+    const filaLink = screen.getByRole('link', { name: /Backoffice/ });
+
+    expect(logo.src).toContain('/image/sep_mockup_03_assets/logos/logo_sep_header_completo.png');
+    expect(document.body.innerHTML).toContain('/image/sep_mockup_03_assets/icons/');
+    expect(filaLink.getAttribute('href')).toBe('/app/backoffice/fila');
   });
 });

@@ -1,0 +1,570 @@
+{
+  "mockup": "Mockup_03",
+  "source_image": "Mockup_03.png",
+  "asset_count": 80,
+  "recommended_project_path": "C:\\Pastas\\PROJETOS\\Projeto Dynamis SEP\\sep-app 16062026\\image\\sep_mockup_03_assets",
+  "public_asset_base_path": "/image/sep_mockup_03_assets",
+  "notes": "Assets extraídos do Mockup_03 para uso como PNGs transparentes e referências de integração no frontend SEP.",
+  "assets": [
+    {
+      "category": "logos",
+      "file": "logo_sep_header_completo.png",
+      "box": [68, 21, 179, 63],
+      "description": "Logo SEP superior esquerdo completo",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "logos",
+      "file": "logo_sep_simbolo_header.png",
+      "box": [72, 22, 108, 61],
+      "description": "Símbolo SEP superior esquerdo",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "logos",
+      "file": "logo_sep_wordmark_header.png",
+      "box": [117, 28, 176, 58],
+      "description": "Wordmark SEP superior esquerdo",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "logos",
+      "file": "logo_sep_footer_completo.png",
+      "box": [30, 922, 140, 966],
+      "description": "Logo SEP no rodapé/sidebar",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "logos",
+      "file": "logo_sep_simbolo_footer.png",
+      "box": [31, 925, 59, 951],
+      "description": "Símbolo SEP do rodapé/sidebar",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_menu_hamburger.png",
+      "box": [25, 35, 39, 50],
+      "description": "Ícone menu lateral hambúrguer",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_badge_ambiente_regulado_topbar.png",
+      "box": [282, 23, 391, 64],
+      "description": "Badge completo Ambiente Regulado no topo",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "icons",
+      "file": "icon_badge_ambiente_regulado_topbar.png",
+      "box": [300, 31, 320, 53],
+      "description": "Ícone escudo do badge Ambiente Regulado",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_horario_sistema_topbar.png",
+      "box": [399, 24, 538, 64],
+      "description": "Grupo Horário do sistema no topo",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "icons",
+      "file": "icon_horario_sistema.png",
+      "box": [407, 31, 428, 54],
+      "description": "Ícone de horário/sistema",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_search_topbar.png",
+      "box": [1018, 29, 1051, 62],
+      "description": "Ícone pesquisa do topo",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_bell_notification.png",
+      "box": [1071, 27, 1104, 61],
+      "description": "Ícone sino de notificação",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_help_topbar.png",
+      "box": [1122, 29, 1156, 61],
+      "description": "Ícone ajuda no topo",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_theme_sun_topbar.png",
+      "box": [1468, 30, 1496, 60],
+      "description": "Ícone alternância de tema no topo",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_user_profile_topbar.png",
+      "box": [1227, 22, 1438, 65],
+      "description": "Grupo usuário no topo",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_personalizar_dashboard_button.png",
+      "box": [1320, 113, 1502, 150],
+      "description": "Botão Personalizar dashboard",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "icons",
+      "file": "icon_sidebar_dashboard.png",
+      "box": [32, 95, 52, 119],
+      "description": "Ícone Dashboard do menu lateral",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_sidebar_onboarding.png",
+      "box": [31, 169, 50, 190],
+      "description": "Ícone Onboarding do menu lateral",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_sidebar_credito.png",
+      "box": [31, 207, 50, 220],
+      "description": "Ícone Crédito do menu lateral",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_sidebar_formalizacao.png",
+      "box": [32, 242, 49, 260],
+      "description": "Ícone Formalização do menu lateral",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_sidebar_cobranca.png",
+      "box": [31, 278, 51, 290],
+      "description": "Ícone Cobrança do menu lateral",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_sidebar_backoffice.png",
+      "box": [30, 337, 52, 358],
+      "description": "Ícone Backoffice do menu lateral",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_sidebar_pix.png",
+      "box": [30, 374, 53, 396],
+      "description": "Ícone Pix do menu lateral",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_sidebar_perfil.png",
+      "box": [31, 441, 51, 461],
+      "description": "Ícone Meu perfil do menu lateral",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_metric_onboarding.png",
+      "box": [302, 195, 352, 238],
+      "description": "Ícone card Onboarding",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_metric_credito.png",
+      "box": [532, 195, 581, 238],
+      "description": "Ícone card Crédito",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_metric_formalizacao.png",
+      "box": [736, 195, 783, 238],
+      "description": "Ícone card Formalização",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_metric_cobranca.png",
+      "box": [946, 195, 996, 238],
+      "description": "Ícone card Cobrança",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_metric_pix.png",
+      "box": [1137, 195, 1186, 238],
+      "description": "Ícone card PIX",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_metric_volume_operacional.png",
+      "box": [1318, 195, 1366, 238],
+      "description": "Ícone card Volume operacional",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "visuals",
+      "file": "visual_sparkline_volume_operacional.png",
+      "box": [1308, 287, 1445, 327],
+      "description": "Mini gráfico sparkline do card Volume operacional",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_jornada_onboarding.png",
+      "box": [310, 428, 351, 480],
+      "description": "Ícone jornada Onboarding",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_jornada_analise_credito.png",
+      "box": [507, 428, 550, 480],
+      "description": "Ícone jornada Análise de crédito",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_jornada_formalizacao.png",
+      "box": [700, 428, 744, 480],
+      "description": "Ícone jornada Formalização",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_jornada_cobranca.png",
+      "box": [895, 428, 941, 480],
+      "description": "Ícone jornada Cobrança",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_resumo_novos_cadastros.png",
+      "box": [1103, 417, 1123, 438],
+      "description": "Ícone resumo Novos cadastros",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_resumo_propostas_recebidas.png",
+      "box": [1103, 447, 1123, 468],
+      "description": "Ícone resumo Propostas recebidas",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_resumo_contratos_assinados.png",
+      "box": [1103, 477, 1123, 498],
+      "description": "Ícone resumo Contratos assinados",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_resumo_pagamentos_pix.png",
+      "box": [1103, 507, 1125, 529],
+      "description": "Ícone resumo Pagamentos via Pix",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_resumo_alertas_criticos.png",
+      "box": [1103, 538, 1125, 560],
+      "description": "Ícone resumo Alertas críticos",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "visuals",
+      "file": "visual_performance_conversao_credito_78.png",
+      "box": [302, 700, 410, 810],
+      "description": "Anel de indicador 78% Conversão crédito",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "visuals",
+      "file": "visual_performance_contratos_finalizados_65.png",
+      "box": [445, 700, 555, 810],
+      "description": "Anel de indicador 65% Contratos finalizados",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "visuals",
+      "file": "visual_performance_documentos_validos_92.png",
+      "box": [562, 700, 672, 810],
+      "description": "Anel de indicador 92% Documentos válidos",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "visuals",
+      "file": "visual_performance_sla_medio_84.png",
+      "box": [680, 700, 790, 810],
+      "description": "Anel de indicador 84% SLA médio",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_health_service_01.png",
+      "box": [802, 700, 825, 723],
+      "description": "Ícone saúde da plataforma serviço 1",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_health_service_02.png",
+      "box": [802, 727, 825, 750],
+      "description": "Ícone saúde da plataforma serviço 2",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_health_service_03.png",
+      "box": [802, 753, 825, 776],
+      "description": "Ícone saúde da plataforma serviço 3",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_health_service_04.png",
+      "box": [802, 779, 825, 802],
+      "description": "Ícone saúde da plataforma serviço 4",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_health_service_05.png",
+      "box": [802, 806, 825, 829],
+      "description": "Ícone saúde da plataforma serviço 5",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_timeline_dot_info.png",
+      "box": [1133, 641, 1144, 652],
+      "description": "Marcador timeline azul",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_timeline_dot_success_01.png",
+      "box": [1133, 676, 1144, 688],
+      "description": "Marcador timeline verde",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_timeline_dot_success_02.png",
+      "box": [1133, 712, 1144, 724],
+      "description": "Marcador timeline verde",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_timeline_dot_success_03.png",
+      "box": [1133, 780, 1144, 792],
+      "description": "Marcador timeline verde",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_timeline_dot_danger.png",
+      "box": [1133, 819, 1145, 833],
+      "description": "Marcador timeline vermelho",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_footer_ambiente_regulado.png",
+      "box": [280, 930, 314, 961],
+      "description": "Ícone footer Ambiente regulado",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_footer_segregacao_patrimonial.png",
+      "box": [484, 930, 518, 961],
+      "description": "Ícone footer Segregação patrimonial",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_footer_seguranca.png",
+      "box": [630, 930, 665, 961],
+      "description": "Ícone footer Segurança",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "icons",
+      "file": "icon_footer_rastreabilidade.png",
+      "box": [812, 930, 847, 961],
+      "description": "Ícone footer Rastreabilidade",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "visuals",
+      "file": "visual_footer_escudo_hud.png",
+      "box": [1350, 915, 1502, 1005],
+      "description": "HUD escudo inferior direito",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "visuals",
+      "file": "visual_circuitos_background_direita.png",
+      "box": [1315, 72, 1505, 171],
+      "description": "Circuitos decorativos do canto superior direito",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "visuals",
+      "file": "visual_background_grid_center.png",
+      "box": [252, 75, 1505, 918],
+      "description": "Textura de fundo tecnológica central filtrada",
+      "method": "neon-alpha"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_sidebar_menu_principal.png",
+      "box": [4, 75, 252, 918],
+      "description": "Sidebar com navegação e perfil",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_metric_cards_row.png",
+      "box": [267, 172, 1505, 348],
+      "description": "Linha de cards métricos do dashboard",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_proximas_jornadas_cards.png",
+      "box": [267, 360, 1065, 635],
+      "description": "Grupo Próximas jornadas",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_resumo_operacional_card.png",
+      "box": [1080, 360, 1503, 578],
+      "description": "Card Resumo operacional",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_atividades_recentes_card.png",
+      "box": [1080, 591, 1503, 887],
+      "description": "Card Atividades recentes",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_indicadores_performance_card.png",
+      "box": [282, 646, 772, 884],
+      "description": "Card Indicadores de performance",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_saude_plataforma_card.png",
+      "box": [783, 646, 1066, 884],
+      "description": "Card Saúde da plataforma",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_footer_regulatorio_status.png",
+      "box": [252, 918, 1215, 1015],
+      "description": "Faixa inferior de status regulatório",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_header_topbar.png",
+      "box": [4, 8, 1530, 75],
+      "description": "Header/topbar completo",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_card_onboarding_metric.png",
+      "box": [267, 176, 486, 346],
+      "description": "Card métrico Onboarding",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_card_credito_metric.png",
+      "box": [498, 176, 727, 346],
+      "description": "Card métrico Crédito",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_card_formalizacao_metric.png",
+      "box": [699, 176, 892, 346],
+      "description": "Card métrico Formalização",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_card_cobranca_metric.png",
+      "box": [906, 176, 1087, 346],
+      "description": "Card métrico Cobrança",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_card_pix_metric.png",
+      "box": [1100, 176, 1285, 346],
+      "description": "Card métrico PIX",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_card_volume_operacional_metric.png",
+      "box": [1298, 176, 1503, 346],
+      "description": "Card métrico Volume operacional",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_jornada_onboarding_card.png",
+      "box": [295, 408, 482, 628],
+      "description": "Card jornada Onboarding",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_jornada_analise_credito_card.png",
+      "box": [493, 408, 676, 628],
+      "description": "Card jornada Análise de crédito",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_jornada_formalizacao_card.png",
+      "box": [686, 408, 866, 628],
+      "description": "Card jornada Formalização",
+      "method": "rounded-card-crop"
+    },
+    {
+      "category": "ui-groups",
+      "file": "ui_jornada_cobranca_card.png",
+      "box": [878, 408, 1054, 628],
+      "description": "Card jornada Cobrança",
+      "method": "rounded-card-crop"
+    }
+  ]
+}

@@ -1,11 +1,17 @@
-<div class="sep-shell">
-  <sep-header (toggleSidenav)="toggleSidenav()" />
+<div class="sep-shell" [class.sep-shell-immersive]="immersive()">
+  @if (!immersive()) {
+    <sep-header (toggleSidenav)="toggleSidenav()" />
+  }
 
   <div class="sep-shell-body">
-    <sep-sidenav [collapsed]="sidenavCollapsed()" />
+    @if (!immersive()) {
+      <sep-sidenav [collapsed]="sidenavCollapsed()" />
+    }
 
     <main class="sep-shell-main">
-      <sep-breadcrumbs />
+      @if (!immersive()) {
+        <sep-breadcrumbs />
+      }
       <div class="sep-shell-content">
         <router-outlet />
       </div>
