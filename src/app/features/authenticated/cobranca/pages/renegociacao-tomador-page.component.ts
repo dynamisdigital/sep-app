@@ -3,9 +3,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
   OnInit,
+  effect,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -27,9 +30,10 @@ type TipoConfirmacao = 'ACEITE' | 'RECUSA';
 // Decisao do tomador sobre a renegociacao ativa da parcela (F-16 / backend Sprints 24 e 27).
 // Apresenta somente os termos publicos e autoritativos do backend: total, desconto,
 // expiracao, status e elegibilidade nunca sao derivados aqui. 404 = proposta
-// indisponivel (decidida, expirada ou inexistente). 403 e neutro: em runtime o
-// errorInterceptor global redireciona para /access-denied; o fallback local nao
-// distingue parcela alheia de inexistente.
+// indisponivel (decidida, expirada ou inexistente). 403 e tratado LOCALMENTE (o
+// CobrancaService marca estas requests com TRATA_403_LOCALMENTE, suprimindo o redirect
+// global do errorInterceptor): estado neutro que nao distingue parcela alheia de
+// inexistente na leitura, e reverificacao explicita no aceite.
 //
 // Aceite (@RequireStepUpEstrito no backend): MFA ativo e pre-condicao — sem MFA a UI
 // orienta a habilitacao e nao tenta o bypass que o backend estrito rejeita. O gesto
@@ -81,6 +85,24 @@ export class RenegociacaoTomadorPageComponent implements OnInit {
   protected readonly formatarDataLocal = formatarDataLocal;
   protected readonly statusLabel = STATUS_RENEGOCIACAO_LABEL;
 
+  // Comportamento de dialogo acessivel (fix review manual F-16): foco entra na
+  // confirmacao ao abrir e volta ao botao que a disparou ao fechar; Escape cancela;
+  // Tab cicla dentro do dialogo. So existe uma confirmacao por vez (aceite OU recusa).
+  private readonly confirmacaoBox = viewChild<ElementRef<HTMLElement>>('confirmacaoBox');
+  private gatilhoDecisao: HTMLElement | null = null;
+
+  constructor() {
+    effect(() => {
+      const box = this.confirmacaoBox();
+      if (box) {
+        box.nativeElement.focus();
+      } else if (this.gatilhoDecisao) {
+        this.gatilhoDecisao.focus();
+        this.gatilhoDecisao = null;
+      }
+    });
+  }
+
   ngOnInit(): void {
     this.parcelaId = this.route.snapshot.paramMap.get('parcelaId') ?? '';
     if (this.parcelaId) {
@@ -122,6 +144,7 @@ export class RenegociacaoTomadorPageComponent implements OnInit {
       return;
     }
     this.mfaNecessario.set(false);
+    this.registrarGatilhoDecisao();
     this.abrirConfirmacao('ACEITE');
   }
 
@@ -133,6 +156,7 @@ export class RenegociacaoTomadorPageComponent implements OnInit {
     this.decisaoErro.set(null);
     this.verificacaoNecessaria.set(false);
     this.mfaNecessario.set(false);
+    this.registrarGatilhoDecisao();
     this.abrirConfirmacao('RECUSA');
   }
 
@@ -158,6 +182,37 @@ export class RenegociacaoTomadorPageComponent implements OnInit {
       return;
     }
     this.confirmando.set(null);
+  }
+
+  // Trap de Tab do dialogo: os unicos elementos focaveis sao os botoes da confirmacao;
+  // Tab no ultimo volta ao primeiro (e Shift+Tab no primeiro vai ao ultimo).
+  prenderFoco(event: Event): void {
+    const box = this.confirmacaoBox()?.nativeElement;
+    if (!box) {
+      return;
+    }
+    const focaveis = box.querySelectorAll<HTMLElement>('button:not([disabled])');
+    if (focaveis.length === 0) {
+      return;
+    }
+    const primeiro = focaveis[0];
+    const ultimo = focaveis[focaveis.length - 1];
+    const teclado = event as KeyboardEvent;
+    if (
+      teclado.shiftKey &&
+      (document.activeElement === primeiro || document.activeElement === box)
+    ) {
+      teclado.preventDefault();
+      ultimo.focus();
+      return;
+    }
+    if (
+      !teclado.shiftKey &&
+      (document.activeElement === ultimo || document.activeElement === box)
+    ) {
+      teclado.preventDefault();
+      primeiro.focus();
+    }
   }
 
   // Ultima etapa do aceite. Sem token: fecha a confirmacao e coleta o step-up com retorno
@@ -203,6 +258,11 @@ export class RenegociacaoTomadorPageComponent implements OnInit {
       this.confirmando() !== null ||
       this.desatualizado()
     );
+  }
+
+  private registrarGatilhoDecisao(): void {
+    this.gatilhoDecisao =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
   }
 
   private abrirConfirmacao(tipo: TipoConfirmacao): void {

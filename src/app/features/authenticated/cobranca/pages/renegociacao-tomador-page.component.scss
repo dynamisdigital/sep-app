@@ -157,6 +157,14 @@
   flex-direction: column;
   gap: var(--sep-space-12);
   padding: var(--sep-space-16);
+
+  // O container recebe foco programatico ao abrir (tabindex="-1"): foco visivel
+  // no padrao do DS para leitores e navegacao por teclado.
+  &:focus-visible,
+  &:focus {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
 }
 
 .sep-reneg-confirmacao-titulo {

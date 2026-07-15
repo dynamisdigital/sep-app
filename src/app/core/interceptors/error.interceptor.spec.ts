@@ -1,5 +1,6 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import {
+  HttpContext,
   HttpErrorResponse,
   HttpHandlerFn,
   HttpRequest,
@@ -10,7 +11,7 @@ import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
-import { errorInterceptor } from './error.interceptor';
+import { TRATA_403_LOCALMENTE, errorInterceptor } from './error.interceptor';
 import { AuthService } from '../auth/auth.service';
 
 const ACCESS_TOKEN_KEY = 'SEP_ACCESS_TOKEN';
@@ -83,6 +84,28 @@ describe('errorInterceptor', () => {
     });
 
     expect(navigatedTo).toBe('/access-denied');
+  });
+
+  it('403 com TRATA_403_LOCALMENTE: nao navega e propaga o erro para a tela', () => {
+    const req = new HttpRequest(
+      'GET',
+      'http://localhost:8080/api/v1/cobranca/parcelas/abc/renegociacao-ativa',
+      { context: new HttpContext().set(TRATA_403_LOCALMENTE, true) },
+    );
+    const error = new HttpErrorResponse({ status: 403, url: req.url });
+    let propagado: unknown = null;
+
+    TestBed.runInInjectionContext(() => {
+      errorInterceptor(req, makeNext(error)).subscribe({
+        next: () => undefined,
+        error: (err: unknown) => {
+          propagado = err;
+        },
+      });
+    });
+
+    expect(navigatedTo).toBeNull();
+    expect((propagado as HttpErrorResponse).status).toBe(403);
   });
 
   it('5xx inclui codigo de suporte quando traceId existe', () => {
