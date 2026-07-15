@@ -142,6 +142,29 @@ describe('DivergenciasPageComponent', () => {
     expect(screen.getAllByText(/Mostrando os 1 primeiros de 120/).length).toBe(2);
   });
 
+  it('mostra erro recuperavel quando a rede falha, sem resultado presumido', async () => {
+    server.use(http.get(FILA_URL, () => HttpResponse.error()));
+    const { fixture } = await renderPage();
+    await estabilizar(fixture);
+
+    expect(screen.getByRole('alert')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Tentar novamente/ })).toBeTruthy();
+    expect(screen.queryByText(/Recebimentos Pix divergentes/)).toBeNull();
+  });
+
+  it('recorte RESOLVIDO traz do backend o item ja tratado, ausente no default ABERTO', async () => {
+    const { fixture } = await renderPage();
+    await estabilizar(fixture);
+
+    expect(screen.queryByText('Desembolso Pix com falha ja reconciliado')).toBeNull();
+
+    fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'RESOLVIDO' } });
+    await estabilizar(fixture);
+
+    expect(screen.getByText('Desembolso Pix com falha ja reconciliado')).toBeTruthy();
+    expect(screen.queryByText('Desembolso Pix retornou falha do provedor')).toBeNull();
+  });
+
   it('envia o status selecionado ao backend e omite o parametro em Todos', async () => {
     const statusEnviados: (string | null)[] = [];
     server.use(
