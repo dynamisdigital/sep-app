@@ -58,7 +58,7 @@ test('financeiro: painel de inadimplencia lista parcelas em atraso', async ({ pa
 });
 
 test('tomador: parcela EM_NEGOCIACAO leva aos termos completos da proposta', async ({ page }) => {
-  await login(page);
+  await login(page, 'tomador@empresa.com');
 
   await page.goto(`/app/cobranca/parcelas/${PARCELA_EM_NEGOCIACAO_ID}`);
   await page.getByRole('link', { name: /Ver proposta de renegociacao/ }).click();
@@ -72,7 +72,7 @@ test('tomador: parcela EM_NEGOCIACAO leva aos termos completos da proposta', asy
 });
 
 test('tomador: recusa a proposta sem passar por step-up', async ({ page }) => {
-  await login(page);
+  await login(page, 'tomador@empresa.com');
 
   await page.goto(`/app/cobranca/parcelas/${PARCELA_RECUSA_TOMADOR_ID}/renegociacao`);
   await expect(page.getByRole('heading', { name: 'Proposta de renegociacao' })).toBeVisible();
@@ -88,7 +88,7 @@ test('tomador: recusa a proposta sem passar por step-up', async ({ page }) => {
 test('tomador: aceite sem token navega ao step-up e o retorno nao aceita automaticamente', async ({
   page,
 }) => {
-  await login(page);
+  await login(page, 'tomador@empresa.com');
 
   await page.goto(`/app/cobranca/parcelas/${PARCELA_EM_NEGOCIACAO_ID}/renegociacao`);
   await page.getByRole('button', { name: 'Aceitar proposta' }).click();

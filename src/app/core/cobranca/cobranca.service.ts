@@ -1,8 +1,9 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
+import { TRATA_403_LOCALMENTE } from '../interceptors/error.interceptor';
 import {
   AgendaPagamentoResponse,
   EventoCobrancaResponse,
@@ -79,10 +80,12 @@ export class CobrancaService {
   }
 
   // Leitura owner-scoped do tomador (backend Sprint 24): sem step-up e sem token. O DTO
-  // publico ja traz o total calculado; o service apenas transporta a resposta.
+  // publico ja traz o total calculado; o service apenas transporta a resposta. O 403 e
+  // tratado pela tela de decisao (estado neutro), sem o redirect global (F-16.5).
   consultarRenegociacaoAtiva(parcelaId: string): Observable<RenegociacaoTomadorResponse> {
     return this.http.get<RenegociacaoTomadorResponse>(
       `${COBRANCA_URL}/parcelas/${parcelaId}/renegociacao-ativa`,
+      { context: tratando403NaTela() },
     );
   }
 
@@ -98,10 +101,13 @@ export class CobrancaService {
   }
 
   // Step-up exigido pelo backend; anexado pelo stepUpInterceptor (ver nota da classe).
+  // O 403 (MFA inativo/step-up invalido/ownership) e tratado pela tela de decisao —
+  // orientacao de MFA ou reverificacao explicita — sem o redirect global (F-16.5).
   aceitarRenegociacao(renegociacaoId: string): Observable<RenegociacaoResponse> {
     return this.http.patch<RenegociacaoResponse>(
       `${COBRANCA_URL}/renegociacoes/${renegociacaoId}/aceite`,
       {},
+      { context: tratando403NaTela() },
     );
   }
 
@@ -109,8 +115,15 @@ export class CobrancaService {
     return this.http.patch<RenegociacaoResponse>(
       `${COBRANCA_URL}/renegociacoes/${renegociacaoId}/recusa`,
       {},
+      { context: tratando403NaTela() },
     );
   }
+}
+
+// A decisao de renegociacao do tomador tem tratamento local completo de 403 (F-16.5);
+// o errorInterceptor nao deve ejetar o usuario da tela para /access-denied.
+function tratando403NaTela(): HttpContext {
+  return new HttpContext().set(TRATA_403_LOCALMENTE, true);
 }
 
 // Mapeia os filtros para os query params snake_case esperados pelo backend, omitindo

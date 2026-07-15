@@ -125,9 +125,15 @@
 
       @if (confirmando() === 'ACEITE') {
         <div
+          #confirmacaoBox
           class="sep-reneg-confirmacao"
           role="alertdialog"
+          aria-modal="true"
+          tabindex="-1"
           aria-labelledby="confirmacao-aceite-titulo"
+          (keydown.escape)="cancelarConfirmacao()"
+          (keydown.tab)="prenderFoco($event)"
+          (keydown.shift.tab)="prenderFoco($event)"
         >
           <h2 class="sep-reneg-confirmacao-titulo" id="confirmacao-aceite-titulo">
             Confirmar aceite
@@ -162,9 +168,15 @@
 
       @if (confirmando() === 'RECUSA') {
         <div
+          #confirmacaoBox
           class="sep-reneg-confirmacao"
           role="alertdialog"
+          aria-modal="true"
+          tabindex="-1"
           aria-labelledby="confirmacao-recusa-titulo"
+          (keydown.escape)="cancelarConfirmacao()"
+          (keydown.tab)="prenderFoco($event)"
+          (keydown.shift.tab)="prenderFoco($event)"
         >
           <h2 class="sep-reneg-confirmacao-titulo" id="confirmacao-recusa-titulo">
             Confirmar recusa
