@@ -8,6 +8,22 @@
     </p>
   </header>
 
+  <div class="sep-divergencias-filtro">
+    <label class="sep-divergencias-filtro-label" for="divergencias-status">Status</label>
+    <select
+      class="sep-divergencias-filtro-select"
+      id="divergencias-status"
+      [value]="statusFiltro()"
+      [disabled]="loading()"
+      (change)="filtrarPorStatus($any($event.target).value)"
+    >
+      @for (s of statusItens; track s) {
+        <option [value]="s" [selected]="statusFiltro() === s">{{ statusLabel[s] }}</option>
+      }
+      <option value="" [selected]="statusFiltro() === ''">Todos</option>
+    </select>
+  </div>
+
   @if (loading()) {
     <p class="sep-divergencias-state" role="status">Carregando divergencias...</p>
   } @else if (errorMessage()) {
@@ -20,10 +36,18 @@
   } @else {
     <section class="sep-divergencias-grupo">
       <h2 class="sep-divergencias-subtitle">
-        Recebimentos Pix divergentes ({{ recebimentosDivergentes().length }})
+        Recebimentos Pix divergentes ({{ recebimentosTotal() }})
       </h2>
+      @if (recebimentosDivergentes().length < recebimentosTotal()) {
+        <p class="sep-divergencias-parcial">
+          Mostrando os {{ recebimentosDivergentes().length }} primeiros de
+          {{ recebimentosTotal() }}. Use a fila do backoffice para ver todos.
+        </p>
+      }
       @if (recebimentosDivergentes().length === 0) {
-        <p class="sep-divergencias-vazio">Nenhum recebimento Pix divergente em aberto.</p>
+        <p class="sep-divergencias-vazio">
+          Nenhum recebimento Pix divergente neste recorte de status.
+        </p>
       } @else {
         <ul class="sep-divergencias-lista">
           @for (item of recebimentosDivergentes(); track item.id) {
@@ -52,10 +76,18 @@
 
     <section class="sep-divergencias-grupo">
       <h2 class="sep-divergencias-subtitle">
-        Desembolsos Pix com falha ({{ desembolsosFalhos().length }})
+        Desembolsos Pix com falha ({{ desembolsosTotal() }})
       </h2>
+      @if (desembolsosFalhos().length < desembolsosTotal()) {
+        <p class="sep-divergencias-parcial">
+          Mostrando os {{ desembolsosFalhos().length }} primeiros de {{ desembolsosTotal() }}. Use a
+          fila do backoffice para ver todos.
+        </p>
+      }
       @if (desembolsosFalhos().length === 0) {
-        <p class="sep-divergencias-vazio">Nenhum desembolso Pix com falha em aberto.</p>
+        <p class="sep-divergencias-vazio">
+          Nenhum desembolso Pix com falha neste recorte de status.
+        </p>
       } @else {
         <ul class="sep-divergencias-lista">
           @for (item of desembolsosFalhos(); track item.id) {

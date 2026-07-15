@@ -42,6 +42,28 @@
   color: hsl(var(--foreground));
 }
 
+.sep-divergencias-filtro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-4);
+  max-width: 240px;
+}
+
+.sep-divergencias-filtro-label {
+  @include sepDs.sep-label;
+}
+
+.sep-divergencias-filtro-select {
+  @include sepDs.sep-input;
+}
+
+.sep-divergencias-parcial {
+  @include sepType.sep-type-caption;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
 .sep-divergencias-vazio {
   @include sepType.sep-type-body;
 
