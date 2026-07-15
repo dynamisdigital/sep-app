@@ -30,9 +30,10 @@ type TipoConfirmacao = 'ACEITE' | 'RECUSA';
 // Decisao do tomador sobre a renegociacao ativa da parcela (F-16 / backend Sprints 24 e 27).
 // Apresenta somente os termos publicos e autoritativos do backend: total, desconto,
 // expiracao, status e elegibilidade nunca sao derivados aqui. 404 = proposta
-// indisponivel (decidida, expirada ou inexistente). 403 e neutro: em runtime o
-// errorInterceptor global redireciona para /access-denied; o fallback local nao
-// distingue parcela alheia de inexistente.
+// indisponivel (decidida, expirada ou inexistente). 403 e tratado LOCALMENTE (o
+// CobrancaService marca estas requests com TRATA_403_LOCALMENTE, suprimindo o redirect
+// global do errorInterceptor): estado neutro que nao distingue parcela alheia de
+// inexistente na leitura, e reverificacao explicita no aceite.
 //
 // Aceite (@RequireStepUpEstrito no backend): MFA ativo e pre-condicao — sem MFA a UI
 // orienta a habilitacao e nao tenta o bypass que o backend estrito rejeita. O gesto
