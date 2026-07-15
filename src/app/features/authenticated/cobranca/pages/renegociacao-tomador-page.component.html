@@ -87,7 +87,7 @@
           type="button"
           class="sep-reneg-aceitar"
           (click)="aceitarClick()"
-          [disabled]="reconsultando() || decisaoEmVoo()"
+          [disabled]="reconsultando() || decisaoEmVoo() || confirmando() !== null"
         >
           {{ reconsultando() ? 'Atualizando termos...' : 'Aceitar proposta' }}
         </button>
@@ -95,7 +95,7 @@
           type="button"
           class="sep-reneg-recusar"
           (click)="recusarClick()"
-          [disabled]="reconsultando() || decisaoEmVoo()"
+          [disabled]="reconsultando() || decisaoEmVoo() || confirmando() !== null"
         >
           Recusar proposta
         </button>
