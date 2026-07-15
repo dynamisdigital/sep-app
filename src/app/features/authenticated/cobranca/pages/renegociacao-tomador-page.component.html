@@ -82,12 +82,32 @@
         <p class="sep-reneg-decisao-erro" role="alert">{{ decisaoErro() }}</p>
       }
 
+      @if (desatualizado()) {
+        <div class="sep-reneg-aviso" role="alert">
+          <p>Os termos exibidos podem estar desatualizados.</p>
+          <button type="button" class="sep-reneg-retry" (click)="atualizarTermos()">
+            Atualizar termos
+          </button>
+        </div>
+      }
+
+      @if (verificacaoNecessaria()) {
+        <div class="sep-reneg-aviso" role="alert">
+          <p>Nao foi possivel confirmar sua identidade para o aceite.</p>
+          <button type="button" class="sep-reneg-retry" (click)="verificarNovamente()">
+            Verificar novamente
+          </button>
+        </div>
+      }
+
       <div class="sep-reneg-acoes">
         <button
           type="button"
           class="sep-reneg-aceitar"
           (click)="aceitarClick()"
-          [disabled]="reconsultando() || decisaoEmVoo() || confirmando() !== null"
+          [disabled]="
+            reconsultando() || decisaoEmVoo() || confirmando() !== null || desatualizado()
+          "
         >
           {{ reconsultando() ? 'Atualizando termos...' : 'Aceitar proposta' }}
         </button>
@@ -95,7 +115,9 @@
           type="button"
           class="sep-reneg-recusar"
           (click)="recusarClick()"
-          [disabled]="reconsultando() || decisaoEmVoo() || confirmando() !== null"
+          [disabled]="
+            reconsultando() || decisaoEmVoo() || confirmando() !== null || desatualizado()
+          "
         >
           Recusar proposta
         </button>

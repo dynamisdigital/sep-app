@@ -2,12 +2,14 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
+import { HttpResponse, http } from 'msw';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
 import { CobrancaService } from '../../../../core/cobranca/cobranca.service';
 import { stepUpInterceptor } from '../../../../core/interceptors/step-up.interceptor';
+import { server } from '../../../../../mocks/server';
 import { RenegociacaoTomadorPageComponent } from './renegociacao-tomador-page.component';
 
 const PARCELA_EM_NEGOCIACAO_ID = 'a0000000-0000-4000-8000-000000000008';
@@ -17,6 +19,7 @@ const PARCELA_PENDENTE_ID = 'a0000000-0000-4000-8000-000000000001';
 const PARCELA_SEM_OWNERSHIP_ID = 'a0000000-0000-4000-8000-0000000000ff';
 
 const UUID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+const BASE_URL = 'http://localhost:8080/api/v1';
 
 async function flush(times = 5): Promise<void> {
   for (let i = 0; i < times; i += 1) {
@@ -300,6 +303,198 @@ describe('RenegociacaoTomadorPageComponent', () => {
       expect(dialog.textContent).toContain('Confirmar recusa');
       expect(dialog.textContent).not.toContain('Confirmar aceite');
       expect(aceitar).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('matriz de falhas (116.5)', () => {
+    function aceitarButton(): HTMLButtonElement {
+      return screen.getByRole('button', { name: /Aceitar proposta/ }) as HTMLButtonElement;
+    }
+
+    it('rede na reconsulta mantem os termos como desatualizados e bloqueia decisoes ate nova leitura', async () => {
+      const { fixture } = await renderProposta(PARCELA_EM_NEGOCIACAO_ID);
+      await estabilizar(fixture);
+      autenticarTomador(fixture, true);
+
+      server.use(
+        http.get(`${BASE_URL}/cobranca/parcelas/:parcelaId/renegociacao-ativa`, () =>
+          HttpResponse.error(),
+        ),
+      );
+      fireEvent.click(aceitarButton());
+      await estabilizar(fixture);
+
+      expect(screen.getByText('Valor total renegociado')).toBeTruthy();
+      expect(screen.getByText(/podem estar desatualizados/)).toBeTruthy();
+      expect(screen.queryByRole('alertdialog')).toBeNull();
+      expect(aceitarButton().disabled).toBe(true);
+
+      server.resetHandlers();
+      fireEvent.click(screen.getByRole('button', { name: /Atualizar termos/ }));
+      await estabilizar(fixture);
+
+      expect(screen.queryByText(/podem estar desatualizados/)).toBeNull();
+      expect(aceitarButton().disabled).toBe(false);
+    });
+
+    it('404 na reconsulta do aceite encerra a decisao como proposta indisponivel', async () => {
+      const { fixture } = await renderProposta(PARCELA_EM_NEGOCIACAO_ID);
+      await estabilizar(fixture);
+      autenticarTomador(fixture, true);
+
+      server.use(
+        http.get(`${BASE_URL}/cobranca/parcelas/:parcelaId/renegociacao-ativa`, () =>
+          HttpResponse.json({ message: 'Not Found' }, { status: 404 }),
+        ),
+      );
+      fireEvent.click(aceitarButton());
+      await estabilizar(fixture);
+
+      expect(screen.getByText(/Nenhuma proposta de renegociacao disponivel/)).toBeTruthy();
+      expect(screen.queryByRole('alertdialog')).toBeNull();
+      expect(screen.queryByRole('button', { name: /Aceitar proposta/ })).toBeNull();
+    });
+
+    it('403 no aceite autenticado oferece reverificacao explicita, sem loop automatico', async () => {
+      const { fixture } = await renderProposta(PARCELA_EM_NEGOCIACAO_ID, {
+        comStepUp: true,
+        tokenInicial: 'step-up-tok',
+      });
+      await estabilizar(fixture);
+      autenticarTomador(fixture, true);
+      const router = fixture.debugElement.injector.get(Router);
+      const navegar = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+      server.use(
+        http.patch(`${BASE_URL}/cobranca/renegociacoes/:id/aceite`, () =>
+          HttpResponse.json({ message: 'Forbidden' }, { status: 403 }),
+        ),
+      );
+
+      fireEvent.click(aceitarButton());
+      await estabilizar(fixture);
+      fireEvent.click(screen.getByRole('button', { name: /Confirmar aceite/ }));
+      await estabilizar(fixture);
+
+      expect(navegar).not.toHaveBeenCalled();
+      expect(screen.queryByText(/Proposta aceita/)).toBeNull();
+      expect(screen.getByText(/Nao foi possivel confirmar sua identidade/)).toBeTruthy();
+
+      fireEvent.click(screen.getByRole('button', { name: /Verificar novamente/ }));
+      expect(navegar).toHaveBeenCalledWith(
+        `/app/step-up?next=/app/cobranca/parcelas/${PARCELA_EM_NEGOCIACAO_ID}/renegociacao`,
+      );
+    });
+
+    it('409 no aceite invalida o snapshot, reconsulta os termos e nao mostra sucesso', async () => {
+      const { fixture } = await renderProposta(PARCELA_EM_NEGOCIACAO_ID, {
+        comStepUp: true,
+        tokenInicial: 'step-up-tok',
+      });
+      await estabilizar(fixture);
+      autenticarTomador(fixture, true);
+      const cobranca = fixture.debugElement.injector.get(CobrancaService);
+      const consultar = vi.spyOn(cobranca, 'consultarRenegociacaoAtiva');
+      server.use(
+        http.patch(`${BASE_URL}/cobranca/renegociacoes/:id/aceite`, () =>
+          HttpResponse.json({ message: 'Conflict' }, { status: 409 }),
+        ),
+      );
+
+      fireEvent.click(aceitarButton());
+      await estabilizar(fixture);
+      fireEvent.click(screen.getByRole('button', { name: /Confirmar aceite/ }));
+      await estabilizar(fixture);
+
+      expect(screen.queryByText(/Proposta aceita/)).toBeNull();
+      expect(screen.getByText(/foi alterada ou ja decidida/)).toBeTruthy();
+      expect(screen.queryByRole('alertdialog')).toBeNull();
+      // reconsulta do clique + reconsulta pos-409
+      expect(consultar).toHaveBeenCalledTimes(2);
+    });
+
+    it('rede no aceite nunca vira sucesso e exige nova leitura antes de tentar de novo', async () => {
+      const { fixture } = await renderProposta(PARCELA_EM_NEGOCIACAO_ID, {
+        comStepUp: true,
+        tokenInicial: 'step-up-tok',
+      });
+      await estabilizar(fixture);
+      autenticarTomador(fixture, true);
+      server.use(
+        http.patch(`${BASE_URL}/cobranca/renegociacoes/:id/aceite`, () => HttpResponse.error()),
+      );
+
+      fireEvent.click(aceitarButton());
+      await estabilizar(fixture);
+      fireEvent.click(screen.getByRole('button', { name: /Confirmar aceite/ }));
+      await estabilizar(fixture);
+
+      expect(screen.queryByText(/Proposta aceita/)).toBeNull();
+      expect(screen.getByText(/Atualize os termos antes de tentar novamente/)).toBeTruthy();
+      expect(screen.getByText(/podem estar desatualizados/)).toBeTruthy();
+      expect(aceitarButton().disabled).toBe(true);
+    });
+
+    it('403 na recusa mostra acesso negado neutro, sem iniciar step-up', async () => {
+      const { fixture } = await renderProposta(PARCELA_EM_NEGOCIACAO_ID, {
+        comStepUp: true,
+        tokenInicial: 'step-up-tok',
+      });
+      await estabilizar(fixture);
+      const router = fixture.debugElement.injector.get(Router);
+      const navegar = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+      server.use(
+        http.patch(`${BASE_URL}/cobranca/renegociacoes/:id/recusa`, () =>
+          HttpResponse.json({ message: 'Forbidden' }, { status: 403 }),
+        ),
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: /Recusar proposta/ }));
+      await estabilizar(fixture);
+      fireEvent.click(screen.getByRole('button', { name: /Confirmar recusa/ }));
+      await estabilizar(fixture);
+
+      expect(screen.queryByText(/Proposta recusada/)).toBeNull();
+      expect(screen.getByText('Acesso negado.')).toBeTruthy();
+      expect(navegar).not.toHaveBeenCalled();
+      expect(screen.queryByRole('button', { name: /Verificar novamente/ })).toBeNull();
+      const store = fixture.debugElement.injector.get(StepUpTokenStore);
+      expect(store.token()).toBe('step-up-tok');
+    });
+
+    it('409 na recusa invalida o snapshot e reconsulta os termos', async () => {
+      const { fixture } = await renderProposta(PARCELA_EM_NEGOCIACAO_ID);
+      await estabilizar(fixture);
+      server.use(
+        http.patch(`${BASE_URL}/cobranca/renegociacoes/:id/recusa`, () =>
+          HttpResponse.json({ message: 'Conflict' }, { status: 409 }),
+        ),
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: /Recusar proposta/ }));
+      await estabilizar(fixture);
+      fireEvent.click(screen.getByRole('button', { name: /Confirmar recusa/ }));
+      await estabilizar(fixture);
+
+      expect(screen.queryByText(/Proposta recusada/)).toBeNull();
+      expect(screen.getByText(/foi alterada ou ja decidida/)).toBeTruthy();
+      expect(screen.queryByRole('alertdialog')).toBeNull();
+    });
+
+    it('rede na recusa nunca vira sucesso e exige nova leitura antes de tentar de novo', async () => {
+      const { fixture } = await renderProposta(PARCELA_EM_NEGOCIACAO_ID);
+      await estabilizar(fixture);
+      server.use(
+        http.patch(`${BASE_URL}/cobranca/renegociacoes/:id/recusa`, () => HttpResponse.error()),
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: /Recusar proposta/ }));
+      await estabilizar(fixture);
+      fireEvent.click(screen.getByRole('button', { name: /Confirmar recusa/ }));
+      await estabilizar(fixture);
+
+      expect(screen.queryByText(/Proposta recusada/)).toBeNull();
+      expect(screen.getByText(/Atualize os termos antes de tentar novamente/)).toBeTruthy();
+      expect(aceitarButton().disabled).toBe(true);
     });
   });
 });
