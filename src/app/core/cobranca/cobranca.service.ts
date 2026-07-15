@@ -12,6 +12,7 @@ import {
   RegistrarContatoRequest,
   RegistrarRecebimentoRequest,
   RenegociacaoResponse,
+  RenegociacaoTomadorResponse,
   StatusParcela,
   ValorAtualizadoParcelaResponse,
 } from '../api/api.models';
@@ -74,6 +75,14 @@ export class CobrancaService {
     return this.http.post<EventoCobrancaResponse>(
       `${COBRANCA_URL}/parcelas/${parcelaId}/contato`,
       request,
+    );
+  }
+
+  // Leitura owner-scoped do tomador (backend Sprint 24): sem step-up e sem token. O DTO
+  // publico ja traz o total calculado; o service apenas transporta a resposta.
+  consultarRenegociacaoAtiva(parcelaId: string): Observable<RenegociacaoTomadorResponse> {
+    return this.http.get<RenegociacaoTomadorResponse>(
+      `${COBRANCA_URL}/parcelas/${parcelaId}/renegociacao-ativa`,
     );
   }
 

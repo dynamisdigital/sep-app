@@ -833,7 +833,8 @@ const formalizacaoHandlers = [
 // - recebimento exige Idempotency-Key valida (ausente ou fora do pattern -> 400; key
 //   reapresentada com payload divergente -> 409; mesma key + mesmo payload -> replay
 //   com novo=false).
-// - parcela "...0007" ja tem renegociacao ativa (criar proposta -> 409).
+// - parcela "...0007" ja tem renegociacao ativa (criar proposta -> 409; GET
+//   renegociacao-ativa do tomador -> 200 com os dez campos publicos).
 // - renegociacao exige X-Step-Up-Token na criacao e no aceite; a recusa nao exige.
 // Estado de recebimentos e de renegociacao e por sessao do mock; ids dedicados isolam testes.
 const AGENDA_ID = 'a0000000-0000-4000-8000-000000000a01';
@@ -850,6 +851,7 @@ const PARCELA_SEM_OWNERSHIP_ID = 'a0000000-0000-4000-8000-0000000000ff';
 const RENEG_PARA_ACEITE_ID = 'b0000000-0000-4000-8000-000000000001';
 const RENEG_PARA_RECUSA_ID = 'b0000000-0000-4000-8000-000000000002';
 const RENEG_DECIDIDA_ID = 'b0000000-0000-4000-8000-000000000003';
+const RENEG_TOMADOR_ATIVA_ID = 'b0000000-0000-4000-8000-000000000004';
 const RENEG_CRIADA_ID = 'b0000000-0000-4000-8000-0000000000c1';
 const ESCROW_MOV_ID = 'c0000000-0000-4000-8000-0000000000e1';
 // Espelham StatusParcela.permiteRecebimento / permiteIniciarRenegociacao do backend.
@@ -1091,6 +1093,14 @@ const renegociacoes: Record<string, ReturnType<typeof renegociacaoFake>> = {
     numeroParcelas: 4,
     desconto: 20.0,
   }),
+  // Proposta ativa da parcela "...0007" (a mesma que responde 409 ao criar nova proposta),
+  // consultada pelo tomador via GET renegociacao-ativa (F-16 / backend Sprint 24).
+  [RENEG_TOMADOR_ATIVA_ID]: renegociacaoFake(
+    RENEG_TOMADOR_ATIVA_ID,
+    PARCELA_RENEG_ATIVA_ID,
+    'PROPOSTA',
+    { novoValorParcela: 340.0, novoVencimento: '2026-08-15', numeroParcelas: 5, desconto: 60.0 },
+  ),
   [RENEG_DECIDIDA_ID]: renegociacaoFake(
     RENEG_DECIDIDA_ID,
     PARCELA_PARA_RECEBIMENTO_ID,
@@ -1274,6 +1284,37 @@ const cobrancaHandlers = [
     renegociacao.status = 'RECUSADA';
     renegociacao.dataDecisao = now;
     return HttpResponse.json(renegociacao);
+  }),
+
+  // Leitura owner-scoped do tomador (F-16 / backend Sprint 24). Read-only, sem step-up.
+  // 403 uniforme para parcela alheia OU inexistente (nao enumera recursos); 404 para parcela
+  // propria sem PROPOSTA ativa. O total e "calculado no backend" (aqui, o mock) — o front
+  // nunca deriva. A proposta e a mesma estrutura mutavel de `renegociacoes`: apos aceite ou
+  // recusa o status sai de PROPOSTA e este GET passa a responder 404, como o backend.
+  http.get(`${baseUrl}/cobranca/parcelas/:parcelaId/renegociacao-ativa`, ({ params }) => {
+    const parcelaId = params['parcelaId'] as string;
+    const path = `/api/v1/cobranca/parcelas/${parcelaId}/renegociacao-ativa`;
+    if (parcelaId === PARCELA_SEM_OWNERSHIP_ID || !detalheParcela[parcelaId]) {
+      return errorResponse(403, 'Forbidden', 'Acesso negado', path);
+    }
+    const ativa = Object.values(renegociacoes).find(
+      (r) => r.parcelaOriginalId === parcelaId && r.status === 'PROPOSTA',
+    );
+    if (!ativa) {
+      return errorResponse(404, 'Not Found', 'Parcela sem renegociacao ativa', path);
+    }
+    return HttpResponse.json({
+      renegociacaoId: ativa.id,
+      parcelaId: ativa.parcelaOriginalId,
+      status: ativa.status,
+      novoValorParcela: ativa.novoValorParcela,
+      numeroParcelas: ativa.numeroParcelas,
+      valorTotalRenegociado: Number((ativa.novoValorParcela * ativa.numeroParcelas).toFixed(2)),
+      novoVencimento: ativa.novoVencimento,
+      desconto: ativa.desconto,
+      dataProposta: ativa.dataProposta,
+      dataExpiracao: ativa.dataExpiracao,
+    });
   }),
 
   // Por id mantido por ultimo: as rotas com sub-segmento (/recebimentos, /contato,

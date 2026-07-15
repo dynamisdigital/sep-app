@@ -1,10 +1,12 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Observable } from 'rxjs';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { CobrancaService } from './cobranca.service';
 import { RegistrarRecebimentoRequest } from '../api/api.models';
+import { StepUpTokenStore } from '../auth/step-up-token.store';
+import { stepUpInterceptor } from '../interceptors/step-up.interceptor';
 
 function awaitObservable<T>(obs: Observable<T>): Promise<T> {
   return new Promise<T>((resolve, reject) => {
@@ -16,6 +18,7 @@ function awaitObservable<T>(obs: Observable<T>): Promise<T> {
 const CONTRATO_COM_AGENDA_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e03';
 const CONTRATO_SEM_OWNERSHIP_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771ff03';
 const CONTRATO_INEXISTENTE_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771dead';
+const PARCELA_PENDENTE_ID = 'a0000000-0000-4000-8000-000000000001';
 const PARCELA_ATRASADA_ID = 'a0000000-0000-4000-8000-000000000002';
 const PARCELA_PAGA_ID = 'a0000000-0000-4000-8000-000000000004';
 const PARCELA_PARA_RECEBIMENTO_ID = 'a0000000-0000-4000-8000-000000000006';
@@ -24,6 +27,7 @@ const PARCELA_SEM_OWNERSHIP_ID = 'a0000000-0000-4000-8000-0000000000ff';
 const PARCELA_INEXISTENTE_ID = 'a0000000-0000-4000-8000-0000000000aa';
 const RENEG_PARA_ACEITE_ID = 'b0000000-0000-4000-8000-000000000001';
 const RENEG_PARA_RECUSA_ID = 'b0000000-0000-4000-8000-000000000002';
+const RENEG_TOMADOR_ATIVA_ID = 'b0000000-0000-4000-8000-000000000004';
 
 const RECEBIMENTO_VALIDO: RegistrarRecebimentoRequest = {
   valorRecebido: 1000.0,
@@ -35,10 +39,16 @@ const RECEBIMENTO_VALIDO: RegistrarRecebimentoRequest = {
 
 describe('CobrancaService', () => {
   let service: CobrancaService;
+  let stepUpStore: StepUpTokenStore;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideHttpClient()] });
+    // stepUpInterceptor real na cadeia HTTP (recorte do app.config.ts): as specs tambem
+    // provam que o token de step-up so e anexado/consumido na allowlist, nunca nos GETs.
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(withInterceptors([stepUpInterceptor]))],
+    });
     service = TestBed.inject(CobrancaService);
+    stepUpStore = TestBed.inject(StepUpTokenStore);
   });
 
   describe('consultarAgendaPorContrato', () => {
@@ -218,6 +228,56 @@ describe('CobrancaService', () => {
         awaitObservable(
           service.registrarContato(PARCELA_INEXISTENTE_ID, { descricao: 'Contato.' }),
         ),
+      ).rejects.toMatchObject({ status: 404 });
+    });
+  });
+
+  describe('consultarRenegociacaoAtiva', () => {
+    it('consulta os termos publicos da proposta ativa com exatamente os dez campos', async () => {
+      const termos = await awaitObservable(
+        service.consultarRenegociacaoAtiva(PARCELA_RENEG_ATIVA_ID),
+      );
+
+      // toEqual estrito: alem dos valores, prova que campos internos (tomadorId,
+      // propostaPor, agendaOriginalId, justificativa...) nao chegam na borda publica.
+      expect(termos).toEqual({
+        renegociacaoId: RENEG_TOMADOR_ATIVA_ID,
+        parcelaId: PARCELA_RENEG_ATIVA_ID,
+        status: 'PROPOSTA',
+        novoValorParcela: 340.0,
+        numeroParcelas: 5,
+        valorTotalRenegociado: 1700.0,
+        novoVencimento: '2026-08-15',
+        desconto: 60.0,
+        dataProposta: expect.any(String),
+        dataExpiracao: expect.any(String),
+      });
+    });
+
+    it('nao envia nem consome o step-up token no GET mesmo com token no store', async () => {
+      stepUpStore.set('step-up-tok');
+
+      await awaitObservable(service.consultarRenegociacaoAtiva(PARCELA_RENEG_ATIVA_ID));
+
+      expect(stepUpStore.token()).toBe('step-up-tok');
+      stepUpStore.clear();
+    });
+
+    it('rejeita com 403 uniforme quando a parcela e de outro tomador', async () => {
+      await expect(
+        awaitObservable(service.consultarRenegociacaoAtiva(PARCELA_SEM_OWNERSHIP_ID)),
+      ).rejects.toMatchObject({ status: 403 });
+    });
+
+    it('rejeita com 403 uniforme quando a parcela nao existe (sem enumeracao via 404)', async () => {
+      await expect(
+        awaitObservable(service.consultarRenegociacaoAtiva(PARCELA_INEXISTENTE_ID)),
+      ).rejects.toMatchObject({ status: 403 });
+    });
+
+    it('rejeita com 404 quando a parcela propria nao tem proposta ativa', async () => {
+      await expect(
+        awaitObservable(service.consultarRenegociacaoAtiva(PARCELA_PENDENTE_ID)),
       ).rejects.toMatchObject({ status: 404 });
     });
   });
