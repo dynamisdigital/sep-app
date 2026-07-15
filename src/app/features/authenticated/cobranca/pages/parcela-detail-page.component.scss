@@ -49,6 +49,15 @@
   @include sepDs.sep-button-outline;
 }
 
+// CTA de UX para a proposta ativa (F-16): aparece apenas com a parcela EM_NEGOCIACAO.
+// A disponibilidade real da proposta continua sendo decidida pelo backend no GET.
+.sep-parcela-reneg-cta {
+  @include sepDs.sep-button-secondary;
+
+  align-self: flex-start;
+  text-decoration: none;
+}
+
 .sep-parcela-empty {
   display: flex;
   flex-direction: column;

@@ -1,0 +1,204 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-reneg {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-16);
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-reneg-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sep-space-12);
+}
+
+.sep-reneg-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-reneg-status {
+  @include sepDs.sep-badge-base;
+
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 12%);
+}
+
+.sep-reneg-descricao {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-reneg-termos {
+  @include sepDs.sep-card;
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sep-space-16);
+  margin: 0;
+  padding: var(--sep-space-16);
+}
+
+.sep-reneg-termo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-4);
+
+  dt {
+    @include sepType.sep-type-caption;
+
+    color: hsl(var(--muted-foreground));
+  }
+
+  dd {
+    @include sepType.sep-type-body-medium;
+
+    margin: 0;
+    color: hsl(var(--foreground));
+  }
+}
+
+.sep-reneg-termo-total dd {
+  @include sepType.sep-type-body-semibold;
+}
+
+.sep-reneg-state {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-reneg-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+  color: hsl(var(--warning));
+}
+
+.sep-reneg-retry {
+  @include sepDs.sep-button-outline;
+}
+
+.sep-reneg-empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+}
+
+.sep-reneg-sucesso {
+  @include sepType.sep-type-body-medium;
+
+  padding: var(--sep-space-12) var(--sep-space-16);
+  color: hsl(var(--success));
+  background: hsl(var(--success) / 10%);
+  border-radius: var(--sep-radius-md);
+
+  p {
+    margin: 0;
+  }
+}
+
+.sep-reneg-aviso {
+  @include sepType.sep-type-body;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+  padding: var(--sep-space-12) var(--sep-space-16);
+  color: hsl(var(--warning));
+  background: hsl(var(--warning) / 10%);
+  border-radius: var(--sep-radius-md);
+
+  p {
+    margin: 0;
+  }
+}
+
+.sep-reneg-aviso-link {
+  @include sepDs.sep-button-link;
+}
+
+.sep-reneg-decisao-erro {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--warning));
+}
+
+.sep-reneg-acoes {
+  display: flex;
+  gap: var(--sep-space-12);
+}
+
+.sep-reneg-aceitar {
+  @include sepDs.sep-button-primary;
+}
+
+.sep-reneg-recusar {
+  @include sepDs.sep-button-outline;
+}
+
+.sep-reneg-confirmacao {
+  @include sepDs.sep-card-elevated;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-12);
+  padding: var(--sep-space-16);
+}
+
+.sep-reneg-confirmacao-titulo {
+  @include sepType.sep-type-card-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-reneg-confirmacao-texto {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-reneg-confirmacao-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sep-space-12);
+}
+
+.sep-reneg-confirmar {
+  @include sepDs.sep-button-primary;
+}
+
+.sep-reneg-confirmar-recusa {
+  @include sepDs.sep-button-destructive;
+}
+
+.sep-reneg-cancelar {
+  @include sepDs.sep-button-outline;
+}
+
+.sep-reneg-voltar {
+  @include sepDs.sep-button-link;
+
+  align-self: flex-start;
+}
+
+@media (width <= 480px) {
+  .sep-reneg-termos {
+    grid-template-columns: 1fr;
+  }
+}

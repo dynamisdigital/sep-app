@@ -113,6 +113,38 @@ describe('stepUpInterceptor', () => {
     expect(store.token()).toBe('step-up-tok');
   });
 
+  it('NAO anexa o token na consulta de renegociacao ativa do tomador (GET, F-16)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest(
+      'GET',
+      'http://localhost:8080/api/v1/cobranca/parcelas/abc/renegociacao-ativa',
+    );
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(store.token()).toBe('step-up-tok');
+  });
+
+  it('sem token no store, o PATCH de aceite segue sem header (backend decide o 403)', () => {
+    const req = new HttpRequest(
+      'PATCH',
+      'http://localhost:8080/api/v1/cobranca/renegociacoes/abc/aceite',
+      {},
+    );
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(store.token()).toBeNull();
+  });
+
   it('anexa o token ao resolver item da fila (PATCH /backoffice/fila/:id/resolver)', () => {
     store.set('step-up-tok');
     const req = new HttpRequest(
