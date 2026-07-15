@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { ValorAtualizadoParcelaResponse } from '../../../../core/api/api.models';
 import { CobrancaService } from '../../../../core/cobranca/cobranca.service';
@@ -14,7 +14,7 @@ import { formatarDataLocal, mensagemCobrancaErro } from '../shared/cobranca-form
 // tratado pelo errorInterceptor global (redirect /access-denied).
 @Component({
   selector: 'sep-parcela-detail-page',
-  imports: [ParcelaStatusComponent, ParcelaComposicaoComponent],
+  imports: [ParcelaStatusComponent, ParcelaComposicaoComponent, RouterLink],
   templateUrl: './parcela-detail-page.component.html',
   styleUrl: './parcela-detail-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

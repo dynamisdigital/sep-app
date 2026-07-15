@@ -23,6 +23,7 @@ const PARCELA_ATRASADA_ID = 'a0000000-0000-4000-8000-000000000002';
 const PARCELA_PAGA_ID = 'a0000000-0000-4000-8000-000000000004';
 const PARCELA_PARA_RECEBIMENTO_ID = 'a0000000-0000-4000-8000-000000000006';
 const PARCELA_RENEG_ATIVA_ID = 'a0000000-0000-4000-8000-000000000007';
+const PARCELA_EM_NEGOCIACAO_ID = 'a0000000-0000-4000-8000-000000000008';
 const PARCELA_SEM_OWNERSHIP_ID = 'a0000000-0000-4000-8000-0000000000ff';
 const PARCELA_INEXISTENTE_ID = 'a0000000-0000-4000-8000-0000000000aa';
 const RENEG_PARA_ACEITE_ID = 'b0000000-0000-4000-8000-000000000001';
@@ -235,14 +236,14 @@ describe('CobrancaService', () => {
   describe('consultarRenegociacaoAtiva', () => {
     it('consulta os termos publicos da proposta ativa com exatamente os dez campos', async () => {
       const termos = await awaitObservable(
-        service.consultarRenegociacaoAtiva(PARCELA_RENEG_ATIVA_ID),
+        service.consultarRenegociacaoAtiva(PARCELA_EM_NEGOCIACAO_ID),
       );
 
       // toEqual estrito: alem dos valores, prova que campos internos (tomadorId,
       // propostaPor, agendaOriginalId, justificativa...) nao chegam na borda publica.
       expect(termos).toEqual({
         renegociacaoId: RENEG_TOMADOR_ATIVA_ID,
-        parcelaId: PARCELA_RENEG_ATIVA_ID,
+        parcelaId: PARCELA_EM_NEGOCIACAO_ID,
         status: 'PROPOSTA',
         novoValorParcela: 340.0,
         numeroParcelas: 5,
@@ -257,7 +258,7 @@ describe('CobrancaService', () => {
     it('nao envia nem consome o step-up token no GET mesmo com token no store', async () => {
       stepUpStore.set('step-up-tok');
 
-      await awaitObservable(service.consultarRenegociacaoAtiva(PARCELA_RENEG_ATIVA_ID));
+      await awaitObservable(service.consultarRenegociacaoAtiva(PARCELA_EM_NEGOCIACAO_ID));
 
       expect(stepUpStore.token()).toBe('step-up-tok');
       stepUpStore.clear();

@@ -1,0 +1,109 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-reneg {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-16);
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-reneg-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sep-space-12);
+}
+
+.sep-reneg-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-reneg-status {
+  @include sepDs.sep-badge-base;
+
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 12%);
+}
+
+.sep-reneg-descricao {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-reneg-termos {
+  @include sepDs.sep-card;
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sep-space-16);
+  margin: 0;
+  padding: var(--sep-space-16);
+}
+
+.sep-reneg-termo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-4);
+
+  dt {
+    @include sepType.sep-type-caption;
+
+    color: hsl(var(--muted-foreground));
+  }
+
+  dd {
+    @include sepType.sep-type-body-medium;
+
+    margin: 0;
+    color: hsl(var(--foreground));
+  }
+}
+
+.sep-reneg-termo-total dd {
+  @include sepType.sep-type-body-semibold;
+}
+
+.sep-reneg-state {
+  @include sepType.sep-type-body;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-reneg-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+  color: hsl(var(--warning));
+}
+
+.sep-reneg-retry {
+  @include sepDs.sep-button-outline;
+}
+
+.sep-reneg-empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  align-items: flex-start;
+}
+
+.sep-reneg-voltar {
+  @include sepDs.sep-button-link;
+
+  align-self: flex-start;
+}
+
+@media (width <= 480px) {
+  .sep-reneg-termos {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,64 @@
+<section class="sep-reneg">
+  @if (loading()) {
+    <p class="sep-reneg-state" role="status">Carregando proposta...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-reneg-state sep-reneg-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="sep-reneg-retry" (click)="carregar()">Tentar novamente</button>
+    </div>
+  } @else if (indisponivel()) {
+    <div class="sep-reneg-state sep-reneg-empty">
+      <p>
+        Nenhuma proposta de renegociacao disponivel para esta parcela. Ela pode ja ter sido decidida
+        ou ter expirado.
+      </p>
+      <a class="sep-reneg-voltar" [routerLink]="['/app/cobranca/parcelas', parcelaId]">
+        Voltar para a parcela
+      </a>
+    </div>
+  } @else if (termos(); as t) {
+    <header class="sep-reneg-header">
+      <h1 class="sep-reneg-title">Proposta de renegociacao</h1>
+      <span class="sep-reneg-status">{{ statusLabel[t.status] }}</span>
+    </header>
+
+    <p class="sep-reneg-descricao">
+      Confira os termos calculados pelo sistema. Nada muda na sua parcela sem a sua decisao.
+    </p>
+
+    <dl class="sep-reneg-termos">
+      <div class="sep-reneg-termo">
+        <dt>Novo valor por parcela</dt>
+        <dd>{{ formatarMoeda(t.novoValorParcela) }}</dd>
+      </div>
+      <div class="sep-reneg-termo">
+        <dt>Quantidade de parcelas</dt>
+        <dd>{{ t.numeroParcelas }}</dd>
+      </div>
+      <div class="sep-reneg-termo sep-reneg-termo-total">
+        <dt>Valor total renegociado</dt>
+        <dd>{{ formatarMoeda(t.valorTotalRenegociado) }}</dd>
+      </div>
+      <div class="sep-reneg-termo">
+        <dt>Desconto</dt>
+        <dd>{{ formatarMoeda(t.desconto) }}</dd>
+      </div>
+      <div class="sep-reneg-termo">
+        <dt>Primeiro vencimento</dt>
+        <dd>{{ formatarDataLocal(t.novoVencimento) }}</dd>
+      </div>
+      <div class="sep-reneg-termo">
+        <dt>Data da proposta</dt>
+        <dd>{{ formatarData(t.dataProposta) }}</dd>
+      </div>
+      <div class="sep-reneg-termo">
+        <dt>Valida ate</dt>
+        <dd>{{ formatarData(t.dataExpiracao) }}</dd>
+      </div>
+    </dl>
+
+    <a class="sep-reneg-voltar" [routerLink]="['/app/cobranca/parcelas', parcelaId]">
+      Voltar para a parcela
+    </a>
+  }
+</section>

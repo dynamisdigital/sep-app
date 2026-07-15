@@ -833,8 +833,9 @@ const formalizacaoHandlers = [
 // - recebimento exige Idempotency-Key valida (ausente ou fora do pattern -> 400; key
 //   reapresentada com payload divergente -> 409; mesma key + mesmo payload -> replay
 //   com novo=false).
-// - parcela "...0007" ja tem renegociacao ativa (criar proposta -> 409; GET
-//   renegociacao-ativa do tomador -> 200 com os dez campos publicos).
+// - parcela "...0007" ja tem renegociacao ativa (criar proposta -> 409).
+// - parcela "...0008" esta EM_NEGOCIACAO com proposta ativa do tomador: jornada de
+//   decisao F-16 (GET renegociacao-ativa -> 200 com os dez campos publicos).
 // - renegociacao exige X-Step-Up-Token na criacao e no aceite; a recusa nao exige.
 // Estado de recebimentos e de renegociacao e por sessao do mock; ids dedicados isolam testes.
 const AGENDA_ID = 'a0000000-0000-4000-8000-000000000a01';
@@ -847,6 +848,7 @@ const PARCELA_PAGA_ID = 'a0000000-0000-4000-8000-000000000004';
 const PARCELA_INADIMPLENTE_ID = 'a0000000-0000-4000-8000-000000000005';
 const PARCELA_PARA_RECEBIMENTO_ID = 'a0000000-0000-4000-8000-000000000006';
 const PARCELA_RENEG_ATIVA_ID = 'a0000000-0000-4000-8000-000000000007';
+const PARCELA_EM_NEGOCIACAO_ID = 'a0000000-0000-4000-8000-000000000008';
 const PARCELA_SEM_OWNERSHIP_ID = 'a0000000-0000-4000-8000-0000000000ff';
 const RENEG_PARA_ACEITE_ID = 'b0000000-0000-4000-8000-000000000001';
 const RENEG_PARA_RECUSA_ID = 'b0000000-0000-4000-8000-000000000002';
@@ -993,6 +995,19 @@ const detalheParcela: Record<string, ReturnType<typeof valorAtualizado>> = {
     20,
     0,
   ),
+  // Parcela do tomador em negociacao (backend Sprint 13: proposta ativa => EM_NEGOCIACAO).
+  // Ponto de partida da jornada de decisao do tomador (F-16).
+  [PARCELA_EM_NEGOCIACAO_ID]: valorAtualizado(
+    PARCELA_EM_NEGOCIACAO_ID,
+    8,
+    'EM_NEGOCIACAO',
+    '2026-05-10',
+    1000,
+    0,
+    55,
+    20,
+    0,
+  ),
 };
 
 const inadimplenciaSeed = [
@@ -1093,11 +1108,11 @@ const renegociacoes: Record<string, ReturnType<typeof renegociacaoFake>> = {
     numeroParcelas: 4,
     desconto: 20.0,
   }),
-  // Proposta ativa da parcela "...0007" (a mesma que responde 409 ao criar nova proposta),
-  // consultada pelo tomador via GET renegociacao-ativa (F-16 / backend Sprint 24).
+  // Proposta ativa da parcela EM_NEGOCIACAO "...0008", consultada pelo tomador via GET
+  // renegociacao-ativa (F-16 / backend Sprint 24).
   [RENEG_TOMADOR_ATIVA_ID]: renegociacaoFake(
     RENEG_TOMADOR_ATIVA_ID,
-    PARCELA_RENEG_ATIVA_ID,
+    PARCELA_EM_NEGOCIACAO_ID,
     'PROPOSTA',
     { novoValorParcela: 340.0, novoVencimento: '2026-08-15', numeroParcelas: 5, desconto: 60.0 },
   ),
