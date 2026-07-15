@@ -836,6 +836,8 @@ const formalizacaoHandlers = [
 // - parcela "...0007" ja tem renegociacao ativa (criar proposta -> 409).
 // - parcela "...0008" esta EM_NEGOCIACAO com proposta ativa do tomador: jornada de
 //   decisao F-16 (GET renegociacao-ativa -> 200 com os dez campos publicos).
+// - parcela "...0009" (EM_NEGOCIACAO) e dedicada ao fluxo de ACEITE do tomador: o teste
+//   muda a proposta para ACEITA, entao ids proprios preservam o isolamento dos demais.
 // - renegociacao exige X-Step-Up-Token na criacao e no aceite; a recusa nao exige.
 // Estado de recebimentos e de renegociacao e por sessao do mock; ids dedicados isolam testes.
 const AGENDA_ID = 'a0000000-0000-4000-8000-000000000a01';
@@ -849,11 +851,13 @@ const PARCELA_INADIMPLENTE_ID = 'a0000000-0000-4000-8000-000000000005';
 const PARCELA_PARA_RECEBIMENTO_ID = 'a0000000-0000-4000-8000-000000000006';
 const PARCELA_RENEG_ATIVA_ID = 'a0000000-0000-4000-8000-000000000007';
 const PARCELA_EM_NEGOCIACAO_ID = 'a0000000-0000-4000-8000-000000000008';
+const PARCELA_ACEITE_TOMADOR_ID = 'a0000000-0000-4000-8000-000000000009';
 const PARCELA_SEM_OWNERSHIP_ID = 'a0000000-0000-4000-8000-0000000000ff';
 const RENEG_PARA_ACEITE_ID = 'b0000000-0000-4000-8000-000000000001';
 const RENEG_PARA_RECUSA_ID = 'b0000000-0000-4000-8000-000000000002';
 const RENEG_DECIDIDA_ID = 'b0000000-0000-4000-8000-000000000003';
 const RENEG_TOMADOR_ATIVA_ID = 'b0000000-0000-4000-8000-000000000004';
+const RENEG_TOMADOR_ACEITE_ID = 'b0000000-0000-4000-8000-000000000005';
 const RENEG_CRIADA_ID = 'b0000000-0000-4000-8000-0000000000c1';
 const ESCROW_MOV_ID = 'c0000000-0000-4000-8000-0000000000e1';
 // Espelham StatusParcela.permiteRecebimento / permiteIniciarRenegociacao do backend.
@@ -1008,6 +1012,19 @@ const detalheParcela: Record<string, ReturnType<typeof valorAtualizado>> = {
     20,
     0,
   ),
+  // Parcela dedicada ao fluxo de aceite do tomador (F-16.3): a proposta desta parcela e
+  // mutada para ACEITA pelo teste, sem afetar a jornada de leitura da "...0008".
+  [PARCELA_ACEITE_TOMADOR_ID]: valorAtualizado(
+    PARCELA_ACEITE_TOMADOR_ID,
+    9,
+    'EM_NEGOCIACAO',
+    '2026-05-12',
+    1000,
+    0,
+    35,
+    20,
+    0,
+  ),
 };
 
 const inadimplenciaSeed = [
@@ -1115,6 +1132,13 @@ const renegociacoes: Record<string, ReturnType<typeof renegociacaoFake>> = {
     PARCELA_EM_NEGOCIACAO_ID,
     'PROPOSTA',
     { novoValorParcela: 340.0, novoVencimento: '2026-08-15', numeroParcelas: 5, desconto: 60.0 },
+  ),
+  // Proposta da parcela "...0009", dedicada ao fluxo de aceite do tomador (F-16.3).
+  [RENEG_TOMADOR_ACEITE_ID]: renegociacaoFake(
+    RENEG_TOMADOR_ACEITE_ID,
+    PARCELA_ACEITE_TOMADOR_ID,
+    'PROPOSTA',
+    { novoValorParcela: 420.0, novoVencimento: '2026-09-01', numeroParcelas: 3, desconto: 45.0 },
   ),
   [RENEG_DECIDIDA_ID]: renegociacaoFake(
     RENEG_DECIDIDA_ID,

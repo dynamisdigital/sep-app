@@ -57,6 +57,76 @@
       </div>
     </dl>
 
+    @if (aceitaComSucesso()) {
+      <div class="sep-reneg-sucesso" role="status">
+        <p>Proposta aceita. A parcela sera atualizada pelo sistema.</p>
+      </div>
+    } @else {
+      @if (mfaNecessario()) {
+        <div class="sep-reneg-aviso" role="alert">
+          <p>
+            Para aceitar a proposta e preciso ter a verificacao em duas etapas (MFA) ativa na sua
+            conta.
+          </p>
+          <a class="sep-reneg-aviso-link" [routerLink]="['/app/profile/setup-totp']">
+            Ativar verificacao em duas etapas
+          </a>
+        </div>
+      }
+
+      @if (decisaoErro()) {
+        <p class="sep-reneg-decisao-erro" role="alert">{{ decisaoErro() }}</p>
+      }
+
+      <div class="sep-reneg-acoes">
+        <button
+          type="button"
+          class="sep-reneg-aceitar"
+          (click)="aceitarClick()"
+          [disabled]="reconsultando() || decisaoEmVoo()"
+        >
+          {{ reconsultando() ? 'Atualizando termos...' : 'Aceitar proposta' }}
+        </button>
+      </div>
+
+      @if (confirmandoAceite()) {
+        <div
+          class="sep-reneg-confirmacao"
+          role="alertdialog"
+          aria-labelledby="confirmacao-aceite-titulo"
+        >
+          <h2 class="sep-reneg-confirmacao-titulo" id="confirmacao-aceite-titulo">
+            Confirmar aceite
+          </h2>
+          <p class="sep-reneg-confirmacao-texto">
+            Voce esta aceitando {{ t.numeroParcelas }} parcela(s) de
+            {{ formatarMoeda(t.novoValorParcela) }}, no total de
+            {{ formatarMoeda(t.valorTotalRenegociado) }}. Primeiro vencimento em
+            {{ formatarDataLocal(t.novoVencimento) }}; proposta valida ate
+            {{ formatarData(t.dataExpiracao) }}.
+          </p>
+          <div class="sep-reneg-confirmacao-acoes">
+            <button
+              type="button"
+              class="sep-reneg-confirmar"
+              (click)="confirmarAceite()"
+              [disabled]="decisaoEmVoo()"
+            >
+              {{ decisaoEmVoo() ? 'Enviando...' : 'Confirmar aceite' }}
+            </button>
+            <button
+              type="button"
+              class="sep-reneg-cancelar"
+              (click)="cancelarConfirmacao()"
+              [disabled]="decisaoEmVoo()"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      }
+    }
+
     <a class="sep-reneg-voltar" [routerLink]="['/app/cobranca/parcelas', parcelaId]">
       Voltar para a parcela
     </a>
