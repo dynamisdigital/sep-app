@@ -1425,6 +1425,7 @@ const ITEM_RESOLVIDO_ID = 'c0000000-0000-4000-8000-000000000003'; // RESOLVIDO (
 const ITEM_IGNORADO_ID = 'c0000000-0000-4000-8000-000000000004'; // IGNORADO (final)
 const ITEM_DESEMBOLSO_PIX_ID = 'c0000000-0000-4000-8000-000000000005'; // ABERTO / DESEMBOLSO_PIX_FALHOU
 const ITEM_RECEBIMENTO_PIX_ID = 'c0000000-0000-4000-8000-000000000006'; // ABERTO / RECEBIMENTO_PIX_DIVERGENTE
+const ITEM_DESEMBOLSO_PIX_RESOLVIDO_ID = 'c0000000-0000-4000-8000-000000000007'; // RESOLVIDO / DESEMBOLSO_PIX_FALHOU (F-17: filtro de status das divergencias)
 // id 'c0000000-...-0000000000aa' (usado nas specs) cai no 404 generico de item nao encontrado.
 const WEBHOOK_EVENT_ID = 'd0000000-0000-4000-8000-000000000001';
 const PIX_ENTIDADE_ID = 'd0000000-0000-4000-8000-000000000002';
@@ -1498,6 +1499,20 @@ const itensFilaFake = [
     atribuidoA: null,
     dataAbertura: '2026-06-06T10:20:00-03:00',
     dataResolucao: null,
+  },
+  {
+    // Divergencia Pix ja tratada (F-17): so aparece nas divergencias quando o filtro de
+    // status pede RESOLVIDO/Todos, exercitando o recorte enviado ao backend.
+    id: ITEM_DESEMBOLSO_PIX_RESOLVIDO_ID,
+    tipo: 'DESEMBOLSO_PIX_FALHOU',
+    prioridade: 'MEDIA',
+    status: 'RESOLVIDO',
+    tipoEntidade: 'PIX_TRANSFERENCIA',
+    entidadeId: PIX_ENTIDADE_ID,
+    titulo: 'Desembolso Pix com falha ja reconciliado',
+    atribuidoA: null,
+    dataAbertura: '2026-06-04T09:00:00-03:00',
+    dataResolucao: '2026-06-05T15:00:00-03:00',
   },
   {
     id: ITEM_RECEBIMENTO_PIX_ID,

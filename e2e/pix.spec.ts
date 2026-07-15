@@ -79,3 +79,20 @@ test('divergencias Pix listam itens e levam ao backoffice', async ({ page }) => 
   await expect(page.getByText('Recebimento Pix sem referencia identificada')).toBeVisible();
   await expect(page.getByRole('link', { name: 'Tratar no backoffice' }).first()).toBeVisible();
 });
+
+// F-17.2: o recorte de status e enviado ao backend (default ABERTO); o item ja tratado so
+// aparece quando o filtro pede RESOLVIDO, e as contagens vem do totalElements da fila.
+test('divergencias Pix filtram por status no backend', async ({ page }) => {
+  await login(page, 'financeiro@empresa.com');
+
+  await page.goto('/app/pix/divergencias');
+  await expect(page.getByText('Desembolso Pix retornou falha do provedor')).toBeVisible();
+  await expect(page.getByText('Desembolso Pix com falha ja reconciliado')).toHaveCount(0);
+
+  await page.getByLabel('Status').selectOption('RESOLVIDO');
+  await expect(page.getByText('Desembolso Pix com falha ja reconciliado')).toBeVisible();
+  await expect(page.getByText('Desembolso Pix retornou falha do provedor')).toHaveCount(0);
+  await expect(
+    page.getByText('Nenhum recebimento Pix divergente neste recorte de status.'),
+  ).toBeVisible();
+});
