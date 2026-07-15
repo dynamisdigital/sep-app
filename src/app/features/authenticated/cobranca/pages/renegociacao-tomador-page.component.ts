@@ -1,5 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { RenegociacaoTomadorResponse } from '../../../../core/api/api.models';
@@ -28,6 +36,7 @@ import {
 export class RenegociacaoTomadorPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly cobranca = inject(CobrancaService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected parcelaId = '';
 
@@ -52,20 +61,24 @@ export class RenegociacaoTomadorPageComponent implements OnInit {
     this.loading.set(true);
     this.errorMessage.set(null);
     this.indisponivel.set(false);
-    this.cobranca.consultarRenegociacaoAtiva(this.parcelaId).subscribe({
-      next: (termos) => {
-        this.termos.set(termos);
-        this.loading.set(false);
-      },
-      error: (err: HttpErrorResponse) => {
-        this.loading.set(false);
-        this.termos.set(null);
-        if (err.status === 404) {
-          this.indisponivel.set(true);
-          return;
-        }
-        this.errorMessage.set(mensagemCobrancaErro(err, 'Nao foi possivel carregar a proposta.'));
-      },
-    });
+    // Cancela request em voo se o usuario sair da tela (retry pode deixar consulta pendente).
+    this.cobranca
+      .consultarRenegociacaoAtiva(this.parcelaId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (termos) => {
+          this.termos.set(termos);
+          this.loading.set(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.loading.set(false);
+          this.termos.set(null);
+          if (err.status === 404) {
+            this.indisponivel.set(true);
+            return;
+          }
+          this.errorMessage.set(mensagemCobrancaErro(err, 'Nao foi possivel carregar a proposta.'));
+        },
+      });
   }
 }
