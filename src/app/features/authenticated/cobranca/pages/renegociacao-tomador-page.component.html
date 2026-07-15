@@ -57,9 +57,13 @@
       </div>
     </dl>
 
-    @if (aceitaComSucesso()) {
+    @if (decisaoFinal(); as decisao) {
       <div class="sep-reneg-sucesso" role="status">
-        <p>Proposta aceita. A parcela sera atualizada pelo sistema.</p>
+        @if (decisao === 'ACEITA') {
+          <p>Proposta aceita. A parcela sera atualizada pelo sistema.</p>
+        } @else {
+          <p>Proposta recusada. A situacao da parcela sera atualizada pelo sistema.</p>
+        }
       </div>
     } @else {
       @if (mfaNecessario()) {
@@ -87,9 +91,17 @@
         >
           {{ reconsultando() ? 'Atualizando termos...' : 'Aceitar proposta' }}
         </button>
+        <button
+          type="button"
+          class="sep-reneg-recusar"
+          (click)="recusarClick()"
+          [disabled]="reconsultando() || decisaoEmVoo()"
+        >
+          Recusar proposta
+        </button>
       </div>
 
-      @if (confirmandoAceite()) {
+      @if (confirmando() === 'ACEITE') {
         <div
           class="sep-reneg-confirmacao"
           role="alertdialog"
@@ -113,6 +125,42 @@
               [disabled]="decisaoEmVoo()"
             >
               {{ decisaoEmVoo() ? 'Enviando...' : 'Confirmar aceite' }}
+            </button>
+            <button
+              type="button"
+              class="sep-reneg-cancelar"
+              (click)="cancelarConfirmacao()"
+              [disabled]="decisaoEmVoo()"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (confirmando() === 'RECUSA') {
+        <div
+          class="sep-reneg-confirmacao"
+          role="alertdialog"
+          aria-labelledby="confirmacao-recusa-titulo"
+        >
+          <h2 class="sep-reneg-confirmacao-titulo" id="confirmacao-recusa-titulo">
+            Confirmar recusa
+          </h2>
+          <p class="sep-reneg-confirmacao-texto">
+            Voce esta recusando a proposta de {{ t.numeroParcelas }} parcela(s) de
+            {{ formatarMoeda(t.novoValorParcela) }}, no total de
+            {{ formatarMoeda(t.valorTotalRenegociado) }}. A proposta sera rejeitada e a situacao da
+            parcela sera atualizada pelo sistema.
+          </p>
+          <div class="sep-reneg-confirmacao-acoes">
+            <button
+              type="button"
+              class="sep-reneg-confirmar-recusa"
+              (click)="confirmarRecusa()"
+              [disabled]="decisaoEmVoo()"
+            >
+              {{ decisaoEmVoo() ? 'Enviando...' : 'Confirmar recusa' }}
             </button>
             <button
               type="button"

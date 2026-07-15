@@ -12,6 +12,7 @@ import { RenegociacaoTomadorPageComponent } from './renegociacao-tomador-page.co
 
 const PARCELA_EM_NEGOCIACAO_ID = 'a0000000-0000-4000-8000-000000000008';
 const PARCELA_ACEITE_TOMADOR_ID = 'a0000000-0000-4000-8000-000000000009';
+const PARCELA_RECUSA_TOMADOR_ID = 'a0000000-0000-4000-8000-00000000000a';
 const PARCELA_PENDENTE_ID = 'a0000000-0000-4000-8000-000000000001';
 const PARCELA_SEM_OWNERSHIP_ID = 'a0000000-0000-4000-8000-0000000000ff';
 
@@ -229,6 +230,76 @@ describe('RenegociacaoTomadorPageComponent', () => {
       expect(store.token()).toBeNull();
       expect(screen.queryByRole('button', { name: /Aceitar proposta/ })).toBeNull();
       expect(screen.queryByRole('alertdialog')).toBeNull();
+    });
+  });
+
+  describe('recusa sem step-up', () => {
+    it('reconsulta, abre confirmacao de recusa e cancelar nao chama a API', async () => {
+      const { fixture } = await renderProposta(PARCELA_EM_NEGOCIACAO_ID);
+      await estabilizar(fixture);
+      const cobranca = fixture.debugElement.injector.get(CobrancaService);
+      const consultar = vi.spyOn(cobranca, 'consultarRenegociacaoAtiva');
+      const recusar = vi.spyOn(cobranca, 'recusarRenegociacao');
+
+      fireEvent.click(screen.getByRole('button', { name: /Recusar proposta/ }));
+      await estabilizar(fixture);
+
+      const dialog = screen.getByRole('alertdialog');
+      expect(consultar).toHaveBeenCalledTimes(1);
+      expect(dialog.textContent).toContain('Confirmar recusa');
+      expect(dialog.textContent).toContain('1.700,00');
+
+      fireEvent.click(screen.getByRole('button', { name: /^Cancelar$/ }));
+      await estabilizar(fixture);
+
+      expect(recusar).not.toHaveBeenCalled();
+      expect(screen.queryByRole('alertdialog')).toBeNull();
+    });
+
+    it('recusa sem MFA, sem navegar para step-up e preservando token eventual', async () => {
+      const { fixture } = await renderProposta(PARCELA_RECUSA_TOMADOR_ID, {
+        comStepUp: true,
+        tokenInicial: 'step-up-tok',
+      });
+      await estabilizar(fixture);
+      const router = fixture.debugElement.injector.get(Router);
+      const navegar = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+      const cobranca = fixture.debugElement.injector.get(CobrancaService);
+      const recusar = vi.spyOn(cobranca, 'recusarRenegociacao');
+
+      fireEvent.click(screen.getByRole('button', { name: /Recusar proposta/ }));
+      await estabilizar(fixture);
+      const confirmar = screen.getByRole('button', { name: /Confirmar recusa/ });
+      fireEvent.click(confirmar);
+      // Duplo clique imediato: guard de decisao em voo segura a segunda tentativa.
+      fireEvent.click(confirmar);
+      await estabilizar(fixture);
+
+      expect(recusar).toHaveBeenCalledTimes(1);
+      expect(navegar).not.toHaveBeenCalled();
+      const store = fixture.debugElement.injector.get(StepUpTokenStore);
+      expect(store.token()).toBe('step-up-tok');
+      expect(screen.getByText(/Proposta recusada/)).toBeTruthy();
+      expect(screen.queryByRole('button', { name: /Recusar proposta/ })).toBeNull();
+      expect(screen.queryByRole('alertdialog')).toBeNull();
+    });
+
+    it('clique cruzado: com a confirmacao de recusa aberta, aceitar nao abre nem dispara', async () => {
+      const { fixture } = await renderProposta(PARCELA_EM_NEGOCIACAO_ID);
+      await estabilizar(fixture);
+      autenticarTomador(fixture, true);
+      const cobranca = fixture.debugElement.injector.get(CobrancaService);
+      const aceitar = vi.spyOn(cobranca, 'aceitarRenegociacao');
+
+      fireEvent.click(screen.getByRole('button', { name: /Recusar proposta/ }));
+      await estabilizar(fixture);
+      fireEvent.click(screen.getByRole('button', { name: /Aceitar proposta/ }));
+      await estabilizar(fixture);
+
+      const dialog = screen.getByRole('alertdialog');
+      expect(dialog.textContent).toContain('Confirmar recusa');
+      expect(dialog.textContent).not.toContain('Confirmar aceite');
+      expect(aceitar).not.toHaveBeenCalled();
     });
   });
 });

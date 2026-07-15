@@ -146,6 +146,10 @@
   @include sepDs.sep-button-primary;
 }
 
+.sep-reneg-recusar {
+  @include sepDs.sep-button-outline;
+}
+
 .sep-reneg-confirmacao {
   @include sepDs.sep-card-elevated;
 
@@ -177,6 +181,10 @@
 
 .sep-reneg-confirmar {
   @include sepDs.sep-button-primary;
+}
+
+.sep-reneg-confirmar-recusa {
+  @include sepDs.sep-button-destructive;
 }
 
 .sep-reneg-cancelar {

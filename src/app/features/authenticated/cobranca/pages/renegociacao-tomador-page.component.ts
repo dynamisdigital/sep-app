@@ -22,6 +22,8 @@ import {
   mensagemCobrancaErro,
 } from '../shared/cobranca-format';
 
+type TipoConfirmacao = 'ACEITE' | 'RECUSA';
+
 // Decisao do tomador sobre a renegociacao ativa da parcela (F-16 / backend Sprints 24 e 27).
 // Apresenta somente os termos publicos e autoritativos do backend: total, desconto,
 // expiracao, status e elegibilidade nunca sao derivados aqui. 404 = proposta
@@ -34,6 +36,11 @@ import {
 // reconsulta os termos, exige confirmacao explicita e so entao envia o PATCH; o token
 // de uso unico vive no StepUpTokenStore e e anexado/consumido pelo stepUpInterceptor
 // apenas nesse PATCH. Voltar do step-up nunca dispara aceite automatico.
+//
+// Recusa (F-16.4): tambem reconsulta e exige confirmacao, mas NAO exige MFA nem
+// step-up — o gesto nao verifica, nao navega e nao consome token algum (o backend so
+// valida ownership). Um unico estado de decisao em voo bloqueia duplo submit e clique
+// cruzado aceitar <-> recusar.
 @Component({
   selector: 'sep-renegociacao-tomador-page',
   imports: [RouterLink],
@@ -57,11 +64,11 @@ export class RenegociacaoTomadorPageComponent implements OnInit {
   protected readonly termos = signal<RenegociacaoTomadorResponse | null>(null);
 
   protected readonly reconsultando = signal(false);
-  protected readonly confirmandoAceite = signal(false);
+  protected readonly confirmando = signal<TipoConfirmacao | null>(null);
   protected readonly decisaoEmVoo = signal(false);
   protected readonly decisaoErro = signal<string | null>(null);
   protected readonly mfaNecessario = signal(false);
-  protected readonly aceitaComSucesso = signal(false);
+  protected readonly decisaoFinal = signal<'ACEITA' | 'RECUSADA' | null>(null);
 
   protected readonly formatarMoeda = formatarMoeda;
   protected readonly formatarData = formatarData;
@@ -95,11 +102,10 @@ export class RenegociacaoTomadorPageComponent implements OnInit {
       });
   }
 
-  // Reconsulta os termos e so abre a confirmacao com a resposta nova: a decisao e sempre
-  // sobre o snapshot mais recente do backend. MFA inativo bloqueia antes de qualquer
-  // chamada. Guard de concorrencia impede abertura dupla enquanto ha consulta/decisao em voo.
+  // Aceite: MFA inativo bloqueia antes de qualquer chamada (o backend estrito rejeita
+  // bypass e a UI nao tenta). A confirmacao so abre com o snapshot novo dos termos.
   aceitarClick(): void {
-    if (this.reconsultando() || this.decisaoEmVoo() || this.confirmandoAceite()) {
+    if (this.decisaoBloqueada()) {
       return;
     }
     this.decisaoErro.set(null);
@@ -108,6 +114,68 @@ export class RenegociacaoTomadorPageComponent implements OnInit {
       return;
     }
     this.mfaNecessario.set(false);
+    this.abrirConfirmacao('ACEITE');
+  }
+
+  // Recusa: sem MFA e sem step-up — apenas reconsulta + confirmacao explicita.
+  recusarClick(): void {
+    if (this.decisaoBloqueada()) {
+      return;
+    }
+    this.decisaoErro.set(null);
+    this.mfaNecessario.set(false);
+    this.abrirConfirmacao('RECUSA');
+  }
+
+  cancelarConfirmacao(): void {
+    if (this.decisaoEmVoo()) {
+      return;
+    }
+    this.confirmando.set(null);
+  }
+
+  // Ultima etapa do aceite. Sem token: fecha a confirmacao e coleta o step-up com retorno
+  // para ESTA rota (next montado de rota conhecida, nunca de input externo); ao voltar, o
+  // aceite exige novo clique + confirmacao. Com token: PATCH unico com o renegociacaoId do
+  // snapshot recem lido; o stepUpInterceptor anexa e consome o token somente nele.
+  confirmarAceite(): void {
+    if (this.decisaoEmVoo() || this.confirmando() !== 'ACEITE') {
+      return;
+    }
+    const termos = this.termos();
+    if (!termos) {
+      return;
+    }
+    if (!this.stepUpTokens.token()) {
+      this.confirmando.set(null);
+      void this.router.navigateByUrl(
+        `/app/step-up?next=/app/cobranca/parcelas/${this.parcelaId}/renegociacao`,
+      );
+      return;
+    }
+    this.enviarDecisao(this.cobranca.aceitarRenegociacao(termos.renegociacaoId), 'ACEITA');
+  }
+
+  // Ultima etapa da recusa: PATCH unico, sem tocar no StepUpTokenStore (token eventual
+  // permanece intacto — a recusa esta fora da allowlist do stepUpInterceptor).
+  confirmarRecusa(): void {
+    if (this.decisaoEmVoo() || this.confirmando() !== 'RECUSA') {
+      return;
+    }
+    const termos = this.termos();
+    if (!termos) {
+      return;
+    }
+    this.enviarDecisao(this.cobranca.recusarRenegociacao(termos.renegociacaoId), 'RECUSADA');
+  }
+
+  // Um unico gesto de decisao por vez: consulta em voo, confirmacao aberta ou decisao em
+  // voo bloqueiam novo clique (anti duplo-submit e anti clique cruzado aceitar <-> recusar).
+  private decisaoBloqueada(): boolean {
+    return this.reconsultando() || this.decisaoEmVoo() || this.confirmando() !== null;
+  }
+
+  private abrirConfirmacao(tipo: TipoConfirmacao): void {
     this.reconsultando.set(true);
     this.cobranca
       .consultarRenegociacaoAtiva(this.parcelaId)
@@ -116,7 +184,7 @@ export class RenegociacaoTomadorPageComponent implements OnInit {
         next: (termos) => {
           this.reconsultando.set(false);
           this.termos.set(termos);
-          this.confirmandoAceite.set(true);
+          this.confirmando.set(tipo);
         },
         error: (err: HttpErrorResponse) => {
           this.reconsultando.set(false);
@@ -125,51 +193,36 @@ export class RenegociacaoTomadorPageComponent implements OnInit {
       });
   }
 
-  cancelarConfirmacao(): void {
-    this.confirmandoAceite.set(false);
-  }
-
-  // Ultima etapa do gesto. Sem token: fecha a confirmacao e coleta o step-up com retorno
-  // para ESTA rota (next montado de rota conhecida, nunca de input externo); ao voltar, o
-  // aceite exige novo clique + confirmacao. Com token: PATCH unico com o renegociacaoId do
-  // snapshot recem lido; o stepUpInterceptor anexa e consome o token somente nele.
-  confirmarAceite(): void {
-    if (this.decisaoEmVoo()) {
-      return;
-    }
-    const termos = this.termos();
-    if (!termos) {
-      return;
-    }
-    if (!this.stepUpTokens.token()) {
-      this.confirmandoAceite.set(false);
-      void this.router.navigateByUrl(
-        `/app/step-up?next=/app/cobranca/parcelas/${this.parcelaId}/renegociacao`,
-      );
-      return;
-    }
+  private enviarDecisao(
+    decisao: ReturnType<CobrancaService['aceitarRenegociacao']>,
+    resultado: 'ACEITA' | 'RECUSADA',
+  ): void {
     this.decisaoEmVoo.set(true);
     this.decisaoErro.set(null);
-    this.cobranca
-      .aceitarRenegociacao(termos.renegociacaoId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.decisaoEmVoo.set(false);
-          this.confirmandoAceite.set(false);
-          this.aceitaComSucesso.set(true);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.decisaoEmVoo.set(false);
-          this.confirmandoAceite.set(false);
-          this.decisaoErro.set(mensagemCobrancaErro(err, 'Nao foi possivel aceitar a proposta.'));
-        },
-      });
+    decisao.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.decisaoEmVoo.set(false);
+        this.confirmando.set(null);
+        this.decisaoFinal.set(resultado);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.decisaoEmVoo.set(false);
+        this.confirmando.set(null);
+        this.decisaoErro.set(
+          mensagemCobrancaErro(
+            err,
+            resultado === 'ACEITA'
+              ? 'Nao foi possivel aceitar a proposta.'
+              : 'Nao foi possivel recusar a proposta.',
+          ),
+        );
+      },
+    });
   }
 
   private tratarErroConsulta(err: HttpErrorResponse): void {
     this.termos.set(null);
-    this.confirmandoAceite.set(false);
+    this.confirmando.set(null);
     if (err.status === 404) {
       this.indisponivel.set(true);
       return;
