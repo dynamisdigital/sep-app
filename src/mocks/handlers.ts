@@ -29,6 +29,21 @@ const clienteUsuario = {
   modificadoPor: 'system',
 };
 
+// Persona do tomador com MFA ativo (fix review manual F-16): a jornada de decisao de
+// renegociacao e CLIENTE-only no backend; o smoke nao deve rodar como ADMIN, senao
+// mascara regressao de persona. MFA ativo e pre-condicao do aceite com step-up estrito.
+const tomadorMfaUsuario = {
+  id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771011',
+  username: 'tomador@empresa.com',
+  role: 'CLIENTE',
+  precisaRedefinirSenha: false,
+  mfaHabilitado: true,
+  dataCriacao: now,
+  dataModificacao: now,
+  criadoPor: 'system',
+  modificadoPor: 'system',
+};
+
 const financeiroUsuario = {
   id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771003',
   username: 'financeiro@empresa.com',
@@ -118,6 +133,7 @@ const usuariosFake = [
 // segue o ultimo login pra /auth/me e /auth/refresh refletirem a role correta apos reload.
 const loginUsuarios: Record<string, typeof adminUsuario> = {
   'admin@empresa.com': adminUsuario,
+  'tomador@empresa.com': tomadorMfaUsuario,
   'financeiro@empresa.com': financeiroUsuario,
   'backoffice@empresa.com': backofficeUsuario,
   'credora@empresa.com': credoraUsuario,

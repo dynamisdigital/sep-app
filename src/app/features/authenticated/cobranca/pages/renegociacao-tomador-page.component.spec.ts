@@ -8,6 +8,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
 import { CobrancaService } from '../../../../core/cobranca/cobranca.service';
+import { errorInterceptor } from '../../../../core/interceptors/error.interceptor';
 import { stepUpInterceptor } from '../../../../core/interceptors/step-up.interceptor';
 import { server } from '../../../../../mocks/server';
 import { RenegociacaoTomadorPageComponent } from './renegociacao-tomador-page.component';
@@ -38,11 +39,14 @@ function renderProposta(
   opts: { comStepUp?: boolean; tokenInicial?: string } = {},
 ) {
   const tokenInicial = opts.tokenInicial;
+  // errorInterceptor sempre na cadeia (fix review manual F-16): as provas de 403 local
+  // (estado neutro, reverificacao explicita) rodam contra o redirect global real de
+  // /access-denied — o contexto TRATA_403_LOCALMENTE do service deve suprimi-lo.
   return render(RenegociacaoTomadorPageComponent, {
     providers: [
       opts.comStepUp
-        ? provideHttpClient(withInterceptors([stepUpInterceptor]))
-        : provideHttpClient(),
+        ? provideHttpClient(withInterceptors([stepUpInterceptor, errorInterceptor]))
+        : provideHttpClient(withInterceptors([errorInterceptor])),
       provideRouter([]),
       {
         provide: ActivatedRoute,
@@ -137,13 +141,17 @@ describe('RenegociacaoTomadorPageComponent', () => {
     expect(screen.getByRole('link', { name: /Voltar para a parcela/ })).toBeTruthy();
   });
 
-  it('mostra erro neutro com retry no 403, sem enumerar recurso', async () => {
+  it('mostra erro neutro com retry no 403, sem enumerar recurso nem redirect global', async () => {
     const { fixture, container } = await renderProposta(PARCELA_SEM_OWNERSHIP_ID);
+    const router = fixture.debugElement.injector.get(Router);
+    const navegar = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     await estabilizar(fixture);
 
     expect(screen.getByRole('alert')).toBeTruthy();
     expect(screen.getByRole('button', { name: /Tentar novamente/ })).toBeTruthy();
     expect(container.textContent).not.toMatch(UUID_PATTERN);
+    // errorInterceptor esta na cadeia: o contexto do service suprime o /access-denied.
+    expect(navegar).not.toHaveBeenCalled();
   });
 
   describe('aceite com step-up estrito', () => {
@@ -303,6 +311,45 @@ describe('RenegociacaoTomadorPageComponent', () => {
       expect(dialog.textContent).toContain('Confirmar recusa');
       expect(dialog.textContent).not.toContain('Confirmar aceite');
       expect(aceitar).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('dialogo acessivel (fix review manual)', () => {
+    it('move o foco para a confirmacao ao abrir e devolve ao gatilho ao cancelar', async () => {
+      const { fixture } = await renderProposta(PARCELA_EM_NEGOCIACAO_ID);
+      await estabilizar(fixture);
+      autenticarTomador(fixture, true);
+
+      const gatilho = screen.getByRole('button', { name: /Aceitar proposta/ });
+      gatilho.focus();
+      fireEvent.click(gatilho);
+      await estabilizar(fixture);
+
+      const dialog = screen.getByRole('alertdialog');
+      expect(dialog.getAttribute('aria-modal')).toBe('true');
+      expect(document.activeElement).toBe(dialog);
+
+      fireEvent.click(screen.getByRole('button', { name: /^Cancelar$/ }));
+      await estabilizar(fixture);
+
+      expect(screen.queryByRole('alertdialog')).toBeNull();
+      expect(document.activeElement).toBe(gatilho);
+    });
+
+    it('Escape cancela a confirmacao sem chamar a API', async () => {
+      const { fixture } = await renderProposta(PARCELA_EM_NEGOCIACAO_ID);
+      await estabilizar(fixture);
+      const cobranca = fixture.debugElement.injector.get(CobrancaService);
+      const recusar = vi.spyOn(cobranca, 'recusarRenegociacao');
+
+      fireEvent.click(screen.getByRole('button', { name: /Recusar proposta/ }));
+      await estabilizar(fixture);
+
+      fireEvent.keyDown(screen.getByRole('alertdialog'), { key: 'Escape' });
+      await estabilizar(fixture);
+
+      expect(screen.queryByRole('alertdialog')).toBeNull();
+      expect(recusar).not.toHaveBeenCalled();
     });
   });
 
