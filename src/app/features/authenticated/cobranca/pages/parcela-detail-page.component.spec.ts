@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { ParcelaDetailPageComponent } from './parcela-detail-page.component';
 
 const PARCELA_ATRASADA_ID = 'a0000000-0000-4000-8000-000000000002';
+const PARCELA_EM_NEGOCIACAO_ID = 'a0000000-0000-4000-8000-000000000008';
 const PARCELA_INEXISTENTE_ID = 'a0000000-0000-4000-8000-0000000000aa';
 
 async function flush(times = 5): Promise<void> {
@@ -52,5 +53,22 @@ describe('ParcelaDetailPageComponent', () => {
     await estabilizar(fixture);
 
     expect(screen.getByText('Parcela nao encontrada.')).toBeTruthy();
+  });
+
+  it('exibe o CTA da proposta apenas quando a parcela esta EM_NEGOCIACAO', async () => {
+    const { fixture } = await renderParcela(PARCELA_EM_NEGOCIACAO_ID);
+    await estabilizar(fixture);
+
+    const cta = screen.getByRole('link', { name: /Ver proposta de renegociacao/ });
+    expect(cta.getAttribute('href')).toBe(
+      `/app/cobranca/parcelas/${PARCELA_EM_NEGOCIACAO_ID}/renegociacao`,
+    );
+  });
+
+  it('nao exibe o CTA da proposta para outros status', async () => {
+    const { fixture } = await renderParcela(PARCELA_ATRASADA_ID);
+    await estabilizar(fixture);
+
+    expect(screen.queryByRole('link', { name: /Ver proposta de renegociacao/ })).toBeNull();
   });
 });

@@ -1,0 +1,204 @@
+<section class="sep-reneg">
+  @if (loading()) {
+    <p class="sep-reneg-state" role="status">Carregando proposta...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-reneg-state sep-reneg-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="sep-reneg-retry" (click)="carregar()">Tentar novamente</button>
+    </div>
+  } @else if (indisponivel()) {
+    <div class="sep-reneg-state sep-reneg-empty">
+      <p>
+        Nenhuma proposta de renegociacao disponivel para esta parcela. Ela pode ja ter sido decidida
+        ou ter expirado.
+      </p>
+      <a class="sep-reneg-voltar" [routerLink]="['/app/cobranca/parcelas', parcelaId]">
+        Voltar para a parcela
+      </a>
+    </div>
+  } @else if (termos(); as t) {
+    <header class="sep-reneg-header">
+      <h1 class="sep-reneg-title">Proposta de renegociacao</h1>
+      <span class="sep-reneg-status">{{ statusLabel[t.status] }}</span>
+    </header>
+
+    <p class="sep-reneg-descricao">
+      Confira os termos calculados pelo sistema. Nada muda na sua parcela sem a sua decisao.
+    </p>
+
+    <dl class="sep-reneg-termos">
+      <div class="sep-reneg-termo">
+        <dt>Novo valor por parcela</dt>
+        <dd>{{ formatarMoeda(t.novoValorParcela) }}</dd>
+      </div>
+      <div class="sep-reneg-termo">
+        <dt>Quantidade de parcelas</dt>
+        <dd>{{ t.numeroParcelas }}</dd>
+      </div>
+      <div class="sep-reneg-termo sep-reneg-termo-total">
+        <dt>Valor total renegociado</dt>
+        <dd>{{ formatarMoeda(t.valorTotalRenegociado) }}</dd>
+      </div>
+      <div class="sep-reneg-termo">
+        <dt>Desconto</dt>
+        <dd>{{ formatarMoeda(t.desconto) }}</dd>
+      </div>
+      <div class="sep-reneg-termo">
+        <dt>Primeiro vencimento</dt>
+        <dd>{{ formatarDataLocal(t.novoVencimento) }}</dd>
+      </div>
+      <div class="sep-reneg-termo">
+        <dt>Data da proposta</dt>
+        <dd>{{ formatarData(t.dataProposta) }}</dd>
+      </div>
+      <div class="sep-reneg-termo">
+        <dt>Valida ate</dt>
+        <dd>{{ formatarData(t.dataExpiracao) }}</dd>
+      </div>
+    </dl>
+
+    @if (decisaoFinal(); as decisao) {
+      <div class="sep-reneg-sucesso" role="status">
+        @if (decisao === 'ACEITA') {
+          <p>Proposta aceita. A parcela sera atualizada pelo sistema.</p>
+        } @else {
+          <p>Proposta recusada. A situacao da parcela sera atualizada pelo sistema.</p>
+        }
+      </div>
+    } @else {
+      @if (mfaNecessario()) {
+        <div class="sep-reneg-aviso" role="alert">
+          <p>
+            Para aceitar a proposta e preciso ter a verificacao em duas etapas (MFA) ativa na sua
+            conta.
+          </p>
+          <a class="sep-reneg-aviso-link" [routerLink]="['/app/profile/setup-totp']">
+            Ativar verificacao em duas etapas
+          </a>
+        </div>
+      }
+
+      @if (decisaoErro()) {
+        <p class="sep-reneg-decisao-erro" role="alert">{{ decisaoErro() }}</p>
+      }
+
+      @if (desatualizado()) {
+        <div class="sep-reneg-aviso" role="alert">
+          <p>Os termos exibidos podem estar desatualizados.</p>
+          <button type="button" class="sep-reneg-retry" (click)="atualizarTermos()">
+            Atualizar termos
+          </button>
+        </div>
+      }
+
+      @if (verificacaoNecessaria()) {
+        <div class="sep-reneg-aviso" role="alert">
+          <p>Nao foi possivel confirmar sua identidade para o aceite.</p>
+          <button type="button" class="sep-reneg-retry" (click)="verificarNovamente()">
+            Verificar novamente
+          </button>
+        </div>
+      }
+
+      <div class="sep-reneg-acoes">
+        <button
+          type="button"
+          class="sep-reneg-aceitar"
+          (click)="aceitarClick()"
+          [disabled]="
+            reconsultando() || decisaoEmVoo() || confirmando() !== null || desatualizado()
+          "
+        >
+          {{ reconsultando() ? 'Atualizando termos...' : 'Aceitar proposta' }}
+        </button>
+        <button
+          type="button"
+          class="sep-reneg-recusar"
+          (click)="recusarClick()"
+          [disabled]="
+            reconsultando() || decisaoEmVoo() || confirmando() !== null || desatualizado()
+          "
+        >
+          Recusar proposta
+        </button>
+      </div>
+
+      @if (confirmando() === 'ACEITE') {
+        <div
+          class="sep-reneg-confirmacao"
+          role="alertdialog"
+          aria-labelledby="confirmacao-aceite-titulo"
+        >
+          <h2 class="sep-reneg-confirmacao-titulo" id="confirmacao-aceite-titulo">
+            Confirmar aceite
+          </h2>
+          <p class="sep-reneg-confirmacao-texto">
+            Voce esta aceitando {{ t.numeroParcelas }} parcela(s) de
+            {{ formatarMoeda(t.novoValorParcela) }}, no total de
+            {{ formatarMoeda(t.valorTotalRenegociado) }}. Primeiro vencimento em
+            {{ formatarDataLocal(t.novoVencimento) }}; proposta valida ate
+            {{ formatarData(t.dataExpiracao) }}.
+          </p>
+          <div class="sep-reneg-confirmacao-acoes">
+            <button
+              type="button"
+              class="sep-reneg-confirmar"
+              (click)="confirmarAceite()"
+              [disabled]="decisaoEmVoo()"
+            >
+              {{ decisaoEmVoo() ? 'Enviando...' : 'Confirmar aceite' }}
+            </button>
+            <button
+              type="button"
+              class="sep-reneg-cancelar"
+              (click)="cancelarConfirmacao()"
+              [disabled]="decisaoEmVoo()"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (confirmando() === 'RECUSA') {
+        <div
+          class="sep-reneg-confirmacao"
+          role="alertdialog"
+          aria-labelledby="confirmacao-recusa-titulo"
+        >
+          <h2 class="sep-reneg-confirmacao-titulo" id="confirmacao-recusa-titulo">
+            Confirmar recusa
+          </h2>
+          <p class="sep-reneg-confirmacao-texto">
+            Voce esta recusando a proposta de {{ t.numeroParcelas }} parcela(s) de
+            {{ formatarMoeda(t.novoValorParcela) }}, no total de
+            {{ formatarMoeda(t.valorTotalRenegociado) }}. A proposta sera rejeitada e a situacao da
+            parcela sera atualizada pelo sistema.
+          </p>
+          <div class="sep-reneg-confirmacao-acoes">
+            <button
+              type="button"
+              class="sep-reneg-confirmar-recusa"
+              (click)="confirmarRecusa()"
+              [disabled]="decisaoEmVoo()"
+            >
+              {{ decisaoEmVoo() ? 'Enviando...' : 'Confirmar recusa' }}
+            </button>
+            <button
+              type="button"
+              class="sep-reneg-cancelar"
+              (click)="cancelarConfirmacao()"
+              [disabled]="decisaoEmVoo()"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      }
+    }
+
+    <a class="sep-reneg-voltar" [routerLink]="['/app/cobranca/parcelas', parcelaId]">
+      Voltar para a parcela
+    </a>
+  }
+</section>

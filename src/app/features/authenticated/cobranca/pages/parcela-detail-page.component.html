@@ -18,6 +18,15 @@
 
     <p class="sep-parcela-vencimento">Vencimento: {{ formatarDataLocal(p.dataVencimento) }}</p>
 
+    @if (p.status === 'EM_NEGOCIACAO') {
+      <a
+        class="sep-parcela-reneg-cta"
+        [routerLink]="['/app/cobranca/parcelas', p.parcelaId, 'renegociacao']"
+      >
+        Ver proposta de renegociacao
+      </a>
+    }
+
     <sep-parcela-composicao [parcela]="p" />
   }
 </section>

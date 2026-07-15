@@ -537,6 +537,22 @@ export interface RenegociacaoResponse {
   agendaSubstitutaId: string | null;
 }
 
+// Visao publica owner-scoped da renegociacao ativa (backend Sprint 24). Contem apenas os
+// dez campos expostos ao tomador; `valorTotalRenegociado` ja vem calculado pelo backend e
+// nao deve ser derivado no front. Distinto do `RenegociacaoResponse` interno das mutacoes.
+export interface RenegociacaoTomadorResponse {
+  renegociacaoId: string;
+  parcelaId: string;
+  status: StatusRenegociacao;
+  novoValorParcela: number;
+  numeroParcelas: number;
+  valorTotalRenegociado: number;
+  novoVencimento: string;
+  desconto: number;
+  dataProposta: string;
+  dataExpiracao: string;
+}
+
 // --- Backoffice e financeiro operacional (F-Sprint 10 / backend Sprint 14 + Pix 20-21) ---
 // DTOs de borda fieis a `backoffice.web.dto`. Transicoes de status, validacao de estado,
 // audit trail, anti-abuso e autorizacao real pertencem ao backend; estes modelos nao

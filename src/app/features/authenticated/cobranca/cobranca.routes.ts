@@ -23,6 +23,16 @@ export const COBRANCA_ROUTES: Routes = [
       import('./pages/parcela-detail-page.component').then((m) => m.ParcelaDetailPageComponent),
     data: { breadcrumb: 'Parcela' },
   },
+  // Decisao do tomador sobre a renegociacao ativa (F-16). Sem guard de ownership no
+  // front: o backend responde 403 uniforme para parcela alheia/inexistente.
+  {
+    path: 'parcelas/:parcelaId/renegociacao',
+    loadComponent: () =>
+      import('./pages/renegociacao-tomador-page.component').then(
+        (m) => m.RenegociacaoTomadorPageComponent,
+      ),
+    data: { breadcrumb: 'Renegociacao' },
+  },
   {
     path: 'financeiro/agenda',
     canActivate: [roleGuard],

@@ -834,6 +834,12 @@ const formalizacaoHandlers = [
 //   reapresentada com payload divergente -> 409; mesma key + mesmo payload -> replay
 //   com novo=false).
 // - parcela "...0007" ja tem renegociacao ativa (criar proposta -> 409).
+// - parcela "...0008" esta EM_NEGOCIACAO com proposta ativa do tomador: jornada de
+//   decisao F-16 (GET renegociacao-ativa -> 200 com os dez campos publicos).
+// - parcela "...0009" (EM_NEGOCIACAO) e dedicada ao fluxo de ACEITE do tomador: o teste
+//   muda a proposta para ACEITA, entao ids proprios preservam o isolamento dos demais.
+// - parcela "...000a" (EM_NEGOCIACAO) e dedicada ao fluxo de RECUSA do tomador, pelo
+//   mesmo motivo de isolamento.
 // - renegociacao exige X-Step-Up-Token na criacao e no aceite; a recusa nao exige.
 // Estado de recebimentos e de renegociacao e por sessao do mock; ids dedicados isolam testes.
 const AGENDA_ID = 'a0000000-0000-4000-8000-000000000a01';
@@ -846,10 +852,16 @@ const PARCELA_PAGA_ID = 'a0000000-0000-4000-8000-000000000004';
 const PARCELA_INADIMPLENTE_ID = 'a0000000-0000-4000-8000-000000000005';
 const PARCELA_PARA_RECEBIMENTO_ID = 'a0000000-0000-4000-8000-000000000006';
 const PARCELA_RENEG_ATIVA_ID = 'a0000000-0000-4000-8000-000000000007';
+const PARCELA_EM_NEGOCIACAO_ID = 'a0000000-0000-4000-8000-000000000008';
+const PARCELA_ACEITE_TOMADOR_ID = 'a0000000-0000-4000-8000-000000000009';
+const PARCELA_RECUSA_TOMADOR_ID = 'a0000000-0000-4000-8000-00000000000a';
 const PARCELA_SEM_OWNERSHIP_ID = 'a0000000-0000-4000-8000-0000000000ff';
 const RENEG_PARA_ACEITE_ID = 'b0000000-0000-4000-8000-000000000001';
 const RENEG_PARA_RECUSA_ID = 'b0000000-0000-4000-8000-000000000002';
 const RENEG_DECIDIDA_ID = 'b0000000-0000-4000-8000-000000000003';
+const RENEG_TOMADOR_ATIVA_ID = 'b0000000-0000-4000-8000-000000000004';
+const RENEG_TOMADOR_ACEITE_ID = 'b0000000-0000-4000-8000-000000000005';
+const RENEG_TOMADOR_RECUSA_ID = 'b0000000-0000-4000-8000-000000000006';
 const RENEG_CRIADA_ID = 'b0000000-0000-4000-8000-0000000000c1';
 const ESCROW_MOV_ID = 'c0000000-0000-4000-8000-0000000000e1';
 // Espelham StatusParcela.permiteRecebimento / permiteIniciarRenegociacao do backend.
@@ -991,6 +1003,45 @@ const detalheParcela: Record<string, ReturnType<typeof valorAtualizado>> = {
     20,
     0,
   ),
+  // Parcela do tomador em negociacao (backend Sprint 13: proposta ativa => EM_NEGOCIACAO).
+  // Ponto de partida da jornada de decisao do tomador (F-16).
+  [PARCELA_EM_NEGOCIACAO_ID]: valorAtualizado(
+    PARCELA_EM_NEGOCIACAO_ID,
+    8,
+    'EM_NEGOCIACAO',
+    '2026-05-10',
+    1000,
+    0,
+    55,
+    20,
+    0,
+  ),
+  // Parcela dedicada ao fluxo de aceite do tomador (F-16.3): a proposta desta parcela e
+  // mutada para ACEITA pelo teste, sem afetar a jornada de leitura da "...0008".
+  [PARCELA_ACEITE_TOMADOR_ID]: valorAtualizado(
+    PARCELA_ACEITE_TOMADOR_ID,
+    9,
+    'EM_NEGOCIACAO',
+    '2026-05-12',
+    1000,
+    0,
+    35,
+    20,
+    0,
+  ),
+  // Parcela dedicada ao fluxo de recusa do tomador (F-16.4): a proposta desta parcela e
+  // mutada para RECUSADA pelo teste.
+  [PARCELA_RECUSA_TOMADOR_ID]: valorAtualizado(
+    PARCELA_RECUSA_TOMADOR_ID,
+    10,
+    'EM_NEGOCIACAO',
+    '2026-05-14',
+    1000,
+    0,
+    25,
+    20,
+    0,
+  ),
 };
 
 const inadimplenciaSeed = [
@@ -1091,6 +1142,28 @@ const renegociacoes: Record<string, ReturnType<typeof renegociacaoFake>> = {
     numeroParcelas: 4,
     desconto: 20.0,
   }),
+  // Proposta ativa da parcela EM_NEGOCIACAO "...0008", consultada pelo tomador via GET
+  // renegociacao-ativa (F-16 / backend Sprint 24).
+  [RENEG_TOMADOR_ATIVA_ID]: renegociacaoFake(
+    RENEG_TOMADOR_ATIVA_ID,
+    PARCELA_EM_NEGOCIACAO_ID,
+    'PROPOSTA',
+    { novoValorParcela: 340.0, novoVencimento: '2026-08-15', numeroParcelas: 5, desconto: 60.0 },
+  ),
+  // Proposta da parcela "...0009", dedicada ao fluxo de aceite do tomador (F-16.3).
+  [RENEG_TOMADOR_ACEITE_ID]: renegociacaoFake(
+    RENEG_TOMADOR_ACEITE_ID,
+    PARCELA_ACEITE_TOMADOR_ID,
+    'PROPOSTA',
+    { novoValorParcela: 420.0, novoVencimento: '2026-09-01', numeroParcelas: 3, desconto: 45.0 },
+  ),
+  // Proposta da parcela "...000a", dedicada ao fluxo de recusa do tomador (F-16.4).
+  [RENEG_TOMADOR_RECUSA_ID]: renegociacaoFake(
+    RENEG_TOMADOR_RECUSA_ID,
+    PARCELA_RECUSA_TOMADOR_ID,
+    'PROPOSTA',
+    { novoValorParcela: 510.0, novoVencimento: '2026-09-10', numeroParcelas: 2, desconto: 30.0 },
+  ),
   [RENEG_DECIDIDA_ID]: renegociacaoFake(
     RENEG_DECIDIDA_ID,
     PARCELA_PARA_RECEBIMENTO_ID,
@@ -1274,6 +1347,37 @@ const cobrancaHandlers = [
     renegociacao.status = 'RECUSADA';
     renegociacao.dataDecisao = now;
     return HttpResponse.json(renegociacao);
+  }),
+
+  // Leitura owner-scoped do tomador (F-16 / backend Sprint 24). Read-only, sem step-up.
+  // 403 uniforme para parcela alheia OU inexistente (nao enumera recursos); 404 para parcela
+  // propria sem PROPOSTA ativa. O total e "calculado no backend" (aqui, o mock) — o front
+  // nunca deriva. A proposta e a mesma estrutura mutavel de `renegociacoes`: apos aceite ou
+  // recusa o status sai de PROPOSTA e este GET passa a responder 404, como o backend.
+  http.get(`${baseUrl}/cobranca/parcelas/:parcelaId/renegociacao-ativa`, ({ params }) => {
+    const parcelaId = params['parcelaId'] as string;
+    const path = `/api/v1/cobranca/parcelas/${parcelaId}/renegociacao-ativa`;
+    if (parcelaId === PARCELA_SEM_OWNERSHIP_ID || !detalheParcela[parcelaId]) {
+      return errorResponse(403, 'Forbidden', 'Acesso negado', path);
+    }
+    const ativa = Object.values(renegociacoes).find(
+      (r) => r.parcelaOriginalId === parcelaId && r.status === 'PROPOSTA',
+    );
+    if (!ativa) {
+      return errorResponse(404, 'Not Found', 'Parcela sem renegociacao ativa', path);
+    }
+    return HttpResponse.json({
+      renegociacaoId: ativa.id,
+      parcelaId: ativa.parcelaOriginalId,
+      status: ativa.status,
+      novoValorParcela: ativa.novoValorParcela,
+      numeroParcelas: ativa.numeroParcelas,
+      valorTotalRenegociado: Number((ativa.novoValorParcela * ativa.numeroParcelas).toFixed(2)),
+      novoVencimento: ativa.novoVencimento,
+      desconto: ativa.desconto,
+      dataProposta: ativa.dataProposta,
+      dataExpiracao: ativa.dataExpiracao,
+    });
   }),
 
   // Por id mantido por ultimo: as rotas com sub-segmento (/recebimentos, /contato,
