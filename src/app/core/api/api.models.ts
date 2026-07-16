@@ -960,3 +960,57 @@ export interface OperacaoCarteiraResponse {
   cobranca: CarteiraCobrancaResumo | null;
   dataCriacao: string;
 }
+
+// --- Aporte e matching da credora (F-Sprint 18 / backend Sprints 29-30) ---
+// Contratos minimos dos modulos de matching assistido e aporte assistido. Elegibilidade, valor
+// elegivel, estados, ownership, idempotencia e escrow sao autoritativos no backend; o frontend
+// apresenta os DTOs sem recalcular regra financeira. O backend nunca expoe motivo de decisao,
+// decisor, score, idempotency key, referencia de escrow, provider ou motivo tecnico de falha.
+
+// Estado da sugestao de matching credora-operacao (StatusMatchingCredoraOperacao no backend).
+// SUGERIDA -> CONFIRMADA | REJEITADA; CONFIRMADA/REJEITADA sao terminais.
+export type StatusMatchingCredoraOperacao = 'SUGERIDA' | 'CONFIRMADA' | 'REJEITADA';
+
+// Acao da decisao assistida do matching (AcaoDecisaoMatching no backend).
+export type AcaoDecisaoMatching = 'CONFIRMAR' | 'REJEITAR';
+
+// Estado do aporte assistido (StatusAporteCredora no backend).
+// PENDENTE -> EM_PROCESSAMENTO -> LIQUIDADO | FALHOU.
+export type StatusAporteCredora = 'PENDENTE' | 'EM_PROCESSAMENTO' | 'LIQUIDADO' | 'FALHOU';
+
+// GET /credores/matching/sugestoes, GET /credores/matching/{id} e resposta da decisao. criterios
+// sao codigos funcionais do snapshot de elegibilidade; decididaEm e nula enquanto SUGERIDA.
+export interface MatchingSugestaoResponse {
+  id: string;
+  operacaoId: string;
+  empresaCredoraId: string;
+  status: StatusMatchingCredoraOperacao;
+  valorElegivel: number;
+  criterios: string[];
+  criadaEm: string;
+  decididaEm: string | null;
+}
+
+// POST /credores/matching/{id}/decisao: motivo opcional de ate 255 caracteres. Decisao sobre
+// status terminal responde 409. Confirmar apenas registra a decisao; nunca cria aporte.
+export interface DecidirMatchingRequest {
+  acao: AcaoDecisaoMatching;
+  motivo?: string;
+}
+
+// POST /credores/operacoes/{operacaoId}/aportes: valor positivo com ate duas casas decimais. A
+// Idempotency-Key vai no header e a operacao no path; 201 = registro novo, 200 = replay idempotente.
+export interface RegistrarAporteRequest {
+  valor: number;
+}
+
+// Resposta do POST e itens de GET /credores/operacoes/{operacaoId}/aportes (owner-scoped: 404
+// neutro para usuario sem credora, operacao alheia ou inexistente).
+export interface AporteCredoraResponse {
+  id: string;
+  operacaoId: string;
+  status: StatusAporteCredora;
+  valor: number;
+  dataCriacao: string;
+  dataAtualizacao: string;
+}

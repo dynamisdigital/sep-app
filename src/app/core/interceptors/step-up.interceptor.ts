@@ -27,6 +27,9 @@ export const stepUpInterceptor: HttpInterceptorFn = (req, next) => {
   // status no provider (POST /pix/desembolsos/:id/status) exigem step-up. O guard de metodo POST
   // cobre os dois e exclui os GET de leitura; gerar referencia (POST /pix/recebimentos/...) NAO
   // exige step-up e fica fora deste path.
+  // Credora (F-18.1): decidir matching (POST /credores/matching/:id/decisao) e registrar aporte
+  // (POST /credores/operacoes/:id/aportes) exigem step-up estrito. O guard de metodo POST protege
+  // os GET da mesma URL de aportes e das sugestoes/detalhe de matching (uso unico do token).
   const exigeStepUp =
     (req.url.includes('/usuarios/') && req.url.endsWith('/senha')) ||
     (req.method === 'PUT' && req.url.includes('/usuarios/') && req.url.endsWith('/roles')) ||
@@ -46,7 +49,13 @@ export const stepUpInterceptor: HttpInterceptorFn = (req, next) => {
       req.url.includes('/backoffice/fila/') &&
       (req.url.endsWith('/resolver') || req.url.endsWith('/ignorar'))) ||
     (req.method === 'POST' && req.url.includes('/backoffice/reprocessos/')) ||
-    (req.method === 'POST' && req.url.includes('/pix/desembolsos'));
+    (req.method === 'POST' && req.url.includes('/pix/desembolsos')) ||
+    (req.method === 'POST' &&
+      req.url.includes('/credores/matching/') &&
+      req.url.endsWith('/decisao')) ||
+    (req.method === 'POST' &&
+      req.url.includes('/credores/operacoes/') &&
+      req.url.endsWith('/aportes'));
   if (!exigeStepUp) {
     return next(req);
   }
