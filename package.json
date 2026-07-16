@@ -43,7 +43,7 @@
     "lucide-angular": "^0.544.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
-    "zone.js": "~0.15.0"
+    "zone.js": "~0.16.2"
   },
   "devDependencies": {
     "@analogjs/vite-plugin-angular": "^1.22.5",
@@ -72,7 +72,7 @@
     "stylelint": "^16.26.1",
     "stylelint-config-standard-scss": "^14.0.0",
     "typescript": "~5.9.2",
-    "typescript-eslint": "8.46.4",
+    "typescript-eslint": "8.64.0",
     "vitest": "^3.2.7"
   },
   "msw": {
