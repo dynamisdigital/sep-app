@@ -2902,6 +2902,49 @@ const credoraHandlers = [
       .sort((a, b) => (b['valorElegivel'] as number) - (a['valorElegivel'] as number));
     return HttpResponse.json(sugeridas);
   }),
+
+  // Consulta individual (qualquer status); inexistente responde 404 neutro sem identificador.
+  // Registrado DEPOIS de /matching/sugestoes: o MSW casa na ordem do array e este pattern
+  // tambem casaria aquela URL.
+  http.get(`${baseUrl}/credores/matching/:sugestaoId`, ({ params }) => {
+    const sugestao = matchingSugestoes[params['sugestaoId'] as string];
+    if (!sugestao) {
+      return errorResponse(
+        404,
+        'Not Found',
+        'Sugestao de matching nao encontrada',
+        '/api/v1/credores/matching',
+      );
+    }
+    return HttpResponse.json(sugestao);
+  }),
+
+  // Decisao assistida (step-up estrito): confirma ou rejeita sugestao SUGERIDA. Espelha o
+  // MatchingCredoraController — 403 sem token de step-up, 400 acao/motivo invalido, 404 neutro,
+  // 409 em status terminal. Confirmar apenas registra a decisao; nenhum aporte e criado.
+  http.post(`${baseUrl}/credores/matching/:sugestaoId/decisao`, async ({ request, params }) => {
+    const path = '/api/v1/credores/matching/decisao';
+    if (!request.headers.get('X-Step-Up-Token')) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio para esta operacao', path);
+    }
+    const body = (await request.json()) as { acao?: string; motivo?: string };
+    if (body.acao !== 'CONFIRMAR' && body.acao !== 'REJEITAR') {
+      return errorResponse(400, 'Bad Request', 'acao deve ser CONFIRMAR ou REJEITAR', path);
+    }
+    if (body.motivo && body.motivo.length > 255) {
+      return errorResponse(400, 'Bad Request', 'motivo nao pode exceder 255 caracteres', path);
+    }
+    const sugestao = matchingSugestoes[params['sugestaoId'] as string];
+    if (!sugestao) {
+      return errorResponse(404, 'Not Found', 'Sugestao de matching nao encontrada', path);
+    }
+    if (sugestao['status'] !== 'SUGERIDA') {
+      return errorResponse(409, 'Conflict', 'Sugestao ja decidida', path);
+    }
+    sugestao['status'] = body.acao === 'CONFIRMAR' ? 'CONFIRMADA' : 'REJEITADA';
+    sugestao['decididaEm'] = now;
+    return HttpResponse.json(sugestao);
+  }),
 ];
 
 export const handlers = [

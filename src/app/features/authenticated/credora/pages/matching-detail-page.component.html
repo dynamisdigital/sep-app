@@ -1,0 +1,206 @@
+<section class="sep-matching-detail">
+  @if (loading()) {
+    <p class="sep-matching-detail-state" role="status">Carregando sugestao...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-matching-detail-state sep-matching-detail-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="sep-matching-detail-retry" (click)="carregar()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (indisponivel()) {
+    <div class="sep-matching-detail-state sep-matching-detail-empty">
+      <p>Sugestao de matching indisponivel. Ela pode ja ter sido removida.</p>
+      <a class="sep-matching-detail-voltar" [routerLink]="['/app/credora/matching']">
+        Voltar para as sugestoes
+      </a>
+    </div>
+  } @else if (sugestao(); as s) {
+    <header class="sep-matching-detail-header">
+      <h1 class="sep-matching-detail-title">Detalhe do matching</h1>
+      <sep-matching-status [status]="s.status" />
+    </header>
+
+    <p class="sep-matching-detail-descricao">
+      Sugestao gerada pelo sistema para o par credora-operacao. Confirmar apenas registra a decisao:
+      nenhum aporte e criado e nenhum recurso e transferido.
+    </p>
+
+    <dl class="sep-matching-detail-campos">
+      <div class="sep-matching-detail-campo">
+        <dt>Operacao</dt>
+        <dd>{{ idCurto(s.operacaoId) }}</dd>
+      </div>
+      <div class="sep-matching-detail-campo">
+        <dt>Empresa credora</dt>
+        <dd>{{ idCurto(s.empresaCredoraId) }}</dd>
+      </div>
+      <div class="sep-matching-detail-campo sep-matching-detail-campo-valor">
+        <dt>Valor elegivel</dt>
+        <dd>{{ formatarMoeda(s.valorElegivel) }}</dd>
+      </div>
+      <div class="sep-matching-detail-campo">
+        <dt>Criada em</dt>
+        <dd>{{ formatarData(s.criadaEm) }}</dd>
+      </div>
+      @if (s.decididaEm) {
+        <div class="sep-matching-detail-campo">
+          <dt>Decidida em</dt>
+          <dd>{{ formatarData(s.decididaEm) }}</dd>
+        </div>
+      }
+    </dl>
+
+    <h2 class="sep-matching-detail-subtitulo">Criterios atendidos</h2>
+    <ul class="sep-matching-detail-criterios">
+      @for (criterio of s.criterios; track criterio) {
+        <li class="sep-matching-detail-criterio">{{ criterio }}</li>
+      }
+    </ul>
+
+    @if (s.status === 'SUGERIDA') {
+      @if (mfaNecessario()) {
+        <div class="sep-matching-detail-aviso" role="alert">
+          <p>
+            Para decidir o matching e preciso ter a verificacao em duas etapas (MFA) ativa na sua
+            conta.
+          </p>
+          <a class="sep-matching-detail-aviso-link" [routerLink]="['/app/profile/setup-totp']">
+            Ativar verificacao em duas etapas
+          </a>
+        </div>
+      }
+
+      @if (decisaoErro()) {
+        <p class="sep-matching-detail-decisao-erro" role="alert">{{ decisaoErro() }}</p>
+      }
+
+      @if (desatualizado()) {
+        <div class="sep-matching-detail-aviso" role="alert">
+          <p>Os dados exibidos podem estar desatualizados.</p>
+          <button type="button" class="sep-matching-detail-retry" (click)="atualizarSugestao()">
+            Atualizar sugestao
+          </button>
+        </div>
+      }
+
+      @if (verificacaoNecessaria()) {
+        <div class="sep-matching-detail-aviso" role="alert">
+          <p>Nao foi possivel confirmar sua identidade para a decisao.</p>
+          <button type="button" class="sep-matching-detail-retry" (click)="verificarNovamente()">
+            Verificar novamente
+          </button>
+        </div>
+      }
+
+      <div class="sep-matching-detail-acoes">
+        <button
+          type="button"
+          class="sep-matching-detail-confirmar"
+          (click)="decidirClick('CONFIRMAR')"
+          [disabled]="decisaoBloqueada()"
+        >
+          {{ reconsultando() ? 'Atualizando...' : 'Confirmar matching' }}
+        </button>
+        <button
+          type="button"
+          class="sep-matching-detail-rejeitar"
+          (click)="decidirClick('REJEITAR')"
+          [disabled]="decisaoBloqueada()"
+        >
+          Rejeitar matching
+        </button>
+      </div>
+
+      @if (confirmando(); as acao) {
+        <div
+          #confirmacaoBox
+          class="sep-matching-detail-confirmacao"
+          role="alertdialog"
+          aria-modal="true"
+          tabindex="-1"
+          aria-labelledby="confirmacao-matching-titulo"
+          (keydown.escape)="cancelarConfirmacao()"
+          (keydown.tab)="prenderFoco($event)"
+          (keydown.shift.tab)="prenderFoco($event)"
+        >
+          <h2 class="sep-matching-detail-confirmacao-titulo" id="confirmacao-matching-titulo">
+            {{ acao === 'CONFIRMAR' ? 'Confirmar matching' : 'Rejeitar matching' }}
+          </h2>
+          <p class="sep-matching-detail-confirmacao-texto">
+            @if (acao === 'CONFIRMAR') {
+              Voce esta confirmando o matching da operacao {{ idCurto(s.operacaoId) }} com a credora
+              {{ idCurto(s.empresaCredoraId) }}, com valor elegivel de
+              {{ formatarMoeda(s.valorElegivel) }}. A confirmacao apenas registra a decisao; o
+              aporte e um passo separado.
+            } @else {
+              Voce esta rejeitando o matching da operacao {{ idCurto(s.operacaoId) }} com a credora
+              {{ idCurto(s.empresaCredoraId) }}, com valor elegivel de
+              {{ formatarMoeda(s.valorElegivel) }}. A rejeicao e definitiva para esta sugestao.
+            }
+          </p>
+          <div class="sep-matching-detail-motivo">
+            <label class="sep-matching-detail-motivo-label" for="motivo-decisao">
+              Motivo (opcional)
+            </label>
+            <textarea
+              class="sep-matching-detail-motivo-campo"
+              id="motivo-decisao"
+              rows="3"
+              [attr.maxlength]="motivoMax"
+              [value]="motivo()"
+              [disabled]="decisaoEmVoo()"
+              (input)="atualizarMotivo($any($event.target).value)"
+            ></textarea>
+            <span class="sep-matching-detail-motivo-contador">
+              {{ motivo().length }}/{{ motivoMax }}
+            </span>
+          </div>
+          <div class="sep-matching-detail-confirmacao-acoes">
+            <button
+              type="button"
+              [class]="
+                acao === 'CONFIRMAR'
+                  ? 'sep-matching-detail-confirmar'
+                  : 'sep-matching-detail-rejeitar'
+              "
+              (click)="confirmarDecisao()"
+              [disabled]="decisaoEmVoo()"
+            >
+              {{
+                decisaoEmVoo()
+                  ? 'Enviando...'
+                  : acao === 'CONFIRMAR'
+                    ? 'Confirmar decisao'
+                    : 'Rejeitar sugestao'
+              }}
+            </button>
+            <button
+              type="button"
+              class="sep-matching-detail-cancelar"
+              (click)="cancelarConfirmacao()"
+              [disabled]="decisaoEmVoo()"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      }
+    } @else {
+      <div class="sep-matching-detail-resultado" role="status">
+        @if (s.status === 'CONFIRMADA') {
+          <p>
+            Matching confirmado e registrado. Nenhum recurso foi transferido: o aporte e um passo
+            separado, feito pelo fluxo assistido de aporte.
+          </p>
+        } @else {
+          <p>Matching rejeitado. Esta sugestao nao aceita nova decisao.</p>
+        }
+      </div>
+    }
+
+    <a class="sep-matching-detail-voltar" [routerLink]="['/app/credora/matching']">
+      Voltar para as sugestoes
+    </a>
+  }
+</section>

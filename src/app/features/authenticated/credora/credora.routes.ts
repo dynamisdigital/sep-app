@@ -22,6 +22,13 @@ export const CREDORA_ROUTES: Routes = [
       ),
   },
   {
+    path: 'matching/:sugestaoId',
+    canActivate: [roleGuard],
+    data: { roles: ['FINANCEIRO', 'ADMIN'], breadcrumb: 'Detalhe do matching' },
+    loadComponent: () =>
+      import('./pages/matching-detail-page.component').then((m) => m.MatchingDetailPageComponent),
+  },
+  {
     path: '',
     loadComponent: () => import('./credora-shell.component').then((m) => m.CredoraShellComponent),
   },

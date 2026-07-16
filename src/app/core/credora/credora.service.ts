@@ -1,8 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
+import { TRATA_403_LOCALMENTE } from '../interceptors/error.interceptor';
 import {
   AporteCredoraResponse,
   CadastrarCredoraRequest,
@@ -91,7 +92,9 @@ export class CredoraService {
   }
 
   // POST com step-up estrito (via interceptor). Decisao terminal/repetida responde 409; confirmar
-  // apenas registra a decisao — nenhum aporte e criado.
+  // apenas registra a decisao — nenhum aporte e criado. O 403 (MFA inativo/step-up invalido) e
+  // tratado pela tela de decisao — orientacao de MFA ou reverificacao explicita — sem o redirect
+  // global do errorInterceptor (mesmo padrao da F-16.5).
   decidirMatching(
     sugestaoId: string,
     request: DecidirMatchingRequest,
@@ -99,6 +102,7 @@ export class CredoraService {
     return this.http.post<MatchingSugestaoResponse>(
       `${MATCHING_URL}/${sugestaoId}/decisao`,
       request,
+      { context: tratando403NaTela() },
     );
   }
 
@@ -124,4 +128,10 @@ export class CredoraService {
   listarAportes(operacaoId: string): Observable<AporteCredoraResponse[]> {
     return this.http.get<AporteCredoraResponse[]>(`${OPERACOES_URL}/${operacaoId}/aportes`);
   }
+}
+
+// As mutacoes sensiveis da jornada operacional tem tratamento local completo de 403 (F-18.3);
+// o errorInterceptor nao deve ejetar o operador da tela para /access-denied.
+function tratando403NaTela(): HttpContext {
+  return new HttpContext().set(TRATA_403_LOCALMENTE, true);
 }
