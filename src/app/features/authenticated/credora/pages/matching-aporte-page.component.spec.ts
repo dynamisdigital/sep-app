@@ -364,6 +364,94 @@ describe('MatchingAportePageComponent', () => {
     expect(posts).toBe(1);
   });
 
+  it('400 no POST mantem o formulario com o valor digitado para correcao', async () => {
+    comMatchingConfirmada();
+    server.use(
+      http.post(APORTES_URL, () =>
+        HttpResponse.json({ message: 'valor deve ser positivo' }, { status: 400 }),
+      ),
+    );
+    const { fixture } = await renderAporte({ comStepUp: true, tokenInicial: 'step-up-tok' });
+    autenticarFinanceiro(fixture, true);
+    await estabilizar(fixture);
+
+    fireEvent.click(screen.getByText('Registrar aporte'));
+    await estabilizar(fixture);
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar aporte' }));
+    await estabilizar(fixture);
+
+    expect(screen.getByText('valor deve ser positivo')).toBeTruthy();
+    const input = screen.getByLabelText('Valor do aporte (R$)') as HTMLInputElement;
+    expect(input.value).toBe('25000.00');
+    expect(screen.queryByText(/Aporte registrado no valor de/)).toBeNull();
+  });
+
+  it('404 no POST mostra operacao indisponivel neutra, sem ecoar UUID em erro', async () => {
+    comMatchingConfirmada();
+    server.use(
+      http.post(APORTES_URL, () =>
+        HttpResponse.json({ message: 'Operacao nao encontrada para aporte' }, { status: 404 }),
+      ),
+    );
+    const { fixture } = await renderAporte({ comStepUp: true, tokenInicial: 'step-up-tok' });
+    autenticarFinanceiro(fixture, true);
+    await estabilizar(fixture);
+
+    fireEvent.click(screen.getByText('Registrar aporte'));
+    await estabilizar(fixture);
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar aporte' }));
+    await estabilizar(fixture);
+
+    const erro = screen.getByText('Operacao indisponivel para aporte.');
+    expect(erro).toBeTruthy();
+    // Mensagem de erro nao contem UUID integral (IDs curtos do contexto ficam fora do alerta).
+    expect(erro.textContent).not.toMatch(
+      /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i,
+    );
+  });
+
+  it('duplo clique em Confirmar aporte dispara UM POST', async () => {
+    comMatchingConfirmada();
+    let posts = 0;
+    server.use(
+      http.post(APORTES_URL, () => {
+        posts += 1;
+        return HttpResponse.json(
+          {
+            id: 'aporte-novo',
+            operacaoId: OPERACAO_ID,
+            status: 'PENDENTE',
+            valor: 25000,
+            dataCriacao: '2026-07-16T10:00:00-03:00',
+            dataAtualizacao: '2026-07-16T10:00:00-03:00',
+          },
+          { status: 201 },
+        );
+      }),
+    );
+    const { fixture } = await renderAporte({ comStepUp: true, tokenInicial: 'step-up-tok' });
+    autenticarFinanceiro(fixture, true);
+    await estabilizar(fixture);
+
+    fireEvent.click(screen.getByText('Registrar aporte'));
+    await estabilizar(fixture);
+
+    const confirmar = screen.getByRole('button', { name: 'Confirmar aporte' });
+    fireEvent.click(confirmar);
+    fireEvent.click(confirmar);
+    await estabilizar(fixture);
+
+    expect(posts).toBe(1);
+  });
+
+  it('pagina tem um unico heading nivel 1', async () => {
+    comMatchingConfirmada();
+    const { fixture } = await renderAporte();
+    await estabilizar(fixture);
+
+    expect(screen.getAllByRole('heading', { level: 1 }).length).toBe(1);
+  });
+
   it('atualiza a lista somente por gesto explicito, sem polling', async () => {
     comMatchingConfirmada();
     let listagens = 0;

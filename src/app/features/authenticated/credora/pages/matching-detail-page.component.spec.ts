@@ -423,6 +423,118 @@ describe('MatchingDetailPageComponent', () => {
     expect((screen.getByText('Confirmar matching') as HTMLButtonElement).disabled).toBe(false);
   });
 
+  it('403 no GET do detalhe segue o fluxo global de acesso negado (sem supressao)', async () => {
+    server.use(
+      http.get(DETALHE_URL, () =>
+        HttpResponse.json({ message: 'Sem role FINANCEIRO/ADMIN' }, { status: 403 }),
+      ),
+    );
+    const { fixture } = await renderDetalhe(MATCHING_SUGERIDA_ID);
+    const router = fixture.debugElement.injector.get(Router);
+    const navegar = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+    await estabilizar(fixture);
+
+    // Leitura sem TRATA_403_LOCALMENTE: o errorInterceptor ejeta para /access-denied.
+    expect(navegar).toHaveBeenCalledWith('/access-denied');
+  });
+
+  it('400 na decisao mostra a mensagem da API e mantem o contexto, sem sucesso presumido', async () => {
+    server.use(
+      http.post(DECISAO_URL, () =>
+        HttpResponse.json({ message: 'motivo nao pode exceder 255 caracteres' }, { status: 400 }),
+      ),
+    );
+    const { fixture } = await renderDetalhe(MATCHING_SUGERIDA_ID, {
+      comStepUp: true,
+      tokenInicial: 'step-up-tok',
+    });
+    autenticarFinanceiro(fixture, true);
+    await estabilizar(fixture);
+
+    fireEvent.click(screen.getByText('Confirmar matching'));
+    await estabilizar(fixture);
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar decisao' }));
+    await estabilizar(fixture);
+
+    expect(screen.getByText('motivo nao pode exceder 255 caracteres')).toBeTruthy();
+    expect(screen.queryByText(/Matching confirmado e registrado/)).toBeNull();
+    // A sugestao continua decidivel apos a correcao.
+    expect(screen.getByText('Confirmar matching')).toBeTruthy();
+  });
+
+  it('duplo clique no CTA de decisao dispara UMA reconsulta', async () => {
+    let consultas = 0;
+    server.use(
+      http.get(DETALHE_URL, () => {
+        consultas += 1;
+        return HttpResponse.json({
+          id: MATCHING_SUGERIDA_ID,
+          operacaoId: '7f0799c0-98b9-6d9d-bc4a-7d6f5b78c001',
+          empresaCredoraId: '7f0799c0-98b9-6d9d-bc4a-7d6f5b780001',
+          status: 'SUGERIDA',
+          valorElegivel: 25000.0,
+          criterios: ['CREDORA_ATIVA'],
+          criadaEm: '2026-07-10T12:00:00-03:00',
+          decididaEm: null,
+        });
+      }),
+    );
+    const { fixture } = await renderDetalhe(MATCHING_SUGERIDA_ID);
+    autenticarFinanceiro(fixture, true);
+    await estabilizar(fixture);
+    expect(consultas).toBe(1);
+
+    const cta = screen.getByText('Confirmar matching');
+    fireEvent.click(cta);
+    fireEvent.click(cta);
+    await estabilizar(fixture);
+
+    // 1 inicial + 1 reconsulta: o segundo clique cai no guard de decisao bloqueada.
+    expect(consultas).toBe(2);
+  });
+
+  it('duplo clique em Confirmar decisao dispara UM POST', async () => {
+    let posts = 0;
+    server.use(
+      http.post(DECISAO_URL, () => {
+        posts += 1;
+        return HttpResponse.json({
+          id: MATCHING_SUGERIDA_ID,
+          operacaoId: '7f0799c0-98b9-6d9d-bc4a-7d6f5b78c001',
+          empresaCredoraId: '7f0799c0-98b9-6d9d-bc4a-7d6f5b780001',
+          status: 'CONFIRMADA',
+          valorElegivel: 25000.0,
+          criterios: ['CREDORA_ATIVA'],
+          criadaEm: '2026-07-10T12:00:00-03:00',
+          decididaEm: '2026-07-12T10:00:00-03:00',
+        });
+      }),
+    );
+    const { fixture } = await renderDetalhe(MATCHING_SUGERIDA_ID, {
+      comStepUp: true,
+      tokenInicial: 'step-up-tok',
+    });
+    autenticarFinanceiro(fixture, true);
+    await estabilizar(fixture);
+
+    fireEvent.click(screen.getByText('Confirmar matching'));
+    await estabilizar(fixture);
+
+    const confirmar = screen.getByRole('button', { name: 'Confirmar decisao' });
+    fireEvent.click(confirmar);
+    fireEvent.click(confirmar);
+    await estabilizar(fixture);
+
+    expect(posts).toBe(1);
+  });
+
+  it('pagina tem um unico heading nivel 1', async () => {
+    const { fixture } = await renderDetalhe(MATCHING_SUGERIDA_ID);
+    await estabilizar(fixture);
+
+    expect(screen.getAllByRole('heading', { level: 1 }).length).toBe(1);
+  });
+
   it('clique rapido repetido em Tentar novamente nao abre consultas concorrentes', async () => {
     let consultas = 0;
     server.use(

@@ -130,6 +130,13 @@ describe('MatchingSugestoesPageComponent', () => {
     expect(screen.getByText('Nenhuma sugestao de matching pendente de decisao.')).toBeTruthy();
   });
 
+  it('pagina tem um unico heading nivel 1', async () => {
+    const { fixture } = await renderPage();
+    await estabilizar(fixture);
+
+    expect(screen.getAllByRole('heading', { level: 1 }).length).toBe(1);
+  });
+
   it('explica o refresh-on-read e nao promete confirmacao automatica', async () => {
     const { fixture } = await renderPage();
     await estabilizar(fixture);
