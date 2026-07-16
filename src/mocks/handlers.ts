@@ -2659,19 +2659,126 @@ function seedCarteiraPorUsuario(): Record<string, Record<string, unknown>[]> {
   return { [credoraUsuario.id]: [operacaoAssociadaSeed()] };
 }
 
+const MATCHING_SUGERIDA_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78f001';
+const MATCHING_SUGERIDA_2_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78f002';
+const MATCHING_CONFIRMADA_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78f003';
+const OPERACAO_MATCHING_2_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78c002';
+const OPERACAO_MATCHING_3_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78c003';
+const APORTE_LIQUIDADO_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78ab01';
+const APORTE_EM_PROCESSAMENTO_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78ab02';
+const APORTE_FALHOU_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78ab03';
+
+function seedMatchingSugestoes(): Record<string, Record<string, unknown>> {
+  // Sugestoes de matching (F-18 / backend Sprint 30). criterios sao codigos funcionais do
+  // snapshot (CriterioMatchingCredoraOperacao); valorElegivel e autoritativo do backend.
+  return {
+    [MATCHING_SUGERIDA_ID]: {
+      id: MATCHING_SUGERIDA_ID,
+      operacaoId: OPERACAO_ASSOCIADA_ID,
+      empresaCredoraId: CREDORA_ELEGIVEL_ID,
+      status: 'SUGERIDA',
+      valorElegivel: 25000.0,
+      criterios: [
+        'CREDORA_ATIVA',
+        'CREDORA_ELEGIVEL',
+        'OPERACAO_ATIVA',
+        'CONTRATO_ASSINADO',
+        'PAR_SEM_MATCHING_PREVIO',
+      ],
+      criadaEm: now,
+      decididaEm: null,
+    },
+    // Segunda sugestao da MESMA credora elegivel (par credora-operacao distinto): o backend so
+    // gera sugestao quando TODOS os criterios sao atendidos — credora inelegivel nunca aparece.
+    [MATCHING_SUGERIDA_2_ID]: {
+      id: MATCHING_SUGERIDA_2_ID,
+      operacaoId: OPERACAO_MATCHING_2_ID,
+      empresaCredoraId: CREDORA_ELEGIVEL_ID,
+      status: 'SUGERIDA',
+      valorElegivel: 12000.0,
+      criterios: [
+        'CREDORA_ATIVA',
+        'CREDORA_ELEGIVEL',
+        'OPERACAO_ATIVA',
+        'CONTRATO_ASSINADO',
+        'CAPACIDADE_COMPORTA_VALOR',
+        'PAR_SEM_MATCHING_PREVIO',
+      ],
+      criadaEm: now,
+      decididaEm: null,
+    },
+    // Matching ja CONFIRMADO no seed: alimenta o fluxo de aporte (detalhe -> CTA -> pagina de
+    // aporte) sem depender de decisao com TOTP, que o modo offline nao completa.
+    [MATCHING_CONFIRMADA_ID]: {
+      id: MATCHING_CONFIRMADA_ID,
+      operacaoId: OPERACAO_MATCHING_3_ID,
+      empresaCredoraId: CREDORA_ELEGIVEL_ID,
+      status: 'CONFIRMADA',
+      valorElegivel: 18000.0,
+      criterios: ['CREDORA_ATIVA', 'CREDORA_ELEGIVEL', 'OPERACAO_ATIVA', 'CONTRATO_ASSINADO'],
+      criadaEm: now,
+      decididaEm: now,
+    },
+  };
+}
+
+function seedAportesPorOperacao(): Record<string, Record<string, unknown>[]> {
+  // Aportes da Sprint 29 (F-18.4). A operacao associada (da carteira da credora elegivel) ja tem
+  // um aporte LIQUIDADO; a operacao do matching confirmado cobre EM_PROCESSAMENTO e FALHOU; a do
+  // segundo matching comeca vazia (PENDENTE nasce pelo POST). Ordem = criacao decrescente, como o
+  // contrato. Operacao fora deste mapa = 404 neutro.
+  return {
+    [OPERACAO_ASSOCIADA_ID]: [
+      {
+        id: APORTE_LIQUIDADO_ID,
+        operacaoId: OPERACAO_ASSOCIADA_ID,
+        status: 'LIQUIDADO',
+        valor: 10000.0,
+        dataCriacao: now,
+        dataAtualizacao: now,
+      },
+    ],
+    [OPERACAO_MATCHING_2_ID]: [],
+    [OPERACAO_MATCHING_3_ID]: [
+      {
+        id: APORTE_EM_PROCESSAMENTO_ID,
+        operacaoId: OPERACAO_MATCHING_3_ID,
+        status: 'EM_PROCESSAMENTO',
+        valor: 8000.0,
+        dataCriacao: now,
+        dataAtualizacao: now,
+      },
+      {
+        id: APORTE_FALHOU_ID,
+        operacaoId: OPERACAO_MATCHING_3_ID,
+        status: 'FALHOU',
+        valor: 3000.0,
+        dataCriacao: now,
+        dataAtualizacao: now,
+      },
+    ],
+  };
+}
+
 let credorasPorUsuario = seedCredorasPorUsuario();
 let oportunidadesCredora = seedOportunidadesCredora();
 let carteiraPorUsuario = seedCarteiraPorUsuario();
 let interessesAtivos = new Set<string>();
+let matchingSugestoes = seedMatchingSugestoes();
+let aportesPorOperacao = seedAportesPorOperacao();
+let aportesPorKey: Record<string, Record<string, unknown>> = {};
 let credoraSeq = 200;
 
-// Restaura o estado mutavel da credora (cadastro, interesses) para o seed, garantindo testes
-// independentes (F.I.R.S.T.) ao exercitar cadastro/interesse.
+// Restaura o estado mutavel da credora (cadastro, interesses, matching, aportes) para o seed,
+// garantindo testes independentes (F.I.R.S.T.) ao exercitar cadastro/interesse/decisao/aporte.
 export function resetCredoraState(): void {
   credorasPorUsuario = seedCredorasPorUsuario();
   oportunidadesCredora = seedOportunidadesCredora();
   carteiraPorUsuario = seedCarteiraPorUsuario();
   interessesAtivos = new Set<string>();
+  matchingSugestoes = seedMatchingSugestoes();
+  aportesPorOperacao = seedAportesPorOperacao();
+  aportesPorKey = {};
   credoraSeq = 200;
 }
 
@@ -2853,6 +2960,117 @@ const credoraHandlers = [
       return errorResponse(404, 'Not Found', 'Usuario nao possui credora', path);
     }
     return HttpResponse.json(carteiraPorUsuario[currentMockUser.id] ?? []);
+  }),
+
+  // GET refresh-on-read (F-18 / Sprint 30): o backend pode persistir sugestoes novas antes de
+  // listar; o mock e estatico, logo naturalmente idempotente. Lista somente SUGERIDA em ordem
+  // deterministica (maior valorElegivel primeiro), como o contrato.
+  http.get(`${baseUrl}/credores/matching/sugestoes`, () => {
+    const sugeridas = Object.values(matchingSugestoes)
+      .filter((s) => s['status'] === 'SUGERIDA')
+      .sort((a, b) => (b['valorElegivel'] as number) - (a['valorElegivel'] as number));
+    return HttpResponse.json(sugeridas);
+  }),
+
+  // Consulta individual (qualquer status); inexistente responde 404 neutro sem identificador.
+  // Registrado DEPOIS de /matching/sugestoes: o MSW casa na ordem do array e este pattern
+  // tambem casaria aquela URL.
+  http.get(`${baseUrl}/credores/matching/:sugestaoId`, ({ params }) => {
+    const sugestao = matchingSugestoes[params['sugestaoId'] as string];
+    if (!sugestao) {
+      return errorResponse(
+        404,
+        'Not Found',
+        'Sugestao de matching nao encontrada',
+        '/api/v1/credores/matching',
+      );
+    }
+    return HttpResponse.json(sugestao);
+  }),
+
+  // Decisao assistida (step-up estrito): confirma ou rejeita sugestao SUGERIDA. Espelha o
+  // MatchingCredoraController — 403 sem token de step-up, 400 acao/motivo invalido, 404 neutro,
+  // 409 em status terminal. Confirmar apenas registra a decisao; nenhum aporte e criado.
+  http.post(`${baseUrl}/credores/matching/:sugestaoId/decisao`, async ({ request, params }) => {
+    const path = '/api/v1/credores/matching/decisao';
+    if (!request.headers.get('X-Step-Up-Token')) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio para esta operacao', path);
+    }
+    const body = (await request.json()) as { acao?: string; motivo?: string };
+    if (body.acao !== 'CONFIRMAR' && body.acao !== 'REJEITAR') {
+      return errorResponse(400, 'Bad Request', 'acao deve ser CONFIRMAR ou REJEITAR', path);
+    }
+    if (body.motivo && body.motivo.length > 255) {
+      return errorResponse(400, 'Bad Request', 'motivo nao pode exceder 255 caracteres', path);
+    }
+    const sugestao = matchingSugestoes[params['sugestaoId'] as string];
+    if (!sugestao) {
+      return errorResponse(404, 'Not Found', 'Sugestao de matching nao encontrada', path);
+    }
+    if (sugestao['status'] !== 'SUGERIDA') {
+      return errorResponse(409, 'Conflict', 'Sugestao ja decidida', path);
+    }
+    sugestao['status'] = body.acao === 'CONFIRMAR' ? 'CONFIRMADA' : 'REJEITADA';
+    sugestao['decididaEm'] = now;
+    return HttpResponse.json(sugestao);
+  }),
+
+  // GET owner-scoped (Sprint 29): FINANCEIRO/ADMIN listam qualquer operacao conhecida; a credora
+  // dona (CLIENTE) somente a propria (presenca na carteira). Operacao desconhecida, usuario sem
+  // credora e operacao alheia respondem o MESMO 404 neutro, sem identificador.
+  http.get(`${baseUrl}/credores/operacoes/:operacaoId/aportes`, ({ params }) => {
+    const operacaoId = params['operacaoId'] as string;
+    const path = '/api/v1/credores/operacoes/aportes';
+    const aportes = aportesPorOperacao[operacaoId];
+    const visaoOperacional =
+      currentMockUser.role === 'FINANCEIRO' || currentMockUser.role === 'ADMIN';
+    const dona = (carteiraPorUsuario[currentMockUser.id] ?? []).some((o) => o['id'] === operacaoId);
+    if (!aportes || (!visaoOperacional && !dona)) {
+      return errorResponse(404, 'Not Found', 'Operacao nao encontrada para aporte', path);
+    }
+    return HttpResponse.json(aportes);
+  }),
+
+  // POST do aporte assistido (Sprint 29): step-up estrito + Idempotency-Key obrigatoria. Replay
+  // da mesma key com o mesmo valor devolve o aporte existente (200); valor divergente responde
+  // 409. Novo registro nasce PENDENTE (201). Nunca ecoa key, escrow ou provider.
+  http.post(`${baseUrl}/credores/operacoes/:operacaoId/aportes`, async ({ request, params }) => {
+    const operacaoId = params['operacaoId'] as string;
+    const path = '/api/v1/credores/operacoes/aportes';
+    if (!request.headers.get('X-Step-Up-Token')) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio para esta operacao', path);
+    }
+    const key = request.headers.get('Idempotency-Key');
+    if (!key) {
+      return errorResponse(400, 'Bad Request', 'Idempotency-Key obrigatoria', path);
+    }
+    const body = (await request.json()) as { valor?: number };
+    if (typeof body.valor !== 'number' || body.valor <= 0) {
+      return errorResponse(400, 'Bad Request', 'valor deve ser positivo', path);
+    }
+    const aportes = aportesPorOperacao[operacaoId];
+    if (!aportes) {
+      return errorResponse(404, 'Not Found', 'Operacao nao encontrada para aporte', path);
+    }
+    const existente = aportesPorKey[key];
+    if (existente) {
+      if (existente['valor'] !== body.valor) {
+        return errorResponse(409, 'Conflict', 'Idempotency-Key conflitante', path);
+      }
+      return HttpResponse.json(existente);
+    }
+    credoraSeq += 1;
+    const aporte: Record<string, unknown> = {
+      id: novoId('7f0799c0', credoraSeq),
+      operacaoId,
+      status: 'PENDENTE',
+      valor: body.valor,
+      dataCriacao: now,
+      dataAtualizacao: now,
+    };
+    aportes.unshift(aporte);
+    aportesPorKey[key] = aporte;
+    return HttpResponse.json(aporte, { status: 201 });
   }),
 ];
 

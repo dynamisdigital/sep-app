@@ -1,26 +1,35 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
+import { TRATA_403_LOCALMENTE } from '../interceptors/error.interceptor';
 import {
+  AporteCredoraResponse,
   CadastrarCredoraRequest,
+  DecidirMatchingRequest,
   ElegibilidadeCredoraResponse,
   EmpresaCredoraResponse,
   InteresseResponse,
+  MatchingSugestaoResponse,
   OperacaoCarteiraResponse,
   OportunidadeResponse,
+  RegistrarAporteRequest,
 } from '../api/api.models';
 
 const CREDORES_URL = `${environment.apiBaseUrl}/credores`;
 const OPORTUNIDADES_URL = `${CREDORES_URL}/oportunidades`;
 const CARTEIRA_URL = `${CREDORES_URL}/carteira`;
+const MATCHING_URL = `${CREDORES_URL}/matching`;
+const OPERACOES_URL = `${CREDORES_URL}/operacoes`;
 
 // Transporte HTTP da jornada credora (Epic 10 / backend Sprints 16-17): cadastro a partir de
-// onboarding PJ aprovado, perfil/elegibilidade, oportunidades, interesse e carteira. Elegibilidade,
-// ownership, unicidade de interesse, associacao de carteira e auditoria pertencem ao backend; o
-// service apenas propaga os DTOs e nunca recalcula regra de negocio. Nenhuma operacao desta jornada
-// usa step-up.
+// onboarding PJ aprovado, perfil/elegibilidade, oportunidades, interesse e carteira. A F-Sprint 18
+// (backend Sprints 29-30) acrescenta matching assistido e aporte assistido. Elegibilidade,
+// ownership, unicidade de interesse, associacao de carteira, estados de matching/aporte,
+// idempotencia e auditoria pertencem ao backend; o service apenas propaga os DTOs e headers e nunca
+// recalcula regra de negocio. O X-Step-Up-Token dos POSTs sensiveis (decisao de matching e aporte)
+// e anexado pelo stepUpInterceptor, nao aqui.
 @Injectable({ providedIn: 'root' })
 export class CredoraService {
   private readonly http = inject(HttpClient);
@@ -70,4 +79,61 @@ export class CredoraService {
   consultarOperacaoCarteira(id: string): Observable<OperacaoCarteiraResponse> {
     return this.http.get<OperacaoCarteiraResponse>(`${CARTEIRA_URL}/${id}`);
   }
+
+  // GET refresh-on-read (FINANCEIRO/ADMIN): o backend pode persistir e auditar sugestoes novas
+  // antes de listar as SUGERIDA. Nao e leitura pura — o consumidor so chama por gesto explicito,
+  // nunca por polling.
+  listarSugestoesMatching(): Observable<MatchingSugestaoResponse[]> {
+    return this.http.get<MatchingSugestaoResponse[]>(`${MATCHING_URL}/sugestoes`);
+  }
+
+  consultarMatching(sugestaoId: string): Observable<MatchingSugestaoResponse> {
+    return this.http.get<MatchingSugestaoResponse>(`${MATCHING_URL}/${sugestaoId}`);
+  }
+
+  // POST com step-up estrito (via interceptor). Decisao terminal/repetida responde 409; confirmar
+  // apenas registra a decisao — nenhum aporte e criado. O 403 (MFA inativo/step-up invalido) e
+  // tratado pela tela de decisao — orientacao de MFA ou reverificacao explicita — sem o redirect
+  // global do errorInterceptor (mesmo padrao da F-16.5).
+  decidirMatching(
+    sugestaoId: string,
+    request: DecidirMatchingRequest,
+  ): Observable<MatchingSugestaoResponse> {
+    return this.http.post<MatchingSugestaoResponse>(
+      `${MATCHING_URL}/${sugestaoId}/decisao`,
+      request,
+      { context: tratando403NaTela() },
+    );
+  }
+
+  // POST com step-up estrito (via interceptor) e Idempotency-Key obrigatoria. A key e gerada pelo
+  // chamador por intencao de aporte; o service so a transporta. 201 = registro novo, 200 = replay
+  // idempotente — ambos entregues no mesmo canal de sucesso. O 403 (MFA inativo/step-up invalido)
+  // e tratado pela tela de aporte, sem o redirect global do errorInterceptor.
+  registrarAporte(
+    operacaoId: string,
+    request: RegistrarAporteRequest,
+    idempotencyKey: string,
+  ): Observable<AporteCredoraResponse> {
+    return this.http.post<AporteCredoraResponse>(
+      `${OPERACOES_URL}/${operacaoId}/aportes`,
+      request,
+      {
+        headers: { 'Idempotency-Key': idempotencyKey },
+        context: tratando403NaTela(),
+      },
+    );
+  }
+
+  // GET owner-scoped sem step-up: financeiro/admin veem qualquer operacao; a credora dona ve
+  // somente a propria. 404 neutro para usuario sem credora, operacao alheia ou inexistente.
+  listarAportes(operacaoId: string): Observable<AporteCredoraResponse[]> {
+    return this.http.get<AporteCredoraResponse[]>(`${OPERACOES_URL}/${operacaoId}/aportes`);
+  }
+}
+
+// As mutacoes sensiveis da jornada operacional tem tratamento local completo de 403 (F-18.3);
+// o errorInterceptor nao deve ejetar o operador da tela para /access-denied.
+function tratando403NaTela(): HttpContext {
+  return new HttpContext().set(TRATA_403_LOCALMENTE, true);
 }

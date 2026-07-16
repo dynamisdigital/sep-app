@@ -1,0 +1,27 @@
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-aporte-status-badge {
+  @include sepDs.sep-badge-base;
+
+  align-self: flex-start;
+
+  &.is-pendente {
+    color: hsl(var(--primary));
+    background: hsl(var(--primary) / 12%);
+  }
+
+  &.is-processando {
+    color: hsl(var(--warning));
+    background: hsl(var(--warning) / 12%);
+  }
+
+  &.is-liquidado {
+    color: hsl(var(--success));
+    background: hsl(var(--success) / 12%);
+  }
+
+  &.is-falhou {
+    color: hsl(var(--destructive));
+    background: hsl(var(--destructive) / 12%);
+  }
+}
