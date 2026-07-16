@@ -18,6 +18,20 @@
       "followUp": "backend: alinhar a representacao OpenAPI do Duration ao runtime (@Schema(type = number))"
     },
     {
+      "kind": "response-header-undocumented",
+      "header": "X-Document-Hash-Sha256",
+      "appliesTo": "contratos.documentoAssinado",
+      "reason": "O frontend le o hash SHA-256 do PDF assinado no header da resposta, mas o springdoc nao documenta headers de resposta neste endpoint.",
+      "followUp": "backend: documentar os headers da resposta do documento assinado (springdoc @ApiResponse headers)"
+    },
+    {
+      "kind": "response-header-undocumented",
+      "header": "Content-Disposition",
+      "appliesTo": "contratos.documentoAssinado",
+      "reason": "O frontend le o filename do Content-Disposition; header nao documentado no OpenAPI.",
+      "followUp": "backend: documentar os headers da resposta do documento assinado (springdoc @ApiResponse headers)"
+    },
+    {
       "kind": "enum-undocumented",
       "type": "ContratoResponse",
       "field": "tipo",
@@ -1230,7 +1244,8 @@
       "method": "get",
       "path": "/api/v1/contratos/{id}/documento-assinado",
       "sucesso": [200],
-      "response": "binary"
+      "response": "binary",
+      "responseHeaders": ["X-Document-Hash-Sha256", "Content-Disposition"]
     },
     {
       "id": "cobranca.agenda",

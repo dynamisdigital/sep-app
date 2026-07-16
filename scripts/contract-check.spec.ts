@@ -308,6 +308,114 @@ describe('verificarContratos', () => {
     expect(resultado.falhas).toEqual([expect.stringContaining("form param 'metadados'")]);
   });
 
+  it('falha quando campo obrigatorio do request no OpenAPI nao e enviado pelo frontend', () => {
+    const openapi = {
+      paths: {
+        '/api/v1/coisas': {
+          post: {
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    required: ['a', 'b'],
+                    properties: { a: { type: 'string' }, b: { type: 'string' } },
+                  },
+                },
+              },
+            },
+            responses: { '201': {} },
+          },
+        },
+      },
+      components: { schemas: {} },
+    };
+    const descriptor = {
+      knownGaps: [],
+      types: { CriarCoisaRequest: { fields: { a: 'string' } } },
+      operations: [
+        {
+          id: 'coisas.criar',
+          method: 'post',
+          path: '/api/v1/coisas',
+          sucesso: [201],
+          request: { $type: 'CriarCoisaRequest' },
+          response: null,
+        },
+      ],
+    };
+    const resultado: Resultado = verificarContratos(openapi, descriptor);
+    expect(resultado.falhas).toEqual([expect.stringContaining("campo obrigatorio 'b'")]);
+  });
+
+  it('nao exige campos required do schema de RESPOSTA (so de request)', () => {
+    const openapi = openapiComSchema({
+      required: ['id', 'interno'],
+      properties: { id: { type: 'string' }, interno: { type: 'string' } },
+    });
+    const resultado: Resultado = verificarContratos(openapi, descriptorBase({ id: 'string' }));
+    expect(resultado.falhas).toEqual([]);
+  });
+
+  it('falha quando parametro de path do template nao esta documentado ou e opcional', () => {
+    const openapi = openapiComSchema(SCHEMA_ALINHADO);
+    const get = (
+      openapi as { paths: Record<string, { get: { parameters: { required: boolean }[] } }> }
+    ).paths['/api/v1/coisas/{id}'].get;
+    get.parameters[0].required = false;
+    const resultado: Resultado = verificarContratos(openapi, descriptorBase({ id: 'string' }));
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining("parametro de path 'id' documentado como opcional"),
+    ]);
+
+    get.parameters = [];
+    const semDoc: Resultado = verificarContratos(openapi, descriptorBase({ id: 'string' }));
+    expect(semDoc.falhas).toEqual([
+      expect.stringContaining("parametro de path 'id' do template nao documentado"),
+    ]);
+  });
+
+  it('falha quando o schema do campo primitivo nao tem type ($ref quebrado ou vazio)', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComSchema({ properties: { id: {} } }),
+      descriptorBase({ id: 'string' }),
+    );
+    expect(resultado.falhas).toEqual([expect.stringContaining('OpenAPI nao documenta tipo')]);
+  });
+
+  it('valida headers de resposta lidos pelo frontend: gap conhecido vira lacuna, desconhecido falha', () => {
+    const openapi = openapiComSchema(SCHEMA_ALINHADO);
+    const descriptor = descriptorBase({ id: 'string' }, [
+      {
+        kind: 'response-header-undocumented',
+        header: 'X-Hash',
+        appliesTo: 'coisas.consultar',
+        reason: 'teste',
+      },
+    ]);
+    (descriptor.operations[0] as { responseHeaders: string[] }).responseHeaders = [
+      'X-Hash',
+      'X-Outro',
+    ];
+    const resultado: Resultado = verificarContratos(openapi, descriptor);
+    expect(resultado.lacunas).toEqual([expect.stringContaining("header de resposta 'X-Hash'")]);
+    expect(resultado.falhas).toEqual([expect.stringContaining("header de resposta 'X-Outro'")]);
+  });
+
+  it('passa quando o header de resposta lido esta documentado no OpenAPI', () => {
+    const openapi = openapiComSchema(SCHEMA_ALINHADO);
+    const respostas = (
+      openapi as {
+        paths: Record<string, { get: { responses: Record<string, { headers?: object }> } }>;
+      }
+    ).paths['/api/v1/coisas/{id}'].get.responses;
+    respostas['200'].headers = { 'X-Hash': { schema: { type: 'string' } } };
+    const descriptor = descriptorBase({ id: 'string' });
+    (descriptor.operations[0] as { responseHeaders: string[] }).responseHeaders = ['X-Hash'];
+    const resultado: Resultado = verificarContratos(openapi, descriptor);
+    expect(resultado.falhas).toEqual([]);
+    expect(resultado.lacunas).toEqual([]);
+  });
+
   it('falha quando o frontend envia body JSON sem requestBody documentado', () => {
     const openapi = openapiComSchema(SCHEMA_ALINHADO, {
       '/api/v1/coisas': { post: { responses: { '201': {} } } },

@@ -33,19 +33,23 @@ export function verificarContratos(openapi, descriptor) {
 }
 
 function verificarOperacao(openapi, descriptor, operacao, resultado) {
-  const doc = openapi.paths?.[operacao.path]?.[operacao.method];
+  const pathItem = openapi.paths?.[operacao.path];
+  const doc = pathItem?.[operacao.method];
   if (!doc) {
     resultado.falhas.push(`${operacao.id}: ${operacao.method.toUpperCase()} ${operacao.path} nao existe no OpenAPI`);
     return;
   }
-  verificarParametros(doc, operacao, descriptor, resultado);
+  // Parametros podem estar no path item (compartilhados) ou na operacao.
+  const params = [...(pathItem.parameters ?? []), ...(doc.parameters ?? [])];
+  verificarParametros(params, operacao, descriptor, resultado);
+  verificarParametrosDePath(params, operacao, resultado);
   verificarStatusDeSucesso(doc, operacao, resultado);
+  verificarHeadersDaResposta(doc, operacao, descriptor, resultado);
   verificarCorpoDaRequisicao(openapi, doc, operacao, descriptor, resultado);
   verificarCorpoDaResposta(openapi, doc, operacao, descriptor, resultado);
 }
 
-function verificarParametros(doc, operacao, descriptor, resultado) {
-  const params = doc.parameters ?? [];
+function verificarParametros(params, operacao, descriptor, resultado) {
   const query = operacao.query ?? [];
   const headers = operacao.headers ?? [];
   const pageable = operacao.pageable ?? [];
@@ -87,6 +91,37 @@ function verificarParametros(doc, operacao, descriptor, resultado) {
   }
 }
 
+// Todo {param} do template consumido precisa estar documentado como in=path e required.
+function verificarParametrosDePath(params, operacao, resultado) {
+  const documentados = params.filter((p) => p.in === 'path');
+  for (const [, nome] of operacao.path.matchAll(/\{(\w+)\}/g)) {
+    const param = documentados.find((p) => p.name === nome);
+    if (!param) {
+      resultado.falhas.push(`${operacao.id}: parametro de path '${nome}' do template nao documentado no OpenAPI`);
+    } else if (!param.required) {
+      resultado.falhas.push(`${operacao.id}: parametro de path '${nome}' documentado como opcional no OpenAPI`);
+    }
+  }
+}
+
+function verificarHeadersDaResposta(doc, operacao, descriptor, resultado) {
+  for (const status of operacao.sucesso) {
+    const documentados = Object.keys(doc.responses?.[String(status)]?.headers ?? {});
+    for (const nome of operacao.responseHeaders ?? []) {
+      if (documentados.includes(nome)) continue;
+      if (existeGapDeHeaderDeResposta(descriptor, nome, operacao.id)) {
+        resultado.lacunas.push(
+          `${operacao.id}: header de resposta '${nome}' lido pelo frontend nao documentado (lacuna conhecida)`,
+        );
+      } else {
+        resultado.falhas.push(
+          `${operacao.id}: frontend le header de resposta '${nome}' nao documentado no OpenAPI (status ${status})`,
+        );
+      }
+    }
+  }
+}
+
 function verificarStatusDeSucesso(doc, operacao, resultado) {
   for (const status of operacao.sucesso) {
     if (!doc.responses?.[String(status)]) {
@@ -106,7 +141,7 @@ function verificarCorpoDaRequisicao(openapi, doc, operacao, descriptor, resultad
     resultado.falhas.push(`${operacao.id}: frontend envia body JSON mas OpenAPI nao documenta requestBody`);
     return;
   }
-  verificarExpectativa(openapi, descriptor, operacao.request, conteudo.schema, `${operacao.id}.request`, resultado);
+  verificarExpectativa(openapi, descriptor, operacao.request, conteudo.schema, `${operacao.id}.request`, resultado, true);
 }
 
 // No Spring, @RequestParam de upload resolve tanto de query quanto de form field; o springdoc
@@ -142,20 +177,20 @@ function extrairConteudoJson(content) {
   return content['application/json'] ?? content['*/*'];
 }
 
-function verificarExpectativa(openapi, descriptor, expectativa, schema, caminho, resultado) {
+function verificarExpectativa(openapi, descriptor, expectativa, schema, caminho, resultado, exigirRequired = false) {
   const schemaResolvido = resolverRef(openapi, schema);
   if (expectativa.array) {
     if (schemaResolvido.type !== 'array') {
       resultado.falhas.push(`${caminho}: frontend espera array, OpenAPI documenta '${tipoDoSchema(schemaResolvido)}'`);
       return;
     }
-    verificarCampo(openapi, descriptor, expectativa.array, schemaResolvido.items ?? {}, `${caminho}[]`, resultado, null, null);
+    verificarCampo(openapi, descriptor, expectativa.array, schemaResolvido.items ?? {}, `${caminho}[]`, resultado, null, null, exigirRequired);
     return;
   }
-  verificarTipoNomeado(openapi, descriptor, expectativa.$type, schemaResolvido, caminho, resultado);
+  verificarTipoNomeado(openapi, descriptor, expectativa.$type, schemaResolvido, caminho, resultado, exigirRequired);
 }
 
-function verificarTipoNomeado(openapi, descriptor, nomeTipo, schema, caminho, resultado) {
+function verificarTipoNomeado(openapi, descriptor, nomeTipo, schema, caminho, resultado, exigirRequired = false) {
   const tipo = descriptor.types[nomeTipo];
   if (!tipo) {
     resultado.falhas.push(`${caminho}: tipo '${nomeTipo}' nao declarado em consumed-contracts.json`);
@@ -172,11 +207,23 @@ function verificarTipoNomeado(openapi, descriptor, nomeTipo, schema, caminho, re
       resultado.lacunas.push(`${caminho}.${nomeCampo}: tipo divergente do runtime documentado como lacuna conhecida`);
       continue;
     }
-    verificarCampo(openapi, descriptor, especificacao, propriedade, `${caminho}.${nomeCampo}`, resultado, nomeTipo, nomeCampo);
+    verificarCampo(openapi, descriptor, especificacao, propriedade, `${caminho}.${nomeCampo}`, resultado, nomeTipo, nomeCampo, exigirRequired);
+  }
+  // Em request bodies, campo obrigatorio do OpenAPI ausente do contrato do frontend e
+  // divergencia: o backend passaria a rejeitar o que o frontend envia hoje.
+  if (exigirRequired) {
+    const declarados = Object.keys(tipo.fields);
+    for (const obrigatorio of schema.required ?? []) {
+      if (!declarados.includes(obrigatorio)) {
+        resultado.falhas.push(
+          `${caminho}: campo obrigatorio '${obrigatorio}' de ${nomeTipo} no OpenAPI nao e enviado pelo frontend`,
+        );
+      }
+    }
   }
 }
 
-function verificarCampo(openapi, descriptor, especificacao, propriedade, caminho, resultado, nomeTipo, nomeCampo) {
+function verificarCampo(openapi, descriptor, especificacao, propriedade, caminho, resultado, nomeTipo, nomeCampo, exigirRequired = false) {
   const prop = resolverRef(openapi, propriedade);
   if (typeof especificacao === 'string') {
     verificarTipoPrimitivo(especificacao, prop, caminho, resultado);
@@ -187,7 +234,7 @@ function verificarCampo(openapi, descriptor, especificacao, propriedade, caminho
     return;
   }
   if (especificacao.$type) {
-    verificarTipoNomeado(openapi, descriptor, especificacao.$type, prop, caminho, resultado);
+    verificarTipoNomeado(openapi, descriptor, especificacao.$type, prop, caminho, resultado, exigirRequired);
     return;
   }
   if (especificacao.array) {
@@ -195,14 +242,20 @@ function verificarCampo(openapi, descriptor, especificacao, propriedade, caminho
       resultado.falhas.push(`${caminho}: frontend espera array, OpenAPI documenta '${tipoDoSchema(prop)}'`);
       return;
     }
-    verificarCampo(openapi, descriptor, especificacao.array, prop.items ?? {}, `${caminho}[]`, resultado, nomeTipo, nomeCampo);
+    verificarCampo(openapi, descriptor, especificacao.array, prop.items ?? {}, `${caminho}[]`, resultado, nomeTipo, nomeCampo, exigirRequired);
   }
 }
 
 function verificarTipoPrimitivo(tipoEsperado, prop, caminho, resultado) {
   const tipoOpenapi = tipoDoSchema(prop);
+  if (!tipoOpenapi) {
+    resultado.falhas.push(
+      `${caminho}: OpenAPI nao documenta tipo (schema vazio ou $ref quebrado); frontend espera '${tipoEsperado}'`,
+    );
+    return;
+  }
   const compativeis = TIPOS_COMPATIVEIS[tipoEsperado] ?? [tipoEsperado];
-  if (tipoOpenapi && !compativeis.includes(tipoOpenapi)) {
+  if (!compativeis.includes(tipoOpenapi)) {
     resultado.falhas.push(`${caminho}: frontend espera '${tipoEsperado}', OpenAPI documenta '${tipoOpenapi}'`);
   }
 }
@@ -249,6 +302,15 @@ function existeGapDeHeader(descriptor, header, operacaoId) {
   return (descriptor.knownGaps ?? []).some(
     (gap) =>
       gap.kind === 'header-undocumented' &&
+      gap.header === header &&
+      (gap.appliesTo === '*' || gap.appliesTo === operacaoId),
+  );
+}
+
+function existeGapDeHeaderDeResposta(descriptor, header, operacaoId) {
+  return (descriptor.knownGaps ?? []).some(
+    (gap) =>
+      gap.kind === 'response-header-undocumented' &&
       gap.header === header &&
       (gap.appliesTo === '*' || gap.appliesTo === operacaoId),
   );
