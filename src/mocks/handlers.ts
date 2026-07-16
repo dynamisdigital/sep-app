@@ -2661,8 +2661,12 @@ function seedCarteiraPorUsuario(): Record<string, Record<string, unknown>[]> {
 
 const MATCHING_SUGERIDA_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78f001';
 const MATCHING_SUGERIDA_2_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78f002';
+const MATCHING_CONFIRMADA_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78f003';
 const OPERACAO_MATCHING_2_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78c002';
+const OPERACAO_MATCHING_3_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78c003';
 const APORTE_LIQUIDADO_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78ab01';
+const APORTE_EM_PROCESSAMENTO_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78ab02';
+const APORTE_FALHOU_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78ab03';
 
 function seedMatchingSugestoes(): Record<string, Record<string, unknown>> {
   // Sugestoes de matching (F-18 / backend Sprint 30). criterios sao codigos funcionais do
@@ -2694,13 +2698,26 @@ function seedMatchingSugestoes(): Record<string, Record<string, unknown>> {
       criadaEm: now,
       decididaEm: null,
     },
+    // Matching ja CONFIRMADO no seed: alimenta o fluxo de aporte (detalhe -> CTA -> pagina de
+    // aporte) sem depender de decisao com TOTP, que o modo offline nao completa.
+    [MATCHING_CONFIRMADA_ID]: {
+      id: MATCHING_CONFIRMADA_ID,
+      operacaoId: OPERACAO_MATCHING_3_ID,
+      empresaCredoraId: CREDORA_ELEGIVEL_ID,
+      status: 'CONFIRMADA',
+      valorElegivel: 18000.0,
+      criterios: ['CREDORA_ATIVA', 'CREDORA_ELEGIVEL', 'OPERACAO_ATIVA', 'CONTRATO_ASSINADO'],
+      criadaEm: now,
+      decididaEm: now,
+    },
   };
 }
 
 function seedAportesPorOperacao(): Record<string, Record<string, unknown>[]> {
   // Aportes da Sprint 29 (F-18.4). A operacao associada (da carteira da credora elegivel) ja tem
-  // um aporte LIQUIDADO; a operacao do segundo matching comeca sem aportes. Ordem = criacao
-  // decrescente, como o contrato. Operacao fora deste mapa = 404 neutro.
+  // um aporte LIQUIDADO; a operacao do matching confirmado cobre EM_PROCESSAMENTO e FALHOU; a do
+  // segundo matching comeca vazia (PENDENTE nasce pelo POST). Ordem = criacao decrescente, como o
+  // contrato. Operacao fora deste mapa = 404 neutro.
   return {
     [OPERACAO_ASSOCIADA_ID]: [
       {
@@ -2713,6 +2730,24 @@ function seedAportesPorOperacao(): Record<string, Record<string, unknown>[]> {
       },
     ],
     [OPERACAO_MATCHING_2_ID]: [],
+    [OPERACAO_MATCHING_3_ID]: [
+      {
+        id: APORTE_EM_PROCESSAMENTO_ID,
+        operacaoId: OPERACAO_MATCHING_3_ID,
+        status: 'EM_PROCESSAMENTO',
+        valor: 8000.0,
+        dataCriacao: now,
+        dataAtualizacao: now,
+      },
+      {
+        id: APORTE_FALHOU_ID,
+        operacaoId: OPERACAO_MATCHING_3_ID,
+        status: 'FALHOU',
+        valor: 3000.0,
+        dataCriacao: now,
+        dataAtualizacao: now,
+      },
+    ],
   };
 }
 
