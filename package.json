@@ -11,6 +11,7 @@
     "lint:scss:fix": "stylelint \"src/**/*.scss\" --fix",
     "format": "prettier --write \"src/**/*.{ts,html,scss,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,html,scss,json}\"",
+    "contract:check": "node scripts/contract-check.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
