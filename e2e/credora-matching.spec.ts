@@ -68,7 +68,9 @@ test('admin: matching confirmado tem CTA separado de aporte com prefill e step-u
   await page.goto(`/app/credora/matching/${MATCHING_CONFIRMADA_ID}`);
   await expect(page.getByText(/Matching confirmado e registrado/)).toBeVisible();
   await page.getByRole('link', { name: 'Registrar aporte da operacao' }).click();
-  await page.waitForURL(/\/aporte$/, { timeout: 10_000 });
+  await page.waitForURL(new RegExp(`/app/credora/matching/${MATCHING_CONFIRMADA_ID}/aporte$`), {
+    timeout: 10_000,
+  });
 
   // Prefill autoritativo com o valorElegivel do backend e status dos aportes existentes.
   await expect(page.getByLabel('Valor do aporte (R$)')).toHaveValue('18000.00');
@@ -83,7 +85,9 @@ test('admin: matching confirmado tem CTA separado de aporte com prefill e step-u
   await page.waitForURL(/\/app\/step-up\?next=/, { timeout: 10_000 });
 
   await page.goBack();
-  await page.waitForURL(/\/aporte$/, { timeout: 10_000 });
+  await page.waitForURL(new RegExp(`/app/credora/matching/${MATCHING_CONFIRMADA_ID}/aporte$`), {
+    timeout: 10_000,
+  });
   await expect(page.getByText(/Aporte registrado no valor de/)).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Registrar aporte' })).toBeEnabled();
 });
