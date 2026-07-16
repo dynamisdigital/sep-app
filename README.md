@@ -10,28 +10,29 @@ Frontend web Angular 20.x da plataforma SEP (Sociedade de Emprestimo entre Pesso
 Apos clonar o repositorio:
 
 1. Instalar Node.js LTS `>= 20.x`
-2. `npm ci --legacy-peer-deps` — `legacy-peer-deps` necessario porque `@angular/build` declara `vitest@^3.1.1` como peer optional, mas pinamos `vitest@^2` por compatibilidade com `@analogjs/vitest-angular@^1`
+2. `npm ci` — instalacao limpa a partir do lockfile, sem flags de bypass de peers
 3. `npm run start` — sobe dev server em `http://localhost:4200/`
 
 Husky + lint-staged sao instalados automaticamente via `prepare` script no `npm install`.
 
 ## Scripts npm
 
-| Script                  | O que faz                                |
-| ----------------------- | ---------------------------------------- |
-| `npm run start`         | Dev server em `http://localhost:4200/`   |
-| `npm run build`         | Build de producao em `dist/sep-app/`     |
-| `npm run watch`         | Build em modo watch (development config) |
-| `npm run lint`          | ESLint para TS + HTML                    |
-| `npm run lint:scss`     | Stylelint para SCSS                      |
-| `npm run lint:scss:fix` | Stylelint com `--fix`                    |
-| `npm run format`        | Prettier --write                         |
-| `npm run format:check`  | Prettier --check                         |
-| `npm run test`          | Vitest (1 run)                           |
-| `npm run test:watch`    | Vitest watch                             |
-| `npm run test:coverage` | Vitest com cobertura v8 em `coverage/`   |
-| `npm run e2e`           | Playwright (Chromium) com webServer auto |
-| `npm run e2e:ui`        | Playwright em UI mode                    |
+| Script                   | O que faz                                                              |
+| ------------------------ | ---------------------------------------------------------------------- |
+| `npm run start`          | Dev server em `http://localhost:4200/`                                 |
+| `npm run build`          | Build de producao em `dist/sep-app/`                                   |
+| `npm run watch`          | Build em modo watch (development config)                               |
+| `npm run lint`           | ESLint para TS + HTML                                                  |
+| `npm run lint:scss`      | Stylelint para SCSS                                                    |
+| `npm run lint:scss:fix`  | Stylelint com `--fix`                                                  |
+| `npm run format`         | Prettier --write                                                       |
+| `npm run format:check`   | Prettier --check                                                       |
+| `npm run contract:check` | Valida contratos de borda contra o OpenAPI (ver `contracts/README.md`) |
+| `npm run test`           | Vitest (1 run)                                                         |
+| `npm run test:watch`     | Vitest watch                                                           |
+| `npm run test:coverage`  | Vitest com cobertura v8 em `coverage/`                                 |
+| `npm run e2e`            | Playwright (Chromium) com webServer auto                               |
+| `npm run e2e:ui`         | Playwright em UI mode                                                  |
 
 ## Code Style
 
@@ -43,11 +44,10 @@ Husky + lint-staged sao instalados automaticamente via `prepare` script no `npm 
 
 ## Testes
 
-- **Unit**: Vitest 2 + `@analogjs/vitest-angular` (compila templates Angular).
+- **Unit**: Vitest 3 + `@analogjs/vitest-angular` (compila templates Angular).
 - **E2E**: Playwright 1 (Chromium) com webServer auto em `http://localhost:4200`.
-- **Mock API**: MSW 2.x. Worker browser disponivel via flag em runtime: `localStorage.setItem('NG_APP_USE_MSW', 'true')` + reload.
-
-> MSW server (Node) sera plugado em `src/test-setup.ts` na F-Sprint 2/3, quando os primeiros testes que dependem da API entrarem. Os polyfills necessarios (Web Streams + BroadcastChannel) ja estao prontos em `src/test-polyfills.ts`.
+- **Mock API**: MSW 2.x. Worker browser disponivel via flag em runtime: `localStorage.setItem('NG_APP_USE_MSW', 'true')` + reload. MSW server (Node) roda nos testes via `src/test-setup.ts`.
+- **Contrato**: `npm run contract:check` valida os contratos consumidos contra o snapshot OpenAPI versionado em `contracts/` (F-Sprint 19).
 
 ## Estrutura de pastas
 

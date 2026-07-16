@@ -1,6 +1,6 @@
 # Configuracao do Dependabot para o sep-app.
 # Estrategia: agrupar amplamente para reduzir o numero de PRs, com limite baixo e
-# ignore de majors que quebram a stack Angular 20 (CI Node 20, vitest 4 + @analogjs
+# ignore de majors que quebram a stack Angular 20 (CI Node 20, vitest 3 + @analogjs
 # 1.x fixados no Angular 20). Ordem dos grupos importa: cada dependencia entra no
 # PRIMEIRO grupo cujo pattern casa.
 version: 2
