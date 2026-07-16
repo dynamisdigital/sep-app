@@ -54,12 +54,16 @@ updates:
       - dependency-name: '@angular-devkit/*'
         update-types:
           - 'version-update:semver-major'
+      # angular-eslint 21.4+ apertou o peer para `@angular/cli >= 21` — minors da
+      # serie 21.x ja nao instalam com Angular 20. Congelar em 21.0.x ate a major.
       - dependency-name: '@angular-eslint/*'
         update-types:
           - 'version-update:semver-major'
+          - 'version-update:semver-minor'
       - dependency-name: 'angular-eslint'
         update-types:
           - 'version-update:semver-major'
+          - 'version-update:semver-minor'
       # Majors de @analogjs/vitest nao sao aplicaveis no Angular 20: @analogjs 2.x
       # exige Angular 21+. Manter na serie atual ate uma futura migracao de Angular.
       - dependency-name: '@analogjs/*'
@@ -69,6 +73,48 @@ updates:
         update-types:
           - 'version-update:semver-major'
       - dependency-name: '@vitest/*'
+        update-types:
+          - 'version-update:semver-major'
+      # TypeScript 6+ e exigencia do Angular 22 (ADR 0018); Angular 20 trava
+      # `>=5.8 <6.0`. Major de TS so na sprint dedicada de migracao.
+      - dependency-name: 'typescript'
+        update-types:
+          - 'version-update:semver-major'
+      # zone.js e pre-1.0: minor = breaking. 0.16.x pareia com Angular 21+;
+      # Angular 20 core exige ~0.15.0 (peer). Sobe junto com a major do Angular.
+      - dependency-name: 'zone.js'
+        update-types:
+          - 'version-update:semver-major'
+          - 'version-update:semver-minor'
+      # @types/node acompanha o Node da esteira (20 hoje); major junto com o
+      # bump de Node 22 planejado para a infra da Fase 5.
+      - dependency-name: '@types/node'
+        update-types:
+          - 'version-update:semver-major'
+      # Majors de tooling de lint sobem deliberadamente, nunca por bump
+      # automatico (mesma politica dos demais ignores).
+      - dependency-name: 'eslint-config-prettier'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: 'eslint'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: '@eslint/*'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: 'stylelint'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: 'stylelint-config-standard-scss'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: 'jsdom'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: 'lint-staged'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: 'lucide-angular'
         update-types:
           - 'version-update:semver-major'
 
