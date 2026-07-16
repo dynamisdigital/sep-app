@@ -249,6 +249,65 @@ describe('verificarContratos', () => {
     ]);
   });
 
+  it('resolve $ref aninhado no nivel do schema (alias para outro schema)', () => {
+    const openapi = openapiComSchema({ $ref: '#/components/schemas/CoisaRealResponse' });
+    (openapi as { components: { schemas: Record<string, object> } }).components.schemas[
+      'CoisaRealResponse'
+    ] = { properties: { id: { type: 'string' } } };
+    const resultado: Resultado = verificarContratos(openapi, descriptorBase({ id: 'string' }));
+    expect(resultado.falhas).toEqual([]);
+  });
+
+  it('nao entra em loop com $ref ciclico e reporta campos ausentes', () => {
+    const openapi = openapiComSchema({ $ref: '#/components/schemas/CoisaResponse' });
+    const resultado: Resultado = verificarContratos(openapi, descriptorBase({ id: 'string' }));
+    expect(resultado.falhas).toEqual([expect.stringContaining("campo 'id'")]);
+  });
+
+  it('valida form params multipart contra schema multipart e query documentada', () => {
+    const openapi = {
+      paths: {
+        '/api/v1/coisas/{id}/documentos': {
+          post: {
+            parameters: [
+              { name: 'id', in: 'path', required: true },
+              { name: 'tipo', in: 'query', required: true },
+            ],
+            requestBody: {
+              content: {
+                'multipart/form-data': {
+                  schema: {
+                    type: 'object',
+                    properties: { arquivo: { type: 'string', format: 'binary' } },
+                  },
+                },
+              },
+            },
+            responses: { '204': {} },
+          },
+        },
+      },
+      components: { schemas: {} },
+    };
+    const descriptor = {
+      knownGaps: [],
+      types: {},
+      operations: [
+        {
+          id: 'coisas.enviarDocumento',
+          method: 'post',
+          path: '/api/v1/coisas/{id}/documentos',
+          sucesso: [204],
+          request: 'multipart',
+          formParams: ['tipo', 'arquivo', 'metadados'],
+          response: null,
+        },
+      ],
+    };
+    const resultado: Resultado = verificarContratos(openapi, descriptor);
+    expect(resultado.falhas).toEqual([expect.stringContaining("form param 'metadados'")]);
+  });
+
   it('falha quando o frontend envia body JSON sem requestBody documentado', () => {
     const openapi = openapiComSchema(SCHEMA_ALINHADO, {
       '/api/v1/coisas': { post: { responses: { '201': {} } } },

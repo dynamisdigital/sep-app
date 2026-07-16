@@ -96,13 +96,33 @@ function verificarStatusDeSucesso(doc, operacao, resultado) {
 }
 
 function verificarCorpoDaRequisicao(openapi, doc, operacao, descriptor, resultado) {
-  if (!operacao.request || operacao.request === 'multipart') return;
+  if (!operacao.request) return;
+  if (operacao.request === 'multipart') {
+    verificarCamposMultipart(openapi, doc, operacao, resultado);
+    return;
+  }
   const conteudo = extrairConteudoJson(doc.requestBody?.content);
   if (!conteudo?.schema) {
     resultado.falhas.push(`${operacao.id}: frontend envia body JSON mas OpenAPI nao documenta requestBody`);
     return;
   }
   verificarExpectativa(openapi, descriptor, operacao.request, conteudo.schema, `${operacao.id}.request`, resultado);
+}
+
+// No Spring, @RequestParam de upload resolve tanto de query quanto de form field; o springdoc
+// documenta parte como query e parte como propriedade do schema multipart. Cada formParam
+// enviado pelo frontend precisa existir em um dos dois lugares.
+function verificarCamposMultipart(openapi, doc, operacao, resultado) {
+  const schemaMultipart = resolverRef(openapi, doc.requestBody?.content?.['multipart/form-data']?.schema);
+  const propriedades = Object.keys(schemaMultipart.properties ?? {});
+  const nomesQueryDocumentados = (doc.parameters ?? []).filter((p) => p.in === 'query').map((p) => p.name);
+  for (const nome of operacao.formParams ?? []) {
+    if (!propriedades.includes(nome) && !nomesQueryDocumentados.includes(nome)) {
+      resultado.falhas.push(
+        `${operacao.id}: form param '${nome}' enviado pelo frontend nao documentado no OpenAPI (nem multipart, nem query)`,
+      );
+    }
+  }
 }
 
 function verificarCorpoDaResposta(openapi, doc, operacao, descriptor, resultado) {
@@ -206,9 +226,15 @@ function verificarEnum(descriptor, enumEsperado, prop, caminho, resultado, nomeT
 }
 
 function resolverRef(openapi, schema) {
-  if (!schema?.$ref) return schema ?? {};
-  const nome = schema.$ref.split('/').pop();
-  return openapi.components?.schemas?.[nome] ?? {};
+  let atual = schema ?? {};
+  const visitados = new Set();
+  while (atual?.$ref) {
+    const nome = atual.$ref.split('/').pop();
+    if (visitados.has(nome)) return {};
+    visitados.add(nome);
+    atual = openapi.components?.schemas?.[nome] ?? {};
+  }
+  return atual;
 }
 
 // OpenAPI 3.1 permite type como lista (ex.: ['string', 'null']); normaliza descartando 'null'.
@@ -242,7 +268,7 @@ function existeGapDeEnum(descriptor, tipo, campo) {
 
 async function carregarOpenapi(origem) {
   if (/^https?:\/\//.test(origem)) {
-    const resposta = await fetch(origem);
+    const resposta = await fetch(origem, { signal: AbortSignal.timeout(30_000) });
     if (!resposta.ok) throw new Error(`Falha ao baixar OpenAPI de ${origem}: HTTP ${resposta.status}`);
     return resposta.json();
   }
