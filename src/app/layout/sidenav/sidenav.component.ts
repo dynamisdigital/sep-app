@@ -63,6 +63,12 @@ export class SidenavComponent {
             icon: 'wallet',
             roles: ['FINANCEIRO', 'ADMIN', 'BACKOFFICE'],
           },
+          {
+            label: 'Matching de credoras',
+            route: '/app/credora/matching',
+            icon: 'link-2',
+            roles: ['FINANCEIRO', 'ADMIN'],
+          },
         ],
       },
       {

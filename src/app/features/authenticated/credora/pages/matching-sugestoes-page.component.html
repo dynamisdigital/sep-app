@@ -1,0 +1,62 @@
+<section class="sep-matching">
+  <header class="sep-matching-header">
+    <h1 class="sep-matching-title">Matching de credoras</h1>
+    <p class="sep-matching-subtitle">
+      Sugestoes de pareamento entre credoras e operacoes financiadas, geradas pelo backend. A
+      atualizacao pode registrar e auditar sugestoes novas; nada e confirmado automaticamente — a
+      decisao e sempre sua, no detalhe de cada sugestao.
+    </p>
+  </header>
+
+  <div class="sep-matching-acoes">
+    <button
+      type="button"
+      class="sep-matching-atualizar"
+      [disabled]="loading()"
+      (click)="carregar()"
+    >
+      Atualizar sugestoes
+    </button>
+  </div>
+
+  @if (loading()) {
+    <p class="sep-matching-state" role="status">Carregando sugestoes...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-matching-state sep-matching-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="sep-matching-retry" (click)="carregar()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (sugestoes().length === 0) {
+    <p class="sep-matching-vazio">Nenhuma sugestao de matching pendente de decisao.</p>
+  } @else {
+    <ul class="sep-matching-lista">
+      @for (sugestao of sugestoes(); track sugestao.id) {
+        <li class="sep-matching-item">
+          <div class="sep-matching-item-topo">
+            <span class="sep-matching-item-titulo">
+              Operacao {{ idCurto(sugestao.operacaoId) }} · Credora
+              {{ idCurto(sugestao.empresaCredoraId) }}
+            </span>
+            <sep-matching-status [status]="sugestao.status" />
+          </div>
+          <span class="sep-matching-item-valor">
+            Valor elegivel: {{ formatarMoeda(sugestao.valorElegivel) }}
+          </span>
+          <ul class="sep-matching-criterios">
+            @for (criterio of sugestao.criterios; track criterio) {
+              <li class="sep-matching-criterio">{{ criterio }}</li>
+            }
+          </ul>
+          <span class="sep-matching-item-data">
+            Criada em {{ formatarData(sugestao.criadaEm) }}
+          </span>
+          <div class="sep-matching-item-acoes">
+            <a [routerLink]="['/app/credora/matching', sugestao.id]">Ver detalhe e decidir</a>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</section>
