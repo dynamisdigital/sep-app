@@ -429,13 +429,18 @@ describe('MatchingDetailPageComponent', () => {
         HttpResponse.json({ message: 'Sem role FINANCEIRO/ADMIN' }, { status: 403 }),
       ),
     );
-    const { fixture } = await renderDetalhe(MATCHING_SUGERIDA_ID);
-    const router = fixture.debugElement.injector.get(Router);
-    const navegar = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
-    await estabilizar(fixture);
+    // Spy no prototype ANTES do render: a navegacao do errorInterceptor pode disparar antes de
+    // qualquer gancho pos-render, e um spy tardio a perderia.
+    const navegar = vi.spyOn(Router.prototype, 'navigateByUrl').mockResolvedValue(true);
+    try {
+      const { fixture } = await renderDetalhe(MATCHING_SUGERIDA_ID);
+      await estabilizar(fixture);
 
-    // Leitura sem TRATA_403_LOCALMENTE: o errorInterceptor ejeta para /access-denied.
-    expect(navegar).toHaveBeenCalledWith('/access-denied');
+      // Leitura sem TRATA_403_LOCALMENTE: o errorInterceptor ejeta para /access-denied.
+      expect(navegar).toHaveBeenCalledWith('/access-denied');
+    } finally {
+      navegar.mockRestore();
+    }
   });
 
   it('400 na decisao mostra a mensagem da API e mantem o contexto, sem sucesso presumido', async () => {
