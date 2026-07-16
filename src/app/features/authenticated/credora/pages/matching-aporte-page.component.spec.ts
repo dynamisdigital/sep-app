@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
+import { AporteIntencaoStore } from '../../../../core/credora/aporte-intencao.store';
 import { errorInterceptor } from '../../../../core/interceptors/error.interceptor';
 import { stepUpInterceptor } from '../../../../core/interceptors/step-up.interceptor';
 import { resetCredoraState } from '../../../../../mocks/handlers';
@@ -362,6 +363,67 @@ describe('MatchingAportePageComponent', () => {
       `/app/step-up?next=/app/credora/matching/${MATCHING_SUGERIDA_ID}/aporte`,
     );
     expect(posts).toBe(1);
+  });
+
+  it('intencao sobrevive a destruicao do componente: nova instancia reusa a key da mesma intencao', async () => {
+    comMatchingConfirmada();
+    // Simula a volta do step-up: a instancia anterior da pagina foi destruida na navegacao, mas a
+    // intencao {operacao, valor, key} vive no store singleton de root. A instancia NOVA deve
+    // enviar a MESMA key para o mesmo valor — e o que impede duplicar um aporte que o backend
+    // processou com resposta perdida (rede/5xx).
+    const intencoes = new AporteIntencaoStore();
+    const keyAnterior = intencoes.chave(OPERACAO_ID, 25000);
+
+    const keys: string[] = [];
+    server.use(
+      http.post(APORTES_URL, ({ request }) => {
+        keys.push(request.headers.get('Idempotency-Key') ?? '');
+        return HttpResponse.json(
+          {
+            id: 'aporte-replay',
+            operacaoId: OPERACAO_ID,
+            status: 'PENDENTE',
+            valor: 25000,
+            dataCriacao: '2026-07-16T10:00:00-03:00',
+            dataAtualizacao: '2026-07-16T10:00:00-03:00',
+          },
+          { status: 200 },
+        );
+      }),
+    );
+    const { fixture } = await render(MatchingAportePageComponent, {
+      providers: [
+        provideHttpClient(withInterceptors([stepUpInterceptor, errorInterceptor])),
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { paramMap: convertToParamMap({ sugestaoId: MATCHING_SUGERIDA_ID }) },
+          },
+        },
+        { provide: AporteIntencaoStore, useValue: intencoes },
+        {
+          provide: StepUpTokenStore,
+          useFactory: () => {
+            const store = new StepUpTokenStore();
+            store.set('step-up-tok');
+            return store;
+          },
+        },
+      ],
+    });
+    autenticarFinanceiro(fixture, true);
+    await estabilizar(fixture);
+
+    fireEvent.click(screen.getByText('Registrar aporte'));
+    await estabilizar(fixture);
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar aporte' }));
+    await estabilizar(fixture);
+
+    expect(keys).toEqual([keyAnterior]);
+    expect(screen.getByText(/Aporte registrado no valor de/)).toBeTruthy();
+    // Sucesso encerra a intencao: a proxima confirmacao do mesmo valor nasce com key nova.
+    expect(intencoes.chave(OPERACAO_ID, 25000)).not.toBe(keyAnterior);
   });
 
   it('400 no POST mantem o formulario com o valor digitado para correcao', async () => {

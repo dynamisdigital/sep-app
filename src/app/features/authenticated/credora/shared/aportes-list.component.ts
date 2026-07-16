@@ -9,6 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subscription } from 'rxjs';
 
 import { AporteCredoraResponse, StatusAporteCredora } from '../../../../core/api/api.models';
 import { CredoraService } from '../../../../core/credora/credora.service';
@@ -51,19 +52,22 @@ export class AportesListComponent implements OnInit {
   protected readonly formatarMoeda = formatarMoeda;
   protected readonly mensagens = MENSAGENS_STATUS;
 
+  private consultaAtual: Subscription | null = null;
+
   ngOnInit(): void {
     this.atualizar();
   }
 
   // Reconsulta explicita (entrada, botao "Atualizar status" ou pos-registro da pagina
-  // operacional). Guard de reentrada evita consultas concorrentes.
+  // operacional). Uma consulta em andamento e SUBSTITUIDA, nao descartada: o refresh
+  // programatico pos-POST nunca e perdido e a resposta tardia da consulta anterior e cancelada,
+  // sem sobrescrever a mais nova. O botao segue desabilitado durante a carga (anti-spam de
+  // gesto).
   atualizar(): void {
-    if (this.loading()) {
-      return;
-    }
+    this.consultaAtual?.unsubscribe();
     this.loading.set(true);
     this.errorMessage.set(null);
-    this.credoraService
+    this.consultaAtual = this.credoraService
       .listarAportes(this.operacaoId())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

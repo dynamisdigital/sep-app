@@ -50,11 +50,11 @@ describe('MatchingSugestoesPageComponent', () => {
     // Ordem deterministica do backend (maior valor elegivel primeiro); IDs aparecem como sufixo
     // curto, nunca o UUID integral como titulo.
     expect(screen.getByText('Operacao 5b78c001 · Credora 5b780001')).toBeTruthy();
-    expect(screen.getByText('Operacao 5b78c002 · Credora 5b780002')).toBeTruthy();
+    expect(screen.getByText('Operacao 5b78c002 · Credora 5b780001')).toBeTruthy();
     expect(screen.queryByText(/7f0799c0-98b9/)).toBeNull();
     expect(screen.getByText(/25\.000,00/)).toBeTruthy();
     expect(screen.getByText(/12\.000,00/)).toBeTruthy();
-    expect(screen.getByText('CONTRATO_ASSINADO')).toBeTruthy();
+    expect(screen.getAllByText('CONTRATO_ASSINADO').length).toBe(2);
     expect(screen.getByText('CAPACIDADE_COMPORTA_VALOR')).toBeTruthy();
     expect(screen.getAllByText('Sugerida').length).toBe(2);
   });

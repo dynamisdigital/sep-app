@@ -16,6 +16,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AporteCredoraResponse, MatchingSugestaoResponse } from '../../../../core/api/api.models';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
+import { AporteIntencaoStore } from '../../../../core/credora/aporte-intencao.store';
 import { CredoraService } from '../../../../core/credora/credora.service';
 import {
   formatarData,
@@ -26,21 +27,9 @@ import {
 import { AporteStatusComponent } from '../shared/aporte-status.component';
 import { AportesListComponent } from '../shared/aportes-list.component';
 
-const novaIdempotencyKey = (): string =>
-  globalThis.crypto?.randomUUID?.() ?? `key-${Date.now()}-${Math.floor(Math.random() * 1e9)}`;
-
 // Valor monetario digitado: obrigatorio, positivo, ate duas casas (validacao APENAS de formato —
 // elegibilidade, teto e capacidade sao do backend).
 const VALOR_PATTERN = /^\d+([.,]\d{1,2})?$/;
-
-// Uma intencao de aporte = um valor confirmado + uma Idempotency-Key, somente em memoria. A key e
-// reusada em retry de rede/5xx com o MESMO valor (o backend faz o replay idempotente); mudar o
-// valor cria nova intencao/key na proxima confirmacao. Reload perde o rascunho — a key nunca vai
-// para localStorage/sessionStorage nem aparece na UI.
-interface IntencaoAporte {
-  valor: number;
-  key: string;
-}
 
 // Aporte assistido a partir de um matching CONFIRMADO (F-18.4 / backend Sprint 29), para
 // FINANCEIRO/ADMIN. A pagina reconsulta o matching na entrada e usa operacaoId/valorElegivel
@@ -61,6 +50,9 @@ export class MatchingAportePageComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
   private readonly stepUpTokens = inject(StepUpTokenStore);
+  // Intencao {operacao, valor, key} num singleton de root: sobrevive a ida/volta do step-up (que
+  // destroi este componente) para o retry pos-rede/5xx reusar a MESMA key e nao duplicar aporte.
+  private readonly intencoes = inject(AporteIntencaoStore);
   private readonly credoraService = inject(CredoraService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -79,8 +71,6 @@ export class MatchingAportePageComponent implements OnInit {
   protected readonly mfaNecessario = signal(false);
   protected readonly verificacaoNecessaria = signal(false);
   protected readonly resultado = signal<AporteCredoraResponse | null>(null);
-
-  private intencao: IntencaoAporte | null = null;
 
   protected readonly formatarData = formatarData;
   protected readonly formatarMoeda = formatarMoeda;
@@ -234,13 +224,11 @@ export class MatchingAportePageComponent implements OnInit {
       this.navegarParaStepUp();
       return;
     }
-    if (!this.intencao || this.intencao.valor !== valor) {
-      this.intencao = { valor, key: novaIdempotencyKey() };
-    }
+    const idempotencyKey = this.intencoes.chave(matching.operacaoId, valor);
     this.aporteEmVoo.set(true);
     this.aporteErro.set(null);
     this.credoraService
-      .registrarAporte(matching.operacaoId, { valor }, this.intencao.key)
+      .registrarAporte(matching.operacaoId, { valor }, idempotencyKey)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (aporte) => {
@@ -248,7 +236,7 @@ export class MatchingAportePageComponent implements OnInit {
           this.confirmando.set(false);
           // 201 e 200 (replay idempotente) chegam ambos aqui: sucesso real nos dois casos.
           this.resultado.set(aporte);
-          this.intencao = null;
+          this.intencoes.limpar();
           this.aportesList()?.atualizar();
         },
         error: (err: HttpErrorResponse) => {
@@ -292,10 +280,12 @@ export class MatchingAportePageComponent implements OnInit {
   // key ou dado de escrow/provider.
   private tratarErroAporte(err: HttpErrorResponse): void {
     if (err.status === 400) {
-      // Valor/key invalidos: mantem o formulario para correcao.
+      // Valor/key invalidos: mantem o formulario para correcao. Nada foi criado — a intencao e
+      // encerrada e a proxima confirmacao nasce com key nova.
       this.aporteErro.set(
         mensagemCredoraErro(err, 'Dados do aporte invalidos. Revise o valor e tente novamente.'),
       );
+      this.intencoes.limpar();
       return;
     }
     if (err.status === 403) {
@@ -308,7 +298,7 @@ export class MatchingAportePageComponent implements OnInit {
     }
     if (err.status === 404) {
       this.aporteErro.set('Operacao indisponivel para aporte.');
-      this.intencao = null;
+      this.intencoes.limpar();
       return;
     }
     if (err.status === 409) {
@@ -317,7 +307,7 @@ export class MatchingAportePageComponent implements OnInit {
       this.aporteErro.set(
         'A operacao nao aceitou o aporte (elegibilidade ou registro conflitante). O status foi atualizado.',
       );
-      this.intencao = null;
+      this.intencoes.limpar();
       this.aportesList()?.atualizar();
       return;
     }

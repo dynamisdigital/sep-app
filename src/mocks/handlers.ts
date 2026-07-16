@@ -2688,13 +2688,22 @@ function seedMatchingSugestoes(): Record<string, Record<string, unknown>> {
       criadaEm: now,
       decididaEm: null,
     },
+    // Segunda sugestao da MESMA credora elegivel (par credora-operacao distinto): o backend so
+    // gera sugestao quando TODOS os criterios sao atendidos — credora inelegivel nunca aparece.
     [MATCHING_SUGERIDA_2_ID]: {
       id: MATCHING_SUGERIDA_2_ID,
       operacaoId: OPERACAO_MATCHING_2_ID,
-      empresaCredoraId: CREDORA_INELEGIVEL_ID,
+      empresaCredoraId: CREDORA_ELEGIVEL_ID,
       status: 'SUGERIDA',
       valorElegivel: 12000.0,
-      criterios: ['CREDORA_ATIVA', 'OPERACAO_ATIVA', 'CAPACIDADE_COMPORTA_VALOR'],
+      criterios: [
+        'CREDORA_ATIVA',
+        'CREDORA_ELEGIVEL',
+        'OPERACAO_ATIVA',
+        'CONTRATO_ASSINADO',
+        'CAPACIDADE_COMPORTA_VALOR',
+        'PAR_SEM_MATCHING_PREVIO',
+      ],
       criadaEm: now,
       decididaEm: null,
     },
