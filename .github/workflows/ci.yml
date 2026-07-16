@@ -1,7 +1,9 @@
 # =============================================================================
 # CI do repositorio sep-app (frontend Angular).
 # Copiado de docs-SEP/docs-sep/ci-pipelines/templates/sep-app-ci.template.yml
-# Ajustes locais: name renomeado para CI-APP; adicionados format:check e lint:scss.
+# Ajustes locais: name renomeado para CI-APP; adicionados format:check, lint:scss e
+# contract:check (F-19: valida os contratos consumidos contra contracts/openapi.snapshot.json,
+# offline e deterministico — nao sobe backend nem baixa OpenAPI de ambiente externo).
 # =============================================================================
 
 name: CI-APP
@@ -48,6 +50,9 @@ jobs:
 
       - name: Format check
         run: npm run format:check
+
+      - name: Contract check (OpenAPI snapshot)
+        run: npm run contract:check
 
       - name: Lint TS/HTML
         run: npm run lint

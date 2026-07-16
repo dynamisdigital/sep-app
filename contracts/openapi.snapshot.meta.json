@@ -1,0 +1,19 @@
+{
+  "descricao": "Metadados do snapshot OpenAPI usado pelo contract:check. O snapshot e gerado a partir do runtime do sep-api; nao editar manualmente.",
+  "fonte": {
+    "repo": "sep-api",
+    "branch": "develop",
+    "commit": "7f40056",
+    "endpoint": "http://localhost:8080/v3/api-docs",
+    "perfilSpring": "dev"
+  },
+  "exportadoEm": "2026-07-16",
+  "sha256ExportBruto": "e2b7a0416d115ec72cefb7b351606f759f084ce82006c231f7e6ba28e13e4c38",
+  "sha256Snapshot": "08edb31f4b7a0544c0b9ff231d7e1c33382b1dd64c8daa8a7ab7e80481178151",
+  "comandoRegeneracao": "curl --fail --silent http://localhost:8080/v3/api-docs | jq -S . > contracts/openapi.snapshot.json",
+  "estatisticas": {
+    "openapi": "3.1.0",
+    "paths": 97,
+    "schemas": 108
+  }
+}

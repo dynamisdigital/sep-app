@@ -1,0 +1,1635 @@
+{
+  "$comment": "Contratos HTTP consumidos pelo sep-app, espelhando src/app/core/api/api.models.ts e os services de src/app/core/**. Validado contra o OpenAPI por scripts/contract-check.mjs. Campos declarados = superficie realmente lida/enviada pelo frontend; o backend pode expor mais campos sem quebrar este contrato.",
+  "knownGaps": [
+    {
+      "kind": "header-undocumented",
+      "header": "X-Step-Up-Token",
+      "appliesTo": "*",
+      "reason": "O frontend envia X-Step-Up-Token nas operacoes @RequireStepUp, mas o springdoc nao documenta o header em nenhuma operacao.",
+      "followUp": "backend: documentar o header de step-up nas operacoes sensiveis (springdoc @Parameter)"
+    },
+    {
+      "kind": "field-type-mismatch",
+      "type": "DashboardResponse",
+      "field": "tempoMedioResolucao30d",
+      "openapiType": "string",
+      "frontendType": "number",
+      "reason": "Jackson (WRITE_DURATIONS_AS_TIMESTAMPS) serializa Duration como numero de segundos em runtime; o springdoc documenta java.time.Duration como string.",
+      "followUp": "backend: alinhar a representacao OpenAPI do Duration ao runtime (@Schema(type = number))"
+    },
+    {
+      "kind": "response-header-undocumented",
+      "header": "X-Document-Hash-Sha256",
+      "appliesTo": "contratos.documentoAssinado",
+      "reason": "O frontend le o hash SHA-256 do PDF assinado no header da resposta, mas o springdoc nao documenta headers de resposta neste endpoint.",
+      "followUp": "backend: documentar os headers da resposta do documento assinado (springdoc @ApiResponse headers)"
+    },
+    {
+      "kind": "response-header-undocumented",
+      "header": "Content-Disposition",
+      "appliesTo": "contratos.documentoAssinado",
+      "reason": "O frontend le o filename do Content-Disposition; header nao documentado no OpenAPI.",
+      "followUp": "backend: documentar os headers da resposta do documento assinado (springdoc @ApiResponse headers)"
+    },
+    {
+      "kind": "enum-undocumented",
+      "type": "ContratoResponse",
+      "field": "tipo",
+      "reason": "Backend expoe TipoContrato sem enum no OpenAPI.",
+      "followUp": "backend: publicar enum de TipoContrato no schema"
+    },
+    {
+      "kind": "enum-undocumented",
+      "type": "ContratoResponse",
+      "field": "status",
+      "reason": "Backend expoe StatusFormalizacao sem enum no OpenAPI.",
+      "followUp": "backend: publicar enum de StatusFormalizacao no schema"
+    },
+    {
+      "kind": "enum-undocumented",
+      "type": "StatusAssinaturaResponse",
+      "field": "statusContrato",
+      "reason": "Mesma lacuna de StatusFormalizacao no DTO de status de assinatura.",
+      "followUp": "backend: publicar enum de StatusFormalizacao no schema"
+    },
+    {
+      "kind": "enum-undocumented",
+      "type": "StatusAssinaturaResponse",
+      "field": "statusEnvelope",
+      "reason": "Backend expoe StatusEnvelope sem enum no OpenAPI.",
+      "followUp": "backend: publicar enum de StatusEnvelope no schema"
+    }
+  ],
+  "types": {
+    "UsuarioResponse": {
+      "fields": {
+        "id": "string",
+        "username": "string",
+        "role": { "enum": ["ADMIN", "CLIENTE", "FINANCEIRO", "BACKOFFICE"] },
+        "dataCriacao": "string",
+        "dataModificacao": "string",
+        "criadoPor": "string",
+        "modificadoPor": "string",
+        "precisaRedefinirSenha": "boolean",
+        "mfaHabilitado": "boolean"
+      }
+    },
+    "LoginRequest": {
+      "fields": { "username": "string", "password": "string" }
+    },
+    "TokenResponse": {
+      "fields": {
+        "accessToken": "string",
+        "tokenType": "string",
+        "expiresIn": "number",
+        "refreshToken": "string",
+        "usuario": { "$type": "UsuarioResponse" },
+        "mfaRequired": "boolean",
+        "mfaChallengeId": "string"
+      }
+    },
+    "TotpSetupResponse": {
+      "fields": {
+        "secretBase32": "string",
+        "otpAuthUri": "string",
+        "qrCodeDataUrl": "string",
+        "backupCodes": { "array": "string" }
+      }
+    },
+    "TotpConfirmRequest": { "fields": { "codigo": "string" } },
+    "TotpVerifyRequest": { "fields": { "mfaChallengeId": "string", "codigo": "string" } },
+    "TotpDisableRequest": { "fields": { "passwordAtual": "string" } },
+    "StepUpInitiateResponse": { "fields": { "stepUpChallengeId": "string" } },
+    "StepUpCompleteRequest": { "fields": { "stepUpChallengeId": "string", "codigo": "string" } },
+    "StepUpCompleteResponse": { "fields": { "stepUpToken": "string" } },
+    "UsuarioCreateRequest": { "fields": { "username": "string", "password": "string" } },
+    "UsuarioSenhaUpdateRequest": { "fields": { "passwordAtual": "string", "novaSenha": "string" } },
+    "IniciarOnboardingPessoaRequest": {
+      "fields": { "cpf": "string", "nomeCompleto": "string", "dataNascimento": "string" }
+    },
+    "IniciarOnboardingEmpresaRequest": {
+      "fields": {
+        "cnpj": "string",
+        "razaoSocial": "string",
+        "nomeFantasia": "string",
+        "tipoSocietario": { "enum": ["LTDA", "SA", "EIRELI", "MEI", "OUTROS"] },
+        "porte": { "enum": ["MEI", "ME", "EPP", "MEDIO", "GRANDE"] }
+      }
+    },
+    "OnboardingResponse": {
+      "fields": {
+        "id": "string",
+        "status": {
+          "enum": [
+            "INICIADO",
+            "DOCUMENTOS_RECEBIDOS",
+            "EM_VERIFICACAO",
+            "APROVADO",
+            "REPROVADO",
+            "PENDENCIA",
+            "APROVADO_FINAL",
+            "REPROVADO_PLD"
+          ]
+        },
+        "dataCriacao": "string",
+        "dataModificacao": "string"
+      }
+    },
+    "EmpresaResponse": {
+      "fields": {
+        "id": "string",
+        "status": {
+          "enum": [
+            "INICIADO",
+            "DOCUMENTOS_RECEBIDOS",
+            "EM_VERIFICACAO",
+            "APROVADO",
+            "REPROVADO",
+            "PENDENCIA",
+            "APROVADO_FINAL",
+            "REPROVADO_PLD"
+          ]
+        },
+        "cnpj": "string",
+        "razaoSocial": "string",
+        "dataCriacao": "string",
+        "dataModificacao": "string"
+      }
+    },
+    "DocumentoEnviadoResponse": {
+      "fields": {
+        "id": "string",
+        "tipo": {
+          "enum": [
+            "RG",
+            "CNH",
+            "PASSAPORTE",
+            "SELFIE",
+            "CONTRATO_SOCIAL",
+            "CCMEI",
+            "COMPROVANTE_ENDERECO"
+          ]
+        },
+        "dataEnvio": "string",
+        "sha256": "string"
+      }
+    },
+    "ResultadoOnboardingResponse": {
+      "fields": {
+        "statusFinal": {
+          "enum": [
+            "INICIADO",
+            "DOCUMENTOS_RECEBIDOS",
+            "EM_VERIFICACAO",
+            "APROVADO",
+            "REPROVADO",
+            "PENDENCIA",
+            "APROVADO_FINAL",
+            "REPROVADO_PLD"
+          ]
+        },
+        "motivo": "string",
+        "dataResultado": "string"
+      }
+    },
+    "StatusOnboardingResponse": {
+      "fields": {
+        "id": "string",
+        "status": {
+          "enum": [
+            "INICIADO",
+            "DOCUMENTOS_RECEBIDOS",
+            "EM_VERIFICACAO",
+            "APROVADO",
+            "REPROVADO",
+            "PENDENCIA",
+            "APROVADO_FINAL",
+            "REPROVADO_PLD"
+          ]
+        },
+        "dataCriacao": "string",
+        "dataModificacao": "string",
+        "documentosEnviados": { "array": { "$type": "DocumentoEnviadoResponse" } },
+        "resultado": { "$type": "ResultadoOnboardingResponse" }
+      }
+    },
+    "ConsultaPldResumoResponse": {
+      "fields": {
+        "statusPld": { "enum": ["PENDENTE", "LIMPO", "HIT"] },
+        "dataConsulta": "string"
+      }
+    },
+    "RepresentanteLegalResponse": {
+      "fields": {
+        "id": "string",
+        "nome": "string",
+        "cpfMascarado": "string",
+        "cargo": "string",
+        "pld": { "$type": "ConsultaPldResumoResponse" }
+      }
+    },
+    "DadosEmpresaResponse": {
+      "fields": {
+        "cnpj": "string",
+        "razaoSocial": "string",
+        "nomeFantasia": "string",
+        "tipoSocietario": { "enum": ["LTDA", "SA", "EIRELI", "MEI", "OUTROS"] },
+        "porte": { "enum": ["MEI", "ME", "EPP", "MEDIO", "GRANDE"] }
+      }
+    },
+    "StatusOnboardingEmpresaResponse": {
+      "fields": {
+        "id": "string",
+        "status": {
+          "enum": [
+            "INICIADO",
+            "DOCUMENTOS_RECEBIDOS",
+            "EM_VERIFICACAO",
+            "APROVADO",
+            "REPROVADO",
+            "PENDENCIA",
+            "APROVADO_FINAL",
+            "REPROVADO_PLD"
+          ]
+        },
+        "dataCriacao": "string",
+        "dataModificacao": "string",
+        "dadosEmpresa": { "$type": "DadosEmpresaResponse" },
+        "documentosEnviados": { "array": { "$type": "DocumentoEnviadoResponse" } },
+        "representantes": { "array": { "$type": "RepresentanteLegalResponse" } },
+        "resultado": { "$type": "ResultadoOnboardingResponse" }
+      }
+    },
+    "CriarPropostaRequest": {
+      "fields": {
+        "solicitacaoOnboardingId": "string",
+        "tipoOperacao": { "enum": ["CAPITAL_GIRO", "OUTROS"] },
+        "valorSolicitado": "number",
+        "prazoMeses": "number"
+      }
+    },
+    "ScoreInternoResponse": {
+      "fields": {
+        "valor": "number",
+        "statusSugerido": {
+          "enum": ["EM_ANALISE", "PRE_APROVADA", "APROVADA", "REJEITADA", "PENDENCIA"]
+        },
+        "falhas": "number",
+        "pendencias": "number",
+        "dataCalculo": "string"
+      }
+    },
+    "ParecerCreditoResponse": {
+      "fields": {
+        "id": "string",
+        "propostaId": "string",
+        "pareceristaId": "string",
+        "decisao": { "enum": ["APROVAR", "REJEITAR", "PENDENCIA"] },
+        "justificativa": "string",
+        "scoreMotorSnapshot": "number",
+        "versao": "number",
+        "dataParecer": "string"
+      }
+    },
+    "PropostaResponse": {
+      "fields": {
+        "id": "string",
+        "tomadorId": "string",
+        "solicitacaoOnboardingId": "string",
+        "tipoOperacao": { "enum": ["CAPITAL_GIRO", "OUTROS"] },
+        "valorSolicitado": "number",
+        "moeda": "string",
+        "prazoMeses": "number",
+        "status": { "enum": ["EM_ANALISE", "PRE_APROVADA", "APROVADA", "REJEITADA", "PENDENCIA"] },
+        "dataCriacao": "string",
+        "dataModificacao": "string",
+        "score": { "$type": "ScoreInternoResponse" },
+        "parecer": { "$type": "ParecerCreditoResponse" }
+      }
+    },
+    "PagePropostaResponse": {
+      "fields": {
+        "content": { "array": { "$type": "PropostaResponse" } },
+        "totalElements": "number",
+        "totalPages": "number",
+        "number": "number",
+        "size": "number",
+        "first": "boolean",
+        "last": "boolean",
+        "numberOfElements": "number",
+        "empty": "boolean"
+      }
+    },
+    "RegraAvaliadaResponse": {
+      "fields": {
+        "nomeRegra": "string",
+        "resultado": { "enum": ["PASSOU", "FALHOU", "PENDENTE"] },
+        "motivo": "string",
+        "bloqueante": "boolean",
+        "dataAvaliacao": "string"
+      }
+    },
+    "IniciarConsentimentoOpenFinanceRequest": {
+      "fields": { "cpfCnpjTomador": "string", "redirectUri": "string" }
+    },
+    "IniciarConsentimentoOpenFinanceResponse": {
+      "fields": {
+        "consentimentoId": "string",
+        "status": { "enum": ["PENDENTE", "AUTORIZADO", "NEGADO", "EXPIRADO"] },
+        "urlAutorizacao": "string",
+        "dataExpiracao": "string"
+      }
+    },
+    "MovimentacaoConsolidadaResponse": {
+      "fields": {
+        "mediaEntradasMensal": "number",
+        "mediaSaidasMensal": "number",
+        "saldoMedio": "number",
+        "numeroMesesAvaliados": "number",
+        "dataRecebimento": "string"
+      }
+    },
+    "OpenFinanceStatusResponse": {
+      "fields": {
+        "statusConsentimento": { "enum": ["PENDENTE", "AUTORIZADO", "NEGADO", "EXPIRADO"] },
+        "dataInicio": "string",
+        "dataAutorizacao": "string",
+        "dataExpiracao": "string",
+        "ultimaMovimentacao": { "$type": "MovimentacaoConsolidadaResponse" }
+      }
+    },
+    "ClausulaContratoResponse": {
+      "fields": { "id": "string", "ordem": "number", "titulo": "string", "texto": "string" }
+    },
+    "VersaoContratoResponse": {
+      "fields": {
+        "id": "string",
+        "numero": "number",
+        "conteudoTexto": "string",
+        "hashSha256": "string",
+        "dataGeracao": "string",
+        "parecerOrigemId": "string",
+        "clausulas": { "array": { "$type": "ClausulaContratoResponse" } }
+      }
+    },
+    "AceiteContratoResponse": {
+      "fields": {
+        "id": "string",
+        "versaoId": "string",
+        "tomadorId": "string",
+        "dataAceite": "string",
+        "ipOrigem": "string",
+        "userAgentOrigem": "string"
+      }
+    },
+    "ContratoResponse": {
+      "fields": {
+        "id": "string",
+        "propostaId": "string",
+        "tomadorId": "string",
+        "tipo": { "enum": ["MUTUO", "CCB", "OUTROS"] },
+        "status": {
+          "enum": [
+            "GERADO",
+            "AGUARDANDO_ACEITE",
+            "ACEITO",
+            "EM_ASSINATURA",
+            "ASSINADO",
+            "RECUSADO",
+            "CANCELADO"
+          ]
+        },
+        "versaoVigente": { "$type": "VersaoContratoResponse" },
+        "aceite": { "$type": "AceiteContratoResponse" },
+        "dataCriacao": "string",
+        "dataModificacao": "string"
+      }
+    },
+    "StatusAssinaturaResponse": {
+      "fields": {
+        "statusContrato": {
+          "enum": [
+            "GERADO",
+            "AGUARDANDO_ACEITE",
+            "ACEITO",
+            "EM_ASSINATURA",
+            "ASSINADO",
+            "RECUSADO",
+            "CANCELADO"
+          ]
+        },
+        "statusEnvelope": {
+          "enum": ["RASCUNHO", "ENVIADO", "VISUALIZADO", "ASSINADO", "RECUSADO", "EXPIRADO"]
+        },
+        "idEnvelopeExterno": "string",
+        "dataAtualizacaoProvider": "string"
+      }
+    },
+    "ParcelaResponse": {
+      "fields": {
+        "id": "string",
+        "numero": "number",
+        "principal": "number",
+        "juros": "number",
+        "multa": "number",
+        "encargos": "number",
+        "total": "number",
+        "dataVencimento": "string",
+        "status": {
+          "enum": [
+            "PENDENTE",
+            "PARCIALMENTE_PAGA",
+            "PAGA",
+            "ATRASADA",
+            "INADIMPLENTE",
+            "EM_NEGOCIACAO",
+            "RENEGOCIADA"
+          ]
+        }
+      }
+    },
+    "AgendaPagamentoResponse": {
+      "fields": {
+        "id": "string",
+        "contratoId": "string",
+        "numeroParcelas": "number",
+        "valorTotal": "number",
+        "dataGeracao": "string",
+        "parcelas": { "array": { "$type": "ParcelaResponse" } }
+      }
+    },
+    "ValorAtualizadoParcelaResponse": {
+      "fields": {
+        "parcelaId": "string",
+        "numero": "number",
+        "status": {
+          "enum": [
+            "PENDENTE",
+            "PARCIALMENTE_PAGA",
+            "PAGA",
+            "ATRASADA",
+            "INADIMPLENTE",
+            "EM_NEGOCIACAO",
+            "RENEGOCIADA"
+          ]
+        },
+        "dataVencimento": "string",
+        "principalOriginal": "number",
+        "jurosOriginal": "number",
+        "jurosMora": "number",
+        "multa": "number",
+        "valorDevidoAtualizado": "number",
+        "totalRecebido": "number",
+        "valorEmAberto": "number"
+      }
+    },
+    "RegistrarRecebimentoRequest": {
+      "fields": {
+        "valorRecebido": "number",
+        "dataRecebimento": "string",
+        "meioPagamento": "string",
+        "identificadorExterno": "string",
+        "observacao": "string"
+      }
+    },
+    "RecebimentoResponse": {
+      "fields": {
+        "recebimentoId": "string",
+        "parcelaId": "string",
+        "statusParcela": {
+          "enum": [
+            "PENDENTE",
+            "PARCIALMENTE_PAGA",
+            "PAGA",
+            "ATRASADA",
+            "INADIMPLENTE",
+            "EM_NEGOCIACAO",
+            "RENEGOCIADA"
+          ]
+        },
+        "valorRecebido": "number",
+        "dataRecebimento": "string",
+        "meioPagamento": "string",
+        "identificadorExterno": "string",
+        "movimentacaoEscrowId": "string",
+        "novo": "boolean"
+      }
+    },
+    "InadimplenciaResponse": {
+      "fields": {
+        "parcelaId": "string",
+        "agendaId": "string",
+        "contratoId": "string",
+        "tomadorId": "string",
+        "numeroParcela": "number",
+        "status": {
+          "enum": [
+            "PENDENTE",
+            "PARCIALMENTE_PAGA",
+            "PAGA",
+            "ATRASADA",
+            "INADIMPLENTE",
+            "EM_NEGOCIACAO",
+            "RENEGOCIADA"
+          ]
+        },
+        "dataVencimento": "string",
+        "diasAtraso": "number",
+        "valorOriginal": "number"
+      }
+    },
+    "RegistrarContatoRequest": {
+      "fields": { "descricao": "string", "diasAtraso": "number" }
+    },
+    "EventoCobrancaResponse": {
+      "fields": {
+        "id": "string",
+        "parcelaId": "string",
+        "tipo": {
+          "enum": [
+            "NOTIFICACAO_AUTOMATICA",
+            "CONTATO_MANUAL",
+            "RENEGOCIACAO_PROPOSTA",
+            "RENEGOCIACAO_ACEITA",
+            "RENEGOCIACAO_RECUSADA",
+            "RENEGOCIACAO_EXPIRADA",
+            "PARCELA_INADIMPLENTE"
+          ]
+        },
+        "canal": { "enum": ["EMAIL", "SMS"] },
+        "template": "string",
+        "status": { "enum": ["SUCESSO", "FALHA"] },
+        "diasAtraso": "number",
+        "descricao": "string",
+        "registradoPor": "string",
+        "dataEvento": "string"
+      }
+    },
+    "IniciarRenegociacaoRequest": {
+      "fields": {
+        "novoValorParcela": "number",
+        "novoVencimento": "string",
+        "numeroParcelas": "number",
+        "desconto": "number",
+        "justificativa": "string"
+      }
+    },
+    "RenegociacaoResponse": {
+      "fields": {
+        "id": "string",
+        "parcelaOriginalId": "string",
+        "agendaOriginalId": "string",
+        "tomadorId": "string",
+        "status": { "enum": ["PROPOSTA", "ACEITA", "RECUSADA", "EXPIRADA"] },
+        "statusParcelaAnterior": {
+          "enum": [
+            "PENDENTE",
+            "PARCIALMENTE_PAGA",
+            "PAGA",
+            "ATRASADA",
+            "INADIMPLENTE",
+            "EM_NEGOCIACAO",
+            "RENEGOCIADA"
+          ]
+        },
+        "novoValorParcela": "number",
+        "novoVencimento": "string",
+        "numeroParcelas": "number",
+        "desconto": "number",
+        "propostaPor": "string",
+        "dataProposta": "string",
+        "dataExpiracao": "string",
+        "dataDecisao": "string",
+        "agendaSubstitutaId": "string"
+      }
+    },
+    "RenegociacaoTomadorResponse": {
+      "fields": {
+        "renegociacaoId": "string",
+        "parcelaId": "string",
+        "status": { "enum": ["PROPOSTA", "ACEITA", "RECUSADA", "EXPIRADA"] },
+        "novoValorParcela": "number",
+        "numeroParcelas": "number",
+        "valorTotalRenegociado": "number",
+        "novoVencimento": "string",
+        "desconto": "number",
+        "dataProposta": "string",
+        "dataExpiracao": "string"
+      }
+    },
+    "CadastrarCredoraRequest": {
+      "fields": {
+        "onboardingId": "string",
+        "tipoCredora": { "enum": ["EMPRESA", "INSTITUICAO_FINANCEIRA"] },
+        "capacidadeAporte": "number"
+      }
+    },
+    "EmpresaCredoraResponse": {
+      "fields": {
+        "id": "string",
+        "usuarioId": "string",
+        "onboardingId": "string",
+        "cnpj": "string",
+        "razaoSocial": "string",
+        "status": { "enum": ["CADASTRADA", "ATIVA", "SUSPENSA"] },
+        "elegibilidade": { "enum": ["PENDENTE", "ELEGIVEL", "INELEGIVEL"] },
+        "motivoInelegibilidade": "string",
+        "tipoCredora": { "enum": ["EMPRESA", "INSTITUICAO_FINANCEIRA"] },
+        "capacidadeAporte": "number",
+        "dataCriacao": "string",
+        "dataModificacao": "string"
+      }
+    },
+    "ElegibilidadeCredoraResponse": {
+      "fields": {
+        "status": { "enum": ["CADASTRADA", "ATIVA", "SUSPENSA"] },
+        "elegibilidade": { "enum": ["PENDENTE", "ELEGIVEL", "INELEGIVEL"] },
+        "motivoInelegibilidade": "string"
+      }
+    },
+    "OportunidadeResponse": {
+      "fields": {
+        "id": "string",
+        "propostaId": "string",
+        "contratoId": "string",
+        "valor": "number",
+        "prazoMeses": "number",
+        "taxaJurosMensal": "number",
+        "status": { "enum": ["DISPONIVEL", "ENCERRADA"] },
+        "dataCriacao": "string"
+      }
+    },
+    "InteresseResponse": {
+      "fields": {
+        "id": "string",
+        "oportunidadeId": "string",
+        "status": { "enum": ["ATIVO", "CANCELADO"] },
+        "dataCriacao": "string"
+      }
+    },
+    "CarteiraCobrancaResumo": {
+      "fields": {
+        "numeroParcelas": "number",
+        "valorTotal": "number",
+        "parcelasPagas": "number",
+        "parcelasAtrasadas": "number",
+        "totalRecebido": "number",
+        "proximoVencimento": "string"
+      }
+    },
+    "OperacaoCarteiraResponse": {
+      "fields": {
+        "id": "string",
+        "contratoId": "string",
+        "oportunidadeId": "string",
+        "status": { "enum": ["ASSOCIADA", "ENCERRADA"] },
+        "justificativa": "string",
+        "valor": "number",
+        "prazoMeses": "number",
+        "taxaJurosMensal": "number",
+        "contratoStatus": "string",
+        "cobranca": { "$type": "CarteiraCobrancaResumo" },
+        "dataCriacao": "string"
+      }
+    },
+    "MatchingSugestaoResponse": {
+      "fields": {
+        "id": "string",
+        "operacaoId": "string",
+        "empresaCredoraId": "string",
+        "status": { "enum": ["SUGERIDA", "CONFIRMADA", "REJEITADA"] },
+        "valorElegivel": "number",
+        "criterios": { "array": "string" },
+        "criadaEm": "string",
+        "decididaEm": "string"
+      }
+    },
+    "DecidirMatchingRequest": {
+      "fields": { "acao": { "enum": ["CONFIRMAR", "REJEITAR"] }, "motivo": "string" }
+    },
+    "RegistrarAporteRequest": { "fields": { "valor": "number" } },
+    "AporteCredoraResponse": {
+      "fields": {
+        "id": "string",
+        "operacaoId": "string",
+        "status": { "enum": ["PENDENTE", "EM_PROCESSAMENTO", "LIQUIDADO", "FALHOU"] },
+        "valor": "number",
+        "dataCriacao": "string",
+        "dataAtualizacao": "string"
+      }
+    },
+    "SolicitarDesembolsoPixRequest": {
+      "fields": { "contratoId": "string", "valor": "number", "chavePixDestino": "string" }
+    },
+    "PixDesembolsoResponse": {
+      "fields": {
+        "transferenciaId": "string",
+        "contratoId": "string",
+        "status": {
+          "enum": ["CRIADA", "SOLICITADA", "PROCESSANDO", "CONCLUIDA", "FALHOU", "CANCELADA"]
+        },
+        "valor": "number",
+        "chaveDestinoMascara": "string",
+        "novo": "boolean"
+      }
+    },
+    "PixStatusDesembolsoResponse": {
+      "fields": {
+        "transferenciaId": "string",
+        "contratoId": "string",
+        "status": {
+          "enum": ["CRIADA", "SOLICITADA", "PROCESSANDO", "CONCLUIDA", "FALHOU", "CANCELADA"]
+        },
+        "valor": "number",
+        "chaveDestinoMascara": "string",
+        "providerIndisponivel": "boolean"
+      }
+    },
+    "GerarReferenciaRecebimentoPixRequest": { "fields": { "parcelaId": "string" } },
+    "PixReferenciaRecebimentoResponse": {
+      "fields": {
+        "referenciaId": "string",
+        "parcelaId": "string",
+        "txid": "string",
+        "codigoCopiaCola": "string",
+        "valorEsperado": "number",
+        "status": { "enum": ["ATIVA", "PAGA", "EXPIRADA", "CANCELADA", "DIVERGENTE"] },
+        "novo": "boolean"
+      }
+    },
+    "PixRecebimentoResponse": {
+      "fields": {
+        "recebimentoId": "string",
+        "status": {
+          "enum": ["RECEBIDO", "EM_PROCESSAMENTO", "CONCILIADO", "NAO_IDENTIFICADO", "FALHOU"]
+        },
+        "valor": "number",
+        "endToEndId": "string",
+        "referenciaId": "string",
+        "parcelaId": "string",
+        "recebimentoCobrancaId": "string",
+        "motivoDivergencia": "string",
+        "recebidoEm": "string"
+      }
+    },
+    "UsuarioRolesResponse": {
+      "fields": {
+        "roles": { "array": { "enum": ["ADMIN", "CLIENTE", "FINANCEIRO", "BACKOFFICE"] } },
+        "principal": { "enum": ["ADMIN", "CLIENTE", "FINANCEIRO", "BACKOFFICE"] }
+      }
+    },
+    "SubstituirRolesRequest": { "fields": { "roles": { "array": "string" } } },
+    "ParametroOperacional": {
+      "fields": {
+        "id": "string",
+        "chave": "string",
+        "tipo": { "enum": ["INTEGER", "DECIMAL", "BOOLEAN", "STRING"] },
+        "valor": "string",
+        "descricao": "string",
+        "ativo": "boolean",
+        "versao": "number",
+        "dataModificacao": "string"
+      }
+    },
+    "VersaoParametro": {
+      "fields": {
+        "versao": "number",
+        "valorAnterior": "string",
+        "valorNovo": "string",
+        "atorId": "string",
+        "justificativa": "string",
+        "dataCriacao": "string"
+      }
+    },
+    "ParametroComHistorico": {
+      "fields": {
+        "parametro": { "$type": "ParametroOperacional" },
+        "historico": { "array": { "$type": "VersaoParametro" } }
+      }
+    },
+    "AlterarParametroRequest": {
+      "fields": { "novoValor": "string", "justificativa": "string" }
+    },
+    "ContadorPorTipo": {
+      "fields": {
+        "tipo": {
+          "enum": [
+            "ONBOARDING_PENDENTE",
+            "ONBOARDING_ERRO",
+            "PROPOSTA_PENDENTE",
+            "CONTRATO_NAO_ASSINADO",
+            "COBRANCA_INADIMPLENTE",
+            "WEBHOOK_FALHOU",
+            "DESEMBOLSO_PIX_FALHOU",
+            "RECEBIMENTO_PIX_DIVERGENTE",
+            "OUTRO"
+          ]
+        },
+        "total": "number"
+      }
+    },
+    "ContadorPorPrioridade": {
+      "fields": {
+        "prioridade": { "enum": ["BAIXA", "MEDIA", "ALTA", "CRITICA"] },
+        "total": "number"
+      }
+    },
+    "ContadorPorStatus": {
+      "fields": {
+        "status": { "enum": ["ABERTO", "EM_TRATAMENTO", "RESOLVIDO", "IGNORADO"] },
+        "total": "number"
+      }
+    },
+    "ContadorPorStatusProposta": {
+      "fields": { "status": "string", "total": "number" }
+    },
+    "InadimplenciaConsolidada": {
+      "fields": { "valorTotal": "number", "numeroParcelas": "number" }
+    },
+    "DashboardResponse": {
+      "fields": {
+        "contadoresPorTipo": { "array": { "$type": "ContadorPorTipo" } },
+        "contadoresPorPrioridade": { "array": { "$type": "ContadorPorPrioridade" } },
+        "contadoresPorStatus": { "array": { "$type": "ContadorPorStatus" } },
+        "tempoMedioResolucao30d": "number",
+        "itensCriticosAbertosMais48h": "number",
+        "topCincoTiposMaisFrequentes": { "array": { "$type": "ContadorPorTipo" } },
+        "recebimentosDoDia": "number",
+        "inadimplenciaTotal": { "$type": "InadimplenciaConsolidada" },
+        "propostasPorStatus": { "array": { "$type": "ContadorPorStatusProposta" } },
+        "geradoEm": "string"
+      }
+    },
+    "ItemFilaResponse": {
+      "fields": {
+        "id": "string",
+        "tipo": {
+          "enum": [
+            "ONBOARDING_PENDENTE",
+            "ONBOARDING_ERRO",
+            "PROPOSTA_PENDENTE",
+            "CONTRATO_NAO_ASSINADO",
+            "COBRANCA_INADIMPLENTE",
+            "WEBHOOK_FALHOU",
+            "DESEMBOLSO_PIX_FALHOU",
+            "RECEBIMENTO_PIX_DIVERGENTE",
+            "OUTRO"
+          ]
+        },
+        "prioridade": { "enum": ["BAIXA", "MEDIA", "ALTA", "CRITICA"] },
+        "status": { "enum": ["ABERTO", "EM_TRATAMENTO", "RESOLVIDO", "IGNORADO"] },
+        "tipoEntidade": {
+          "enum": [
+            "ONBOARDING",
+            "PROPOSTA",
+            "CONTRATO",
+            "PARCELA_COBRANCA",
+            "WEBHOOK_EVENT_LOG",
+            "PIX_TRANSFERENCIA",
+            "PIX_RECEBIMENTO",
+            "OUTRO"
+          ]
+        },
+        "entidadeId": "string",
+        "titulo": "string",
+        "atribuidoA": "string",
+        "dataAbertura": "string",
+        "dataResolucao": "string"
+      }
+    },
+    "ComentarioInternoResponse": {
+      "fields": {
+        "id": "string",
+        "autorId": "string",
+        "conteudo": "string",
+        "dataCriacao": "string"
+      }
+    },
+    "ObjetoOriginalResponse": {
+      "fields": {
+        "tipoEntidade": {
+          "enum": [
+            "ONBOARDING",
+            "PROPOSTA",
+            "CONTRATO",
+            "PARCELA_COBRANCA",
+            "WEBHOOK_EVENT_LOG",
+            "PIX_TRANSFERENCIA",
+            "PIX_RECEBIMENTO",
+            "OUTRO"
+          ]
+        },
+        "entidadeId": "string",
+        "status": "string",
+        "descricaoCurta": "string"
+      }
+    },
+    "ItemFilaDetalheResponse": {
+      "fields": {
+        "id": "string",
+        "tipo": {
+          "enum": [
+            "ONBOARDING_PENDENTE",
+            "ONBOARDING_ERRO",
+            "PROPOSTA_PENDENTE",
+            "CONTRATO_NAO_ASSINADO",
+            "COBRANCA_INADIMPLENTE",
+            "WEBHOOK_FALHOU",
+            "DESEMBOLSO_PIX_FALHOU",
+            "RECEBIMENTO_PIX_DIVERGENTE",
+            "OUTRO"
+          ]
+        },
+        "prioridade": { "enum": ["BAIXA", "MEDIA", "ALTA", "CRITICA"] },
+        "status": { "enum": ["ABERTO", "EM_TRATAMENTO", "RESOLVIDO", "IGNORADO"] },
+        "tipoEntidade": {
+          "enum": [
+            "ONBOARDING",
+            "PROPOSTA",
+            "CONTRATO",
+            "PARCELA_COBRANCA",
+            "WEBHOOK_EVENT_LOG",
+            "PIX_TRANSFERENCIA",
+            "PIX_RECEBIMENTO",
+            "OUTRO"
+          ]
+        },
+        "entidadeId": "string",
+        "titulo": "string",
+        "descricao": "string",
+        "atribuidoA": "string",
+        "dataAbertura": "string",
+        "dataResolucao": "string",
+        "comentarios": { "array": { "$type": "ComentarioInternoResponse" } },
+        "objetoOriginal": { "$type": "ObjetoOriginalResponse" }
+      }
+    },
+    "PageItemFilaResponse": {
+      "fields": {
+        "content": { "array": { "$type": "ItemFilaResponse" } },
+        "totalElements": "number",
+        "totalPages": "number",
+        "number": "number",
+        "size": "number",
+        "first": "boolean",
+        "last": "boolean",
+        "numberOfElements": "number",
+        "empty": "boolean"
+      }
+    },
+    "ComentarioRequest": { "fields": { "conteudo": "string" } },
+    "ResolverRequest": { "fields": { "justificativa": "string" } },
+    "IgnorarRequest": { "fields": { "justificativa": "string" } },
+    "ReprocessoRequest": { "fields": { "itemId": "string" } },
+    "ReprocessoResponse": {
+      "fields": {
+        "id": "string",
+        "itemId": "string",
+        "tipo": { "enum": ["WEBHOOK", "PROVIDER"] },
+        "tipoChamada": {
+          "enum": ["KYC", "KYB", "PLD", "OPEN_FINANCE", "ASSINATURA_DIGITAL", "PIX_TRANSFERENCIA"]
+        },
+        "identificadorExterno": "string",
+        "status": { "enum": ["PENDENTE", "SUCESSO", "FALHA"] },
+        "resultado": "string",
+        "dataDisparo": "string",
+        "disparadoPor": "string"
+      }
+    }
+  },
+  "operations": [
+    {
+      "id": "auth.login",
+      "method": "post",
+      "path": "/api/v1/auth/login",
+      "sucesso": [200],
+      "request": { "$type": "LoginRequest" },
+      "response": { "$type": "TokenResponse" }
+    },
+    {
+      "id": "auth.registrar",
+      "method": "post",
+      "path": "/api/v1/usuarios",
+      "sucesso": [201],
+      "request": { "$type": "UsuarioCreateRequest" },
+      "response": { "$type": "UsuarioResponse" }
+    },
+    {
+      "id": "auth.me",
+      "method": "get",
+      "path": "/api/v1/auth/me",
+      "sucesso": [200],
+      "response": { "$type": "UsuarioResponse" }
+    },
+    {
+      "id": "auth.refresh",
+      "method": "post",
+      "path": "/api/v1/auth/refresh",
+      "sucesso": [200],
+      "response": { "$type": "TokenResponse" }
+    },
+    {
+      "id": "auth.logout",
+      "method": "post",
+      "path": "/api/v1/auth/logout",
+      "sucesso": [204],
+      "response": null
+    },
+    {
+      "id": "auth.logoutAll",
+      "method": "post",
+      "path": "/api/v1/auth/logout-all",
+      "sucesso": [204],
+      "response": null
+    },
+    {
+      "id": "mfa.totpSetup",
+      "method": "post",
+      "path": "/api/v1/auth/totp/setup",
+      "sucesso": [200],
+      "response": { "$type": "TotpSetupResponse" }
+    },
+    {
+      "id": "mfa.totpConfirm",
+      "method": "post",
+      "path": "/api/v1/auth/totp/confirm",
+      "sucesso": [204],
+      "request": { "$type": "TotpConfirmRequest" },
+      "response": null
+    },
+    {
+      "id": "mfa.totpVerify",
+      "method": "post",
+      "path": "/api/v1/auth/totp/verify",
+      "sucesso": [200],
+      "request": { "$type": "TotpVerifyRequest" },
+      "response": { "$type": "TokenResponse" }
+    },
+    {
+      "id": "mfa.totpDisable",
+      "method": "post",
+      "path": "/api/v1/auth/totp/disable",
+      "sucesso": [204],
+      "headers": ["X-Step-Up-Token"],
+      "request": { "$type": "TotpDisableRequest" },
+      "response": null
+    },
+    {
+      "id": "mfa.stepUpInitiate",
+      "method": "post",
+      "path": "/api/v1/auth/step-up/initiate",
+      "sucesso": [200],
+      "response": { "$type": "StepUpInitiateResponse" }
+    },
+    {
+      "id": "mfa.stepUpComplete",
+      "method": "post",
+      "path": "/api/v1/auth/step-up/complete",
+      "sucesso": [200],
+      "request": { "$type": "StepUpCompleteRequest" },
+      "response": { "$type": "StepUpCompleteResponse" }
+    },
+    {
+      "id": "onboarding.iniciarPessoa",
+      "method": "post",
+      "path": "/api/v1/onboarding/pessoa",
+      "sucesso": [201],
+      "request": { "$type": "IniciarOnboardingPessoaRequest" },
+      "response": { "$type": "OnboardingResponse" }
+    },
+    {
+      "id": "onboarding.enviarDocumentoPessoa",
+      "method": "post",
+      "path": "/api/v1/onboarding/pessoa/{id}/documentos",
+      "sucesso": [204],
+      "request": "multipart",
+      "formParams": ["tipo", "arquivo"],
+      "response": null
+    },
+    {
+      "id": "onboarding.verificarPessoa",
+      "method": "post",
+      "path": "/api/v1/onboarding/pessoa/{id}/verificar",
+      "sucesso": [202],
+      "response": null
+    },
+    {
+      "id": "onboarding.consultarPessoa",
+      "method": "get",
+      "path": "/api/v1/onboarding/pessoa/{id}",
+      "sucesso": [200],
+      "response": { "$type": "StatusOnboardingResponse" }
+    },
+    {
+      "id": "onboarding.iniciarEmpresa",
+      "method": "post",
+      "path": "/api/v1/onboarding/empresa",
+      "sucesso": [201],
+      "request": { "$type": "IniciarOnboardingEmpresaRequest" },
+      "response": { "$type": "EmpresaResponse" }
+    },
+    {
+      "id": "onboarding.enviarDocumentoEmpresa",
+      "method": "post",
+      "path": "/api/v1/onboarding/empresa/{id}/documentos",
+      "sucesso": [204],
+      "request": "multipart",
+      "formParams": ["tipo", "arquivo"],
+      "response": null
+    },
+    {
+      "id": "onboarding.verificarEmpresa",
+      "method": "post",
+      "path": "/api/v1/onboarding/empresa/{id}/verificar",
+      "sucesso": [202],
+      "response": null
+    },
+    {
+      "id": "onboarding.consultarEmpresa",
+      "method": "get",
+      "path": "/api/v1/onboarding/empresa/{id}",
+      "sucesso": [200],
+      "response": { "$type": "StatusOnboardingEmpresaResponse" }
+    },
+    {
+      "id": "onboarding.representantes",
+      "method": "get",
+      "path": "/api/v1/onboarding/empresa/{id}/representantes",
+      "sucesso": [200],
+      "response": { "array": { "$type": "RepresentanteLegalResponse" } }
+    },
+    {
+      "id": "credito.criarProposta",
+      "method": "post",
+      "path": "/api/v1/credito/propostas",
+      "sucesso": [201],
+      "request": { "$type": "CriarPropostaRequest" },
+      "response": { "$type": "PropostaResponse" }
+    },
+    {
+      "id": "credito.listarPropostas",
+      "method": "get",
+      "path": "/api/v1/credito/propostas",
+      "sucesso": [200],
+      "query": ["status", "tomadorId", "page", "size"],
+      "response": { "$type": "PagePropostaResponse" }
+    },
+    {
+      "id": "credito.consultarProposta",
+      "method": "get",
+      "path": "/api/v1/credito/propostas/{id}",
+      "sucesso": [200],
+      "response": { "$type": "PropostaResponse" }
+    },
+    {
+      "id": "credito.regras",
+      "method": "get",
+      "path": "/api/v1/credito/propostas/{id}/regras",
+      "sucesso": [200],
+      "response": { "array": { "$type": "RegraAvaliadaResponse" } }
+    },
+    {
+      "id": "credito.iniciarConsentimento",
+      "method": "post",
+      "path": "/api/v1/credito/propostas/{id}/open-finance/consentimento",
+      "sucesso": [201],
+      "request": { "$type": "IniciarConsentimentoOpenFinanceRequest" },
+      "response": { "$type": "IniciarConsentimentoOpenFinanceResponse" }
+    },
+    {
+      "id": "credito.openFinanceStatus",
+      "method": "get",
+      "path": "/api/v1/credito/propostas/{id}/open-finance",
+      "sucesso": [200],
+      "response": { "$type": "OpenFinanceStatusResponse" }
+    },
+    {
+      "id": "contratos.consultar",
+      "method": "get",
+      "path": "/api/v1/contratos/{id}",
+      "sucesso": [200],
+      "response": { "$type": "ContratoResponse" }
+    },
+    {
+      "id": "contratos.porProposta",
+      "method": "get",
+      "path": "/api/v1/contratos/proposta/{propostaId}",
+      "sucesso": [200],
+      "response": { "$type": "ContratoResponse" }
+    },
+    {
+      "id": "contratos.versoes",
+      "method": "get",
+      "path": "/api/v1/contratos/{id}/versoes",
+      "sucesso": [200],
+      "response": { "array": { "$type": "VersaoContratoResponse" } }
+    },
+    {
+      "id": "contratos.aceite",
+      "method": "patch",
+      "path": "/api/v1/contratos/{id}/aceite",
+      "sucesso": [200],
+      "headers": ["X-Step-Up-Token"],
+      "response": { "$type": "ContratoResponse" }
+    },
+    {
+      "id": "contratos.statusAssinatura",
+      "method": "get",
+      "path": "/api/v1/contratos/{id}/assinatura/status",
+      "sucesso": [200],
+      "response": { "$type": "StatusAssinaturaResponse" }
+    },
+    {
+      "id": "contratos.documentoAssinado",
+      "method": "get",
+      "path": "/api/v1/contratos/{id}/documento-assinado",
+      "sucesso": [200],
+      "response": "binary",
+      "responseHeaders": ["X-Document-Hash-Sha256", "Content-Disposition"]
+    },
+    {
+      "id": "cobranca.agenda",
+      "method": "get",
+      "path": "/api/v1/cobranca/contratos/{contratoId}/agenda",
+      "sucesso": [200],
+      "response": { "$type": "AgendaPagamentoResponse" }
+    },
+    {
+      "id": "cobranca.parcela",
+      "method": "get",
+      "path": "/api/v1/cobranca/parcelas/{id}",
+      "sucesso": [200],
+      "response": { "$type": "ValorAtualizadoParcelaResponse" }
+    },
+    {
+      "id": "cobranca.registrarRecebimento",
+      "method": "post",
+      "path": "/api/v1/cobranca/parcelas/{id}/recebimentos",
+      "sucesso": [200],
+      "headers": ["Idempotency-Key"],
+      "request": { "$type": "RegistrarRecebimentoRequest" },
+      "response": { "$type": "RecebimentoResponse" }
+    },
+    {
+      "id": "cobranca.recebimentos",
+      "method": "get",
+      "path": "/api/v1/cobranca/recebimentos",
+      "sucesso": [200],
+      "response": { "array": { "$type": "RecebimentoResponse" } }
+    },
+    {
+      "id": "cobranca.inadimplencia",
+      "method": "get",
+      "path": "/api/v1/cobranca/inadimplencia",
+      "sucesso": [200],
+      "query": ["dias_atraso_min", "dias_atraso_max", "status"],
+      "response": { "array": { "$type": "InadimplenciaResponse" } }
+    },
+    {
+      "id": "cobranca.registrarContato",
+      "method": "post",
+      "path": "/api/v1/cobranca/parcelas/{id}/contato",
+      "sucesso": [201],
+      "request": { "$type": "RegistrarContatoRequest" },
+      "response": { "$type": "EventoCobrancaResponse" }
+    },
+    {
+      "id": "cobranca.renegociacaoAtiva",
+      "method": "get",
+      "path": "/api/v1/cobranca/parcelas/{parcelaId}/renegociacao-ativa",
+      "sucesso": [200],
+      "response": { "$type": "RenegociacaoTomadorResponse" }
+    },
+    {
+      "id": "cobranca.iniciarRenegociacao",
+      "method": "post",
+      "path": "/api/v1/cobranca/parcelas/{id}/renegociacao",
+      "sucesso": [201],
+      "headers": ["X-Step-Up-Token"],
+      "request": { "$type": "IniciarRenegociacaoRequest" },
+      "response": { "$type": "RenegociacaoResponse" }
+    },
+    {
+      "id": "cobranca.aceitarRenegociacao",
+      "method": "patch",
+      "path": "/api/v1/cobranca/renegociacoes/{id}/aceite",
+      "sucesso": [200],
+      "headers": ["X-Step-Up-Token"],
+      "response": { "$type": "RenegociacaoResponse" }
+    },
+    {
+      "id": "cobranca.recusarRenegociacao",
+      "method": "patch",
+      "path": "/api/v1/cobranca/renegociacoes/{id}/recusa",
+      "sucesso": [200],
+      "response": { "$type": "RenegociacaoResponse" }
+    },
+    {
+      "id": "credores.cadastrar",
+      "method": "post",
+      "path": "/api/v1/credores",
+      "sucesso": [201],
+      "request": { "$type": "CadastrarCredoraRequest" },
+      "response": { "$type": "EmpresaCredoraResponse" }
+    },
+    {
+      "id": "credores.me",
+      "method": "get",
+      "path": "/api/v1/credores/me",
+      "sucesso": [200],
+      "response": { "$type": "EmpresaCredoraResponse" }
+    },
+    {
+      "id": "credores.elegibilidade",
+      "method": "get",
+      "path": "/api/v1/credores/me/elegibilidade",
+      "sucesso": [200],
+      "response": { "$type": "ElegibilidadeCredoraResponse" }
+    },
+    {
+      "id": "credores.oportunidades",
+      "method": "get",
+      "path": "/api/v1/credores/oportunidades",
+      "sucesso": [200],
+      "response": { "array": { "$type": "OportunidadeResponse" } }
+    },
+    {
+      "id": "credores.oportunidade",
+      "method": "get",
+      "path": "/api/v1/credores/oportunidades/{id}",
+      "sucesso": [200],
+      "response": { "$type": "OportunidadeResponse" }
+    },
+    {
+      "id": "credores.manifestarInteresse",
+      "method": "post",
+      "path": "/api/v1/credores/oportunidades/{id}/interesses",
+      "sucesso": [201],
+      "response": { "$type": "InteresseResponse" }
+    },
+    {
+      "id": "credores.cancelarInteresse",
+      "method": "delete",
+      "path": "/api/v1/credores/oportunidades/{id}/interesses/me",
+      "sucesso": [204],
+      "response": null
+    },
+    {
+      "id": "credores.carteira",
+      "method": "get",
+      "path": "/api/v1/credores/carteira",
+      "sucesso": [200],
+      "response": { "array": { "$type": "OperacaoCarteiraResponse" } }
+    },
+    {
+      "id": "credores.carteiraDetalhe",
+      "method": "get",
+      "path": "/api/v1/credores/carteira/{id}",
+      "sucesso": [200],
+      "response": { "$type": "OperacaoCarteiraResponse" }
+    },
+    {
+      "id": "credores.matchingSugestoes",
+      "method": "get",
+      "path": "/api/v1/credores/matching/sugestoes",
+      "sucesso": [200],
+      "response": { "array": { "$type": "MatchingSugestaoResponse" } }
+    },
+    {
+      "id": "credores.matchingDetalhe",
+      "method": "get",
+      "path": "/api/v1/credores/matching/{sugestaoId}",
+      "sucesso": [200],
+      "response": { "$type": "MatchingSugestaoResponse" }
+    },
+    {
+      "id": "credores.decidirMatching",
+      "method": "post",
+      "path": "/api/v1/credores/matching/{sugestaoId}/decisao",
+      "sucesso": [200],
+      "headers": ["X-Step-Up-Token"],
+      "request": { "$type": "DecidirMatchingRequest" },
+      "response": { "$type": "MatchingSugestaoResponse" }
+    },
+    {
+      "id": "credores.registrarAporte",
+      "method": "post",
+      "path": "/api/v1/credores/operacoes/{operacaoId}/aportes",
+      "sucesso": [201, 200],
+      "headers": ["Idempotency-Key", "X-Step-Up-Token"],
+      "request": { "$type": "RegistrarAporteRequest" },
+      "response": { "$type": "AporteCredoraResponse" }
+    },
+    {
+      "id": "credores.aportes",
+      "method": "get",
+      "path": "/api/v1/credores/operacoes/{operacaoId}/aportes",
+      "sucesso": [200],
+      "response": { "array": { "$type": "AporteCredoraResponse" } }
+    },
+    {
+      "id": "pix.solicitarDesembolso",
+      "method": "post",
+      "path": "/api/v1/pix/desembolsos",
+      "sucesso": [201, 200],
+      "headers": ["X-Step-Up-Token", "Idempotency-Key"],
+      "request": { "$type": "SolicitarDesembolsoPixRequest" },
+      "response": { "$type": "PixDesembolsoResponse" }
+    },
+    {
+      "id": "pix.desembolso",
+      "method": "get",
+      "path": "/api/v1/pix/desembolsos/{id}",
+      "sucesso": [200],
+      "response": { "$type": "PixStatusDesembolsoResponse" }
+    },
+    {
+      "id": "pix.reconsultarDesembolso",
+      "method": "post",
+      "path": "/api/v1/pix/desembolsos/{id}/status",
+      "sucesso": [200],
+      "headers": ["X-Step-Up-Token"],
+      "response": { "$type": "PixStatusDesembolsoResponse" }
+    },
+    {
+      "id": "pix.gerarReferencia",
+      "method": "post",
+      "path": "/api/v1/pix/recebimentos/referencias",
+      "sucesso": [201, 200],
+      "request": { "$type": "GerarReferenciaRecebimentoPixRequest" },
+      "response": { "$type": "PixReferenciaRecebimentoResponse" }
+    },
+    {
+      "id": "pix.referencia",
+      "method": "get",
+      "path": "/api/v1/pix/recebimentos/referencias/{id}",
+      "sucesso": [200],
+      "response": { "$type": "PixReferenciaRecebimentoResponse" }
+    },
+    {
+      "id": "pix.recebimento",
+      "method": "get",
+      "path": "/api/v1/pix/recebimentos/{id}",
+      "sucesso": [200],
+      "response": { "$type": "PixRecebimentoResponse" }
+    },
+    {
+      "id": "governanca.roles",
+      "method": "get",
+      "path": "/api/v1/usuarios/{id}/roles",
+      "sucesso": [200],
+      "response": { "$type": "UsuarioRolesResponse" }
+    },
+    {
+      "id": "governanca.substituirRoles",
+      "method": "put",
+      "path": "/api/v1/usuarios/{id}/roles",
+      "sucesso": [200],
+      "headers": ["X-Step-Up-Token"],
+      "request": { "$type": "SubstituirRolesRequest" },
+      "response": { "$type": "UsuarioRolesResponse" }
+    },
+    {
+      "id": "governanca.adicionarRole",
+      "method": "post",
+      "path": "/api/v1/usuarios/{id}/roles/{role}",
+      "sucesso": [200],
+      "headers": ["X-Step-Up-Token"],
+      "response": { "$type": "UsuarioRolesResponse" }
+    },
+    {
+      "id": "governanca.removerRole",
+      "method": "delete",
+      "path": "/api/v1/usuarios/{id}/roles/{role}",
+      "sucesso": [200],
+      "headers": ["X-Step-Up-Token"],
+      "response": { "$type": "UsuarioRolesResponse" }
+    },
+    {
+      "id": "governanca.parametros",
+      "method": "get",
+      "path": "/api/v1/governanca/parametros",
+      "sucesso": [200],
+      "response": { "array": { "$type": "ParametroOperacional" } }
+    },
+    {
+      "id": "governanca.parametro",
+      "method": "get",
+      "path": "/api/v1/governanca/parametros/{chave}",
+      "sucesso": [200],
+      "response": { "$type": "ParametroComHistorico" }
+    },
+    {
+      "id": "governanca.alterarParametro",
+      "method": "patch",
+      "path": "/api/v1/governanca/parametros/{chave}",
+      "sucesso": [200],
+      "headers": ["X-Step-Up-Token"],
+      "request": { "$type": "AlterarParametroRequest" },
+      "response": { "$type": "ParametroOperacional" }
+    },
+    {
+      "id": "backoffice.dashboard",
+      "method": "get",
+      "path": "/api/v1/backoffice/dashboard",
+      "sucesso": [200],
+      "response": { "$type": "DashboardResponse" }
+    },
+    {
+      "id": "backoffice.fila",
+      "method": "get",
+      "path": "/api/v1/backoffice/fila",
+      "sucesso": [200],
+      "query": [
+        "tipo",
+        "prioridade",
+        "status",
+        "data_abertura_de",
+        "data_abertura_ate",
+        "atribuido_a"
+      ],
+      "pageable": ["page", "size", "sort"],
+      "response": { "$type": "PageItemFilaResponse" }
+    },
+    {
+      "id": "backoffice.filaDetalhe",
+      "method": "get",
+      "path": "/api/v1/backoffice/fila/{id}",
+      "sucesso": [200],
+      "response": { "$type": "ItemFilaDetalheResponse" }
+    },
+    {
+      "id": "backoffice.assumir",
+      "method": "post",
+      "path": "/api/v1/backoffice/fila/{id}/assumir",
+      "sucesso": [200],
+      "response": { "$type": "ItemFilaResponse" }
+    },
+    {
+      "id": "backoffice.comentar",
+      "method": "post",
+      "path": "/api/v1/backoffice/fila/{id}/comentarios",
+      "sucesso": [201],
+      "request": { "$type": "ComentarioRequest" },
+      "response": { "$type": "ComentarioInternoResponse" }
+    },
+    {
+      "id": "backoffice.resolver",
+      "method": "patch",
+      "path": "/api/v1/backoffice/fila/{id}/resolver",
+      "sucesso": [200],
+      "headers": ["X-Step-Up-Token"],
+      "request": { "$type": "ResolverRequest" },
+      "response": { "$type": "ItemFilaResponse" }
+    },
+    {
+      "id": "backoffice.ignorar",
+      "method": "patch",
+      "path": "/api/v1/backoffice/fila/{id}/ignorar",
+      "sucesso": [200],
+      "headers": ["X-Step-Up-Token"],
+      "request": { "$type": "IgnorarRequest" },
+      "response": { "$type": "ItemFilaResponse" }
+    },
+    {
+      "id": "backoffice.reprocessarWebhook",
+      "method": "post",
+      "path": "/api/v1/backoffice/reprocessos/webhook/{webhookEventId}",
+      "sucesso": [201],
+      "headers": ["X-Step-Up-Token"],
+      "request": { "$type": "ReprocessoRequest" },
+      "response": { "$type": "ReprocessoResponse" }
+    },
+    {
+      "id": "backoffice.reprocessarProvider",
+      "method": "post",
+      "path": "/api/v1/backoffice/reprocessos/provider/{tipoChamada}/{entidadeId}",
+      "sucesso": [201],
+      "headers": ["X-Step-Up-Token"],
+      "request": { "$type": "ReprocessoRequest" },
+      "response": { "$type": "ReprocessoResponse" }
+    },
+    {
+      "id": "usuarios.listar",
+      "method": "get",
+      "path": "/api/v1/usuarios",
+      "sucesso": [200],
+      "response": { "array": { "$type": "UsuarioResponse" } }
+    },
+    {
+      "id": "usuarios.consultar",
+      "method": "get",
+      "path": "/api/v1/usuarios/{id}",
+      "sucesso": [200],
+      "response": { "$type": "UsuarioResponse" }
+    },
+    {
+      "id": "usuarios.alterarSenha",
+      "method": "patch",
+      "path": "/api/v1/usuarios/{id}/senha",
+      "sucesso": [204],
+      "request": { "$type": "UsuarioSenhaUpdateRequest" },
+      "response": null
+    }
+  ]
+}
