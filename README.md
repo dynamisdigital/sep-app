@@ -80,8 +80,8 @@ A separacao `features/public` (Apple) vs `features/authenticated` (Notion) mater
 
 A pipeline tem duas fases:
 
-1. `Test, Lint, Coverage` — instala dependencias com `npm ci --legacy-peer-deps`, roda `format:check`, `lint`, `lint:scss` e `test:coverage`, e publica o artifact `web-coverage` (relatorio v8) com retention 14 dias.
-2. `Build` — depende da fase anterior, reinstala dependencias com `npm ci --legacy-peer-deps`, roda `npm run build` e publica o artifact `web-build` a partir de `dist/` com retention 14 dias.
+1. `Test, Lint, Coverage` — instala dependencias com `npm ci`, roda `format:check`, `lint`, `lint:scss` e `test:coverage`, e publica o artifact `web-coverage` (relatorio v8) com retention 14 dias.
+2. `Build` — depende da fase anterior, reinstala dependencias com `npm ci`, roda `npm run build` e publica o artifact `web-build` a partir de `dist/` com retention 14 dias.
 
 ## Stack
 
@@ -89,7 +89,7 @@ A pipeline tem duas fases:
 - SCSS puro — sem Bootstrap/Tailwind/Material
 - ESLint 9 + Prettier 3 + Stylelint 16
 - Husky 9 + lint-staged 15
-- Vitest 2 + `@analogjs/vitest-angular` 1 + happy-dom
+- Vitest 3 + `@analogjs/vitest-angular` 1 + happy-dom
 - Playwright 1 (Chromium)
 - MSW 2
 
