@@ -1,0 +1,22 @@
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-matching-status-badge {
+  @include sepDs.sep-badge-base;
+
+  align-self: flex-start;
+
+  &.is-sugerida {
+    color: hsl(var(--primary));
+    background: hsl(var(--primary) / 12%);
+  }
+
+  &.is-confirmada {
+    color: hsl(var(--success));
+    background: hsl(var(--success) / 12%);
+  }
+
+  &.is-rejeitada {
+    color: hsl(var(--destructive));
+    background: hsl(var(--destructive) / 12%);
+  }
+}

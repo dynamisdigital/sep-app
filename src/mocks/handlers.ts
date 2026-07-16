@@ -2659,19 +2659,57 @@ function seedCarteiraPorUsuario(): Record<string, Record<string, unknown>[]> {
   return { [credoraUsuario.id]: [operacaoAssociadaSeed()] };
 }
 
+const MATCHING_SUGERIDA_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78f001';
+const MATCHING_SUGERIDA_2_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78f002';
+
+function seedMatchingSugestoes(): Record<string, Record<string, unknown>> {
+  // Sugestoes de matching (F-18 / backend Sprint 30). criterios sao codigos funcionais do
+  // snapshot (CriterioMatchingCredoraOperacao); valorElegivel e autoritativo do backend.
+  return {
+    [MATCHING_SUGERIDA_ID]: {
+      id: MATCHING_SUGERIDA_ID,
+      operacaoId: OPERACAO_ASSOCIADA_ID,
+      empresaCredoraId: CREDORA_ELEGIVEL_ID,
+      status: 'SUGERIDA',
+      valorElegivel: 25000.0,
+      criterios: [
+        'CREDORA_ATIVA',
+        'CREDORA_ELEGIVEL',
+        'OPERACAO_ATIVA',
+        'CONTRATO_ASSINADO',
+        'PAR_SEM_MATCHING_PREVIO',
+      ],
+      criadaEm: now,
+      decididaEm: null,
+    },
+    [MATCHING_SUGERIDA_2_ID]: {
+      id: MATCHING_SUGERIDA_2_ID,
+      operacaoId: '7f0799c0-98b9-6d9d-bc4a-7d6f5b78c002',
+      empresaCredoraId: CREDORA_INELEGIVEL_ID,
+      status: 'SUGERIDA',
+      valorElegivel: 12000.0,
+      criterios: ['CREDORA_ATIVA', 'OPERACAO_ATIVA', 'CAPACIDADE_COMPORTA_VALOR'],
+      criadaEm: now,
+      decididaEm: null,
+    },
+  };
+}
+
 let credorasPorUsuario = seedCredorasPorUsuario();
 let oportunidadesCredora = seedOportunidadesCredora();
 let carteiraPorUsuario = seedCarteiraPorUsuario();
 let interessesAtivos = new Set<string>();
+let matchingSugestoes = seedMatchingSugestoes();
 let credoraSeq = 200;
 
-// Restaura o estado mutavel da credora (cadastro, interesses) para o seed, garantindo testes
-// independentes (F.I.R.S.T.) ao exercitar cadastro/interesse.
+// Restaura o estado mutavel da credora (cadastro, interesses, matching) para o seed, garantindo
+// testes independentes (F.I.R.S.T.) ao exercitar cadastro/interesse/decisao.
 export function resetCredoraState(): void {
   credorasPorUsuario = seedCredorasPorUsuario();
   oportunidadesCredora = seedOportunidadesCredora();
   carteiraPorUsuario = seedCarteiraPorUsuario();
   interessesAtivos = new Set<string>();
+  matchingSugestoes = seedMatchingSugestoes();
   credoraSeq = 200;
 }
 
@@ -2853,6 +2891,16 @@ const credoraHandlers = [
       return errorResponse(404, 'Not Found', 'Usuario nao possui credora', path);
     }
     return HttpResponse.json(carteiraPorUsuario[currentMockUser.id] ?? []);
+  }),
+
+  // GET refresh-on-read (F-18 / Sprint 30): o backend pode persistir sugestoes novas antes de
+  // listar; o mock e estatico, logo naturalmente idempotente. Lista somente SUGERIDA em ordem
+  // deterministica (maior valorElegivel primeiro), como o contrato.
+  http.get(`${baseUrl}/credores/matching/sugestoes`, () => {
+    const sugeridas = Object.values(matchingSugestoes)
+      .filter((s) => s['status'] === 'SUGERIDA')
+      .sort((a, b) => (b['valorElegivel'] as number) - (a['valorElegivel'] as number));
+    return HttpResponse.json(sugeridas);
   }),
 ];
 
