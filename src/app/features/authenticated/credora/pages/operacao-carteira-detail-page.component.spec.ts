@@ -1,11 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { render, screen } from '@testing-library/angular';
+import { fireEvent, render, screen } from '@testing-library/angular';
 import { Observable, of, throwError } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 
-import { OperacaoCarteiraResponse } from '../../../../core/api/api.models';
+import { AporteCredoraResponse, OperacaoCarteiraResponse } from '../../../../core/api/api.models';
 import { CredoraService } from '../../../../core/credora/credora.service';
 import { OperacaoCarteiraDetailPageComponent } from './operacao-carteira-detail-page.component';
 
@@ -44,13 +44,15 @@ async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
   fixture.detectChanges();
 }
 
+// O detalhe embute a lista owner-scoped de aportes (F-18.4); o mock do service cobre os dois GETs.
 function renderDetail(
   consultarOperacaoCarteira: (id: string) => Observable<OperacaoCarteiraResponse>,
+  listarAportes: (id: string) => Observable<AporteCredoraResponse[]> = () => of([]),
 ) {
   return render(OperacaoCarteiraDetailPageComponent, {
     providers: [
       provideRouter([]),
-      { provide: CredoraService, useValue: { consultarOperacaoCarteira } },
+      { provide: CredoraService, useValue: { consultarOperacaoCarteira, listarAportes } },
       {
         provide: ActivatedRoute,
         useValue: { snapshot: { paramMap: convertToParamMap({ id: OPERACAO_ID }) } },
@@ -113,5 +115,59 @@ describe('OperacaoCarteiraDetailPageComponent', () => {
     await estabilizar(fixture);
 
     expect(screen.getByText('Operacao nao encontrada.')).toBeTruthy();
+  });
+
+  // --- Aportes owner-scoped (F-18.4) ---
+
+  it('exibe os aportes somente leitura, sem CTA de mutacao', async () => {
+    const { fixture } = await renderDetail(
+      () => of(OPERACAO),
+      () =>
+        of([
+          {
+            id: 'aporte-1',
+            operacaoId: OPERACAO_ID,
+            status: 'LIQUIDADO',
+            valor: 10000,
+            dataCriacao: '2026-07-10T12:00:00-03:00',
+            dataAtualizacao: '2026-07-11T12:00:00-03:00',
+          } satisfies AporteCredoraResponse,
+        ]),
+    );
+    await estabilizar(fixture);
+
+    expect(screen.getByRole('heading', { name: 'Aportes' })).toBeTruthy();
+    expect(screen.getByText(/10\.000,00/)).toBeTruthy();
+    expect(screen.getByText('Liquidado')).toBeTruthy();
+    expect(screen.getByText('Status confirmado pelo backend.')).toBeTruthy();
+    // Persona credora: leitura apenas; atualizar status e leitura, registrar e mutacao.
+    expect(screen.getByText('Atualizar status')).toBeTruthy();
+    expect(screen.queryByText(/Registrar aporte/)).toBeNull();
+  });
+
+  it('lista vazia de aportes e estado valido', async () => {
+    const { fixture } = await renderDetail(() => of(OPERACAO));
+    await estabilizar(fixture);
+
+    expect(screen.getByText('Nenhum aporte registrado para esta operacao.')).toBeTruthy();
+  });
+
+  it('falha na lista de aportes nao apaga o detalhe ja carregado e oferece retry local', async () => {
+    let falhar = true;
+    const { fixture } = await renderDetail(
+      () => of(OPERACAO),
+      () => (falhar ? throwError(() => new HttpErrorResponse({ status: 500 })) : of([])),
+    );
+    await estabilizar(fixture);
+
+    // Detalhe permanece; o erro fica localizado na secao de aportes.
+    expect(screen.getByText('Associacao assistida apos formalizacao')).toBeTruthy();
+    expect(screen.getByText('Nao foi possivel carregar os aportes.')).toBeTruthy();
+
+    falhar = false;
+    fireEvent.click(screen.getByText('Tentar novamente'));
+    await estabilizar(fixture);
+
+    expect(screen.getByText('Nenhum aporte registrado para esta operacao.')).toBeTruthy();
   });
 });

@@ -197,6 +197,14 @@
           <p>Matching rejeitado. Esta sugestao nao aceita nova decisao.</p>
         }
       </div>
+      @if (s.status === 'CONFIRMADA') {
+        <a
+          class="sep-matching-detail-aporte-cta"
+          [routerLink]="['/app/credora/matching', s.id, 'aporte']"
+        >
+          Registrar aporte da operacao
+        </a>
+      }
     }
 
     <a class="sep-matching-detail-voltar" [routerLink]="['/app/credora/matching']">

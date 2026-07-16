@@ -1,0 +1,41 @@
+<div class="sep-aportes">
+  <div class="sep-aportes-acoes">
+    <button
+      type="button"
+      class="sep-aportes-atualizar"
+      [disabled]="loading()"
+      (click)="atualizar()"
+    >
+      Atualizar status
+    </button>
+  </div>
+
+  @if (loading() && !carregado()) {
+    <p class="sep-aportes-state" role="status">Carregando aportes...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-aportes-state sep-aportes-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="sep-aportes-retry" (click)="atualizar()">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (aportes().length === 0) {
+    <p class="sep-aportes-vazio">Nenhum aporte registrado para esta operacao.</p>
+  } @else {
+    <ul class="sep-aportes-lista">
+      @for (aporte of aportes(); track aporte.id) {
+        <li class="sep-aportes-item">
+          <div class="sep-aportes-item-topo">
+            <span class="sep-aportes-item-valor">{{ formatarMoeda(aporte.valor) }}</span>
+            <sep-aporte-status [status]="aporte.status" />
+          </div>
+          <span class="sep-aportes-item-mensagem">{{ mensagens[aporte.status] }}</span>
+          <span class="sep-aportes-item-datas">
+            Registrado em {{ formatarData(aporte.dataCriacao) }} · Atualizado em
+            {{ formatarData(aporte.dataAtualizacao) }}
+          </span>
+        </li>
+      }
+    </ul>
+  }
+</div>

@@ -29,6 +29,13 @@ export const CREDORA_ROUTES: Routes = [
       import('./pages/matching-detail-page.component').then((m) => m.MatchingDetailPageComponent),
   },
   {
+    path: 'matching/:sugestaoId/aporte',
+    canActivate: [roleGuard],
+    data: { roles: ['FINANCEIRO', 'ADMIN'], breadcrumb: 'Aporte da operacao' },
+    loadComponent: () =>
+      import('./pages/matching-aporte-page.component').then((m) => m.MatchingAportePageComponent),
+  },
+  {
     path: '',
     loadComponent: () => import('./credora-shell.component').then((m) => m.CredoraShellComponent),
   },

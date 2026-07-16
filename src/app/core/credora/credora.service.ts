@@ -108,7 +108,8 @@ export class CredoraService {
 
   // POST com step-up estrito (via interceptor) e Idempotency-Key obrigatoria. A key e gerada pelo
   // chamador por intencao de aporte; o service so a transporta. 201 = registro novo, 200 = replay
-  // idempotente — ambos entregues no mesmo canal de sucesso.
+  // idempotente — ambos entregues no mesmo canal de sucesso. O 403 (MFA inativo/step-up invalido)
+  // e tratado pela tela de aporte, sem o redirect global do errorInterceptor.
   registrarAporte(
     operacaoId: string,
     request: RegistrarAporteRequest,
@@ -119,6 +120,7 @@ export class CredoraService {
       request,
       {
         headers: { 'Idempotency-Key': idempotencyKey },
+        context: tratando403NaTela(),
       },
     );
   }

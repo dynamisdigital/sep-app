@@ -38,6 +38,12 @@
   gap: var(--sep-space-8);
 }
 
+.sep-operacao-detail-aportes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+}
+
 .sep-operacao-detail-subtitle {
   @include sepType.sep-type-card-title;
 
