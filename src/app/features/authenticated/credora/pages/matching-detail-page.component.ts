@@ -99,6 +99,11 @@ export class MatchingDetailPageComponent implements OnInit {
   }
 
   carregar(): void {
+    // Guard de reentrada: clique rapido repetido em "Tentar novamente" nao pode abrir duas
+    // consultas concorrentes — a falha da primeira sobrescreveria o sucesso da segunda.
+    if (this.loading()) {
+      return;
+    }
     this.loading.set(true);
     this.errorMessage.set(null);
     this.indisponivel.set(false);

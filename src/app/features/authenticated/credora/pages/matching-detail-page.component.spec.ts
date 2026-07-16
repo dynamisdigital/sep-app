@@ -423,6 +423,26 @@ describe('MatchingDetailPageComponent', () => {
     expect((screen.getByText('Confirmar matching') as HTMLButtonElement).disabled).toBe(false);
   });
 
+  it('clique rapido repetido em Tentar novamente nao abre consultas concorrentes', async () => {
+    let consultas = 0;
+    server.use(
+      http.get(DETALHE_URL, () => {
+        consultas += 1;
+        return HttpResponse.json({ message: 'erro' }, { status: 500 });
+      }),
+    );
+    const { fixture } = await renderDetalhe(MATCHING_SUGERIDA_ID);
+    await estabilizar(fixture);
+    expect(consultas).toBe(1);
+
+    const retry = screen.getByText('Tentar novamente');
+    fireEvent.click(retry);
+    fireEvent.click(retry);
+    await estabilizar(fixture);
+
+    expect(consultas).toBe(2);
+  });
+
   it('Escape fecha o dialogo sem decidir e devolve o foco ao gatilho', async () => {
     const { fixture } = await renderDetalhe(MATCHING_SUGERIDA_ID, {
       comStepUp: true,
