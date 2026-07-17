@@ -111,4 +111,14 @@ describe('LoginComponent', () => {
       screen.getByText('Não foi possível acessar a plataforma com as credenciais informadas.'),
     ).toBeTruthy();
   });
+
+  it('nao anuncia biometria como disponivel quando o navegador nao oferece WebAuthn', async () => {
+    await setup();
+
+    const biometry = screen.getByRole('button', { name: /acesso com biometria/i });
+    if (!('PublicKeyCredential' in window)) {
+      expect(biometry).toBeDisabled();
+      expect(screen.getByText('Biometria indisponível neste navegador.')).toBeTruthy();
+    }
+  });
 });

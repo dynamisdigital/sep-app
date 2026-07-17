@@ -6,6 +6,7 @@
 @use "sep-ds-tokens";
 @use "sep-ds-typography" as sepType;
 @use "sep-ds-components";
+@use "backoffice-dashboard-icons";
 
 // ===== Globais do New Design System SEP =====
 
@@ -55,4 +56,19 @@ svg {
 :focus-visible {
   outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
+}
+
+// Estados funcionais do login que nao alteram a composicao visual do mockup 02.
+.login-page .biometry-button:disabled {
+  cursor: not-allowed;
+}
+
+.login-page .biometry-availability {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
 }

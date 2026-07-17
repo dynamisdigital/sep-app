@@ -688,6 +688,119 @@ export interface DashboardResponse {
   geradoEm: string;
 }
 
+// Contrato do painel operacional visual (mockup 03). Ele e complementar ao DashboardResponse:
+// o endpoint legado acima representa a fila de backoffice, enquanto este snapshot agrega as
+// jornadas de onboarding, credito, formalizacao, cobranca e Pix. No laboratorio, o MSW calcula
+// o snapshot a partir de registros normalizados; o backend real podera implementar o mesmo
+// contrato sem exigir mudancas nos componentes.
+export type DominioOperacional = 'ONBOARDING' | 'CREDITO' | 'FORMALIZACAO' | 'COBRANCA' | 'PIX';
+
+export interface IndicadorOperacional {
+  dominio: DominioOperacional;
+  valor: number;
+  unidade: string;
+  subtitulo: string;
+  variacaoPercentual: number;
+  comparacao: string;
+}
+
+export interface VolumeOperacional {
+  valor: number;
+  moeda: 'BRL';
+  periodoDias: number;
+  variacaoPercentual: number;
+}
+
+export interface JornadaOperacional {
+  dominio: Exclude<DominioOperacional, 'PIX'>;
+  pendencias: number;
+  total: number;
+  unidade: string;
+  status: string;
+}
+
+export interface ResumoOperacionalItem {
+  id:
+    | 'NOVOS_CADASTROS'
+    | 'PROPOSTAS_RECEBIDAS'
+    | 'CONTRATOS_ASSINADOS'
+    | 'PAGAMENTOS_PIX'
+    | 'ALERTAS_CRITICOS';
+  valor: number;
+  variacaoPercentual: number | null;
+}
+
+export interface DesempenhoOperacionalItem {
+  id: 'CONVERSAO_CREDITO' | 'CONTRATOS_FINALIZADOS' | 'DOCUMENTOS_VALIDOS' | 'SLA_MEDIO';
+  percentual: number;
+  variacaoPercentual: number | null;
+  contexto: string;
+}
+
+export interface AtividadeOperacional {
+  id: string;
+  tipo:
+    | 'CADASTRO_INICIADO'
+    | 'PROPOSTA_RECEBIDA'
+    | 'DOCUMENTO_ENVIADO'
+    | 'PAGAMENTO_PIX'
+    | 'ALERTA_INADIMPLENCIA';
+  titulo: string;
+  detalhe: string;
+  status: string;
+  severidade: 'INFO' | 'SUCESSO' | 'PERIGO';
+  ocorridaEm: string;
+}
+
+export interface SaudeServicoOperacional {
+  id: string;
+  nome: string;
+  status: 'ONLINE' | 'DEGRADADO' | 'INDISPONIVEL';
+}
+
+export interface DashboardOperacionalResponse {
+  indicadores: IndicadorOperacional[];
+  volume: VolumeOperacional;
+  jornadas: JornadaOperacional[];
+  resumo: ResumoOperacionalItem[];
+  desempenho: DesempenhoOperacionalItem[];
+  atividades: AtividadeOperacional[];
+  saudeServicos: SaudeServicoOperacional[];
+  geradoEm: string;
+}
+
+export interface PreferenciasPerfil {
+  idioma: string;
+  fusoHorario: string;
+  tema: 'ESCURO' | 'CLARO' | 'SISTEMA';
+  notificacoesAtivas: boolean;
+  canalComunicacao: string;
+}
+
+export interface PerfilOperacionalResponse {
+  statusConta: 'ATIVA' | 'BLOQUEADA' | 'PENDENTE';
+  contaVerificada: boolean;
+  nivelAcesso: string;
+  ultimoAcesso: string;
+  ultimaAutenticacao: string;
+  tentativasLogin24h: number;
+  dispositivosAutorizados: number;
+  sessoesAtivas: number;
+  senhaForte: boolean;
+  auditoriaAtiva: boolean;
+  armazenamentoSincronizado: boolean;
+  preferencias: PreferenciasPerfil;
+  atualizadoEm: string;
+}
+
+export interface AtualizarPreferenciasPerfilRequest {
+  idioma: string;
+  fusoHorario: string;
+  tema: 'ESCURO' | 'CLARO' | 'SISTEMA';
+  notificacoesAtivas: boolean;
+  canalComunicacao: string;
+}
+
 // --- Governanca: roles cumulativas + parametros operacionais (F-Sprint 12 / backend Sprint 18) ---
 // Toda a area e ADMIN-only no backend. Precedencia de role, validacao de tipo, versionamento
 // e auditoria ficam no backend; estes sao DTOs de borda, sem regra de negocio.

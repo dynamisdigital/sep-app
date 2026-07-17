@@ -20,6 +20,8 @@ export class LoginComponent {
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly showPassword = signal(false);
   protected readonly rememberMe = signal(true);
+  protected readonly biometrySupported =
+    typeof window !== 'undefined' && 'PublicKeyCredential' in window;
   protected readonly assetBase = '/image/sep_mockup_02_assets';
 
   protected readonly heroBadges = [
@@ -91,6 +93,12 @@ export class LoginComponent {
 
   updateRememberMe(checked: boolean): void {
     this.rememberMe.set(checked);
+  }
+
+  startBiometricLogin(): void {
+    this.errorMessage.set(
+      'A biometria está disponível neste dispositivo, mas ainda não foi configurada para esta conta.',
+    );
   }
 
   submit(): void {

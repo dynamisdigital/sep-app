@@ -23,7 +23,7 @@ export const AUTHENTICATED_ROUTES: Routes = [
       {
         path: 'profile',
         loadComponent: () => import('./profile/profile.component').then((m) => m.ProfileComponent),
-        data: { breadcrumb: 'Meu perfil' },
+        data: { breadcrumb: 'Meu perfil', immersive: true },
       },
       {
         path: 'profile/change-password',
@@ -31,7 +31,7 @@ export const AUTHENTICATED_ROUTES: Routes = [
           import('./profile/change-password/change-password.component').then(
             (m) => m.ChangePasswordComponent,
           ),
-        data: { breadcrumb: 'Alterar senha' },
+        data: { breadcrumb: 'Alterar senha', immersive: true },
       },
       {
         path: 'profile/setup-totp',

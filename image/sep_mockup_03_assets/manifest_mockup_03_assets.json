@@ -4,49 +4,67 @@
   "asset_count": 80,
   "recommended_project_path": "C:\\Pastas\\PROJETOS\\Projeto Dynamis SEP\\sep-app 16062026\\image\\sep_mockup_03_assets",
   "public_asset_base_path": "/image/sep_mockup_03_assets",
-  "notes": "Assets extraídos do Mockup_03 para uso como PNGs transparentes e referências de integração no frontend SEP.",
+  "notes": "V6: pacote refeito para centralização real dos ícones. Boxes corrigidos manualmente sobre o Mockup_03 original, com remoção de recortes de hexágonos/circunferências, correção de deslocamento em sidebar, topbar, saúde, footer e anéis de performance. Nomes e estrutura mantidos para substituição direta no projeto.",
   "assets": [
     {
       "category": "logos",
       "file": "logo_sep_header_completo.png",
       "box": [68, 21, 179, 63],
       "description": "Logo SEP superior esquerdo completo",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [72, 20, 181, 64],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "logos",
       "file": "logo_sep_simbolo_header.png",
       "box": [72, 22, 108, 61],
       "description": "Símbolo SEP superior esquerdo",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [73, 20, 113, 64],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "logos",
       "file": "logo_sep_wordmark_header.png",
       "box": [117, 28, 176, 58],
       "description": "Wordmark SEP superior esquerdo",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [117, 27, 180, 59],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "logos",
       "file": "logo_sep_footer_completo.png",
       "box": [30, 922, 140, 966],
       "description": "Logo SEP no rodapé/sidebar",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [28, 942, 116, 972],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "logos",
       "file": "logo_sep_simbolo_footer.png",
       "box": [31, 925, 59, 951],
       "description": "Símbolo SEP do rodapé/sidebar",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [28, 942, 61, 972],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_menu_hamburger.png",
       "box": [25, 35, 39, 50],
       "description": "Ícone menu lateral hambúrguer",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [22, 31, 45, 54],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "ui-groups",
@@ -60,7 +78,10 @@
       "file": "icon_badge_ambiente_regulado_topbar.png",
       "box": [300, 31, 320, 53],
       "description": "Ícone escudo do badge Ambiente Regulado",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [296, 27, 325, 57],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "ui-groups",
@@ -74,35 +95,50 @@
       "file": "icon_horario_sistema.png",
       "box": [407, 31, 428, 54],
       "description": "Ícone de horário/sistema",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [454, 22, 494, 62],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_search_topbar.png",
       "box": [1018, 29, 1051, 62],
       "description": "Ícone pesquisa do topo",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [1023, 31, 1047, 55],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_bell_notification.png",
       "box": [1071, 27, 1104, 61],
       "description": "Ícone sino de notificação",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [1078, 25, 1108, 58],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_help_topbar.png",
       "box": [1122, 29, 1156, 61],
       "description": "Ícone ajuda no topo",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [1138, 32, 1160, 56],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_theme_sun_topbar.png",
       "box": [1468, 30, 1496, 60],
       "description": "Ícone alternância de tema no topo",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [1480, 30, 1508, 58],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "ui-groups",
@@ -123,98 +159,140 @@
       "file": "icon_sidebar_dashboard.png",
       "box": [32, 95, 52, 119],
       "description": "Ícone Dashboard do menu lateral",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [27, 105, 58, 136],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_sidebar_onboarding.png",
       "box": [31, 169, 50, 190],
       "description": "Ícone Onboarding do menu lateral",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [27, 200, 58, 232],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_sidebar_credito.png",
       "box": [31, 207, 50, 220],
       "description": "Ícone Crédito do menu lateral",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [27, 247, 58, 276],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_sidebar_formalizacao.png",
       "box": [32, 242, 49, 260],
       "description": "Ícone Formalização do menu lateral",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [27, 295, 58, 327],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_sidebar_cobranca.png",
       "box": [31, 278, 51, 290],
       "description": "Ícone Cobrança do menu lateral",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [27, 342, 59, 371],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_sidebar_backoffice.png",
       "box": [30, 337, 52, 358],
       "description": "Ícone Backoffice do menu lateral",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [26, 424, 61, 462],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_sidebar_pix.png",
       "box": [30, 374, 53, 396],
       "description": "Ícone Pix do menu lateral",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [26, 470, 61, 508],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_sidebar_perfil.png",
       "box": [31, 441, 51, 461],
       "description": "Ícone Meu perfil do menu lateral",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [27, 565, 59, 598],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_metric_onboarding.png",
       "box": [302, 195, 352, 238],
       "description": "Ícone card Onboarding",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [292, 186, 365, 250],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_metric_credito.png",
       "box": [532, 195, 581, 238],
       "description": "Ícone card Crédito",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [518, 186, 584, 250],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_metric_formalizacao.png",
       "box": [736, 195, 783, 238],
       "description": "Ícone card Formalização",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [726, 186, 786, 250],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_metric_cobranca.png",
       "box": [946, 195, 996, 238],
       "description": "Ícone card Cobrança",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [936, 186, 992, 250],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_metric_pix.png",
       "box": [1137, 195, 1186, 238],
       "description": "Ícone card PIX",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [1126, 186, 1189, 250],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_metric_volume_operacional.png",
       "box": [1318, 195, 1366, 238],
       "description": "Ícone card Volume operacional",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [1306, 186, 1370, 250],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "visuals",
@@ -228,189 +306,270 @@
       "file": "icon_jornada_onboarding.png",
       "box": [310, 428, 351, 480],
       "description": "Ícone jornada Onboarding",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [304, 422, 358, 484],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_jornada_analise_credito.png",
       "box": [507, 428, 550, 480],
       "description": "Ícone jornada Análise de crédito",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [502, 422, 548, 480],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_jornada_formalizacao.png",
       "box": [700, 428, 744, 480],
       "description": "Ícone jornada Formalização",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [696, 422, 746, 480],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_jornada_cobranca.png",
       "box": [895, 428, 941, 480],
       "description": "Ícone jornada Cobrança",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [889, 422, 943, 480],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_resumo_novos_cadastros.png",
       "box": [1103, 417, 1123, 438],
       "description": "Ícone resumo Novos cadastros",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [1100, 414, 1128, 443],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_resumo_propostas_recebidas.png",
       "box": [1103, 447, 1123, 468],
       "description": "Ícone resumo Propostas recebidas",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [1100, 443, 1128, 473],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_resumo_contratos_assinados.png",
       "box": [1103, 477, 1123, 498],
       "description": "Ícone resumo Contratos assinados",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [1100, 473, 1128, 503],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_resumo_pagamentos_pix.png",
       "box": [1103, 507, 1125, 529],
       "description": "Ícone resumo Pagamentos via Pix",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [1098, 502, 1130, 534],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_resumo_alertas_criticos.png",
       "box": [1103, 538, 1125, 560],
       "description": "Ícone resumo Alertas críticos",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [1098, 533, 1130, 565],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "visuals",
       "file": "visual_performance_conversao_credito_78.png",
       "box": [302, 700, 410, 810],
       "description": "Anel de indicador 78% Conversão crédito",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [298, 698, 414, 813],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "visuals",
       "file": "visual_performance_contratos_finalizados_65.png",
       "box": [445, 700, 555, 810],
       "description": "Anel de indicador 65% Contratos finalizados",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [441, 698, 557, 813],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "visuals",
       "file": "visual_performance_documentos_validos_92.png",
       "box": [562, 700, 672, 810],
       "description": "Anel de indicador 92% Documentos válidos",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [552, 698, 666, 813],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "visuals",
       "file": "visual_performance_sla_medio_84.png",
       "box": [680, 700, 790, 810],
       "description": "Anel de indicador 84% SLA médio",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [665, 698, 775, 813],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_health_service_01.png",
       "box": [802, 700, 825, 723],
       "description": "Ícone saúde da plataforma serviço 1",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [800, 713, 823, 737],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_health_service_02.png",
       "box": [802, 727, 825, 750],
       "description": "Ícone saúde da plataforma serviço 2",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [800, 740, 823, 764],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_health_service_03.png",
       "box": [802, 753, 825, 776],
       "description": "Ícone saúde da plataforma serviço 3",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [800, 766, 823, 790],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_health_service_04.png",
       "box": [802, 779, 825, 802],
       "description": "Ícone saúde da plataforma serviço 4",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [800, 792, 823, 817],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_health_service_05.png",
       "box": [802, 806, 825, 829],
       "description": "Ícone saúde da plataforma serviço 5",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [800, 819, 823, 843],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_timeline_dot_info.png",
       "box": [1133, 641, 1144, 652],
       "description": "Marcador timeline azul",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [1134, 639, 1148, 654],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_timeline_dot_success_01.png",
       "box": [1133, 676, 1144, 688],
       "description": "Marcador timeline verde",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [1134, 675, 1148, 690],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_timeline_dot_success_02.png",
       "box": [1133, 712, 1144, 724],
       "description": "Marcador timeline verde",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [1134, 710, 1148, 726],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_timeline_dot_success_03.png",
       "box": [1133, 780, 1144, 792],
       "description": "Marcador timeline verde",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [1134, 779, 1148, 794],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_timeline_dot_danger.png",
       "box": [1133, 819, 1145, 833],
       "description": "Marcador timeline vermelho",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [1134, 817, 1149, 835],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_footer_ambiente_regulado.png",
       "box": [280, 930, 314, 961],
       "description": "Ícone footer Ambiente regulado",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [272, 929, 322, 978],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_footer_segregacao_patrimonial.png",
       "box": [484, 930, 518, 961],
       "description": "Ícone footer Segregação patrimonial",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [477, 929, 527, 978],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_footer_seguranca.png",
       "box": [630, 930, 665, 961],
       "description": "Ícone footer Segurança",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [698, 929, 742, 978],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "icons",
       "file": "icon_footer_rastreabilidade.png",
       "box": [812, 930, 847, 961],
       "description": "Ícone footer Rastreabilidade",
-      "method": "neon-alpha"
+      "method": "neon-alpha",
+      "box_v3": [892, 929, 928, 978],
+      "method_v3": "manual-box-neon-alpha-centered",
+      "v3_status": "reextraido-centralizado-sem-recorte"
     },
     {
       "category": "visuals",
@@ -566,5 +725,76 @@
       "description": "Card jornada Cobrança",
       "method": "rounded-card-crop"
     }
-  ]
+  ],
+  "version": "v7_margem_segura",
+  "adjustments": [
+    "Recentralização dos ícones em canvas transparente.",
+    "Aplicação de margem de segurança mínima em torno do conteúdo visível.",
+    "Ícones métricos e de jornadas padronizados em 128x128 px com folga para evitar cortes.",
+    "Ícones pequenos padronizados em 72x72 px com folga transparente.",
+    "Indicadores circulares de performance repaginados com margem para evitar recorte do anel."
+  ],
+  "changed_files": [
+    "icons/icon_badge_ambiente_regulado_topbar.png",
+    "icons/icon_bell_notification.png",
+    "icons/icon_footer_ambiente_regulado.png",
+    "icons/icon_footer_rastreabilidade.png",
+    "icons/icon_footer_segregacao_patrimonial.png",
+    "icons/icon_footer_seguranca.png",
+    "icons/icon_health_service_01.png",
+    "icons/icon_health_service_02.png",
+    "icons/icon_health_service_03.png",
+    "icons/icon_health_service_04.png",
+    "icons/icon_health_service_05.png",
+    "icons/icon_help_topbar.png",
+    "icons/icon_horario_sistema.png",
+    "icons/icon_jornada_analise_credito.png",
+    "icons/icon_jornada_cobranca.png",
+    "icons/icon_jornada_formalizacao.png",
+    "icons/icon_jornada_onboarding.png",
+    "icons/icon_menu_hamburger.png",
+    "icons/icon_metric_cobranca.png",
+    "icons/icon_metric_credito.png",
+    "icons/icon_metric_formalizacao.png",
+    "icons/icon_metric_onboarding.png",
+    "icons/icon_metric_pix.png",
+    "icons/icon_metric_volume_operacional.png",
+    "icons/icon_resumo_alertas_criticos.png",
+    "icons/icon_resumo_contratos_assinados.png",
+    "icons/icon_resumo_novos_cadastros.png",
+    "icons/icon_resumo_pagamentos_pix.png",
+    "icons/icon_resumo_propostas_recebidas.png",
+    "icons/icon_search_topbar.png",
+    "icons/icon_sidebar_backoffice.png",
+    "icons/icon_sidebar_cobranca.png",
+    "icons/icon_sidebar_credito.png",
+    "icons/icon_sidebar_dashboard.png",
+    "icons/icon_sidebar_formalizacao.png",
+    "icons/icon_sidebar_onboarding.png",
+    "icons/icon_sidebar_perfil.png",
+    "icons/icon_sidebar_pix.png",
+    "icons/icon_theme_sun_topbar.png",
+    "icons/icon_timeline_dot_danger.png",
+    "icons/icon_timeline_dot_info.png",
+    "icons/icon_timeline_dot_success_01.png",
+    "icons/icon_timeline_dot_success_02.png",
+    "icons/icon_timeline_dot_success_03.png",
+    "visuals/visual_performance_contratos_finalizados_65.png",
+    "visuals/visual_performance_conversao_credito_78.png",
+    "visuals/visual_performance_documentos_validos_92.png",
+    "visuals/visual_performance_sla_medio_84.png"
+  ],
+  "version_correction": "v8_margem_2mm_corrigida",
+  "correcoes_v8": {
+    "descricao": "Ícones críticos reextraídos do Mockup_03 original com recorte centralizado, limpeza de resíduos de widget, canvas transparente e margem técnica superior ao equivalente visual de 2mm.",
+    "arquivos_corrigidos": [
+      "icon_bell_notification.png",
+      "icon_metric_cobranca.png",
+      "icon_metric_credito.png",
+      "icon_metric_formalizacao.png",
+      "icon_metric_onboarding.png",
+      "icon_metric_pix.png",
+      "icon_metric_volume_operacional.png"
+    ]
+  }
 }

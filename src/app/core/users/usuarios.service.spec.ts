@@ -46,7 +46,7 @@ describe('UsuariosService', () => {
       awaitObservable(
         service.alterarSenha('1f0799c0-98b9-6d9d-bc4a-7d6f5b771001', {
           passwordAtual: '123456',
-          novaSenha: '654321',
+          novaSenha: 'SenhaForte@2026',
         }),
       ),
     ).resolves.toBeNull();

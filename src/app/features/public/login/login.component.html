@@ -204,10 +204,21 @@
 
       <div class="login-divider"><span>ou continue com</span></div>
 
-      <button type="button" class="biometry-button">
+      <button
+        type="button"
+        class="biometry-button"
+        [disabled]="!biometrySupported"
+        [attr.aria-describedby]="!biometrySupported ? 'biometry-availability' : null"
+        (click)="startBiometricLogin()"
+      >
         <img [src]="assetBase + '/icons/icon_login_biometria.png'" alt="" aria-hidden="true" />
         Acesso com biometria
       </button>
+      @if (!biometrySupported) {
+        <span id="biometry-availability" class="biometry-availability">
+          Biometria indisponível neste navegador.
+        </span>
+      }
 
       <aside class="protected-card" aria-label="Acesso protegido e monitorado">
         <img

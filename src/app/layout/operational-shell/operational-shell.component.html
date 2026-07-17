@@ -1,0 +1,152 @@
+<section class="op-dashboard" aria-label="Área operacional SEP">
+  <button
+    type="button"
+    class="op-back-link"
+    aria-label="Voltar para a tela anterior"
+    (click)="goBack()"
+  >
+    <span aria-hidden="true">&larr;</span>
+  </button>
+
+  <aside class="op-sidebar" aria-label="Navegação operacional">
+    <header class="op-sidebar-head">
+      <button type="button" class="op-menu-button" aria-label="Menu">
+        <img [src]="assetBase + '/icons/icon_menu_hamburger.png'" alt="" />
+      </button>
+      <a class="op-brand" routerLink="/app/backoffice/dashboard" aria-label="Dashboard SEP">
+        <img [src]="assetBase + '/logos/logo_sep_header_completo.png'" alt="SEP" />
+      </a>
+    </header>
+
+    <nav class="op-nav">
+      @for (item of itemsBySection('primary'); track item.route) {
+        <a
+          class="op-nav-link op-nav-link-primary"
+          [routerLink]="item.route"
+          routerLinkActive="op-nav-link-active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <img [src]="assetBase + '/' + item.icon" alt="" aria-hidden="true" />
+          <span>{{ item.label }}</span>
+        </a>
+      }
+
+      @for (
+        section of [
+          { id: 'jornadas', label: 'Jornadas' },
+          { id: 'operacao', label: 'Operação' },
+          { id: 'conta', label: 'Conta' },
+        ];
+        track section.id
+      ) {
+        <div class="op-nav-section" [attr.data-section]="section.id">
+          <p>{{ section.label }}</p>
+          @for (item of itemsBySection($any(section.id)); track item.route) {
+            <a
+              class="op-nav-link"
+              [routerLink]="item.route"
+              routerLinkActive="op-nav-link-active"
+              [routerLinkActiveOptions]="{ exact: item.route === '/app/profile' }"
+            >
+              <img [src]="assetBase + '/' + item.icon" alt="" aria-hidden="true" />
+              <span>{{ item.label }}</span>
+              @if (item.badge) {
+                <small>{{ item.badge }}</small>
+              }
+            </a>
+          }
+        </div>
+      }
+    </nav>
+
+    <a class="op-side-user op-glow-card" routerLink="/app/profile">
+      <span>{{ currentUser().username.charAt(0).toUpperCase() }}</span>
+      <div>
+        <strong>{{ currentUser().username }}</strong>
+        <em>Online</em>
+        <small>Perfil<br />{{ currentUser().role }}</small>
+      </div>
+      <b aria-hidden="true">›</b>
+    </a>
+
+    <footer class="op-side-footer">
+      <img [src]="assetBase + '/logos/logo_sep_footer_completo.png'" alt="SEP" />
+      <span>v0.6.1</span>
+    </footer>
+  </aside>
+
+  <div class="op-main">
+    <header class="op-topbar">
+      <div class="op-topbar-left">
+        <div class="op-regulated op-glow-card" style="grid-template-columns: 28px auto 14px">
+          <img [src]="assetBase + '/icons/icon_badge_ambiente_regulado_topbar.png'" alt="" />
+          <div>
+            <span>Ambiente</span>
+            <strong>Regulado</strong>
+          </div>
+          <b aria-hidden="true">›</b>
+        </div>
+        <div class="op-clock op-glow-card" style="grid-template-columns: 34px auto auto">
+          <img [src]="assetBase + '/icons/icon_horario_sistema.png'" alt="" />
+          <div>
+            <span>Horário do sistema</span>
+            <strong>{{ systemTime() }}</strong>
+          </div>
+          <small>{{ systemDate() }}</small>
+        </div>
+      </div>
+
+      <div class="op-topbar-actions">
+        <button type="button" class="op-icon-button" aria-label="Pesquisar">
+          <img [src]="assetBase + '/icons/icon_search_topbar.png'" alt="" />
+        </button>
+        <button type="button" class="op-icon-button op-notification" aria-label="Notificações">
+          <img [src]="assetBase + '/icons/icon_bell_notification.png'" alt="" />
+        </button>
+        <button type="button" class="op-icon-button" aria-label="Ajuda">
+          <img [src]="assetBase + '/icons/icon_help_topbar.png'" alt="" />
+        </button>
+        <a class="op-user op-glow-card" routerLink="/app/profile">
+          <span>{{ currentUser().username.charAt(0).toUpperCase() }}</span>
+          <div>
+            <strong>{{ currentUser().username }}</strong>
+            <small>{{ currentUser().role }}</small>
+          </div>
+        </a>
+        <button
+          type="button"
+          class="op-icon-button"
+          aria-label="Alternar tema"
+          (click)="toggleTheme()"
+        >
+          <img [src]="assetBase + '/icons/icon_theme_sun_topbar.png'" alt="" />
+        </button>
+      </div>
+    </header>
+
+    <main class="op-content">
+      <ng-content />
+    </main>
+
+    <footer class="op-footer">
+      <div class="op-footer-status">
+        @for (item of footerItems; track item.label) {
+          <div class="op-footer-item">
+            <img [src]="assetBase + '/' + item.icon" alt="" />
+            <span>{{ item.label }}</span>
+            <small>{{ item.detail }}</small>
+          </div>
+        }
+      </div>
+      <div class="op-access">
+        <span>Último acesso: {{ lastAccess }}</span>
+        <small>Sessão autenticada · conexão protegida</small>
+      </div>
+      <img
+        class="op-footer-hud"
+        [src]="assetBase + '/visuals/visual_footer_escudo_hud.png'"
+        alt=""
+      />
+    </footer>
+  </div>
+</section>

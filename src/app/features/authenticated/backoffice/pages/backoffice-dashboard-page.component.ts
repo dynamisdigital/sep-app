@@ -1,8 +1,22 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnDestroy,
+  signal,
+} from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { UsuarioResponse } from '../../../../core/api/api.models';
+import {
+  DashboardOperacionalResponse,
+  DominioOperacional,
+  UsuarioResponse,
+} from '../../../../core/api/api.models';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { BackofficeService } from '../../../../core/backoffice/backoffice.service';
 
 interface SidebarItem {
   label: string;
@@ -16,8 +30,10 @@ interface SidebarItem {
 interface MetricCard {
   label: string;
   value: string;
-  context: string;
-  trend: string;
+  subtitle: string;
+  unit?: string;
+  trendValue: string;
+  trendContext: string;
   icon: string;
   tone: 'cyan' | 'green' | 'blue' | 'amber' | 'purple';
   visual?: string;
@@ -26,10 +42,11 @@ interface MetricCard {
 interface JourneyCard {
   title: string;
   description: string;
-  pending: string;
+  pendingValue: number;
+  total: number;
+  pendingLabel: string;
   status: string;
   statusTone: 'cyan' | 'green' | 'amber';
-  progress: number;
   route: string;
   icon: string;
 }
@@ -54,8 +71,10 @@ interface ActivityItem {
 interface PerformanceItem {
   label: string;
   value: string;
-  detail: string;
-  visual: string;
+  progress: number;
+  color: string;
+  trend?: string;
+  context: string;
 }
 
 interface HealthItem {
@@ -77,10 +96,35 @@ interface FooterStatus {
   styleUrl: './backoffice-dashboard-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BackofficeDashboardPageComponent {
+export class BackofficeDashboardPageComponent implements OnDestroy {
   private readonly auth = inject(AuthService);
+  private readonly backoffice = inject(BackofficeService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly sessionStartedAt = new Date();
+  private readonly currentDateTime = signal(new Date());
+  private readonly dashboard = signal<DashboardOperacionalResponse | null>(null);
+  protected readonly dashboardLoading = signal(true);
+  protected readonly dashboardError = signal<string | null>(null);
+  private readonly clockInterval = window.setInterval(() => {
+    this.currentDateTime.set(new Date());
+  }, 1000);
 
   protected readonly assetBase = '/image/sep_mockup_03_assets';
+  protected readonly systemTime = computed(() =>
+    this.currentDateTime().toLocaleTimeString('pt-BR', { hour12: false }),
+  );
+  protected readonly systemDate = computed(() =>
+    this.currentDateTime().toLocaleDateString('pt-BR'),
+  );
+  protected readonly lastAccess = `${this.sessionStartedAt.toLocaleDateString(
+    'pt-BR',
+  )} ${this.sessionStartedAt.toLocaleTimeString('pt-BR', { hour12: false })}`;
+  protected readonly greeting = computed(() => {
+    const hour = this.currentDateTime().getHours();
+    if (hour < 12) return 'Bom dia';
+    if (hour < 18) return 'Boa tarde';
+    return 'Boa noite';
+  });
   protected readonly currentUser = computed<UsuarioResponse>(() => {
     const authenticatedUser = this.auth.currentUser();
     if (authenticatedUser?.role === 'BACKOFFICE') return authenticatedUser;
@@ -96,6 +140,34 @@ export class BackofficeDashboardPageComponent {
       mfaHabilitado: false,
     };
   });
+
+  constructor() {
+    this.loadDashboard();
+  }
+
+  protected loadDashboard(): void {
+    this.dashboardLoading.set(true);
+    this.dashboardError.set(null);
+    this.backoffice
+      .consultarDashboardOperacional()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (dashboard) => {
+          this.dashboard.set(dashboard);
+          this.dashboardLoading.set(false);
+        },
+        error: () => {
+          this.dashboardLoading.set(false);
+          this.dashboardError.set(
+            'Não foi possível atualizar os indicadores operacionais. Tente novamente.',
+          );
+        },
+      });
+  }
+
+  ngOnDestroy(): void {
+    window.clearInterval(this.clockInterval);
+  }
 
   protected readonly sidebarItems: SidebarItem[] = [
     {
@@ -155,212 +227,208 @@ export class BackofficeDashboardPageComponent {
     },
   ];
 
-  protected readonly metrics: MetricCard[] = [
-    {
-      label: 'Onboarding',
-      value: '12',
-      context: 'cadastros',
-      trend: '+20% vs ontem',
-      icon: 'icons/icon_metric_onboarding.png',
-      tone: 'cyan',
-    },
-    {
-      label: 'Crédito',
-      value: '8',
-      context: 'propostas',
-      trend: '+14% vs ontem',
-      icon: 'icons/icon_metric_credito.png',
-      tone: 'green',
-    },
-    {
-      label: 'Formalização',
-      value: '5',
-      context: 'contratos',
-      trend: '+25% vs ontem',
-      icon: 'icons/icon_metric_formalizacao.png',
-      tone: 'blue',
-    },
-    {
-      label: 'Cobrança',
-      value: '9',
-      context: 'parcelas',
-      trend: '+9% vs ontem',
-      icon: 'icons/icon_metric_cobranca.png',
-      tone: 'amber',
-    },
-    {
-      label: 'PIX',
-      value: '24',
-      context: 'transações',
-      trend: '+30% vs ontem',
-      icon: 'icons/icon_metric_pix.png',
-      tone: 'purple',
-    },
-    {
-      label: 'Volume operacional',
-      value: 'R$ 2,48M',
-      context: 'Últimos 7 dias',
-      trend: '+18% vs 7 dias anteriores',
-      icon: 'icons/icon_metric_volume_operacional.png',
-      tone: 'cyan',
-      visual: 'visuals/visual_sparkline_volume_operacional.png',
-    },
-  ];
+  protected readonly metrics = computed<MetricCard[]>(() => {
+    const dashboard = this.dashboard();
+    if (!dashboard) return [];
 
-  protected readonly journeys: JourneyCard[] = [
-    {
-      title: 'Onboarding',
-      description: 'KYC/KYB e validações cadastrais.',
-      pending: '12 cadastros',
-      status: 'Em preparação',
-      statusTone: 'cyan',
-      progress: 43,
-      route: '/app/onboarding',
-      icon: 'icons/icon_jornada_onboarding.png',
-    },
-    {
-      title: 'Análise de crédito',
-      description: 'Proposta, parecer e decisão.',
-      pending: '8 propostas',
-      status: 'Em preparação',
-      statusTone: 'green',
-      progress: 38,
-      route: '/app/credito',
-      icon: 'icons/icon_jornada_analise_credito.png',
-    },
-    {
-      title: 'Formalização',
-      description: 'Aceite e assinatura digital.',
-      pending: '5 contratos',
-      status: 'Aguardando',
-      statusTone: 'cyan',
-      progress: 37,
-      route: '/app/formalizacao',
-      icon: 'icons/icon_jornada_formalizacao.png',
-    },
-    {
-      title: 'Cobrança',
-      description: 'Parcelas e inadimplência.',
-      pending: '5 parcelas',
-      status: 'Em atenção',
-      statusTone: 'amber',
-      progress: 18,
-      route: '/app/cobranca',
-      icon: 'icons/icon_jornada_cobranca.png',
-    },
-  ];
+    const metadata: Record<DominioOperacional, Pick<MetricCard, 'label' | 'icon' | 'tone'>> = {
+      ONBOARDING: {
+        label: 'Onboarding',
+        icon: 'icons/icon_metric_onboarding.png',
+        tone: 'cyan',
+      },
+      CREDITO: {
+        label: 'Crédito',
+        icon: 'icons/icon_metric_credito.png',
+        tone: 'green',
+      },
+      FORMALIZACAO: {
+        label: 'Formalização',
+        icon: 'icons/icon_metric_formalizacao.png',
+        tone: 'blue',
+      },
+      COBRANCA: {
+        label: 'Cobrança',
+        icon: 'icons/icon_metric_cobranca.png',
+        tone: 'amber',
+      },
+      PIX: {
+        label: 'PIX',
+        icon: 'icons/icon_metric_pix.png',
+        tone: 'purple',
+      },
+    };
 
-  protected readonly summary: SummaryItem[] = [
-    {
-      label: 'Novos cadastros',
-      value: '7',
-      trend: '+16%',
-      icon: 'icons/icon_resumo_novos_cadastros.png',
-    },
-    {
-      label: 'Propostas recebidas',
-      value: '5',
-      trend: '+11%',
-      icon: 'icons/icon_resumo_propostas_recebidas.png',
-    },
-    {
-      label: 'Contratos assinados',
-      value: '3',
-      trend: '+25%',
-      icon: 'icons/icon_resumo_contratos_assinados.png',
-    },
-    {
-      label: 'Pagamentos via PIX',
-      value: '24',
-      trend: '+30%',
-      icon: 'icons/icon_resumo_pagamentos_pix.png',
-    },
-    {
-      label: 'Alertas críticos',
-      value: '2',
-      trend: '-',
-      icon: 'icons/icon_resumo_alertas_criticos.png',
-      severity: 'danger',
-    },
-  ];
+    const indicators = dashboard.indicadores.map((indicator) => ({
+      ...metadata[indicator.dominio],
+      value: String(indicator.valor),
+      subtitle: indicator.subtitulo,
+      unit: indicator.unidade,
+      trendValue: formatTrend(indicator.variacaoPercentual),
+      trendContext: indicator.comparacao,
+    }));
 
-  protected readonly activities: ActivityItem[] = [
-    {
-      title: 'Novo cadastro iniciado',
-      detail: 'Pessoa física · CPF 123.456.789-00',
-      time: '11:56',
-      status: 'Em andamento',
-      tone: 'cyan',
-      icon: 'icons/icon_timeline_dot_info.png',
-    },
-    {
-      title: 'Proposta recebida',
-      detail: 'Empresa XYZ Ltda · R$ 150.000,00',
-      time: '11:52',
-      status: 'Em análise',
-      tone: 'green',
-      icon: 'icons/icon_timeline_dot_success_01.png',
-    },
-    {
-      title: 'Documento enviado',
-      detail: 'Contrato social · Empresa ABC Ltda',
-      time: '11:48',
-      status: 'Recebido',
-      tone: 'green',
-      icon: 'icons/icon_timeline_dot_success_02.png',
-    },
-    {
-      title: 'Pagamento via PIX',
-      detail: 'R$ 25.000,00 · ID: PIX1234567890',
-      time: '11:40',
-      status: 'Concluído',
-      tone: 'green',
-      icon: 'icons/icon_timeline_dot_success_03.png',
-    },
-    {
-      title: 'Alerta de inadimplência',
-      detail: 'Parcela vencida · Cliente DEF Ltda',
-      time: '11:35',
-      status: 'Atenção',
-      tone: 'red',
-      icon: 'icons/icon_timeline_dot_danger.png',
-    },
-  ];
+    return [
+      ...indicators,
+      {
+        label: 'Volume operacional',
+        value: formatCompactCurrency(dashboard.volume.valor),
+        subtitle: `Últimos ${dashboard.volume.periodoDias} dias`,
+        trendValue: formatTrend(dashboard.volume.variacaoPercentual),
+        trendContext: `vs ${dashboard.volume.periodoDias} dias anteriores`,
+        icon: 'icons/icon_metric_volume_operacional.png',
+        tone: 'cyan',
+        visual: 'visuals/visual_sparkline_volume_operacional.png',
+      },
+    ];
+  });
 
-  protected readonly performance: PerformanceItem[] = [
-    {
-      label: 'Conversão crédito',
-      value: '78%',
-      detail: '+12% vs período anterior',
-      visual: 'visuals/visual_performance_conversao_credito_78.png',
-    },
-    {
-      label: 'Contratos finalizados',
-      value: '65%',
-      detail: '+18% vs período anterior',
-      visual: 'visuals/visual_performance_contratos_finalizados_65.png',
-    },
-    {
-      label: 'Documentos válidos',
-      value: '92%',
-      detail: '+8% vs período anterior',
-      visual: 'visuals/visual_performance_documentos_validos_92.png',
-    },
-    {
-      label: 'SLA médio',
-      value: '84%',
-      detail: '3h 12m de resposta',
-      visual: 'visuals/visual_performance_sla_medio_84.png',
-    },
-  ];
+  protected readonly journeys = computed<JourneyCard[]>(() => {
+    const dashboard = this.dashboard();
+    if (!dashboard) return [];
 
-  protected readonly health: HealthItem[] = [
-    { label: 'API de crédito', status: 'online', icon: 'icons/icon_health_service_01.png' },
-    { label: 'Serviço de documentos', status: 'online', icon: 'icons/icon_health_service_02.png' },
-    { label: 'Motor de análise', status: 'online', icon: 'icons/icon_health_service_03.png' },
-    { label: 'Serviço de assinatura', status: 'online', icon: 'icons/icon_health_service_04.png' },
-    { label: 'Gateway de pagamentos', status: 'online', icon: 'icons/icon_health_service_05.png' },
-  ];
+    const metadata: Record<
+      DashboardOperacionalResponse['jornadas'][number]['dominio'],
+      Pick<JourneyCard, 'title' | 'description' | 'statusTone' | 'route' | 'icon'>
+    > = {
+      ONBOARDING: {
+        title: 'Onboarding',
+        description: 'KYC/KYB e validações cadastrais.',
+        statusTone: 'cyan',
+        route: '/app/onboarding',
+        icon: 'icons/icon_jornada_onboarding.png',
+      },
+      CREDITO: {
+        title: 'Análise de crédito',
+        description: 'Proposta, parecer e decisão.',
+        statusTone: 'green',
+        route: '/app/credito',
+        icon: 'icons/icon_jornada_analise_credito.png',
+      },
+      FORMALIZACAO: {
+        title: 'Formalização',
+        description: 'Aceite e assinatura digital.',
+        statusTone: 'cyan',
+        route: '/app/formalizacao',
+        icon: 'icons/icon_jornada_formalizacao.png',
+      },
+      COBRANCA: {
+        title: 'Cobrança',
+        description: 'Parcelas e inadimplência.',
+        statusTone: 'amber',
+        route: '/app/cobranca',
+        icon: 'icons/icon_jornada_cobranca.png',
+      },
+    };
+
+    return dashboard.jornadas.map((journey) => ({
+      ...metadata[journey.dominio],
+      pendingValue: journey.pendencias,
+      pendingLabel: journey.unidade,
+      status: journey.status,
+      total: journey.total,
+    }));
+  });
+
+  protected journeyProgress(journey: JourneyCard): number {
+    if (!journey.total) return 0;
+    return Math.min(100, Math.round((journey.pendingValue / journey.total) * 100));
+  }
+
+  protected readonly summary = computed<SummaryItem[]>(() => {
+    const dashboard = this.dashboard();
+    if (!dashboard) return [];
+    const metadata: Record<
+      DashboardOperacionalResponse['resumo'][number]['id'],
+      Pick<SummaryItem, 'label' | 'icon' | 'severity'>
+    > = {
+      NOVOS_CADASTROS: {
+        label: 'Novos cadastros',
+        icon: 'icons/icon_resumo_novos_cadastros.png',
+      },
+      PROPOSTAS_RECEBIDAS: {
+        label: 'Propostas recebidas',
+        icon: 'icons/icon_resumo_propostas_recebidas.png',
+      },
+      CONTRATOS_ASSINADOS: {
+        label: 'Contratos assinados',
+        icon: 'icons/icon_resumo_contratos_assinados.png',
+      },
+      PAGAMENTOS_PIX: {
+        label: 'Pagamentos via PIX',
+        icon: 'icons/icon_resumo_pagamentos_pix.png',
+      },
+      ALERTAS_CRITICOS: {
+        label: 'Alertas críticos',
+        icon: 'icons/icon_resumo_alertas_criticos.png',
+        severity: 'danger',
+      },
+    };
+    return dashboard.resumo.map((item) => ({
+      ...metadata[item.id],
+      value: String(item.valor),
+      trend: item.variacaoPercentual == null ? '-' : formatTrend(item.variacaoPercentual),
+    }));
+  });
+
+  protected readonly activities = computed<ActivityItem[]>(() => {
+    const dashboard = this.dashboard();
+    if (!dashboard) return [];
+    const icons: Record<DashboardOperacionalResponse['atividades'][number]['tipo'], string> = {
+      CADASTRO_INICIADO: 'icons/icon_timeline_dot_info.png',
+      PROPOSTA_RECEBIDA: 'icons/icon_timeline_dot_success_01.png',
+      DOCUMENTO_ENVIADO: 'icons/icon_timeline_dot_success_02.png',
+      PAGAMENTO_PIX: 'icons/icon_timeline_dot_success_03.png',
+      ALERTA_INADIMPLENCIA: 'icons/icon_timeline_dot_danger.png',
+    };
+    return dashboard.atividades.map((activity) => ({
+      title: activity.titulo,
+      detail: activity.detalhe,
+      time: new Date(activity.ocorridaEm).toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      status: activity.status,
+      tone:
+        activity.severidade === 'PERIGO'
+          ? 'red'
+          : activity.severidade === 'INFO'
+            ? 'cyan'
+            : 'green',
+      icon: icons[activity.tipo],
+    }));
+  });
+
+  protected readonly performance = computed<PerformanceItem[]>(() => {
+    const dashboard = this.dashboard();
+    if (!dashboard) return [];
+    const metadata: Record<
+      DashboardOperacionalResponse['desempenho'][number]['id'],
+      Pick<PerformanceItem, 'label' | 'color'>
+    > = {
+      CONVERSAO_CREDITO: { label: 'Conversão crédito', color: '#2997ff' },
+      CONTRATOS_FINALIZADOS: { label: 'Contratos finalizados', color: '#37e0a6' },
+      DOCUMENTOS_VALIDOS: { label: 'Documentos válidos', color: '#b85cff' },
+      SLA_MEDIO: { label: 'SLA médio', color: '#ffb545' },
+    };
+    return dashboard.desempenho.map((item) => ({
+      ...metadata[item.id],
+      value: `${item.percentual}%`,
+      progress: item.percentual,
+      trend: item.variacaoPercentual == null ? undefined : formatTrend(item.variacaoPercentual),
+      context: item.contexto,
+    }));
+  });
+
+  protected readonly health = computed<HealthItem[]>(() => {
+    const dashboard = this.dashboard();
+    if (!dashboard) return [];
+    return dashboard.saudeServicos.map((item, index) => ({
+      label: item.nome,
+      status: item.status.toLocaleLowerCase('pt-BR'),
+      icon: `icons/icon_health_service_0${index + 1}.png`,
+    }));
+  });
 
   protected readonly footerStatus: FooterStatus[] = [
     {
@@ -394,4 +462,22 @@ export class BackofficeDashboardPageComponent {
   protected itemsBySection(section: SidebarItem['section']): SidebarItem[] {
     return this.sidebarItems.filter((item) => item.section === section);
   }
+}
+
+function formatTrend(value: number): string {
+  return `${value >= 0 ? '+' : ''}${value}%`;
+}
+
+function formatCompactCurrency(value: number): string {
+  if (Math.abs(value) >= 1_000_000) {
+    return `R$ ${(value / 1_000_000).toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}M`;
+  }
+  return value.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    maximumFractionDigits: 0,
+  });
 }

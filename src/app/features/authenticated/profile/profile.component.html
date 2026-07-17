@@ -1,64 +1,332 @@
-<section class="sep-profile">
-  <header class="sep-profile-header">
-    <h1 class="sep-profile-title">Meu perfil</h1>
-    <div class="sep-profile-actions">
-      <a routerLink="/app/profile/change-password" class="sep-profile-action-link">
-        Alterar senha
-      </a>
-      <button
-        type="button"
-        class="sep-profile-action-button"
-        (click)="recarregar()"
-        [disabled]="loadingUser()"
-      >
-        {{ loadingUser() ? 'Carregando...' : 'Recarregar' }}
+<sep-operational-shell>
+  <div class="profile-page">
+    <nav class="profile-breadcrumb" aria-label="Navegação estrutural">
+      <a href="/app/backoffice/dashboard">Início</a>
+      <span aria-hidden="true">›</span>
+      <strong>Meu perfil</strong>
+    </nav>
+
+    <header class="profile-heading">
+      <div>
+        <h1>Meu perfil</h1>
+        <p>
+          Gerencie suas informações pessoais, segurança e o histórico de auditoria da sua conta.
+        </p>
+      </div>
+      <button type="button" class="profile-outline-button" (click)="startEditing()">
+        <img [src]="assetBase + '/icons/icon_action_edit_profile.png'" alt="" />
+        Editar perfil
       </button>
-    </div>
-  </header>
+    </header>
 
-  @if (currentUser(); as user) {
-    <div class="sep-profile-grid">
-      <article class="sep-profile-card">
-        <h2 class="sep-profile-card-title">Identificação</h2>
-        <dl class="sep-profile-list">
-          <div class="sep-profile-list-row">
-            <dt>E-mail</dt>
-            <dd>{{ user.username }}</dd>
-          </div>
-          <div class="sep-profile-list-row">
-            <dt>Perfil</dt>
-            <dd>{{ user.role }}</dd>
-          </div>
-          <div class="sep-profile-list-row">
-            <dt>ID</dt>
-            <dd class="sep-profile-mono">{{ user.id }}</dd>
-          </div>
-        </dl>
-      </article>
+    @if (loading()) {
+      <div class="profile-state" role="status">Carregando informações do perfil...</div>
+    } @else if (errorMessage()) {
+      <div class="profile-state profile-state-error" role="alert">
+        <span>{{ errorMessage() }}</span>
+        <button type="button" (click)="loadProfile()">Tentar novamente</button>
+      </div>
+    } @else if (currentUser(); as user) {
+      @if (profile(); as details) {
+        @if (feedbackMessage()) {
+          <p class="profile-feedback" role="status">{{ feedbackMessage() }}</p>
+        }
 
-      <article class="sep-profile-card">
-        <h2 class="sep-profile-card-title">Auditoria</h2>
-        <dl class="sep-profile-list">
-          <div class="sep-profile-list-row">
-            <dt>Criado em</dt>
-            <dd>{{ user.dataCriacao }}</dd>
+        <section class="profile-hero profile-panel">
+          <div class="profile-avatar">
+            <img [src]="assetBase + '/icons/icon_profile_avatar_b.png'" alt="Avatar da conta" />
           </div>
-          <div class="sep-profile-list-row">
-            <dt>Modificado em</dt>
-            <dd>{{ user.dataModificacao }}</dd>
+          <div class="profile-identity">
+            <div>
+              <h2>{{ user.username }}</h2>
+              <em>{{ user.role }}</em>
+            </div>
+            <strong>Perfil operacional</strong>
+            <small>ID da conta</small>
+            <p>
+              {{ user.id }}
+              <button type="button" aria-label="Copiar ID da conta" (click)="copyAccountId()">
+                <span class="profile-copy-icon" aria-hidden="true"></span>
+              </button>
+            </p>
           </div>
-          <div class="sep-profile-list-row">
-            <dt>Criado por</dt>
-            <dd class="sep-profile-mono">{{ user.criadoPor }}</dd>
+          <div class="profile-account-status">
+            <img
+              class="profile-account-status-icon"
+              [src]="assetBase + '/icons/icon_profile_status_conta_shield.png'"
+              alt=""
+            />
+            <div>
+              <span>Status da conta</span>
+              <strong>Conta ativa e verificada</strong>
+              <small>Acesso liberado para todas as funcionalidades autorizadas.</small>
+            </div>
           </div>
-          <div class="sep-profile-list-row">
-            <dt>Modificado por</dt>
-            <dd class="sep-profile-mono">{{ user.modificadoPor }}</dd>
+          <div class="profile-environment">
+            <span>Ambiente</span>
+            <strong>Regulado</strong>
+            <small>Resolução CMN 4.656/2018</small>
           </div>
-        </dl>
-      </article>
-    </div>
-  } @else {
-    <p class="sep-profile-empty">Nenhum dado de usuário disponível no momento.</p>
-  }
-</section>
+          <div class="profile-regulatory-art" aria-hidden="true">
+            <img
+              [src]="assetBase + '/visuals/visual_hero_ambiente_hud_shield.png?v=20260717-clean'"
+              alt=""
+            />
+          </div>
+        </section>
+
+        <div class="profile-grid">
+          <section class="profile-panel profile-access">
+            <h2>Identificação e Acesso</h2>
+            <dl class="profile-rows">
+              <div>
+                <dt><img [src]="assetBase + '/icons/icon_id_email.png'" alt="" /> E-mail</dt>
+                <dd>{{ user.username }}</dd>
+              </div>
+              <div>
+                <dt><img [src]="assetBase + '/icons/icon_id_perfil.png'" alt="" /> Perfil</dt>
+                <dd>{{ user.role }}</dd>
+              </div>
+              <div>
+                <dt>
+                  <img [src]="assetBase + '/icons/icon_id_nivel_acesso.png'" alt="" /> Nível de
+                  acesso
+                </dt>
+                <dd>
+                  <span class="profile-chip">{{ details.nivelAcesso }}</span>
+                </dd>
+              </div>
+              <div>
+                <dt>
+                  <img [src]="assetBase + '/icons/icon_id_ultimo_acesso.png'" alt="" /> Último
+                  acesso
+                </dt>
+                <dd>
+                  {{ formatDate(details.ultimoAcesso) }}
+                  <span class="profile-now-badge">Agora</span>
+                </dd>
+              </div>
+              <div>
+                <dt>
+                  <img [src]="assetBase + '/icons/icon_id_mfa_lock.png'" alt="" /> MFA (Segundo
+                  fator)
+                </dt>
+                <dd>
+                  <span
+                    class="profile-live-state"
+                    [class.profile-live-state-off]="!user.mfaHabilitado"
+                  >
+                    <i aria-hidden="true"></i>
+                    {{ user.mfaHabilitado ? 'Ativado' : 'Desativado' }}
+                  </span>
+                </dd>
+              </div>
+              <div>
+                <dt>
+                  <img [src]="assetBase + '/icons/icon_id_status_sessao.png'" alt="" /> Status da
+                  sessão
+                </dt>
+                <dd>
+                  <span class="profile-live-state">
+                    <i aria-hidden="true"></i>
+                    Ativa
+                  </span>
+                </dd>
+              </div>
+              <div>
+                <dt>
+                  <img [src]="assetBase + '/icons/icon_id_dispositivos_autorizados.png'" alt="" />
+                  Dispositivos autorizados
+                </dt>
+                <dd>{{ details.dispositivosAutorizados }} dispositivos <span>›</span></dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="profile-panel profile-audit">
+            <header>
+              <h2>Auditoria da Conta</h2>
+              <button type="button" class="profile-export" (click)="exportReport()">
+                <img [src]="assetBase + '/icons/icon_action_export_report.png'" alt="" />
+                Exportar relatório
+              </button>
+            </header>
+            <dl class="profile-rows">
+              <div>
+                <dt>
+                  <img [src]="assetBase + '/icons/icon_audit_criado_em_calendar.png'" alt="" />
+                  Criado em
+                </dt>
+                <dd>{{ formatDate(user.dataCriacao) }}</dd>
+              </div>
+              <div>
+                <dt>
+                  <img [src]="assetBase + '/icons/icon_audit_modificado_em_edit.png'" alt="" />
+                  Modificado em
+                </dt>
+                <dd>{{ formatDate(user.dataModificacao) }}</dd>
+              </div>
+              <div>
+                <dt>
+                  <img [src]="assetBase + '/icons/icon_audit_criado_por_user.png'" alt="" /> Criado
+                  por
+                </dt>
+                <dd>{{ user.criadoPor }}</dd>
+              </div>
+              <div>
+                <dt>
+                  <img [src]="assetBase + '/icons/icon_audit_modificado_por_user.png'" alt="" />
+                  Modificado por
+                </dt>
+                <dd>{{ user.modificadoPor }}</dd>
+              </div>
+              <div>
+                <dt>
+                  <img
+                    [src]="assetBase + '/icons/icon_audit_ultima_autenticacao_fingerprint.png'"
+                    alt=""
+                  />
+                  Última autenticação
+                </dt>
+                <dd>{{ formatDate(details.ultimaAutenticacao) }}</dd>
+              </div>
+              <div>
+                <dt>
+                  <img [src]="assetBase + '/icons/icon_audit_tentativas_login_shield.png'" alt="" />
+                  Tentativas de login (24h)
+                </dt>
+                <dd class="profile-success">{{ details.tentativasLogin24h }} falhas</dd>
+              </div>
+              <div>
+                <dt>
+                  <img [src]="assetBase + '/icons/icon_audit_logs_document.png'" alt="" /> Logs de
+                  auditoria
+                </dt>
+                <dd class="profile-link">Ver histórico completo <span>›</span></dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="profile-panel profile-security">
+            <h2>Segurança da conta</h2>
+            <div class="profile-security-grid">
+              <article>
+                <img [src]="assetBase + '/icons/icon_security_senha_forte.png'" alt="" />
+                <span>Senha forte</span>
+                <strong>{{ details.senhaForte ? 'Protegida' : 'Revisar' }}</strong>
+              </article>
+              <article>
+                <img [src]="assetBase + '/icons/icon_security_mfa_lock.png'" alt="" />
+                <span>MFA</span>
+                <strong>{{ user.mfaHabilitado ? 'Ativado' : 'Desativado' }}</strong>
+              </article>
+              <article>
+                <img [src]="assetBase + '/icons/icon_security_sessoes.png'" alt="" />
+                <span>Sessões</span>
+                <strong>{{ details.sessoesAtivas }} ativas</strong>
+              </article>
+              <article>
+                <img [src]="assetBase + '/icons/icon_security_dispositivos.png'" alt="" />
+                <span>Dispositivos</span>
+                <strong>{{ details.dispositivosAutorizados }} autorizados</strong>
+              </article>
+              <article>
+                <img [src]="assetBase + '/icons/icon_security_auditoria.png'" alt="" />
+                <span>Auditoria</span>
+                <strong>{{ details.auditoriaAtiva ? 'Ativa' : 'Inativa' }}</strong>
+              </article>
+            </div>
+          </section>
+
+          <section class="profile-panel profile-complementary">
+            <h2>Informações complementares</h2>
+            <div class="profile-complementary-grid">
+              <div>
+                <img [src]="assetBase + '/icons/icon_info_idioma_globe.png'" alt="" />
+                <span><small>Idioma</small>{{ details.preferencias.idioma }}</span>
+              </div>
+              <div>
+                <img [src]="assetBase + '/icons/icon_info_fuso_horario_clock.png'" alt="" />
+                <span><small>Fuso horário</small>{{ details.preferencias.fusoHorario }}</span>
+              </div>
+              <div>
+                <img [src]="assetBase + '/icons/icon_info_preferencia_tema.png'" alt="" />
+                <span><small>Preferência de tema</small>{{ details.preferencias.tema }}</span>
+              </div>
+              <div>
+                <img [src]="assetBase + '/icons/icon_info_notificacoes_bell.png'" alt="" />
+                <span
+                  ><small>Notificações</small
+                  >{{ details.preferencias.notificacoesAtivas ? 'Ativadas' : 'Desativadas' }}</span
+                >
+              </div>
+              <div>
+                <img [src]="assetBase + '/icons/icon_info_comunicacoes_email.png'" alt="" />
+                <span><small>Comunicações</small>{{ details.preferencias.canalComunicacao }}</span>
+              </div>
+              <div>
+                <img [src]="assetBase + '/icons/icon_info_armazenamento_cloud.png'" alt="" />
+                <span
+                  ><small>Armazenamento</small
+                  >{{ details.armazenamentoSincronizado ? 'Sincronizado' : 'Pendente' }}</span
+                >
+              </div>
+            </div>
+          </section>
+        </div>
+      }
+    } @else {
+      <div class="profile-state">Nenhum dado de usuário disponível no momento.</div>
+    }
+
+    @if (editing()) {
+      <div class="profile-modal-backdrop" role="presentation">
+        <section class="profile-modal" role="dialog" aria-modal="true" aria-labelledby="edit-title">
+          <h2 id="edit-title">Editar preferências</h2>
+          <p>Os dados de identidade são administrados pela conta corporativa.</p>
+          <form [formGroup]="preferencesForm" (ngSubmit)="savePreferences()">
+            <label>
+              Idioma
+              <select formControlName="idioma">
+                <option>Português (Brasil)</option>
+                <option>English</option>
+              </select>
+            </label>
+            <label>
+              Fuso horário
+              <select formControlName="fusoHorario">
+                <option>(UTC-03:00) Brasília</option>
+                <option>(UTC+00:00) UTC</option>
+              </select>
+            </label>
+            <label>
+              Tema
+              <select formControlName="tema">
+                <option value="ESCURO">Escuro</option>
+                <option value="CLARO">Claro</option>
+                <option value="SISTEMA">Sistema</option>
+              </select>
+            </label>
+            <label>
+              Canal de comunicação
+              <select formControlName="canalComunicacao">
+                <option>E-mail corporativo</option>
+                <option>Notificação na plataforma</option>
+              </select>
+            </label>
+            <label class="profile-checkbox">
+              <input type="checkbox" formControlName="notificacoesAtivas" />
+              Receber notificações operacionais
+            </label>
+            <footer>
+              <button type="button" (click)="cancelEditing()">Cancelar</button>
+              <button type="submit" [disabled]="saving()">
+                {{ saving() ? 'Salvando...' : 'Salvar alterações' }}
+              </button>
+            </footer>
+          </form>
+        </section>
+      </div>
+    }
+  </div>
+</sep-operational-shell>

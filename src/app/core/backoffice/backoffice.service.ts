@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 import {
   ComentarioInternoResponse,
   ComentarioRequest,
+  DashboardOperacionalResponse,
   DashboardResponse,
   IgnorarRequest,
   ItemFilaDetalheResponse,
@@ -48,6 +49,10 @@ export class BackofficeService {
 
   consultarDashboard(): Observable<DashboardResponse> {
     return this.http.get<DashboardResponse>(`${BACKOFFICE_URL}/dashboard`);
+  }
+
+  consultarDashboardOperacional(): Observable<DashboardOperacionalResponse> {
+    return this.http.get<DashboardOperacionalResponse>(`${BACKOFFICE_URL}/dashboard-operacional`);
   }
 
   listarFila(params: ListarFilaParams = {}): Observable<PageResponse<ItemFilaResponse>> {

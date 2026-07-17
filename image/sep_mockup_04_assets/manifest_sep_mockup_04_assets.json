@@ -1,0 +1,503 @@
+{
+  "mockup": "Mockup_04",
+  "description": "Assets extraídos do Mockup_04 — Meu Perfil / Backoffice SEP, com margem segura e PNG transparente para ícones e visuais.",
+  "project_target_folder": "C:\\Pastas\\PROJETOS\\Projeto Dynamis SEP\\sep-app 16062026\\image\\sep_mockup_04_assets",
+  "public_path_base": "/image/sep_mockup_04_assets",
+  "notes": [
+    "Ícones e visuais foram extraídos com margem transparente de segurança para evitar corte de glow, círculo, hexágono e HUD.",
+    "UI groups são recortes de referência visual e podem preservar o fundo do mockup.",
+    "Não usar UI groups como substituto de HTML real; usar apenas como referência ou apoio visual."
+  ],
+  "assets": [
+    {
+      "name": "logo_sep_header_completo.png",
+      "category": "logos",
+      "path": "sep_mockup_04_assets/logos/logo_sep_header_completo.png",
+      "source_box": [26, 18, 147, 56],
+      "size_px": [137, 54]
+    },
+    {
+      "name": "logo_sep_simbolo_header.png",
+      "category": "logos",
+      "path": "sep_mockup_04_assets/logos/logo_sep_simbolo_header.png",
+      "source_box": [25, 20, 68, 58],
+      "size_px": [63, 63]
+    },
+    {
+      "name": "logo_sep_wordmark_header.png",
+      "category": "logos",
+      "path": "sep_mockup_04_assets/logos/logo_sep_wordmark_header.png",
+      "source_box": [72, 27, 145, 52],
+      "size_px": [89, 41]
+    },
+    {
+      "name": "logo_sep_footer_completo.png",
+      "category": "logos",
+      "path": "sep_mockup_04_assets/logos/logo_sep_footer_completo.png",
+      "source_box": [25, 948, 129, 984],
+      "size_px": [120, 52]
+    },
+    {
+      "name": "logo_sep_simbolo_footer.png",
+      "category": "logos",
+      "path": "sep_mockup_04_assets/logos/logo_sep_simbolo_footer.png",
+      "source_box": [26, 949, 59, 982],
+      "size_px": [53, 53]
+    },
+    {
+      "name": "icon_sidebar_dashboard.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_sidebar_dashboard.png",
+      "source_box": [27, 100, 52, 124],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_sidebar_onboarding.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_sidebar_onboarding.png",
+      "source_box": [26, 187, 49, 211],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_sidebar_credito.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_sidebar_credito.png",
+      "source_box": [26, 238, 49, 256],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_sidebar_formalizacao.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_sidebar_formalizacao.png",
+      "source_box": [27, 286, 49, 309],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_sidebar_cobranca.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_sidebar_cobranca.png",
+      "source_box": [26, 337, 50, 354],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_sidebar_backoffice.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_sidebar_backoffice.png",
+      "source_box": [25, 423, 52, 450],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_sidebar_pix.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_sidebar_pix.png",
+      "source_box": [25, 474, 53, 501],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_sidebar_perfil.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_sidebar_perfil.png",
+      "source_box": [25, 557, 52, 584],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_topbar_ambiente_regulado.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_topbar_ambiente_regulado.png",
+      "source_box": [276, 29, 296, 52],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_topbar_horario_sistema.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_topbar_horario_sistema.png",
+      "source_box": [441, 21, 481, 61],
+      "size_px": [60, 60]
+    },
+    {
+      "name": "icon_topbar_search.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_topbar_search.png",
+      "source_box": [1024, 26, 1064, 64],
+      "size_px": [60, 60]
+    },
+    {
+      "name": "icon_topbar_bell_notification.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_topbar_bell_notification.png",
+      "source_box": [1092, 17, 1136, 59],
+      "size_px": [64, 64]
+    },
+    {
+      "name": "icon_topbar_help.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_topbar_help.png",
+      "source_box": [1150, 27, 1179, 57],
+      "size_px": [50, 50]
+    },
+    {
+      "name": "icon_topbar_theme_sun.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_topbar_theme_sun.png",
+      "source_box": [1489, 27, 1518, 57],
+      "size_px": [50, 50]
+    },
+    {
+      "name": "icon_topbar_user_initial_d.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_topbar_user_initial_d.png",
+      "source_box": [1238, 20, 1280, 64],
+      "size_px": [64, 64]
+    },
+    {
+      "name": "icon_action_edit_profile.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_action_edit_profile.png",
+      "source_box": [1378, 132, 1400, 153],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_action_export_report.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_action_export_report.png",
+      "source_box": [1329, 382, 1350, 403],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_action_copy_id.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_action_copy_id.png",
+      "source_box": [739, 310, 760, 330],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_profile_avatar_b.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_profile_avatar_b.png",
+      "source_box": [294, 207, 414, 331],
+      "size_px": [148, 148]
+    },
+    {
+      "name": "icon_profile_camera_badge.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_profile_camera_badge.png",
+      "source_box": [336, 303, 372, 337],
+      "size_px": [60, 60]
+    },
+    {
+      "name": "icon_profile_status_online_dot.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_profile_status_online_dot.png",
+      "source_box": [381, 291, 406, 316],
+      "size_px": [49, 49]
+    },
+    {
+      "name": "icon_profile_status_conta_shield.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_profile_status_conta_shield.png",
+      "source_box": [878, 219, 918, 272],
+      "size_px": [77, 77]
+    },
+    {
+      "name": "icon_profile_ambiente_regulado_badge.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_profile_ambiente_regulado_badge.png",
+      "source_box": [1150, 252, 1294, 293],
+      "size_px": [168, 168]
+    },
+    {
+      "name": "icon_id_email.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_id_email.png",
+      "source_box": [286, 429, 308, 450],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_id_perfil.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_id_perfil.png",
+      "source_box": [286, 468, 308, 491],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_id_nivel_acesso.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_id_nivel_acesso.png",
+      "source_box": [286, 508, 307, 530],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_id_ultimo_acesso.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_id_ultimo_acesso.png",
+      "source_box": [285, 546, 309, 569],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_id_mfa_lock.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_id_mfa_lock.png",
+      "source_box": [286, 585, 308, 609],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_id_status_sessao.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_id_status_sessao.png",
+      "source_box": [285, 623, 310, 646],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_id_dispositivos_autorizados.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_id_dispositivos_autorizados.png",
+      "source_box": [285, 662, 310, 685],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_audit_criado_em_calendar.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_audit_criado_em_calendar.png",
+      "source_box": [877, 429, 900, 452],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_audit_modificado_em_edit.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_audit_modificado_em_edit.png",
+      "source_box": [877, 468, 900, 491],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_audit_criado_por_user.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_audit_criado_por_user.png",
+      "source_box": [877, 508, 900, 531],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_audit_modificado_por_user.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_audit_modificado_por_user.png",
+      "source_box": [877, 547, 900, 570],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_audit_ultima_autenticacao_fingerprint.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_audit_ultima_autenticacao_fingerprint.png",
+      "source_box": [877, 586, 901, 610],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_audit_tentativas_login_shield.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_audit_tentativas_login_shield.png",
+      "source_box": [877, 624, 900, 649],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_audit_logs_document.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_audit_logs_document.png",
+      "source_box": [877, 662, 900, 685],
+      "size_px": [48, 48]
+    },
+    {
+      "name": "icon_security_senha_forte.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_security_senha_forte.png",
+      "source_box": [300, 781, 375, 850],
+      "size_px": [99, 99]
+    },
+    {
+      "name": "icon_security_mfa_lock.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_security_mfa_lock.png",
+      "source_box": [410, 784, 455, 833],
+      "size_px": [88, 88]
+    },
+    {
+      "name": "icon_security_sessoes.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_security_sessoes.png",
+      "source_box": [518, 782, 564, 833],
+      "size_px": [88, 88]
+    },
+    {
+      "name": "icon_security_dispositivos.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_security_dispositivos.png",
+      "source_box": [626, 790, 678, 830],
+      "size_px": [88, 88]
+    },
+    {
+      "name": "icon_security_auditoria.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_security_auditoria.png",
+      "source_box": [730, 782, 793, 838],
+      "size_px": [88, 88]
+    },
+    {
+      "name": "icon_info_idioma_globe.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_info_idioma_globe.png",
+      "source_box": [875, 784, 906, 816],
+      "size_px": [56, 56]
+    },
+    {
+      "name": "icon_info_fuso_horario_clock.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_info_fuso_horario_clock.png",
+      "source_box": [1075, 784, 1106, 816],
+      "size_px": [56, 56]
+    },
+    {
+      "name": "icon_info_preferencia_tema.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_info_preferencia_tema.png",
+      "source_box": [1287, 782, 1320, 816],
+      "size_px": [56, 56]
+    },
+    {
+      "name": "icon_info_notificacoes_bell.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_info_notificacoes_bell.png",
+      "source_box": [875, 846, 906, 879],
+      "size_px": [56, 56]
+    },
+    {
+      "name": "icon_info_comunicacoes_email.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_info_comunicacoes_email.png",
+      "source_box": [1074, 847, 1108, 875],
+      "size_px": [56, 56]
+    },
+    {
+      "name": "icon_info_armazenamento_cloud.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_info_armazenamento_cloud.png",
+      "source_box": [1287, 848, 1321, 875],
+      "size_px": [56, 56]
+    },
+    {
+      "name": "icon_footer_ambiente_regulado_lock.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_footer_ambiente_regulado_lock.png",
+      "source_box": [280, 944, 309, 977],
+      "size_px": [64, 64]
+    },
+    {
+      "name": "icon_footer_segregacao_patrimonial.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_footer_segregacao_patrimonial.png",
+      "source_box": [513, 946, 544, 978],
+      "size_px": [64, 64]
+    },
+    {
+      "name": "icon_footer_seguranca_shield.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_footer_seguranca_shield.png",
+      "source_box": [732, 945, 764, 979],
+      "size_px": [64, 64]
+    },
+    {
+      "name": "icon_footer_rastreabilidade_audit.png",
+      "category": "icons",
+      "path": "sep_mockup_04_assets/icons/icon_footer_rastreabilidade_audit.png",
+      "source_box": [930, 945, 962, 979],
+      "size_px": [64, 64]
+    },
+    {
+      "name": "visual_hero_ambiente_hud_shield.png",
+      "category": "visuals",
+      "path": "sep_mockup_04_assets/visuals/visual_hero_ambiente_hud_shield.png",
+      "source_box": [1325, 188, 1492, 338],
+      "size_px": [199, 182]
+    },
+    {
+      "name": "visual_auditoria_clipboard_hud.png",
+      "category": "visuals",
+      "path": "sep_mockup_04_assets/visuals/visual_auditoria_clipboard_hud.png",
+      "source_box": [1305, 415, 1485, 586],
+      "size_px": [212, 203]
+    },
+    {
+      "name": "visual_footer_cube_hud.png",
+      "category": "visuals",
+      "path": "sep_mockup_04_assets/visuals/visual_footer_cube_hud.png",
+      "source_box": [1360, 923, 1484, 1014],
+      "size_px": [156, 123]
+    },
+    {
+      "name": "visual_background_circuitos_superior.png",
+      "category": "visuals",
+      "path": "sep_mockup_04_assets/visuals/visual_background_circuitos_superior.png",
+      "source_box": [1000, 100, 1510, 185],
+      "size_px": [542, 117]
+    },
+    {
+      "name": "visual_card_profile_subtle_grid.png",
+      "category": "visuals",
+      "path": "sep_mockup_04_assets/visuals/visual_card_profile_subtle_grid.png",
+      "source_box": [260, 185, 432, 350],
+      "size_px": [204, 197]
+    },
+    {
+      "name": "ui_sidebar_full.png",
+      "category": "ui-groups",
+      "path": "sep_mockup_04_assets/ui-groups/ui_sidebar_full.png",
+      "source_box": [0, 0, 236, 1024],
+      "size_px": [236, 1024]
+    },
+    {
+      "name": "ui_topbar_full.png",
+      "category": "ui-groups",
+      "path": "sep_mockup_04_assets/ui-groups/ui_topbar_full.png",
+      "source_box": [235, 0, 1535, 72],
+      "size_px": [1300, 72]
+    },
+    {
+      "name": "ui_profile_summary_card.png",
+      "category": "ui-groups",
+      "path": "sep_mockup_04_assets/ui-groups/ui_profile_summary_card.png",
+      "source_box": [258, 184, 1500, 350],
+      "size_px": [1242, 166]
+    },
+    {
+      "name": "ui_identificacao_acesso_card.png",
+      "category": "ui-groups",
+      "path": "sep_mockup_04_assets/ui-groups/ui_identificacao_acesso_card.png",
+      "source_box": [260, 363, 817, 708],
+      "size_px": [557, 345]
+    },
+    {
+      "name": "ui_auditoria_conta_card.png",
+      "category": "ui-groups",
+      "path": "sep_mockup_04_assets/ui-groups/ui_auditoria_conta_card.png",
+      "source_box": [849, 363, 1500, 708],
+      "size_px": [651, 345]
+    },
+    {
+      "name": "ui_seguranca_conta_card.png",
+      "category": "ui-groups",
+      "path": "sep_mockup_04_assets/ui-groups/ui_seguranca_conta_card.png",
+      "source_box": [260, 720, 817, 900],
+      "size_px": [557, 180]
+    },
+    {
+      "name": "ui_informacoes_complementares_card.png",
+      "category": "ui-groups",
+      "path": "sep_mockup_04_assets/ui-groups/ui_informacoes_complementares_card.png",
+      "source_box": [849, 720, 1500, 900],
+      "size_px": [651, 180]
+    },
+    {
+      "name": "ui_footer_regulatorio_status.png",
+      "category": "ui-groups",
+      "path": "sep_mockup_04_assets/ui-groups/ui_footer_regulatorio_status.png",
+      "source_box": [258, 920, 1500, 1018],
+      "size_px": [1242, 98]
+    }
+  ]
+}

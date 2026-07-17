@@ -1,5 +1,10 @@
 import { http, HttpResponse } from 'msw';
 
+import {
+  buildOperationalDashboardSnapshot,
+  operationalDashboardStore,
+} from './data/operational-dashboard.store';
+
 const baseUrl = 'http://localhost:8080/api/v1';
 const now = '2026-04-24T18:30:00-03:00';
 
@@ -51,6 +56,28 @@ const backofficeUsuario = {
   dataModificacao: now,
   criadoPor: 'system',
   modificadoPor: 'system',
+};
+
+let perfilOperacionalFake = {
+  statusConta: 'ATIVA',
+  contaVerificada: true,
+  nivelAcesso: 'Administrador',
+  ultimoAcesso: '2026-07-17T11:52:31-03:00',
+  ultimaAutenticacao: '2026-07-17T11:52:31-03:00',
+  tentativasLogin24h: 0,
+  dispositivosAutorizados: 3,
+  sessoesAtivas: 3,
+  senhaForte: true,
+  auditoriaAtiva: true,
+  armazenamentoSincronizado: true,
+  preferencias: {
+    idioma: 'Português (Brasil)',
+    fusoHorario: '(UTC-03:00) Brasília',
+    tema: 'ESCURO',
+    notificacoesAtivas: true,
+    canalComunicacao: 'E-mail corporativo',
+  },
+  atualizadoEm: now,
 };
 
 // Usuario multi-role (FINANCEIRO + BACKOFFICE) para exercitar a gestao de roles cumulativas
@@ -1478,6 +1505,16 @@ function paginar<T>(itens: T[], page: number, size: number) {
 }
 
 const backofficeHandlers = [
+  http.get(`${baseUrl}/backoffice/dashboard-operacional`, () => {
+    const negado = negarSeNaoOperador('/api/v1/backoffice/dashboard-operacional');
+    if (negado) {
+      return negado;
+    }
+    return HttpResponse.json(buildOperationalDashboardSnapshot(operationalDashboardStore), {
+      headers: { 'Cache-Control': 'no-store' },
+    });
+  }),
+
   http.get(`${baseUrl}/backoffice/dashboard`, () => {
     const negado = negarSeNaoOperador('/api/v1/backoffice/dashboard');
     if (negado) {
@@ -2780,6 +2817,42 @@ export const handlers = [
 
   http.get(`${baseUrl}/auth/me`, () => HttpResponse.json(currentMockUser)),
 
+  http.get(`${baseUrl}/auth/profile-operacional`, () =>
+    HttpResponse.json(perfilOperacionalFake, {
+      headers: { 'Cache-Control': 'no-store' },
+    }),
+  ),
+
+  http.patch(`${baseUrl}/auth/profile-operacional/preferencias`, async ({ request }) => {
+    const body = (await request.json()) as {
+      idioma?: string;
+      fusoHorario?: string;
+      tema?: 'ESCURO' | 'CLARO' | 'SISTEMA';
+      notificacoesAtivas?: boolean;
+      canalComunicacao?: string;
+    };
+    if (!body.idioma || !body.fusoHorario || !body.tema || !body.canalComunicacao) {
+      return errorResponse(
+        400,
+        'Bad Request',
+        'Preferencias incompletas',
+        '/api/v1/auth/profile-operacional/preferencias',
+      );
+    }
+    perfilOperacionalFake = {
+      ...perfilOperacionalFake,
+      preferencias: {
+        idioma: body.idioma,
+        fusoHorario: body.fusoHorario,
+        tema: body.tema,
+        notificacoesAtivas: body.notificacoesAtivas ?? false,
+        canalComunicacao: body.canalComunicacao,
+      },
+      atualizadoEm: new Date().toISOString(),
+    };
+    return HttpResponse.json(perfilOperacionalFake);
+  }),
+
   http.get(`${baseUrl}/usuarios`, () => HttpResponse.json(usuariosFake)),
 
   http.get(`${baseUrl}/usuarios/:id`, ({ params }) => {
@@ -2803,11 +2876,18 @@ export const handlers = [
         `/api/v1/usuarios/${id}/senha`,
       );
     }
-    if (!body.novaSenha || body.novaSenha.length !== 6) {
+    const novaSenhaValida =
+      Boolean(body.novaSenha) &&
+      body.novaSenha!.length >= 12 &&
+      /[a-z]/.test(body.novaSenha!) &&
+      /[A-Z]/.test(body.novaSenha!) &&
+      /\d/.test(body.novaSenha!) &&
+      /[^A-Za-z0-9]/.test(body.novaSenha!);
+    if (!novaSenhaValida) {
       return errorResponse(
         400,
         'Bad Request',
-        'novaSenha deve conter exatamente 6 caracteres',
+        'novaSenha deve ter 12+ caracteres, letras maiúsculas e minúsculas, número e símbolo',
         `/api/v1/usuarios/${id}/senha`,
       );
     }

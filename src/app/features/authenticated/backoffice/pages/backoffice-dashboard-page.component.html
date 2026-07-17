@@ -28,7 +28,7 @@
       }
 
       @for (section of sidebarSections; track section.id) {
-        <div class="op-nav-section">
+        <div class="op-nav-section" [attr.data-section]="section.id">
           <p>{{ section.label }}</p>
           @for (item of itemsBySection(section.id); track item.route) {
             <a
@@ -67,7 +67,7 @@
   <div class="op-main">
     <header class="op-topbar">
       <div class="op-topbar-left">
-        <div class="op-regulated op-glow-card">
+        <div class="op-regulated op-glow-card" style="grid-template-columns: 28px auto 14px">
           <img [src]="assetBase + '/icons/icon_badge_ambiente_regulado_topbar.png'" alt="" />
           <div>
             <span>Ambiente</span>
@@ -75,13 +75,13 @@
           </div>
           <b aria-hidden="true">›</b>
         </div>
-        <div class="op-clock op-glow-card">
-          <img [src]="assetBase + '/icons/icon_clock_topbar.svg'" alt="" />
+        <div class="op-clock op-glow-card" style="grid-template-columns: 34px auto auto">
+          <img [src]="assetBase + '/icons/icon_horario_sistema.png'" alt="" />
           <div>
             <span>Horário do sistema</span>
-            <strong>11:58:44</strong>
+            <strong>{{ systemTime() }}</strong>
           </div>
-          <small>30/05/2026</small>
+          <small>{{ systemDate() }}</small>
         </div>
       </div>
 
@@ -91,7 +91,6 @@
         </button>
         <button type="button" class="op-icon-button op-notification" aria-label="Notificações">
           <img [src]="assetBase + '/icons/icon_bell_notification.png'" alt="" />
-          <span>6</span>
         </button>
         <button type="button" class="op-icon-button" aria-label="Ajuda">
           <img [src]="assetBase + '/icons/icon_help_topbar.png'" alt="" />
@@ -102,7 +101,6 @@
             <strong>{{ currentUser().username }}</strong>
             <small>{{ currentUser().role }}</small>
           </div>
-          <b aria-hidden="true">⌄</b>
         </a>
         <button type="button" class="op-icon-button" aria-label="Tema">
           <img [src]="assetBase + '/icons/icon_theme_sun_topbar.png'" alt="" />
@@ -111,9 +109,19 @@
     </header>
 
     <main class="op-content">
+      @if (dashboardLoading()) {
+        <p class="op-data-status" role="status">Atualizando indicadores operacionais...</p>
+      }
+      @if (dashboardError()) {
+        <div class="op-data-error" role="alert">
+          <span>{{ dashboardError() }}</span>
+          <button type="button" (click)="loadDashboard()">Tentar novamente</button>
+        </div>
+      }
+
       <section class="op-welcome">
         <div class="op-welcome-copy op-reveal-text">
-          <p>Bom dia,</p>
+          <p>{{ greeting() }},</p>
           <h1 id="op-dashboard-title">{{ currentUser().username }}</h1>
           <span>Backoffice</span>
           <small>Bem-vindo ao painel operacional da SEP.</small>
@@ -125,20 +133,35 @@
       </section>
 
       <section class="op-metrics" aria-label="Métricas operacionais">
-        @for (metric of metrics; track metric.label) {
+        @for (metric of metrics(); track metric.label) {
           <article class="op-metric op-glow-card" [attr.data-tone]="metric.tone">
             <div class="op-metric-top">
-              <img [src]="assetBase + '/' + metric.icon" alt="" />
+              <span class="op-metric-icon" aria-hidden="true">
+                <img [src]="assetBase + '/' + metric.icon" alt="" />
+              </span>
               <div>
                 <h2>{{ metric.label }}</h2>
-                <small>{{ metric.context }}</small>
+                <small style="font-size: 14px">{{ metric.subtitle }}</small>
               </div>
             </div>
-            <strong>{{ metric.value }}</strong>
+            <strong
+              style="
+                text-shadow:
+                  0 0 8px rgb(255 255 255 / 55%),
+                  0 0 18px rgb(0 190 255 / 28%);
+              "
+              >{{ metric.value }}</strong
+            >
+            @if (metric.unit) {
+              <small style="text-align: center; translate: 0 -7px">{{ metric.unit }}</small>
+            }
             @if (metric.visual) {
               <img class="op-sparkline" [src]="assetBase + '/' + metric.visual" alt="" />
             }
-            <p>{{ metric.trend }}</p>
+            <p>
+              <strong>{{ metric.trendValue }}</strong>
+              <span>{{ metric.trendContext }}</span>
+            </p>
           </article>
         }
       </section>
@@ -150,22 +173,26 @@
             <button type="button">Todas <span>⌄</span></button>
           </div>
           <div class="op-journeys">
-            @for (journey of journeys; track journey.title) {
+            @for (journey of journeys(); track journey.title; let journeyIndex = $index) {
               <article class="op-journey op-glow-card" [attr.data-tone]="journey.statusTone">
-                <div class="op-journey-main">
-                  <img [src]="assetBase + '/' + journey.icon" alt="" />
-                  <div>
-                    <h3>{{ journey.title }}</h3>
+                <div class="op-journey-main" style="translate: -5px 0">
+                  <span class="op-journey-icon" aria-hidden="true">
+                    <img [src]="assetBase + '/' + journey.icon" alt="" />
+                  </span>
+                  <div [style.translate]="journeyIndex < 3 ? '-15px 0' : null">
+                    <h3 [style.white-space]="journeyIndex === 1 ? 'nowrap' : null">
+                      {{ journey.title }}
+                    </h3>
                     <p>{{ journey.description }}</p>
                     <em>{{ journey.status }}</em>
                   </div>
                 </div>
                 <div class="op-progress" aria-hidden="true">
-                  <span [style.width.%]="journey.progress"></span>
+                  <span [style.width.%]="journeyProgress(journey)"></span>
                 </div>
                 <div class="op-journey-footer">
                   <span>Pendências</span>
-                  <strong>{{ journey.pending }}</strong>
+                  <strong>{{ journey.pendingValue }} {{ journey.pendingLabel }}</strong>
                 </div>
                 <a [routerLink]="journey.route">Acessar jornada <b>→</b></a>
               </article>
@@ -179,12 +206,12 @@
             <button type="button">Hoje <span>⌄</span></button>
           </div>
           <div class="op-summary-list">
-            @for (item of summary; track item.label) {
+            @for (item of summary(); track item.label) {
               <div class="op-summary-item" [class.op-danger]="item.severity === 'danger'">
                 <img [src]="assetBase + '/' + item.icon" alt="" />
-                <span>{{ item.label }}</span>
-                <strong>{{ item.value }}</strong>
-                <em>{{ item.trend }}</em>
+                <span style="translate: 0 -20px">{{ item.label }}</span>
+                <strong style="translate: 0 -20px">{{ item.value }}</strong>
+                <em style="translate: 0 -20px">{{ item.trend }}</em>
               </div>
             }
           </div>
@@ -199,12 +226,24 @@
             <button type="button">7 dias <span>⌄</span></button>
           </div>
           <div class="op-performance-grid">
-            @for (item of performance; track item.label) {
-              <article class="op-performance-item">
-                <img [src]="assetBase + '/' + item.visual" alt="" />
-                <strong>{{ item.value }}</strong>
+            @for (item of performance(); track item.label; let performanceIndex = $index) {
+              <article class="op-performance-item" [attr.data-performance-index]="performanceIndex">
+                <div
+                  class="op-performance-ring"
+                  role="img"
+                  [attr.aria-label]="item.label + ': ' + item.value"
+                  [style.--ring-progress]="item.progress + '%'"
+                  [style.--ring-color]="item.color"
+                >
+                  <strong>{{ item.value }}</strong>
+                </div>
                 <span>{{ item.label }}</span>
-                <small>{{ item.detail }}</small>
+                <small>
+                  @if (item.trend) {
+                    <b>{{ item.trend }}</b>
+                  }
+                  <span>{{ item.context }}</span>
+                </small>
               </article>
             }
           </div>
@@ -218,7 +257,7 @@
             </div>
           </div>
           <div class="op-health-list">
-            @for (item of health; track item.label) {
+            @for (item of health(); track item.label) {
               <div class="op-health-item">
                 <img [src]="assetBase + '/' + item.icon" alt="" />
                 <span>{{ item.label }}</span>
@@ -238,10 +277,10 @@
             <button type="button">Ver todas</button>
           </div>
           <ol>
-            @for (activity of activities; track activity.title) {
+            @for (activity of activities(); track activity.title) {
               <li [attr.data-tone]="activity.tone">
                 <time>{{ activity.time }}</time>
-                <img [src]="assetBase + '/' + activity.icon" alt="" />
+                <i class="op-timeline-dot" aria-hidden="true"></i>
                 <div>
                   <strong>{{ activity.title }}</strong>
                   <p>{{ activity.detail }}</p>
@@ -265,8 +304,8 @@
         }
       </div>
       <div class="op-access">
-        <span>Último acesso: 30/05/2026 11:52:31</span>
-        <small>IP: 187.45.32.18 · São Paulo, SP</small>
+        <span>Último acesso: {{ lastAccess }}</span>
+        <small>Sessão autenticada · conexão protegida</small>
       </div>
       <img
         class="op-footer-hud"

@@ -1,0 +1,560 @@
+[
+  {
+    "file": "logos/logo_sep_header_completo.png",
+    "category": "logos",
+    "source_box": [25, 20, 285, 66],
+    "transparent_background": true,
+    "safe_margin_px": 8,
+    "min_canvas": [260, 60],
+    "notes": "Logo completo do header com símbolo SEP e texto institucional."
+  },
+  {
+    "file": "logos/logo_sep_simbolo_header.png",
+    "category": "logos",
+    "source_box": [24, 20, 72, 63],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [64, 64],
+    "notes": ""
+  },
+  {
+    "file": "logos/logo_sep_wordmark_header.png",
+    "category": "logos",
+    "source_box": [72, 24, 153, 57],
+    "transparent_background": true,
+    "safe_margin_px": 8,
+    "min_canvas": [100, 48],
+    "notes": ""
+  },
+  {
+    "file": "logos/logo_sep_texto_extenso_header.png",
+    "category": "logos",
+    "source_box": [180, 26, 280, 61],
+    "transparent_background": true,
+    "safe_margin_px": 8,
+    "min_canvas": [118, 48],
+    "notes": ""
+  },
+  {
+    "file": "logos/logo_sep_footer_completo.png",
+    "category": "logos",
+    "source_box": [24, 946, 160, 983],
+    "transparent_background": true,
+    "safe_margin_px": 8,
+    "min_canvas": [160, 52],
+    "notes": ""
+  },
+  {
+    "file": "logos/logo_sep_simbolo_footer.png",
+    "category": "logos",
+    "source_box": [24, 947, 64, 982],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [56, 56],
+    "notes": ""
+  },
+  {
+    "file": "logos/logo_sep_wordmark_footer.png",
+    "category": "logos",
+    "source_box": [70, 948, 132, 979],
+    "transparent_background": true,
+    "safe_margin_px": 8,
+    "min_canvas": [90, 44],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_sidebar_dashboard.png",
+    "category": "icons",
+    "source_box": [25, 104, 54, 134],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [48, 48],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_sidebar_onboarding.png",
+    "category": "icons",
+    "source_box": [28, 193, 54, 222],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [48, 48],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_sidebar_credito.png",
+    "category": "icons",
+    "source_box": [26, 250, 55, 273],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [48, 48],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_sidebar_formalizacao.png",
+    "category": "icons",
+    "source_box": [28, 301, 56, 330],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [48, 48],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_sidebar_cobranca.png",
+    "category": "icons",
+    "source_box": [26, 356, 56, 376],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [48, 48],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_sidebar_backoffice.png",
+    "category": "icons",
+    "source_box": [26, 444, 56, 474],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [48, 48],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_sidebar_pix.png",
+    "category": "icons",
+    "source_box": [25, 490, 57, 520],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [48, 48],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_sidebar_meu_perfil.png",
+    "category": "icons",
+    "source_box": [28, 580, 54, 609],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [48, 48],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_avatar_perfil_b.png",
+    "category": "icons",
+    "source_box": [25, 765, 70, 810],
+    "transparent_background": true,
+    "safe_margin_px": 8,
+    "min_canvas": [60, 60],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_topbar_ambiente_regulado.png",
+    "category": "icons",
+    "source_box": [382, 26, 417, 60],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [54, 54],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_topbar_horario_sistema.png",
+    "category": "icons",
+    "source_box": [558, 20, 602, 64],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [62, 62],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_topbar_search.png",
+    "category": "icons",
+    "source_box": [996, 28, 1036, 62],
+    "transparent_background": true,
+    "safe_margin_px": 12,
+    "min_canvas": [60, 60],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_topbar_bell_notification.png",
+    "category": "icons",
+    "source_box": [1070, 14, 1113, 62],
+    "transparent_background": true,
+    "safe_margin_px": 12,
+    "min_canvas": [64, 64],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_topbar_help.png",
+    "category": "icons",
+    "source_box": [1116, 22, 1164, 66],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [60, 60],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_topbar_avatar_d.png",
+    "category": "icons",
+    "source_box": [1203, 14, 1250, 64],
+    "transparent_background": true,
+    "safe_margin_px": 8,
+    "min_canvas": [64, 64],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_topbar_theme_sun.png",
+    "category": "icons",
+    "source_box": [1468, 22, 1513, 65],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [60, 60],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_page_title_shield.png",
+    "category": "icons",
+    "source_box": [453, 141, 486, 173],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [52, 52],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_alert_lock.png",
+    "category": "icons",
+    "source_box": [314, 255, 354, 296],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [52, 52],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_tips_lightbulb.png",
+    "category": "icons",
+    "source_box": [758, 260, 789, 293],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [52, 52],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_field_lock_current.png",
+    "category": "icons",
+    "source_box": [316, 381, 350, 407],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [52, 52],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_field_lock_new.png",
+    "category": "icons",
+    "source_box": [316, 484, 350, 512],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [52, 52],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_field_lock_confirm.png",
+    "category": "icons",
+    "source_box": [316, 588, 350, 616],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [52, 52],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_field_eye.png",
+    "category": "icons",
+    "source_box": [904, 379, 932, 405],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [52, 52],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_security_note_shield.png",
+    "category": "icons",
+    "source_box": [322, 670, 365, 716],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [52, 52],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_button_save_shield.png",
+    "category": "icons",
+    "source_box": [696, 765, 728, 795],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [52, 52],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_req_min_12.png",
+    "category": "icons",
+    "source_box": [1007, 523, 1034, 550],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [52, 52],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_req_letters_aa.png",
+    "category": "icons",
+    "source_box": [1007, 558, 1034, 585],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [52, 52],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_req_numbers_123.png",
+    "category": "icons",
+    "source_box": [1007, 594, 1034, 621],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [52, 52],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_req_symbols.png",
+    "category": "icons",
+    "source_box": [1007, 629, 1034, 656],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [52, 52],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_req_no_personal_data.png",
+    "category": "icons",
+    "source_box": [1007, 665, 1034, 692],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [52, 52],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_req_not_common_password.png",
+    "category": "icons",
+    "source_box": [1007, 703, 1034, 730],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [52, 52],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_req_check_ok.png",
+    "category": "icons",
+    "source_box": [1448, 523, 1475, 551],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [52, 52],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_last_password_clock.png",
+    "category": "icons",
+    "source_box": [1007, 817, 1034, 846],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [52, 52],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_footer_ambiente_regulado.png",
+    "category": "icons",
+    "source_box": [286, 945, 325, 986],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [58, 58],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_footer_segregacao_patrimonial.png",
+    "category": "icons",
+    "source_box": [521, 945, 564, 986],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [58, 58],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_footer_seguranca.png",
+    "category": "icons",
+    "source_box": [750, 945, 790, 986],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [58, 58],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_footer_rastreabilidade.png",
+    "category": "icons",
+    "source_box": [948, 945, 988, 986],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [58, 58],
+    "notes": ""
+  },
+  {
+    "file": "icons/icon_priority_dot.png",
+    "category": "icons",
+    "source_box": [1460, 955, 1484, 980],
+    "transparent_background": true,
+    "safe_margin_px": 10,
+    "min_canvas": [58, 58],
+    "notes": ""
+  },
+  {
+    "file": "visuals/visual_password_strength_ring_96.png",
+    "category": "visuals",
+    "source_box": [1000, 184, 1154, 334],
+    "transparent_background": true,
+    "safe_margin_px": 12,
+    "min_canvas": [180, 180],
+    "notes": "Anel visual de força da senha com percentual 96%."
+  },
+  {
+    "file": "visuals/visual_lock_hud_password_strength.png",
+    "category": "visuals",
+    "source_box": [1350, 220, 1475, 360],
+    "transparent_background": true,
+    "safe_margin_px": 16,
+    "min_canvas": [150, 150],
+    "notes": "HUD de cadeado com remoção de texto sobreposto do card."
+  },
+  {
+    "file": "visuals/visual_last_password_calendar_hud.png",
+    "category": "visuals",
+    "source_box": [1356, 775, 1460, 852],
+    "transparent_background": true,
+    "safe_margin_px": 14,
+    "min_canvas": [140, 120],
+    "notes": ""
+  },
+  {
+    "file": "visuals/visual_security_priority_shield.png",
+    "category": "visuals",
+    "source_box": [1135, 935, 1212, 1004],
+    "transparent_background": true,
+    "safe_margin_px": 12,
+    "min_canvas": [110, 100],
+    "notes": ""
+  },
+  {
+    "file": "visuals/visual_background_circuitos_main.png",
+    "category": "visuals",
+    "source_box": [1160, 100, 1510, 135],
+    "transparent_background": true,
+    "safe_margin_px": 0,
+    "min_canvas": null,
+    "notes": "Circuitos decorativos do fundo, sem captura de textos do card."
+  },
+  {
+    "file": "visuals/visual_sidebar_profile_card_avatar.png",
+    "category": "visuals",
+    "source_box": [17, 748, 219, 891],
+    "transparent_background": false,
+    "safe_margin_px": null,
+    "min_canvas": null,
+    "notes": "Referência visual do card de perfil lateral."
+  },
+  {
+    "file": "ui-groups/ui_topbar_authenticated.png",
+    "category": "ui-groups",
+    "source_box": [254, 5, 1532, 79],
+    "transparent_background": false,
+    "safe_margin_px": null,
+    "min_canvas": null,
+    "notes": "Recorte de referência visual; reconstruir em HTML/SCSS no frontend."
+  },
+  {
+    "file": "ui-groups/ui_sidebar_full.png",
+    "category": "ui-groups",
+    "source_box": [3, 4, 254, 1018],
+    "transparent_background": false,
+    "safe_margin_px": null,
+    "min_canvas": null,
+    "notes": "Recorte de referência visual; reconstruir em HTML/SCSS no frontend."
+  },
+  {
+    "file": "ui-groups/ui_change_password_form_card.png",
+    "category": "ui-groups",
+    "source_box": [286, 219, 962, 829],
+    "transparent_background": false,
+    "safe_margin_px": null,
+    "min_canvas": null,
+    "notes": "Recorte de referência visual; reconstruir em HTML/SCSS no frontend."
+  },
+  {
+    "file": "ui-groups/ui_password_security_tip_banner.png",
+    "category": "ui-groups",
+    "source_box": [303, 235, 944, 312],
+    "transparent_background": false,
+    "safe_margin_px": null,
+    "min_canvas": null,
+    "notes": "Recorte de referência visual; reconstruir em HTML/SCSS no frontend."
+  },
+  {
+    "file": "ui-groups/ui_password_warning_note_banner.png",
+    "category": "ui-groups",
+    "source_box": [304, 649, 944, 732],
+    "transparent_background": false,
+    "safe_margin_px": null,
+    "min_canvas": null,
+    "notes": "Recorte de referência visual; reconstruir em HTML/SCSS no frontend."
+  },
+  {
+    "file": "ui-groups/ui_password_strength_card.png",
+    "category": "ui-groups",
+    "source_box": [984, 125, 1499, 454],
+    "transparent_background": false,
+    "safe_margin_px": null,
+    "min_canvas": null,
+    "notes": "Recorte de referência visual; reconstruir em HTML/SCSS no frontend."
+  },
+  {
+    "file": "ui-groups/ui_password_requirements_card.png",
+    "category": "ui-groups",
+    "source_box": [984, 468, 1499, 746],
+    "transparent_background": false,
+    "safe_margin_px": null,
+    "min_canvas": null,
+    "notes": "Recorte de referência visual; reconstruir em HTML/SCSS no frontend."
+  },
+  {
+    "file": "ui-groups/ui_last_password_change_card.png",
+    "category": "ui-groups",
+    "source_box": [984, 758, 1499, 873],
+    "transparent_background": false,
+    "safe_margin_px": null,
+    "min_canvas": null,
+    "notes": "Recorte de referência visual; reconstruir em HTML/SCSS no frontend."
+  },
+  {
+    "file": "ui-groups/ui_footer_regulatory_status.png",
+    "category": "ui-groups",
+    "source_box": [256, 919, 1534, 1019],
+    "transparent_background": false,
+    "safe_margin_px": null,
+    "min_canvas": null,
+    "notes": "Recorte de referência visual; reconstruir em HTML/SCSS no frontend."
+  },
+  {
+    "file": "ui-groups/ui_security_priority_footer_card.png",
+    "category": "ui-groups",
+    "source_box": [1135, 932, 1499, 1002],
+    "transparent_background": false,
+    "safe_margin_px": null,
+    "min_canvas": null,
+    "notes": "Recorte de referência visual; reconstruir em HTML/SCSS no frontend."
+  },
+  {
+    "file": "ui-groups/ui_main_content_password_page.png",
+    "category": "ui-groups",
+    "source_box": [254, 80, 1532, 918],
+    "transparent_background": false,
+    "safe_margin_px": null,
+    "min_canvas": null,
+    "notes": "Recorte de referência visual; reconstruir em HTML/SCSS no frontend."
+  }
+]

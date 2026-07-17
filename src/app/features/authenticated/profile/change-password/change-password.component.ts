@@ -1,5 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
   FormBuilder,
@@ -12,6 +20,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ApiErrorResponse } from '../../../../core/api/api.models';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { UsuariosService } from '../../../../core/users/usuarios.service';
+import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
 
 function confirmacaoIgualValidator(control: AbstractControl): ValidationErrors | null {
   const novaSenha = control.get('novaSenha')?.value;
@@ -22,7 +31,7 @@ function confirmacaoIgualValidator(control: AbstractControl): ValidationErrors |
 
 @Component({
   selector: 'sep-change-password',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [OperationalShellComponent, ReactiveFormsModule, RouterLink],
   templateUrl: './change-password.component.html',
   styleUrl: './change-password.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,21 +41,115 @@ export class ChangePasswordComponent {
   private readonly auth = inject(AuthService);
   private readonly usuarios = inject(UsuariosService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly currentUser = this.auth.currentUser;
+  protected readonly assetBase = '/image/sep_mockup_05_assets';
   protected readonly submitting = signal(false);
   protected readonly successMessage = signal<string | null>(null);
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly passwordAtualVisivel = signal(false);
+  protected readonly novaSenhaVisivel = signal(false);
+  protected readonly confirmacaoVisivel = signal(false);
+  protected readonly passwordDraft = signal('');
 
   protected readonly form = this.fb.nonNullable.group(
     {
       passwordAtual: ['', [Validators.required]],
       // Sprint 5: politica server-side (12+ chars OU passphrase 4+ palavras).
-      novaSenha: ['', [Validators.required]],
+      novaSenha: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(12),
+          Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/),
+        ],
+      ],
       confirmacaoNovaSenha: ['', [Validators.required]],
     },
     { validators: confirmacaoIgualValidator },
   );
+
+  protected readonly passwordRequirements = computed(() => {
+    const password = this.passwordDraft();
+    const username = this.currentUser()?.username.split('@')[0].toLocaleLowerCase() ?? '';
+    return [
+      {
+        label: 'Mínimo de 12 caracteres',
+        icon: 'icon_req_min_12.png',
+        valid: password.length >= 12,
+      },
+      {
+        label: 'Contém letras maiúsculas e minúsculas',
+        icon: 'icon_req_letters_aa.png',
+        valid: /[a-z]/.test(password) && /[A-Z]/.test(password),
+      },
+      {
+        label: 'Contém números (0-9)',
+        icon: 'icon_req_numbers_123.png',
+        valid: /\d/.test(password),
+      },
+      {
+        label: 'Contém símbolos especiais (!@#$%&*)',
+        icon: 'icon_req_symbols.png',
+        valid: /[^A-Za-z0-9]/.test(password),
+      },
+      {
+        label: 'Não deve conter dados pessoais',
+        icon: 'icon_req_no_personal_data.png',
+        valid:
+          password.length > 0 && (!username || !password.toLocaleLowerCase().includes(username)),
+      },
+      {
+        label: 'Não deve ser uma senha comum',
+        icon: 'icon_req_not_common_password.png',
+        valid: !['123456', 'password', 'senha123', 'admin123'].includes(
+          password.toLocaleLowerCase(),
+        ),
+      },
+    ];
+  });
+  protected readonly strengthPercentage = computed(() => {
+    if (!this.passwordDraft()) return 0;
+    const valid = this.passwordRequirements().filter((requirement) => requirement.valid).length;
+    return Math.round((valid / this.passwordRequirements().length) * 96);
+  });
+  protected readonly strengthLabel = computed(() => {
+    const value = this.strengthPercentage();
+    if (value >= 90) return 'Muito forte';
+    if (value >= 65) return 'Forte';
+    if (value >= 40) return 'Média';
+    return 'Fraca';
+  });
+  protected readonly strengthMessage = computed(() => {
+    const value = this.strengthPercentage();
+    if (value >= 90) return 'Excelente! Sua senha está muito segura.';
+    if (value >= 65) return 'Boa senha. Verifique os requisitos restantes.';
+    return 'Reforce sua senha para aumentar a proteção.';
+  });
+  protected readonly strengthRingStyle = computed(
+    () =>
+      `conic-gradient(#32eda2 0 ${this.strengthPercentage()}%, rgba(36, 93, 102, .38) ${this.strengthPercentage()}% 100%)`,
+  );
+
+  constructor() {
+    this.form.controls.novaSenha.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => this.passwordDraft.set(value));
+  }
+
+  protected toggleVisibility(field: 'atual' | 'nova' | 'confirmacao'): void {
+    if (field === 'atual') this.passwordAtualVisivel.update((value) => !value);
+    if (field === 'nova') this.novaSenhaVisivel.update((value) => !value);
+    if (field === 'confirmacao') this.confirmacaoVisivel.update((value) => !value);
+  }
+
+  protected formatDate(value: string): string {
+    return new Intl.DateTimeFormat('pt-BR', {
+      dateStyle: 'short',
+      timeStyle: 'long',
+    }).format(new Date(value));
+  }
 
   submit(): void {
     this.successMessage.set(null);

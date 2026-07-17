@@ -6,6 +6,7 @@ export const ONBOARDING_ROUTES: Routes = [
     path: '',
     loadComponent: () =>
       import('./onboarding-home.component').then((m) => m.OnboardingHomeComponent),
+    data: { breadcrumb: 'Onboarding', immersive: true },
   },
   {
     path: 'pessoa',
