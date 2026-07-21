@@ -1,9 +1,12 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
+import { TRATA_403_LOCALMENTE } from '../interceptors/error.interceptor';
 import {
+  CadastrarChavePixRequest,
+  ChavePixResponse,
   GerarReferenciaRecebimentoPixRequest,
   PixDesembolsoResponse,
   PixRecebimentoResponse,
@@ -14,6 +17,7 @@ import {
 
 const DESEMBOLSOS_URL = `${environment.apiBaseUrl}/pix/desembolsos`;
 const RECEBIMENTOS_URL = `${environment.apiBaseUrl}/pix/recebimentos`;
+const CHAVES_URL = `${environment.apiBaseUrl}/pix/chaves`;
 
 // Transporte HTTP do Pix operacional (Epic 15 / backend Sprints 19-21): desembolso assistido,
 // status de transferencia, referencias e recebimentos de parcela. Elegibilidade, idempotencia,
@@ -64,4 +68,38 @@ export class PixService {
   consultarRecebimento(id: string): Observable<PixRecebimentoResponse> {
     return this.http.get<PixRecebimentoResponse>(`${RECEBIMENTOS_URL}/${id}`);
   }
+
+  // Leitura local das chaves da conta operacional (F-20.1 / backend Sprint 31): sempre mascarada,
+  // incluindo o historico INATIVA, mais recentes primeiro. Sem step-up e sem Idempotency-Key; nunca
+  // retorna 404 (conta operacional ausente devolve lista vazia).
+  listarChavesPix(): Observable<ChavePixResponse[]> {
+    return this.http.get<ChavePixResponse[]>(CHAVES_URL);
+  }
+
+  // POST com step-up estrito (anexado pelo stepUpInterceptor) e Idempotency-Key obrigatoria. A key
+  // e gerada pelo chamador por intencao de cadastro; o service so a transporta. 201 = registro
+  // novo, 200 = replay idempotente — ambos chegam pelo mesmo canal de sucesso. O 403 (MFA inativo
+  // ou step-up invalido) e tratado na propria tela, sem o redirect global do errorInterceptor.
+  cadastrarChavePix(
+    request: CadastrarChavePixRequest,
+    idempotencyKey: string,
+  ): Observable<ChavePixResponse> {
+    return this.http.post<ChavePixResponse>(CHAVES_URL, request, {
+      headers: new HttpHeaders({ 'Idempotency-Key': idempotencyKey }),
+      context: tratando403NaTela(),
+    });
+  }
+
+  // DELETE com step-up estrito (via interceptor). Inativacao logica idempotente: 204 mesmo quando
+  // a chave ja estava INATIVA. O 404 e neutro por contrato — nao distingue chave inexistente, fora
+  // do escopo da conta operacional ou conta ausente. Sem Idempotency-Key.
+  removerChavePix(chaveId: string): Observable<void> {
+    return this.http.delete<void>(`${CHAVES_URL}/${chaveId}`, { context: tratando403NaTela() });
+  }
+}
+
+// As mutacoes de chave Pix tratam o 403 de step-up na propria tela (padrao F-16/F-18); o
+// errorInterceptor nao deve ejetar o operador para /access-denied.
+function tratando403NaTela(): HttpContext {
+  return new HttpContext().set(TRATA_403_LOCALMENTE, true);
 }

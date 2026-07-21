@@ -5,7 +5,12 @@ import { Observable } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { resetPixState } from '../../../mocks/handlers';
-import { SolicitarDesembolsoPixRequest } from '../api/api.models';
+import {
+  CadastrarChavePixRequest,
+  ChavePixResponse,
+  SolicitarDesembolsoPixRequest,
+} from '../api/api.models';
+import { TRATA_403_LOCALMENTE } from '../interceptors/error.interceptor';
 import { PixService } from './pix.service';
 
 function awaitObservable<T>(obs: Observable<T>): Promise<T> {
@@ -40,6 +45,29 @@ const DESEMBOLSO_VALIDO: SolicitarDesembolsoPixRequest = {
   contratoId: CONTRATO_ELEGIVEL_ID,
   valor: 10000.0,
   chavePixDestino: CHAVE_PIX_DESTINO,
+};
+
+// Chaves Pix (F-20.1): fixtures sempre mascaradas — o valor em claro so existe na request de
+// cadastro e nunca volta em nenhuma resposta.
+const CHAVE_ATIVA: ChavePixResponse = {
+  id: 'e3000000-0000-4000-8000-000000000001',
+  tipo: 'EMAIL',
+  valorMascarado: 'fin***@dynamis.com.br',
+  status: 'ATIVA',
+  criadaEm: '2026-07-10T09:00:00-03:00',
+  removidaEm: null,
+};
+const CHAVE_INATIVA: ChavePixResponse = {
+  id: 'e3000000-0000-4000-8000-000000000002',
+  tipo: 'CNPJ',
+  valorMascarado: '**.***.***/0001-**',
+  status: 'INATIVA',
+  criadaEm: '2026-06-02T09:00:00-03:00',
+  removidaEm: '2026-07-01T14:20:00-03:00',
+};
+const CADASTRO_VALIDO: CadastrarChavePixRequest = {
+  tipo: 'EMAIL',
+  valor: 'financeiro@dynamis.com.br',
 };
 
 // O stepUpInterceptor real so reconhece as rotas Pix sensiveis a partir da Task F-13.3 (testado
@@ -355,5 +383,58 @@ describe('PixService (contrato HTTP)', () => {
     const req = httpMock.expectOne(`${base}/pix/recebimentos/${RECEBIMENTO_CONCILIADO_ID}`);
     expect(req.request.method).toBe('GET');
     req.flush({});
+  });
+
+  it('listarChavesPix: GET sem Idempotency-Key, sem step-up e sem TRATA_403_LOCALMENTE', () => {
+    service.listarChavesPix().subscribe();
+
+    const req = httpMock.expectOne(`${base}/pix/chaves`);
+    expect(req.request.method).toBe('GET');
+    expect(req.request.headers.has('Idempotency-Key')).toBe(false);
+    expect(req.request.headers.has('X-Step-Up-Token')).toBe(false);
+    // A leitura sem role continua no fluxo global de acesso negado (errorInterceptor).
+    expect(req.request.context.get(TRATA_403_LOCALMENTE)).toBe(false);
+    req.flush([]);
+  });
+
+  it('listarChavesPix: entrega a lista mascarada como veio do backend', async () => {
+    const chaves = awaitObservable(service.listarChavesPix());
+
+    httpMock.expectOne(`${base}/pix/chaves`).flush([CHAVE_ATIVA, CHAVE_INATIVA]);
+
+    await expect(chaves).resolves.toEqual([CHAVE_ATIVA, CHAVE_INATIVA]);
+  });
+
+  it('cadastrarChavePix: POST com body, Idempotency-Key, TRATA_403_LOCALMENTE e sem step-up', () => {
+    service.cadastrarChavePix(CADASTRO_VALIDO, 'key-chave-1').subscribe();
+
+    const req = httpMock.expectOne(`${base}/pix/chaves`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(CADASTRO_VALIDO);
+    expect(req.request.headers.get('Idempotency-Key')).toBe('key-chave-1');
+    // O token e do stepUpInterceptor; o service nunca o anexa.
+    expect(req.request.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(req.request.context.get(TRATA_403_LOCALMENTE)).toBe(true);
+    req.flush(CHAVE_ATIVA, { status: 201, statusText: 'Created' });
+  });
+
+  it('cadastrarChavePix: 200 (replay idempotente) chega pelo canal de sucesso', async () => {
+    const chave = awaitObservable(service.cadastrarChavePix(CADASTRO_VALIDO, 'key-chave-replay'));
+
+    httpMock.expectOne(`${base}/pix/chaves`).flush(CHAVE_ATIVA, { status: 200, statusText: 'OK' });
+
+    await expect(chave).resolves.toEqual(CHAVE_ATIVA);
+  });
+
+  it('removerChavePix: DELETE sem body, sem Idempotency-Key e com TRATA_403_LOCALMENTE', () => {
+    service.removerChavePix(CHAVE_ATIVA.id).subscribe();
+
+    const req = httpMock.expectOne(`${base}/pix/chaves/${CHAVE_ATIVA.id}`);
+    expect(req.request.method).toBe('DELETE');
+    expect(req.request.body).toBeNull();
+    expect(req.request.headers.has('Idempotency-Key')).toBe(false);
+    expect(req.request.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(req.request.context.get(TRATA_403_LOCALMENTE)).toBe(true);
+    req.flush(null, { status: 204, statusText: 'No Content' });
   });
 });
