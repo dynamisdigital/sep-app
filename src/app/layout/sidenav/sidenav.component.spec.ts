@@ -375,6 +375,77 @@ describe('SidenavComponent', () => {
     expect(screen.queryByText('Credora')).toBeNull();
   });
 
+  it('FINANCEIRO: ve Chaves Pix apontando para /app/pix/chaves', async () => {
+    const result = await render(SidenavComponent, {
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
+    });
+    const auth = result.fixture.debugElement.injector.get(AuthService);
+    await new Promise<void>((resolve, reject) => {
+      auth.login({ username: 'financeiro@empresa.com', password: '123456' }).subscribe({
+        next: () => resolve(),
+        error: reject,
+      });
+    });
+    result.fixture.detectChanges();
+
+    expect(screen.getByText('Chaves Pix').closest('a')?.getAttribute('href')).toBe(
+      '/app/pix/chaves',
+    );
+  });
+
+  // O backend restringe as chaves da conta operacional a FINANCEIRO/ADMIN: BACKOFFICE continua
+  // vendo o Pix operacional, mas nao este item.
+  it('BACKOFFICE: ve Pix mas nao ve Chaves Pix', async () => {
+    const result = await render(SidenavComponent, {
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
+    });
+    const auth = result.fixture.debugElement.injector.get(AuthService);
+    await new Promise<void>((resolve, reject) => {
+      auth.login({ username: 'backoffice@empresa.com', password: '123456' }).subscribe({
+        next: () => resolve(),
+        error: reject,
+      });
+    });
+    result.fixture.detectChanges();
+
+    expect(screen.getByText('Pix').closest('a')?.getAttribute('href')).toBe('/app/pix');
+    expect(screen.queryByText('Chaves Pix')).toBeNull();
+  });
+
+  it('CLIENTE: nao ve Chaves Pix', async () => {
+    window.localStorage.setItem(ACCESS_TOKEN_KEY, 'mock-jwt-token');
+    const result = await render(SidenavComponent, {
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
+    });
+    const auth = result.fixture.debugElement.injector.get(AuthService) as unknown as {
+      currentUserState: { set: (u: unknown) => void };
+    };
+    auth.currentUserState.set({
+      id: 'cli-1',
+      username: 'cliente@empresa.com',
+      role: 'CLIENTE',
+      dataCriacao: '2026-04-24T18:30:00-03:00',
+      dataModificacao: '2026-04-24T18:30:00-03:00',
+      criadoPor: 'system',
+      modificadoPor: 'system',
+    });
+    result.fixture.detectChanges();
+
+    expect(screen.queryByText('Chaves Pix')).toBeNull();
+  });
+
   it('link Meu perfil aponta para /app/profile e Administracao para /app/admin', async () => {
     const result = await render(SidenavComponent, {
       providers: [

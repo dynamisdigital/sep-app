@@ -30,6 +30,10 @@ export const stepUpInterceptor: HttpInterceptorFn = (req, next) => {
   // Credora (F-18.1): decidir matching (POST /credores/matching/:id/decisao) e registrar aporte
   // (POST /credores/operacoes/:id/aportes) exigem step-up estrito. O guard de metodo POST protege
   // os GET da mesma URL de aportes e das sugestoes/detalhe de matching (uso unico do token).
+  // Chaves Pix (F-20.1): cadastrar (POST /pix/chaves) e remover (DELETE /pix/chaves/:id) exigem
+  // step-up estrito; a listagem (GET na mesma URL do POST) nao consome o token. O endsWith no POST
+  // e o `/pix/chaves/` no DELETE tambem impedem que /pix/desembolsos ou outra sub-rota Pix gaste o
+  // token por engano.
   const exigeStepUp =
     (req.url.includes('/usuarios/') && req.url.endsWith('/senha')) ||
     (req.method === 'PUT' && req.url.includes('/usuarios/') && req.url.endsWith('/roles')) ||
@@ -50,6 +54,8 @@ export const stepUpInterceptor: HttpInterceptorFn = (req, next) => {
       (req.url.endsWith('/resolver') || req.url.endsWith('/ignorar'))) ||
     (req.method === 'POST' && req.url.includes('/backoffice/reprocessos/')) ||
     (req.method === 'POST' && req.url.includes('/pix/desembolsos')) ||
+    (req.method === 'POST' && req.url.endsWith('/pix/chaves')) ||
+    (req.method === 'DELETE' && req.url.includes('/pix/chaves/')) ||
     (req.method === 'POST' &&
       req.url.includes('/credores/matching/') &&
       req.url.endsWith('/decisao')) ||

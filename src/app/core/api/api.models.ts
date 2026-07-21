@@ -823,6 +823,36 @@ export interface PixRecebimentoResponse {
   recebidoEm: string;
 }
 
+// --- Chaves Pix da conta operacional (F-Sprint 20 / backend Sprint 31) ---
+// Gestao assistida das chaves da conta operacional/escrow, restrita a FINANCEIRO/ADMIN. Tipo,
+// digito verificador, unicidade, idempotencia e transicao de estado sao autoritativos no backend;
+// o frontend nunca valida DV nem deriva status.
+
+// Tipos de chave aceitos pelo backend (TipoChavePix), alinhados ao DICT.
+export type TipoChavePix = 'CPF' | 'CNPJ' | 'EMAIL' | 'TELEFONE' | 'EVP';
+
+// Ciclo de vida da chave (StatusChavePix). ATIVA -> INATIVA e a unica transicao; a remocao e
+// logica e o historico nunca e apagado.
+export type StatusChavePix = 'ATIVA' | 'INATIVA';
+
+// POST /pix/chaves: o valor em claro existe SOMENTE nesta request (e na chamada do backend ao
+// provider). Nunca aparece em resposta, leitura, log ou mensagem de erro.
+export interface CadastrarChavePixRequest {
+  tipo: TipoChavePix;
+  valor: string;
+}
+
+// Resposta de POST /pix/chaves (201 novo / 200 replay idempotente) e item de GET /pix/chaves.
+// valorMascarado e a unica forma pela qual a chave e exposta. removidaEm e nulo enquanto ATIVA.
+export interface ChavePixResponse {
+  id: string;
+  tipo: TipoChavePix;
+  valorMascarado: string;
+  status: StatusChavePix;
+  criadaEm: string;
+  removidaEm: string | null;
+}
+
 // --- Credora (F-Sprint 11 / backend Sprints 16-17) ---
 // DTOs de borda espelhando os contratos reais de `sep-api` (modulo credores). Elegibilidade,
 // ownership, regras de interesse, associacao de carteira e auditoria pertencem ao backend: o

@@ -472,4 +472,69 @@ describe('stepUpInterceptor', () => {
     expect(state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
     expect(store.token()).toBe('step-up-tok');
   });
+
+  it('anexa o token ao cadastrar chave Pix (POST /pix/chaves)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest('POST', 'http://localhost:8080/api/v1/pix/chaves', {
+      tipo: 'EMAIL',
+      valor: 'financeiro@dynamis.com.br',
+    });
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.get('X-Step-Up-Token')).toBe('step-up-tok');
+    expect(store.token()).toBeNull();
+  });
+
+  it('anexa o token ao remover chave Pix (DELETE /pix/chaves/:id)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest(
+      'DELETE',
+      'http://localhost:8080/api/v1/pix/chaves/e3000000-0000-4000-8000-000000000001',
+    );
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.get('X-Step-Up-Token')).toBe('step-up-tok');
+    expect(store.token()).toBeNull();
+  });
+
+  // O GET compartilha a URL do POST: sem o guard de metodo, listar chaves gastaria o token de uso
+  // unico e a mutacao seguinte falharia com 403.
+  it('NAO anexa o token na listagem de chaves Pix (GET mesma URL do POST)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest('GET', 'http://localhost:8080/api/v1/pix/chaves');
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(store.token()).toBe('step-up-tok');
+  });
+
+  // Path parecido dentro do proprio modulo Pix: o DELETE so casa com /pix/chaves/, nunca com uma
+  // sub-rota de desembolso.
+  it('NAO anexa o token num DELETE fora de /pix/chaves/ (path parecido)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest(
+      'DELETE',
+      'http://localhost:8080/api/v1/pix/desembolsos/e0000000-0000-4000-8000-000000000001',
+    );
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(store.token()).toBe('step-up-tok');
+  });
 });
