@@ -387,15 +387,35 @@ describe('PixService (comportamento via MSW)', () => {
           ).rejects.toMatchObject({ status: 409 });
         });
 
+        // Cenario montado no proprio teste, sem depender de qual valor esta no seed: cadastra e
+        // so entao reapresenta o MESMO tipo/valor com key nova.
         it('rejeita com 409 quando ja existe chave equivalente ativa', async () => {
+          const chave = { tipo: 'EMAIL', valor: 'equivalente@dynamis.com.br' } as const;
+          await awaitObservable(service.cadastrarChavePix(chave, 'key-equivalente-1'));
+
           await expect(
-            awaitObservable(
-              service.cadastrarChavePix(
-                { tipo: 'EMAIL', valor: 'financeiro@dynamis.com.br' },
-                'key-equivalente',
-              ),
-            ),
+            awaitObservable(service.cadastrarChavePix(chave, 'key-equivalente-2')),
           ).rejects.toMatchObject({ status: 409 });
+        });
+
+        // A equivalencia e por tipo+valor, nao pela mascara: com mascaramento de 3 caracteres,
+        // comparar mascaras rejeitaria este cadastro legitimo com um 409 falso.
+        it('aceita valor diferente que compartilha o prefixo de uma chave ativa', async () => {
+          await awaitObservable(
+            service.cadastrarChavePix(
+              { tipo: 'EMAIL', valor: 'financeiro@dynamis.com.br' },
+              'key-prefixo-1',
+            ),
+          ).catch(() => undefined);
+
+          const outra = await awaitObservable(
+            service.cadastrarChavePix(
+              { tipo: 'EMAIL', valor: 'financeira@dynamis.com.br' },
+              'key-prefixo-2',
+            ),
+          );
+
+          expect(outra.status).toBe('ATIVA');
         });
 
         it('rejeita com 400 valor invalido e com 422 conta operacional indisponivel', async () => {
@@ -445,10 +465,23 @@ describe('PixService (comportamento via MSW)', () => {
           expect(removida?.removidaEm).toBeTruthy();
         });
 
-        it('e idempotente: remover chave ja INATIVA tambem responde 204', async () => {
+        // O status 204 nao e observavel pelo service (delete<void> devolve null em qualquer 2xx
+        // sem corpo, e ampliar para observe:'response' seria mudar producao para facilitar teste).
+        // A invariante observavel e outra: repetir a remocao nao muda nada — nem estado, nem data
+        // de remocao, nem tamanho da lista.
+        it('e idempotente: remover chave ja INATIVA nao altera o historico', async () => {
+          const antes = await awaitObservable(service.listarChavesPix());
+          const inativaAntes = antes.find((chave) => chave.id === CHAVE_PIX_INATIVA_ID);
+
           await expect(
             awaitObservable(service.removerChavePix(CHAVE_PIX_INATIVA_ID)),
           ).resolves.toBeNull();
+
+          const depois = await awaitObservable(service.listarChavesPix());
+          const inativaDepois = depois.find((chave) => chave.id === CHAVE_PIX_INATIVA_ID);
+          expect(depois.length).toBe(antes.length);
+          expect(inativaDepois?.status).toBe('INATIVA');
+          expect(inativaDepois?.removidaEm).toBe(inativaAntes?.removidaEm);
         });
 
         it('rejeita com 404 neutro quando a chave nao existe', async () => {

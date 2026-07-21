@@ -2808,6 +2808,20 @@ interface ChavePixMockState {
 const CHAVE_PIX_VALOR_INVALIDO = '000.000.000-00';
 const CHAVE_PIX_VALOR_CONTA_INDISPONIVEL = 'conta-indisponivel@dynamis.com.br';
 
+// Impressao nao reversivel de (tipo + valor), no espirito do hash SHA-256 que o backend persiste.
+// Existe para os dois usos internos do mock — idempotencia e deteccao de chave equivalente — sem
+// reter o valor em claro em estrutura nenhuma. A mascara NAO serve a esses usos: ela guarda so os
+// tres primeiros caracteres, entao 'financeiro@x' e 'financeira@x' colidiriam e produziriam um
+// 409 falso.
+function impressaoChavePix(tipo: string, valor: string): string {
+  const entrada = `${tipo}|${valor}`;
+  let hash = 5381;
+  for (let i = 0; i < entrada.length; i += 1) {
+    hash = ((hash << 5) + hash + entrada.charCodeAt(i)) >>> 0;
+  }
+  return `cp-${hash.toString(16)}`;
+}
+
 // Seed: uma chave ATIVA e uma INATIVA (historico), da mais recente para a mais antiga — a mesma
 // ordem que o backend garante. O frontend nao reordena, entao a ordem daqui e a ordem exibida.
 export function seedChavesPix(): ChavePixMockState[] {
@@ -2831,16 +2845,31 @@ export function seedChavesPix(): ChavePixMockState[] {
   ];
 }
 
+// Identidade (tipo + valor) de cada chave, por id. Fica FORA do DTO: nunca e serializada numa
+// resposta. E o que permite detectar chave equivalente sem comparar mascaras.
+function seedIdentidadesChavePix(): Map<string, string> {
+  return new Map([
+    [
+      'e3000000-0000-4000-8000-000000000001',
+      impressaoChavePix('EMAIL', 'financeiro@dynamis.com.br'),
+    ],
+    ['e3000000-0000-4000-8000-000000000002', impressaoChavePix('CNPJ', '11222333000181')],
+  ]);
+}
+
 let chavesPix = seedChavesPix();
-// Idempotencia do cadastro: key -> {payload, resposta}. Mesma key com payload divergente e 409,
-// espelhando o backend; mesma key com o mesmo payload devolve a chave existente com 200.
-const chavePixPorKey = new Map<string, { hash: string; response: ChavePixMockState }>();
+let identidadeChavePix = seedIdentidadesChavePix();
+// Idempotencia do cadastro: key -> {impressao do payload, resposta}. Mesma key com payload
+// divergente e 409, espelhando o backend; mesma key com o mesmo payload devolve a chave existente
+// com 200. Guarda a impressao, nunca o corpo da request — que conteria o valor em claro.
+const chavePixPorKey = new Map<string, { impressao: string; response: ChavePixMockState }>();
 let chavePixSeq = 300;
 
-// Restaura o estado mutavel das chaves Pix (lista e idempotencia) para o seed, garantindo testes
-// independentes (F.I.R.S.T.) ao exercitar cadastro/replay/remocao.
+// Restaura o estado mutavel das chaves Pix (lista, identidades e idempotencia) para o seed,
+// garantindo testes independentes (F.I.R.S.T.) ao exercitar cadastro/replay/remocao.
 export function resetChavesPixState(): void {
   chavesPix = seedChavesPix();
+  identidadeChavePix = seedIdentidadesChavePix();
   chavePixPorKey.clear();
   chavePixSeq = 300;
 }
@@ -2876,10 +2905,10 @@ const chavesPixHandlers = [
       );
     }
     const body = (await request.json()) as { tipo?: string; valor?: string };
-    const hash = JSON.stringify(body);
+    const impressao = impressaoChavePix(body.tipo ?? '', body.valor ?? '');
     const anterior = chavePixPorKey.get(chaveIdempotencia);
     if (anterior) {
-      if (anterior.hash !== hash) {
+      if (anterior.impressao !== impressao) {
         return errorResponse(
           409,
           'Conflict',
@@ -2904,10 +2933,10 @@ const chavesPixHandlers = [
         path,
       );
     }
-    const mascara = mascararChavePix(body.valor);
+    // Equivalencia por impressao de (tipo + valor), nao por mascara: valores diferentes com o
+    // mesmo prefixo nao podem colidir num 409 falso.
     const jaAtiva = chavesPix.some(
-      (chave) =>
-        chave.status === 'ATIVA' && chave.tipo === body.tipo && chave.valorMascarado === mascara,
+      (chave) => chave.status === 'ATIVA' && identidadeChavePix.get(chave.id) === impressao,
     );
     if (jaAtiva) {
       return errorResponse(409, 'Conflict', 'Ja existe chave equivalente ativa', path);
@@ -2916,14 +2945,15 @@ const chavesPixHandlers = [
     const nova: ChavePixMockState = {
       id: novoId('e3000000', chavePixSeq),
       tipo: body.tipo,
-      valorMascarado: mascara,
+      valorMascarado: mascararChavePix(body.valor),
       status: 'ATIVA',
       criadaEm: now,
       removidaEm: null,
     };
     // Mais recentes primeiro, como o backend devolve.
     chavesPix = [nova, ...chavesPix];
-    chavePixPorKey.set(chaveIdempotencia, { hash, response: nova });
+    identidadeChavePix.set(nova.id, impressao);
+    chavePixPorKey.set(chaveIdempotencia, { impressao, response: nova });
     return HttpResponse.json(nova, { status: 201 });
   }),
 
