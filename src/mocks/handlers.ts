@@ -2790,6 +2790,198 @@ function chaveInteresse(oportunidadeId: string): string {
   return `${currentMockUser.id}:${oportunidadeId}`;
 }
 
+// --- Chaves Pix da conta operacional/escrow (F-20.6 / backend Sprint 31) ---
+// As tres operacoes exigem FINANCEIRO/ADMIN; POST e DELETE exigem ainda step-up estrito. A chave
+// em claro NUNCA e guardada nem devolvida: o mock persiste apenas a mascara, reusando o
+// mascararChavePix() ja existente. O valor bruto so vive no corpo da request, como no backend.
+interface ChavePixMockState {
+  id: string;
+  tipo: string;
+  valorMascarado: string;
+  status: 'ATIVA' | 'INATIVA';
+  criadaEm: string;
+  removidaEm: string | null;
+}
+
+// Sentinelas de erro. Espelham as regras do backend sem reimplementa-las: o mock nao valida DV
+// nem formato por tipo — apenas reconhece valores combinados para produzir 400 e 422.
+const CHAVE_PIX_VALOR_INVALIDO = '000.000.000-00';
+const CHAVE_PIX_VALOR_CONTA_INDISPONIVEL = 'conta-indisponivel@dynamis.com.br';
+
+// Impressao nao reversivel de (tipo + valor), no espirito do hash SHA-256 que o backend persiste.
+// Existe para os dois usos internos do mock — idempotencia e deteccao de chave equivalente — sem
+// reter o valor em claro em estrutura nenhuma. A mascara NAO serve a esses usos: ela guarda so os
+// tres primeiros caracteres, entao 'financeiro@x' e 'financeira@x' colidiriam e produziriam um
+// 409 falso.
+function impressaoChavePix(tipo: string, valor: string): string {
+  const entrada = `${tipo}|${valor}`;
+  let hash = 5381;
+  for (let i = 0; i < entrada.length; i += 1) {
+    hash = ((hash << 5) + hash + entrada.charCodeAt(i)) >>> 0;
+  }
+  return `cp-${hash.toString(16)}`;
+}
+
+// Seed: uma chave ATIVA e uma INATIVA (historico), da mais recente para a mais antiga — a mesma
+// ordem que o backend garante. O frontend nao reordena, entao a ordem daqui e a ordem exibida.
+export function seedChavesPix(): ChavePixMockState[] {
+  return [
+    {
+      id: 'e3000000-0000-4000-8000-000000000001',
+      tipo: 'EMAIL',
+      valorMascarado: mascararChavePix('financeiro@dynamis.com.br'),
+      status: 'ATIVA',
+      criadaEm: '2026-07-10T09:00:00-03:00',
+      removidaEm: null,
+    },
+    {
+      id: 'e3000000-0000-4000-8000-000000000002',
+      tipo: 'CNPJ',
+      valorMascarado: mascararChavePix('11222333000181'),
+      status: 'INATIVA',
+      criadaEm: '2026-06-02T09:00:00-03:00',
+      removidaEm: '2026-07-01T14:20:00-03:00',
+    },
+  ];
+}
+
+// Identidade (tipo + valor) de cada chave, por id. Fica FORA do DTO: nunca e serializada numa
+// resposta. E o que permite detectar chave equivalente sem comparar mascaras.
+function seedIdentidadesChavePix(): Map<string, string> {
+  return new Map([
+    [
+      'e3000000-0000-4000-8000-000000000001',
+      impressaoChavePix('EMAIL', 'financeiro@dynamis.com.br'),
+    ],
+    ['e3000000-0000-4000-8000-000000000002', impressaoChavePix('CNPJ', '11222333000181')],
+  ]);
+}
+
+let chavesPix = seedChavesPix();
+let identidadeChavePix = seedIdentidadesChavePix();
+// Idempotencia do cadastro: key -> {impressao do payload, resposta}. Mesma key com payload
+// divergente e 409, espelhando o backend; mesma key com o mesmo payload devolve a chave existente
+// com 200. Guarda a impressao, nunca o corpo da request — que conteria o valor em claro.
+const chavePixPorKey = new Map<string, { impressao: string; response: ChavePixMockState }>();
+let chavePixSeq = 300;
+
+// Restaura o estado mutavel das chaves Pix (lista, identidades e idempotencia) para o seed,
+// garantindo testes independentes (F.I.R.S.T.) ao exercitar cadastro/replay/remocao.
+export function resetChavesPixState(): void {
+  chavesPix = seedChavesPix();
+  identidadeChavePix = seedIdentidadesChavePix();
+  chavePixPorKey.clear();
+  chavePixSeq = 300;
+}
+
+const chavesPixHandlers = [
+  // Leitura local, sempre mascarada, incluindo INATIVA. Sem step-up e sem 404: conta operacional
+  // ausente devolveria lista vazia, nunca erro.
+  http.get(`${baseUrl}/pix/chaves`, () => {
+    const path = '/api/v1/pix/chaves';
+    const negado = negarSeNaoFinanceiroPix(path);
+    if (negado) {
+      return negado;
+    }
+    return HttpResponse.json(chavesPix);
+  }),
+
+  http.post(`${baseUrl}/pix/chaves`, async ({ request }) => {
+    const path = '/api/v1/pix/chaves';
+    const negado = negarSeNaoFinanceiroPix(path);
+    if (negado) {
+      return negado;
+    }
+    if (faltaStepUp(request)) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
+    }
+    const chaveIdempotencia = request.headers.get('Idempotency-Key');
+    if (!chaveIdempotencia || !IDEMPOTENCY_KEY_PATTERN.test(chaveIdempotencia)) {
+      return errorResponse(
+        400,
+        'Bad Request',
+        "Header 'Idempotency-Key' ausente ou invalido",
+        path,
+      );
+    }
+    const body = (await request.json()) as { tipo?: string; valor?: string };
+    const impressao = impressaoChavePix(body.tipo ?? '', body.valor ?? '');
+    const anterior = chavePixPorKey.get(chaveIdempotencia);
+    if (anterior) {
+      if (anterior.impressao !== impressao) {
+        return errorResponse(
+          409,
+          'Conflict',
+          'Idempotency-Key reapresentada com payload divergente',
+          path,
+        );
+      }
+      // Replay idempotente: mesma chave, 200 em vez de 201.
+      return HttpResponse.json(anterior.response, { status: 200 });
+    }
+    if (!body.tipo || !body.valor) {
+      return errorResponse(400, 'Bad Request', 'Tipo e valor da chave sao obrigatorios', path);
+    }
+    if (body.valor === CHAVE_PIX_VALOR_INVALIDO) {
+      return errorResponse(400, 'Bad Request', 'Valor de chave invalido', path);
+    }
+    if (body.valor === CHAVE_PIX_VALOR_CONTA_INDISPONIVEL) {
+      return errorResponse(
+        422,
+        'Unprocessable Entity',
+        'Conta operacional/escrow indisponivel',
+        path,
+      );
+    }
+    // Equivalencia por impressao de (tipo + valor), nao por mascara: valores diferentes com o
+    // mesmo prefixo nao podem colidir num 409 falso.
+    const jaAtiva = chavesPix.some(
+      (chave) => chave.status === 'ATIVA' && identidadeChavePix.get(chave.id) === impressao,
+    );
+    if (jaAtiva) {
+      return errorResponse(409, 'Conflict', 'Ja existe chave equivalente ativa', path);
+    }
+    chavePixSeq += 1;
+    const nova: ChavePixMockState = {
+      id: novoId('e3000000', chavePixSeq),
+      tipo: body.tipo,
+      valorMascarado: mascararChavePix(body.valor),
+      status: 'ATIVA',
+      criadaEm: now,
+      removidaEm: null,
+    };
+    // Mais recentes primeiro, como o backend devolve.
+    chavesPix = [nova, ...chavesPix];
+    identidadeChavePix.set(nova.id, impressao);
+    chavePixPorKey.set(chaveIdempotencia, { impressao, response: nova });
+    return HttpResponse.json(nova, { status: 201 });
+  }),
+
+  // Inativacao logica idempotente: 204 tambem quando a chave ja estava INATIVA. O 404 e neutro —
+  // nao distingue inexistente de fora do escopo da conta operacional.
+  http.delete(`${baseUrl}/pix/chaves/:chaveId`, ({ params, request }) => {
+    const chaveId = String(params['chaveId']);
+    const path = `/api/v1/pix/chaves/${chaveId}`;
+    const negado = negarSeNaoFinanceiroPix(path);
+    if (negado) {
+      return negado;
+    }
+    if (faltaStepUp(request)) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
+    }
+    const alvo = chavesPix.find((chave) => chave.id === chaveId);
+    if (!alvo) {
+      return errorResponse(404, 'Not Found', 'Chave Pix nao encontrada', path);
+    }
+    if (alvo.status === 'ATIVA') {
+      chavesPix = chavesPix.map((chave) =>
+        chave.id === chaveId ? { ...chave, status: 'INATIVA' as const, removidaEm: now } : chave,
+      );
+    }
+    return new HttpResponse(null, { status: 204 });
+  }),
+];
+
 const credoraHandlers = [
   http.post(`${baseUrl}/credores`, async ({ request }) => {
     const path = '/api/v1/credores';
@@ -3174,5 +3366,6 @@ export const handlers = [
   ...backofficeHandlers,
   ...governancaHandlers,
   ...pixHandlers,
+  ...chavesPixHandlers,
   ...credoraHandlers,
 ];

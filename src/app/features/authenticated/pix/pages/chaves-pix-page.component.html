@@ -1,0 +1,293 @@
+<section class="sep-chaves">
+  <header class="sep-chaves-header">
+    <h1 class="sep-chaves-title">Chaves Pix da conta operacional</h1>
+    <p class="sep-chaves-subtitle">
+      Chaves da conta operacional/escrow, sempre mascaradas: o valor integral nunca e exibido nem
+      armazenado pelo frontend. O historico de chaves inativas permanece visivel. Nesta fase o
+      processamento usa provider local (fake).
+    </p>
+  </header>
+
+  <section class="sep-chaves-lista" aria-labelledby="chaves-cadastradas-titulo">
+    <div class="sep-chaves-acoes">
+      <h2 class="sep-chaves-subtitulo" id="chaves-cadastradas-titulo">Chaves cadastradas</h2>
+      <button
+        type="button"
+        class="sep-chaves-atualizar"
+        [disabled]="loading()"
+        (click)="carregar()"
+      >
+        Atualizar
+      </button>
+    </div>
+
+    @if (loading() && !carregado()) {
+      <p class="sep-chaves-state" role="status">Carregando chaves Pix...</p>
+    } @else if (errorMessage(); as msg) {
+      <div class="sep-chaves-state sep-chaves-error" role="alert">
+        <p>{{ msg }}</p>
+        <button type="button" class="sep-chaves-retry" (click)="carregar()">
+          Tentar novamente
+        </button>
+      </div>
+    } @else if (chaves().length === 0) {
+      <p class="sep-chaves-vazio">Nenhuma chave Pix cadastrada para a conta operacional.</p>
+    } @else {
+      <!--
+      Em viewport estreito o CSS transforma cada linha num cartao empilhado. Nesse layout as
+      semanticas nativas de tabela SAO PERDIDAS (o display: flex sobre tr/td desfaz os papeis
+      row/cell), entao o thead e removido da arvore de acessibilidade com display: none e o rotulo
+      de cada coluna passa a vir do data-label, via ::before. Os dois mecanismos sao exclusivos:
+      manter o thead apenas oculto visualmente faria o leitor de tela anunciar o cabecalho e o
+      data-label. Nenhuma coluna e ocultada: estado e acao continuam visiveis.
+    -->
+      <div class="sep-chaves-table-wrapper">
+        <table class="sep-chaves-table">
+          <caption class="sep-chaves-table-caption">
+            Chaves Pix da conta operacional, das mais recentes para as mais antigas.
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Tipo</th>
+              <th scope="col">Chave</th>
+              <th scope="col">Status</th>
+              <th scope="col">Cadastrada em</th>
+              <th scope="col">Removida em</th>
+              <th scope="col">Acoes</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (chave of chaves(); track chave.id) {
+              <tr>
+                <td data-label="Tipo">{{ tipoLabel[chave.tipo] }}</td>
+                <td class="sep-chaves-valor" data-label="Chave">{{ chave.valorMascarado }}</td>
+                <td data-label="Status"><sep-chave-pix-status [status]="chave.status" /></td>
+                <td data-label="Cadastrada em">{{ formatarDataHora(chave.criadaEm) }}</td>
+                <td data-label="Removida em">
+                  @if (chave.removidaEm; as removidaEm) {
+                    {{ formatarDataHora(removidaEm) }}
+                  } @else {
+                    <span class="sep-chaves-vazio-celula">—</span>
+                  }
+                </td>
+                <td data-label="Acoes">
+                  @if (chave.status === 'ATIVA') {
+                    <button
+                      type="button"
+                      class="sep-chaves-remover"
+                      [disabled]="remocaoBloqueada()"
+                      [attr.aria-label]="'Remover chave ' + chave.valorMascarado"
+                      (click)="removerClick(chave)"
+                    >
+                      Remover
+                    </button>
+                  } @else {
+                    <span class="sep-chaves-vazio-celula">—</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  @if (remocaoSucesso(); as sucesso) {
+    <p class="sep-chaves-sucesso" role="status">{{ sucesso }}</p>
+  }
+
+  @if (remocaoMfaNecessario()) {
+    <div class="sep-chaves-aviso" role="alert">
+      <p>
+        Para remover uma chave Pix e preciso ter a verificacao em duas etapas (MFA) ativa na sua
+        conta.
+      </p>
+      <a class="sep-chaves-aviso-link" routerLink="/app/profile/setup-totp">
+        Ativar verificacao em duas etapas
+      </a>
+    </div>
+  }
+
+  @if (remocaoVerificacaoNecessaria()) {
+    <div class="sep-chaves-aviso" role="alert">
+      <p>Nao foi possivel confirmar sua identidade para a remocao da chave.</p>
+      <button type="button" class="sep-chaves-retry" (click)="verificarNovamenteRemocao()">
+        Verificar novamente
+      </button>
+    </div>
+  }
+
+  @if (remocaoErro(); as erro) {
+    <p class="sep-chaves-cadastro-erro" role="alert">{{ erro }}</p>
+  }
+
+  @if (remocaoAlvo(); as alvo) {
+    <div
+      #remocaoBox
+      class="sep-chaves-confirmacao"
+      role="dialog"
+      aria-modal="true"
+      tabindex="-1"
+      aria-labelledby="confirmacao-remocao-titulo"
+      (keydown.escape)="cancelarRemocao()"
+      (keydown.tab)="prenderFocoRemocao($event)"
+      (keydown.shift.tab)="prenderFocoRemocao($event)"
+    >
+      <h2 class="sep-chaves-confirmacao-titulo" id="confirmacao-remocao-titulo">
+        Confirmar remocao de chave
+      </h2>
+      <p class="sep-chaves-confirmacao-texto">
+        Voce esta removendo a chave {{ tipoLabel[alvo.tipo] }} {{ alvo.valorMascarado }} da conta
+        operacional. A chave passa a INATIVA e permanece no historico; o registro no provider local
+        (fake) tambem e desfeito.
+      </p>
+      <div class="sep-chaves-confirmacao-acoes">
+        <button
+          type="button"
+          class="sep-chaves-remover-confirmar"
+          (click)="confirmarRemocao()"
+          [disabled]="remocaoEmVoo()"
+        >
+          {{ remocaoEmVoo() ? 'Removendo...' : 'Confirmar remocao' }}
+        </button>
+        <button
+          type="button"
+          class="sep-chaves-cancelar"
+          (click)="cancelarRemocao()"
+          [disabled]="remocaoEmVoo()"
+        >
+          Cancelar
+        </button>
+      </div>
+    </div>
+  }
+
+  <section class="sep-chaves-cadastro">
+    <h2 class="sep-chaves-subtitulo">Cadastrar nova chave</h2>
+    <p class="sep-chaves-cadastro-aviso">
+      O cadastro exige verificacao de identidade (step-up). O valor informado e enviado ao backend e
+      nunca fica armazenado no navegador; a chave volta sempre mascarada.
+    </p>
+
+    @if (cadastroSucesso(); as sucesso) {
+      <p class="sep-chaves-sucesso" role="status">{{ sucesso }}</p>
+    }
+
+    @if (mfaNecessario()) {
+      <div class="sep-chaves-aviso" role="alert">
+        <p>
+          Para cadastrar uma chave Pix e preciso ter a verificacao em duas etapas (MFA) ativa na sua
+          conta.
+        </p>
+        <a class="sep-chaves-aviso-link" routerLink="/app/profile/setup-totp">
+          Ativar verificacao em duas etapas
+        </a>
+      </div>
+    }
+
+    @if (verificacaoNecessaria()) {
+      <div class="sep-chaves-aviso" role="alert">
+        <p>Nao foi possivel confirmar sua identidade para o cadastro da chave.</p>
+        <button type="button" class="sep-chaves-retry" (click)="verificarNovamente()">
+          Verificar novamente
+        </button>
+      </div>
+    }
+
+    @if (cadastroErro(); as erro) {
+      <p class="sep-chaves-cadastro-erro" role="alert">{{ erro }}</p>
+    }
+
+    <div class="sep-chaves-form">
+      <div class="sep-chaves-form-campo">
+        <label class="sep-chaves-form-label" for="chave-tipo">Tipo da chave</label>
+        <select
+          class="sep-chaves-form-select"
+          id="chave-tipo"
+          [value]="tipo()"
+          [disabled]="cadastroBloqueado()"
+          (change)="atualizarTipo($any($event.target).value)"
+        >
+          @for (t of tipos; track t) {
+            <option [value]="t" [selected]="tipo() === t">{{ tipoLabel[t] }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="sep-chaves-form-campo">
+        <label class="sep-chaves-form-label" for="chave-valor">Valor da chave</label>
+        <input
+          class="sep-chaves-form-input"
+          id="chave-valor"
+          type="text"
+          autocomplete="off"
+          [value]="valor()"
+          [disabled]="cadastroBloqueado()"
+          (input)="atualizarValor($any($event.target).value)"
+        />
+        <span class="sep-chaves-form-ajuda">
+          Obrigatorio para todos os tipos, inclusive aleatoria (EVP). O formato e o digito
+          verificador sao validados pelo backend.
+        </span>
+        @if (valorErro(); as erroValor) {
+          <span class="sep-chaves-form-erro" role="alert">{{ erroValor }}</span>
+        }
+      </div>
+    </div>
+
+    <div class="sep-chaves-acoes">
+      <button
+        type="button"
+        class="sep-chaves-cadastrar"
+        (click)="cadastrarClick()"
+        [disabled]="cadastroBloqueado()"
+      >
+        Cadastrar chave
+      </button>
+    </div>
+
+    @if (confirmando()) {
+      <div
+        #confirmacaoBox
+        class="sep-chaves-confirmacao"
+        role="alertdialog"
+        aria-modal="true"
+        tabindex="-1"
+        aria-labelledby="confirmacao-chave-titulo"
+        (keydown.escape)="cancelarConfirmacao()"
+        (keydown.tab)="prenderFocoCadastro($event)"
+        (keydown.shift.tab)="prenderFocoCadastro($event)"
+      >
+        <h3 class="sep-chaves-confirmacao-titulo" id="confirmacao-chave-titulo">
+          Confirmar cadastro de chave
+        </h3>
+        <p class="sep-chaves-confirmacao-texto">
+          Voce esta cadastrando uma chave do tipo {{ tipoLabel[tipo()] }} com o valor
+          {{ valor() }} na conta operacional. Nesta fase o registro usa provider local (fake):
+          nenhuma chave real e criada no DICT.
+        </p>
+        <div class="sep-chaves-confirmacao-acoes">
+          <button
+            type="button"
+            class="sep-chaves-cadastrar"
+            (click)="confirmarCadastro()"
+            [disabled]="cadastroEmVoo()"
+          >
+            {{ cadastroEmVoo() ? 'Enviando...' : 'Confirmar cadastro' }}
+          </button>
+          <button
+            type="button"
+            class="sep-chaves-cancelar"
+            (click)="cancelarConfirmacao()"
+            [disabled]="cadastroEmVoo()"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    }
+  </section>
+
+  <a class="sep-chaves-voltar" routerLink="/app/pix">Voltar para o Pix operacional</a>
+</section>
