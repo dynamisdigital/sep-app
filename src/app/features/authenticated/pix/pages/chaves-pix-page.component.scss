@@ -32,7 +32,10 @@
 
 .sep-chaves-acoes {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--sep-space-12);
+  align-items: center;
+  justify-content: space-between;
 }
 
 .sep-chaves-atualizar {
@@ -58,6 +61,42 @@
 
   td {
     @include sepDs.sep-table-cell;
+  }
+}
+
+// Viewport estreito: a tabela vira cartoes empilhados. O thead sai do fluxo visual (mas continua
+// no DOM, entao a semantica de tabela e a associacao por scope permanecem para leitores de tela)
+// e cada celula passa a exibir o proprio rotulo. Nenhuma coluna e escondida.
+@media (width < 768px) {
+  .sep-chaves-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .sep-chaves-table tr {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sep-space-4);
+    padding: var(--sep-space-12) 0;
+  }
+
+  .sep-chaves-table td {
+    display: flex;
+    gap: var(--sep-space-12);
+    align-items: baseline;
+    justify-content: space-between;
+    padding: var(--sep-space-4) var(--sep-space-16);
+  }
+
+  .sep-chaves-table td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    color: hsl(var(--muted-foreground));
+    font-weight: 500;
   }
 }
 

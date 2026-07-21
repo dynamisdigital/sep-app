@@ -3,6 +3,7 @@ import { ComponentFixture } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { http, HttpResponse } from 'msw';
+import { Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ChavePixResponse, TipoChavePix } from '../../../../core/api/api.models';
@@ -11,6 +12,7 @@ import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
 import { errorInterceptor } from '../../../../core/interceptors/error.interceptor';
 import { stepUpInterceptor } from '../../../../core/interceptors/step-up.interceptor';
 import { ChavePixIntencaoStore } from '../../../../core/pix/chave-pix-intencao.store';
+import { PixService } from '../../../../core/pix/pix.service';
 import { server } from '../../../../../mocks/server';
 import { PIX_ROUTES } from '../pix.routes';
 import { ChavesPixPageComponent } from './chaves-pix-page.component';
@@ -290,6 +292,49 @@ describe('ChavesPixPageComponent', () => {
       await estabilizar(fixture);
       await estabilizar(fixture);
       expect(stub.total()).toBe(1);
+    });
+
+    // Concorrencia da leitura (F-20.5): a resposta de uma consulta ANTERIOR chega depois da mais
+    // nova e nao pode sobrescrever a lista. Pela UI isso nao acontece (o botao Atualizar fica
+    // desabilitado durante a carga); o caminho real e programatico — os handlers de mutacao
+    // chamam carregar() com um refresh possivelmente em voo.
+    //
+    // O service e fakeado com Subjects porque a ordem de emissao precisa ser controlada: com MSW,
+    // uma request pendente trava o whenStable e o teste nunca estabiliza.
+    it('resposta tardia de uma consulta anterior nao sobrescreve a lista mais nova', async () => {
+      const emissores: Subject<ChavePixResponse[]>[] = [];
+      const pixFake = {
+        listarChavesPix: () => {
+          const emissor = new Subject<ChavePixResponse[]>();
+          emissores.push(emissor);
+          return emissor.asObservable();
+        },
+      };
+      const { fixture } = await render(ChavesPixPageComponent, {
+        providers: [
+          provideHttpClient(),
+          provideRouter([]),
+          { provide: PixService, useValue: pixFake },
+        ],
+      });
+      const pagina = fixture.componentInstance as ChavesPixPageComponent;
+
+      // ngOnInit disparou a consulta 0; ela segue pendente quando a 1 comeca.
+      pagina.carregar();
+      expect(emissores.length).toBe(2);
+
+      emissores[1].next([CHAVE_ATIVA]);
+      emissores[1].complete();
+      fixture.detectChanges();
+      expect(screen.getByText(CHAVE_ATIVA.valorMascarado)).toBeTruthy();
+
+      // A consulta 0 (obsoleta) so responde agora — sua assinatura ja foi descartada.
+      emissores[0].next([CHAVE_INATIVA]);
+      emissores[0].complete();
+      fixture.detectChanges();
+
+      expect(screen.getByText(CHAVE_ATIVA.valorMascarado)).toBeTruthy();
+      expect(screen.queryByText(CHAVE_INATIVA.valorMascarado)).toBeNull();
     });
 
     it('o botao Atualizar reconsulta por gesto explicito', async () => {
@@ -822,6 +867,43 @@ describe('ChavesPixPageComponent', () => {
       // O inverso do teste de cadastro: nenhum dialogo de remocao abre sobre o de cadastro.
       expect(screen.queryByRole('dialog')).toBeNull();
       expect(screen.getByRole('alertdialog')).toBeTruthy();
+    });
+
+    it('Escape fecha a confirmacao sem chamar o DELETE', async () => {
+      stubLista([CHAVE_ATIVA]);
+      const remocao = stubRemocao(() => new HttpResponse(null, { status: 204 }));
+      const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
+      autenticarFinanceiro(fixture, true);
+      await estabilizar(fixture);
+
+      await abrirRemocao(fixture);
+      fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+      await estabilizar(fixture);
+
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(remocao.ids()).toEqual([]);
+    });
+
+    // Foco entra no dialogo ao abrir e RETORNA ao gatilho ao fechar: sem isso o operador perde a
+    // posicao na tabela e o leitor de tela volta ao inicio do documento.
+    it('o foco entra no dialogo ao abrir e volta ao gatilho ao cancelar', async () => {
+      stubLista([CHAVE_ATIVA]);
+      stubRemocao(() => new HttpResponse(null, { status: 204 }));
+      const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
+      autenticarFinanceiro(fixture, true);
+      await estabilizar(fixture);
+
+      const gatilho = screen.getByRole('button', { name: /^Remover chave/ });
+      gatilho.focus();
+      expect(document.activeElement).toBe(gatilho);
+
+      await abrirRemocao(fixture);
+      expect(document.activeElement).toBe(screen.getByRole('dialog'));
+
+      fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
+      await estabilizar(fixture);
+
+      expect(document.activeElement).toBe(screen.getByRole('button', { name: /^Remover chave/ }));
     });
 
     it('cancelar fecha a confirmacao sem chamar o DELETE', async () => {
