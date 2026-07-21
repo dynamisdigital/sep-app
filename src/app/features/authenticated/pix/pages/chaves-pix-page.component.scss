@@ -1,0 +1,115 @@
+@use "../../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-chaves {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-24);
+  max-width: 860px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-chaves-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+}
+
+.sep-chaves-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-chaves-subtitle {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-chaves-acoes {
+  display: flex;
+  gap: var(--sep-space-12);
+}
+
+.sep-chaves-atualizar {
+  @include sepDs.sep-button-base;
+  @include sepDs.sep-button-outline;
+  @include sepDs.sep-button-size-sm;
+}
+
+.sep-chaves-table-wrapper {
+  @include sepDs.sep-table-wrapper;
+}
+
+.sep-chaves-table {
+  @include sepDs.sep-table;
+
+  th {
+    @include sepDs.sep-table-head;
+  }
+
+  tr {
+    @include sepDs.sep-table-row;
+  }
+
+  td {
+    @include sepDs.sep-table-cell;
+  }
+}
+
+.sep-chaves-table-caption {
+  @include sepType.sep-type-caption;
+
+  padding: var(--sep-space-8) var(--sep-space-16);
+  color: hsl(var(--muted-foreground));
+  text-align: left;
+}
+
+// Valor mascarado: fonte monoespacada mantem a mascara legivel e impede que o olho confunda
+// caracteres substituidos com o valor real.
+.sep-chaves-valor {
+  font-family: ui-monospace, sfmono-regular, menlo, monospace;
+  word-break: break-all;
+}
+
+.sep-chaves-vazio-celula {
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-chaves-vazio {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-chaves-state {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-chaves-retry {
+  @include sepDs.sep-button-base;
+  @include sepDs.sep-button-outline;
+  @include sepDs.sep-button-size-sm;
+
+  margin-top: var(--sep-space-8);
+}
+
+.sep-chaves-voltar {
+  @include sepType.sep-type-body;
+
+  align-self: flex-start;
+  color: hsl(var(--primary));
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

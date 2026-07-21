@@ -1,0 +1,63 @@
+<section class="sep-chaves">
+  <header class="sep-chaves-header">
+    <h1 class="sep-chaves-title">Chaves Pix da conta operacional</h1>
+    <p class="sep-chaves-subtitle">
+      Chaves da conta operacional/escrow, sempre mascaradas: o valor integral nunca e exibido nem
+      armazenado pelo frontend. O historico de chaves inativas permanece visivel. Nesta fase o
+      processamento usa provider local (fake).
+    </p>
+  </header>
+
+  <div class="sep-chaves-acoes">
+    <button type="button" class="sep-chaves-atualizar" [disabled]="loading()" (click)="carregar()">
+      Atualizar
+    </button>
+  </div>
+
+  @if (loading() && !carregado()) {
+    <p class="sep-chaves-state" role="status">Carregando chaves Pix...</p>
+  } @else if (errorMessage(); as msg) {
+    <div class="sep-chaves-state sep-chaves-error" role="alert">
+      <p>{{ msg }}</p>
+      <button type="button" class="sep-chaves-retry" (click)="carregar()">Tentar novamente</button>
+    </div>
+  } @else if (chaves().length === 0) {
+    <p class="sep-chaves-vazio">Nenhuma chave Pix cadastrada para a conta operacional.</p>
+  } @else {
+    <div class="sep-chaves-table-wrapper">
+      <table class="sep-chaves-table">
+        <caption class="sep-chaves-table-caption">
+          Chaves Pix da conta operacional, das mais recentes para as mais antigas.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Tipo</th>
+            <th scope="col">Chave</th>
+            <th scope="col">Status</th>
+            <th scope="col">Cadastrada em</th>
+            <th scope="col">Removida em</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (chave of chaves(); track chave.id) {
+            <tr>
+              <td>{{ tipoLabel[chave.tipo] }}</td>
+              <td class="sep-chaves-valor">{{ chave.valorMascarado }}</td>
+              <td><sep-chave-pix-status [status]="chave.status" /></td>
+              <td>{{ formatarDataHora(chave.criadaEm) }}</td>
+              <td>
+                @if (chave.removidaEm; as removidaEm) {
+                  {{ formatarDataHora(removidaEm) }}
+                } @else {
+                  <span class="sep-chaves-vazio-celula">—</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <a class="sep-chaves-voltar" routerLink="/app/pix">Voltar para o Pix operacional</a>
+</section>
