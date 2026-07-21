@@ -30,6 +30,12 @@
   color: hsl(var(--muted-foreground));
 }
 
+.sep-chaves-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-12);
+}
+
 .sep-chaves-acoes {
   display: flex;
   flex-wrap: wrap;
@@ -64,17 +70,15 @@
   }
 }
 
-// Viewport estreito: a tabela vira cartoes empilhados. O thead sai do fluxo visual (mas continua
-// no DOM, entao a semantica de tabela e a associacao por scope permanecem para leitores de tela)
-// e cada celula passa a exibir o proprio rotulo. Nenhuma coluna e escondida.
+// Viewport estreito: a tabela vira cartoes empilhados. O display: flex sobre tr/td desfaz os
+// papeis nativos row/cell, entao a associacao cabecalho->celula deixa de existir de qualquer
+// forma; por isso o thead sai da arvore de acessibilidade com display: none e o rotulo passa a
+// vir do data-label via ::before. Ocultar o thead so visualmente (clip-path) faria o leitor de
+// tela anunciar o cabecalho E o data-label — os dois mecanismos sao exclusivos.
+// Nenhuma coluna e escondida: estado e acao seguem visiveis.
 @media (width < 768px) {
   .sep-chaves-table thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
+    display: none;
   }
 
   .sep-chaves-table tr {

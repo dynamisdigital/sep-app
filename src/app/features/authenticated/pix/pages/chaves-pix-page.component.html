@@ -8,79 +8,90 @@
     </p>
   </header>
 
-  <div class="sep-chaves-acoes">
-    <h2 class="sep-chaves-subtitulo" id="chaves-cadastradas-titulo">Chaves cadastradas</h2>
-    <button type="button" class="sep-chaves-atualizar" [disabled]="loading()" (click)="carregar()">
-      Atualizar
-    </button>
-  </div>
+  <section class="sep-chaves-lista" aria-labelledby="chaves-cadastradas-titulo">
+    <div class="sep-chaves-acoes">
+      <h2 class="sep-chaves-subtitulo" id="chaves-cadastradas-titulo">Chaves cadastradas</h2>
+      <button
+        type="button"
+        class="sep-chaves-atualizar"
+        [disabled]="loading()"
+        (click)="carregar()"
+      >
+        Atualizar
+      </button>
+    </div>
 
-  @if (loading() && !carregado()) {
-    <p class="sep-chaves-state" role="status">Carregando chaves Pix...</p>
-  } @else if (errorMessage(); as msg) {
-    <div class="sep-chaves-state sep-chaves-error" role="alert">
-      <p>{{ msg }}</p>
-      <button type="button" class="sep-chaves-retry" (click)="carregar()">Tentar novamente</button>
-    </div>
-  } @else if (chaves().length === 0) {
-    <p class="sep-chaves-vazio">Nenhuma chave Pix cadastrada para a conta operacional.</p>
-  } @else {
-    <!--
-      Em viewport estreito o CSS transforma cada linha num cartao empilhado. O data-label carrega
-      o nome da coluna para dentro da celula (via ::before), porque nesse layout o thead sai do
-      fluxo visual e a associacao coluna->valor se perderia. Nenhuma coluna e ocultada: estado e
-      acao continuam visiveis.
+    @if (loading() && !carregado()) {
+      <p class="sep-chaves-state" role="status">Carregando chaves Pix...</p>
+    } @else if (errorMessage(); as msg) {
+      <div class="sep-chaves-state sep-chaves-error" role="alert">
+        <p>{{ msg }}</p>
+        <button type="button" class="sep-chaves-retry" (click)="carregar()">
+          Tentar novamente
+        </button>
+      </div>
+    } @else if (chaves().length === 0) {
+      <p class="sep-chaves-vazio">Nenhuma chave Pix cadastrada para a conta operacional.</p>
+    } @else {
+      <!--
+      Em viewport estreito o CSS transforma cada linha num cartao empilhado. Nesse layout as
+      semanticas nativas de tabela SAO PERDIDAS (o display: flex sobre tr/td desfaz os papeis
+      row/cell), entao o thead e removido da arvore de acessibilidade com display: none e o rotulo
+      de cada coluna passa a vir do data-label, via ::before. Os dois mecanismos sao exclusivos:
+      manter o thead apenas oculto visualmente faria o leitor de tela anunciar o cabecalho e o
+      data-label. Nenhuma coluna e ocultada: estado e acao continuam visiveis.
     -->
-    <div class="sep-chaves-table-wrapper">
-      <table class="sep-chaves-table">
-        <caption class="sep-chaves-table-caption">
-          Chaves Pix da conta operacional, das mais recentes para as mais antigas.
-        </caption>
-        <thead>
-          <tr>
-            <th scope="col">Tipo</th>
-            <th scope="col">Chave</th>
-            <th scope="col">Status</th>
-            <th scope="col">Cadastrada em</th>
-            <th scope="col">Removida em</th>
-            <th scope="col">Acoes</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (chave of chaves(); track chave.id) {
+      <div class="sep-chaves-table-wrapper">
+        <table class="sep-chaves-table">
+          <caption class="sep-chaves-table-caption">
+            Chaves Pix da conta operacional, das mais recentes para as mais antigas.
+          </caption>
+          <thead>
             <tr>
-              <td data-label="Tipo">{{ tipoLabel[chave.tipo] }}</td>
-              <td class="sep-chaves-valor" data-label="Chave">{{ chave.valorMascarado }}</td>
-              <td data-label="Status"><sep-chave-pix-status [status]="chave.status" /></td>
-              <td data-label="Cadastrada em">{{ formatarDataHora(chave.criadaEm) }}</td>
-              <td data-label="Removida em">
-                @if (chave.removidaEm; as removidaEm) {
-                  {{ formatarDataHora(removidaEm) }}
-                } @else {
-                  <span class="sep-chaves-vazio-celula">—</span>
-                }
-              </td>
-              <td data-label="Acoes">
-                @if (chave.status === 'ATIVA') {
-                  <button
-                    type="button"
-                    class="sep-chaves-remover"
-                    [disabled]="remocaoBloqueada()"
-                    [attr.aria-label]="'Remover chave ' + chave.valorMascarado"
-                    (click)="removerClick(chave)"
-                  >
-                    Remover
-                  </button>
-                } @else {
-                  <span class="sep-chaves-vazio-celula">—</span>
-                }
-              </td>
+              <th scope="col">Tipo</th>
+              <th scope="col">Chave</th>
+              <th scope="col">Status</th>
+              <th scope="col">Cadastrada em</th>
+              <th scope="col">Removida em</th>
+              <th scope="col">Acoes</th>
             </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  }
+          </thead>
+          <tbody>
+            @for (chave of chaves(); track chave.id) {
+              <tr>
+                <td data-label="Tipo">{{ tipoLabel[chave.tipo] }}</td>
+                <td class="sep-chaves-valor" data-label="Chave">{{ chave.valorMascarado }}</td>
+                <td data-label="Status"><sep-chave-pix-status [status]="chave.status" /></td>
+                <td data-label="Cadastrada em">{{ formatarDataHora(chave.criadaEm) }}</td>
+                <td data-label="Removida em">
+                  @if (chave.removidaEm; as removidaEm) {
+                    {{ formatarDataHora(removidaEm) }}
+                  } @else {
+                    <span class="sep-chaves-vazio-celula">—</span>
+                  }
+                </td>
+                <td data-label="Acoes">
+                  @if (chave.status === 'ATIVA') {
+                    <button
+                      type="button"
+                      class="sep-chaves-remover"
+                      [disabled]="remocaoBloqueada()"
+                      [attr.aria-label]="'Remover chave ' + chave.valorMascarado"
+                      (click)="removerClick(chave)"
+                    >
+                      Remover
+                    </button>
+                  } @else {
+                    <span class="sep-chaves-vazio-celula">—</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
 
   @if (remocaoSucesso(); as sucesso) {
     <p class="sep-chaves-sucesso" role="status">{{ sucesso }}</p>

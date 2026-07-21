@@ -219,6 +219,23 @@ describe('ChavesPixPageComponent', () => {
       expect(screen.getByText('Inativa')).toBeTruthy();
     });
 
+    // A regiao da lista precisa ser nomeada: sem o aria-labelledby o h2 fica solto e o leitor de
+    // tela nao consegue anunciar em qual das duas regioes da pagina (lista x cadastro) o operador
+    // esta. Fixa tambem que o id do heading nao volta a ficar orfao.
+    it('a regiao da lista e um landmark nomeado pelo proprio heading', async () => {
+      stubLista([CHAVE_ATIVA]);
+      const { fixture } = await renderPage();
+      await estabilizar(fixture);
+
+      const regiao = screen.getByRole('region', { name: 'Chaves cadastradas' });
+      expect(regiao.getAttribute('aria-labelledby')).toBe('chaves-cadastradas-titulo');
+      expect(regiao.querySelector('#chaves-cadastradas-titulo')?.textContent).toContain(
+        'Chaves cadastradas',
+      );
+      // O heading rotula a regiao que de fato contem a tabela.
+      expect(regiao.querySelector('table')).toBeTruthy();
+    });
+
     it('preserva a ordem recebida do backend, sem reordenar', async () => {
       stubLista([CHAVE_ATIVA, CHAVE_INATIVA]);
       const { fixture } = await renderPage();
