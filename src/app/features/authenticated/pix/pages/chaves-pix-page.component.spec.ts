@@ -5,11 +5,12 @@ import { fireEvent, render, screen } from '@testing-library/angular';
 import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ChavePixResponse } from '../../../../core/api/api.models';
+import { ChavePixResponse, TipoChavePix } from '../../../../core/api/api.models';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
 import { errorInterceptor } from '../../../../core/interceptors/error.interceptor';
 import { stepUpInterceptor } from '../../../../core/interceptors/step-up.interceptor';
+import { ChavePixIntencaoStore } from '../../../../core/pix/chave-pix-intencao.store';
 import { server } from '../../../../../mocks/server';
 import { PIX_ROUTES } from '../pix.routes';
 import { ChavesPixPageComponent } from './chaves-pix-page.component';
@@ -49,7 +50,11 @@ async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
   fixture.detectChanges();
 }
 
-function renderPage(opts: { tokenInicial?: string } = {}) {
+// `intencaoInicial` simula o estado real do retorno do step-up: o singleton de root sobreviveu a
+// destruicao da pagina e carrega a intencao criada antes da navegacao.
+function renderPage(
+  opts: { tokenInicial?: string; intencaoInicial?: { tipo: TipoChavePix; valor: string } } = {},
+) {
   return render(ChavesPixPageComponent, {
     providers: [
       provideHttpClient(withInterceptors([stepUpInterceptor, errorInterceptor])),
@@ -61,6 +66,22 @@ function renderPage(opts: { tokenInicial?: string } = {}) {
               useFactory: () => {
                 const store = new StepUpTokenStore();
                 store.set(opts.tokenInicial as string);
+                return store;
+              },
+            },
+          ]
+        : []),
+      ...(opts.intencaoInicial
+        ? [
+            {
+              provide: ChavePixIntencaoStore,
+              useFactory: () => {
+                const store = new ChavePixIntencaoStore();
+                const { tipo, valor } = opts.intencaoInicial as {
+                  tipo: TipoChavePix;
+                  valor: string;
+                };
+                store.chave(tipo, valor);
                 return store;
               },
             },
@@ -306,6 +327,54 @@ describe('ChavesPixPageComponent', () => {
 
       expect(cadastro.keys()).toEqual([]);
       expect(screen.queryByRole('alertdialog')).toBeNull();
+    });
+
+    // O prefill existe para que o retry apos o step-up reuse a MESMA key: com o formulario vazio,
+    // um simples erro de digitacao no reenvio criaria intencao nova e poderia duplicar a chave.
+    it('voltar do step-up reconstitui o rascunho da intencao viva', async () => {
+      stubLista([]);
+      const { fixture } = await renderPage({
+        tokenInicial: 'step-up-tok',
+        intencaoInicial: { tipo: 'CNPJ', valor: '11222333000181' },
+      });
+      autenticarFinanceiro(fixture, true);
+      await estabilizar(fixture);
+
+      expect((screen.getByLabelText('Valor da chave') as HTMLInputElement).value).toBe(
+        '11222333000181',
+      );
+      expect((screen.getByLabelText('Tipo da chave') as HTMLSelectElement).value).toBe('CNPJ');
+    });
+
+    it('sem intencao viva, o formulario nasce vazio', async () => {
+      stubLista([]);
+      const { fixture } = await renderPage();
+      autenticarFinanceiro(fixture, true);
+      await estabilizar(fixture);
+
+      expect((screen.getByLabelText('Valor da chave') as HTMLInputElement).value).toBe('');
+    });
+
+    // O rascunho reconstituido tem de render a MESMA key da intencao que o originou — e disso que
+    // depende o replay idempotente do backend apos um retry ambiguo.
+    it('o cadastro apos o retorno do step-up reusa a key da intencao reconstituida', async () => {
+      stubLista([]);
+      const cadastro = stubCadastro(() => new HttpResponse(null, { status: 503 }));
+      const { fixture } = await renderPage({
+        tokenInicial: 'step-up-tok',
+        intencaoInicial: { tipo: 'CNPJ', valor: '11222333000181' },
+      });
+      autenticarFinanceiro(fixture, true);
+      const intencoes = fixture.debugElement.injector.get(ChavePixIntencaoStore);
+      const keyOriginal = intencoes.chave('CNPJ', '11222333000181');
+      await estabilizar(fixture);
+
+      // Sem redigitar: o operador so reconfirma o rascunho que voltou.
+      fireEvent.click(screen.getByRole('button', { name: 'Cadastrar chave' }));
+      await estabilizar(fixture);
+      await confirmarCadastro(fixture);
+
+      expect(cadastro.keys()).toEqual([keyOriginal]);
     });
 
     it('com token, cadastra com Idempotency-Key, confirma sucesso e reconsulta a lista', async () => {
