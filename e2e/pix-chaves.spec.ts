@@ -12,8 +12,14 @@ import { expect, test, type Page } from '@playwright/test';
 //  - a negacao da ROTA para role indevida nao e demonstravel aqui: um page.goto reinicia o estado
 //    do MSW no bundle e a sessao mock volta ao usuario default (ADMIN). Fica coberta pelos testes
 //    de roleGuard e da configuracao de rotas no Vitest (mesma limitacao registrada na F-18).
+// Mascaras como o mock as produz (mascararChavePix mantem os 3 primeiros caracteres). O
+// acoplamento e proposital: se o mascaramento afrouxar, estes smokes quebram.
 const CHAVE_ATIVA_MASCARA = 'fin***';
 const CHAVE_INATIVA_MASCARA = '112***';
+
+// O retorno tem de apontar para ESTA rota — e o que garante que o operador volta a tela que exige
+// novo clique. Asserir apenas "foi para o step-up" deixaria passar um next divergente.
+const URL_STEP_UP_DE_VOLTA = '/app/step-up?next=%2Fapp%2Fpix%2Fchaves';
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => window.localStorage.setItem('NG_APP_USE_MSW', 'true'));
@@ -57,7 +63,8 @@ test('financeiro: lista chaves mascaradas com historico ATIVA e INATIVA', async 
   // Remover so na chave ATIVA (uma linha, nao duas).
   await expect(page.getByRole('button', { name: /^Remover chave/ })).toHaveCount(1);
 
-  // Refresh por gesto, sem polling.
+  // Presenca do CTA de refresh. Que a lista so recarregue por gesto — e que nao haja polling — e
+  // provado por contagem de GETs no Vitest da pagina; aqui isso NAO e verificavel.
   await expect(page.getByRole('button', { name: 'Atualizar' })).toBeEnabled();
 });
 
@@ -89,9 +96,7 @@ test('admin: cadastro confirma e navega ao step-up sem cadastrar no retorno', as
   await expect(page.getByRole('alertdialog')).toContainText('provider local (fake)');
 
   await page.getByRole('button', { name: 'Confirmar cadastro' }).click();
-  await page.waitForURL(/\/app\/step-up\?next=%2Fapp%2Fpix%2Fchaves|\/app\/step-up\?next=/, {
-    timeout: 10_000,
-  });
+  await page.waitForURL(`**${URL_STEP_UP_DE_VOLTA}`, { timeout: 10_000 });
 
   // Retorno sem completar o desafio: nada foi cadastrado e um novo gesto e exigido.
   await page.goBack();
@@ -115,7 +120,7 @@ test('admin: remocao confirma e navega ao step-up sem remover no retorno', async
   await expect(page.getByRole('dialog')).toContainText('permanece no historico');
 
   await page.getByRole('button', { name: 'Confirmar remocao' }).click();
-  await page.waitForURL(/\/app\/step-up\?next=/, { timeout: 10_000 });
+  await page.waitForURL(`**${URL_STEP_UP_DE_VOLTA}`, { timeout: 10_000 });
 
   // Retorno sem completar o desafio: a chave segue ATIVA e o CTA continua disponivel.
   await page.goBack();
