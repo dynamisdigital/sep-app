@@ -102,6 +102,143 @@
   margin-top: var(--sep-space-8);
 }
 
+.sep-chaves-cadastro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-12);
+}
+
+.sep-chaves-subtitulo {
+  @include sepType.sep-type-section-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-chaves-cadastro-aviso {
+  @include sepType.sep-type-caption;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-chaves-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-16);
+
+  @media (width >= 768px) {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+.sep-chaves-form-campo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--sep-space-4);
+}
+
+.sep-chaves-form-label {
+  @include sepDs.sep-label;
+}
+
+.sep-chaves-form-select {
+  @include sepDs.sep-input;
+}
+
+.sep-chaves-form-input {
+  @include sepDs.sep-input;
+}
+
+.sep-chaves-form-ajuda {
+  @include sepType.sep-type-caption;
+
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-chaves-form-erro {
+  @include sepDs.sep-field-error;
+}
+
+.sep-chaves-cadastrar {
+  @include sepDs.sep-button-base;
+  @include sepDs.sep-button-primary;
+  @include sepDs.sep-button-size-sm;
+}
+
+.sep-chaves-cancelar {
+  @include sepDs.sep-button-base;
+  @include sepDs.sep-button-outline;
+  @include sepDs.sep-button-size-sm;
+}
+
+.sep-chaves-aviso {
+  @include sepDs.sep-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  padding: var(--sep-space-16);
+
+  p {
+    @include sepType.sep-type-body;
+
+    margin: 0;
+    color: hsl(var(--foreground));
+  }
+}
+
+.sep-chaves-aviso-link {
+  @include sepType.sep-type-body;
+
+  align-self: flex-start;
+  color: hsl(var(--primary));
+}
+
+.sep-chaves-sucesso {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--success));
+}
+
+.sep-chaves-cadastro-erro {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--destructive));
+}
+
+.sep-chaves-confirmacao {
+  @include sepDs.sep-dialog;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-12);
+  padding: var(--sep-space-16);
+}
+
+.sep-chaves-confirmacao-titulo {
+  @include sepType.sep-type-card-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-chaves-confirmacao-texto {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-chaves-confirmacao-acoes {
+  display: flex;
+  gap: var(--sep-space-12);
+}
+
 .sep-chaves-voltar {
   @include sepType.sep-type-body;
 

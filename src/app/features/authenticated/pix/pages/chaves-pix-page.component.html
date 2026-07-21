@@ -59,5 +59,131 @@
     </div>
   }
 
+  <section class="sep-chaves-cadastro">
+    <h2 class="sep-chaves-subtitulo">Cadastrar nova chave</h2>
+    <p class="sep-chaves-cadastro-aviso">
+      O cadastro exige verificacao de identidade (step-up). O valor informado e enviado ao backend e
+      nunca fica armazenado no navegador; a chave volta sempre mascarada.
+    </p>
+
+    @if (cadastroSucesso(); as sucesso) {
+      <p class="sep-chaves-sucesso" role="status">{{ sucesso }}</p>
+    }
+
+    @if (mfaNecessario()) {
+      <div class="sep-chaves-aviso" role="alert">
+        <p>
+          Para cadastrar uma chave Pix e preciso ter a verificacao em duas etapas (MFA) ativa na sua
+          conta.
+        </p>
+        <a class="sep-chaves-aviso-link" routerLink="/app/profile/setup-totp">
+          Ativar verificacao em duas etapas
+        </a>
+      </div>
+    }
+
+    @if (verificacaoNecessaria()) {
+      <div class="sep-chaves-aviso" role="alert">
+        <p>Nao foi possivel confirmar sua identidade para o cadastro da chave.</p>
+        <button type="button" class="sep-chaves-retry" (click)="verificarNovamente()">
+          Verificar novamente
+        </button>
+      </div>
+    }
+
+    @if (cadastroErro(); as erro) {
+      <p class="sep-chaves-cadastro-erro" role="alert">{{ erro }}</p>
+    }
+
+    <div class="sep-chaves-form">
+      <div class="sep-chaves-form-campo">
+        <label class="sep-chaves-form-label" for="chave-tipo">Tipo da chave</label>
+        <select
+          class="sep-chaves-form-select"
+          id="chave-tipo"
+          [value]="tipo()"
+          [disabled]="cadastroBloqueado()"
+          (change)="atualizarTipo($any($event.target).value)"
+        >
+          @for (t of tipos; track t) {
+            <option [value]="t" [selected]="tipo() === t">{{ tipoLabel[t] }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="sep-chaves-form-campo">
+        <label class="sep-chaves-form-label" for="chave-valor">Valor da chave</label>
+        <input
+          class="sep-chaves-form-input"
+          id="chave-valor"
+          type="text"
+          autocomplete="off"
+          [value]="valor()"
+          [disabled]="cadastroBloqueado()"
+          (input)="atualizarValor($any($event.target).value)"
+        />
+        <span class="sep-chaves-form-ajuda">
+          Obrigatorio para todos os tipos, inclusive aleatoria (EVP). O formato e o digito
+          verificador sao validados pelo backend.
+        </span>
+        @if (valorErro(); as erroValor) {
+          <span class="sep-chaves-form-erro" role="alert">{{ erroValor }}</span>
+        }
+      </div>
+    </div>
+
+    <div class="sep-chaves-acoes">
+      <button
+        type="button"
+        class="sep-chaves-cadastrar"
+        (click)="cadastrarClick()"
+        [disabled]="cadastroBloqueado()"
+      >
+        Cadastrar chave
+      </button>
+    </div>
+
+    @if (confirmando()) {
+      <div
+        #confirmacaoBox
+        class="sep-chaves-confirmacao"
+        role="alertdialog"
+        aria-modal="true"
+        tabindex="-1"
+        aria-labelledby="confirmacao-chave-titulo"
+        (keydown.escape)="cancelarConfirmacao()"
+        (keydown.tab)="prenderFoco($event)"
+        (keydown.shift.tab)="prenderFoco($event)"
+      >
+        <h3 class="sep-chaves-confirmacao-titulo" id="confirmacao-chave-titulo">
+          Confirmar cadastro de chave
+        </h3>
+        <p class="sep-chaves-confirmacao-texto">
+          Voce esta cadastrando uma chave do tipo {{ tipoLabel[tipo()] }} com o valor
+          {{ valor() }} na conta operacional. Nesta fase o registro usa provider local (fake):
+          nenhuma chave real e criada no DICT.
+        </p>
+        <div class="sep-chaves-confirmacao-acoes">
+          <button
+            type="button"
+            class="sep-chaves-cadastrar"
+            (click)="confirmarCadastro()"
+            [disabled]="cadastroEmVoo()"
+          >
+            {{ cadastroEmVoo() ? 'Enviando...' : 'Confirmar cadastro' }}
+          </button>
+          <button
+            type="button"
+            class="sep-chaves-cancelar"
+            (click)="cancelarConfirmacao()"
+            [disabled]="cadastroEmVoo()"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    }
+  </section>
+
   <a class="sep-chaves-voltar" routerLink="/app/pix">Voltar para o Pix operacional</a>
 </section>
