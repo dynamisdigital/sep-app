@@ -168,6 +168,21 @@
   @include sepDs.sep-button-size-sm;
 }
 
+// Acao destrutiva: variante propria do DS para nao ser confundida com um CTA neutro.
+.sep-chaves-remover {
+  @include sepDs.sep-button-base;
+  @include sepDs.sep-button-ghost;
+  @include sepDs.sep-button-size-sm;
+
+  color: hsl(var(--destructive));
+}
+
+.sep-chaves-remover-confirmar {
+  @include sepDs.sep-button-base;
+  @include sepDs.sep-button-destructive;
+  @include sepDs.sep-button-size-sm;
+}
+
 .sep-chaves-cancelar {
   @include sepDs.sep-button-base;
   @include sepDs.sep-button-outline;

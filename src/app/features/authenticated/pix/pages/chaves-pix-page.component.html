@@ -36,6 +36,7 @@
             <th scope="col">Status</th>
             <th scope="col">Cadastrada em</th>
             <th scope="col">Removida em</th>
+            <th scope="col">Acoes</th>
           </tr>
         </thead>
         <tbody>
@@ -52,10 +53,95 @@
                   <span class="sep-chaves-vazio-celula">—</span>
                 }
               </td>
+              <td>
+                @if (chave.status === 'ATIVA') {
+                  <button
+                    type="button"
+                    class="sep-chaves-remover"
+                    [disabled]="remocaoBloqueada()"
+                    [attr.aria-label]="'Remover chave ' + chave.valorMascarado"
+                    (click)="removerClick(chave)"
+                  >
+                    Remover
+                  </button>
+                } @else {
+                  <span class="sep-chaves-vazio-celula">—</span>
+                }
+              </td>
             </tr>
           }
         </tbody>
       </table>
+    </div>
+  }
+
+  @if (remocaoSucesso(); as sucesso) {
+    <p class="sep-chaves-sucesso" role="status">{{ sucesso }}</p>
+  }
+
+  @if (remocaoMfaNecessario()) {
+    <div class="sep-chaves-aviso" role="alert">
+      <p>
+        Para remover uma chave Pix e preciso ter a verificacao em duas etapas (MFA) ativa na sua
+        conta.
+      </p>
+      <a class="sep-chaves-aviso-link" routerLink="/app/profile/setup-totp">
+        Ativar verificacao em duas etapas
+      </a>
+    </div>
+  }
+
+  @if (remocaoVerificacaoNecessaria()) {
+    <div class="sep-chaves-aviso" role="alert">
+      <p>Nao foi possivel confirmar sua identidade para a remocao da chave.</p>
+      <button type="button" class="sep-chaves-retry" (click)="verificarNovamenteRemocao()">
+        Verificar novamente
+      </button>
+    </div>
+  }
+
+  @if (remocaoErro(); as erro) {
+    <p class="sep-chaves-cadastro-erro" role="alert">{{ erro }}</p>
+  }
+
+  @if (remocaoAlvo(); as alvo) {
+    <div
+      #remocaoBox
+      class="sep-chaves-confirmacao"
+      role="dialog"
+      aria-modal="true"
+      tabindex="-1"
+      aria-labelledby="confirmacao-remocao-titulo"
+      (keydown.escape)="cancelarRemocao()"
+      (keydown.tab)="prenderFocoRemocao($event)"
+      (keydown.shift.tab)="prenderFocoRemocao($event)"
+    >
+      <h2 class="sep-chaves-confirmacao-titulo" id="confirmacao-remocao-titulo">
+        Confirmar remocao de chave
+      </h2>
+      <p class="sep-chaves-confirmacao-texto">
+        Voce esta removendo a chave {{ tipoLabel[alvo.tipo] }} {{ alvo.valorMascarado }} da conta
+        operacional. A chave passa a INATIVA e permanece no historico; o registro no provider local
+        (fake) tambem e desfeito.
+      </p>
+      <div class="sep-chaves-confirmacao-acoes">
+        <button
+          type="button"
+          class="sep-chaves-remover-confirmar"
+          (click)="confirmarRemocao()"
+          [disabled]="remocaoEmVoo()"
+        >
+          {{ remocaoEmVoo() ? 'Removendo...' : 'Confirmar remocao' }}
+        </button>
+        <button
+          type="button"
+          class="sep-chaves-cancelar"
+          (click)="cancelarRemocao()"
+          [disabled]="remocaoEmVoo()"
+        >
+          Cancelar
+        </button>
+      </div>
     </div>
   }
 
@@ -152,8 +238,8 @@
         tabindex="-1"
         aria-labelledby="confirmacao-chave-titulo"
         (keydown.escape)="cancelarConfirmacao()"
-        (keydown.tab)="prenderFoco($event)"
-        (keydown.shift.tab)="prenderFoco($event)"
+        (keydown.tab)="prenderFocoCadastro($event)"
+        (keydown.shift.tab)="prenderFocoCadastro($event)"
       >
         <h3 class="sep-chaves-confirmacao-titulo" id="confirmacao-chave-titulo">
           Confirmar cadastro de chave

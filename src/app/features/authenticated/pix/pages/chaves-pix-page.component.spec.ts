@@ -120,6 +120,23 @@ function stubLista(chaves: ChavePixResponse[]): { total: () => number } {
   return { total: () => chamadas };
 }
 
+// Captura os DELETEs recebidos (por id de chave) e responde com o status pedido.
+function stubRemocao(responder: () => HttpResponse | Response): {
+  ids: () => string[];
+  headers: () => (string | null)[];
+} {
+  const ids: string[] = [];
+  const headers: (string | null)[] = [];
+  server.use(
+    http.delete(`${CHAVES_URL}/:chaveId`, ({ params, request }) => {
+      ids.push(String(params['chaveId']));
+      headers.push(request.headers.get('Idempotency-Key'));
+      return responder();
+    }),
+  );
+  return { ids: () => ids, headers: () => headers };
+}
+
 // Captura as Idempotency-Keys de cada POST e responde com o status pedido. Permite provar o
 // reuso da MESMA key em retry ambiguo e a troca de key quando tipo/valor mudam.
 function stubCadastro(responder: () => HttpResponse | Response): { keys: () => string[] } {
@@ -149,6 +166,16 @@ async function abrirConfirmacao(
 
 async function confirmarCadastro(fixture: ComponentFixture<unknown>): Promise<void> {
   fireEvent.click(screen.getByRole('button', { name: 'Confirmar cadastro' }));
+  await estabilizar(fixture);
+}
+
+async function abrirRemocao(fixture: ComponentFixture<unknown>): Promise<void> {
+  fireEvent.click(screen.getByRole('button', { name: /^Remover chave/ }));
+  await estabilizar(fixture);
+}
+
+async function confirmarRemocao(fixture: ComponentFixture<unknown>): Promise<void> {
+  fireEvent.click(screen.getByRole('button', { name: 'Confirmar remocao' }));
   await estabilizar(fixture);
 }
 
@@ -200,13 +227,21 @@ describe('ChavesPixPageComponent', () => {
       expect(linhas[1].textContent).toContain('**.***.***/0001-**');
     });
 
-    it('nao exibe data de remocao enquanto a chave esta ATIVA', async () => {
-      stubLista([CHAVE_ATIVA]);
+    // Colunas: 0 Tipo | 1 Chave | 2 Status | 3 Cadastrada em | 4 Removida em | 5 Acoes.
+    const COLUNA_REMOVIDA_EM = 4;
+
+    it('so exibe data de remocao quando a chave esta INATIVA', async () => {
+      stubLista([CHAVE_ATIVA, CHAVE_INATIVA]);
       const { fixture } = await renderPage();
       await estabilizar(fixture);
 
-      const celulas = document.querySelectorAll('tbody tr td');
-      expect(celulas[celulas.length - 1].textContent?.trim()).toBe('—');
+      const linhas = document.querySelectorAll('tbody tr');
+      const removidaEmAtiva = linhas[0].querySelectorAll('td')[COLUNA_REMOVIDA_EM];
+      const removidaEmInativa = linhas[1].querySelectorAll('td')[COLUNA_REMOVIDA_EM];
+
+      expect(removidaEmAtiva.textContent?.trim()).toBe('—');
+      expect(removidaEmInativa.textContent?.trim()).not.toBe('—');
+      expect(removidaEmInativa.textContent).toContain('01/07/2026');
     });
 
     it('superficie vazia: 200 [] mostra mensagem neutra, sem fabricar linhas', async () => {
@@ -549,6 +584,24 @@ describe('ChavesPixPageComponent', () => {
       expect(cadastro.keys().length).toBe(1);
     });
 
+    it('nao abre o cadastro enquanto a confirmacao de remocao esta aberta', async () => {
+      stubLista([CHAVE_ATIVA]);
+      const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
+      autenticarFinanceiro(fixture, true);
+      await estabilizar(fixture);
+
+      await abrirRemocao(fixture);
+      expect(screen.getByRole('dialog')).toBeTruthy();
+
+      preencherFormulario(fixture, VALOR_EM_CLARO);
+      fireEvent.click(screen.getByRole('button', { name: 'Cadastrar chave' }));
+      await estabilizar(fixture);
+
+      // Dialogos nunca se sobrepoem: o de cadastro (alertdialog) nao abre sobre o de remocao.
+      expect(screen.queryByRole('alertdialog')).toBeNull();
+      expect(screen.getByRole('dialog')).toBeTruthy();
+    });
+
     it('nem a Idempotency-Key nem o valor em claro sao persistidos no navegador', async () => {
       stubLista([]);
       stubCadastro(() => new HttpResponse(null, { status: 503 }));
@@ -561,6 +614,168 @@ describe('ChavesPixPageComponent', () => {
 
       expect(window.localStorage.length).toBe(0);
       expect(window.sessionStorage.length).toBe(0);
+    });
+  });
+
+  describe('remocao assistida', () => {
+    it('oferece Remover apenas em chave ATIVA; INATIVA nao tem CTA', async () => {
+      stubLista([CHAVE_ATIVA, CHAVE_INATIVA]);
+      const { fixture } = await renderPage();
+      autenticarFinanceiro(fixture, true);
+      await estabilizar(fixture);
+
+      const remover = screen.getAllByRole('button', { name: /^Remover chave/ });
+      expect(remover.length).toBe(1);
+      expect(remover[0].getAttribute('aria-label')).toContain(CHAVE_ATIVA.valorMascarado);
+    });
+
+    it('sem MFA ativo, bloqueia a remocao com orientacao e nao abre a confirmacao', async () => {
+      stubLista([CHAVE_ATIVA]);
+      const { fixture } = await renderPage();
+      autenticarFinanceiro(fixture, false);
+      await estabilizar(fixture);
+
+      await abrirRemocao(fixture);
+
+      expect(screen.getByText(/remover uma chave Pix e preciso ter a verificacao/i)).toBeTruthy();
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+
+    it('sem token, confirmar navega ao step-up desta rota e NAO chama o DELETE', async () => {
+      stubLista([CHAVE_ATIVA]);
+      const remocao = stubRemocao(() => new HttpResponse(null, { status: 204 }));
+      const { fixture } = await renderPage();
+      autenticarFinanceiro(fixture, true);
+      const router = fixture.debugElement.injector.get(Router);
+      const navegar = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+      await estabilizar(fixture);
+
+      await abrirRemocao(fixture);
+      expect(screen.getByRole('dialog')).toBeTruthy();
+
+      await confirmarRemocao(fixture);
+
+      expect(navegar).toHaveBeenCalledWith(ROTA_STEP_UP);
+      expect(remocao.ids()).toEqual([]);
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+
+    // Cenario do retorno do step-up: a pagina renasce com token no store. Nenhuma chave pode ser
+    // inativada sem um novo gesto do operador.
+    it('voltar do step-up com token NAO remove sozinho: exige novo clique', async () => {
+      stubLista([CHAVE_ATIVA]);
+      const remocao = stubRemocao(() => new HttpResponse(null, { status: 204 }));
+      const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
+      autenticarFinanceiro(fixture, true);
+      await estabilizar(fixture);
+      await estabilizar(fixture);
+
+      expect(remocao.ids()).toEqual([]);
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+
+    it('204 inativa a chave, confirma sucesso e reconsulta a lista', async () => {
+      const lista = stubLista([CHAVE_ATIVA]);
+      const remocao = stubRemocao(() => new HttpResponse(null, { status: 204 }));
+      const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
+      autenticarFinanceiro(fixture, true);
+      await estabilizar(fixture);
+
+      await abrirRemocao(fixture);
+      await confirmarRemocao(fixture);
+
+      expect(remocao.ids()).toEqual([CHAVE_ATIVA.id]);
+      // DELETE e idempotente por contrato: nao ha Idempotency-Key nesta operacao.
+      expect(remocao.headers()).toEqual([null]);
+      expect(screen.getByText(/removida/i, { selector: '[role="status"]' })).toBeTruthy();
+      expect(lista.total()).toBe(2);
+    });
+
+    it('404 e tratado como indisponivel neutro, sem enumerar o motivo', async () => {
+      const lista = stubLista([CHAVE_ATIVA]);
+      stubRemocao(() => new HttpResponse(null, { status: 404 }));
+      const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
+      autenticarFinanceiro(fixture, true);
+      await estabilizar(fixture);
+
+      await abrirRemocao(fixture);
+      await confirmarRemocao(fixture);
+
+      const alerta = screen.getByText(/chave indisponivel para remocao/i);
+      expect(alerta).toBeTruthy();
+      // Neutro: nao distingue inexistente, fora de escopo ou conta ausente, nem ecoa o UUID.
+      expect(alerta.textContent).not.toContain(CHAVE_ATIVA.id);
+      expect(screen.queryByText(/removida/i, { selector: '[role="status"]' })).toBeNull();
+      expect(lista.total()).toBe(2);
+    });
+
+    it('403 oferece nova verificacao na propria tela, sem redirect global', async () => {
+      stubLista([CHAVE_ATIVA]);
+      const remocao = stubRemocao(() => new HttpResponse(null, { status: 403 }));
+      const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
+      autenticarFinanceiro(fixture, true);
+      const router = fixture.debugElement.injector.get(Router);
+      const navegar = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+      await estabilizar(fixture);
+
+      await abrirRemocao(fixture);
+      await confirmarRemocao(fixture);
+
+      expect(
+        screen.getByText(/nao foi possivel confirmar sua identidade para a remocao/i),
+      ).toBeTruthy();
+      expect(navegar).not.toHaveBeenCalledWith('/access-denied');
+
+      fireEvent.click(screen.getByText('Verificar novamente'));
+      await estabilizar(fixture);
+      expect(navegar).toHaveBeenCalledWith(ROTA_STEP_UP);
+      expect(remocao.ids().length).toBe(1);
+    });
+
+    it('rede/5xx nao presume remocao e reconsulta a lista antes de repetir', async () => {
+      const lista = stubLista([CHAVE_ATIVA]);
+      stubRemocao(() => new HttpResponse(null, { status: 503 }));
+      const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
+      autenticarFinanceiro(fixture, true);
+      await estabilizar(fixture);
+
+      await abrirRemocao(fixture);
+      await confirmarRemocao(fixture);
+
+      expect(screen.getByText(/nao foi possivel confirmar a remocao/i)).toBeTruthy();
+      expect(screen.queryByText(/removida/i, { selector: '[role="status"]' })).toBeNull();
+      expect(lista.total()).toBe(2);
+    });
+
+    it('duplo clique em Confirmar remocao nao dispara dois DELETEs', async () => {
+      stubLista([CHAVE_ATIVA]);
+      const remocao = stubRemocao(() => new HttpResponse(null, { status: 204 }));
+      const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
+      autenticarFinanceiro(fixture, true);
+      await estabilizar(fixture);
+
+      await abrirRemocao(fixture);
+      const confirmar = screen.getByRole('button', { name: 'Confirmar remocao' });
+      fireEvent.click(confirmar);
+      fireEvent.click(confirmar);
+      await estabilizar(fixture);
+
+      expect(remocao.ids().length).toBe(1);
+    });
+
+    it('cancelar fecha a confirmacao sem chamar o DELETE', async () => {
+      stubLista([CHAVE_ATIVA]);
+      const remocao = stubRemocao(() => new HttpResponse(null, { status: 204 }));
+      const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
+      autenticarFinanceiro(fixture, true);
+      await estabilizar(fixture);
+
+      await abrirRemocao(fixture);
+      fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
+      await estabilizar(fixture);
+
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(remocao.ids()).toEqual([]);
     });
   });
 });

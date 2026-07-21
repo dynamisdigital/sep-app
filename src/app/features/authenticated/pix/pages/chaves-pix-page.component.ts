@@ -74,13 +74,24 @@ export class ChavesPixPageComponent implements OnInit {
   protected readonly mfaNecessario = signal(false);
   protected readonly verificacaoNecessaria = signal(false);
 
+  // Remocao (F-20.4): sem Idempotency-Key — o DELETE e idempotente por contrato (204 mesmo se a
+  // chave ja estava INATIVA), entao nao ha intencao a preservar, so o alvo da confirmacao.
+  protected readonly remocaoAlvo = signal<ChavePixResponse | null>(null);
+  protected readonly remocaoEmVoo = signal(false);
+  protected readonly remocaoErro = signal<string | null>(null);
+  protected readonly remocaoSucesso = signal<string | null>(null);
+  protected readonly remocaoMfaNecessario = signal(false);
+  protected readonly remocaoVerificacaoNecessaria = signal(false);
+
   protected readonly formatarDataHora = formatarDataHora;
   protected readonly tipoLabel = TIPO_CHAVE_LABEL;
 
   // Dialogo acessivel (padrao F-16/F-18): foco entra na confirmacao ao abrir e volta ao gatilho ao
   // fechar; Escape cancela; Tab cicla dentro do dialogo.
   private readonly confirmacaoBox = viewChild<ElementRef<HTMLElement>>('confirmacaoBox');
+  private readonly remocaoBox = viewChild<ElementRef<HTMLElement>>('remocaoBox');
   private gatilhoCadastro: HTMLElement | null = null;
+  private gatilhoRemocao: HTMLElement | null = null;
 
   private consultaAtual: Subscription | null = null;
 
@@ -92,6 +103,17 @@ export class ChavesPixPageComponent implements OnInit {
       } else if (this.gatilhoCadastro) {
         this.gatilhoCadastro.focus();
         this.gatilhoCadastro = null;
+      }
+    });
+    // O gatilho da remocao e a linha da tabela que originou a acao; devolver o foco a ele evita
+    // que o operador perca a posicao na lista ao fechar o dialogo.
+    effect(() => {
+      const box = this.remocaoBox();
+      if (box) {
+        box.nativeElement.focus();
+      } else if (this.gatilhoRemocao) {
+        this.gatilhoRemocao.focus();
+        this.gatilhoRemocao = null;
       }
     });
   }
@@ -180,9 +202,17 @@ export class ChavesPixPageComponent implements OnInit {
     this.navegarParaStepUp();
   }
 
-  // Trap de Tab do dialogo (padrao F-16).
-  prenderFoco(event: Event): void {
-    const box = this.confirmacaoBox()?.nativeElement;
+  // Trap de Tab dos dialogos (padrao F-16). Cada dialogo passa a propria caixa: a pagina tem dois
+  // (cadastro e remocao) e eles nunca coexistem.
+  prenderFocoCadastro(event: Event): void {
+    this.prenderFoco(event, this.confirmacaoBox()?.nativeElement);
+  }
+
+  prenderFocoRemocao(event: Event): void {
+    this.prenderFoco(event, this.remocaoBox()?.nativeElement);
+  }
+
+  private prenderFoco(event: Event, box: HTMLElement | undefined): void {
     if (!box) {
       return;
     }
@@ -259,8 +289,94 @@ export class ChavesPixPageComponent implements OnInit {
       });
   }
 
+  // Oferece a remocao apenas em chave ATIVA; INATIVA ja e estado terminal e nao tem CTA.
+  removerClick(chave: ChavePixResponse): void {
+    if (this.remocaoBloqueada() || chave.status !== 'ATIVA') {
+      return;
+    }
+    this.remocaoErro.set(null);
+    this.remocaoSucesso.set(null);
+    this.remocaoVerificacaoNecessaria.set(false);
+    if (!this.auth.currentUser()?.mfaHabilitado) {
+      this.remocaoMfaNecessario.set(true);
+      return;
+    }
+    this.remocaoMfaNecessario.set(false);
+    this.gatilhoRemocao =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    this.remocaoAlvo.set(chave);
+  }
+
+  cancelarRemocao(): void {
+    if (this.remocaoEmVoo()) {
+      return;
+    }
+    this.remocaoAlvo.set(null);
+  }
+
+  // Reverificacao por gesto explicito apos 403 no DELETE (token de uso unico ja consumido).
+  verificarNovamenteRemocao(): void {
+    this.remocaoVerificacaoNecessaria.set(false);
+    this.remocaoErro.set(null);
+    this.navegarParaStepUp();
+  }
+
+  // Ultima etapa da remocao. Sem token: fecha a confirmacao e coleta o step-up com retorno para
+  // ESTA rota; ao voltar, remover exige novo clique — nenhuma chave e inativada automaticamente.
+  confirmarRemocao(): void {
+    const chave = this.remocaoAlvo();
+    if (this.remocaoEmVoo() || !chave) {
+      return;
+    }
+    if (!this.stepUpTokens.token()) {
+      this.remocaoAlvo.set(null);
+      this.navegarParaStepUp();
+      return;
+    }
+    this.remocaoEmVoo.set(true);
+    this.remocaoErro.set(null);
+    this.pixService
+      .removerChavePix(chave.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.remocaoEmVoo.set(false);
+          this.remocaoAlvo.set(null);
+          // 204 e idempotente: vale tanto para a chave que estava ATIVA quanto para uma ja
+          // INATIVA. O estado exibido vem da reconsulta, nunca de uma suposicao local.
+          this.remocaoSucesso.set(
+            `Chave ${this.tipoLabel[chave.tipo]} removida (${chave.valorMascarado}).`,
+          );
+          this.carregar();
+        },
+        error: (err: HttpErrorResponse) => {
+          this.remocaoEmVoo.set(false);
+          this.remocaoAlvo.set(null);
+          this.tratarErroRemocao(err);
+        },
+      });
+  }
+
+  // Cadastro e remocao se bloqueiam mutuamente: um dialogo nunca se abre sobre o outro e nenhuma
+  // mutacao concorre com a reconsulta da lista.
   protected cadastroBloqueado(): boolean {
-    return this.loading() || this.cadastroEmVoo() || this.confirmando();
+    return (
+      this.loading() ||
+      this.cadastroEmVoo() ||
+      this.confirmando() ||
+      this.remocaoEmVoo() ||
+      this.remocaoAlvo() !== null
+    );
+  }
+
+  protected remocaoBloqueada(): boolean {
+    return (
+      this.loading() ||
+      this.remocaoEmVoo() ||
+      this.remocaoAlvo() !== null ||
+      this.cadastroEmVoo() ||
+      this.confirmando()
+    );
   }
 
   // Validacao apenas de formato: campo preenchido. Digito verificador, formato por tipo e
@@ -326,6 +442,31 @@ export class ChavesPixPageComponent implements OnInit {
     // retry com o mesmo tipo/valor — o backend faz o replay idempotente — e a lista e reconsultada.
     this.cadastroErro.set(
       'Nao foi possivel confirmar o cadastro da chave. Atualize a lista antes de tentar novamente com o mesmo tipo e valor.',
+    );
+    this.carregar();
+  }
+
+  // Matriz de falhas da remocao. O DELETE nao tem Idempotency-Key: repetir e seguro por contrato,
+  // entao todo caminho converge por nova leitura em vez de presumir o estado.
+  private tratarErroRemocao(err: HttpErrorResponse): void {
+    if (err.status === 403) {
+      if (!this.auth.currentUser()?.mfaHabilitado) {
+        this.remocaoMfaNecessario.set(true);
+        return;
+      }
+      this.remocaoVerificacaoNecessaria.set(true);
+      return;
+    }
+    if (err.status === 404) {
+      // Neutro por contrato: nao distingue chave inexistente, fora do escopo da conta operacional
+      // ou conta ausente. A mensagem tambem nao enumera os casos.
+      this.remocaoErro.set('Chave indisponivel para remocao. A lista foi atualizada.');
+      this.carregar();
+      return;
+    }
+    // Rede/5xx: a chave pode ou nao ter sido inativada. Reconsultar antes de repetir.
+    this.remocaoErro.set(
+      'Nao foi possivel confirmar a remocao da chave. Atualize a lista antes de tentar novamente.',
     );
     this.carregar();
   }
