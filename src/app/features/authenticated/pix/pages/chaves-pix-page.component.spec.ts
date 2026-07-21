@@ -13,6 +13,7 @@ import { errorInterceptor } from '../../../../core/interceptors/error.intercepto
 import { stepUpInterceptor } from '../../../../core/interceptors/step-up.interceptor';
 import { ChavePixIntencaoStore } from '../../../../core/pix/chave-pix-intencao.store';
 import { PixService } from '../../../../core/pix/pix.service';
+import { resetChavesPixState } from '../../../../../mocks/handlers';
 import { server } from '../../../../../mocks/server';
 import { PIX_ROUTES } from '../pix.routes';
 import { ChavesPixPageComponent } from './chaves-pix-page.component';
@@ -192,6 +193,9 @@ describe('ChavesPixPageComponent', () => {
   beforeEach(() => {
     window.localStorage.clear();
     window.sessionStorage.clear();
+    // Handlers globais de chaves Pix passaram a existir na F-20.6: reset explicito garante que um
+    // teste nao herde estado mutado por outro quando o stub por caso nao cobrir alguma rota.
+    resetChavesPixState();
   });
 
   // O guard proprio da sub-rota e mais restrito que o pai /app/pix (que inclui BACKOFFICE): o

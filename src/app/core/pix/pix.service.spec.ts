@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { Observable } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { resetPixState } from '../../../mocks/handlers';
+import { resetChavesPixState, resetPixState } from '../../../mocks/handlers';
 import {
   CadastrarChavePixRequest,
   ChavePixResponse,
@@ -70,6 +70,13 @@ const CADASTRO_VALIDO: CadastrarChavePixRequest = {
   valor: 'financeiro@dynamis.com.br',
 };
 
+// Sentinelas espelhando os handlers MSW de chaves Pix (src/mocks/handlers.ts).
+const CHAVE_PIX_ATIVA_ID = 'e3000000-0000-4000-8000-000000000001';
+const CHAVE_PIX_INATIVA_ID = 'e3000000-0000-4000-8000-000000000002';
+const CHAVE_PIX_INEXISTENTE_ID = 'e3000000-0000-4000-8000-0000000000aa';
+const VALOR_INVALIDO = '000.000.000-00';
+const VALOR_CONTA_INDISPONIVEL = 'conta-indisponivel@dynamis.com.br';
+
 // O stepUpInterceptor real so reconhece as rotas Pix sensiveis a partir da Task F-13.3 (testado
 // la). Aqui um interceptor de teste simula a presenca do X-Step-Up-Token quando `anexarStepUp`
 // esta ligado, exercitando o caminho feliz e provando que o proprio service nao anexa o token.
@@ -84,6 +91,7 @@ describe('PixService (comportamento via MSW)', () => {
 
   beforeEach(() => {
     resetPixState();
+    resetChavesPixState();
     anexarStepUp = false;
     TestBed.configureTestingModule({
       providers: [provideHttpClient(withInterceptors([stepUpDeTeste]))],
@@ -298,10 +306,157 @@ describe('PixService (comportamento via MSW)', () => {
       expect(resposta.motivoDivergencia).toBeTruthy();
     });
 
-    it('rejeita com 404 quando o recebimento nao existe', async () => {
+    it('rejeita com 404 quando o recebimento nao existe (recebimento)', async () => {
       await expect(
         awaitObservable(service.consultarRecebimento(RECEBIMENTO_INEXISTENTE_ID)),
       ).rejects.toMatchObject({ status: 404 });
+    });
+  });
+
+  // Chaves Pix da conta operacional (F-20.6): comportamento contra o MSW stateful, nao contra
+  // stubs por caso. Exercita idempotencia real (replay x conflito), transicao ATIVA -> INATIVA e
+  // as respostas de erro do contrato.
+  describe('chaves Pix', () => {
+    it('listarChavesPix devolve ATIVA e INATIVA, mascaradas e mais recentes primeiro', async () => {
+      const chaves = await awaitObservable(service.listarChavesPix());
+
+      expect(chaves.length).toBe(2);
+      expect(chaves[0].status).toBe('ATIVA');
+      expect(chaves[1].status).toBe('INATIVA');
+      expect(chaves[1].removidaEm).toBeTruthy();
+      // O valor em claro do seed nunca aparece na leitura.
+      expect(JSON.stringify(chaves)).not.toContain('financeiro@dynamis.com.br');
+      expect(chaves[0].valorMascarado).toContain('***');
+    });
+
+    it('listarChavesPix nao exige step-up', async () => {
+      await expect(awaitObservable(service.listarChavesPix())).resolves.toBeTruthy();
+    });
+
+    describe('cadastrarChavePix', () => {
+      it('rejeita com 403 quando nao ha step-up', async () => {
+        await expect(
+          awaitObservable(
+            service.cadastrarChavePix({ tipo: 'EVP', valor: 'chave-evp' }, 'key-sem-stepup'),
+          ),
+        ).rejects.toMatchObject({ status: 403 });
+      });
+
+      describe('com step-up', () => {
+        beforeEach(() => {
+          anexarStepUp = true;
+        });
+
+        it('cadastra a chave e passa a lista-la, sem devolver o valor em claro', async () => {
+          const criada = await awaitObservable(
+            service.cadastrarChavePix({ tipo: 'EVP', valor: 'chave-evp-nova' }, 'key-nova-1'),
+          );
+
+          expect(criada.status).toBe('ATIVA');
+          expect(criada.removidaEm).toBeNull();
+          expect(criada.valorMascarado).not.toBe('chave-evp-nova');
+
+          const chaves = await awaitObservable(service.listarChavesPix());
+          expect(chaves.length).toBe(3);
+          // Mais recente primeiro.
+          expect(chaves[0].id).toBe(criada.id);
+        });
+
+        it('replay da MESMA key com o mesmo payload devolve a chave existente, sem duplicar', async () => {
+          const primeira = await awaitObservable(
+            service.cadastrarChavePix({ tipo: 'EVP', valor: 'chave-replay' }, 'key-replay'),
+          );
+          const replay = await awaitObservable(
+            service.cadastrarChavePix({ tipo: 'EVP', valor: 'chave-replay' }, 'key-replay'),
+          );
+
+          expect(replay.id).toBe(primeira.id);
+          const chaves = await awaitObservable(service.listarChavesPix());
+          expect(chaves.length).toBe(3);
+        });
+
+        it('rejeita com 409 a MESMA key reapresentada com payload divergente', async () => {
+          await awaitObservable(
+            service.cadastrarChavePix({ tipo: 'EVP', valor: 'chave-original' }, 'key-conflito'),
+          );
+
+          await expect(
+            awaitObservable(
+              service.cadastrarChavePix({ tipo: 'EVP', valor: 'chave-outra' }, 'key-conflito'),
+            ),
+          ).rejects.toMatchObject({ status: 409 });
+        });
+
+        it('rejeita com 409 quando ja existe chave equivalente ativa', async () => {
+          await expect(
+            awaitObservable(
+              service.cadastrarChavePix(
+                { tipo: 'EMAIL', valor: 'financeiro@dynamis.com.br' },
+                'key-equivalente',
+              ),
+            ),
+          ).rejects.toMatchObject({ status: 409 });
+        });
+
+        it('rejeita com 400 valor invalido e com 422 conta operacional indisponivel', async () => {
+          await expect(
+            awaitObservable(
+              service.cadastrarChavePix({ tipo: 'CPF', valor: VALOR_INVALIDO }, 'key-400'),
+            ),
+          ).rejects.toMatchObject({ status: 400 });
+
+          await expect(
+            awaitObservable(
+              service.cadastrarChavePix(
+                { tipo: 'EMAIL', valor: VALOR_CONTA_INDISPONIVEL },
+                'key-422',
+              ),
+            ),
+          ).rejects.toMatchObject({ status: 422 });
+        });
+
+        it('rejeita com 400 quando a Idempotency-Key vem vazia', async () => {
+          await expect(
+            awaitObservable(service.cadastrarChavePix({ tipo: 'EVP', valor: 'chave-x' }, '')),
+          ).rejects.toMatchObject({ status: 400 });
+        });
+      });
+    });
+
+    describe('removerChavePix', () => {
+      it('rejeita com 403 quando nao ha step-up', async () => {
+        await expect(
+          awaitObservable(service.removerChavePix(CHAVE_PIX_ATIVA_ID)),
+        ).rejects.toMatchObject({ status: 403 });
+      });
+
+      describe('com step-up', () => {
+        beforeEach(() => {
+          anexarStepUp = true;
+        });
+
+        it('inativa a chave ATIVA e preserva o historico', async () => {
+          await awaitObservable(service.removerChavePix(CHAVE_PIX_ATIVA_ID));
+
+          const chaves = await awaitObservable(service.listarChavesPix());
+          const removida = chaves.find((chave) => chave.id === CHAVE_PIX_ATIVA_ID);
+          expect(chaves.length).toBe(2);
+          expect(removida?.status).toBe('INATIVA');
+          expect(removida?.removidaEm).toBeTruthy();
+        });
+
+        it('e idempotente: remover chave ja INATIVA tambem responde 204', async () => {
+          await expect(
+            awaitObservable(service.removerChavePix(CHAVE_PIX_INATIVA_ID)),
+          ).resolves.toBeNull();
+        });
+
+        it('rejeita com 404 neutro quando a chave nao existe', async () => {
+          await expect(
+            awaitObservable(service.removerChavePix(CHAVE_PIX_INEXISTENTE_ID)),
+          ).rejects.toMatchObject({ status: 404 });
+        });
+      });
     });
   });
 });

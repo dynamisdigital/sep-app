@@ -2790,6 +2790,168 @@ function chaveInteresse(oportunidadeId: string): string {
   return `${currentMockUser.id}:${oportunidadeId}`;
 }
 
+// --- Chaves Pix da conta operacional/escrow (F-20.6 / backend Sprint 31) ---
+// As tres operacoes exigem FINANCEIRO/ADMIN; POST e DELETE exigem ainda step-up estrito. A chave
+// em claro NUNCA e guardada nem devolvida: o mock persiste apenas a mascara, reusando o
+// mascararChavePix() ja existente. O valor bruto so vive no corpo da request, como no backend.
+interface ChavePixMockState {
+  id: string;
+  tipo: string;
+  valorMascarado: string;
+  status: 'ATIVA' | 'INATIVA';
+  criadaEm: string;
+  removidaEm: string | null;
+}
+
+// Sentinelas de erro. Espelham as regras do backend sem reimplementa-las: o mock nao valida DV
+// nem formato por tipo — apenas reconhece valores combinados para produzir 400 e 422.
+const CHAVE_PIX_VALOR_INVALIDO = '000.000.000-00';
+const CHAVE_PIX_VALOR_CONTA_INDISPONIVEL = 'conta-indisponivel@dynamis.com.br';
+
+// Seed: uma chave ATIVA e uma INATIVA (historico), da mais recente para a mais antiga — a mesma
+// ordem que o backend garante. O frontend nao reordena, entao a ordem daqui e a ordem exibida.
+export function seedChavesPix(): ChavePixMockState[] {
+  return [
+    {
+      id: 'e3000000-0000-4000-8000-000000000001',
+      tipo: 'EMAIL',
+      valorMascarado: mascararChavePix('financeiro@dynamis.com.br'),
+      status: 'ATIVA',
+      criadaEm: '2026-07-10T09:00:00-03:00',
+      removidaEm: null,
+    },
+    {
+      id: 'e3000000-0000-4000-8000-000000000002',
+      tipo: 'CNPJ',
+      valorMascarado: mascararChavePix('11222333000181'),
+      status: 'INATIVA',
+      criadaEm: '2026-06-02T09:00:00-03:00',
+      removidaEm: '2026-07-01T14:20:00-03:00',
+    },
+  ];
+}
+
+let chavesPix = seedChavesPix();
+// Idempotencia do cadastro: key -> {payload, resposta}. Mesma key com payload divergente e 409,
+// espelhando o backend; mesma key com o mesmo payload devolve a chave existente com 200.
+const chavePixPorKey = new Map<string, { hash: string; response: ChavePixMockState }>();
+let chavePixSeq = 300;
+
+// Restaura o estado mutavel das chaves Pix (lista e idempotencia) para o seed, garantindo testes
+// independentes (F.I.R.S.T.) ao exercitar cadastro/replay/remocao.
+export function resetChavesPixState(): void {
+  chavesPix = seedChavesPix();
+  chavePixPorKey.clear();
+  chavePixSeq = 300;
+}
+
+const chavesPixHandlers = [
+  // Leitura local, sempre mascarada, incluindo INATIVA. Sem step-up e sem 404: conta operacional
+  // ausente devolveria lista vazia, nunca erro.
+  http.get(`${baseUrl}/pix/chaves`, () => {
+    const path = '/api/v1/pix/chaves';
+    const negado = negarSeNaoFinanceiroPix(path);
+    if (negado) {
+      return negado;
+    }
+    return HttpResponse.json(chavesPix);
+  }),
+
+  http.post(`${baseUrl}/pix/chaves`, async ({ request }) => {
+    const path = '/api/v1/pix/chaves';
+    const negado = negarSeNaoFinanceiroPix(path);
+    if (negado) {
+      return negado;
+    }
+    if (faltaStepUp(request)) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
+    }
+    const chaveIdempotencia = request.headers.get('Idempotency-Key');
+    if (!chaveIdempotencia || !IDEMPOTENCY_KEY_PATTERN.test(chaveIdempotencia)) {
+      return errorResponse(
+        400,
+        'Bad Request',
+        "Header 'Idempotency-Key' ausente ou invalido",
+        path,
+      );
+    }
+    const body = (await request.json()) as { tipo?: string; valor?: string };
+    const hash = JSON.stringify(body);
+    const anterior = chavePixPorKey.get(chaveIdempotencia);
+    if (anterior) {
+      if (anterior.hash !== hash) {
+        return errorResponse(
+          409,
+          'Conflict',
+          'Idempotency-Key reapresentada com payload divergente',
+          path,
+        );
+      }
+      // Replay idempotente: mesma chave, 200 em vez de 201.
+      return HttpResponse.json(anterior.response, { status: 200 });
+    }
+    if (!body.tipo || !body.valor) {
+      return errorResponse(400, 'Bad Request', 'Tipo e valor da chave sao obrigatorios', path);
+    }
+    if (body.valor === CHAVE_PIX_VALOR_INVALIDO) {
+      return errorResponse(400, 'Bad Request', 'Valor de chave invalido', path);
+    }
+    if (body.valor === CHAVE_PIX_VALOR_CONTA_INDISPONIVEL) {
+      return errorResponse(
+        422,
+        'Unprocessable Entity',
+        'Conta operacional/escrow indisponivel',
+        path,
+      );
+    }
+    const mascara = mascararChavePix(body.valor);
+    const jaAtiva = chavesPix.some(
+      (chave) =>
+        chave.status === 'ATIVA' && chave.tipo === body.tipo && chave.valorMascarado === mascara,
+    );
+    if (jaAtiva) {
+      return errorResponse(409, 'Conflict', 'Ja existe chave equivalente ativa', path);
+    }
+    chavePixSeq += 1;
+    const nova: ChavePixMockState = {
+      id: novoId('e3000000', chavePixSeq),
+      tipo: body.tipo,
+      valorMascarado: mascara,
+      status: 'ATIVA',
+      criadaEm: now,
+      removidaEm: null,
+    };
+    // Mais recentes primeiro, como o backend devolve.
+    chavesPix = [nova, ...chavesPix];
+    chavePixPorKey.set(chaveIdempotencia, { hash, response: nova });
+    return HttpResponse.json(nova, { status: 201 });
+  }),
+
+  // Inativacao logica idempotente: 204 tambem quando a chave ja estava INATIVA. O 404 e neutro —
+  // nao distingue inexistente de fora do escopo da conta operacional.
+  http.delete(`${baseUrl}/pix/chaves/:chaveId`, ({ params, request }) => {
+    const chaveId = String(params['chaveId']);
+    const path = `/api/v1/pix/chaves/${chaveId}`;
+    const negado = negarSeNaoFinanceiroPix(path);
+    if (negado) {
+      return negado;
+    }
+    if (faltaStepUp(request)) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
+    }
+    const alvo = chavesPix.find((chave) => chave.id === chaveId);
+    if (!alvo) {
+      return errorResponse(404, 'Not Found', 'Chave Pix nao encontrada', path);
+    }
+    if (alvo.status === 'ATIVA') {
+      chavesPix = chavesPix.map((chave) =>
+        chave.id === chaveId ? { ...chave, status: 'INATIVA' as const, removidaEm: now } : chave,
+      );
+    }
+    return new HttpResponse(null, { status: 204 });
+  }),
+];
+
 const credoraHandlers = [
   http.post(`${baseUrl}/credores`, async ({ request }) => {
     const path = '/api/v1/credores';
@@ -3174,5 +3336,6 @@ export const handlers = [
   ...backofficeHandlers,
   ...governancaHandlers,
   ...pixHandlers,
+  ...chavesPixHandlers,
   ...credoraHandlers,
 ];
