@@ -423,8 +423,10 @@ export class ChavesPixPageComponent implements OnInit {
     if (err.status === 409) {
       // Key reusada com payload diferente ou chave equivalente ja ativa: sem sucesso presumido; a
       // lista e reconsultada e a proxima confirmacao cria nova intencao.
+      // A mensagem nao afirma que a lista JA foi atualizada: carregar() e assincrono e a
+      // reconsulta ainda esta em voo quando o texto aparece.
       this.cadastroErro.set(
-        'A chave nao foi aceita (ja existe uma equivalente ativa ou houve conflito de registro). A lista foi atualizada.',
+        'A chave nao foi aceita (ja existe uma equivalente ativa ou houve conflito de registro). Atualizando a lista.',
       );
       this.intencoes.limpar();
       this.carregar();
@@ -460,7 +462,7 @@ export class ChavesPixPageComponent implements OnInit {
     if (err.status === 404) {
       // Neutro por contrato: nao distingue chave inexistente, fora do escopo da conta operacional
       // ou conta ausente. A mensagem tambem nao enumera os casos.
-      this.remocaoErro.set('Chave indisponivel para remocao. A lista foi atualizada.');
+      this.remocaoErro.set('Chave indisponivel para remocao. Atualizando a lista.');
       this.carregar();
       return;
     }

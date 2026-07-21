@@ -568,7 +568,7 @@ describe('ChavesPixPageComponent', () => {
       expect(cadastro.keys().length).toBe(1);
     });
 
-    it('duplo clique em Confirmar cadastro nao dispara dois POSTs', async () => {
+    it('duplo clique em Confirmar cadastro: o botao desabilita apos o primeiro', async () => {
       stubLista([]);
       const cadastro = stubCadastro(() => HttpResponse.json(CHAVE_ATIVA, { status: 201 }));
       const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
@@ -579,6 +579,30 @@ describe('ChavesPixPageComponent', () => {
       const confirmar = screen.getByRole('button', { name: 'Confirmar cadastro' });
       fireEvent.click(confirmar);
       fireEvent.click(confirmar);
+      await estabilizar(fixture);
+
+      expect(cadastro.keys().length).toBe(1);
+    });
+
+    // O teste acima cobre so a barreira visual: o fireEvent do testing-library roda change
+    // detection, entao o segundo clique ja encontra o botao [disabled].
+    //
+    // Este exercita a invocacao direta, sem DOM. Verificado por mutacao: remover a guarda
+    // `cadastroEmVoo()` do metodo NAO faz este teste falhar — quem impede o segundo POST e o
+    // token de step-up, consumido sincronamente pelo interceptor no primeiro subscribe. A guarda
+    // e defesa em profundidade e so viraria a unica barreira se o token deixasse de ser de uso
+    // unico; e essa regressao que este teste fixa.
+    it('duas chamadas sincronas a confirmarCadastro disparam um unico POST', async () => {
+      stubLista([]);
+      const cadastro = stubCadastro(() => HttpResponse.json(CHAVE_ATIVA, { status: 201 }));
+      const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
+      autenticarFinanceiro(fixture, true);
+      await estabilizar(fixture);
+      await abrirConfirmacao(fixture);
+
+      const pagina = fixture.componentInstance as ChavesPixPageComponent;
+      pagina.confirmarCadastro();
+      pagina.confirmarCadastro();
       await estabilizar(fixture);
 
       expect(cadastro.keys().length).toBe(1);
@@ -747,7 +771,7 @@ describe('ChavesPixPageComponent', () => {
       expect(lista.total()).toBe(2);
     });
 
-    it('duplo clique em Confirmar remocao nao dispara dois DELETEs', async () => {
+    it('duplo clique em Confirmar remocao: o botao desabilita apos o primeiro', async () => {
       stubLista([CHAVE_ATIVA]);
       const remocao = stubRemocao(() => new HttpResponse(null, { status: 204 }));
       const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
@@ -761,6 +785,43 @@ describe('ChavesPixPageComponent', () => {
       await estabilizar(fixture);
 
       expect(remocao.ids().length).toBe(1);
+    });
+
+    // Invocacao direta, sem DOM. Mesma constatacao do cadastro: o token de step-up (uso unico,
+    // consumido sincronamente pelo interceptor) e o que impede o segundo DELETE — remover a
+    // guarda `remocaoEmVoo()` nao faz este teste falhar. O teste fixa a invariante observavel:
+    // duas invocacoes sincronas nunca produzem duas mutacoes.
+    it('duas chamadas sincronas a confirmarRemocao disparam um unico DELETE', async () => {
+      stubLista([CHAVE_ATIVA]);
+      const remocao = stubRemocao(() => new HttpResponse(null, { status: 204 }));
+      const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
+      autenticarFinanceiro(fixture, true);
+      await estabilizar(fixture);
+      await abrirRemocao(fixture);
+
+      const pagina = fixture.componentInstance as ChavesPixPageComponent;
+      pagina.confirmarRemocao();
+      pagina.confirmarRemocao();
+      await estabilizar(fixture);
+
+      expect(remocao.ids().length).toBe(1);
+    });
+
+    it('remocao tambem e bloqueada enquanto a confirmacao de cadastro esta aberta', async () => {
+      stubLista([CHAVE_ATIVA]);
+      const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
+      autenticarFinanceiro(fixture, true);
+      await estabilizar(fixture);
+
+      await abrirConfirmacao(fixture);
+      expect(screen.getByRole('alertdialog')).toBeTruthy();
+
+      fireEvent.click(screen.getByRole('button', { name: /^Remover chave/ }));
+      await estabilizar(fixture);
+
+      // O inverso do teste de cadastro: nenhum dialogo de remocao abre sobre o de cadastro.
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(screen.getByRole('alertdialog')).toBeTruthy();
     });
 
     it('cancelar fecha a confirmacao sem chamar o DELETE', async () => {
