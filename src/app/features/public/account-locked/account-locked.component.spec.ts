@@ -4,9 +4,33 @@ import { provideRouter } from '@angular/router';
 
 import { AccountLockedComponent } from './account-locked.component';
 
+/**
+ * A copy E o contrato desta pagina: ela responde a 423 de qualquer endpoint, sem mensagem do
+ * servidor. Por isso o teste fixa o texto integral em vez de listar frases proibidas — uma
+ * denylist so cobre as palavras que quem escreveu o teste imaginou. Verificado por mutacao: com os
+ * asserts de ausencia anteriores (`alguns minutos`, `entre em contato`, `solicit`), trocar a copy
+ * por "acione o atendimento e peca a reativacao" passava verde.
+ *
+ * Qualquer mudanca de copy DEVE quebrar aqui e ser reconferida contra o sep-api.
+ */
+const COPY_ESPERADA = [
+  // Badge e heading sao irmaos sem espaco entre eles no DOM renderizado, dai virem colados aqui.
+  '423Conta bloqueada temporariamente',
+  'Detectamos varias tentativas de acesso malsucedidas — senha ou codigo de verificacao.',
+  'Por seguranca, sua conta fica bloqueada por ate 30 minutos, contados a partir da ultima tentativa.',
+  'O desbloqueio e automatico e acontece so por expiracao desse prazo: nao existe liberacao manual.',
+  'Depois disso, basta entrar de novo.',
+  'Se voce nao reconhece essas tentativas, troque sua senha assim que o acesso for restabelecido.',
+  'Voltar ao login',
+].join(' ');
+
 async function renderPagina() {
   // O componente so importa RouterLink; provideRouter([]) basta para o link resolver.
   return render(AccountLockedComponent, { providers: [provideRouter([])] });
+}
+
+function textoNormalizado(elemento: Element | null | undefined): string {
+  return (elemento?.textContent ?? '').replace(/\s+/g, ' ').trim();
 }
 
 describe('AccountLockedComponent', () => {
@@ -18,28 +42,31 @@ describe('AccountLockedComponent', () => {
     ).toBeTruthy();
   });
 
-  it('informa o prazo real de 30 minutos', async () => {
-    await renderPagina();
+  it('exibe exatamente a copy conferida contra o sep-api', async () => {
+    const { container } = await renderPagina();
 
-    // 30 = app.security.lockout.lockout-minutes no sep-api. A copy anterior dizia "alguns
-    // minutos", que nao permitia ao usuario decidir se esperava ou procurava ajuda.
-    expect(screen.getByText(/30 minutos/i)).toBeTruthy();
+    expect(textoNormalizado(container.querySelector('.sep-account-locked-card'))).toBe(
+      COPY_ESPERADA,
+    );
   });
 
-  it('informa que o desbloqueio e automatico', async () => {
+  it('expoe a pagina como landmark main, com a regiao nomeada pelo heading', async () => {
     await renderPagina();
 
-    expect(screen.getByText(/desbloqueio e automatico/i)).toBeTruthy();
+    // Sem landmark o conteudo fica fora de qualquer regiao navegavel — o padrao do repo
+    // (access-denied, login, register, landing) e <main> + <section aria-labelledby>.
+    const principal = screen.getByRole('main');
+    const regiao = screen.getByRole('region', { name: /conta bloqueada temporariamente/i });
+
+    expect(principal.contains(regiao)).toBe(true);
   });
 
-  it('nao promete acao manual de liberacao, que nao existe no sep-api', async () => {
+  it('move o foco para o heading, por ser destino de redirect automatico', async () => {
     await renderPagina();
 
-    // Nao ha endpoint de unlock nem acao administrativa: prometer suporte ou liberacao mandaria o
-    // usuario abrir um chamado que ninguem consegue atender.
-    expect(screen.queryByText(/alguns minutos/i)).toBeNull();
-    expect(screen.queryByText(/entre em contato/i)).toBeNull();
-    expect(screen.queryByText(/solicit/i)).toBeNull();
+    expect(document.activeElement).toBe(
+      screen.getByRole('heading', { level: 1, name: /conta bloqueada temporariamente/i }),
+    );
   });
 
   it('oferece o caminho de volta para /login', async () => {
