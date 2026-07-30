@@ -4,7 +4,7 @@ import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { AuthService } from './auth.service';
-import { resetLoginLockoutState } from '../../../mocks/handlers';
+import { resetLoginMockState } from '../../../mocks/handlers';
 
 const ACCESS_TOKEN_KEY = 'SEP_ACCESS_TOKEN';
 
@@ -27,10 +27,10 @@ function statusDoLogin(service: AuthService, username: string, password: string)
 describe('AuthService', () => {
   beforeEach(() => {
     window.localStorage.clear();
-    // O contador de falhas do mock e estado de modulo e o Vitest isola modulos por arquivo, nao
-    // por teste: sem este reset as falhas de um teste vazam para os seguintes e um caso nao
-    // relacionado acaba recebendo 423.
-    resetLoginLockoutState();
+    // O contador de falhas e o usuario da sessao do mock sao estado de modulo e o Vitest isola
+    // modulos por arquivo, nao por teste: sem este reset as falhas de um teste vazam para os
+    // seguintes e um caso nao relacionado acaba recebendo 423.
+    resetLoginMockState();
     TestBed.configureTestingModule({
       providers: [provideHttpClient()],
     });
@@ -83,13 +83,57 @@ describe('AuthService', () => {
     const service = TestBed.inject(AuthService);
 
     for (let tentativa = 1; tentativa <= 5; tentativa += 1) {
-      await statusDoLogin(service, 'admin@empresa.com', 'senha-errada');
+      const status = await statusDoLogin(service, 'admin@empresa.com', 'senha-errada');
+      expect(status, `tentativa ${tentativa}`).toBe(401);
+    }
+    // Controle positivo: sem ele o teste passa ate com o lockout desligado, porque "financeiro
+    // recebe 401" tambem seria verdade nesse caso.
+    expect(await statusDoLogin(service, 'admin@empresa.com', 'senha-errada')).toBe(423);
+
+    expect(await statusDoLogin(service, 'financeiro@empresa.com', 'senha-errada')).toBe(401);
+  });
+
+  it('lockout: login bem-sucedido nao zera o contador de falhas', async () => {
+    const service = TestBed.inject(AuthService);
+
+    for (let tentativa = 1; tentativa <= 4; tentativa += 1) {
+      expect(await statusDoLogin(service, 'admin@empresa.com', 'senha-errada')).toBe(401);
+    }
+    await awaitObservable(service.login({ username: 'admin@empresa.com', password: '123456' }));
+
+    // O sucesso nao apaga as 4 falhas: a 5a falha fecha a janela e a requisicao seguinte ja e 423.
+    // LockoutService le apenas instantes de falha e nao tem caminho de reset.
+    expect(await statusDoLogin(service, 'admin@empresa.com', 'senha-errada')).toBe(401);
+    expect(await statusDoLogin(service, 'admin@empresa.com', '123456')).toBe(423);
+  });
+
+  it('lockout: username desconhecido tambem conta (divergencia deliberada do sep-api)', async () => {
+    const service = TestBed.inject(AuthService);
+
+    for (let tentativa = 1; tentativa <= 5; tentativa += 1) {
+      expect(await statusDoLogin(service, 'ninguem@empresa.com', 'senha-errada')).toBe(401);
     }
 
-    // Outro usuario nao herda o bloqueio: segue em 401, nao 423. Deliberadamente uma falha, nao um
-    // login valido — um login bem-sucedido mutaria `currentMockUser` no mock e vazaria para as
-    // specs de /auth/me deste arquivo.
-    expect(await statusDoLogin(service, 'financeiro@empresa.com', 'senha-errada')).toBe(401);
+    // No sep-api este caso responde 401 para sempre (USUARIO_INEXISTENTE fora de STATUSES_FALHA).
+    // O mock tranca de proposito, para a jornada de /account-locked ser alcancavel offline com
+    // qualquer e-mail. Se esta escolha for revista, este teste cai junto — e esse e o objetivo.
+    expect(await statusDoLogin(service, 'ninguem@empresa.com', 'senha-errada')).toBe(423);
+  });
+
+  it('resetLoginMockState devolve /auth/me ao usuario padrao', async () => {
+    const service = TestBed.inject(AuthService);
+    await awaitObservable(
+      service.login({ username: 'financeiro@empresa.com', password: '123456' }),
+    );
+
+    resetLoginMockState();
+    window.localStorage.setItem(ACCESS_TOKEN_KEY, 'mock-jwt-token');
+
+    // Sem restaurar `currentMockUser`, um login valido de uma spec vazaria para as specs de
+    // /auth/me deste arquivo pela ordem de execucao — falha confusa, longe de onde foi causada.
+    const usuario = await awaitObservable(service.loadCurrentUser());
+
+    expect(usuario.username).toBe('admin@empresa.com');
   });
 
   it('loadCurrentUser popula usuario via /auth/me', async () => {

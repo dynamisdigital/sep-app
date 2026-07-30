@@ -142,24 +142,33 @@ const loginUsuarios: Record<string, typeof adminUsuario> = {
 };
 let currentMockUser = adminUsuario;
 
-// --- Account lockout no login (F-Sprint 21) ---
+// --- Account lockout no login (F-Sprint 21 / backend Sprints 5 e 33) ---
 // Espelha LockoutService + LockoutProperties do sep-api: `app.security.lockout.max-attempts`
-// falhas trancam a conta por `lockout-minutes` (30). A janela de 15 min e a duracao de 30 min nao
-// sao simuladas — o mock nao tem relogio e nenhuma spec/smoke vive tanto. O que precisa ser fiel e
-// a ordem de avaliacao e o limiar, que e o que torna /account-locked alcancavel offline.
+// falhas trancam a conta por `lockout-minutes`. A janela de 15 min e a duracao de 30 min nao sao
+// simuladas — o mock nao tem relogio e nenhuma spec/smoke vive tanto. Consequencia pratica: o
+// bloqueio dura ate `resetLoginMockState()` nas specs, ou ate o reload da pagina no dev-offline
+// (o modulo e reavaliado). O que precisa ser fiel e a ordem de avaliacao e o limiar, que e o que
+// torna /account-locked alcancavel offline.
 const LOCKOUT_MAX_TENTATIVAS = 5;
+const LOCKOUT_MINUTOS = 30;
 // DIVERGENCIA DELIBERADA do backend, decidida na F-Sprint 21: aqui QUALQUER credencial recusada
-// incrementa, inclusive username desconhecido. No sep-api so contam SENHA_INVALIDA e TOTP_INVALIDO
-// (LockoutService.STATUSES_FALHA); USUARIO_INEXISTENTE fica fora, e um username inexistente
-// responde 401 para sempre (verificado contra :8080 em 2026-07-30: 6 falhas, 6x 401). O mock e
-// portanto mais estrito que a producao nesse caso. Nao "corrigir" sem revisar o step 121.1.2.
-let falhasDeLoginPorUsuario: Record<string, number> = {};
+// incrementa, inclusive username desconhecido, vazio ou fora do formato e-mail. No sep-api so
+// contam SENHA_INVALIDA e TOTP_INVALIDO (LockoutService.STATUSES_FALHA), entao um username
+// inexistente responde 401 para sempre (verificado contra :8080 em 2026-07-30: 6 falhas, 6x 401)
+// e um username vazio/malformado nem chega ao use case — cai em 400 por bean validation
+// (@NotBlank @Email em LoginRequestDto). O mock e portanto mais estrito que a producao nesses
+// casos; a assimetria e segura (falha offline, passa em producao — nunca o contrario).
+// TOTP_INVALIDO nao se aplica: o mock nao expoe verificacao de TOTP.
+// Nao "corrigir" sem revisar o step 121.1.2; ha teste travando esta escolha.
+const falhasDeLoginPorUsuario = new Map<string, number>();
 
-// Restaura o contador de falhas para que o limiar de lockout nao vaze entre testes (F.I.R.S.T.).
-// O Vitest isola modulos por arquivo, nao por teste: sem isto uma spec de credencial invalida
-// acumula falhas e um teste seguinte, nao relacionado, cai em 423.
-export function resetLoginLockoutState(): void {
-  falhasDeLoginPorUsuario = {};
+// Restaura o estado mutavel do login (usuario da sessao e contador de lockout) para o seed,
+// garantindo testes independentes (F.I.R.S.T.). O Vitest isola modulos por arquivo, nao por teste:
+// sem isto as falhas de um teste vazam para os seguintes e um caso nao relacionado cai em 423, e um
+// login bem-sucedido deixa `currentMockUser` trocado para as specs de /auth/me.
+export function resetLoginMockState(): void {
+  falhasDeLoginPorUsuario.clear();
+  currentMockUser = adminUsuario;
 }
 
 function errorResponse(status: number, error: string, message: string, path: string) {
@@ -3292,27 +3301,29 @@ export const handlers = [
     const username = body.username ?? '';
     const path = '/api/v1/auth/login';
 
-    // Ordem obrigatoria, igual a AutenticarUsuarioUseCase#executar: o lockout e verificado ANTES
-    // de resolver o usuario e antes de registrar a tentativa. Duas consequencias que o mock
-    // preserva de proposito: a 5a senha errada ainda responde 401 (o bloqueio so aparece na 6a
-    // requisicao) e a senha CORRETA depois do bloqueio tambem responde 423, porque a credencial
-    // nem chega a ser avaliada.
-    if ((falhasDeLoginPorUsuario[username] ?? 0) >= LOCKOUT_MAX_TENTATIVAS) {
+    // A posicao do lockout na ordem de avaliacao e a mesma de AutenticarUsuarioUseCase#executar:
+    // verificado ANTES de resolver o usuario e de avaliar a credencial. Duas consequencias que o
+    // mock preserva de proposito: a 5a senha errada ainda responde 401 (o bloqueio so aparece na
+    // 6a requisicao) e a senha CORRETA depois do bloqueio tambem responde 423, porque a credencial
+    // nem chega a ser avaliada. O resto da sequencia do use case nao e espelhado — nao ha registro
+    // de tentativa nem ramo de desafio MFA aqui.
+    const falhas = falhasDeLoginPorUsuario.get(username) ?? 0;
+    if (falhas >= LOCKOUT_MAX_TENTATIVAS) {
       return errorResponse(
         423,
         'Locked',
-        'Conta bloqueada temporariamente. Tente novamente em 30 minutos.',
+        `Conta bloqueada temporariamente. Tente novamente em ${LOCKOUT_MINUTOS} minutos.`,
         path,
       );
     }
 
     const usuario = body.password === '123456' ? loginUsuarios[username] : undefined;
     if (!usuario) {
-      falhasDeLoginPorUsuario[username] = (falhasDeLoginPorUsuario[username] ?? 0) + 1;
+      falhasDeLoginPorUsuario.set(username, falhas + 1);
       return errorResponse(401, 'Unauthorized', 'Credenciais invalidas', path);
     }
     // Sucesso NAO zera o contador: LockoutService le apenas instantes de falha na janela e nao ha
-    // caminho de reset no sep-api.
+    // caminho de reset no sep-api. Ha teste travando isto.
     currentMockUser = usuario;
     return HttpResponse.json({
       accessToken: 'mock-jwt-token',
