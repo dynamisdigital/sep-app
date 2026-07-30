@@ -53,8 +53,10 @@ describe('AccountLockedComponent', () => {
   it('expoe a pagina como landmark main, com a regiao nomeada pelo heading', async () => {
     await renderPagina();
 
-    // Sem landmark o conteudo fica fora de qualquer regiao navegavel — o padrao do repo
-    // (access-denied, login, register, landing) e <main> + <section aria-labelledby>.
+    // Sem landmark o conteudo fica fora de qualquer regiao navegavel (`app.html` e so um
+    // <router-outlet />). O padrao do repo e <main> + <section aria-labelledby>, como em
+    // `access-denied`, `login` e `landing`. Seguem sem landmark `verify-totp` e `redirect-to-app`
+    // — registrados como follow-up, nao corrigidos aqui.
     const principal = screen.getByRole('main');
     const regiao = screen.getByRole('region', { name: /conta bloqueada temporariamente/i });
 
