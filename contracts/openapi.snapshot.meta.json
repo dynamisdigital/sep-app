@@ -3,13 +3,13 @@
   "fonte": {
     "repo": "sep-api",
     "branch": "develop",
-    "commit": "7f40056",
+    "commit": "a613c6c",
     "endpoint": "http://localhost:8080/v3/api-docs",
     "perfilSpring": "dev"
   },
-  "exportadoEm": "2026-07-16",
-  "sha256ExportBruto": "e2b7a0416d115ec72cefb7b351606f759f084ce82006c231f7e6ba28e13e4c38",
-  "sha256Snapshot": "08edb31f4b7a0544c0b9ff231d7e1c33382b1dd64c8daa8a7ab7e80481178151",
+  "exportadoEm": "2026-07-30",
+  "sha256ExportBruto": "2a7be477b573f039b183a518c6555783fffc3699b64f8491b1fafb5fef19c495",
+  "sha256Snapshot": "b1f42ee5a556fa624c538a10d4fa4795e5dbb245a164009af2c91f0fcf077527",
   "comandoRegeneracao": "curl --fail --silent http://localhost:8080/v3/api-docs | jq -S . > contracts/openapi.snapshot.json",
   "estatisticas": {
     "openapi": "3.1.0",
