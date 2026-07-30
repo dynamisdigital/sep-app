@@ -1,6 +1,17 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+/**
+ * Destino do redirect global de 423 (`errorInterceptor`), tambem alcancavel por URL direta.
+ *
+ * Copy estatica de proposito: o interceptor navega e descarta o `HttpErrorResponse`, entao a
+ * `message` do servidor nao chega ate aqui — e a pagina tambem responde a um 423 de qualquer
+ * endpoint, onde nao ha mensagem alguma.
+ *
+ * Os 30 minutos vem de `app.security.lockout.lockout-minutes` no sep-api. O desbloqueio e por
+ * expiracao: nao existe endpoint de unlock nem acao administrativa de liberacao, entao a pagina
+ * nao pode prometer suporte, reenvio ou desbloqueio assistido.
+ */
 @Component({
   selector: 'sep-account-locked',
   imports: [RouterLink],
@@ -11,7 +22,11 @@ import { RouterLink } from '@angular/router';
         <h1>Conta bloqueada temporariamente</h1>
         <p>
           Detectamos varias tentativas de login com credenciais invalidas. Por seguranca, sua conta
-          ficara bloqueada por alguns minutos. Tente novamente em breve.
+          fica bloqueada por 30 minutos.
+        </p>
+        <p>
+          O desbloqueio e automatico: passado esse prazo, basta entrar de novo. Nao e preciso
+          acionar o suporte nem pedir liberacao.
         </p>
         <p>
           Se voce nao reconhece essas tentativas, troque sua senha e revise os dispositivos
