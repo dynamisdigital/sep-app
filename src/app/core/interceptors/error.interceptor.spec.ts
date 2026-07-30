@@ -72,6 +72,44 @@ describe('errorInterceptor', () => {
     expect(navigatedTo).toBeNull();
   });
 
+  it('423 em /auth/login: limpa sessao e redireciona /account-locked', () => {
+    window.localStorage.setItem(ACCESS_TOKEN_KEY, 'stale-token');
+    const req = new HttpRequest('POST', 'http://localhost:8080/api/v1/auth/login', {});
+    const error = new HttpErrorResponse({ status: 423, url: req.url });
+
+    TestBed.runInInjectionContext(() => {
+      errorInterceptor(req, makeNext(error)).subscribe({
+        next: () => undefined,
+        error: () => undefined,
+      });
+    });
+
+    // O 423 NAO tem a excecao de /auth/login que o 401 tem: conta bloqueada e estado global, e a
+    // tela de login e justamente de onde o usuario chega ate ele.
+    expect(window.localStorage.getItem(ACCESS_TOKEN_KEY)).toBeNull();
+    expect(auth.currentUser()).toBeNull();
+    expect(navigatedTo).toBe('/account-locked');
+  });
+
+  it('423: propaga o erro apos o redirect, para a tela renderizar o fallback', () => {
+    const req = new HttpRequest('POST', 'http://localhost:8080/api/v1/auth/login', {});
+    const error = new HttpErrorResponse({ status: 423, url: req.url });
+    let propagado: HttpErrorResponse | null = null;
+
+    TestBed.runInInjectionContext(() => {
+      errorInterceptor(req, makeNext(error)).subscribe({
+        next: () => undefined,
+        error: (err: HttpErrorResponse) => {
+          propagado = err;
+        },
+      });
+    });
+
+    expect(propagado).not.toBeNull();
+    expect(propagado?.status).toBe(423);
+    expect(navigatedTo).toBe('/account-locked');
+  });
+
   it('403: redireciona para /access-denied', () => {
     const req = new HttpRequest('GET', 'http://localhost:8080/api/v1/usuarios');
     const error = new HttpErrorResponse({ status: 403, url: req.url });
