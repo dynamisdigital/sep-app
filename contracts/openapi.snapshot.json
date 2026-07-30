@@ -3169,6 +3169,26 @@
               }
             },
             "description": "Credenciais invalidas"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Conta bloqueada por excesso de tentativas (5 falhas em 15 min; expira em 30 min)"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Rate limit por IP excedido"
           }
         },
         "summary": "Autenticar usuario",
@@ -3605,6 +3625,26 @@
               }
             },
             "description": "Codigo invalido, challenge expirado ou MFA nao habilitado"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Conta bloqueada por excesso de tentativas (5 falhas em 15 min; expira em 30 min)"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Rate limit por IP excedido"
           }
         },
         "summary": "Verificar TOTP e concluir login",
