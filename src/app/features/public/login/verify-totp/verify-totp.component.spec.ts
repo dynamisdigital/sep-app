@@ -109,6 +109,24 @@ describe('VerifyTotpComponent', () => {
     window.localStorage.clear();
   });
 
+  // O landmark fica FORA do @if, entao tem de existir nos dois ramos. Um teste por ramo: o
+  // TestBed nao aceita dois `render` no mesmo teste.
+  it('expoe a regiao principal nomeada pelo heading no ramo sem challenge', async () => {
+    await setup();
+
+    expect(screen.getByRole('main')).toBeTruthy();
+    expect(screen.getByRole('region', { name: 'Verificacao em duas etapas' })).toBeTruthy();
+  });
+
+  it('expoe a regiao principal nomeada pelo heading no ramo com formulario', async () => {
+    semearChallenge();
+    await setup();
+
+    expect(screen.getByRole('main')).toBeTruthy();
+    expect(screen.getByRole('region', { name: 'Verificacao em duas etapas' })).toBeTruthy();
+    expect(screen.getByTestId('sep-verify-totp-input')).toBeTruthy();
+  });
+
   it('mostra o ramo de sessao expirada quando nao ha challenge pendente', async () => {
     await setup();
     expect(screen.getByTestId('sep-verify-totp-no-challenge')).toBeTruthy();
