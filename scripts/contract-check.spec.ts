@@ -3,12 +3,22 @@
 import { describe, expect, it } from 'vitest';
 
 // @ts-expect-error modulo .mjs de tooling, sem declaracao de tipos
-import { verificarContratos } from './contract-check.mjs';
+import { SNAPSHOT_PADRAO, decidirCodigoDeSaida, verificarContratos } from './contract-check.mjs';
 
 interface Resultado {
   falhas: string[];
   lacunas: string[];
+  obsoletos: string[];
   operacoesVerificadas: number;
+}
+
+type Respostas = Record<string, { headers?: Record<string, object>; content?: object }>;
+
+// Acesso tipado as responses da operacao do fixture, para declarar status de erro e headers.
+function respostasDe(openapi: object): Respostas {
+  return (openapi as { paths: Record<string, { get: { responses: Respostas } }> }).paths[
+    '/api/v1/coisas/{id}'
+  ].get.responses;
 }
 
 function openapiComSchema(schema: object, extras: object = {}): object {
@@ -392,10 +402,9 @@ describe('verificarContratos', () => {
         reason: 'teste',
       },
     ]);
-    (descriptor.operations[0] as { responseHeaders: string[] }).responseHeaders = [
-      'X-Hash',
-      'X-Outro',
-    ];
+    (descriptor.operations[0] as { responseHeaders: Record<string, string[]> }).responseHeaders = {
+      '200': ['X-Hash', 'X-Outro'],
+    };
     const resultado: Resultado = verificarContratos(openapi, descriptor);
     expect(resultado.lacunas).toEqual([expect.stringContaining("header de resposta 'X-Hash'")]);
     expect(resultado.falhas).toEqual([expect.stringContaining("header de resposta 'X-Outro'")]);
@@ -410,10 +419,288 @@ describe('verificarContratos', () => {
     ).paths['/api/v1/coisas/{id}'].get.responses;
     respostas['200'].headers = { 'X-Hash': { schema: { type: 'string' } } };
     const descriptor = descriptorBase({ id: 'string' });
-    (descriptor.operations[0] as { responseHeaders: string[] }).responseHeaders = ['X-Hash'];
+    (descriptor.operations[0] as { responseHeaders: Record<string, string[]> }).responseHeaders = {
+      '200': ['X-Hash'],
+    };
     const resultado: Resultado = verificarContratos(openapi, descriptor);
     expect(resultado.falhas).toEqual([]);
     expect(resultado.lacunas).toEqual([]);
+  });
+
+  // --- Status de erro declarados (F-Sprint 22, Step 122.1.1) ---
+
+  it('falha quando um status de erro tratado pelo frontend nao esta documentado', () => {
+    const descriptor = descriptorBase({ id: 'string' });
+    (descriptor.operations[0] as { erros: number[] }).erros = [423];
+    const resultado: Resultado = verificarContratos(openapiComSchema(SCHEMA_ALINHADO), descriptor);
+    expect(resultado.falhas).toEqual([expect.stringContaining('status de erro 423')]);
+  });
+
+  // Controle positivo: sem ele, uma verificacao que acusa SEMPRE passaria verde no teste acima.
+  it('passa quando o status de erro tratado esta documentado', () => {
+    const openapi = openapiComSchema(SCHEMA_ALINHADO);
+    respostasDe(openapi)['423'] = {};
+    const descriptor = descriptorBase({ id: 'string' });
+    (descriptor.operations[0] as { erros: number[] }).erros = [423];
+    const resultado: Resultado = verificarContratos(openapi, descriptor);
+    expect(resultado.falhas).toEqual([]);
+  });
+
+  // Fixture com gap de fato consumido: com knownGaps vazio, lacunas e obsoletos seriam
+  // estruturalmente incapazes de ficar cheios e as duas assercoes nao poderiam falhar.
+  it('nao altera operacoes que nao declaram erros', () => {
+    const descriptor = descriptorBase({ id: 'string' }, [
+      { kind: 'header-undocumented', header: 'X-Step-Up-Token', appliesTo: '*', reason: 'teste' },
+    ]);
+    (descriptor.operations[0] as { headers: string[] }).headers = ['X-Step-Up-Token'];
+    const resultado: Resultado = verificarContratos(openapiComSchema(SCHEMA_ALINHADO), descriptor);
+    expect(resultado.falhas).toEqual([]);
+    expect(resultado.lacunas).toEqual([expect.stringContaining("header 'X-Step-Up-Token'")]);
+    expect(resultado.obsoletos).toEqual([]);
+  });
+
+  // --- responseHeaders por status (F-Sprint 22, Step 122.1.2) ---
+
+  it('falha quando header de resposta de status de erro nao esta documentado nem tem gap', () => {
+    const openapi = openapiComSchema(SCHEMA_ALINHADO);
+    respostasDe(openapi)['429'] = {};
+    const descriptor = descriptorBase({ id: 'string' });
+    (descriptor.operations[0] as { responseHeaders: Record<string, string[]> }).responseHeaders = {
+      '429': ['Retry-After'],
+    };
+    const resultado: Resultado = verificarContratos(openapi, descriptor);
+    expect(resultado.falhas).toEqual([expect.stringContaining("header de resposta 'Retry-After'")]);
+  });
+
+  it('reporta lacuna para header de resposta de erro com gap registrado', () => {
+    const openapi = openapiComSchema(SCHEMA_ALINHADO);
+    respostasDe(openapi)['429'] = {};
+    const descriptor = descriptorBase({ id: 'string' }, [
+      {
+        kind: 'response-header-undocumented',
+        header: 'Retry-After',
+        appliesTo: 'coisas.consultar',
+        reason: 'teste',
+      },
+    ]);
+    (descriptor.operations[0] as { responseHeaders: Record<string, string[]> }).responseHeaders = {
+      '429': ['Retry-After'],
+    };
+    const resultado: Resultado = verificarContratos(openapi, descriptor);
+    expect(resultado.falhas).toEqual([]);
+    expect(resultado.lacunas).toEqual([
+      expect.stringContaining("header de resposta 'Retry-After'"),
+    ]);
+  });
+
+  it('passa quando o header de resposta de erro esta documentado no status de erro', () => {
+    const openapi = openapiComSchema(SCHEMA_ALINHADO);
+    respostasDe(openapi)['429'] = { headers: { 'Retry-After': { schema: { type: 'integer' } } } };
+    const descriptor = descriptorBase({ id: 'string' });
+    (descriptor.operations[0] as { responseHeaders: Record<string, string[]> }).responseHeaders = {
+      '429': ['Retry-After'],
+    };
+    const resultado: Resultado = verificarContratos(openapi, descriptor);
+    expect(resultado.falhas).toEqual([]);
+    expect(resultado.lacunas).toEqual([]);
+  });
+
+  // Sem a guarda, Object.entries sobre a lista antiga itera a string caractere a caractere e
+  // produz uma falha por letra acusando header inexistente no "status 0".
+  it('rejeita responseHeaders no formato antigo de lista plana', () => {
+    const openapi = openapiComSchema(SCHEMA_ALINHADO);
+    const descriptor = descriptorBase({ id: 'string' });
+    (descriptor.operations[0] as { responseHeaders: string[] }).responseHeaders = ['X-Hash'];
+    const resultado: Resultado = verificarContratos(openapi, descriptor);
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining("'responseHeaders' e mapa por status"),
+    ]);
+  });
+
+  it('rejeita responseHeaders cujo valor por status nao e lista', () => {
+    const openapi = openapiComSchema(SCHEMA_ALINHADO);
+    const descriptor = descriptorBase({ id: 'string' });
+    (descriptor.operations[0] as { responseHeaders: Record<string, string> }).responseHeaders = {
+      '200': 'X-Hash',
+    };
+    const resultado: Resultado = verificarContratos(openapi, descriptor);
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining("'responseHeaders[200]' deve ser lista"),
+    ]);
+  });
+
+  // Status nao documentado deixava `documentados` vazio, caia no caminho de gap e desligava em
+  // silencio a verificacao do header e a deteccao de gap obsoleto.
+  it('falha quando responseHeaders declara um status ausente do OpenAPI', () => {
+    const openapi = openapiComSchema(SCHEMA_ALINHADO);
+    const descriptor = descriptorBase({ id: 'string' }, [
+      {
+        kind: 'response-header-undocumented',
+        header: 'X-Hash',
+        appliesTo: 'coisas.consultar',
+        reason: 'teste',
+      },
+    ]);
+    (descriptor.operations[0] as { responseHeaders: Record<string, string[]> }).responseHeaders = {
+      '204': ['X-Hash'],
+    };
+    const resultado: Resultado = verificarContratos(openapi, descriptor);
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining("'responseHeaders' declara status 204 nao documentado"),
+    ]);
+    expect(resultado.lacunas).toEqual([]);
+  });
+
+  // --- knownGap obsoleto (F-Sprint 22, Step 122.1.3) ---
+
+  it('reporta como obsoleto o gap de enum cujo campo o OpenAPI ja publica', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComSchema(SCHEMA_ALINHADO),
+      descriptorBase({ status: { enum: ['ATIVA', 'ENCERRADA'] } }, [
+        { kind: 'enum-undocumented', type: 'CoisaResponse', field: 'status', reason: 'teste' },
+      ]),
+    );
+    expect(resultado.falhas).toEqual([]);
+    expect(resultado.lacunas).toEqual([]);
+    expect(resultado.obsoletos).toEqual([
+      expect.stringContaining('enum-undocumented: CoisaResponse.status'),
+    ]);
+  });
+
+  it("nao reporta como obsoleto o gap appliesTo '*' que alguma operacao consome", () => {
+    const openapi = openapiComSchema(SCHEMA_ALINHADO);
+    const descriptor = descriptorBase({ id: 'string' }, [
+      { kind: 'header-undocumented', header: 'X-Step-Up-Token', appliesTo: '*', reason: 'teste' },
+    ]);
+    (descriptor.operations[0] as { headers: string[] }).headers = ['X-Step-Up-Token'];
+    const resultado: Resultado = verificarContratos(openapi, descriptor);
+    expect(resultado.lacunas).toEqual([expect.stringContaining("header 'X-Step-Up-Token'")]);
+    expect(resultado.obsoletos).toEqual([]);
+  });
+
+  it("nao reporta como obsoleto o gap '*' consumido por uma operacao e nao por outra", () => {
+    const openapi = openapiComSchema(SCHEMA_ALINHADO, {
+      '/api/v1/coisas': { get: { responses: { '200': {} } } },
+    });
+    const descriptor = descriptorBase({ id: 'string' }, [
+      { kind: 'header-undocumented', header: 'X-Step-Up-Token', appliesTo: '*', reason: 'teste' },
+    ]);
+    (descriptor.operations[0] as { headers: string[] }).headers = ['X-Step-Up-Token'];
+    descriptor.operations.push({
+      id: 'coisas.listar',
+      method: 'get',
+      path: '/api/v1/coisas',
+      sucesso: [200],
+      response: null,
+    });
+    const resultado: Resultado = verificarContratos(openapi, descriptor);
+    expect(resultado.falhas).toEqual([]);
+    expect(resultado.obsoletos).toEqual([]);
+  });
+
+  // Com findIndex so o primeiro casamento contava. Estreitar um gap '*' com entradas por
+  // operacao deixaria as novas eternamente nao-consumidas e o CI acusaria gap em uso.
+  it('nao reporta como obsoleto o segundo de dois gaps que casam o mesmo predicado', () => {
+    const openapi = openapiComSchema(SCHEMA_ALINHADO);
+    const descriptor = descriptorBase({ id: 'string' }, [
+      { kind: 'header-undocumented', header: 'X-Step-Up-Token', appliesTo: '*', reason: 'teste' },
+      {
+        kind: 'header-undocumented',
+        header: 'X-Step-Up-Token',
+        appliesTo: 'coisas.consultar',
+        reason: 'teste',
+      },
+    ]);
+    (descriptor.operations[0] as { headers: string[] }).headers = ['X-Step-Up-Token'];
+    const resultado: Resultado = verificarContratos(openapi, descriptor);
+    expect(resultado.falhas).toEqual([]);
+    expect(resultado.obsoletos).toEqual([]);
+  });
+
+  // O gap era consumido antes de a divergencia ser verificada, o que o tornava imune a
+  // deteccao de obsolescencia: bastava o par tipo+campo ser percorrido para contar como usado.
+  it('reporta como obsoleto o gap de tipo cujo campo o OpenAPI ja documenta alinhado', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComSchema({ properties: { valor: { type: 'number' } } }),
+      descriptorBase({ valor: 'number' }, [
+        { kind: 'field-type-mismatch', type: 'CoisaResponse', field: 'valor', reason: 'teste' },
+      ]),
+    );
+    expect(resultado.falhas).toEqual([]);
+    expect(resultado.lacunas).toEqual([]);
+    expect(resultado.obsoletos).toEqual([
+      expect.stringContaining('field-type-mismatch: CoisaResponse.valor'),
+    ]);
+  });
+
+  it('mantem como lacuna o gap de tipo cuja divergencia ainda existe', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComSchema({ properties: { valor: { type: 'string' } } }),
+      descriptorBase({ valor: 'number' }, [
+        { kind: 'field-type-mismatch', type: 'CoisaResponse', field: 'valor', reason: 'teste' },
+      ]),
+    );
+    expect(resultado.falhas).toEqual([]);
+    expect(resultado.lacunas).toEqual([expect.stringContaining('tipo divergente')]);
+    expect(resultado.obsoletos).toEqual([]);
+  });
+
+  it('identifica o gap obsoleto de header pelo nome do header', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComSchema(SCHEMA_ALINHADO),
+      descriptorBase({ id: 'string' }, [
+        { kind: 'header-undocumented', header: 'X-Step-Up-Token', appliesTo: '*', reason: 'teste' },
+      ]),
+    );
+    expect(resultado.obsoletos).toEqual([
+      expect.stringContaining('header-undocumented: X-Step-Up-Token'),
+    ]);
+  });
+
+  // Sem a supressao, o path inexistente reportaria duas falhas pela mesma causa: a operacao
+  // que nao resolve e o gap dela, que nunca teve chance de ser consumido.
+  it('nao reporta como obsoleto o gap de uma operacao cujo path nem existe no OpenAPI', () => {
+    const descriptor = descriptorBase({ id: 'string' }, [
+      {
+        kind: 'response-header-undocumented',
+        header: 'X-Hash',
+        appliesTo: 'coisas.remover',
+        reason: 'teste',
+      },
+    ]);
+    descriptor.operations = [
+      {
+        id: 'coisas.remover',
+        method: 'delete',
+        path: '/api/v1/coisas/{id}',
+        sucesso: [204],
+        response: null,
+        responseHeaders: { '204': ['X-Hash'] },
+      },
+    ];
+    const resultado: Resultado = verificarContratos(openapiComSchema(SCHEMA_ALINHADO), descriptor);
+    expect(resultado.falhas).toEqual([expect.stringContaining('nao existe')]);
+    expect(resultado.obsoletos).toEqual([]);
+  });
+
+  // Gap de tipo/enum nao tem appliesTo — 5 dos 8 gaps reais. A supressao anterior so alcancava
+  // gap com appliesTo, entao estes eram reportados junto com a falha do path.
+  it('suprime tambem o gap sem appliesTo quando alguma operacao nao resolve', () => {
+    const descriptor = descriptorBase({ id: 'string' }, [
+      { kind: 'enum-undocumented', type: 'CoisaResponse', field: 'status', reason: 'teste' },
+    ]);
+    descriptor.operations = [
+      {
+        id: 'coisas.remover',
+        method: 'delete',
+        path: '/api/v1/coisas/{id}',
+        sucesso: [204],
+        response: null,
+      },
+    ];
+    const resultado: Resultado = verificarContratos(openapiComSchema(SCHEMA_ALINHADO), descriptor);
+    expect(resultado.falhas).toEqual([expect.stringContaining('nao existe')]);
+    expect(resultado.obsoletos).toEqual([]);
   });
 
   it('falha quando o frontend envia body JSON sem requestBody documentado', () => {
@@ -436,5 +723,29 @@ describe('verificarContratos', () => {
     };
     const resultado: Resultado = verificarContratos(openapi, descriptor);
     expect(resultado.falhas).toEqual([expect.stringContaining('nao documenta requestBody')]);
+  });
+});
+
+// A politica de saida e o que o CI observa (`npm run contract:check`). Antes de ser extraida de
+// main(), nenhum teste a alcancava: inverter ou apagar o bloqueio deixava a suite inteira verde.
+describe('decidirCodigoDeSaida', () => {
+  const EXTERNO = '/tmp/openapi-do-runtime.json';
+
+  it('bloqueia divergencia de contrato em qualquer fonte', () => {
+    expect(decidirCodigoDeSaida({ falhas: ['x'], obsoletos: [], origem: SNAPSHOT_PADRAO })).toBe(1);
+    expect(decidirCodigoDeSaida({ falhas: ['x'], obsoletos: [], origem: EXTERNO })).toBe(1);
+  });
+
+  it('bloqueia gap obsoleto contra o snapshot versionado', () => {
+    expect(decidirCodigoDeSaida({ falhas: [], obsoletos: ['g'], origem: SNAPSHOT_PADRAO })).toBe(1);
+  });
+
+  it('nao bloqueia gap obsoleto quando a fonte e externa', () => {
+    expect(decidirCodigoDeSaida({ falhas: [], obsoletos: ['g'], origem: EXTERNO })).toBe(0);
+  });
+
+  it('passa quando nao ha falha nem gap obsoleto', () => {
+    expect(decidirCodigoDeSaida({ falhas: [], obsoletos: [], origem: SNAPSHOT_PADRAO })).toBe(0);
+    expect(decidirCodigoDeSaida({ falhas: [], obsoletos: [], origem: EXTERNO })).toBe(0);
   });
 });

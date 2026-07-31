@@ -51,6 +51,9 @@ describe('errorInterceptor', () => {
   }
 
   it('401 fora de /auth/login: limpa sessao e redireciona /login', () => {
+    // Sem semear, `currentUser()` ja nasce nulo e o assert correspondente passaria mesmo com o
+    // `currentUserState.set(null)` fora do clearSession — decorativo, provado por mutacao.
+    semearUsuario();
     window.localStorage.setItem(ACCESS_TOKEN_KEY, 'expired-token');
     const req = new HttpRequest('GET', 'http://localhost:8080/api/v1/auth/me');
     const error = new HttpErrorResponse({ status: 401, url: req.url });

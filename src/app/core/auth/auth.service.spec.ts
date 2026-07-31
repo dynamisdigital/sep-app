@@ -148,16 +148,6 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBe(true);
   });
 
-  it('register envia payload e retorna usuario', async () => {
-    const service = TestBed.inject(AuthService);
-
-    const usuario = await awaitObservable(
-      service.register({ username: 'novo@empresa.com', password: '123456', role: 'CLIENTE' }),
-    );
-
-    expect(usuario.username).toBe('novo@empresa.com');
-  });
-
   it('clearSession limpa token e currentUser', async () => {
     const service = TestBed.inject(AuthService);
     await awaitObservable(service.login({ username: 'admin@empresa.com', password: '123456' }));

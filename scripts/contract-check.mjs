@@ -14,7 +14,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const SNAPSHOT_PADRAO = resolve(RAIZ, 'contracts', 'openapi.snapshot.json');
+export const SNAPSHOT_PADRAO = resolve(RAIZ, 'contracts', 'openapi.snapshot.json');
 const DESCRIPTOR = resolve(RAIZ, 'contracts', 'consumed-contracts.json');
 
 const TIPOS_COMPATIVEIS = {
@@ -24,12 +24,23 @@ const TIPOS_COMPATIVEIS = {
 };
 
 export function verificarContratos(openapi, descriptor) {
-  const resultado = { falhas: [], lacunas: [], operacoesVerificadas: 0 };
+  const resultado = {
+    falhas: [],
+    lacunas: [],
+    obsoletos: [],
+    operacoesVerificadas: 0,
+    // Acumuladores internos: indices de knownGaps efetivamente usados e operacoes cujo
+    // path nem existe no OpenAPI (seus gaps ficam sem chance de serem consumidos).
+    gapsConsumidos: new Set(),
+    operacoesNaoResolvidas: new Set(),
+  };
   for (const operacao of descriptor.operations) {
     verificarOperacao(openapi, descriptor, operacao, resultado);
     resultado.operacoesVerificadas += 1;
   }
-  return resultado;
+  varrerGapsObsoletos(descriptor, resultado);
+  const { falhas, lacunas, obsoletos, operacoesVerificadas } = resultado;
+  return { falhas, lacunas, obsoletos, operacoesVerificadas };
 }
 
 function verificarOperacao(openapi, descriptor, operacao, resultado) {
@@ -37,6 +48,7 @@ function verificarOperacao(openapi, descriptor, operacao, resultado) {
   const doc = pathItem?.[operacao.method];
   if (!doc) {
     resultado.falhas.push(`${operacao.id}: ${operacao.method.toUpperCase()} ${operacao.path} nao existe no OpenAPI`);
+    resultado.operacoesNaoResolvidas.add(operacao.id);
     return;
   }
   // Parametros podem estar no path item (compartilhados) ou na operacao.
@@ -44,6 +56,7 @@ function verificarOperacao(openapi, descriptor, operacao, resultado) {
   verificarParametros(params, operacao, descriptor, resultado);
   verificarParametrosDePath(params, operacao, resultado);
   verificarStatusDeSucesso(doc, operacao, resultado);
+  verificarStatusDeErro(doc, operacao, resultado);
   verificarHeadersDaResposta(doc, operacao, descriptor, resultado);
   verificarCorpoDaRequisicao(openapi, doc, operacao, descriptor, resultado);
   verificarCorpoDaResposta(openapi, doc, operacao, descriptor, resultado);
@@ -83,7 +96,7 @@ function verificarParametros(params, operacao, descriptor, resultado) {
   const nomesHeaderDocumentados = params.filter((p) => p.in === 'header').map((p) => p.name);
   for (const nome of headers) {
     if (nomesHeaderDocumentados.includes(nome)) continue;
-    if (existeGapDeHeader(descriptor, nome, operacao.id)) {
+    if (consumirGapDeHeader(descriptor, resultado, nome, operacao.id)) {
       resultado.lacunas.push(`${operacao.id}: header '${nome}' enviado pelo frontend nao documentado (lacuna conhecida)`);
     } else {
       resultado.falhas.push(`${operacao.id}: frontend envia header '${nome}' nao documentado no OpenAPI`);
@@ -104,12 +117,31 @@ function verificarParametrosDePath(params, operacao, resultado) {
   }
 }
 
+// responseHeaders e mapa por status ({ "200": [...] }), nao lista plana: o Retry-After so
+// existe em 423/429, e iterar apenas os status de sucesso o tornava inalcancavel pelo checker.
 function verificarHeadersDaResposta(doc, operacao, descriptor, resultado) {
-  for (const status of operacao.sucesso) {
-    const documentados = Object.keys(doc.responses?.[String(status)]?.headers ?? {});
-    for (const nome of operacao.responseHeaders ?? []) {
+  const porStatus = operacao.responseHeaders ?? {};
+  // O formato antigo degrada para iteracao caractere a caractere; rejeitar dizendo o que houve
+  // sai muito mais barato que depurar 20 falhas acusando header 'X' no status 0.
+  if (Array.isArray(porStatus)) {
+    resultado.falhas.push(`${operacao.id}: 'responseHeaders' e mapa por status ({ "200": [...] }), nao lista plana`);
+    return;
+  }
+  for (const [status, nomes] of Object.entries(porStatus)) {
+    if (!Array.isArray(nomes)) {
+      resultado.falhas.push(`${operacao.id}: 'responseHeaders[${status}]' deve ser lista de headers`);
+      continue;
+    }
+    // Sem isto, um status errado no descriptor deixa documentados vazio, cai no caminho de gap
+    // e desliga em silencio tanto a verificacao do header quanto a deteccao de gap obsoleto.
+    if (!doc.responses?.[status]) {
+      resultado.falhas.push(`${operacao.id}: 'responseHeaders' declara status ${status} nao documentado no OpenAPI`);
+      continue;
+    }
+    const documentados = Object.keys(doc.responses[status].headers ?? {});
+    for (const nome of nomes) {
       if (documentados.includes(nome)) continue;
-      if (existeGapDeHeaderDeResposta(descriptor, nome, operacao.id)) {
+      if (consumirGapDeHeaderDeResposta(descriptor, resultado, nome, operacao.id)) {
         resultado.lacunas.push(
           `${operacao.id}: header de resposta '${nome}' lido pelo frontend nao documentado (lacuna conhecida)`,
         );
@@ -126,6 +158,17 @@ function verificarStatusDeSucesso(doc, operacao, resultado) {
   for (const status of operacao.sucesso) {
     if (!doc.responses?.[String(status)]) {
       resultado.falhas.push(`${operacao.id}: status de sucesso ${status} tratado pelo frontend nao documentado no OpenAPI`);
+    }
+  }
+}
+
+// Status de erro so entram em 'erros' quando a tela ramifica por status (F-Sprint 22). As
+// operacoes que usam `apiErr?.message ?? padrao` nao discriminam status e nao declaram nada:
+// declarar ali seria manutencao sem assercao.
+function verificarStatusDeErro(doc, operacao, resultado) {
+  for (const status of operacao.erros ?? []) {
+    if (!doc.responses?.[String(status)]) {
+      resultado.falhas.push(`${operacao.id}: status de erro ${status} tratado pelo frontend nao documentado no OpenAPI`);
     }
   }
 }
@@ -203,11 +246,18 @@ function verificarTipoNomeado(openapi, descriptor, nomeTipo, schema, caminho, re
       resultado.falhas.push(`${caminho}: campo '${nomeCampo}' de ${nomeTipo} nao existe no schema OpenAPI`);
       continue;
     }
-    if (existeGapDeTipoDeCampo(descriptor, nomeTipo, nomeCampo)) {
+    // Verifica primeiro e so consome o gap se a divergencia ainda existir. Consumir antes tornava
+    // este gap imune a deteccao de obsolescencia: bastava o par tipo+campo ser percorrido para ele
+    // contar como usado, mesmo com o backend ja tendo alinhado o tipo.
+    const sonda = { ...resultado, falhas: [], lacunas: [] };
+    verificarCampo(openapi, descriptor, especificacao, propriedade, `${caminho}.${nomeCampo}`, sonda, nomeTipo, nomeCampo, exigirRequired);
+    resultado.lacunas.push(...sonda.lacunas);
+    if (sonda.falhas.length === 0) continue;
+    if (consumirGapDeTipoDeCampo(descriptor, resultado, nomeTipo, nomeCampo)) {
       resultado.lacunas.push(`${caminho}.${nomeCampo}: tipo divergente do runtime documentado como lacuna conhecida`);
       continue;
     }
-    verificarCampo(openapi, descriptor, especificacao, propriedade, `${caminho}.${nomeCampo}`, resultado, nomeTipo, nomeCampo, exigirRequired);
+    resultado.falhas.push(...sonda.falhas);
   }
   // Em request bodies, campo obrigatorio do OpenAPI ausente do contrato do frontend e
   // divergencia: o backend passaria a rejeitar o que o frontend envia hoje.
@@ -262,7 +312,7 @@ function verificarTipoPrimitivo(tipoEsperado, prop, caminho, resultado) {
 
 function verificarEnum(descriptor, enumEsperado, prop, caminho, resultado, nomeTipo, nomeCampo) {
   if (!prop.enum) {
-    if (existeGapDeEnum(descriptor, nomeTipo, nomeCampo)) {
+    if (consumirGapDeEnum(descriptor, resultado, nomeTipo, nomeCampo)) {
       resultado.lacunas.push(`${caminho}: enum nao publicado no OpenAPI (lacuna conhecida)`);
     } else {
       resultado.falhas.push(`${caminho}: frontend espera enum ${JSON.stringify(enumEsperado)}, OpenAPI nao publica enum`);
@@ -298,8 +348,25 @@ function tipoDoSchema(schema) {
   return tipo;
 }
 
-function existeGapDeHeader(descriptor, header, operacaoId) {
-  return (descriptor.knownGaps ?? []).some(
+// Um gap so silencia o checker se for de fato usado. Registrar o consumo e o que permite
+// detectar, ao fim, o gap que o backend ja fechou e ficou afirmando algo falso no JSON.
+// Marca TODOS os gaps que casam, nao so o primeiro: com findIndex, estreitar um gap 'appliesTo: *'
+// adicionando entradas por operacao deixaria as novas eternamente nao-consumidas e o CI acusaria
+// obsolescencia de gap em uso.
+function consumirGap(descriptor, resultado, predicado) {
+  let encontrou = false;
+  (descriptor.knownGaps ?? []).forEach((gap, indice) => {
+    if (!predicado(gap)) return;
+    resultado.gapsConsumidos.add(indice);
+    encontrou = true;
+  });
+  return encontrou;
+}
+
+function consumirGapDeHeader(descriptor, resultado, header, operacaoId) {
+  return consumirGap(
+    descriptor,
+    resultado,
     (gap) =>
       gap.kind === 'header-undocumented' &&
       gap.header === header &&
@@ -307,8 +374,10 @@ function existeGapDeHeader(descriptor, header, operacaoId) {
   );
 }
 
-function existeGapDeHeaderDeResposta(descriptor, header, operacaoId) {
-  return (descriptor.knownGaps ?? []).some(
+function consumirGapDeHeaderDeResposta(descriptor, resultado, header, operacaoId) {
+  return consumirGap(
+    descriptor,
+    resultado,
     (gap) =>
       gap.kind === 'response-header-undocumented' &&
       gap.header === header &&
@@ -316,16 +385,45 @@ function existeGapDeHeaderDeResposta(descriptor, header, operacaoId) {
   );
 }
 
-function existeGapDeTipoDeCampo(descriptor, tipo, campo) {
-  return (descriptor.knownGaps ?? []).some(
+function consumirGapDeTipoDeCampo(descriptor, resultado, tipo, campo) {
+  return consumirGap(
+    descriptor,
+    resultado,
     (gap) => gap.kind === 'field-type-mismatch' && gap.type === tipo && gap.field === campo,
   );
 }
 
-function existeGapDeEnum(descriptor, tipo, campo) {
-  return (descriptor.knownGaps ?? []).some(
+function consumirGapDeEnum(descriptor, resultado, tipo, campo) {
+  return consumirGap(
+    descriptor,
+    resultado,
     (gap) => gap.kind === 'enum-undocumented' && gap.type === tipo && gap.field === campo,
   );
+}
+
+// Gap nao consumido por nenhuma operacao virou afirmacao falsa sobre o backend. Com alguma
+// operacao nao resolvida, porem, "ninguem consumiu" deixa de ser leitura confiavel — os gaps dela
+// nunca tiveram chance, e gap sem appliesTo (tipo/enum, 5 dos 8 reais) nem da para atribuir a uma
+// operacao. A falha do path ja bloqueia; a varredura inteira espera o proximo run.
+function varrerGapsObsoletos(descriptor, resultado) {
+  if (resultado.operacoesNaoResolvidas.size > 0) return;
+  (descriptor.knownGaps ?? []).forEach((gap, indice) => {
+    if (resultado.gapsConsumidos.has(indice)) return;
+    resultado.obsoletos.push(`knownGaps[${indice}] (${identificarGap(gap)}) nao e consumido por nenhuma operacao`);
+  });
+}
+
+function identificarGap(gap) {
+  const alvo = gap.header ?? [gap.type, gap.field].filter(Boolean).join('.');
+  return alvo ? `${gap.kind}: ${alvo}` : gap.kind;
+}
+
+// Gap obsoleto so bloqueia contra o snapshot versionado: rodar com SEP_OPENAPI_SCHEMA aponta para
+// um ambiente mais novo, onde o gap pode ja ter sido fechado sem o snapshot saber.
+export function decidirCodigoDeSaida({ falhas, obsoletos, origem }) {
+  if (falhas.length > 0) return 1;
+  if (obsoletos.length > 0 && origem === SNAPSHOT_PADRAO) return 1;
+  return 0;
 }
 
 async function carregarOpenapi(origem) {
@@ -341,7 +439,7 @@ async function main() {
   const origem = process.env.SEP_OPENAPI_SCHEMA || SNAPSHOT_PADRAO;
   const openapi = await carregarOpenapi(origem);
   const descriptor = JSON.parse(readFileSync(DESCRIPTOR, 'utf8'));
-  const { falhas, lacunas, operacoesVerificadas } = verificarContratos(openapi, descriptor);
+  const { falhas, lacunas, obsoletos, operacoesVerificadas } = verificarContratos(openapi, descriptor);
 
   console.log(`contract:check — fonte: ${origem}`);
   console.log(`${operacoesVerificadas} operacoes verificadas`);
@@ -349,11 +447,23 @@ async function main() {
     console.log(`\n${lacunas.length} lacuna(s) conhecida(s) do OpenAPI (nao bloqueiam; ver knownGaps):`);
     for (const lacuna of lacunas) console.log(`  ~ ${lacuna}`);
   }
+  const obsoletoBloqueia = origem === SNAPSHOT_PADRAO;
+  if (obsoletos.length > 0) {
+    // A causa nem sempre e "o backend fechou a lacuna": a operacao ou o campo que consumia o gap
+    // pode ter saido do descriptor. Contra fonte externa, remover antes de conferir quebra o CI.
+    const rotulo = obsoletoBloqueia
+      ? 'obsoleto(s) — nenhuma operacao os consome; remover do JSON:'
+      : 'possivelmente obsoleto(s) (nao bloqueia: fonte nao e o snapshot versionado); conferir contra o snapshot antes de remover:';
+    const escrever = obsoletoBloqueia ? console.error : console.log;
+    escrever(`\n${obsoletos.length} knownGap(s) ${rotulo}`);
+    for (const obsoleto of obsoletos) escrever(`  ! ${obsoleto}`);
+  }
   if (falhas.length > 0) {
     console.error(`\n${falhas.length} divergencia(s) de contrato:`);
     for (const falha of falhas) console.error(`  x ${falha}`);
-    process.exit(1);
   }
+  const codigo = decidirCodigoDeSaida({ falhas, obsoletos, origem });
+  if (codigo !== 0) process.exit(codigo);
   console.log('\nContrato frontend <-> OpenAPI OK.');
 }
 
