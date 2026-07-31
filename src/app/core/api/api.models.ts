@@ -74,14 +74,6 @@ export interface StepUpCompleteResponse {
   stepUpToken: string;
 }
 
-export interface UsuarioCreateRequest {
-  username: string;
-  password: string;
-  // 5F-FIX-01: cadastro publico sempre cria CLIENTE; role e ignorado pelo backend
-  // mesmo quando enviado. Mantido opcional para compat com chamadas legadas.
-  role?: UsuarioRole;
-}
-
 export interface UsuarioSenhaUpdateRequest {
   passwordAtual: string;
   novaSenha: string;

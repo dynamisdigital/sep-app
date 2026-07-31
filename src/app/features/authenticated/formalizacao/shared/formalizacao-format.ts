@@ -1,10 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
-import {
-  ApiErrorResponse,
-  StatusEnvelope,
-  StatusFormalizacao,
-} from '../../../../core/api/api.models';
+import { mensagemDeErroDaApi } from '../../../../core/api/api-error';
+
+import { StatusEnvelope, StatusFormalizacao } from '../../../../core/api/api.models';
 
 // Formatacao apenas visual da jornada de formalizacao. Valores chegam como number
 // BRL e datas como string ISO do backend; nada aqui interpreta regra de negocio.
@@ -49,6 +47,5 @@ export const STATUS_ENVELOPE_LABEL: Record<StatusEnvelope, string> = {
 // 401/403/423 sao tratados pelo errorInterceptor global (redirecionamento); aqui
 // cobrimos 404/409/422/5xx e servem de fallback defensivo.
 export function mensagemFormalizacaoErro(err: HttpErrorResponse, padrao: string): string {
-  const apiErr = err.error as ApiErrorResponse | undefined;
-  return apiErr?.message ?? padrao;
+  return mensagemDeErroDaApi(err, padrao);
 }

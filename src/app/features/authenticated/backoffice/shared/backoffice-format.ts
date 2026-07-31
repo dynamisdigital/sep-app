@@ -1,7 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
+import { mensagemDeErroDaApi } from '../../../../core/api/api-error';
+
 import {
-  ApiErrorResponse,
   PrioridadeItem,
   StatusItemFila,
   StatusReprocesso,
@@ -124,6 +125,5 @@ export function fimDoDiaIso(dataLocal: string): string {
 // Extrai a mensagem amigavel do corpo de erro padronizado da API, com fallback.
 // 401/403/423 sao tratados pelo errorInterceptor global; aqui cobrimos 404/409/422/5xx.
 export function mensagemBackofficeErro(err: HttpErrorResponse, padrao: string): string {
-  const apiErr = err.error as ApiErrorResponse | undefined;
-  return apiErr?.message ?? padrao;
+  return mensagemDeErroDaApi(err, padrao);
 }

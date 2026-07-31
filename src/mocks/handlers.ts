@@ -1443,7 +1443,7 @@ const cobrancaHandlers = [
 
 // Mocks alinhados ao PRD §21 (contratos iniciais dos endpoints).
 // Sucesso login usa admin@empresa.com / 123456.
-// 401: credenciais invalidas. 409: cadastro com duplicado@empresa.com.
+// 401: credenciais invalidas.
 // --- Backoffice e financeiro operacional (F-Sprint 10 / backend Sprint 14 + Pix 20-21) ---
 // Identificadores deterministicos para dev-offline e specs do BackofficeService. Fixtures
 // nao guardam payload bruto de webhook/provider, CPF/CNPJ completo, chave Pix, dados
@@ -3331,31 +3331,6 @@ export const handlers = [
       expiresIn: 3600,
       usuario,
     });
-  }),
-
-  http.post(`${baseUrl}/usuarios`, async ({ request }) => {
-    const body = (await request.json()) as {
-      username?: string;
-      password?: string;
-      role?: string;
-    };
-
-    if (body.username === 'duplicado@empresa.com') {
-      return errorResponse(409, 'Conflict', 'username ja cadastrado', '/api/v1/usuarios');
-    }
-
-    return HttpResponse.json(
-      {
-        id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771010',
-        username: body.username,
-        role: body.role,
-        dataCriacao: now,
-        dataModificacao: now,
-        criadoPor: 'system',
-        modificadoPor: 'system',
-      },
-      { status: 201 },
-    );
   }),
 
   http.post(`${baseUrl}/auth/logout`, () => new HttpResponse(null, { status: 204 })),

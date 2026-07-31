@@ -102,7 +102,6 @@
     "StepUpInitiateResponse": { "fields": { "stepUpChallengeId": "string" } },
     "StepUpCompleteRequest": { "fields": { "stepUpChallengeId": "string", "codigo": "string" } },
     "StepUpCompleteResponse": { "fields": { "stepUpToken": "string" } },
-    "UsuarioCreateRequest": { "fields": { "username": "string", "password": "string" } },
     "UsuarioSenhaUpdateRequest": { "fields": { "passwordAtual": "string", "novaSenha": "string" } },
     "IniciarOnboardingPessoaRequest": {
       "fields": { "cpf": "string", "nomeCompleto": "string", "dataNascimento": "string" }
@@ -1022,14 +1021,6 @@
       "erros": [400, 401, 423, 429],
       "request": { "$type": "LoginRequest" },
       "response": { "$type": "TokenResponse" }
-    },
-    {
-      "id": "auth.registrar",
-      "method": "post",
-      "path": "/api/v1/usuarios",
-      "sucesso": [201],
-      "request": { "$type": "UsuarioCreateRequest" },
-      "response": { "$type": "UsuarioResponse" }
     },
     {
       "id": "auth.me",
