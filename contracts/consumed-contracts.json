@@ -1055,6 +1055,7 @@
       "method": "post",
       "path": "/api/v1/auth/totp/setup",
       "sucesso": [200],
+      "erros": [409],
       "response": { "$type": "TotpSetupResponse" }
     },
     {
@@ -1088,6 +1089,7 @@
       "method": "post",
       "path": "/api/v1/auth/step-up/initiate",
       "sucesso": [200],
+      "erros": [400],
       "response": { "$type": "StepUpInitiateResponse" }
     },
     {
@@ -1472,6 +1474,7 @@
       "method": "post",
       "path": "/api/v1/pix/chaves",
       "sucesso": [201, 200],
+      "erros": [400, 403, 409, 422],
       "headers": ["X-Step-Up-Token", "Idempotency-Key"],
       "request": { "$type": "CadastrarChavePixRequest" },
       "response": { "$type": "ChavePixResponse" }
@@ -1481,6 +1484,7 @@
       "method": "delete",
       "path": "/api/v1/pix/chaves/{chaveId}",
       "sucesso": [204],
+      "erros": [403, 404],
       "headers": ["X-Step-Up-Token"],
       "response": null
     },
@@ -1629,6 +1633,7 @@
       "method": "post",
       "path": "/api/v1/backoffice/reprocessos/webhook/{webhookEventId}",
       "sucesso": [201],
+      "erros": [403, 429],
       "headers": ["X-Step-Up-Token"],
       "request": { "$type": "ReprocessoRequest" },
       "response": { "$type": "ReprocessoResponse" }
@@ -1638,6 +1643,7 @@
       "method": "post",
       "path": "/api/v1/backoffice/reprocessos/provider/{tipoChamada}/{entidadeId}",
       "sucesso": [201],
+      "erros": [400, 403, 429],
       "headers": ["X-Step-Up-Token"],
       "request": { "$type": "ReprocessoRequest" },
       "response": { "$type": "ReprocessoResponse" }
@@ -1661,6 +1667,7 @@
       "method": "patch",
       "path": "/api/v1/usuarios/{id}/senha",
       "sucesso": [204],
+      "erros": [403],
       "request": { "$type": "UsuarioSenhaUpdateRequest" },
       "response": null
     }
