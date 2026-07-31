@@ -1,7 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
+import { mensagemDeErroDaApi } from '../../../../core/api/api-error';
+
 import {
-  ApiErrorResponse,
   StatusChavePix,
   StatusPixRecebimento,
   StatusPixReferenciaRecebimento,
@@ -77,6 +78,5 @@ export const STATUS_CHAVE_LABEL: Record<StatusChavePix, string> = {
 // Extrai a mensagem amigavel do corpo de erro padronizado da API, com fallback. 401/403/423
 // globais sao tratados pelo errorInterceptor/fluxo de step-up; aqui cobrimos 404/409/422/5xx.
 export function mensagemPixErro(err: HttpErrorResponse, padrao: string): string {
-  const apiErr = err.error as ApiErrorResponse | undefined;
-  return apiErr?.message ?? padrao;
+  return mensagemDeErroDaApi(err, padrao);
 }

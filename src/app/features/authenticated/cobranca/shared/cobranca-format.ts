@@ -1,10 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
-import {
-  ApiErrorResponse,
-  StatusParcela,
-  StatusRenegociacao,
-} from '../../../../core/api/api.models';
+import { mensagemDeErroDaApi } from '../../../../core/api/api-error';
+
+import { StatusParcela, StatusRenegociacao } from '../../../../core/api/api.models';
 
 // Formatacao apenas visual da jornada de cobranca. Valores chegam como number BRL e
 // datas como string do backend; nada aqui interpreta regra de negocio (saldo, mora,
@@ -56,6 +54,5 @@ export const STATUS_RENEGOCIACAO_LABEL: Record<StatusRenegociacao, string> = {
 // 401/403/423 sao tratados pelo errorInterceptor global (redirecionamento); aqui
 // cobrimos 404/409/422/5xx como fallback defensivo.
 export function mensagemCobrancaErro(err: HttpErrorResponse, padrao: string): string {
-  const apiErr = err.error as ApiErrorResponse | undefined;
-  return apiErr?.message ?? padrao;
+  return mensagemDeErroDaApi(err, padrao);
 }

@@ -231,20 +231,54 @@ describe('LoginComponent', () => {
     expect(screen.queryByText(ACUSA_CREDENCIAL)).toBeNull();
   });
 
-  it('500: entrega a mensagem da api, nunca senha invalida nem culpa da conexao', async () => {
+  /**
+   * Cadeia real de interceptors e corpo SEM a referencia pronta: quem monta "Codigo de suporte" e o
+   * `withSupportReference`, a partir do `traceId`. Antes este caso rodava sem interceptor e escrevia
+   * o texto a mao, entao passava mesmo com a injecao removida — provado por mutacao.
+   */
+  it('500: entrega a mensagem da api com o codigo de suporte injetado pelo interceptor', async () => {
     stubLogin(() =>
-      erroDaApi(500, 'Internal Server Error', 'Erro interno. Codigo de suporte: trace-abc.'),
+      HttpResponse.json(
+        {
+          timestamp: '2026-07-31T09:00:00Z',
+          status: 500,
+          error: 'Internal Server Error',
+          message: 'Erro interno.',
+          path: '/api/v1/auth/login',
+          traceId: 'trace-abc',
+        },
+        { status: 500 },
+      ),
     );
-    const result = await setup();
+    const result = await setup({ comInterceptors: true });
     preencherEEnviar('admin@empresa.com');
 
     await estabilizar(result.fixture);
 
-    // O errorInterceptor injeta o codigo de suporte no `message` em 5xx; descartar o corpo tiraria
-    // o traceId do usuario e o mandaria conferir a conexao a toa.
-    expect(screen.getByText(/codigo de suporte: trace-abc/i)).toBeTruthy();
+    expect(screen.getByText(/suporte: trace-abc/i)).toBeTruthy();
     expect(screen.queryByText(ACUSA_CREDENCIAL)).toBeNull();
     expect(screen.queryByText(/verifique sua conexao/i)).toBeNull();
+  });
+
+  /**
+   * `errorMessage.set(null)` antes do submit destroi o no do `@if`, e o callback de erro o recria.
+   * Sem isso dois erros de texto identico nao mudam o DOM e a live region `role="alert"` nao
+   * anuncia o segundo — o usuario que erra a senha duas vezes seguidas ouve silencio na segunda.
+   */
+  it('duplo submit com o mesmo erro recria o no do alerta', async () => {
+    stubLogin(() => erroDaApi(401, 'Unauthorized', 'Credenciais invalidas'));
+    const result = await setup();
+
+    preencherEEnviar('admin@empresa.com');
+    await estabilizar(result.fixture);
+    const primeiro = screen.getByText(COPY_CREDENCIAL);
+
+    preencherEEnviar('admin@empresa.com');
+    await estabilizar(result.fixture);
+    const segundo = screen.getByText(COPY_CREDENCIAL);
+
+    expect(segundo.textContent).toBe(primeiro.textContent);
+    expect(segundo).not.toBe(primeiro);
   });
 
   it('falha de rede: mensagem generica, nunca senha invalida', async () => {

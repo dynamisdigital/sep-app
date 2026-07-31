@@ -1,5 +1,5 @@
 {
-  "$comment": "Contratos HTTP consumidos pelo sep-app, espelhando src/app/core/api/api.models.ts e os services de src/app/core/**. Validado contra o OpenAPI por scripts/contract-check.mjs. Campos declarados = superficie realmente lida/enviada pelo frontend; o backend pode expor mais campos sem quebrar este contrato.",
+  "$comment": "Contratos HTTP consumidos pelo sep-app, espelhando src/app/core/api/api.models.ts e os services de src/app/core/**. Validado contra o OpenAPI por scripts/contract-check.mjs. Campos declarados = superficie realmente lida/enviada pelo frontend; o backend pode expor mais campos sem quebrar este contrato. Regra do campo 'erros' (F-Sprint 22): declarar um status de erro SO quando a tela ramifica por status; operacoes que usam 'apiErr?.message ?? padrao' nao discriminam status e nao declaram nada. 'responseHeaders' e mapa por status ({ \"200\": [...] }), nao lista plana.",
   "knownGaps": [
     {
       "kind": "header-undocumented",
@@ -102,7 +102,6 @@
     "StepUpInitiateResponse": { "fields": { "stepUpChallengeId": "string" } },
     "StepUpCompleteRequest": { "fields": { "stepUpChallengeId": "string", "codigo": "string" } },
     "StepUpCompleteResponse": { "fields": { "stepUpToken": "string" } },
-    "UsuarioCreateRequest": { "fields": { "username": "string", "password": "string" } },
     "UsuarioSenhaUpdateRequest": { "fields": { "passwordAtual": "string", "novaSenha": "string" } },
     "IniciarOnboardingPessoaRequest": {
       "fields": { "cpf": "string", "nomeCompleto": "string", "dataNascimento": "string" }
@@ -1019,16 +1018,9 @@
       "method": "post",
       "path": "/api/v1/auth/login",
       "sucesso": [200],
+      "erros": [400, 401, 423, 429],
       "request": { "$type": "LoginRequest" },
       "response": { "$type": "TokenResponse" }
-    },
-    {
-      "id": "auth.registrar",
-      "method": "post",
-      "path": "/api/v1/usuarios",
-      "sucesso": [201],
-      "request": { "$type": "UsuarioCreateRequest" },
-      "response": { "$type": "UsuarioResponse" }
     },
     {
       "id": "auth.me",
@@ -1063,6 +1055,7 @@
       "method": "post",
       "path": "/api/v1/auth/totp/setup",
       "sucesso": [200],
+      "erros": [409],
       "response": { "$type": "TotpSetupResponse" }
     },
     {
@@ -1078,6 +1071,7 @@
       "method": "post",
       "path": "/api/v1/auth/totp/verify",
       "sucesso": [200],
+      "erros": [400, 423, 429],
       "request": { "$type": "TotpVerifyRequest" },
       "response": { "$type": "TokenResponse" }
     },
@@ -1095,6 +1089,7 @@
       "method": "post",
       "path": "/api/v1/auth/step-up/initiate",
       "sucesso": [200],
+      "erros": [400],
       "response": { "$type": "StepUpInitiateResponse" }
     },
     {
@@ -1261,7 +1256,7 @@
       "path": "/api/v1/contratos/{id}/documento-assinado",
       "sucesso": [200],
       "response": "binary",
-      "responseHeaders": ["X-Document-Hash-Sha256", "Content-Disposition"]
+      "responseHeaders": { "200": ["X-Document-Hash-Sha256", "Content-Disposition"] }
     },
     {
       "id": "cobranca.agenda",
@@ -1479,6 +1474,7 @@
       "method": "post",
       "path": "/api/v1/pix/chaves",
       "sucesso": [201, 200],
+      "erros": [400, 403, 409, 422],
       "headers": ["X-Step-Up-Token", "Idempotency-Key"],
       "request": { "$type": "CadastrarChavePixRequest" },
       "response": { "$type": "ChavePixResponse" }
@@ -1488,6 +1484,7 @@
       "method": "delete",
       "path": "/api/v1/pix/chaves/{chaveId}",
       "sucesso": [204],
+      "erros": [403, 404],
       "headers": ["X-Step-Up-Token"],
       "response": null
     },
@@ -1636,6 +1633,7 @@
       "method": "post",
       "path": "/api/v1/backoffice/reprocessos/webhook/{webhookEventId}",
       "sucesso": [201],
+      "erros": [403, 429],
       "headers": ["X-Step-Up-Token"],
       "request": { "$type": "ReprocessoRequest" },
       "response": { "$type": "ReprocessoResponse" }
@@ -1645,6 +1643,7 @@
       "method": "post",
       "path": "/api/v1/backoffice/reprocessos/provider/{tipoChamada}/{entidadeId}",
       "sucesso": [201],
+      "erros": [400, 403, 429],
       "headers": ["X-Step-Up-Token"],
       "request": { "$type": "ReprocessoRequest" },
       "response": { "$type": "ReprocessoResponse" }
@@ -1668,6 +1667,7 @@
       "method": "patch",
       "path": "/api/v1/usuarios/{id}/senha",
       "sucesso": [204],
+      "erros": [403],
       "request": { "$type": "UsuarioSenhaUpdateRequest" },
       "response": null
     }
