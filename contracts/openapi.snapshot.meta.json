@@ -2,22 +2,22 @@
   "descricao": "Metadados do snapshot OpenAPI usado pelo contract:check. O snapshot e gerado a partir do runtime do sep-api; nao editar manualmente. Este arquivo e documental: nenhum script o le nem valida os hashes.",
   "fonte": {
     "repo": "sep-api",
-    "branch": "develop",
-    "commit": "a613c6c",
-    "runtimeRef": "feature/sprint-33-lockout-conformidade@43f5d89",
-    "equivalencia": "O export saiu do runtime da branch, nao de um checkout de a613c6c: `git diff 43f5d89 origin/develop` estava vazio em 2026-07-30, e a613c6c e o squash da mesma arvore em develop (PR #101). Registrar o commit local seria uma referencia que o squash apagou.",
+    "branch": "feature/sprint-34-followups-lockout-contrato",
+    "commit": "f37ffc8",
+    "runtimeRef": "feature/sprint-34-followups-lockout-contrato@f37ffc8",
+    "equivalencia": "O export saiu do runtime da branch da Sprint 34, ANTES do merge: em 2026-08-03 a branch estava 13 commits a frente de origin/develop e 0 atras (fast-forward limpo). Ao mergear, o squash em develop passa a ser a referencia equivalente desta mesma arvore; se o snapshot for regenerado depois do merge, trocar commit/runtimeRef pelo squash.",
     "endpoint": "http://localhost:8080/v3/api-docs",
     "perfilSpring": "dev"
   },
-  "exportadoEm": "2026-07-30",
-  "sha256ExportBruto": "2a7be477b573f039b183a518c6555783fffc3699b64f8491b1fafb5fef19c495",
-  "sha256Snapshot": "b1f42ee5a556fa624c538a10d4fa4795e5dbb245a164009af2c91f0fcf077527",
+  "exportadoEm": "2026-08-03",
+  "sha256ExportBruto": "5262d0efe5c31162eddf450c770f27a042c9a408700a31b53a8a7b6b15d7c655",
+  "sha256Snapshot": "512a1194c65fd74a30c267e0976b28faf3c7ed4e455d5cfc29af365fd5d04f54",
   "sha256SnapshotObs": "sha256sum do arquivo commitado, ja depois do prettier do lint-staged. ATENCAO: ate 2026-07-16 este campo guardava o sha da saida crua do `jq -S`, antes do prettier — os dois valores sao diferentes e o campo mudou de significado aqui.",
   "comandoRegeneracao": "curl --fail --silent http://localhost:8080/v3/api-docs | jq -S . > contracts/openapi.snapshot.json && npx prettier --write contracts/openapi.snapshot.json",
   "comandoRegeneracaoObs": "O prettier faz parte do comando, nao e detalhe: o lint-staged o roda em *.json no commit e ele colapsa arrays curtos. Sem esse passo a regeneracao produz ~1372 linhas de diff espurio contra o arquivo versionado.",
   "estatisticas": {
     "openapi": "3.1.0",
-    "paths": 97,
-    "schemas": 108
+    "paths": 98,
+    "schemas": 109
   }
 }
