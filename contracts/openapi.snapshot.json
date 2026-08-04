@@ -405,10 +405,20 @@
             "type": "string"
           },
           "status": {
+            "enum": [
+              "GERADO",
+              "AGUARDANDO_ACEITE",
+              "ACEITO",
+              "EM_ASSINATURA",
+              "ASSINADO",
+              "RECUSADO",
+              "CANCELADO"
+            ],
             "example": "AGUARDANDO_ACEITE",
             "type": "string"
           },
           "tipo": {
+            "enum": ["MUTUO", "CCB", "OUTROS"],
             "example": "MUTUO",
             "type": "string"
           },
@@ -523,6 +533,7 @@
             "type": "number"
           },
           "tempoMedioResolucao30d": {
+            "description": "Tempo medio de resolucao nos ultimos 30 dias, em ISO-8601 (ex.: PT2H).",
             "type": "string"
           },
           "topCincoTiposMaisFrequentes": {
@@ -1800,6 +1811,30 @@
         },
         "type": "object"
       },
+      "PoliticaLockoutResponseDto": {
+        "description": "Politica de bloqueio de conta por tentativas de login falhas. Os valores refletem a configuracao efetiva do ambiente; os exemplos abaixo sao os defaults.",
+        "properties": {
+          "lockoutMinutes": {
+            "description": "Duracao do bloqueio, em minutos, contada do evento que bloqueou.",
+            "example": 30,
+            "format": "int32",
+            "type": "integer"
+          },
+          "maxAttempts": {
+            "description": "Falhas dentro da janela que bloqueiam a conta.",
+            "example": 5,
+            "format": "int32",
+            "type": "integer"
+          },
+          "windowMinutes": {
+            "description": "Janela de deteccao das falhas, em minutos.",
+            "example": 15,
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "PropostaResponse": {
         "description": "Proposta de credito + score atual + ultimo parecer",
         "properties": {
@@ -2496,11 +2531,21 @@
           },
           "statusContrato": {
             "description": "Status do contrato no fluxo de formalizacao",
+            "enum": [
+              "GERADO",
+              "AGUARDANDO_ACEITE",
+              "ACEITO",
+              "EM_ASSINATURA",
+              "ASSINADO",
+              "RECUSADO",
+              "CANCELADO"
+            ],
             "example": "EM_ASSINATURA",
             "type": "string"
           },
           "statusEnvelope": {
             "description": "Status do envelope no provider (null se nao houver envelope)",
+            "enum": ["RASCUNHO", "ENVIADO", "VISUALIZADO", "ASSINADO", "RECUSADO", "EXPIRADO"],
             "example": "ENVIADO",
             "type": "string"
           }
@@ -3178,7 +3223,16 @@
                 }
               }
             },
-            "description": "Conta bloqueada por excesso de tentativas (5 falhas em 15 min; expira em 30 min)"
+            "description": "Conta bloqueada por excesso de tentativas (5 falhas em 15 min; expira em 30 min)",
+            "headers": {
+              "Retry-After": {
+                "description": "Segundos restantes do bloqueio da conta.",
+                "schema": {
+                  "type": "integer"
+                },
+                "style": "simple"
+              }
+            }
           },
           "429": {
             "content": {
@@ -3188,7 +3242,16 @@
                 }
               }
             },
-            "description": "Rate limit por IP excedido"
+            "description": "Rate limit por IP excedido",
+            "headers": {
+              "Retry-After": {
+                "description": "Periodo de refresh do limitador, em segundos. E limite superior, nao o tempo exato ate a proxima permissao.",
+                "schema": {
+                  "type": "integer"
+                },
+                "style": "simple"
+              }
+            }
           }
         },
         "summary": "Autenticar usuario",
@@ -3305,6 +3368,26 @@
           }
         },
         "summary": "Usuario autenticado",
+        "tags": ["auth"]
+      }
+    },
+    "/api/v1/auth/politica-lockout": {
+      "get": {
+        "description": "Somente leitura e sem autenticacao: quem precisa do valor esta bloqueado e, por definicao, nao tem sessao. Serve a pagina de conta bloqueada, que renderiza sem ter recebido resposta de API e por isso fixava a duracao no texto. lockoutMinutes ja e publicado pela message do 423; os outros dois, apenas pelo /v3/api-docs, e com os defaults fixos no codigo — aqui vem o valor efetivo do ambiente.",
+        "operationId": "politicaLockout",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PoliticaLockoutResponseDto"
+                }
+              }
+            },
+            "description": "Politica vigente"
+          }
+        },
+        "summary": "Consultar politica de bloqueio de conta",
         "tags": ["auth"]
       }
     },
@@ -3502,6 +3585,17 @@
       "post": {
         "description": "Exige senha atual + step-up token (X-Step-Up-Token).",
         "operationId": "disable",
+        "parameters": [
+          {
+            "description": "Token de step-up de uso unico. Dispensavel apenas para usuario sem MFA habilitado (bypass de migracao pre-MFA).",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3634,7 +3728,16 @@
                 }
               }
             },
-            "description": "Conta bloqueada por excesso de tentativas (5 falhas em 15 min; expira em 30 min)"
+            "description": "Conta bloqueada por excesso de tentativas (5 falhas em 15 min; expira em 30 min)",
+            "headers": {
+              "Retry-After": {
+                "description": "Segundos restantes do bloqueio da conta.",
+                "schema": {
+                  "type": "integer"
+                },
+                "style": "simple"
+              }
+            }
           },
           "429": {
             "content": {
@@ -3644,7 +3747,16 @@
                 }
               }
             },
-            "description": "Rate limit por IP excedido"
+            "description": "Rate limit por IP excedido",
+            "headers": {
+              "Retry-After": {
+                "description": "Periodo de refresh do limitador, em segundos. E limite superior, nao o tempo exato ate a proxima permissao.",
+                "schema": {
+                  "type": "integer"
+                },
+                "style": "simple"
+              }
+            }
           }
         },
         "summary": "Verificar TOTP e concluir login",
@@ -4030,6 +4142,15 @@
               "format": "uuid",
               "type": "string"
             }
+          },
+          {
+            "description": "Token de step-up de uso unico. Dispensavel apenas para usuario sem MFA habilitado (bypass de migracao pre-MFA).",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -4119,6 +4240,15 @@
             "required": true,
             "schema": {
               "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Token de step-up de uso unico. Dispensavel apenas para usuario sem MFA habilitado (bypass de migracao pre-MFA).",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": false,
+            "schema": {
               "type": "string"
             }
           }
@@ -4228,6 +4358,15 @@
               "format": "uuid",
               "type": "string"
             }
+          },
+          {
+            "description": "Token de step-up de uso unico. Dispensavel apenas para usuario sem MFA habilitado (bypass de migracao pre-MFA).",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -4306,6 +4445,15 @@
             "required": true,
             "schema": {
               "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Token de step-up de uso unico. Dispensavel apenas para usuario sem MFA habilitado (bypass de migracao pre-MFA).",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": false,
+            "schema": {
               "type": "string"
             }
           }
@@ -4790,6 +4938,15 @@
               "format": "uuid",
               "type": "string"
             }
+          },
+          {
+            "description": "Token de step-up de uso unico. Obrigatorio: esta operacao nao admite bypass.",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -5059,6 +5216,15 @@
               "format": "uuid",
               "type": "string"
             }
+          },
+          {
+            "description": "Token de step-up de uso unico. Obrigatorio: esta operacao nao admite bypass.",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -5323,6 +5489,15 @@
               "format": "uuid",
               "type": "string"
             }
+          },
+          {
+            "description": "Token de step-up de uso unico. Obrigatorio: esta operacao nao admite bypass.",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -5401,6 +5576,15 @@
             "required": true,
             "schema": {
               "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Token de step-up de uso unico. Obrigatorio: esta operacao nao admite bypass.",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": true,
+            "schema": {
               "type": "string"
             }
           }
@@ -5594,6 +5778,15 @@
               "format": "uuid",
               "type": "string"
             }
+          },
+          {
+            "description": "Token de step-up de uso unico. Obrigatorio: esta operacao nao admite bypass.",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -5692,7 +5885,23 @@
             "content": {
               "application/pdf": {}
             },
-            "description": "PDF assinado"
+            "description": "PDF assinado",
+            "headers": {
+              "Content-Disposition": {
+                "description": "attachment com o nome do arquivo sugerido.",
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "X-Document-Hash-Sha256": {
+                "description": "SHA-256 do documento assinado, em hexadecimal.",
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              }
+            }
           },
           "400": {
             "content": {
@@ -6187,6 +6396,15 @@
               "format": "uuid",
               "type": "string"
             }
+          },
+          {
+            "description": "Token de step-up de uso unico. Dispensavel apenas para usuario sem MFA habilitado (bypass de migracao pre-MFA).",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -6433,6 +6651,17 @@
     "/api/v1/credores/carteira/operacoes": {
       "post": {
         "operationId": "associar",
+        "parameters": [
+          {
+            "description": "Token de step-up de uso unico. Dispensavel apenas para usuario sem MFA habilitado (bypass de migracao pre-MFA).",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -6727,6 +6956,15 @@
               "format": "uuid",
               "type": "string"
             }
+          },
+          {
+            "description": "Token de step-up de uso unico. Obrigatorio: esta operacao nao admite bypass.",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -6963,6 +7201,15 @@
             "description": "Chave de idempotencia da operacao de aporte",
             "in": "header",
             "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Token de step-up de uso unico. Obrigatorio: esta operacao nao admite bypass.",
+            "in": "header",
+            "name": "X-Step-Up-Token",
             "required": true,
             "schema": {
               "type": "string"
@@ -7444,6 +7691,15 @@
             "in": "path",
             "name": "chave",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Token de step-up de uso unico. Dispensavel apenas para usuario sem MFA habilitado (bypass de migracao pre-MFA).",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -8118,6 +8374,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Token de step-up de uso unico. Obrigatorio: esta operacao nao admite bypass.",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -8207,6 +8472,15 @@
             "required": true,
             "schema": {
               "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Token de step-up de uso unico. Obrigatorio: esta operacao nao admite bypass.",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": true,
+            "schema": {
               "type": "string"
             }
           }
@@ -8320,6 +8594,15 @@
             "description": "Chave de idempotencia da operacao",
             "in": "header",
             "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Token de step-up de uso unico. Obrigatorio: esta operacao nao admite bypass.",
+            "in": "header",
+            "name": "X-Step-Up-Token",
             "required": true,
             "schema": {
               "type": "string"
@@ -8464,6 +8747,15 @@
             "required": true,
             "schema": {
               "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Token de step-up de uso unico. Dispensavel apenas para usuario sem MFA habilitado (bypass de migracao pre-MFA).",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": false,
+            "schema": {
               "type": "string"
             }
           }
@@ -8900,6 +9192,15 @@
               "format": "uuid",
               "type": "string"
             }
+          },
+          {
+            "description": "Token de step-up de uso unico. Dispensavel apenas para usuario sem MFA habilitado (bypass de migracao pre-MFA).",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -9028,6 +9329,15 @@
               "format": "uuid",
               "type": "string"
             }
+          },
+          {
+            "description": "Token de step-up de uso unico. Dispensavel apenas para usuario sem MFA habilitado (bypass de migracao pre-MFA).",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -9107,6 +9417,15 @@
               "enum": ["ADMIN", "CLIENTE", "FINANCEIRO", "BACKOFFICE"],
               "type": "string"
             }
+          },
+          {
+            "description": "Token de step-up de uso unico. Dispensavel apenas para usuario sem MFA habilitado (bypass de migracao pre-MFA).",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -9174,6 +9493,15 @@
               "enum": ["ADMIN", "CLIENTE", "FINANCEIRO", "BACKOFFICE"],
               "type": "string"
             }
+          },
+          {
+            "description": "Token de step-up de uso unico. Dispensavel apenas para usuario sem MFA habilitado (bypass de migracao pre-MFA).",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -9223,6 +9551,15 @@
             "required": true,
             "schema": {
               "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Token de step-up de uso unico. Dispensavel apenas para usuario sem MFA habilitado (bypass de migracao pre-MFA).",
+            "in": "header",
+            "name": "X-Step-Up-Token",
+            "required": false,
+            "schema": {
               "type": "string"
             }
           }

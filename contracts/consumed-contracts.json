@@ -2,62 +2,13 @@
   "$comment": "Contratos HTTP consumidos pelo sep-app, espelhando src/app/core/api/api.models.ts e os services de src/app/core/**. Validado contra o OpenAPI por scripts/contract-check.mjs. Campos declarados = superficie realmente lida/enviada pelo frontend; o backend pode expor mais campos sem quebrar este contrato. Regra do campo 'erros' (F-Sprint 22): declarar um status de erro SO quando a tela ramifica por status; operacoes que usam 'apiErr?.message ?? padrao' nao discriminam status e nao declaram nada. 'responseHeaders' e mapa por status ({ \"200\": [...] }), nao lista plana.",
   "knownGaps": [
     {
-      "kind": "header-undocumented",
-      "header": "X-Step-Up-Token",
-      "appliesTo": "*",
-      "reason": "O frontend envia X-Step-Up-Token nas operacoes @RequireStepUp, mas o springdoc nao documenta o header em nenhuma operacao.",
-      "followUp": "backend: documentar o header de step-up nas operacoes sensiveis (springdoc @Parameter)"
-    },
-    {
       "kind": "field-type-mismatch",
       "type": "DashboardResponse",
       "field": "tempoMedioResolucao30d",
       "openapiType": "string",
       "frontendType": "number",
-      "reason": "Jackson (WRITE_DURATIONS_AS_TIMESTAMPS) serializa Duration como numero de segundos em runtime; o springdoc documenta java.time.Duration como string.",
-      "followUp": "backend: alinhar a representacao OpenAPI do Duration ao runtime (@Schema(type = number))"
-    },
-    {
-      "kind": "response-header-undocumented",
-      "header": "X-Document-Hash-Sha256",
-      "appliesTo": "contratos.documentoAssinado",
-      "reason": "O frontend le o hash SHA-256 do PDF assinado no header da resposta, mas o springdoc nao documenta headers de resposta neste endpoint.",
-      "followUp": "backend: documentar os headers da resposta do documento assinado (springdoc @ApiResponse headers)"
-    },
-    {
-      "kind": "response-header-undocumented",
-      "header": "Content-Disposition",
-      "appliesTo": "contratos.documentoAssinado",
-      "reason": "O frontend le o filename do Content-Disposition; header nao documentado no OpenAPI.",
-      "followUp": "backend: documentar os headers da resposta do documento assinado (springdoc @ApiResponse headers)"
-    },
-    {
-      "kind": "enum-undocumented",
-      "type": "ContratoResponse",
-      "field": "tipo",
-      "reason": "Backend expoe TipoContrato sem enum no OpenAPI.",
-      "followUp": "backend: publicar enum de TipoContrato no schema"
-    },
-    {
-      "kind": "enum-undocumented",
-      "type": "ContratoResponse",
-      "field": "status",
-      "reason": "Backend expoe StatusFormalizacao sem enum no OpenAPI.",
-      "followUp": "backend: publicar enum de StatusFormalizacao no schema"
-    },
-    {
-      "kind": "enum-undocumented",
-      "type": "StatusAssinaturaResponse",
-      "field": "statusContrato",
-      "reason": "Mesma lacuna de StatusFormalizacao no DTO de status de assinatura.",
-      "followUp": "backend: publicar enum de StatusFormalizacao no schema"
-    },
-    {
-      "kind": "enum-undocumented",
-      "type": "StatusAssinaturaResponse",
-      "field": "statusEnvelope",
-      "reason": "Backend expoe StatusEnvelope sem enum no OpenAPI.",
-      "followUp": "backend: publicar enum de StatusEnvelope no schema"
+      "reason": "MEDIDO na Sprint 34 (2026-08-03): o JacksonAutoConfiguration do Spring Boot DESLIGA WRITE_DURATIONS_AS_TIMESTAMPS, entao o runtime serializa Duration como ISO-8601 (\"PT2H\"), e nao como numero. O openapiType 'string' esta CORRETO; quem diverge e o frontend. Consequencia viva: backoffice-format.ts faz Math.round(segundos / 60) sobre \"PT2H\" e o KPI do dashboard renderiza NaNmin; o mock MSW devolve 7200, entao nenhum teste do front ve.",
+      "followUp": "web: trocar tempoMedioResolucao30d para string em api.models.ts e parsear ISO-8601 em backoffice-format.ts. NAO anotar @Schema(type = number) no backend — tentado na Task 34.6 e revertido, porque publicaria um tipo que o servidor nunca emite e apagaria o unico detector do NaNmin."
     }
   ],
   "types": {
