@@ -62,10 +62,16 @@ function stubLogin(resposta: () => Response): void {
 }
 
 /** Corpo `ErrorResponseDto` no formato que o sep-api realmente emite. */
-function erroDaApi(status: number, error: string, message: string): Response {
+function erroDaApi(
+  status: number,
+  error: string,
+  message: string,
+  // F-Sprint 23: `Retry-After` nos 423/429. Opcional e no fim para nao tocar os call sites antigos.
+  headers?: Record<string, string>,
+): Response {
   return HttpResponse.json(
     { timestamp: '2026-07-30T09:00:00Z', status, error, message, path: '/api/v1/auth/login' },
-    { status },
+    { status, headers },
   );
 }
 
@@ -201,7 +207,44 @@ describe('LoginComponent', () => {
     expect(screen.getByText(/30 minutos/i)).toBeTruthy();
   });
 
-  it('429: orienta a aguardar e nao acusa senha invalida', async () => {
+  it('423 com Retry-After: o header ganha do corpo, que anuncia a duracao nominal', async () => {
+    // 300s = 5 minutos restantes, enquanto a `message` do sep-api anuncia os 30 da politica. Os
+    // dois valores sao diferentes de proposito: `ContaBloqueadaException` monta a frase a partir de
+    // `lockoutMinutes`, nao do relogio. Exibir o corpo aqui superestimaria a espera.
+    stubLogin(() =>
+      erroDaApi(423, 'Locked', 'Conta bloqueada temporariamente. Tente novamente em 30 minutos.', {
+        'Retry-After': '300',
+      }),
+    );
+    const result = await setup();
+    preencherEEnviar('admin@empresa.com');
+
+    await estabilizar(result.fixture);
+
+    expect(screen.getByText(/tente novamente em 5 minutos/i)).toBeTruthy();
+    expect(screen.queryByText(/30 minutos/i)).toBeNull();
+  });
+
+  it('429 com Retry-After: usa o periodo informado em vez do literal de 1 minuto', async () => {
+    // 120s nao coincide com nenhum literal do componente: se o teste passar, foi lendo o header.
+    stubLogin(() =>
+      erroDaApi(
+        429,
+        'Too Many Requests',
+        'Limite de requisicoes excedido. Aguarde antes de tentar novamente.',
+        { 'Retry-After': '120' },
+      ),
+    );
+    const result = await setup();
+    preencherEEnviar('admin@empresa.com');
+
+    await estabilizar(result.fixture);
+
+    expect(screen.getByText(/aguarde cerca de 2 minutos/i)).toBeTruthy();
+    esperarCtaLiberado();
+  });
+
+  it('429 sem Retry-After: mantem o literal de 1 minuto', async () => {
     stubLogin(() =>
       erroDaApi(
         429,

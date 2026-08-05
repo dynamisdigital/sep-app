@@ -151,6 +151,11 @@ let currentMockUser = adminUsuario;
 // torna /account-locked alcancavel offline.
 const LOCKOUT_MAX_TENTATIVAS = 5;
 const LOCKOUT_MINUTOS = 30;
+// Janela de deteccao (`app.security.lockout.window-minutes`). Como as outras duas, NAO e simulada —
+// o mock nao tem relogio. Existe para o handler de /auth/politica-lockout anunciar os tres numeros
+// coerentes com o limiar que o handler de login aplica; com a janela literal no handler o mock se
+// contradiria ao primeiro override.
+const LOCKOUT_JANELA_MINUTOS = 15;
 // DIVERGENCIA DELIBERADA do backend, decidida na F-Sprint 21: aqui QUALQUER credencial recusada
 // incrementa, inclusive username desconhecido, vazio ou fora do formato e-mail. No sep-api so
 // contam SENHA_INVALIDA e TOTP_INVALIDO (LockoutService.STATUSES_FALHA), entao um username
@@ -171,7 +176,15 @@ export function resetLoginMockState(): void {
   currentMockUser = adminUsuario;
 }
 
-function errorResponse(status: number, error: string, message: string, path: string) {
+function errorResponse(
+  status: number,
+  error: string,
+  message: string,
+  path: string,
+  // Headers de resposta do erro (F-Sprint 23: `Retry-After` no 423). Opcional e no fim para nao
+  // tocar nenhum dos call sites existentes — `HttpResponse.json` aceita `headers: undefined`.
+  headers?: Record<string, string>,
+) {
   return HttpResponse.json(
     {
       timestamp: now,
@@ -180,7 +193,7 @@ function errorResponse(status: number, error: string, message: string, path: str
       message,
       path,
     },
-    { status },
+    { status, headers },
   );
 }
 
@@ -3314,6 +3327,9 @@ export const handlers = [
         'Locked',
         `Conta bloqueada temporariamente. Tente novamente em ${LOCKOUT_MINUTOS} minutos.`,
         path,
+        // Duracao INTEIRA, e nao o restante como no sep-api: o mock nao tem relogio (o bloqueio
+        // dura ate `resetLoginMockState()`), entao os segundos que faltam sao sempre todos eles.
+        { 'Retry-After': String(LOCKOUT_MINUTOS * 60) },
       );
     }
 
@@ -3350,6 +3366,31 @@ export const handlers = [
   http.post(`${baseUrl}/auth/logout-all`, () => new HttpResponse(null, { status: 204 })),
 
   http.get(`${baseUrl}/auth/me`, () => HttpResponse.json(currentMockUser)),
+
+  // Politica de lockout (backend Sprint 34), consumida por /account-locked na F-Sprint 23.
+  // Os tres numeros saem das MESMAS constantes que o handler de login aplica: um mock que
+  // anunciasse uma politica diferente da que impoe seria pior que nenhum.
+  http.get(`${baseUrl}/auth/politica-lockout`, ({ request }) => {
+    // TRIPWIRE, nao simulacao. Enquanto o `authInterceptor` isentar esta rota, este ramo e
+    // INALCANCAVEL — ele existe para que remover a isencao apareca como falha, na spec e no e2e,
+    // em vez de degradar em silencio para a copy de fallback. Espelha o `JwtAuthenticationFilter`,
+    // que rejeita bearer invalido mesmo em rota `permitAll`; os tokens deste mock nunca sao JWTs
+    // reais, entao "qualquer Authorization -> 401" e a simulacao fiel DELES. Assimetria na direcao
+    // segura (falha offline, passa em producao), como a do contador de lockout acima.
+    if (request.headers.get('Authorization')) {
+      return errorResponse(
+        401,
+        'Unauthorized',
+        'Autenticacao requerida',
+        '/api/v1/auth/politica-lockout',
+      );
+    }
+    return HttpResponse.json({
+      maxAttempts: LOCKOUT_MAX_TENTATIVAS,
+      windowMinutes: LOCKOUT_JANELA_MINUTOS,
+      lockoutMinutes: LOCKOUT_MINUTOS,
+    });
+  }),
 
   http.get(`${baseUrl}/usuarios`, () => HttpResponse.json(usuariosFake)),
 
