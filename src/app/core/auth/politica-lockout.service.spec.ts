@@ -58,6 +58,21 @@ describe('PoliticaLockoutService', () => {
     expect(politica).toBeNull();
   });
 
+  it('devolve null para valor fracionario, que o schema int32 nao admite', async () => {
+    // Sem `Number.isInteger` este caso escapa — `15.5 > 0` e verdadeiro — e a tela renderiza
+    // "em 15.5 minutos". Os outros casos nao cobrem o predicado: `{}` cai por `undefined > 0` e o
+    // zero por `0 > 0`, entao remove-lo mantinha a spec verde.
+    server.use(
+      http.get(URL_POLITICA, () =>
+        HttpResponse.json({ maxAttempts: 5, windowMinutes: 15.5, lockoutMinutes: 30 }),
+      ),
+    );
+
+    const politica = await valorEmitido(TestBed.inject(PoliticaLockoutService));
+
+    expect(politica).toBeNull();
+  });
+
   it('devolve null para valor nao-positivo, que nao descreve politica nenhuma', async () => {
     server.use(
       http.get(URL_POLITICA, () =>

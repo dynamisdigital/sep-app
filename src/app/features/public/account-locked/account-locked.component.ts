@@ -13,10 +13,22 @@ import { RouterLink } from '@angular/router';
 import { PoliticaLockoutResponse } from '../../../core/api/api.models';
 import { PoliticaLockoutService } from '../../../core/auth/politica-lockout.service';
 
-/** Fallback: alcancavel so com o endpoint fora do ar — estado em que o login tambem nao funciona. */
+/**
+ * Fallback, e tambem o estado inicial de TODA renderizacao — nao so do endpoint fora do ar. Entre o
+ * primeiro paint e a resposta, e por todo o tempo em que a consulta falhar, e este texto que esta na
+ * tela.
+ *
+ * Por isso ele nao pode citar numero nenhum. Um "ate 30 minutos" literal seria falso sob
+ * `APP_LOCKOUT_LOCKOUT_MINUTES=60`, e como a troca de copy e um text node sem live region, quem usa
+ * leitor de tela le o fallback logo apos o `focus()` e **nunca ouve a correcao**. Entre vago e
+ * verdadeiro ou preciso e falso, numa tela de desfecho de evento de seguranca, vago vence.
+ *
+ * Nao confundir com o que a F-21 rejeitou: la o problema era o teste (asserts de ausencia que
+ * deixavam passar copy inventada), nao a vaguidao. A trava por texto integral continua.
+ */
 const EXPLICACAO_SEM_POLITICA =
   'Detectamos varias tentativas de acesso malsucedidas — senha ou codigo de verificacao. Por ' +
-  'seguranca, sua conta fica bloqueada por ate 30 minutos, contados a partir da ultima tentativa.';
+  'seguranca, sua conta fica bloqueada por um periodo limitado, contado a partir da ultima tentativa.';
 
 function minutos(valor: number): string {
   return `${valor} ${valor === 1 ? 'minuto' : 'minutos'}`;
@@ -150,6 +162,10 @@ export class AccountLockedComponent implements AfterViewInit {
 
   // Assina na construcao, antes do primeiro paint. `consultar()` nunca erra (o `catchError` mora no
   // servico), o que importa aqui porque `toSignal` relancaria o erro na leitura do signal.
+  //
+  // O que garante a tela completa desde o primeiro paint e o template nao ter `@if` sobre este
+  // signal — o `initialValue` so evita o `undefined` inicial do `toSignal`. Sao coisas separadas: um
+  // `@if` reintroduziria a dependencia da rede mesmo com o `initialValue` no lugar.
   private readonly politica = toSignal(inject(PoliticaLockoutService).consultar(), {
     initialValue: null,
   });

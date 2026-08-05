@@ -49,11 +49,15 @@ const COPY_COM_POLITICA =
   'codigo de verificacao. Por seguranca, sua conta fica bloqueada por ate 45 minutos, contados a ' +
   `partir da ultima tentativa. ${RODAPE}`;
 
-/** Fallback: mesma copy conferida contra o sep-api na F-21, agora so para quando a chamada falha. */
+/**
+ * Fallback. Nao cita numero de proposito: ele e o estado inicial de toda renderizacao, nao so do
+ * endpoint fora do ar, e um literal aqui mentiria sob override de ambiente para quem le a tela antes
+ * da resposta chegar — inclusive leitor de tela, que nao ouve a correcao.
+ */
 const COPY_SEM_POLITICA =
   `${CABECALHO}Detectamos varias tentativas de acesso malsucedidas — senha ou codigo de ` +
-  'verificacao. Por seguranca, sua conta fica bloqueada por ate 30 minutos, contados a partir da ' +
-  `ultima tentativa. ${RODAPE}`;
+  'verificacao. Por seguranca, sua conta fica bloqueada por um periodo limitado, contado a partir ' +
+  `da ultima tentativa. ${RODAPE}`;
 
 function stubPolitica(resolver: Parameters<typeof http.get>[1]): void {
   server.use(http.get(URL_POLITICA, resolver));

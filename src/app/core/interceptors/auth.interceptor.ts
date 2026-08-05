@@ -4,7 +4,15 @@ import { inject } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
 
 /**
- * Endpoints `permitAll` do sep-api, que nunca devem receber `Authorization`.
+ * Endpoints publicos do sep-api que o web chama SEM sessao e para os quais a isencao ja foi
+ * verificada. **Nao e a lista dos `permitAll`**: o `SecurityConfig` tem oito, e ficam de fora
+ * `POST /usuarios`, `/auth/refresh`, `/auth/logout`, `/auth/totp/verify` e os webhooks.
+ *
+ * A omissao de `/auth/totp/verify` e um defeito conhecido, anterior a esta lista e nao corrigido
+ * aqui: `handleTokenResponse` retorna cedo no ramo `mfaRequired` sem limpar o token, entao a
+ * verificacao de TOTP leva um `Authorization` morto, toma 401 e o usuario perde o desafio. Corrigir
+ * exige uma linha aqui e um teste — registrado como follow-up para nao misturar com o escopo desta
+ * sprint. Quem for fechar: acrescentar a rota e cobrir o caminho do challenge.
  *
  * Nao e cosmetica. Um token velho ainda no storage faz o `JwtAuthenticationFilter` responder 401
  * ANTES de olhar a autorizacao — e o `errorInterceptor` isenta do redirect de 401 apenas

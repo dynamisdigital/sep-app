@@ -76,9 +76,11 @@ test('URL direta com token velho: a politica carrega e a pagina nao e perdida', 
   // mutacao — removendo a rota do array, quem falha primeiro e o assert do heading, porque a
   // pagina inteira vai embora.
   //
-  // Os tres asserts cobrem falhas diferentes, e nenhum e redundante: o heading pega a pagina
-  // perdida; o texto pega a degradacao silenciosa para a copy de fallback (chamada quebrada, mas
-  // pagina no lugar); o pathname pega um redirect que deixe algum resquicio renderizado.
+  // Os tres asserts cobrem falhas diferentes. O do heading tem auto-wait e pode satisfazer ANTES de
+  // o 401 voltar, entao ele sozinho nao prova nada sobre o redirect; o do texto pega a degradacao
+  // silenciosa para a copy de fallback (chamada quebrada, pagina no lugar); e o de URL, por ultimo e
+  // com retry (`toHaveURL`, nao leitura sincrona de `page.url()`), e o que pega um redirect que
+  // chegue milissegundos depois — e o unico que falha se a navegacao for tardia.
   await page.addInitScript(() => {
     window.localStorage.setItem('NG_APP_USE_MSW', 'true');
     window.localStorage.setItem('SEP_ACCESS_TOKEN', 'token-expirado-de-proposito');
@@ -90,5 +92,5 @@ test('URL direta com token velho: a politica carrega e a pagina nao e perdida', 
     page.getByRole('heading', { level: 1, name: /conta bloqueada temporariamente/i }),
   ).toBeVisible();
   await expect(page.getByText(/5 ou mais tentativas .*em 15 minutos/i)).toBeVisible();
-  expect(new URL(page.url()).pathname).toBe('/account-locked');
+  await expect(page).toHaveURL(/\/account-locked$/);
 });

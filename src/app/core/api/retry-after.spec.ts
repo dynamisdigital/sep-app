@@ -38,4 +38,17 @@ describe('esperaDoRetryAfter', () => {
   it('devolve null para valor negativo', () => {
     expect(esperaDoRetryAfter(erroCom('-30'))).toBeNull();
   });
+
+  it('devolve null para fracionario, que delay-seconds nao admite', () => {
+    // Sem `Number.isInteger`, `90.5` passa e vira "2 minutos" — plausivel, e por isso pior: um
+    // header malformado deixaria de ser detectavel.
+    expect(esperaDoRetryAfter(erroCom('90.5'))).toBeNull();
+  });
+
+  it('devolve null acima do teto, em vez de exibir um numero absurdo', () => {
+    // Sem o teto, `1e21` rende "1.6666666666666666e+19 minutos" na tela.
+    expect(esperaDoRetryAfter(erroCom('1e21'))).toBeNull();
+    // O maior valor legitimo do sep-api (lockout de 24h) continua passando.
+    expect(esperaDoRetryAfter(erroCom(String(24 * 60 * 60)))).toBe('1440 minutos');
+  });
 });
