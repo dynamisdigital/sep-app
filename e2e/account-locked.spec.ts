@@ -53,12 +53,42 @@ test('lockout: 5 senhas erradas e a proxima tentativa cai em /account-locked', a
   await expect(
     page.getByRole('heading', { level: 1, name: /conta bloqueada temporariamente/i }),
   ).toBeVisible();
-  // Sanity-check de que a pagina certa renderizou de ponta a ponta, nao trava de contrato: quem
-  // fixa a copy e `account-locked.component.spec.ts`, que assere o texto integral. Trocar o valor
-  // no backend nao quebra estas duas linhas — a copy da pagina e estatica por construcao.
-  await expect(page.getByText(/30 minutos/i)).toBeVisible();
+  // Prova de que a politica veio do endpoint, e nao de literal no bundle: `15` nao existe em
+  // nenhum lugar do codigo de producao, so em `GET /auth/politica-lockout`. Assertar `/30 minutos/`
+  // seria mais fraco — o fallback estatico tambem diz 30, entao passaria com a chamada quebrada.
+  // (Quem fixa a copy integral e `account-locked.component.spec.ts`; aqui e ponta a ponta.)
+  await expect(page.getByText(/5 ou mais tentativas .*em 15 minutos/i)).toBeVisible();
   await expect(page.getByText(/nao existe liberacao manual/i)).toBeVisible();
 
   await page.getByRole('link', { name: /voltar ao login/i }).click();
   await page.waitForURL(/\/login$/, { timeout: 10_000 });
+});
+
+test('URL direta com token velho: a politica carrega e a pagina nao e perdida', async ({
+  page,
+}) => {
+  // Unico lugar que exercita a cadeia real de interceptors do `app.config.ts`
+  // (clientChannel -> auth -> stepUp -> error) — a spec Vitest monta a cadeia a mao.
+  //
+  // Sem a isencao de `/auth/politica-lockout` no authInterceptor, o token velho viaja, o mock
+  // responde 401 (tripwire de `handlers.ts`) e o errorInterceptor faz clearSession() +
+  // navigateByUrl('/login'): o usuario e ARRANCADO da pagina que acabou de abrir. Verificado por
+  // mutacao — removendo a rota do array, quem falha primeiro e o assert do heading, porque a
+  // pagina inteira vai embora.
+  //
+  // Os tres asserts cobrem falhas diferentes, e nenhum e redundante: o heading pega a pagina
+  // perdida; o texto pega a degradacao silenciosa para a copy de fallback (chamada quebrada, mas
+  // pagina no lugar); o pathname pega um redirect que deixe algum resquicio renderizado.
+  await page.addInitScript(() => {
+    window.localStorage.setItem('NG_APP_USE_MSW', 'true');
+    window.localStorage.setItem('SEP_ACCESS_TOKEN', 'token-expirado-de-proposito');
+  });
+
+  await page.goto('/account-locked');
+
+  await expect(
+    page.getByRole('heading', { level: 1, name: /conta bloqueada temporariamente/i }),
+  ).toBeVisible();
+  await expect(page.getByText(/5 ou mais tentativas .*em 15 minutos/i)).toBeVisible();
+  expect(new URL(page.url()).pathname).toBe('/account-locked');
 });
