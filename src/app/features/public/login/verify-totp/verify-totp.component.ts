@@ -23,8 +23,9 @@ import { MfaService } from '../../../../core/auth/mfa.service';
  * NAO ha ramo de 401. O *handler* nunca o responde — `MfaChallengeInvalidoException` estende
  * `ValidacaoException`, que o `ApiExceptionHandler` mapeia para 400, e o OpenAPI declara so
  * 200/400/423/429. Um 401 aqui so pode vir do `JwtAuthenticationFilter`, que roda antes da
- * autorizacao e rejeita token expirado mesmo em rota `permitAll`; o `authInterceptor` isenta apenas
- * `/auth/login`, entao um token velho ainda viaja nesta chamada. Nesse caminho o `errorInterceptor`
+ * autorizacao e rejeita token expirado mesmo em rota `permitAll`; o `authInterceptor` **nao** isenta
+ * `/auth/totp/verify` — a lista dele cobre so `/auth/login` e `/auth/politica-lockout` —, entao um
+ * token velho ainda viaja nesta chamada. Nesse caminho o `errorInterceptor`
  * ja faz `clearSession()` e navega para /login, destruindo este componente antes que qualquer
  * mensagem pudesse ser lida — por isso o ramo continua nao existindo.
  *

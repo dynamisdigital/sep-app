@@ -54,6 +54,9 @@
     "StepUpCompleteRequest": { "fields": { "stepUpChallengeId": "string", "codigo": "string" } },
     "StepUpCompleteResponse": { "fields": { "stepUpToken": "string" } },
     "UsuarioSenhaUpdateRequest": { "fields": { "passwordAtual": "string", "novaSenha": "string" } },
+    "PoliticaLockoutResponse": {
+      "fields": { "maxAttempts": "number", "windowMinutes": "number", "lockoutMinutes": "number" }
+    },
     "IniciarOnboardingPessoaRequest": {
       "fields": { "cpf": "string", "nomeCompleto": "string", "dataNascimento": "string" }
     },
@@ -970,6 +973,7 @@
       "path": "/api/v1/auth/login",
       "sucesso": [200],
       "erros": [400, 401, 423, 429],
+      "responseHeaders": { "423": ["Retry-After"], "429": ["Retry-After"] },
       "request": { "$type": "LoginRequest" },
       "response": { "$type": "TokenResponse" }
     },
@@ -1000,6 +1004,13 @@
       "path": "/api/v1/auth/logout-all",
       "sucesso": [204],
       "response": null
+    },
+    {
+      "id": "auth.politicaLockout",
+      "method": "get",
+      "path": "/api/v1/auth/politica-lockout",
+      "sucesso": [200],
+      "response": { "$type": "PoliticaLockoutResponse" }
     },
     {
       "id": "mfa.totpSetup",
