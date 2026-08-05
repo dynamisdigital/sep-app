@@ -48,6 +48,21 @@ describe('authInterceptor', () => {
     expect(state.lastReq?.headers.has('Authorization')).toBe(false);
   });
 
+  it('nao anexa Authorization para /auth/politica-lockout, mesmo com token no storage', () => {
+    // O endpoint e publico e serve a /account-locked, que e alcancavel por URL direta e por reload
+    // — caminhos em que o token velho ainda esta no storage. Se ele viajar, o backend responde 401
+    // e o errorInterceptor tira o usuario da pagina.
+    window.localStorage.setItem(ACCESS_TOKEN_KEY, 'abc-token');
+    const req = new HttpRequest('GET', 'http://localhost:8080/api/v1/auth/politica-lockout');
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      authInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.has('Authorization')).toBe(false);
+  });
+
   it('nao anexa Authorization quando nao ha token', () => {
     const req = new HttpRequest('GET', 'http://localhost:8080/api/v1/auth/me');
     const { state, handler } = captureNext();
