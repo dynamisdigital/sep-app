@@ -88,6 +88,23 @@ export interface ApiErrorResponse {
   traceId?: string;
 }
 
+/**
+ * Politica de lockout vigente (`GET /auth/politica-lockout`, backend Sprint 34). Publico: quem
+ * precisa do valor esta bloqueado e, por definicao, nao tem sessao.
+ *
+ * `windowMinutes` e `lockoutMinutes` estao em MINUTOS — nao segundos, nao millis. O aviso nao e
+ * decorativo: o header `Retry-After` da mesma feature vem em SEGUNDOS, e nenhum dos dois nomes
+ * denuncia a unidade.
+ *
+ * O springdoc nao emite `required` neste schema, entao o contrato NAO garante os tres campos; quem
+ * consome valida na borda (ver `PoliticaLockoutService`).
+ */
+export interface PoliticaLockoutResponse {
+  maxAttempts: number;
+  windowMinutes: number;
+  lockoutMinutes: number;
+}
+
 // --- Onboarding KYC PF / KYB PJ (F-Sprint 6) ---
 // DTOs de borda espelhando os contratos reais de `sep-api` (onboarding Sprints 6-7).
 // Status e decisoes KYC/KYB/PLD pertencem ao backend: o frontend nao interpreta esses
