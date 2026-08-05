@@ -51,6 +51,12 @@ jobs:
       - name: Format check
         run: npm run format:check
 
+      # D-Sprint 1: falha o job em `high`/`critical`. O limiar e high, e nao `total`, porque
+      # `moderate`/`low` costumam so ter correcao em major — barrado pelo ADR 0018 — e um gate
+      # cronicamente vermelho vira gate ignorado. `moderate` segue visivel na saida do comando.
+      - name: Security audit (dependencias, falha em high/critical)
+        run: npm run audit
+
       - name: Contract check (OpenAPI snapshot)
         run: npm run contract:check
 
