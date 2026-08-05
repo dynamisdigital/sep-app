@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 
 import { ApiErrorResponse } from '../../../core/api/api.models';
+import { esperaDoRetryAfter } from '../../../core/api/retry-after';
 import { AuthService } from '../../../core/auth/auth.service';
 
 /**
@@ -37,15 +38,28 @@ function mensagemDeErroDeLogin(erro: unknown): string {
       // Copia local de proposito: o sep-api responde "Autenticacao requerida" no 401
       // (ApiExceptionHandler), que orienta menos o usuario que a frase daqui.
       return 'E-mail ou senha invalidos.';
-    case 423:
-      // A duracao real vem de `app.security.lockout.lockout-minutes`, sobrescrevivel por ambiente:
-      // so o backend sabe o valor vigente. Fixar 30 aqui faria a tela mentir apos um override. O
-      // literal serve so para corpo ausente.
-      return mensagemDaApi ?? 'Conta bloqueada temporariamente. Tente novamente em 30 minutos.';
-    case 429:
+    case 423: {
+      // O header GANHA do corpo, e essa ordem e o ponto todo: a `message` do sep-api e montada a
+      // partir de `lockoutMinutes` (a duracao NOMINAL da politica), nao do relogio, entao ela
+      // superestima a espera por design — quem esta bloqueado ha 29 minutos le "30 minutos". O
+      // `Retry-After` traz os segundos que realmente faltam.
+      // Sem header (corpo antigo, proxy que filtrou, CORS mal configurado), cai no comportamento
+      // anterior: a duracao real vem de `app.security.lockout.lockout-minutes`, sobrescrevivel por
+      // ambiente, entao o corpo do servidor ainda ganha do literal local.
+      const espera = esperaDoRetryAfter(erro);
+      return espera
+        ? `Conta bloqueada temporariamente. Tente novamente em ${espera}.`
+        : (mensagemDaApi ?? 'Conta bloqueada temporariamente. Tente novamente em 30 minutos.');
+    }
+    case 429: {
       // Rate limit por IP (RateLimitFilter), nao o account lockout: nao ha conta trancada aqui,
-      // so requisicoes demais na janela de 1 minuto.
-      return 'Muitas tentativas seguidas. Aguarde cerca de 1 minuto e tente de novo.';
+      // so requisicoes demais na janela.
+      // O "cerca de" fica so aqui: o `Retry-After` do 429 e o periodo de refresh do limitador
+      // (60s constantes), um limite SUPERIOR e nao a espera exata — ao contrario do 423, onde o
+      // header e o restante real e hedge seria ruido.
+      const espera = esperaDoRetryAfter(erro);
+      return `Muitas tentativas seguidas. Aguarde cerca de ${espera ?? '1 minuto'} e tente de novo.`;
+    }
     case 0:
       // Rede, CORS ou offline. Requisito, nao detalhe: falha de rede jamais pode ser reportada
       // como senha invalida.
