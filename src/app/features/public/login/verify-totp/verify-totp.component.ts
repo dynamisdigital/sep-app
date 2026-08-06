@@ -20,20 +20,26 @@ import { MfaService } from '../../../../core/auth/mfa.service';
  * literal local mandaria quem teve o desafio expirado redigitar codigo para sempre, em vez de
  * refazer o login.
  *
- * NAO ha ramo de 401, e desde a F-24.2 por um motivo diferente do registrado antes. O *handler*
- * nunca responde 401 — `MfaChallengeInvalidoException` estende `ValidacaoException`, que o
- * `ApiExceptionHandler` mapeia para 400, e o OpenAPI declara so 200/400/423/429. O unico produtor
- * possivel era o `JwtAuthenticationFilter`, que rejeita token expirado mesmo em rota `permitAll`;
- * `/auth/totp/verify` **entrou** na lista de `core/interceptors/rotas-publicas.ts`, entao nenhum
- * `Authorization` viaja mais nesta chamada e o filtro faz `chain.doFilter` sem olhar token
- * (`JwtAuthenticationFilter.java:39-42`). Sem produtor, um ramo de 401 aqui seria codigo morto.
+ * O 401 e **fallback defensivo**, como o 423, e nao caminho normal. Contra o backend de hoje ele nao
+ * e produzivel aqui: o unico 401 do lado do handler e
+ * `ApiExceptionHandler.java:121-124` (`@ExceptionHandler(AuthenticationException.class)`), e nada no
+ * caminho de `VerificarTotpUseCase` lanca `AuthenticationException` — esse e o invariante a
+ * reconferir, e nao o mapeamento de uma excecao isolada. Do lado do filtro, `/auth/totp/verify`
+ * entrou na lista de `core/interceptors/rotas-publicas.ts` na F-24.2, entao nenhum `Authorization`
+ * viaja mais e `JwtAuthenticationFilter.java:39-43` faz `chain.doFilter` sem olhar token.
  *
- * A justificativa ANTERIOR — "o `errorInterceptor` navega para /login e destroi este componente" —
- * **nao vale mais**: aquela lista alimenta os dois interceptors desde a F-24.1, entao o redirect de
- * 401 tambem foi suprimido para esta rota. A conclusao (sem ramo de 401) sobrevive; o fundamento,
- * nao. Quem voltar a mandar `Authorization` aqui reabre o 401 E fica sem o redirect: nesse caso o
- * erro escorre para o `default:` e a tela anuncia "Servico indisponivel" numa falha de
- * autenticacao. Ou seja, a ausencia deste ramo depende da isencao continuar existindo.
+ * O ramo existe mesmo assim porque a improdutibilidade depende de **duas** pre-condicoes, e uma
+ * delas mora no outro repo: a isencao continuar na lista **e** `SecurityConfig.java:82-83` manter o
+ * `permitAll`. Se o `permitAll` cair — ou se este web rodar contra um backend mais antigo, cenario
+ * que a F-24.1 tratou como real para a rota irma —, o POST anonimo e negado pelo `AuthorizationFilter`
+ * e volta 401 **sem nenhum `Authorization` no fio**. Como a rota tambem esta isenta no
+ * `errorInterceptor`, esse 401 nao redireciona: sem este ramo ele escorreria para o `default:` e a
+ * tela anunciaria "Servico indisponivel" numa falha de autenticacao, prendendo o usuario no desafio.
+ * Tres linhas de ramo morto contra um beco sem saida com copy enganosa.
+ *
+ * A justificativa ANTERIOR da ausencia — "o `errorInterceptor` navega para /login e destroi este
+ * componente" — **nao vale mais**: aquela lista alimenta os dois interceptors desde a F-24.1, entao
+ * o redirect de 401 tambem foi suprimido para esta rota.
  *
  * O 423 e fallback defensivo, nao caminho normal: o `errorInterceptor` ja fez `clearSession()` e
  * navegou para /account-locked antes deste componente renderizar. NAO trocar por navegacao aqui — o
@@ -47,10 +53,13 @@ function mensagemDeErroDeTotp(erro: unknown): string {
     return 'Nao foi possivel concluir a verificacao. Tente de novo em instantes.';
   }
 
-  // `||` e nao `??` de proposito: `message` vazia e produzivel — o `JwtAuthenticationFilter` usa
-  // `response.sendError(...)`, e com `server.error.include-message` nao configurado o Spring Boot
-  // emite `"message": ""`. Com `??` a string vazia passaria adiante e o `@if` do template, que a
-  // trata como falsy, nao criaria o no `role="alert"`: a tela ficaria muda apos o erro.
+  // `||` e nao `??` de proposito: `message` vazia e produzivel — um `ErrorResponseDto` de 400 ou 423
+  // pode chegar com o campo em branco, caso coberto pelos testes desta spec. Com `??` a string vazia
+  // passaria adiante e o `@if` do template, que a trata como falsy, nao criaria o no `role="alert"`:
+  // a tela ficaria muda apos o erro.
+  // O produtor citado aqui antes era o `sendError` do `JwtAuthenticationFilter`; ele deixou de ser
+  // alcancavel nesta rota na F-24.2, quando o `Authorization` parou de viajar. A guarda continua
+  // necessaria pelo caso acima.
   const mensagemDaApi = (erro.error as ApiErrorResponse | undefined)?.message?.trim();
 
   switch (erro.status) {
@@ -58,6 +67,12 @@ function mensagemDeErroDeTotp(erro: unknown): string {
       return (
         mensagemDaApi || 'Codigo invalido ou desafio expirado. Refaca o login e tente de novo.'
       );
+    case 401:
+      // Fallback defensivo (ver docblock): improduzivel contra o backend de hoje, mas nao ha como
+      // este repo garantir o `permitAll` que sustenta isso. Copia local e nao `mensagemDaApi`: o
+      // `ApiAuthenticationEntryPoint` responde "Autenticacao requerida", que nao diz ao usuario o
+      // que fazer.
+      return 'Sua sessao expirou. Refaca o login e tente de novo.';
     case 423:
       // A duracao real vem de `app.security.lockout.lockout-minutes`, sobrescrevivel por ambiente:
       // fixar 30 aqui faria a tela mentir apos um override.

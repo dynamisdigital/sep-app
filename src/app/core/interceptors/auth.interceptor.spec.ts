@@ -63,6 +63,22 @@ describe('authInterceptor', () => {
     expect(state.lastReq?.headers.has('Authorization')).toBe(false);
   });
 
+  it('nao anexa Authorization para /auth/totp/verify, mesmo com token no storage', () => {
+    // `handleTokenResponse` retorna cedo no ramo `mfaRequired` sem limpar o token, entao o desafio
+    // de MFA acontece com um token de sessao anterior no storage. Par unitario do teste de fluxo em
+    // `verify-totp.component.spec.ts`: aquele cai se a rota sair da lista, mas continuaria passando
+    // se o authInterceptor sumisse da composicao do `setup()`. Este prende a entrada na lista.
+    window.localStorage.setItem(ACCESS_TOKEN_KEY, 'token-expirado');
+    const req = new HttpRequest('POST', 'http://localhost:8080/api/v1/auth/totp/verify', {});
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      authInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.has('Authorization')).toBe(false);
+  });
+
   it('anexa Authorization em rota que apenas CONTEM /auth/login no caminho', () => {
     // A lista casa o fim do pathname, nao um `includes` na URL crua. `/auth/login` e um prefixo
     // propenso a colisao — o backend ja tem a tabela `login_attempt`, entao um

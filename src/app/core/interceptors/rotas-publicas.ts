@@ -1,8 +1,9 @@
 /**
  * Endpoints publicos do sep-api que o web chama SEM sessao e para os quais a isencao ja foi
- * verificada. **Nao e a lista dos `permitAll`**: o `SecurityConfig` tem oito
- * (`SecurityConfig.java:61-85`), e ficam de fora `POST /usuarios`, `/auth/refresh`, `/auth/logout` e
- * os webhooks.
+ * verificada. **Nao e a lista dos `permitAll`**: o `SecurityConfig` tem oito grupos
+ * (`SecurityConfig.java:61-85`), e ficam de fora `POST /usuarios`, `/auth/refresh`, `/auth/logout`,
+ * os webhooks e o grupo de infraestrutura (actuator, swagger, api-docs, webjars), que o web nunca
+ * chama com sessao.
  *
  * **Acrescentar uma rota aqui tem DOIS efeitos, nao um**: o `authInterceptor` para de anexar o
  * `Authorization` E o `errorInterceptor` para de navegar em 401/403. Uma rota so entra se os dois
@@ -15,14 +16,19 @@
  * o token**, entao um token de sessao anterior sobrevive ate o desafio, viajava na verificacao,
  * tomava 401 do `JwtAuthenticationFilter` e o usuario perdia o desafio de MFA.
  *
- * O segundo efeito (suprimir o redirect de 401) e **vacuo** para esta rota, e vale registrar por
- * que, senao a proxima leitura acha que falta um ramo de 401 em `verify-totp.component.ts`:
- * `JwtAuthenticationFilter.java:39-42` faz `chain.doFilter` e retorna quando NAO ha header, entao
- * parar de enviar o `Authorization` remove o unico produtor de 401 neste endpoint — o handler nunca
- * responde 401, porque `MfaChallengeInvalidoException extends ValidacaoException`, que o
- * `ApiExceptionHandler` mapeia para 400. Nao ha 401 a tratar, e tratar um seria codigo morto.
- * **A vacuidade depende da isencao**: quem voltar a mandar `Authorization` nesta rota perde as duas
- * protecoes de uma vez.
+ * O segundo efeito (suprimir o redirect de 401) e **vacuo** para esta rota contra o backend de hoje:
+ * `JwtAuthenticationFilter.java:39-43` faz `chain.doFilter` e retorna quando nao ha header `Bearer`,
+ * entao parar de enviar o `Authorization` remove o produtor do lado do filtro; do lado do handler, o
+ * unico 401 e `ApiExceptionHandler.java:121-124`
+ * (`@ExceptionHandler(AuthenticationException.class)`), e nada no caminho de `VerificarTotpUseCase`
+ * lanca `AuthenticationException`. **Esse e o invariante a reconferir** — nao o mapeamento de uma
+ * excecao isolada, que nao provaria nada sobre as outras.
+ *
+ * A vacuidade tem **duas** pre-condicoes, e uma delas mora no outro repo: esta isencao continuar
+ * aqui **e** `SecurityConfig.java:82-83` manter o `permitAll`. Se o `permitAll` cair, o POST anonimo
+ * e negado pelo `AuthorizationFilter` e volta 401 sem `Authorization` nenhum no fio. Por isso
+ * `verify-totp.component.ts` tem um ramo de 401 defensivo: aqui o custo de errar e assimetrico —
+ * ramo morto custa tres linhas, ausencia dele prende o usuario no desafio com a copy errada.
  *
  * Nao e cosmetica. Um token velho ainda no storage faz o `JwtAuthenticationFilter` responder 401
  * ANTES de olhar a autorizacao. Em `/auth/politica-lockout` isso nao degrada a copy da pagina de

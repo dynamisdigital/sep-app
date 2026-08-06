@@ -59,10 +59,11 @@ function semearChallenge(valor = '3f2504e0-4f89-11d3-9a0c-0305e82c3301'): void {
  * independe do redirect.
  */
 async function setup(opts: { comInterceptors?: boolean; comAuth?: boolean } = {}) {
-  // `comAuth` monta a cadeia na ORDEM real de `app.config.ts` (auth antes de error), que e o que
-  // permite provar o caminho do challenge de ponta a ponta: sem o authInterceptor no meio, um teste
-  // de "o token nao viaja" so provaria que o componente nao anexa header sozinho — coisa que ele
-  // nunca fez.
+  // `comAuth` acrescenta o authInterceptor, na ordem RELATIVA de `app.config.ts` (auth antes de
+  // error). Nao e a cadeia inteira: `clientChannel` e `stepUp` ficam de fora porque nenhum dos dois
+  // toca esta rota (`step-up.interceptor.ts:37-64` nao casa `/auth/totp/verify`); a cadeia real so e
+  // exercitada no e2e. Sem o authInterceptor aqui, um teste de "o token nao viaja" provaria apenas
+  // que o componente nao anexa header sozinho — coisa que ele nunca fez.
   const interceptors = [
     ...(opts.comAuth ? [authInterceptor] : []),
     ...(opts.comInterceptors ? [errorInterceptor] : []),
@@ -156,11 +157,33 @@ describe('VerifyTotpComponent', () => {
       }),
     );
     const { fixture } = await setup({ comAuth: true });
+    // Sem espiar, o sucesso dispara `navigateByUrl('/app/dashboard')` contra `provideRouter([])` e a
+    // suite ganha um NG04002 permanente — que mascararia um NG04002 legitimo em outro teste.
+    const destino = espiarNavegacao(fixture);
 
     preencherEEnviar();
     await estabilizar(fixture);
 
     expect(authHeader).toBeNull();
+    // Controle positivo: garante que o fluxo completou, e nao que o assert acima passou por a
+    // request nem ter saido.
+    expect(destino()).toBe('/app/dashboard');
+  });
+
+  it('401 na verificacao: anuncia sessao expirada, nao "servico indisponivel"', async () => {
+    // Ramo defensivo. Improduzivel contra o backend de hoje (ver docblock do componente), mas a
+    // improdutibilidade depende de `SecurityConfig.java:82-83` manter o `permitAll`, que este repo
+    // nao controla. Sem o ramo, o 401 cairia no `default:` — e como a rota tambem esta isenta no
+    // errorInterceptor, o usuario ficaria preso no desafio lendo "Servico indisponivel".
+    semearChallenge();
+    stubVerify(() => erroDaApi(401, 'Unauthorized', 'Autenticacao requerida'));
+    const { fixture } = await setup();
+
+    preencherEEnviar();
+    await estabilizar(fixture);
+
+    expect(textoDoErro()).toBe('Sua sessao expirou. Refaca o login e tente de novo.');
+    esperarCtaLiberado();
   });
 
   // O landmark fica FORA do @if, entao tem de existir nos dois ramos. Um teste por ramo: o
