@@ -13,6 +13,7 @@ import { resetCredoraState } from '../../../../../mocks/handlers';
 import { server } from '../../../../../mocks/server';
 import { CREDORA_ROUTES } from '../credora.routes';
 import { MatchingDetailPageComponent } from './matching-detail-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const MATCHING_SUGERIDA_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78f001';
 const MATCHING_INEXISTENTE_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78ffff';
@@ -21,18 +22,6 @@ const UUID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{1
 const BASE_URL = 'http://localhost:8080/api/v1';
 const DETALHE_URL = `${BASE_URL}/credores/matching/${MATCHING_SUGERIDA_ID}`;
 const DECISAO_URL = `${DETALHE_URL}/decisao`;
-
-async function flush(times = 6): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
 
 // errorInterceptor sempre na cadeia: as provas de 403 local rodam contra o redirect global real,
 // que o TRATA_403_LOCALMENTE do CredoraService deve suprimir. stepUpInterceptor entra quando o

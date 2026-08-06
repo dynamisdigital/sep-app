@@ -1,5 +1,4 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { Observable, of, throwError } from 'rxjs';
@@ -8,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 import { AporteCredoraResponse, OperacaoCarteiraResponse } from '../../../../core/api/api.models';
 import { CredoraService } from '../../../../core/credora/credora.service';
 import { OperacaoCarteiraDetailPageComponent } from './operacao-carteira-detail-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const OPERACAO_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78c001';
 
@@ -31,18 +31,6 @@ const OPERACAO: OperacaoCarteiraResponse = {
   },
   dataCriacao: '2026-05-28T12:00:00-03:00',
 };
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
 
 // O detalhe embute a lista owner-scoped de aportes (F-18.4); o mock do service cobre os dois GETs.
 function renderDetail(

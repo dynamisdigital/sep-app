@@ -1,22 +1,10 @@
 import { provideHttpClient } from '@angular/common/http';
-import { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
 import { describe, expect, it } from 'vitest';
 
 import { PropostasListPageComponent } from './propostas-list-page.component';
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 function renderPagina() {
   return render(PropostasListPageComponent, {

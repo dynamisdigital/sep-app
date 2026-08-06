@@ -10,6 +10,7 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { authInterceptor } from '../../../../core/interceptors/auth.interceptor';
 import { errorInterceptor } from '../../../../core/interceptors/error.interceptor';
 import { server } from '../../../../../mocks/server';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const VERIFY_URL = 'http://localhost:8080/api/v1/auth/totp/verify';
 const PENDING_MFA_CHALLENGE_KEY = 'SEP_PENDING_MFA_CHALLENGE';
@@ -76,18 +77,6 @@ async function setup(opts: { comInterceptors?: boolean; comAuth?: boolean } = {}
       interceptors.length ? provideHttpClient(withInterceptors(interceptors)) : provideHttpClient(),
     ],
   });
-}
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
 }
 
 /**

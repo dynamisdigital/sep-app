@@ -1,4 +1,3 @@
-import { ComponentFixture } from '@angular/core/testing';
 import { render, screen } from '@testing-library/angular';
 import { Subject } from 'rxjs';
 import { describe, expect, it } from 'vitest';
@@ -6,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { AporteCredoraResponse } from '../../../../core/api/api.models';
 import { CredoraService } from '../../../../core/credora/credora.service';
 import { AportesListComponent } from './aportes-list.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const OPERACAO_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78c001';
 
@@ -18,11 +18,6 @@ function aporte(id: string, valor: number): AporteCredoraResponse {
     dataCriacao: '2026-07-16T10:00:00-03:00',
     dataAtualizacao: '2026-07-16T10:00:00-03:00',
   };
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  fixture.detectChanges();
 }
 
 describe('AportesListComponent', () => {

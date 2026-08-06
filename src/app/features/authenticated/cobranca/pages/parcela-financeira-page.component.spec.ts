@@ -13,6 +13,7 @@ import { CobrancaService } from '../../../../core/cobranca/cobranca.service';
 import { stepUpInterceptor } from '../../../../core/interceptors/step-up.interceptor';
 import { server } from '../../../../../mocks/server';
 import { ParcelaFinanceiraPageComponent } from './parcela-financeira-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const PARCELA_ATRASADA_ID = 'a0000000-0000-4000-8000-000000000002';
 const PARCELA_PAGA_ID = 'a0000000-0000-4000-8000-000000000004';
@@ -28,18 +29,6 @@ function preencherRecebimento(container: HTMLElement): void {
     'input[formControlName="dataRecebimento"]',
   ) as HTMLInputElement;
   fireEvent.input(data, { target: { value: '2026-06-05T10:00' } });
-}
-
-async function flush(times = 6): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
 }
 
 function renderParcela(id: string, comStepUp = false) {

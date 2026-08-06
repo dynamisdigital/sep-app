@@ -1,6 +1,5 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/angular';
-import { ComponentFixture } from '@angular/core/testing';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { HttpResponse, http } from 'msw';
@@ -8,6 +7,7 @@ import { HttpResponse, http } from 'msw';
 import { AccountLockedComponent } from './account-locked.component';
 import { authInterceptor } from '../../../core/interceptors/auth.interceptor';
 import { server } from '../../../../mocks/server';
+import { estabilizar } from '../../../../testing/estabilizar';
 
 const ACCESS_TOKEN_KEY = 'SEP_ACCESS_TOKEN';
 const URL_POLITICA = 'http://localhost:8080/api/v1/auth/politica-lockout';
@@ -69,15 +69,6 @@ async function renderPagina() {
   return render(AccountLockedComponent, {
     providers: [provideRouter([]), provideHttpClient(withInterceptors([authInterceptor]))],
   });
-}
-
-/** Deixa a resposta do MSW chegar ao signal e o template repintar. */
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  for (let i = 0; i < 5; i += 1) {
-    await Promise.resolve();
-  }
-  fixture.detectChanges();
 }
 
 function textoNormalizado(elemento: Element | null | undefined): string {

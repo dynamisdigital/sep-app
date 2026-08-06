@@ -1,5 +1,4 @@
 import { provideHttpClient } from '@angular/common/http';
-import { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
 import { http, HttpResponse } from 'msw';
@@ -7,20 +6,9 @@ import { describe, expect, it } from 'vitest';
 
 import { server } from '../../../../../mocks/server';
 import { BackofficeDashboardPageComponent } from './backoffice-dashboard-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const DASHBOARD_URL = 'http://localhost:8080/api/v1/backoffice/dashboard';
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
 
 function renderPagina() {
   return render(BackofficeDashboardPageComponent, {

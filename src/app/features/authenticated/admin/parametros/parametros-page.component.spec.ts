@@ -7,12 +7,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { resetGovernancaState } from '../../../../../mocks/handlers';
 import { server } from '../../../../../mocks/server';
 import { ParametrosPageComponent } from './parametros-page.component';
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
+import { flush } from '../../../../../testing/estabilizar';
 
 async function setup() {
   const result = await render(ParametrosPageComponent, {

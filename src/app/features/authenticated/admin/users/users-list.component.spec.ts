@@ -6,12 +6,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { server } from '../../../../../mocks/server';
 import { UsersListComponent } from './users-list.component';
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
+import { flush } from '../../../../../testing/estabilizar';
 
 async function setup() {
   const result = await render(UsersListComponent, {

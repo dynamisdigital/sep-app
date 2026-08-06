@@ -14,6 +14,7 @@ import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
 import { errorInterceptor } from '../../../core/interceptors/error.interceptor';
 import { server } from '../../../../mocks/server';
 import { resetLoginMockState } from '../../../../mocks/handlers';
+import { estabilizar, flush } from '../../../../testing/estabilizar';
 
 const LOGIN_URL = 'http://localhost:8080/api/v1/auth/login';
 /** Texto exato do 401, para o assert positivo. */
@@ -43,18 +44,6 @@ async function setup(opts: { comInterceptors?: boolean } = {}) {
       importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
     ],
   });
-}
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
 }
 
 function stubLogin(resposta: () => Response): void {

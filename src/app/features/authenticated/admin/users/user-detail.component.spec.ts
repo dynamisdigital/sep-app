@@ -8,16 +8,11 @@ import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
 import { stepUpInterceptor } from '../../../../core/interceptors/step-up.interceptor';
 import { resetGovernancaState } from '../../../../../mocks/handlers';
 import { UserDetailComponent } from './user-detail.component';
+import { flush } from '../../../../../testing/estabilizar';
 
 const ADMIN_ID = '1f0799c0-98b9-6d9d-bc4a-7d6f5b771001';
 const CLIENTE_ID = '1f0799c0-98b9-6d9d-bc4a-7d6f5b771002';
 const MULTIROLE_ID = '1f0799c0-98b9-6d9d-bc4a-7d6f5b771005';
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
 
 function activatedRouteMock(id: string) {
   return {
