@@ -117,9 +117,33 @@ describe('errorInterceptor', () => {
   it('403 em /auth/politica-lockout: nao navega para /access-denied', () => {
     // Mesmo vetor do 401 acima: contra um backend sem a rota, o status depende da config de
     // seguranca, entao os dois precisam da isencao. Cobrir so o 401 deixaria metade do buraco.
-    semearUsuario();
     const req = new HttpRequest('GET', 'http://localhost:8080/api/v1/auth/politica-lockout');
     const error = new HttpErrorResponse({ status: 403, url: req.url });
+    let propagado: HttpErrorResponse | null = null;
+
+    TestBed.runInInjectionContext(() => {
+      errorInterceptor(req, makeNext(error)).subscribe({
+        next: () => undefined,
+        error: (err: HttpErrorResponse) => {
+          propagado = err;
+        },
+      });
+    });
+
+    expect(navigatedTo).toBeNull();
+    // Simetrico ao teste do 401: isentar da NAVEGACAO nao pode virar engolir o erro.
+    expect((propagado as HttpErrorResponse | null)?.status).toBe(403);
+  });
+
+  it('401 em /auth/refresh: publico no backend, mas a sessao morreu — navega para /login', () => {
+    // Trava a metade que sustenta o desenho: a lista NAO e a dos `permitAll`. `/auth/refresh` e
+    // `permitAll` no SecurityConfig e mesmo assim fica de fora, porque um 401 ali significa sessao
+    // morta e PRECISA navegar. Sem este teste, alguem que conclua "a lista deveria ser a dos
+    // permitAll" acrescenta uma linha e o refresh morto para de redirecionar, em silencio.
+    semearUsuario();
+    window.localStorage.setItem(ACCESS_TOKEN_KEY, 'dead-token');
+    const req = new HttpRequest('POST', 'http://localhost:8080/api/v1/auth/refresh', {});
+    const error = new HttpErrorResponse({ status: 401, url: req.url });
 
     TestBed.runInInjectionContext(() => {
       errorInterceptor(req, makeNext(error)).subscribe({
@@ -128,7 +152,8 @@ describe('errorInterceptor', () => {
       });
     });
 
-    expect(navigatedTo).toBeNull();
+    expect(navigatedTo).toBe('/login');
+    expect(window.localStorage.getItem(ACCESS_TOKEN_KEY)).toBeNull();
   });
 
   it('423 em /auth/login: limpa sessao e redireciona /account-locked', () => {

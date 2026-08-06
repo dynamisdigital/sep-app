@@ -70,11 +70,16 @@ test('URL direta com token velho: a politica carrega e a pagina nao e perdida', 
   // Unico lugar que exercita a cadeia real de interceptors do `app.config.ts`
   // (clientChannel -> auth -> stepUp -> error) — a spec Vitest monta a cadeia a mao.
   //
-  // Sem a isencao de `/auth/politica-lockout` no authInterceptor, o token velho viaja, o mock
-  // responde 401 (tripwire de `handlers.ts`) e o errorInterceptor faz clearSession() +
-  // navigateByUrl('/login'): o usuario e ARRANCADO da pagina que acabou de abrir. Verificado por
+  // Sem a isencao de `/auth/politica-lockout`, o token velho viaja, o mock responde 401 (tripwire
+  // de `handlers.ts`) e o usuario e ARRANCADO da pagina que acabou de abrir. Verificado por
   // mutacao — removendo a rota do array, quem falha primeiro e o assert do heading, porque a
   // pagina inteira vai embora.
+  //
+  // Desde a F-24.1 o array e compartilhado (`core/interceptors/rotas-publicas.ts`) e a pagina tem
+  // DUAS camadas: o authInterceptor nao envia o header e o errorInterceptor nao navega em 401/403.
+  // A mutacao acima derruba as duas de uma vez, entao o registro acima segue valendo. O que mudou e
+  // o modo de falha PARCIAL: header vazado sozinho ja nao ejeta o usuario, so degrada a copy — e o
+  // tripwire do `handlers.ts` virou o unico sinal alto para esse caso.
   //
   // Os tres asserts cobrem falhas diferentes. O do heading tem auto-wait e pode satisfazer ANTES de
   // o 401 voltar, entao ele sozinho nao prova nada sobre o redirect; o do texto pega a degradacao

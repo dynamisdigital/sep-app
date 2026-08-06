@@ -180,9 +180,12 @@ describe('AccountLockedComponent', () => {
 
   it('nao manda o token velho do storage para o endpoint publico', async () => {
     // Cenario real: /account-locked alcancada por URL direta ou reload, com o token ainda no
-    // storage. Se o Authorization viajar, o sep-api responde 401 e o errorInterceptor ARRANCA o
-    // usuario para /login. O header e capturado dentro do handler porque a request sai na
-    // construcao do componente — um espiao instalado depois do render() chegaria tarde.
+    // storage. Se o Authorization viajar, o sep-api responde 401 e a pagina cai na copy de
+    // fallback. A F-24.1 tirou a consequencia pior: o `errorInterceptor` nao ARRANCA mais o usuario
+    // para /login, porque tambem consulta a lista de rotas publicas. Sao duas camadas com alvos
+    // diferentes — esta isencao no `authInterceptor` protege o CONTEUDO da pagina, a do
+    // `errorInterceptor` protege a PAGINA. O header e capturado dentro do handler porque a request
+    // sai na construcao do componente — um espiao instalado depois do render() chegaria tarde.
     window.localStorage.setItem(ACCESS_TOKEN_KEY, 'token-expirado');
     let autorizacao: string | null = null;
     // Replica o tripwire do handler global: mantem o teste auto-contido e faz a consequencia

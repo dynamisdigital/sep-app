@@ -23,11 +23,16 @@ import { MfaService } from '../../../../core/auth/mfa.service';
  * NAO ha ramo de 401. O *handler* nunca o responde — `MfaChallengeInvalidoException` estende
  * `ValidacaoException`, que o `ApiExceptionHandler` mapeia para 400, e o OpenAPI declara so
  * 200/400/423/429. Um 401 aqui so pode vir do `JwtAuthenticationFilter`, que roda antes da
- * autorizacao e rejeita token expirado mesmo em rota `permitAll`; o `authInterceptor` **nao** isenta
- * `/auth/totp/verify` — a lista dele cobre so `/auth/login` e `/auth/politica-lockout` —, entao um
- * token velho ainda viaja nesta chamada. Nesse caminho o `errorInterceptor`
- * ja faz `clearSession()` e navega para /login, destruindo este componente antes que qualquer
- * mensagem pudesse ser lida — por isso o ramo continua nao existindo.
+ * autorizacao e rejeita token expirado mesmo em rota `permitAll`; `/auth/totp/verify` **nao** esta
+ * isento — a lista compartilhada de `core/interceptors/rotas-publicas.ts` cobre so `/auth/login` e
+ * `/auth/politica-lockout` —, entao um token velho ainda viaja nesta chamada. Nesse caminho o
+ * `errorInterceptor` ja faz `clearSession()` e navega para /login, destruindo este componente antes
+ * que qualquer mensagem pudesse ser lida — por isso o ramo continua nao existindo.
+ *
+ * ATENCAO ao fechar o follow-up: desde a F-24.1 aquela lista alimenta TAMBEM o `errorInterceptor`,
+ * entao acrescentar `/auth/totp/verify` nela mata o redirect que este bloco usa como justificativa.
+ * A rota so entra junto com um ramo de 401 aqui, senao o 401 escorre para o `default:` e a tela
+ * anuncia "Servico indisponivel" para o que e falha de autenticacao.
  *
  * O 423 e fallback defensivo, nao caminho normal: o `errorInterceptor` ja fez `clearSession()` e
  * navegou para /account-locked antes deste componente renderizar. NAO trocar por navegacao aqui — o
