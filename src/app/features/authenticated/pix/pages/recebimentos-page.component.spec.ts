@@ -8,6 +8,7 @@ import { UsuarioRole } from '../../../../core/api/api.models';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { resetPixState } from '../../../../../mocks/handlers';
 import { RecebimentosPageComponent } from './recebimentos-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const PARCELA_NOVA_ID = 'a0000000-0000-4000-8000-0000000000c3';
 const PARCELA_INELEGIVEL_ID = 'a0000000-0000-4000-8000-0000000000c1';
@@ -15,18 +16,6 @@ const PARCELA_INEXISTENTE_ID = 'a0000000-0000-4000-8000-0000000000c2';
 const REFERENCIA_CRIADA_ID = 'e1000000-0000-4000-8000-000000000101';
 const REFERENCIA_ATIVA_ID = 'e1000000-0000-4000-8000-000000000001';
 const RECEBIMENTO_ID = 'e2000000-0000-4000-8000-000000000001';
-
-async function flush(times = 6): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
 
 function renderPage() {
   return render(RecebimentosPageComponent, {

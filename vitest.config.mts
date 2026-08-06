@@ -26,6 +26,9 @@ export default defineConfig(({ mode }) => ({
         'src/test-setup.ts',
         'src/test-polyfills.ts',
         'src/mocks/**',
+        // Helpers de teste: cobertos 100% por construcao (todo spec os usa), entao entrariam no
+        // denominador inflando a baseline sem medir nada. Mesma razao dos tres itens acima.
+        'src/testing/**',
         '**/*.config.ts',
       ],
     },

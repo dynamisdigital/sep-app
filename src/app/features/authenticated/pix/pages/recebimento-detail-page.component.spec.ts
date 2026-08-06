@@ -1,5 +1,4 @@
 import { provideHttpClient } from '@angular/common/http';
-import { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -8,24 +7,13 @@ import { UsuarioRole } from '../../../../core/api/api.models';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { resetPixState } from '../../../../../mocks/handlers';
 import { RecebimentoDetailPageComponent } from './recebimento-detail-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const RECEBIMENTO_CONCILIADO_ID = 'e2000000-0000-4000-8000-000000000001';
 const RECEBIMENTO_NAO_IDENTIFICADO_ID = 'e2000000-0000-4000-8000-000000000002';
 const RECEBIMENTO_INEXISTENTE_ID = 'e2000000-0000-4000-8000-0000000000aa';
 const REFERENCIA_ATIVA_ID = 'e1000000-0000-4000-8000-000000000001';
 const PARCELA_RECEBIVEL_ID = 'a0000000-0000-4000-8000-000000000006';
-
-async function flush(times = 6): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
 
 function renderDetail(id: string, role: UsuarioRole) {
   return render(RecebimentoDetailPageComponent, {

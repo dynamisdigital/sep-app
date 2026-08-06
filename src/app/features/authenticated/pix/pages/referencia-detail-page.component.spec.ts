@@ -1,5 +1,4 @@
 import { provideHttpClient } from '@angular/common/http';
-import { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
 import { http, HttpResponse } from 'msw';
@@ -10,23 +9,12 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { resetPixState } from '../../../../../mocks/handlers';
 import { server } from '../../../../../mocks/server';
 import { ReferenciaDetailPageComponent } from './referencia-detail-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const REFERENCIA_ATIVA_ID = 'e1000000-0000-4000-8000-000000000001';
 const REFERENCIA_INEXISTENTE_ID = 'e1000000-0000-4000-8000-0000000000aa';
 const PARCELA_RECEBIVEL_ID = 'a0000000-0000-4000-8000-000000000006';
 const REFERENCIAS_URL = 'http://localhost:8080/api/v1/pix/recebimentos/referencias/:id';
-
-async function flush(times = 6): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
 
 function renderDetail(id: string, role: UsuarioRole) {
   return render(ReferenciaDetailPageComponent, {

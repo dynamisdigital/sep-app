@@ -1680,7 +1680,9 @@ const backofficeHandlers = [
           { status: 'RESOLVIDO', total: 10 },
           { status: 'IGNORADO', total: 4 },
         ],
-        tempoMedioResolucao30d: 7200,
+        // ISO-8601, como o Duration do backend realmente sai. Enquanto era `7200` o mock era mais
+        // correto que o servidor, e por isso nenhum teste via o NaNmin da tela (F-24.4).
+        tempoMedioResolucao30d: 'PT2H',
         itensCriticosAbertosMais48h: 2,
         topCincoTiposMaisFrequentes: [
           { tipo: 'COBRANCA_INADIMPLENTE', total: 5 },

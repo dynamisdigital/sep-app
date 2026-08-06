@@ -5,12 +5,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { ChangePasswordComponent } from './change-password.component';
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
+import { flush } from '../../../../../testing/estabilizar';
 
 async function setup() {
   return render(ChangePasswordComponent, {

@@ -4,7 +4,12 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 
-import { ApiErrorResponse } from '../../../core/api/api.models';
+import { mensagemBrutaDaApi } from '../../../core/api/api-error';
+import {
+  CONTA_BLOQUEADA_FALLBACK,
+  FALHA_DE_ARMAZENAMENTO_LOCAL,
+  SERVICO_INDISPONIVEL,
+} from './copy-de-erro';
 import { esperaDoRetryAfter } from '../../../core/api/retry-after';
 import { AuthService } from '../../../core/auth/auth.service';
 
@@ -26,10 +31,13 @@ function mensagemDeErroDeLogin(erro: unknown): string {
     // Nao veio do fio: o `tap` de AuthService.login estourou ao persistir o token (localStorage
     // cheio ou desabilitado, como no modo privado do Safari). O servidor ACEITOU o login, entao
     // acusar credencial ou conexao seria mentira dupla.
-    return 'Nao foi possivel concluir o acesso neste navegador. Verifique se o armazenamento local esta habilitado.';
+    return FALHA_DE_ARMAZENAMENTO_LOCAL;
   }
 
-  const mensagemDaApi = (erro.error as ApiErrorResponse | undefined)?.message;
+  // `mensagemBrutaDaApi` normaliza branco para `undefined`, entao o `??` dos ramos abaixo volta a
+  // ser o operador certo. O porque da guarda — e por que ela e defensiva, nao correcao de um bug
+  // observado — esta em `core/api/api-error.ts`, casa unica desse raciocinio.
+  const mensagemDaApi = mensagemBrutaDaApi(erro);
 
   switch (erro.status) {
     case 400:
@@ -49,7 +57,7 @@ function mensagemDeErroDeLogin(erro: unknown): string {
       const espera = esperaDoRetryAfter(erro);
       return espera
         ? `Conta bloqueada temporariamente. Tente novamente em ${espera}.`
-        : (mensagemDaApi ?? 'Conta bloqueada temporariamente. Tente novamente em 30 minutos.');
+        : (mensagemDaApi ?? CONTA_BLOQUEADA_FALLBACK);
     }
     case 429: {
       // Rate limit por IP (RateLimitFilter), nao o account lockout: nao ha conta trancada aqui,
@@ -68,7 +76,7 @@ function mensagemDeErroDeLogin(erro: unknown): string {
       // 5xx e status nao mapeados. Em 5xx o errorInterceptor ja anexou o codigo de suporte ao
       // `message` via withSupportReference; descartar o corpo tiraria o traceId do usuario, e
       // mandar ele conferir a conexao apontaria para o lado errado do problema.
-      return mensagemDaApi ?? 'Servico indisponivel no momento. Tente de novo em instantes.';
+      return mensagemDaApi ?? SERVICO_INDISPONIVEL;
   }
 }
 

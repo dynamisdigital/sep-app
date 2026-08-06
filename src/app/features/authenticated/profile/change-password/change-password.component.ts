@@ -9,7 +9,7 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
-import { ApiErrorResponse } from '../../../../core/api/api.models';
+import { mensagemDeErroDaApi } from '../../../../core/api/api-error';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { UsuariosService } from '../../../../core/users/usuarios.service';
 
@@ -79,9 +79,8 @@ export class ChangePasswordComponent {
           void this.router.navigateByUrl('/app/step-up?next=/app/profile/change-password');
           return;
         }
-        const apiErr = err.error as ApiErrorResponse | undefined;
         this.errorMessage.set(
-          apiErr?.message ?? 'Nao foi possivel alterar a senha. Tente novamente.',
+          mensagemDeErroDaApi(err, 'Nao foi possivel alterar a senha. Tente novamente.'),
         );
       },
     });

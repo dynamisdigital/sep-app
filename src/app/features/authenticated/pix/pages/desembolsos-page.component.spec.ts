@@ -14,23 +14,12 @@ import { PixService } from '../../../../core/pix/pix.service';
 import { resetPixState } from '../../../../../mocks/handlers';
 import { server } from '../../../../../mocks/server';
 import { DesembolsosPageComponent } from './desembolsos-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const DESEMBOLSOS_URL = 'http://localhost:8080/api/v1/pix/desembolsos';
 const CONTRATO_ELEGIVEL_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b772a01';
 const CONTRATO_INELEGIVEL_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b772a02';
 const TRANSFERENCIA_CRIADA_ID = 'e0000000-0000-4000-8000-000000000101';
-
-async function flush(times = 6): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
 
 function renderPage() {
   return render(DesembolsosPageComponent, {

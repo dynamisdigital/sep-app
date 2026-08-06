@@ -10,6 +10,7 @@
     "src/**/*.spec.ts",
     "src/test-setup.ts",
     "src/test-polyfills.ts",
-    "src/mocks/server.ts"
+    "src/mocks/server.ts",
+    "src/testing/**"
   ]
 }
