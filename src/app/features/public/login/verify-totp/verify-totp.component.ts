@@ -20,19 +20,20 @@ import { MfaService } from '../../../../core/auth/mfa.service';
  * literal local mandaria quem teve o desafio expirado redigitar codigo para sempre, em vez de
  * refazer o login.
  *
- * NAO ha ramo de 401. O *handler* nunca o responde — `MfaChallengeInvalidoException` estende
- * `ValidacaoException`, que o `ApiExceptionHandler` mapeia para 400, e o OpenAPI declara so
- * 200/400/423/429. Um 401 aqui so pode vir do `JwtAuthenticationFilter`, que roda antes da
- * autorizacao e rejeita token expirado mesmo em rota `permitAll`; `/auth/totp/verify` **nao** esta
- * isento — a lista compartilhada de `core/interceptors/rotas-publicas.ts` cobre so `/auth/login` e
- * `/auth/politica-lockout` —, entao um token velho ainda viaja nesta chamada. Nesse caminho o
- * `errorInterceptor` ja faz `clearSession()` e navega para /login, destruindo este componente antes
- * que qualquer mensagem pudesse ser lida — por isso o ramo continua nao existindo.
+ * NAO ha ramo de 401, e desde a F-24.2 por um motivo diferente do registrado antes. O *handler*
+ * nunca responde 401 — `MfaChallengeInvalidoException` estende `ValidacaoException`, que o
+ * `ApiExceptionHandler` mapeia para 400, e o OpenAPI declara so 200/400/423/429. O unico produtor
+ * possivel era o `JwtAuthenticationFilter`, que rejeita token expirado mesmo em rota `permitAll`;
+ * `/auth/totp/verify` **entrou** na lista de `core/interceptors/rotas-publicas.ts`, entao nenhum
+ * `Authorization` viaja mais nesta chamada e o filtro faz `chain.doFilter` sem olhar token
+ * (`JwtAuthenticationFilter.java:39-42`). Sem produtor, um ramo de 401 aqui seria codigo morto.
  *
- * ATENCAO ao fechar o follow-up: desde a F-24.1 aquela lista alimenta TAMBEM o `errorInterceptor`,
- * entao acrescentar `/auth/totp/verify` nela mata o redirect que este bloco usa como justificativa.
- * A rota so entra junto com um ramo de 401 aqui, senao o 401 escorre para o `default:` e a tela
- * anuncia "Servico indisponivel" para o que e falha de autenticacao.
+ * A justificativa ANTERIOR — "o `errorInterceptor` navega para /login e destroi este componente" —
+ * **nao vale mais**: aquela lista alimenta os dois interceptors desde a F-24.1, entao o redirect de
+ * 401 tambem foi suprimido para esta rota. A conclusao (sem ramo de 401) sobrevive; o fundamento,
+ * nao. Quem voltar a mandar `Authorization` aqui reabre o 401 E fica sem o redirect: nesse caso o
+ * erro escorre para o `default:` e a tela anuncia "Servico indisponivel" numa falha de
+ * autenticacao. Ou seja, a ausencia deste ramo depende da isencao continuar existindo.
  *
  * O 423 e fallback defensivo, nao caminho normal: o `errorInterceptor` ja fez `clearSession()` e
  * navegou para /account-locked antes deste componente renderizar. NAO trocar por navegacao aqui — o

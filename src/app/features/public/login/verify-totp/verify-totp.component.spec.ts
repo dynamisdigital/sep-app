@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { VerifyTotpComponent } from './verify-totp.component';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { authInterceptor } from '../../../../core/interceptors/auth.interceptor';
 import { errorInterceptor } from '../../../../core/interceptors/error.interceptor';
 import { server } from '../../../../../mocks/server';
 
@@ -57,15 +58,21 @@ function semearChallenge(valor = '3f2504e0-4f89-11d3-9a0c-0305e82c3301'): void {
  * errorInterceptor e nao do componente. O ramo sem interceptor prova que o mapeamento de mensagem
  * independe do redirect.
  */
-async function setup(opts: { comInterceptors?: boolean } = {}) {
+async function setup(opts: { comInterceptors?: boolean; comAuth?: boolean } = {}) {
+  // `comAuth` monta a cadeia na ORDEM real de `app.config.ts` (auth antes de error), que e o que
+  // permite provar o caminho do challenge de ponta a ponta: sem o authInterceptor no meio, um teste
+  // de "o token nao viaja" so provaria que o componente nao anexa header sozinho — coisa que ele
+  // nunca fez.
+  const interceptors = [
+    ...(opts.comAuth ? [authInterceptor] : []),
+    ...(opts.comInterceptors ? [errorInterceptor] : []),
+  ];
   return render(VerifyTotpComponent, {
     providers: [
       // provideRouter([]) DE PROPOSITO sem as rotas reais: registrar /account-locked deixaria uma
       // navegacao de verdade acontecer e mascararia um stub de navigateByUrl faltando.
       provideRouter([]),
-      opts.comInterceptors
-        ? provideHttpClient(withInterceptors([errorInterceptor]))
-        : provideHttpClient(),
+      interceptors.length ? provideHttpClient(withInterceptors(interceptors)) : provideHttpClient(),
     ],
   });
 }
@@ -130,6 +137,30 @@ describe('VerifyTotpComponent', () => {
 
   afterEach(() => {
     window.localStorage.clear();
+  });
+
+  it('token velho no storage NAO viaja para /auth/totp/verify', async () => {
+    // Caminho inteiro do challenge, nao so a isencao no interceptor. `handleTokenResponse`
+    // (`auth.service.ts:124-128`) retorna cedo no ramo `mfaRequired` SEM limpar o ACCESS_TOKEN_KEY,
+    // entao o token de uma sessao anterior sobrevive ate aqui. Antes da F-24.2 ele viajava, o
+    // `JwtAuthenticationFilter` respondia 401 via `sendError` e o usuario perdia o desafio de MFA.
+    semearChallenge();
+    window.localStorage.setItem(ACCESS_TOKEN_KEY, 'token-expirado');
+    // Sentinela distinta de `null`: se o handler nao rodar, o assert falha em vez de passar por
+    // ausencia de request — que e como um teste destes vira vacuo.
+    let authHeader: string | null = 'HANDLER_NAO_RODOU';
+    server.use(
+      http.post(VERIFY_URL, ({ request }) => {
+        authHeader = request.headers.get('Authorization');
+        return sucesso();
+      }),
+    );
+    const { fixture } = await setup({ comAuth: true });
+
+    preencherEEnviar();
+    await estabilizar(fixture);
+
+    expect(authHeader).toBeNull();
   });
 
   // O landmark fica FORA do @if, entao tem de existir nos dois ramos. Um teste por ramo: o
