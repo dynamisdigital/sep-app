@@ -12,23 +12,43 @@ import { formatarDuracao } from './backoffice-format';
  * e nunca com componente de dias — `Duration.ofDays(2)` sai `"PT48H"`.
  */
 describe('formatarDuracao', () => {
+  /**
+   * O arredondamento para o minuto mais proximo (`PT45S` -> `1min`, `PT1M30S` -> `2min`) e
+   * pre-existente e intencional: o KPI tem granularidade de minuto. Travado aqui de proposito, para
+   * que mudar isso seja decisao consciente e nao efeito colateral de uma refatoracao do parse.
+   */
   it.each([
     ['PT2H', '2h'],
     ['PT30M', '30min'],
     ['PT1H30M', '1h 30min'],
     ['PT48H', '48h'],
+    ['PT8760H', '8760h'],
     ['PT45S', '1min'],
     ['PT1M30S', '2min'],
+    ['PT1H30M45S', '1h 31min'],
   ])('%s -> %s', (iso, esperado) => {
     expect(formatarDuracao(iso)).toBe(esperado);
   });
 
   /**
-   * `PT0S` e `Duration.ZERO`, valor REAL de producao: o use case devolve zero quando nao ha amostra
-   * no periodo. O travessao comunica "sem dados", que e o que zero significa aqui.
+   * `PT0S` e `Duration.ZERO`, valor REAL de producao — e chega por tres caminhos que o fio nao
+   * distingue: sem amostra no periodo, media abaixo de meio segundo, e falha da query absorvida pelo
+   * `resiliente(...)` do use case. O teste NAO nomeia a causa, porque a tela nao consegue observa-la.
    */
-  it('PT0S (Duration.ZERO, sem amostra no periodo) vira travessao', () => {
+  it('PT0S (Duration.ZERO) vira travessao', () => {
     expect(formatarDuracao('PT0S')).toBe('—');
+  });
+
+  /**
+   * Ramo que so passou a ser alcancavel nesta Task: com o caminho numerico anterior o resultado era
+   * sempre `NaN` contra o servidor real. `Math.round(29 / 60)` da 0, e `0min` num KPI le-se como
+   * "zero" — pior que dizer que e menos de um minuto.
+   */
+  it.each([
+    ['PT1S', '< 1min'],
+    ['PT29S', '< 1min'],
+  ])('%s (abaixo do minuto) -> %s, e nao 0min', (iso, esperado) => {
+    expect(formatarDuracao(iso)).toBe(esperado);
   });
 
   /**

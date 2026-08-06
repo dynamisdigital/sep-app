@@ -57,13 +57,21 @@ function segundosDaDuracaoIso(duracaoIso: string): number | null {
 // Formata a duracao ISO-8601 do backend para leitura operacional.
 export function formatarDuracao(duracaoIso: string): string {
   const segundos = segundosDaDuracaoIso(duracaoIso);
-  // `null` (nao parseavel) e `PT0S` caem no mesmo travessao. O zero e valor REAL de producao:
-  // `ConsultarVisaoConsolidadaUseCase` devolve `Duration.ZERO` quando nao ha amostra no periodo,
-  // e "sem dados" e exatamente o que o travessao comunica.
+  // `null` (nao parseavel) e `PT0S` caem no mesmo travessao. O zero e valor REAL de producao e chega
+  // por TRES caminhos que o fio nao distingue (`ConsultarVisaoConsolidadaUseCase`): sem amostra no
+  // periodo (`calcularTempoMedio(null)`), media legitima abaixo de meio segundo, e **falha da query
+  // absorvida pelo `resiliente(...)`**, que loga WARN no servidor e devolve `Duration.ZERO`. Nao da
+  // para exibir um numero que nao se tem; o travessao e honesto nos tres.
   if (segundos === null || segundos <= 0) {
     return '—';
   }
   const totalMinutos = Math.round(segundos / 60);
+  // Abaixo de 30s o arredondamento daria `0min`, que num KPI le-se como "zero" — a mesma ambiguidade
+  // que o travessao existe para evitar, e ali sem nem o alibi de "sem dados". O ramo so passou a ser
+  // alcancavel na F-24.4: antes o caminho numerico sempre dava NaN contra o servidor real.
+  if (totalMinutos === 0) {
+    return '< 1min';
+  }
   const horas = Math.floor(totalMinutos / 60);
   const minutos = totalMinutos % 60;
   if (horas > 0 && minutos > 0) {

@@ -57,10 +57,11 @@ describe('BackofficeDashboardPageComponent', () => {
 
   /**
    * Trava o defeito pelo lado do sintoma, e nao so pelo do formato: o KPI nunca pode renderizar
-   * `NaN`. Sem este assert, uma futura regressao no parse voltaria a exibir `NaNmin` e o teste acima
-   * continuaria verde se o texto casasse por acaso em outro painel.
+   * `NaN`. O formato exercitado e o numerico antigo — o que um backend anterior a Sprint 34 mandaria,
+   * e o que o proprio mock mandava ate esta Task —, entao o que fica preso aqui e a guarda de
+   * `typeof` do parse.
    */
-  it('o KPI de tempo medio nunca renderiza NaN, seja qual for o formato recebido', async () => {
+  it('KPI de tempo medio: payload no formato numerico antigo vira travessao, nunca NaN', async () => {
     // Payload literal, e nao um passthrough: um handler que faz `fetch` da propria URL e
     // reinterceptado pelo MSW e recursiona ate estourar a heap do worker.
     server.use(
@@ -85,7 +86,11 @@ describe('BackofficeDashboardPageComponent', () => {
     await estabilizar(fixture);
 
     expect(screen.queryByText(/NaN/)).toBeNull();
-    expect(screen.getByText('—')).toBeTruthy();
+    // Escopo explicito no cartao do KPI: `getByText('—')` sozinho so identifica este elemento por
+    // coincidencia — hoje nenhum outro painel emite travessao, mas amarrar ao rotulo torna o
+    // acoplamento intencional em vez de sortudo.
+    const cartao = screen.getByText('Tempo medio de resolucao (30d)').closest('article');
+    expect(cartao?.textContent).toContain('—');
   });
 
   it('mostra estado de erro com retry quando o backend falha', async () => {
