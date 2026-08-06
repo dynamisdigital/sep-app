@@ -39,8 +39,12 @@ precisa voltar.
 - headers sensiveis (`Idempotency-Key`, `X-Step-Up-Token`) quando documentados;
 - status de sucesso tratados pelo frontend;
 - **status de erro declarados em `erros`** — declare um status ali **so quando a tela ramifica por
-  status** (hoje `auth.login`); operacao que usa `apiErr?.message ?? padrao` nao discrimina status e
-  nao declara nada, porque declarar criaria manutencao sem proteger nada;
+  status** (ver no descriptor quais operacoes tem `erros`); operacao que usa `apiErr?.message ?? padrao`
+  nao discrimina status e nao declara nada, porque declarar criaria manutencao sem proteger nada.
+  **O check valida `declarado ⊆ documentado`, nunca `declarado = ramificado`**: declarar um status que
+  o OpenAPI documenta mas a tela NAO trata passa verde (medido na F-24.5, declarando `403` em
+  `backoffice.assumir`, cuja guarda `exigeStepUp` exclui essa acao). A fidelidade ao ramo real e
+  responsabilidade de quem declara, e nao do gate;
 - **headers de resposta por status** (`responseHeaders` e mapa `{ "200": [...] }`, nao lista plana) —
   e o que torna verificavel um header que so existe em resposta de erro, como o `Retry-After`;
 - **`knownGaps` obsoletos**, conforme descrito acima;

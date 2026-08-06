@@ -1545,6 +1545,7 @@
       "method": "get",
       "path": "/api/v1/backoffice/fila/{id}",
       "sucesso": [200],
+      "erros": [404],
       "response": { "$type": "ItemFilaDetalheResponse" }
     },
     {
@@ -1568,7 +1569,7 @@
       "method": "patch",
       "path": "/api/v1/backoffice/fila/{id}/resolver",
       "sucesso": [200],
-      "erros": [409],
+      "erros": [403, 409],
       "headers": ["X-Step-Up-Token"],
       "request": { "$type": "ResolverRequest" },
       "response": { "$type": "ItemFilaResponse" }
@@ -1578,7 +1579,7 @@
       "method": "patch",
       "path": "/api/v1/backoffice/fila/{id}/ignorar",
       "sucesso": [200],
-      "erros": [409],
+      "erros": [403, 409],
       "headers": ["X-Step-Up-Token"],
       "request": { "$type": "IgnorarRequest" },
       "response": { "$type": "ItemFilaResponse" }
