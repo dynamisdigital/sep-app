@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
-import { ApiErrorResponse } from '../../../../core/api/api.models';
+import { mensagemBrutaDaApi } from '../../../../core/api/api-error';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { MfaService } from '../../../../core/auth/mfa.service';
 
@@ -53,19 +53,16 @@ function mensagemDeErroDeTotp(erro: unknown): string {
     return 'Nao foi possivel concluir a verificacao. Tente de novo em instantes.';
   }
 
-  // `||` e nao `??` de proposito: `message` vazia e produzivel — um `ErrorResponseDto` de 400 ou 423
-  // pode chegar com o campo em branco, caso coberto pelos testes desta spec. Com `??` a string vazia
-  // passaria adiante e o `@if` do template, que a trata como falsy, nao criaria o no `role="alert"`:
-  // a tela ficaria muda apos o erro.
-  // O produtor citado aqui antes era o `sendError` do `JwtAuthenticationFilter`; ele deixou de ser
-  // alcancavel nesta rota na F-24.2, quando o `Authorization` parou de viajar. A guarda continua
-  // necessaria pelo caso acima.
-  const mensagemDaApi = (erro.error as ApiErrorResponse | undefined)?.message?.trim();
+  // `mensagemBrutaDaApi` normaliza branco para `undefined`, entao o `??` dos ramos abaixo e o
+  // operador certo. O porque da guarda mora em `core/api/api-error.ts`, casa unica desse raciocinio
+  // — este comentario ja carregou duas explicacoes diferentes e erradas do produtor de `message`
+  // vazia, e centralizar e o que impede a terceira.
+  const mensagemDaApi = mensagemBrutaDaApi(erro);
 
   switch (erro.status) {
     case 400:
       return (
-        mensagemDaApi || 'Codigo invalido ou desafio expirado. Refaca o login e tente de novo.'
+        mensagemDaApi ?? 'Codigo invalido ou desafio expirado. Refaca o login e tente de novo.'
       );
     case 401:
       // Fallback defensivo (ver docblock): improduzivel contra o backend de hoje, mas nao ha como
@@ -76,7 +73,7 @@ function mensagemDeErroDeTotp(erro: unknown): string {
     case 423:
       // A duracao real vem de `app.security.lockout.lockout-minutes`, sobrescrevivel por ambiente:
       // fixar 30 aqui faria a tela mentir apos um override.
-      return mensagemDaApi || 'Conta bloqueada temporariamente. Tente novamente em 30 minutos.';
+      return mensagemDaApi ?? 'Conta bloqueada temporariamente. Tente novamente em 30 minutos.';
     case 429:
       // Copia local de proposito: o RateLimitFilter responde "Limite de requisicoes excedido.
       // Aguarde antes de tentar novamente.", sem dizer quanto esperar. A janela e de 1 minuto.
@@ -88,7 +85,7 @@ function mensagemDeErroDeTotp(erro: unknown): string {
     default:
       // 5xx e status nao mapeados. Em 5xx o errorInterceptor ja anexou o codigo de suporte ao
       // `message` via withSupportReference; descartar o corpo tiraria o traceId do usuario.
-      return mensagemDaApi || 'Servico indisponivel no momento. Tente de novo em instantes.';
+      return mensagemDaApi ?? 'Servico indisponivel no momento. Tente de novo em instantes.';
   }
 }
 

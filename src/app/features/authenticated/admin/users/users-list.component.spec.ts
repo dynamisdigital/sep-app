@@ -69,22 +69,20 @@ describe('UsersListComponent', () => {
   });
 
   /**
-   * Prende a delegacao a `mensagemDeErroDaApi` (F-24.3). Sem este teste, trocar o helper de volta
-   * pelo `apiErr?.message ?? padrao` inline nao deixava NENHUM teste vermelho — medido por mutacao,
-   * o mesmo diagnostico que originou `api-error-delegacao.spec.ts` na F-22.
+   * Prende a delegacao a `mensagemDeErroDaApi` (F-24.3). O corpo vem com `message: ''` de proposito:
+   * e o unico input que SEPARA as duas implementacoes — delegando, sai o literal local; com o
+   * `apiErr?.message ?? padrao` inline de antes, sai `''` e a tela nao renderiza alerta nenhum.
+   * Um corpo com mensagem preenchida passaria nos dois e nao provaria a delegacao.
    */
-  it('erro do backend com message: usa a copy do corpo, nao o literal local', async () => {
+  it('erro com message vazia: cai no literal local em vez de nao renderizar nada', async () => {
     server.use(
       http.get('http://localhost:8080/api/v1/usuarios', () =>
-        HttpResponse.json(
-          { status: 403, message: 'Perfil sem acesso a usuarios.' },
-          { status: 403 },
-        ),
+        HttpResponse.json({ status: 500, message: '' }, { status: 500 }),
       ),
     );
 
     await setup();
 
-    expect(screen.getByText('Perfil sem acesso a usuarios.')).toBeTruthy();
+    expect(screen.getByText('Nao foi possivel carregar os usuarios.')).toBeTruthy();
   });
 });

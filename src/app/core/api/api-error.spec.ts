@@ -42,14 +42,13 @@ describe('mensagemDeErroDaApi', () => {
   });
 
   /**
-   * F-24.3 inverteu o comportamento que a F-22 havia deixado travado aqui. O teste anterior fixava
-   * `''` como retorno e justificava-se dizendo que o caso "nao e alcancavel pelo `sep-api`", porque
-   * `ErrorResponseDto` usa `@JsonInclude(NON_NULL)` e toda excecao da aplicacao passa um literal nao
-   * vazio. **As duas premissas sao verdadeiras e a conclusao nao**: o produtor nao e o
-   * `ErrorResponseDto`, e o caminho de erro do proprio Spring — `response.sendError(...)` num filtro,
-   * ou excecao sem `@ExceptionHandler` (o `405`) —, que emite `"message": ""` porque
-   * `server.error.include-message` nao esta configurado no `sep-api`. A mesma F-22 registrou esse
-   * produtor em `verify-totp.component.ts` ao escolher `||`; os dois registros se contradiziam.
+   * F-24.3 inverteu o comportamento que a F-22 havia deixado travado aqui: o teste anterior fixava
+   * `''` como retorno esperado. O raciocinio da F-22 apontava o `ErrorResponseDto` como inocente e o
+   * caminho default do Spring como culpado; medido, **e o contrario** — ver o docblock de
+   * `api-error.ts`, que e a casa unica dessa explicacao. Em resumo: o Boot **remove** a chave
+   * `message` quando `include-message` e `never`, entao aquele caminho nunca produziu `""`, e quem
+   * pode produzir e o proprio DTO da aplicacao, cujo `DomainException` nao valida a mensagem.
+   * A guarda e defensiva; nao ha caminho conhecido emitindo branco hoje.
    */
   it('cai no padrao quando message e string vazia', () => {
     expect(mensagemDeErroDaApi(erroCom({ message: '' }), PADRAO)).toBe(PADRAO);
@@ -68,5 +67,20 @@ describe('mensagemDeErroDaApi', () => {
     expect(mensagemDeErroDaApi(erroCom({ message: '  Chave Pix ja cadastrada.  ' }), PADRAO)).toBe(
       'Chave Pix ja cadastrada.',
     );
+  });
+
+  /**
+   * `err.error` e `unknown` de fato, e o `?.` do encadeamento so cobre null/undefined: sem a checagem
+   * de `typeof`, um `message` nao-string faria `.trim()` **lancar** dentro do callback de erro. Os
+   * chamadores fazem `loading.set(false)` DEPOIS de montar a mensagem, entao a excecao deixaria a
+   * tela carregando para sempre — falha pior do que a que esta Task veio corrigir.
+   */
+  it.each([
+    ['numero', 123],
+    ['booleano', true],
+    ['objeto', { codigo: 500 }],
+  ])('cai no padrao quando message e %s, sem lancar', (_tipo, valor) => {
+    expect(() => mensagemDeErroDaApi(erroCom({ message: valor }), PADRAO)).not.toThrow();
+    expect(mensagemDeErroDaApi(erroCom({ message: valor }), PADRAO)).toBe(PADRAO);
   });
 });
