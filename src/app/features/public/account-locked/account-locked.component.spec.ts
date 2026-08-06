@@ -19,19 +19,18 @@ const URL_POLITICA = 'http://localhost:8080/api/v1/auth/politica-lockout';
  */
 const POLITICA_DE_TESTE = { maxAttempts: 3, windowMinutes: 10, lockoutMinutes: 45 };
 
-// Badge e heading sao irmaos sem espaco entre eles no DOM renderizado, dai virem colados aqui — e
-// o paragrafo seguinte tambem cola, porque ele virou interpolacao pura e o Angular descarta os nos
-// de whitespace entre elementos (`preserveWhitespaces: false` e o default). Nao muda o render: sao
-// elementos de bloco.
-const CABECALHO = '423Conta bloqueada temporariamente';
-
-/** Trecho que nao depende da politica, identico nas duas variantes. */
+/**
+ * Trechos que nao dependem da politica, identicos nas duas variantes. Cada entrada e UM elemento do
+ * card, na ordem do template — badge, heading, paragrafo variavel, dois paragrafos fixos e o link.
+ */
+const BADGE = '423';
+const TITULO = 'Conta bloqueada temporariamente';
 const RODAPE = [
-  'O desbloqueio e automatico e acontece so por expiracao desse prazo: nao existe liberacao manual.',
-  'Depois disso, basta entrar de novo.',
+  'O desbloqueio e automatico e acontece so por expiracao desse prazo: nao existe liberacao ' +
+    'manual. Depois disso, basta entrar de novo.',
   'Se voce nao reconhece essas tentativas, troque sua senha assim que o acesso for restabelecido.',
   'Voltar ao login',
-].join(' ');
+];
 
 /**
  * A copy E o contrato desta pagina: ela responde a 423 de qualquer endpoint, sem mensagem do
@@ -43,21 +42,37 @@ const RODAPE = [
  * O que e contrato agora e o MOLDE da frase, nao a string: os tres numeros vem do ambiente, pelo
  * `GET /auth/politica-lockout`. Qualquer mudanca de copy DEVE quebrar aqui e ser reconferida contra
  * o sep-api.
+ *
+ * **Por elemento, e nao um textContent unico** (F-24.7): a versao anterior comparava o card inteiro
+ * como uma string so, o que obrigava a codificar na expectativa que badge e heading vem **colados**
+ * (`'423Conta bloqueada temporariamente'`). Medido: reindentar o template ou juntar os dois na mesma
+ * linha nao quebrava — `preserveWhitespaces: false` descarta whitespace ENTRE elementos —, mas
+ * quebrar linha DENTRO do `<span>` do badge derrubava tres testes, sem que uma letra da copy mudasse.
+ * E reformatacao que o proprio prettier faz. Comparando elemento a elemento, a fronteira deixa de
+ * existir e a deteccao de mudanca de texto fica intacta.
  */
-const COPY_COM_POLITICA =
-  `${CABECALHO}Detectamos 3 ou mais tentativas de acesso malsucedidas em 10 minutos — senha ou ` +
-  'codigo de verificacao. Por seguranca, sua conta fica bloqueada por ate 45 minutos, contados a ' +
-  `partir da ultima tentativa. ${RODAPE}`;
+const COPY_COM_POLITICA = [
+  BADGE,
+  TITULO,
+  'Detectamos 3 ou mais tentativas de acesso malsucedidas em 10 minutos — senha ou codigo de ' +
+    'verificacao. Por seguranca, sua conta fica bloqueada por ate 45 minutos, contados a partir da ' +
+    'ultima tentativa.',
+  ...RODAPE,
+];
 
 /**
  * Fallback. Nao cita numero de proposito: ele e o estado inicial de toda renderizacao, nao so do
  * endpoint fora do ar, e um literal aqui mentiria sob override de ambiente para quem le a tela antes
  * da resposta chegar — inclusive leitor de tela, que nao ouve a correcao.
  */
-const COPY_SEM_POLITICA =
-  `${CABECALHO}Detectamos varias tentativas de acesso malsucedidas — senha ou codigo de ` +
-  'verificacao. Por seguranca, sua conta fica bloqueada por um periodo limitado, contado a partir ' +
-  `da ultima tentativa. ${RODAPE}`;
+const COPY_SEM_POLITICA = [
+  BADGE,
+  TITULO,
+  'Detectamos varias tentativas de acesso malsucedidas — senha ou codigo de verificacao. Por ' +
+    'seguranca, sua conta fica bloqueada por um periodo limitado, contado a partir da ultima ' +
+    'tentativa.',
+  ...RODAPE,
+];
 
 function stubPolitica(resolver: Parameters<typeof http.get>[1]): void {
   server.use(http.get(URL_POLITICA, resolver));
@@ -75,8 +90,14 @@ function textoNormalizado(elemento: Element | null | undefined): string {
   return (elemento?.textContent ?? '').replace(/\s+/g, ' ').trim();
 }
 
-function textoDoCard(container: Element): string {
-  return textoNormalizado(container.querySelector('.sep-account-locked-card'));
+/**
+ * Texto de CADA elemento do card, normalizado e na ordem do DOM. Comparar por elemento — e nao o
+ * `textContent` concatenado do card — e o que torna o teste indiferente a whitespace de formatacao
+ * sem afrouxar a deteccao de mudanca de copy.
+ */
+function textosDoCard(container: Element): string[] {
+  const card = container.querySelector('.sep-account-locked-card');
+  return Array.from(card?.children ?? []).map((el) => textoNormalizado(el));
 }
 
 describe('AccountLockedComponent', () => {
@@ -98,7 +119,7 @@ describe('AccountLockedComponent', () => {
 
     await estabilizar(fixture);
 
-    expect(textoDoCard(container)).toBe(COPY_COM_POLITICA);
+    expect(textosDoCard(container)).toEqual(COPY_COM_POLITICA);
   });
 
   it('nasce completa com a copy de fallback, antes de qualquer resposta', async () => {
@@ -106,7 +127,7 @@ describe('AccountLockedComponent', () => {
     // pode ficar `@if`-gated na resposta — o assert vem ANTES de estabilizar de proposito.
     const { container } = await renderPagina();
 
-    expect(textoDoCard(container)).toBe(COPY_SEM_POLITICA);
+    expect(textosDoCard(container)).toEqual(COPY_SEM_POLITICA);
   });
 
   it('continua funcional quando a consulta da politica falha', async () => {
@@ -115,7 +136,7 @@ describe('AccountLockedComponent', () => {
     const { fixture, container } = await renderPagina();
     await estabilizar(fixture);
 
-    expect(textoDoCard(container)).toBe(COPY_SEM_POLITICA);
+    expect(textosDoCard(container)).toEqual(COPY_SEM_POLITICA);
     expect(
       screen.getByRole('heading', { level: 1, name: /conta bloqueada temporariamente/i }),
     ).toBeTruthy();
@@ -155,10 +176,10 @@ describe('AccountLockedComponent', () => {
     const { fixture, container } = await renderPagina();
     await estabilizar(fixture);
 
-    expect(textoDoCard(container)).toContain(
+    expect(textosDoCard(container).join(' ')).toContain(
       '1 ou mais tentativas de acesso malsucedidas em 1 minuto',
     );
-    expect(textoDoCard(container)).toContain('bloqueada por ate 1 minuto,');
+    expect(textosDoCard(container).join(' ')).toContain('bloqueada por ate 1 minuto,');
   });
 
   it('oferece o caminho de volta para /login', async () => {
@@ -192,6 +213,6 @@ describe('AccountLockedComponent', () => {
     await estabilizar(fixture);
 
     expect(autorizacao).toBeNull();
-    expect(textoDoCard(container)).toBe(COPY_COM_POLITICA);
+    expect(textosDoCard(container)).toEqual(COPY_COM_POLITICA);
   });
 });

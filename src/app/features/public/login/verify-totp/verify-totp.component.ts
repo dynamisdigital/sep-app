@@ -4,6 +4,11 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { mensagemBrutaDaApi } from '../../../../core/api/api-error';
+import {
+  CONTA_BLOQUEADA_FALLBACK,
+  FALHA_DE_ARMAZENAMENTO_LOCAL,
+  SERVICO_INDISPONIVEL,
+} from '../copy-de-erro';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { MfaService } from '../../../../core/auth/mfa.service';
 
@@ -73,7 +78,7 @@ function mensagemDeErroDeTotp(erro: unknown): string {
     case 423:
       // A duracao real vem de `app.security.lockout.lockout-minutes`, sobrescrevivel por ambiente:
       // fixar 30 aqui faria a tela mentir apos um override.
-      return mensagemDaApi ?? 'Conta bloqueada temporariamente. Tente novamente em 30 minutos.';
+      return mensagemDaApi ?? CONTA_BLOQUEADA_FALLBACK;
     case 429:
       // Copia local de proposito: o RateLimitFilter responde "Limite de requisicoes excedido.
       // Aguarde antes de tentar novamente.", sem dizer quanto esperar. A janela e de 1 minuto.
@@ -85,7 +90,7 @@ function mensagemDeErroDeTotp(erro: unknown): string {
     default:
       // 5xx e status nao mapeados. Em 5xx o errorInterceptor ja anexou o codigo de suporte ao
       // `message` via withSupportReference; descartar o corpo tiraria o traceId do usuario.
-      return mensagemDaApi ?? 'Servico indisponivel no momento. Tente de novo em instantes.';
+      return mensagemDaApi ?? SERVICO_INDISPONIVEL;
   }
 }
 
@@ -142,9 +147,7 @@ export class VerifyTotpComponent {
             // ou desabilitado, como no modo privado do Safari). Sem este catch a excecao viraria
             // unhandled error do RxJS — `next` nao alimenta o callback de erro — e a tela ficaria
             // muda com o desafio ja consumido, empurrando o usuario para um retry impossivel.
-            this.errorMessage.set(
-              'Nao foi possivel concluir o acesso neste navegador. Verifique se o armazenamento local esta habilitado.',
-            );
+            this.errorMessage.set(FALHA_DE_ARMAZENAMENTO_LOCAL);
             return;
           }
           if (response.usuario?.precisaRedefinirSenha) {
