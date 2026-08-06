@@ -9,8 +9,8 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
+import { mensagemDeErroDaApi } from '../../../../core/api/api-error';
 import {
-  ApiErrorResponse,
   UsuarioResponse,
   UsuarioRole,
   UsuarioRolesResponse,
@@ -81,8 +81,7 @@ export class UserDetailComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err: HttpErrorResponse) => {
-        const apiErr = err.error as ApiErrorResponse | undefined;
-        this.errorMessage.set(apiErr?.message ?? 'Nao foi possivel carregar o usuario.');
+        this.errorMessage.set(mensagemDeErroDaApi(err, 'Nao foi possivel carregar o usuario.'));
         this.loading.set(false);
       },
     });
@@ -127,8 +126,7 @@ export class UserDetailComponent implements OnInit {
         this.rolesCarregando.set(false);
       },
       error: (err: HttpErrorResponse) => {
-        const apiErr = err.error as ApiErrorResponse | undefined;
-        this.rolesErro.set(apiErr?.message ?? 'Nao foi possivel carregar as roles.');
+        this.rolesErro.set(mensagemDeErroDaApi(err, 'Nao foi possivel carregar as roles.'));
         this.rolesCarregando.set(false);
       },
     });
@@ -151,11 +149,10 @@ export class UserDetailComponent implements OnInit {
       void this.router.navigateByUrl(`/app/step-up?next=/app/admin/users/${id}`);
       return;
     }
-    const apiErr = err.error as ApiErrorResponse | undefined;
     if (err.status === 404) {
-      this.rolesErro.set(apiErr?.message ?? 'Usuario nao encontrado.');
+      this.rolesErro.set(mensagemDeErroDaApi(err, 'Usuario nao encontrado.'));
       return;
     }
-    this.rolesErro.set(apiErr?.message ?? 'Nao foi possivel atualizar as roles.');
+    this.rolesErro.set(mensagemDeErroDaApi(err, 'Nao foi possivel atualizar as roles.'));
   }
 }

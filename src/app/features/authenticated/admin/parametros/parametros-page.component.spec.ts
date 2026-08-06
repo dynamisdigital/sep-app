@@ -1,9 +1,11 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
+import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { resetGovernancaState } from '../../../../../mocks/handlers';
+import { server } from '../../../../../mocks/server';
 import { ParametrosPageComponent } from './parametros-page.component';
 
 async function flush(times = 5): Promise<void> {
@@ -41,5 +43,25 @@ describe('ParametrosPageComponent', () => {
 
     const link = screen.getByText('credito.valor.maximo.pf').closest('tr')?.querySelector('a');
     expect(link?.getAttribute('href')).toBe('/app/admin/parametros/credito.valor.maximo.pf');
+  });
+
+  /**
+   * Prende a delegacao a `mensagemDeErroDaApi` (F-24.3). Sem este teste, trocar o helper de volta
+   * pelo `apiErr?.message ?? padrao` inline nao deixava NENHUM teste vermelho — medido por mutacao,
+   * o mesmo diagnostico que originou `api-error-delegacao.spec.ts` na F-22.
+   */
+  it('erro do backend com message: usa a copy do corpo, nao o literal local', async () => {
+    server.use(
+      http.get('http://localhost:8080/api/v1/governanca/parametros', () =>
+        HttpResponse.json(
+          { status: 403, message: 'Perfil sem acesso a parametros.' },
+          { status: 403 },
+        ),
+      ),
+    );
+
+    await setup();
+
+    expect(screen.getByText('Perfil sem acesso a parametros.')).toBeTruthy();
   });
 });

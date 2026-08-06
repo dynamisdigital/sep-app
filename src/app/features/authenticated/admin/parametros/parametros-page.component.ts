@@ -2,7 +2,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { ApiErrorResponse, ParametroOperacional } from '../../../../core/api/api.models';
+import { mensagemDeErroDaApi } from '../../../../core/api/api-error';
+import { ParametroOperacional } from '../../../../core/api/api.models';
 import { GovernancaService } from '../../../../core/governanca/governanca.service';
 
 @Component({
@@ -32,8 +33,7 @@ export class ParametrosPageComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err: HttpErrorResponse) => {
-        const apiErr = err.error as ApiErrorResponse | undefined;
-        this.errorMessage.set(apiErr?.message ?? 'Nao foi possivel carregar os parametros.');
+        this.errorMessage.set(mensagemDeErroDaApi(err, 'Nao foi possivel carregar os parametros.'));
         this.loading.set(false);
       },
     });

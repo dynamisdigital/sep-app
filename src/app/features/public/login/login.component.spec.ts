@@ -207,6 +207,34 @@ describe('LoginComponent', () => {
     expect(screen.getByText(/30 minutos/i)).toBeTruthy();
   });
 
+  it('423 com message vazia: cai no literal local em vez de deixar a tela muda', async () => {
+    // O corpo EXISTE e tem o campo — o que `423 sem corpo` nao cobre. `message: ""` vem do caminho
+    // de erro do proprio Spring (`sendError` num filtro, excecao sem `@ExceptionHandler`), porque
+    // `server.error.include-message` nao esta configurado no sep-api. Com o `??` anterior a string
+    // vazia vencia o literal e o `@if` do template, que a trata como falsy, nao criava o no
+    // `role="alert"`: erro sem nenhum texto na tela.
+    stubLogin(() => erroDaApi(423, 'Locked', ''));
+    const result = await setup();
+    preencherEEnviar('admin@empresa.com');
+
+    await estabilizar(result.fixture);
+
+    expect(screen.getByText(/conta bloqueada temporariamente/i)).toBeTruthy();
+  });
+
+  it('5xx com message so de espacos: cai no literal local, sem alerta em branco', async () => {
+    // Segunda metade, e a que sobrevive a uma correcao so do operador: `'   '` e truthy, entao com
+    // `||` sem `trim` venceria o padrao e o alerta renderizaria vazio — pior que o literal, porque
+    // o leitor de tela anuncia um alerta sem conteudo.
+    stubLogin(() => erroDaApi(500, 'Internal Server Error', '   '));
+    const result = await setup();
+    preencherEEnviar('admin@empresa.com');
+
+    await estabilizar(result.fixture);
+
+    expect(screen.getByText(/servico indisponivel no momento/i)).toBeTruthy();
+  });
+
   it('423 com Retry-After: o header ganha do corpo, que anuncia a duracao nominal', async () => {
     // 300s = 5 minutos restantes, enquanto a `message` do sep-api anuncia os 30 da politica. Os
     // dois valores sao diferentes de proposito: `ContaBloqueadaException` monta a frase a partir de

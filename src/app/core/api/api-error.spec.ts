@@ -42,15 +42,31 @@ describe('mensagemDeErroDaApi', () => {
   });
 
   /**
-   * Comportamento real travado, nao desejado: `??` so cai no padrao para null/undefined, entao uma
-   * `message` vazia passa direto e a tela fica sem texto. Nao alterado aqui de proposito — esta
-   * Task e extracao, e trocar por `||` mudaria o comportamento dos 56 call sites de uma vez.
-   *
-   * Nao e alcancavel pelo `sep-api` hoje: `ErrorResponseDto` usa `@JsonInclude(NON_NULL)`, que
-   * omite o campo nulo (caindo no padrao), e toda excecao passa um literal nao vazio. O teste
-   * existe para que a mudanca seja deliberada, e nao um efeito colateral silencioso.
+   * F-24.3 inverteu o comportamento que a F-22 havia deixado travado aqui. O teste anterior fixava
+   * `''` como retorno e justificava-se dizendo que o caso "nao e alcancavel pelo `sep-api`", porque
+   * `ErrorResponseDto` usa `@JsonInclude(NON_NULL)` e toda excecao da aplicacao passa um literal nao
+   * vazio. **As duas premissas sao verdadeiras e a conclusao nao**: o produtor nao e o
+   * `ErrorResponseDto`, e o caminho de erro do proprio Spring — `response.sendError(...)` num filtro,
+   * ou excecao sem `@ExceptionHandler` (o `405`) —, que emite `"message": ""` porque
+   * `server.error.include-message` nao esta configurado no `sep-api`. A mesma F-22 registrou esse
+   * produtor em `verify-totp.component.ts` ao escolher `||`; os dois registros se contradiziam.
    */
-  it('devolve string vazia quando message e vazia (comportamento atual do ??)', () => {
-    expect(mensagemDeErroDaApi(erroCom({ message: '' }), PADRAO)).toBe('');
+  it('cai no padrao quando message e string vazia', () => {
+    expect(mensagemDeErroDaApi(erroCom({ message: '' }), PADRAO)).toBe(PADRAO);
+  });
+
+  /**
+   * Segunda metade do defeito, e a que sobrevive a uma correcao so do operador: com `||` sem `trim`,
+   * `'   '` e truthy e venceria o padrao — a tela renderizaria o no `role="alert"` em branco, que e
+   * pior que o padrao porque o leitor de tela anuncia um alerta vazio.
+   */
+  it('cai no padrao quando message e so espaco em branco', () => {
+    expect(mensagemDeErroDaApi(erroCom({ message: '   ' }), PADRAO)).toBe(PADRAO);
+  });
+
+  it('preserva espacos internos e apara so as bordas', () => {
+    expect(mensagemDeErroDaApi(erroCom({ message: '  Chave Pix ja cadastrada.  ' }), PADRAO)).toBe(
+      'Chave Pix ja cadastrada.',
+    );
   });
 });

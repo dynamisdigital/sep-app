@@ -11,7 +11,8 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 
-import { ApiErrorResponse, UsuarioResponse } from '../../../../core/api/api.models';
+import { mensagemDeErroDaApi } from '../../../../core/api/api-error';
+import { UsuarioResponse } from '../../../../core/api/api.models';
 import { UsuariosService } from '../../../../core/users/usuarios.service';
 
 @Component({
@@ -53,8 +54,7 @@ export class UsersListComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err: HttpErrorResponse) => {
-        const apiErr = err.error as ApiErrorResponse | undefined;
-        this.errorMessage.set(apiErr?.message ?? 'Nao foi possivel carregar os usuarios.');
+        this.errorMessage.set(mensagemDeErroDaApi(err, 'Nao foi possivel carregar os usuarios.'));
         this.loading.set(false);
       },
     });

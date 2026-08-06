@@ -29,7 +29,12 @@ function mensagemDeErroDeLogin(erro: unknown): string {
     return 'Nao foi possivel concluir o acesso neste navegador. Verifique se o armazenamento local esta habilitado.';
   }
 
-  const mensagemDaApi = (erro.error as ApiErrorResponse | undefined)?.message;
+  // `.trim()` e depois `||` nos usos, e nao `??`: `message` em branco e produzivel pelo caminho de
+  // erro do proprio Spring (`sendError` num filtro, ou excecao sem `@ExceptionHandler`), porque
+  // `server.error.include-message` nao esta configurado no `sep-api`. Com `??` a string vazia vencia
+  // o literal local e o `@if` do template, que a trata como falsy, deixava a tela muda apos o erro.
+  // Mesma semantica do `verify-totp`, que ja acertava desde a F-22.
+  const mensagemDaApi = (erro.error as ApiErrorResponse | undefined)?.message?.trim();
 
   switch (erro.status) {
     case 400:
@@ -49,7 +54,7 @@ function mensagemDeErroDeLogin(erro: unknown): string {
       const espera = esperaDoRetryAfter(erro);
       return espera
         ? `Conta bloqueada temporariamente. Tente novamente em ${espera}.`
-        : (mensagemDaApi ?? 'Conta bloqueada temporariamente. Tente novamente em 30 minutos.');
+        : mensagemDaApi || 'Conta bloqueada temporariamente. Tente novamente em 30 minutos.';
     }
     case 429: {
       // Rate limit por IP (RateLimitFilter), nao o account lockout: nao ha conta trancada aqui,
@@ -68,7 +73,7 @@ function mensagemDeErroDeLogin(erro: unknown): string {
       // 5xx e status nao mapeados. Em 5xx o errorInterceptor ja anexou o codigo de suporte ao
       // `message` via withSupportReference; descartar o corpo tiraria o traceId do usuario, e
       // mandar ele conferir a conexao apontaria para o lado errado do problema.
-      return mensagemDaApi ?? 'Servico indisponivel no momento. Tente de novo em instantes.';
+      return mensagemDaApi || 'Servico indisponivel no momento. Tente de novo em instantes.';
   }
 }
 
