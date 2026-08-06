@@ -12,7 +12,7 @@ import {
 } from '../../../../core/api/api.models';
 
 // Formatacao apenas visual da operacao de backoffice. Valores chegam como number BRL,
-// datas como string ISO e a duracao como numero de segundos (Duration do backend); nada
+// datas como string ISO e a duracao como string ISO-8601 (`Duration` do backend); nada
 // aqui interpreta regra de negocio (contadores, medias e somatorios vem do backend).
 
 export function formatarMoeda(valor: number): string {
@@ -26,9 +26,41 @@ export function formatarDataHora(iso: string): string {
   );
 }
 
-// O Duration do backend chega como numero de segundos; formata para leitura operacional.
-export function formatarDuracao(segundos: number): string {
-  if (!segundos || segundos <= 0) {
+/**
+ * O `Duration` do backend chega como **string ISO-8601** (`"PT2H"`), nao como numero de segundos —
+ * o `JacksonAutoConfiguration` do Spring Boot desliga `WRITE_DURATIONS_AS_TIMESTAMPS`. Medido na
+ * Sprint 34; o comentario que dizia "numero de segundos" era a origem do `NaNmin` que esta funcao
+ * renderizava desde sempre, porque `"PT2H"` e truthy, `"PT2H" <= 0` e falso e `Math.round("PT2H"/60)`
+ * da `NaN`.
+ *
+ * `java.time.Duration.toString()` nunca usa o componente de dias: `Duration.ofDays(2)` sai `"PT48H"`.
+ * Por isso o formato aceito e so `PT[nH][nM][nS]`, e nao o ISO-8601 completo — parsear o que o
+ * produtor nao emite seria complexidade sem caso de uso, e uma dependencia nova aqui, menos ainda.
+ */
+const DURACAO_ISO = /^PT(?:(\d+(?:\.\d+)?)H)?(?:(\d+(?:\.\d+)?)M)?(?:(\d+(?:\.\d+)?)S)?$/;
+
+/** Segundos da duracao, ou `null` quando a entrada nao e uma duracao ISO-8601 utilizavel. */
+function segundosDaDuracaoIso(duracaoIso: string): number | null {
+  // `typeof` e nao so um truthy check: o payload e `unknown` na pratica, e um numero vindo de um
+  // backend antigo (ou do mock) casaria com o tipo declarado mas quebraria o `exec`.
+  if (typeof duracaoIso !== 'string') {
+    return null;
+  }
+  const partes = DURACAO_ISO.exec(duracaoIso);
+  // `"PT"` sozinho casa o regex com todos os grupos vazios: e sintaxe valida e duracao nenhuma.
+  if (!partes || (!partes[1] && !partes[2] && !partes[3])) {
+    return null;
+  }
+  return Number(partes[1] ?? 0) * 3600 + Number(partes[2] ?? 0) * 60 + Number(partes[3] ?? 0);
+}
+
+// Formata a duracao ISO-8601 do backend para leitura operacional.
+export function formatarDuracao(duracaoIso: string): string {
+  const segundos = segundosDaDuracaoIso(duracaoIso);
+  // `null` (nao parseavel) e `PT0S` caem no mesmo travessao. O zero e valor REAL de producao:
+  // `ConsultarVisaoConsolidadaUseCase` devolve `Duration.ZERO` quando nao ha amostra no periodo,
+  // e "sem dados" e exatamente o que o travessao comunica.
+  if (segundos === null || segundos <= 0) {
     return '—';
   }
   const totalMinutos = Math.round(segundos / 60);

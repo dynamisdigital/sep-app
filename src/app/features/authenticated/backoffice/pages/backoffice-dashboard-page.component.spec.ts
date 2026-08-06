@@ -41,12 +41,51 @@ describe('BackofficeDashboardPageComponent', () => {
     expect(screen.getAllByText('Cobranca inadimplente').length).toBeGreaterThan(0);
   });
 
-  it('formata o tempo medio de resolucao a partir dos segundos do backend', async () => {
+  /**
+   * Este teste ja existia e ja assertava `'2h'` — mas passava pelo motivo errado: o mock devolvia
+   * `7200` (numero), enquanto o backend real manda `"PT2H"`. O mock era mais correto que o servidor,
+   * e por isso o `NaNmin` da tela nunca apareceu em teste nenhum. Com o mock alinhado, o mesmo assert
+   * passa a exercitar o caminho de producao.
+   */
+  it('formata o tempo medio de resolucao a partir do Duration ISO-8601 do backend', async () => {
     const { fixture } = await renderPagina();
     await estabilizar(fixture);
 
-    // 7200s -> 2h
+    // "PT2H" -> 2h
     expect(screen.getByText('2h')).toBeTruthy();
+  });
+
+  /**
+   * Trava o defeito pelo lado do sintoma, e nao so pelo do formato: o KPI nunca pode renderizar
+   * `NaN`. Sem este assert, uma futura regressao no parse voltaria a exibir `NaNmin` e o teste acima
+   * continuaria verde se o texto casasse por acaso em outro painel.
+   */
+  it('o KPI de tempo medio nunca renderiza NaN, seja qual for o formato recebido', async () => {
+    // Payload literal, e nao um passthrough: um handler que faz `fetch` da propria URL e
+    // reinterceptado pelo MSW e recursiona ate estourar a heap do worker.
+    server.use(
+      http.get(DASHBOARD_URL, () =>
+        HttpResponse.json({
+          contadoresPorTipo: [],
+          contadoresPorPrioridade: [],
+          contadoresPorStatus: [],
+          // Formato antigo: numero de segundos, que e o que um backend anterior a Sprint 34
+          // mandaria — e o que o proprio mock mandava ate esta Task.
+          tempoMedioResolucao30d: 7200,
+          itensCriticosAbertosMais48h: 0,
+          topCincoTiposMaisFrequentes: [],
+          recebimentosDoDia: 0,
+          inadimplenciaTotal: { valorTotal: 0, numeroParcelas: 0 },
+          propostasPorStatus: [],
+          geradoEm: '2026-08-06T09:00:00-03:00',
+        }),
+      ),
+    );
+    const { fixture } = await renderPagina();
+    await estabilizar(fixture);
+
+    expect(screen.queryByText(/NaN/)).toBeNull();
+    expect(screen.getByText('—')).toBeTruthy();
   });
 
   it('mostra estado de erro com retry quando o backend falha', async () => {
