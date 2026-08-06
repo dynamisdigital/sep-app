@@ -9,23 +9,12 @@ import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
 import { stepUpInterceptor } from '../../../../core/interceptors/step-up.interceptor';
 import { resetPixState } from '../../../../../mocks/handlers';
 import { DesembolsoDetailPageComponent } from './desembolso-detail-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const TRANSFERENCIA_CONCLUIDA_ID = 'e0000000-0000-4000-8000-000000000001';
 const TRANSFERENCIA_PROCESSANDO_ID = 'e0000000-0000-4000-8000-000000000002';
 const TRANSFERENCIA_PROVIDER_OFF_ID = 'e0000000-0000-4000-8000-000000000003';
 const TRANSFERENCIA_INEXISTENTE_ID = 'e0000000-0000-4000-8000-0000000000aa';
-
-async function flush(times = 6): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
 
 function renderDetail(id: string) {
   return render(DesembolsoDetailPageComponent, {

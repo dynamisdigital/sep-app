@@ -17,6 +17,7 @@ import { resetChavesPixState } from '../../../../../mocks/handlers';
 import { server } from '../../../../../mocks/server';
 import { PIX_ROUTES } from '../pix.routes';
 import { ChavesPixPageComponent } from './chaves-pix-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const CHAVES_URL = 'http://localhost:8080/api/v1/pix/chaves';
 const ROTA_STEP_UP = '/app/step-up?next=/app/pix/chaves';
@@ -40,18 +41,6 @@ const CHAVE_INATIVA: ChavePixResponse = {
 };
 
 const VALOR_EM_CLARO = 'financeiro@dynamis.com.br';
-
-async function flush(times = 6): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
 
 // `intencaoInicial` simula o estado real do retorno do step-up: o singleton de root sobreviveu a
 // destruicao da pagina e carrega a intencao criada antes da navegacao.

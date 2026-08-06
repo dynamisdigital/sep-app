@@ -14,6 +14,7 @@ import { resetCredoraState } from '../../../../../mocks/handlers';
 import { server } from '../../../../../mocks/server';
 import { CREDORA_ROUTES } from '../credora.routes';
 import { MatchingAportePageComponent } from './matching-aporte-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const MATCHING_SUGERIDA_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78f001';
 const OPERACAO_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78c001';
@@ -32,18 +33,6 @@ const MATCHING_CONFIRMADA = {
   criadaEm: '2026-07-10T12:00:00-03:00',
   decididaEm: '2026-07-11T09:30:00-03:00',
 };
-
-async function flush(times = 6): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
 
 function renderAporte(opts: { comStepUp?: boolean; tokenInicial?: string } = {}) {
   return render(MatchingAportePageComponent, {

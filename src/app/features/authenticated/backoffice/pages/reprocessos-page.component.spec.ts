@@ -10,6 +10,7 @@ import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
 import { stepUpInterceptor } from '../../../../core/interceptors/step-up.interceptor';
 import { server } from '../../../../../mocks/server';
 import { ReprocessosPageComponent } from './reprocessos-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const WEBHOOK_EVENT_ID = 'd0000000-0000-4000-8000-000000000001';
 const PIX_ENTIDADE_ID = 'd0000000-0000-4000-8000-000000000002';
@@ -21,18 +22,6 @@ interface ReprocessoProbe {
   selecionarAba: (aba: 'webhook' | 'provider') => void;
   reprocessarWebhook: () => void;
   reprocessarProvider: () => void;
-}
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
 }
 
 function renderPagina(comStepUp = false) {

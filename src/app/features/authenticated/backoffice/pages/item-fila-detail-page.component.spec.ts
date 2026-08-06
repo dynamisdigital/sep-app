@@ -8,6 +8,7 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
 import { stepUpInterceptor } from '../../../../core/interceptors/step-up.interceptor';
 import { ItemFilaDetailPageComponent } from './item-fila-detail-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const ITEM_ABERTO_ID = 'c0000000-0000-4000-8000-000000000001';
 const ITEM_EM_TRATAMENTO_ID = 'c0000000-0000-4000-8000-000000000002';
@@ -19,18 +20,6 @@ interface DetailProbe {
   comentarioForm: { patchValue: (valor: Record<string, unknown>) => void };
   resolver: () => void;
   comentar: () => void;
-}
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
 }
 
 function activatedRoute(id?: string) {

@@ -14,6 +14,7 @@ import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
 import { errorInterceptor } from '../../../core/interceptors/error.interceptor';
 import { server } from '../../../../mocks/server';
 import { resetLoginMockState } from '../../../../mocks/handlers';
+import { estabilizar, flush } from '../../../../testing/estabilizar';
 
 const LOGIN_URL = 'http://localhost:8080/api/v1/auth/login';
 /** Texto exato do 401, para o assert positivo. */
@@ -43,18 +44,6 @@ async function setup(opts: { comInterceptors?: boolean } = {}) {
       importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
     ],
   });
-}
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
 }
 
 function stubLogin(resposta: () => Response): void {
@@ -205,6 +194,34 @@ describe('LoginComponent', () => {
 
     expect(screen.getByText(/conta bloqueada temporariamente/i)).toBeTruthy();
     expect(screen.getByText(/30 minutos/i)).toBeTruthy();
+  });
+
+  it('423 com message vazia: cai no literal local em vez de deixar a tela muda', async () => {
+    // O corpo EXISTE e tem o campo — o que `423 sem corpo` nao cobre. `message: ""` vem do caminho
+    // de erro do proprio Spring (`sendError` num filtro, excecao sem `@ExceptionHandler`), porque
+    // `server.error.include-message` nao esta configurado no sep-api. Com o `??` anterior a string
+    // vazia vencia o literal e o `@if` do template, que a trata como falsy, nao criava o no
+    // `role="alert"`: erro sem nenhum texto na tela.
+    stubLogin(() => erroDaApi(423, 'Locked', ''));
+    const result = await setup();
+    preencherEEnviar('admin@empresa.com');
+
+    await estabilizar(result.fixture);
+
+    expect(screen.getByText(/conta bloqueada temporariamente/i)).toBeTruthy();
+  });
+
+  it('5xx com message so de espacos: cai no literal local, sem alerta em branco', async () => {
+    // Segunda metade, e a que sobrevive a uma correcao so do operador: `'   '` e truthy, entao com
+    // `||` sem `trim` venceria o padrao e o alerta renderizaria vazio — pior que o literal, porque
+    // o leitor de tela anuncia um alerta sem conteudo.
+    stubLogin(() => erroDaApi(500, 'Internal Server Error', '   '));
+    const result = await setup();
+    preencherEEnviar('admin@empresa.com');
+
+    await estabilizar(result.fixture);
+
+    expect(screen.getByText(/servico indisponivel no momento/i)).toBeTruthy();
   });
 
   it('423 com Retry-After: o header ganha do corpo, que anuncia a duracao nominal', async () => {

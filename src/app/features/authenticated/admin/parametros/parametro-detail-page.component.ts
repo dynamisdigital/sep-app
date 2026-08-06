@@ -3,8 +3,8 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
+import { mensagemDeErroDaApi } from '../../../../core/api/api-error';
 import {
-  ApiErrorResponse,
   ParametroComHistorico,
   ParametroOperacional,
   VersaoParametro,
@@ -88,8 +88,7 @@ export class ParametroDetailPageComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err: HttpErrorResponse) => {
-        const apiErr = err.error as ApiErrorResponse | undefined;
-        this.errorMessage.set(apiErr?.message ?? 'Nao foi possivel carregar o parametro.');
+        this.errorMessage.set(mensagemDeErroDaApi(err, 'Nao foi possivel carregar o parametro.'));
         this.loading.set(false);
       },
     });
@@ -108,12 +107,11 @@ export class ParametroDetailPageComponent implements OnInit {
       void this.router.navigateByUrl(`/app/step-up?next=/app/admin/parametros/${chave}`);
       return;
     }
-    const apiErr = err.error as ApiErrorResponse | undefined;
     if (err.status === 404) {
-      this.formErro.set(apiErr?.message ?? 'Parametro nao encontrado.');
+      this.formErro.set(mensagemDeErroDaApi(err, 'Parametro nao encontrado.'));
       return;
     }
     // 400/422: valor incompativel com o tipo ou justificativa ausente (mensagem do backend).
-    this.formErro.set(apiErr?.message ?? 'Nao foi possivel alterar o parametro.');
+    this.formErro.set(mensagemDeErroDaApi(err, 'Nao foi possivel alterar o parametro.'));
   }
 }

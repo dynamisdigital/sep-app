@@ -1,28 +1,16 @@
 import { provideHttpClient } from '@angular/common/http';
-import { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
 import { describe, expect, it } from 'vitest';
 
 import { FilaOperacionalPageComponent } from './fila-operacional-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const ITEM_ABERTO_ID = 'c0000000-0000-4000-8000-000000000001';
 
 interface FilaProbe {
   filtros: { patchValue: (valor: Record<string, unknown>) => void };
   aplicarFiltros: () => void;
-}
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
 }
 
 function renderPagina() {

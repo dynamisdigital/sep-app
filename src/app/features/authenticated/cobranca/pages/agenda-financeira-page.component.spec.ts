@@ -1,24 +1,12 @@
 import { provideHttpClient } from '@angular/common/http';
-import { ComponentFixture } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AgendaFinanceiraPageComponent } from './agenda-financeira-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const PARCELA_PARCIAL_ID = 'a0000000-0000-4000-8000-000000000003';
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
 
 function renderPage() {
   return render(AgendaFinanceiraPageComponent, {

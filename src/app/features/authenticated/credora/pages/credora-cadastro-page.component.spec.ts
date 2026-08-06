@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { Observable, of, throwError } from 'rxjs';
@@ -8,20 +8,9 @@ import { describe, expect, it, vi } from 'vitest';
 import { EmpresaCredoraResponse } from '../../../../core/api/api.models';
 import { CredoraService } from '../../../../core/credora/credora.service';
 import { CredoraCadastroPageComponent } from './credora-cadastro-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const ONBOARDING_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78a001';
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
 
 function erro(status: number, message: string): HttpErrorResponse {
   return new HttpErrorResponse({ status, error: { message } });

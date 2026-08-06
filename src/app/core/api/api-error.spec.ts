@@ -42,15 +42,45 @@ describe('mensagemDeErroDaApi', () => {
   });
 
   /**
-   * Comportamento real travado, nao desejado: `??` so cai no padrao para null/undefined, entao uma
-   * `message` vazia passa direto e a tela fica sem texto. Nao alterado aqui de proposito — esta
-   * Task e extracao, e trocar por `||` mudaria o comportamento dos 56 call sites de uma vez.
-   *
-   * Nao e alcancavel pelo `sep-api` hoje: `ErrorResponseDto` usa `@JsonInclude(NON_NULL)`, que
-   * omite o campo nulo (caindo no padrao), e toda excecao passa um literal nao vazio. O teste
-   * existe para que a mudanca seja deliberada, e nao um efeito colateral silencioso.
+   * F-24.3 inverteu o comportamento que a F-22 havia deixado travado aqui: o teste anterior fixava
+   * `''` como retorno esperado. O raciocinio da F-22 apontava o `ErrorResponseDto` como inocente e o
+   * caminho default do Spring como culpado; medido, **e o contrario** — ver o docblock de
+   * `api-error.ts`, que e a casa unica dessa explicacao. Em resumo: o Boot **remove** a chave
+   * `message` quando `include-message` e `never`, entao aquele caminho nunca produziu `""`, e quem
+   * pode produzir e o proprio DTO da aplicacao, cujo `DomainException` nao valida a mensagem.
+   * A guarda e defensiva; nao ha caminho conhecido emitindo branco hoje.
    */
-  it('devolve string vazia quando message e vazia (comportamento atual do ??)', () => {
-    expect(mensagemDeErroDaApi(erroCom({ message: '' }), PADRAO)).toBe('');
+  it('cai no padrao quando message e string vazia', () => {
+    expect(mensagemDeErroDaApi(erroCom({ message: '' }), PADRAO)).toBe(PADRAO);
+  });
+
+  /**
+   * Segunda metade do defeito, e a que sobrevive a uma correcao so do operador: com `||` sem `trim`,
+   * `'   '` e truthy e venceria o padrao — a tela renderizaria o no `role="alert"` em branco, que e
+   * pior que o padrao porque o leitor de tela anuncia um alerta vazio.
+   */
+  it('cai no padrao quando message e so espaco em branco', () => {
+    expect(mensagemDeErroDaApi(erroCom({ message: '   ' }), PADRAO)).toBe(PADRAO);
+  });
+
+  it('preserva espacos internos e apara so as bordas', () => {
+    expect(mensagemDeErroDaApi(erroCom({ message: '  Chave Pix ja cadastrada.  ' }), PADRAO)).toBe(
+      'Chave Pix ja cadastrada.',
+    );
+  });
+
+  /**
+   * `err.error` e `unknown` de fato, e o `?.` do encadeamento so cobre null/undefined: sem a checagem
+   * de `typeof`, um `message` nao-string faria `.trim()` **lancar** dentro do callback de erro. Os
+   * chamadores fazem `loading.set(false)` DEPOIS de montar a mensagem, entao a excecao deixaria a
+   * tela carregando para sempre — falha pior do que a que esta Task veio corrigir.
+   */
+  it.each([
+    ['numero', 123],
+    ['booleano', true],
+    ['objeto', { codigo: 500 }],
+  ])('cai no padrao quando message e %s, sem lancar', (_tipo, valor) => {
+    expect(() => mensagemDeErroDaApi(erroCom({ message: valor }), PADRAO)).not.toThrow();
+    expect(mensagemDeErroDaApi(erroCom({ message: valor }), PADRAO)).toBe(PADRAO);
   });
 });

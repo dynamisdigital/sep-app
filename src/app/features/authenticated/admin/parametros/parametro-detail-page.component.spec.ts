@@ -8,16 +8,11 @@ import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
 import { stepUpInterceptor } from '../../../../core/interceptors/step-up.interceptor';
 import { resetGovernancaState } from '../../../../../mocks/handlers';
 import { ParametroDetailPageComponent } from './parametro-detail-page.component';
+import { flush } from '../../../../../testing/estabilizar';
 
 const ADMIN_ID = '1f0799c0-98b9-6d9d-bc4a-7d6f5b771001';
 const CHAVE_COM_HISTORICO = 'credito.score.pre-aprovacao';
 const CHAVE_DECIMAL = 'credito.valor.maximo.pf';
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
 
 function activatedRouteMock(chave: string) {
   return {

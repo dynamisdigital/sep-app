@@ -1,5 +1,4 @@
 import { provideHttpClient } from '@angular/common/http';
-import { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { http, HttpResponse } from 'msw';
@@ -8,21 +7,10 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { server } from '../../../../../mocks/server';
 import { CREDORA_ROUTES } from '../credora.routes';
 import { MatchingSugestoesPageComponent } from './matching-sugestoes-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const MATCHING_SUGERIDA_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78f001';
 const SUGESTOES_URL = 'http://localhost:8080/api/v1/credores/matching/sugestoes';
-
-async function flush(times = 6): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
 
 function renderPage() {
   return render(MatchingSugestoesPageComponent, {

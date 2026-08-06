@@ -11,12 +11,7 @@ import {
 } from '../../../../core/api/api.models';
 import { CredoraService } from '../../../../core/credora/credora.service';
 import { CredoraPerfilPageComponent } from './credora-perfil-page.component';
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
+import { flush } from '../../../../../testing/estabilizar';
 
 const EMPRESA: EmpresaCredoraResponse = {
   id: 'cr-1',

@@ -1,5 +1,4 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
 import { Observable, of, throwError } from 'rxjs';
@@ -8,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 import { OportunidadeResponse } from '../../../../core/api/api.models';
 import { CredoraService } from '../../../../core/credora/credora.service';
 import { OportunidadesPageComponent } from './oportunidades-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const DISPONIVEL: OportunidadeResponse = {
   id: '7f0799c0-98b9-6d9d-bc4a-7d6f5b78b001',
@@ -25,18 +25,6 @@ const ENCERRADA: OportunidadeResponse = {
   id: '7f0799c0-98b9-6d9d-bc4a-7d6f5b78b003',
   status: 'ENCERRADA',
 };
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
 
 function renderPagina(listarOportunidades: () => Observable<OportunidadeResponse[]>) {
   return render(OportunidadesPageComponent, {

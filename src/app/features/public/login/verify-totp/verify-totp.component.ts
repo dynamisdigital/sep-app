@@ -3,7 +3,12 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
-import { ApiErrorResponse } from '../../../../core/api/api.models';
+import { mensagemBrutaDaApi } from '../../../../core/api/api-error';
+import {
+  CONTA_BLOQUEADA_FALLBACK,
+  FALHA_DE_ARMAZENAMENTO_LOCAL,
+  SERVICO_INDISPONIVEL,
+} from '../copy-de-erro';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { MfaService } from '../../../../core/auth/mfa.service';
 
@@ -20,14 +25,26 @@ import { MfaService } from '../../../../core/auth/mfa.service';
  * literal local mandaria quem teve o desafio expirado redigitar codigo para sempre, em vez de
  * refazer o login.
  *
- * NAO ha ramo de 401. O *handler* nunca o responde — `MfaChallengeInvalidoException` estende
- * `ValidacaoException`, que o `ApiExceptionHandler` mapeia para 400, e o OpenAPI declara so
- * 200/400/423/429. Um 401 aqui so pode vir do `JwtAuthenticationFilter`, que roda antes da
- * autorizacao e rejeita token expirado mesmo em rota `permitAll`; o `authInterceptor` **nao** isenta
- * `/auth/totp/verify` — a lista dele cobre so `/auth/login` e `/auth/politica-lockout` —, entao um
- * token velho ainda viaja nesta chamada. Nesse caminho o `errorInterceptor`
- * ja faz `clearSession()` e navega para /login, destruindo este componente antes que qualquer
- * mensagem pudesse ser lida — por isso o ramo continua nao existindo.
+ * O 401 e **fallback defensivo**, como o 423, e nao caminho normal. Contra o backend de hoje ele nao
+ * e produzivel aqui: o unico 401 do lado do handler e
+ * `ApiExceptionHandler.java:121-124` (`@ExceptionHandler(AuthenticationException.class)`), e nada no
+ * caminho de `VerificarTotpUseCase` lanca `AuthenticationException` — esse e o invariante a
+ * reconferir, e nao o mapeamento de uma excecao isolada. Do lado do filtro, `/auth/totp/verify`
+ * entrou na lista de `core/interceptors/rotas-publicas.ts` na F-24.2, entao nenhum `Authorization`
+ * viaja mais e `JwtAuthenticationFilter.java:39-43` faz `chain.doFilter` sem olhar token.
+ *
+ * O ramo existe mesmo assim porque a improdutibilidade depende de **duas** pre-condicoes, e uma
+ * delas mora no outro repo: a isencao continuar na lista **e** `SecurityConfig.java:82-83` manter o
+ * `permitAll`. Se o `permitAll` cair — ou se este web rodar contra um backend mais antigo, cenario
+ * que a F-24.1 tratou como real para a rota irma —, o POST anonimo e negado pelo `AuthorizationFilter`
+ * e volta 401 **sem nenhum `Authorization` no fio**. Como a rota tambem esta isenta no
+ * `errorInterceptor`, esse 401 nao redireciona: sem este ramo ele escorreria para o `default:` e a
+ * tela anunciaria "Servico indisponivel" numa falha de autenticacao, prendendo o usuario no desafio.
+ * Tres linhas de ramo morto contra um beco sem saida com copy enganosa.
+ *
+ * A justificativa ANTERIOR da ausencia — "o `errorInterceptor` navega para /login e destroi este
+ * componente" — **nao vale mais**: aquela lista alimenta os dois interceptors desde a F-24.1, entao
+ * o redirect de 401 tambem foi suprimido para esta rota.
  *
  * O 423 e fallback defensivo, nao caminho normal: o `errorInterceptor` ja fez `clearSession()` e
  * navegou para /account-locked antes deste componente renderizar. NAO trocar por navegacao aqui — o
@@ -41,21 +58,27 @@ function mensagemDeErroDeTotp(erro: unknown): string {
     return 'Nao foi possivel concluir a verificacao. Tente de novo em instantes.';
   }
 
-  // `||` e nao `??` de proposito: `message` vazia e produzivel — o `JwtAuthenticationFilter` usa
-  // `response.sendError(...)`, e com `server.error.include-message` nao configurado o Spring Boot
-  // emite `"message": ""`. Com `??` a string vazia passaria adiante e o `@if` do template, que a
-  // trata como falsy, nao criaria o no `role="alert"`: a tela ficaria muda apos o erro.
-  const mensagemDaApi = (erro.error as ApiErrorResponse | undefined)?.message?.trim();
+  // `mensagemBrutaDaApi` normaliza branco para `undefined`, entao o `??` dos ramos abaixo e o
+  // operador certo. O porque da guarda mora em `core/api/api-error.ts`, casa unica desse raciocinio
+  // — este comentario ja carregou duas explicacoes diferentes e erradas do produtor de `message`
+  // vazia, e centralizar e o que impede a terceira.
+  const mensagemDaApi = mensagemBrutaDaApi(erro);
 
   switch (erro.status) {
     case 400:
       return (
-        mensagemDaApi || 'Codigo invalido ou desafio expirado. Refaca o login e tente de novo.'
+        mensagemDaApi ?? 'Codigo invalido ou desafio expirado. Refaca o login e tente de novo.'
       );
+    case 401:
+      // Fallback defensivo (ver docblock): improduzivel contra o backend de hoje, mas nao ha como
+      // este repo garantir o `permitAll` que sustenta isso. Copia local e nao `mensagemDaApi`: o
+      // `ApiAuthenticationEntryPoint` responde "Autenticacao requerida", que nao diz ao usuario o
+      // que fazer.
+      return 'Sua sessao expirou. Refaca o login e tente de novo.';
     case 423:
       // A duracao real vem de `app.security.lockout.lockout-minutes`, sobrescrevivel por ambiente:
       // fixar 30 aqui faria a tela mentir apos um override.
-      return mensagemDaApi || 'Conta bloqueada temporariamente. Tente novamente em 30 minutos.';
+      return mensagemDaApi ?? CONTA_BLOQUEADA_FALLBACK;
     case 429:
       // Copia local de proposito: o RateLimitFilter responde "Limite de requisicoes excedido.
       // Aguarde antes de tentar novamente.", sem dizer quanto esperar. A janela e de 1 minuto.
@@ -67,7 +90,7 @@ function mensagemDeErroDeTotp(erro: unknown): string {
     default:
       // 5xx e status nao mapeados. Em 5xx o errorInterceptor ja anexou o codigo de suporte ao
       // `message` via withSupportReference; descartar o corpo tiraria o traceId do usuario.
-      return mensagemDaApi || 'Servico indisponivel no momento. Tente de novo em instantes.';
+      return mensagemDaApi ?? SERVICO_INDISPONIVEL;
   }
 }
 
@@ -124,9 +147,7 @@ export class VerifyTotpComponent {
             // ou desabilitado, como no modo privado do Safari). Sem este catch a excecao viraria
             // unhandled error do RxJS — `next` nao alimenta o callback de erro — e a tela ficaria
             // muda com o desafio ja consumido, empurrando o usuario para um retry impossivel.
-            this.errorMessage.set(
-              'Nao foi possivel concluir o acesso neste navegador. Verifique se o armazenamento local esta habilitado.',
-            );
+            this.errorMessage.set(FALHA_DE_ARMAZENAMENTO_LOCAL);
             return;
           }
           if (response.usuario?.precisaRedefinirSenha) {

@@ -682,13 +682,16 @@ export interface InadimplenciaConsolidada {
 }
 
 // Snapshot consolidado (GET /backoffice/dashboard, Cache-Control: no-store).
-// tempoMedioResolucao30d e um Duration serializado pelo backend como numero de segundos
-// (Jackson WRITE_DURATIONS_AS_TIMESTAMPS); a apresentacao formata para exibicao.
+// tempoMedioResolucao30d e um Duration serializado como string ISO-8601 ("PT2H"): o
+// JacksonAutoConfiguration do Spring Boot DESLIGA WRITE_DURATIONS_AS_TIMESTAMPS, entao o fio nunca
+// leva numero. Medido na Sprint 34. O tipo aqui dizia `number` e o comentario afirmava o contrario
+// do que o servidor faz — era a origem do `NaNmin` no KPI do dashboard, corrigido na F-24.4.
+// `backoffice-format.ts` parseia para exibicao.
 export interface DashboardResponse {
   contadoresPorTipo: ContadorPorTipo[];
   contadoresPorPrioridade: ContadorPorPrioridade[];
   contadoresPorStatus: ContadorPorStatus[];
-  tempoMedioResolucao30d: number;
+  tempoMedioResolucao30d: string;
   itensCriticosAbertosMais48h: number;
   topCincoTiposMaisFrequentes: ContadorPorTipo[];
   recebimentosDoDia: number;

@@ -1,16 +1,6 @@
 {
   "$comment": "Contratos HTTP consumidos pelo sep-app, espelhando src/app/core/api/api.models.ts e os services de src/app/core/**. Validado contra o OpenAPI por scripts/contract-check.mjs. Campos declarados = superficie realmente lida/enviada pelo frontend; o backend pode expor mais campos sem quebrar este contrato. Regra do campo 'erros' (F-Sprint 22): declarar um status de erro SO quando a tela ramifica por status; operacoes que usam 'apiErr?.message ?? padrao' nao discriminam status e nao declaram nada. 'responseHeaders' e mapa por status ({ \"200\": [...] }), nao lista plana.",
-  "knownGaps": [
-    {
-      "kind": "field-type-mismatch",
-      "type": "DashboardResponse",
-      "field": "tempoMedioResolucao30d",
-      "openapiType": "string",
-      "frontendType": "number",
-      "reason": "MEDIDO na Sprint 34 (2026-08-03): o JacksonAutoConfiguration do Spring Boot DESLIGA WRITE_DURATIONS_AS_TIMESTAMPS, entao o runtime serializa Duration como ISO-8601 (\"PT2H\"), e nao como numero. O openapiType 'string' esta CORRETO; quem diverge e o frontend. Consequencia viva: backoffice-format.ts faz Math.round(segundos / 60) sobre \"PT2H\" e o KPI do dashboard renderiza NaNmin; o mock MSW devolve 7200, entao nenhum teste do front ve.",
-      "followUp": "web: trocar tempoMedioResolucao30d para string em api.models.ts e parsear ISO-8601 em backoffice-format.ts. NAO anotar @Schema(type = number) no backend — tentado na Task 34.6 e revertido, porque publicaria um tipo que o servidor nunca emite e apagaria o unico detector do NaNmin."
-    }
-  ],
+  "knownGaps": [],
   "types": {
     "UsuarioResponse": {
       "fields": {
@@ -820,7 +810,7 @@
         "contadoresPorTipo": { "array": { "$type": "ContadorPorTipo" } },
         "contadoresPorPrioridade": { "array": { "$type": "ContadorPorPrioridade" } },
         "contadoresPorStatus": { "array": { "$type": "ContadorPorStatus" } },
-        "tempoMedioResolucao30d": "number",
+        "tempoMedioResolucao30d": "string",
         "itensCriticosAbertosMais48h": "number",
         "topCincoTiposMaisFrequentes": { "array": { "$type": "ContadorPorTipo" } },
         "recebimentosDoDia": "number",
@@ -1555,6 +1545,7 @@
       "method": "get",
       "path": "/api/v1/backoffice/fila/{id}",
       "sucesso": [200],
+      "erros": [404],
       "response": { "$type": "ItemFilaDetalheResponse" }
     },
     {
@@ -1562,6 +1553,7 @@
       "method": "post",
       "path": "/api/v1/backoffice/fila/{id}/assumir",
       "sucesso": [200],
+      "erros": [409],
       "response": { "$type": "ItemFilaResponse" }
     },
     {
@@ -1577,6 +1569,7 @@
       "method": "patch",
       "path": "/api/v1/backoffice/fila/{id}/resolver",
       "sucesso": [200],
+      "erros": [403, 409],
       "headers": ["X-Step-Up-Token"],
       "request": { "$type": "ResolverRequest" },
       "response": { "$type": "ItemFilaResponse" }
@@ -1586,6 +1579,7 @@
       "method": "patch",
       "path": "/api/v1/backoffice/fila/{id}/ignorar",
       "sucesso": [200],
+      "erros": [403, 409],
       "headers": ["X-Step-Up-Token"],
       "request": { "$type": "IgnorarRequest" },
       "response": { "$type": "ItemFilaResponse" }
