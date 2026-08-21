@@ -53,3 +53,18 @@ svg {
   outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
 }
+
+/**
+ * Reserva do espaco do aviso de cookies (F-Sprint 25).
+ *
+ * A faixa e `position: fixed` no rodape, entao sem isto ela cobre o ULTIMO elemento de qualquer
+ * pagina — e rolar ate o fim nao resolve. Medido: o Playwright reprovou o clique em "Iniciar
+ * onboarding" com a propria `<section>` do aviso nomeada como interceptadora dos ponteiros.
+ *
+ * A altura exata e escrita pelo componente (`ResizeObserver`), porque a faixa quebra em duas linhas
+ * em telas estreitas. O fallback cobre o instante antes da primeira medicao e os runtimes sem
+ * `ResizeObserver`; ele e um PISO generoso de proposito, nunca a fonte da verdade.
+ */
+body.sep-com-aviso-cookies {
+  padding-bottom: var(--sep-aviso-cookies-altura, 10rem);
+}
