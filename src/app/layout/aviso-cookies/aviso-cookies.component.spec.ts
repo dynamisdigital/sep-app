@@ -24,6 +24,7 @@ async function renderizar() {
 describe('AvisoCookiesComponent', () => {
   beforeEach(() => {
     window.localStorage.clear();
+    document.body.classList.remove('sep-com-aviso-cookies');
   });
 
   it('exibe a faixa como region rotulada na primeira visita', async () => {
@@ -77,5 +78,38 @@ describe('AvisoCookiesComponent', () => {
     const { container } = await renderizar();
 
     expect(container.querySelector('[aria-live]')).toBeNull();
+  });
+
+  /**
+   * A faixa e `position: fixed` no rodape: sem reservar espaco, ela cobre o ULTIMO elemento de
+   * qualquer pagina, e rolar ate o fim nao resolve. Nao e hipotese — o Playwright reprovou o clique
+   * em "Iniciar onboarding" (`onboarding.spec.ts:48`) com esta `<section>` nomeada no relatorio como
+   * interceptadora dos ponteiros, em 51 tentativas.
+   *
+   * O que da para provar AQUI e a fiacao: a classe entra com a faixa e sai quando ela e dispensada.
+   * A altura reservada nao da: `offsetHeight` e sempre 0 no happy-dom, que nao faz layout. Quem
+   * prova o efeito real e o e2e `aviso-cookies.spec.ts`, com motor de layout de verdade — e por isso
+   * ele existe.
+   */
+  it('reserva espaco no documento enquanto a faixa ocupa o rodape', async () => {
+    await renderizar();
+
+    expect(document.body.classList.contains('sep-com-aviso-cookies')).toBe(true);
+  });
+
+  it('devolve o espaco ao documento quando a faixa e dispensada', async () => {
+    await renderizar();
+
+    fireEvent.click(screen.getByRole('button', { name: /entendi/i }));
+
+    expect(document.body.classList.contains('sep-com-aviso-cookies')).toBe(false);
+  });
+
+  it('nao reserva espaco quando o aviso ja foi dispensado antes', async () => {
+    window.localStorage.setItem(AVISO_KEY, '1');
+
+    await renderizar();
+
+    expect(document.body.classList.contains('sep-com-aviso-cookies')).toBe(false);
   });
 });
