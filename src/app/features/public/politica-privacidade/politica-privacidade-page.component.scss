@@ -1,0 +1,94 @@
+:host {
+  display: block;
+  background: hsl(var(--background));
+}
+
+.sep-politica {
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--sep-space-32);
+}
+
+.sep-politica-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-24);
+  max-width: 760px;
+  padding: var(--sep-space-32);
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--sep-radius-lg);
+  background: hsl(var(--card));
+  box-shadow: var(--shadow-md);
+}
+
+h1 {
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+h2 {
+  margin: 0 0 var(--sep-space-8);
+  color: hsl(var(--foreground));
+  font-size: 18px;
+}
+
+p {
+  margin: 0 0 var(--sep-space-12);
+  color: hsl(var(--muted-foreground));
+  line-height: 1.6;
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+code {
+  padding: var(--sep-space-2) var(--sep-space-6);
+  border-radius: var(--sep-radius-sm);
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  font-size: 13px;
+}
+
+.sep-politica-revisao {
+  padding: var(--sep-space-16);
+  border: 1px solid hsl(var(--warning) / 40%);
+  border-radius: var(--sep-radius-md);
+  background: hsl(var(--warning) / 12%);
+  color: hsl(var(--foreground));
+}
+
+.sep-politica-lista {
+  margin: 0;
+
+  dt {
+    margin-bottom: var(--sep-space-4);
+    color: hsl(var(--foreground));
+    font-weight: 600;
+  }
+
+  dd {
+    margin: 0 0 var(--sep-space-16);
+    color: hsl(var(--muted-foreground));
+    line-height: 1.6;
+  }
+
+  dd:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.sep-politica-pendencias {
+  margin: 0;
+  padding-left: var(--sep-space-24);
+  color: hsl(var(--muted-foreground));
+  line-height: 1.8;
+}
+
+.sep-politica-link {
+  align-self: flex-start;
+  color: hsl(var(--primary));
+  font-weight: 600;
+  text-decoration: none;
+}
