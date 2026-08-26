@@ -46,3 +46,40 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Dynamis Control Center managed ignores
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/.venv/
+**/venv/
+**/ENV/
+**/env/
+**/.idea/
+**/.qodo/
+**/.vscode/
+**/Thumbs.db
+**/Desktop.ini
+**/.DS_Store
+/nul
+build/
+dist/
+.eggs/
+wheels/
+*.egg-info/
+*.egg
+MANIFEST
+**/evidences/
+**/logs/
+**/*.log
+**/_pyi_version_info.txt
+**/.build_metadata.json
+*.spec
+sep-app 16062026-*/
+sep-app-16062026-*/
+sep-app_16062026-*/
+sep-app 16062026-*/
+sep-app-16062026-*/
+sep-app_16062026-*/
