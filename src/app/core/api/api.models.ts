@@ -121,7 +121,13 @@ export type StatusOnboarding =
   | 'REPROVADO_PLD';
 
 export type TipoDocumento =
-  'RG' | 'CNH' | 'PASSAPORTE' | 'SELFIE' | 'CONTRATO_SOCIAL' | 'CCMEI' | 'COMPROVANTE_ENDERECO';
+  | 'RG'
+  | 'CNH'
+  | 'PASSAPORTE'
+  | 'SELFIE'
+  | 'CONTRATO_SOCIAL'
+  | 'CCMEI'
+  | 'COMPROVANTE_ENDERECO';
 
 export type TipoSocietario = 'LTDA' | 'SA' | 'EIRELI' | 'MEI' | 'OUTROS';
 
@@ -340,7 +346,12 @@ export type StatusFormalizacao =
   | 'CANCELADO';
 
 export type StatusEnvelope =
-  'RASCUNHO' | 'ENVIADO' | 'VISUALIZADO' | 'ASSINADO' | 'RECUSADO' | 'EXPIRADO';
+  | 'RASCUNHO'
+  | 'ENVIADO'
+  | 'VISUALIZADO'
+  | 'ASSINADO'
+  | 'RECUSADO'
+  | 'EXPIRADO';
 
 export type TipoContrato = 'MUTUO' | 'CCB' | 'OUTROS';
 
@@ -586,7 +597,12 @@ export type TipoEntidadeReferenciada =
 // status); KYC/KYB/PLD/OPEN_FINANCE/ASSINATURA_DIGITAL podem ser stubs no backend — a UI
 // nao deve prometer retentativa real quando o backend nao garante.
 export type TipoChamadaProvider =
-  'KYC' | 'KYB' | 'PLD' | 'OPEN_FINANCE' | 'ASSINATURA_DIGITAL' | 'PIX_TRANSFERENCIA';
+  | 'KYC'
+  | 'KYB'
+  | 'PLD'
+  | 'OPEN_FINANCE'
+  | 'ASSINATURA_DIGITAL'
+  | 'PIX_TRANSFERENCIA';
 
 export type StatusReprocesso = 'PENDENTE' | 'SUCESSO' | 'FALHA';
 
@@ -762,15 +778,28 @@ export interface AlterarParametroRequest {
 
 // Estados de uma transferencia Pix de desembolso (StatusPixTransferencia no backend).
 export type StatusPixTransferencia =
-  'CRIADA' | 'SOLICITADA' | 'PROCESSANDO' | 'CONCLUIDA' | 'FALHOU' | 'CANCELADA';
+  | 'CRIADA'
+  | 'SOLICITADA'
+  | 'PROCESSANDO'
+  | 'CONCLUIDA'
+  | 'FALHOU'
+  | 'CANCELADA';
 
 // Estados de uma referencia Pix de recebimento de parcela (StatusPixReferenciaRecebimento).
 export type StatusPixReferenciaRecebimento =
-  'ATIVA' | 'PAGA' | 'EXPIRADA' | 'CANCELADA' | 'DIVERGENTE';
+  | 'ATIVA'
+  | 'PAGA'
+  | 'EXPIRADA'
+  | 'CANCELADA'
+  | 'DIVERGENTE';
 
 // Estados de um recebimento Pix identificado por evento de provider (StatusPixRecebimento).
 export type StatusPixRecebimento =
-  'RECEBIDO' | 'EM_PROCESSAMENTO' | 'CONCILIADO' | 'NAO_IDENTIFICADO' | 'FALHOU';
+  | 'RECEBIDO'
+  | 'EM_PROCESSAMENTO'
+  | 'CONCILIADO'
+  | 'NAO_IDENTIFICADO'
+  | 'FALHOU';
 
 // POST /pix/desembolsos: solicita desembolso assistido. A chave Pix em claro existe apenas
 // aqui; nunca e persistida, logada ou reexibida. Exige Idempotency-Key (header) e step-up.
