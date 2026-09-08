@@ -1,6 +1,10 @@
 {
   "components": {
     "schemas": {
+      "AcaoDecisaoMatching": {
+        "enum": ["CONFIRMAR", "REJEITAR"],
+        "type": "string"
+      },
       "AceiteContratoResponse": {
         "description": "Aceite registrado sobre uma versao de contrato",
         "properties": {
@@ -106,8 +110,7 @@
             "type": "string"
           },
           "status": {
-            "enum": ["PENDENTE", "EM_PROCESSAMENTO", "LIQUIDADO", "FALHOU"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusAporteCredora"
           },
           "valor": {
             "type": "number"
@@ -142,9 +145,8 @@
         "description": "Cadastro de chave Pix da conta operacional/escrow",
         "properties": {
           "tipo": {
-            "description": "Tipo da chave (CPF, CNPJ, EMAIL, TELEFONE ou EVP)",
-            "enum": ["CPF", "CNPJ", "EMAIL", "TELEFONE", "EVP"],
-            "type": "string"
+            "$ref": "#/components/schemas/TipoChavePix",
+            "description": "Tipo da chave (CPF, CNPJ, EMAIL, TELEFONE ou EVP)"
           },
           "valor": {
             "description": "Valor da chave; normalizado por tipo e nunca persistido ou retornado em claro.",
@@ -165,12 +167,15 @@
             "type": "string"
           },
           "tipoCredora": {
-            "enum": ["EMPRESA", "INSTITUICAO_FINANCEIRA"],
-            "type": "string"
+            "$ref": "#/components/schemas/TipoCredora"
           }
         },
         "required": ["onboardingId", "tipoCredora"],
         "type": "object"
+      },
+      "CanalNotificacao": {
+        "enum": ["EMAIL", "SMS"],
+        "type": "string"
       },
       "CancelarContratoRequest": {
         "description": "Justificativa para cancelamento pre-aceite (auditavel)",
@@ -229,12 +234,10 @@
             "type": "string"
           },
           "status": {
-            "enum": ["ATIVA", "INATIVA"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusChavePix"
           },
           "tipo": {
-            "enum": ["CPF", "CNPJ", "EMAIL", "TELEFONE", "EVP"],
-            "type": "string"
+            "$ref": "#/components/schemas/TipoChavePix"
           },
           "valorMascarado": {
             "description": "Mascara segura da chave; o valor integral nunca e retornado",
@@ -309,9 +312,8 @@
             "type": "string"
           },
           "statusPld": {
-            "enum": ["PENDENTE", "LIMPO", "HIT"],
-            "example": "LIMPO",
-            "type": "string"
+            "$ref": "#/components/schemas/StatusPldRepresentante",
+            "example": "LIMPO"
           }
         },
         "type": "object"
@@ -319,8 +321,7 @@
       "ContadorPorPrioridade": {
         "properties": {
           "prioridade": {
-            "enum": ["BAIXA", "MEDIA", "ALTA", "CRITICA"],
-            "type": "string"
+            "$ref": "#/components/schemas/PrioridadeItem"
           },
           "total": {
             "format": "int64",
@@ -332,8 +333,7 @@
       "ContadorPorStatus": {
         "properties": {
           "status": {
-            "enum": ["ABERTO", "EM_TRATAMENTO", "RESOLVIDO", "IGNORADO"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusItemFila"
           },
           "total": {
             "format": "int64",
@@ -357,18 +357,7 @@
       "ContadorPorTipo": {
         "properties": {
           "tipo": {
-            "enum": [
-              "ONBOARDING_PENDENTE",
-              "ONBOARDING_ERRO",
-              "PROPOSTA_PENDENTE",
-              "CONTRATO_NAO_ASSINADO",
-              "COBRANCA_INADIMPLENTE",
-              "WEBHOOK_FALHOU",
-              "DESEMBOLSO_PIX_FALHOU",
-              "RECEBIMENTO_PIX_DIVERGENTE",
-              "OUTRO"
-            ],
-            "type": "string"
+            "$ref": "#/components/schemas/TipoItemFila"
           },
           "total": {
             "format": "int64",
@@ -405,22 +394,12 @@
             "type": "string"
           },
           "status": {
-            "enum": [
-              "GERADO",
-              "AGUARDANDO_ACEITE",
-              "ACEITO",
-              "EM_ASSINATURA",
-              "ASSINADO",
-              "RECUSADO",
-              "CANCELADO"
-            ],
-            "example": "AGUARDANDO_ACEITE",
-            "type": "string"
+            "$ref": "#/components/schemas/StatusFormalizacao",
+            "example": "AGUARDANDO_ACEITE"
           },
           "tipo": {
-            "enum": ["MUTUO", "CCB", "OUTROS"],
-            "example": "MUTUO",
-            "type": "string"
+            "$ref": "#/components/schemas/TipoContrato",
+            "example": "MUTUO"
           },
           "tomadorId": {
             "description": "Tomador titular",
@@ -450,10 +429,9 @@
             "type": "string"
           },
           "tipoOperacao": {
+            "$ref": "#/components/schemas/TipoOperacao",
             "description": "CAPITAL_GIRO ou OUTROS",
-            "enum": ["CAPITAL_GIRO", "OUTROS"],
-            "example": "CAPITAL_GIRO",
-            "type": "string"
+            "example": "CAPITAL_GIRO"
           },
           "valorSolicitado": {
             "description": "Valor em BRL > 0",
@@ -477,16 +455,14 @@
             "type": "string"
           },
           "porte": {
-            "enum": ["MEI", "ME", "EPP", "MEDIO", "GRANDE"],
-            "type": "string"
+            "$ref": "#/components/schemas/PorteEmpresa"
           },
           "razaoSocial": {
             "example": "Acme Comercio LTDA",
             "type": "string"
           },
           "tipoSocietario": {
-            "enum": ["LTDA", "SA", "EIRELI", "MEI", "OUTROS"],
-            "type": "string"
+            "$ref": "#/components/schemas/TipoSocietario"
           }
         },
         "type": "object"
@@ -548,8 +524,7 @@
       "DecidirMatchingRequest": {
         "properties": {
           "acao": {
-            "enum": ["CONFIRMAR", "REJEITAR"],
-            "type": "string"
+            "$ref": "#/components/schemas/AcaoDecisaoMatching"
           },
           "motivo": {
             "maxLength": 255,
@@ -559,6 +534,10 @@
         },
         "required": ["acao"],
         "type": "object"
+      },
+      "DecisaoParecer": {
+        "enum": ["APROVAR", "REJEITAR", "PENDENCIA"],
+        "type": "string"
       },
       "DesembolsoResponse": {
         "description": "Transferencia Pix de desembolso",
@@ -576,8 +555,7 @@
             "type": "boolean"
           },
           "status": {
-            "enum": ["CRIADA", "SOLICITADA", "PROCESSANDO", "CONCLUIDA", "FALHOU", "CANCELADA"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusPixTransferencia"
           },
           "transferenciaId": {
             "format": "uuid",
@@ -606,16 +584,7 @@
             "type": "string"
           },
           "tipo": {
-            "enum": [
-              "RG",
-              "CNH",
-              "PASSAPORTE",
-              "SELFIE",
-              "CONTRATO_SOCIAL",
-              "CCMEI",
-              "COMPROVANTE_ENDERECO"
-            ],
-            "type": "string"
+            "$ref": "#/components/schemas/TipoDocumento"
           }
         },
         "type": "object"
@@ -623,15 +592,13 @@
       "ElegibilidadeResponse": {
         "properties": {
           "elegibilidade": {
-            "enum": ["PENDENTE", "ELEGIVEL", "INELEGIVEL"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusElegibilidade"
           },
           "motivoInelegibilidade": {
             "type": "string"
           },
           "status": {
-            "enum": ["CADASTRADA", "ATIVA", "SUSPENSA"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusCredora"
           }
         },
         "type": "object"
@@ -653,8 +620,7 @@
             "type": "string"
           },
           "elegibilidade": {
-            "enum": ["PENDENTE", "ELEGIVEL", "INELEGIVEL"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusElegibilidade"
           },
           "id": {
             "format": "uuid",
@@ -671,12 +637,10 @@
             "type": "string"
           },
           "status": {
-            "enum": ["CADASTRADA", "ATIVA", "SUSPENSA"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusCredora"
           },
           "tipoCredora": {
-            "enum": ["EMPRESA", "INSTITUICAO_FINANCEIRA"],
-            "type": "string"
+            "$ref": "#/components/schemas/TipoCredora"
           },
           "usuarioId": {
             "format": "uuid",
@@ -711,18 +675,8 @@
             "type": "string"
           },
           "status": {
-            "enum": [
-              "INICIADO",
-              "DOCUMENTOS_RECEBIDOS",
-              "EM_VERIFICACAO",
-              "APROVADO",
-              "REPROVADO",
-              "PENDENCIA",
-              "APROVADO_FINAL",
-              "REPROVADO_PLD"
-            ],
-            "example": "INICIADO",
-            "type": "string"
+            "$ref": "#/components/schemas/StatusOnboarding",
+            "example": "INICIADO"
           }
         },
         "type": "object"
@@ -733,6 +687,93 @@
       "ErrorResponseDto": {
         "description": "Payload padrao de erro",
         "properties": {
+          "codigo": {
+            "description": "Codigo estavel da condicao de erro. Ausente quando a condicao nao tem identificador publicado.",
+            "enum": [
+              "ASN-400-002",
+              "ASN-400-003",
+              "AUTH-400-101",
+              "AUTH-400-102",
+              "AUTH-423-001",
+              "BOF-400-001",
+              "BOF-400-002",
+              "BOF-404-001",
+              "BOF-409-001",
+              "BOF-429-001",
+              "COB-400-001",
+              "COB-403-001",
+              "COB-404-001",
+              "COB-404-002",
+              "COB-404-003",
+              "COB-409-001",
+              "COB-409-003",
+              "CRD-400-003",
+              "CRD-400-004",
+              "CRD-400-005",
+              "CRD-400-006",
+              "CRD-400-007",
+              "CRD-400-008",
+              "CRD-400-009",
+              "CRD-400-010",
+              "CRD-400-011",
+              "CRD-400-012",
+              "CRD-400-013",
+              "CRD-400-014",
+              "CRD-400-015",
+              "CRD-404-003",
+              "CRD-404-004",
+              "CRD-404-005",
+              "CRD-404-006",
+              "CRD-404-007",
+              "CRD-404-008",
+              "CRD-409-001",
+              "CRD-409-003",
+              "CRD-409-004",
+              "CRD-409-005",
+              "CRD-409-006",
+              "CRD-409-007",
+              "CRD-422-004",
+              "CTR-400-001",
+              "CTR-403-001",
+              "CTR-404-001",
+              "CTR-409-001",
+              "CTR-409-002",
+              "CTR-409-003",
+              "CTR-422-001",
+              "CTR-422-002",
+              "CTR-422-003",
+              "CTR-422-004",
+              "GOV-400-001",
+              "GOV-404-001",
+              "MFA-400-001",
+              "MFA-400-002",
+              "MFA-400-003",
+              "MFA-400-004",
+              "MFA-409-001",
+              "ONB-400-001",
+              "ONB-400-003",
+              "ONB-400-005",
+              "ONB-400-009",
+              "ONB-400-010",
+              "ONB-400-011",
+              "ONB-400-012",
+              "ONB-400-013",
+              "ONB-400-016",
+              "ONB-400-018",
+              "ONB-404-002",
+              "ONB-409-001",
+              "ONB-409-002",
+              "PIX-400-001",
+              "PIX-404-001",
+              "USR-403-001",
+              "USR-403-002",
+              "USR-404-001",
+              "USR-409-001",
+              "WHK-400-001"
+            ],
+            "example": "AUTH-423-001",
+            "type": "string"
+          },
           "error": {
             "example": "Bad Request",
             "type": "string"
@@ -766,8 +807,7 @@
         "description": "Evento operacional de cobranca (notificacao, contato, mudanca de estado).",
         "properties": {
           "canal": {
-            "enum": ["EMAIL", "SMS"],
-            "type": "string"
+            "$ref": "#/components/schemas/CanalNotificacao"
           },
           "dataEvento": {
             "format": "date-time",
@@ -793,23 +833,13 @@
             "type": "string"
           },
           "status": {
-            "enum": ["SUCESSO", "FALHA"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusEventoCobranca"
           },
           "template": {
             "type": "string"
           },
           "tipo": {
-            "enum": [
-              "NOTIFICACAO_AUTOMATICA",
-              "CONTATO_MANUAL",
-              "RENEGOCIACAO_PROPOSTA",
-              "RENEGOCIACAO_ACEITA",
-              "RENEGOCIACAO_RECUSADA",
-              "RENEGOCIACAO_EXPIRADA",
-              "PARCELA_INADIMPLENTE"
-            ],
-            "type": "string"
+            "$ref": "#/components/schemas/TipoEventoCobranca"
           }
         },
         "type": "object"
@@ -885,17 +915,8 @@
             "type": "string"
           },
           "status": {
-            "description": "Status atual.",
-            "enum": [
-              "PENDENTE",
-              "PARCIALMENTE_PAGA",
-              "PAGA",
-              "ATRASADA",
-              "INADIMPLENTE",
-              "EM_NEGOCIACAO",
-              "RENEGOCIADA"
-            ],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusParcela",
+            "description": "Status atual."
           },
           "tomadorId": {
             "description": "UUID do tomador.",
@@ -942,8 +963,7 @@
             "type": "string"
           },
           "status": {
-            "enum": ["PENDENTE", "AUTORIZADO", "NEGADO", "EXPIRADO"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusConsentimento"
           },
           "urlAutorizacao": {
             "type": "string"
@@ -965,9 +985,8 @@
             "type": "string"
           },
           "porte": {
-            "enum": ["MEI", "ME", "EPP", "MEDIO", "GRANDE"],
-            "example": "ME",
-            "type": "string"
+            "$ref": "#/components/schemas/PorteEmpresa",
+            "example": "ME"
           },
           "razaoSocial": {
             "example": "Acme Comercio LTDA",
@@ -975,9 +994,8 @@
             "type": "string"
           },
           "tipoSocietario": {
-            "enum": ["LTDA", "SA", "EIRELI", "MEI", "OUTROS"],
-            "example": "LTDA",
-            "type": "string"
+            "$ref": "#/components/schemas/TipoSocietario",
+            "example": "LTDA"
           }
         },
         "required": ["cnpj", "razaoSocial"],
@@ -1055,8 +1073,7 @@
             "type": "string"
           },
           "status": {
-            "enum": ["ATIVO", "CANCELADO"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusInteresseCredora"
           }
         },
         "type": "object"
@@ -1097,39 +1114,16 @@
             "$ref": "#/components/schemas/ObjetoOriginalResponse"
           },
           "prioridade": {
-            "enum": ["BAIXA", "MEDIA", "ALTA", "CRITICA"],
-            "type": "string"
+            "$ref": "#/components/schemas/PrioridadeItem"
           },
           "status": {
-            "enum": ["ABERTO", "EM_TRATAMENTO", "RESOLVIDO", "IGNORADO"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusItemFila"
           },
           "tipo": {
-            "enum": [
-              "ONBOARDING_PENDENTE",
-              "ONBOARDING_ERRO",
-              "PROPOSTA_PENDENTE",
-              "CONTRATO_NAO_ASSINADO",
-              "COBRANCA_INADIMPLENTE",
-              "WEBHOOK_FALHOU",
-              "DESEMBOLSO_PIX_FALHOU",
-              "RECEBIMENTO_PIX_DIVERGENTE",
-              "OUTRO"
-            ],
-            "type": "string"
+            "$ref": "#/components/schemas/TipoItemFila"
           },
           "tipoEntidade": {
-            "enum": [
-              "ONBOARDING",
-              "PROPOSTA",
-              "CONTRATO",
-              "PARCELA_COBRANCA",
-              "WEBHOOK_EVENT_LOG",
-              "PIX_TRANSFERENCIA",
-              "PIX_RECEBIMENTO",
-              "OUTRO"
-            ],
-            "type": "string"
+            "$ref": "#/components/schemas/TipoEntidadeReferenciada"
           },
           "titulo": {
             "type": "string"
@@ -1161,39 +1155,16 @@
             "type": "string"
           },
           "prioridade": {
-            "enum": ["BAIXA", "MEDIA", "ALTA", "CRITICA"],
-            "type": "string"
+            "$ref": "#/components/schemas/PrioridadeItem"
           },
           "status": {
-            "enum": ["ABERTO", "EM_TRATAMENTO", "RESOLVIDO", "IGNORADO"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusItemFila"
           },
           "tipo": {
-            "enum": [
-              "ONBOARDING_PENDENTE",
-              "ONBOARDING_ERRO",
-              "PROPOSTA_PENDENTE",
-              "CONTRATO_NAO_ASSINADO",
-              "COBRANCA_INADIMPLENTE",
-              "WEBHOOK_FALHOU",
-              "DESEMBOLSO_PIX_FALHOU",
-              "RECEBIMENTO_PIX_DIVERGENTE",
-              "OUTRO"
-            ],
-            "type": "string"
+            "$ref": "#/components/schemas/TipoItemFila"
           },
           "tipoEntidade": {
-            "enum": [
-              "ONBOARDING",
-              "PROPOSTA",
-              "CONTRATO",
-              "PARCELA_COBRANCA",
-              "WEBHOOK_EVENT_LOG",
-              "PIX_TRANSFERENCIA",
-              "PIX_RECEBIMENTO",
-              "OUTRO"
-            ],
-            "type": "string"
+            "$ref": "#/components/schemas/TipoEntidadeReferenciada"
           },
           "titulo": {
             "type": "string"
@@ -1260,8 +1231,7 @@
             "type": "string"
           },
           "status": {
-            "enum": ["SUGERIDA", "CONFIRMADA", "REJEITADA"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusMatchingCredoraOperacao"
           },
           "valorElegivel": {
             "type": "number"
@@ -1306,17 +1276,7 @@
             "type": "string"
           },
           "tipoEntidade": {
-            "enum": [
-              "ONBOARDING",
-              "PROPOSTA",
-              "CONTRATO",
-              "PARCELA_COBRANCA",
-              "WEBHOOK_EVENT_LOG",
-              "PIX_TRANSFERENCIA",
-              "PIX_RECEBIMENTO",
-              "OUTRO"
-            ],
-            "type": "string"
+            "$ref": "#/components/schemas/TipoEntidadeReferenciada"
           }
         },
         "type": "object"
@@ -1338,18 +1298,8 @@
             "type": "string"
           },
           "status": {
-            "enum": [
-              "INICIADO",
-              "DOCUMENTOS_RECEBIDOS",
-              "EM_VERIFICACAO",
-              "APROVADO",
-              "REPROVADO",
-              "PENDENCIA",
-              "APROVADO_FINAL",
-              "REPROVADO_PLD"
-            ],
-            "example": "INICIADO",
-            "type": "string"
+            "$ref": "#/components/schemas/StatusOnboarding",
+            "example": "INICIADO"
           }
         },
         "type": "object"
@@ -1370,8 +1320,7 @@
             "type": "string"
           },
           "statusConsentimento": {
-            "enum": ["PENDENTE", "AUTORIZADO", "NEGADO", "EXPIRADO"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusConsentimento"
           },
           "ultimaMovimentacao": {
             "$ref": "#/components/schemas/MovimentacaoConsolidadaResponse",
@@ -1412,8 +1361,7 @@
             "type": "integer"
           },
           "status": {
-            "enum": ["ASSOCIADA", "ENCERRADA"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusOperacaoFinanciada"
           },
           "taxaJurosMensal": {
             "type": "number"
@@ -1447,8 +1395,7 @@
             "type": "string"
           },
           "status": {
-            "enum": ["DISPONIVEL", "ENCERRADA"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusOportunidade"
           },
           "taxaJurosMensal": {
             "type": "number"
@@ -1632,8 +1579,7 @@
             "type": "string"
           },
           "tipo": {
-            "enum": ["INTEGER", "DECIMAL", "BOOLEAN", "STRING"],
-            "type": "string"
+            "$ref": "#/components/schemas/TipoParametroOperacional"
           },
           "valor": {
             "type": "string"
@@ -1680,17 +1626,8 @@
             "type": "number"
           },
           "status": {
-            "enum": [
-              "PENDENTE",
-              "PARCIALMENTE_PAGA",
-              "PAGA",
-              "ATRASADA",
-              "INADIMPLENTE",
-              "EM_NEGOCIACAO",
-              "RENEGOCIADA"
-            ],
-            "example": "PENDENTE",
-            "type": "string"
+            "$ref": "#/components/schemas/StatusParcela",
+            "example": "PENDENTE"
           },
           "total": {
             "example": 1000.0,
@@ -1707,8 +1644,7 @@
             "type": "string"
           },
           "decisao": {
-            "enum": ["APROVAR", "REJEITAR", "PENDENCIA"],
-            "type": "string"
+            "$ref": "#/components/schemas/DecisaoParecer"
           },
           "id": {
             "format": "uuid",
@@ -1744,10 +1680,9 @@
             "type": "string"
           },
           "status": {
+            "$ref": "#/components/schemas/StatusPixPublico",
             "description": "Status publico do desembolso Pix",
-            "enum": ["EM_PROCESSAMENTO", "LIQUIDADO", "FALHOU", "CANCELADO"],
-            "example": "EM_PROCESSAMENTO",
-            "type": "string"
+            "example": "EM_PROCESSAMENTO"
           },
           "valor": {
             "description": "Valor do desembolso",
@@ -1790,18 +1725,9 @@
             "type": "string"
           },
           "status": {
+            "$ref": "#/components/schemas/StatusPixParcelaPublico",
             "description": "Status publico do pagamento Pix da parcela",
-            "enum": [
-              "AGUARDANDO",
-              "EM_PROCESSAMENTO",
-              "LIQUIDADO",
-              "DIVERGENTE",
-              "FALHOU",
-              "EXPIRADO",
-              "CANCELADO"
-            ],
-            "example": "AGUARDANDO",
-            "type": "string"
+            "example": "AGUARDANDO"
           },
           "valor": {
             "description": "Valor esperado da referencia Pix",
@@ -1834,6 +1760,14 @@
           }
         },
         "type": "object"
+      },
+      "PorteEmpresa": {
+        "enum": ["MEI", "ME", "EPP", "MEDIO", "GRANDE"],
+        "type": "string"
+      },
+      "PrioridadeItem": {
+        "enum": ["BAIXA", "MEDIA", "ALTA", "CRITICA"],
+        "type": "string"
       },
       "PropostaResponse": {
         "description": "Proposta de credito + score atual + ultimo parecer",
@@ -1870,12 +1804,10 @@
             "type": "string"
           },
           "status": {
-            "enum": ["EM_ANALISE", "PRE_APROVADA", "APROVADA", "REJEITADA", "PENDENCIA"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusProposta"
           },
           "tipoOperacao": {
-            "enum": ["CAPITAL_GIRO", "OUTROS"],
-            "type": "string"
+            "$ref": "#/components/schemas/TipoOperacao"
           },
           "tomadorId": {
             "format": "uuid",
@@ -1919,8 +1851,7 @@
             "type": "string"
           },
           "status": {
-            "enum": ["RECEBIDO", "EM_PROCESSAMENTO", "CONCILIADO", "NAO_IDENTIFICADO", "FALHOU"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusPixRecebimento"
           },
           "valor": {
             "type": "number"
@@ -1957,16 +1888,7 @@
             "type": "string"
           },
           "statusParcela": {
-            "enum": [
-              "PENDENTE",
-              "PARCIALMENTE_PAGA",
-              "PAGA",
-              "ATRASADA",
-              "INADIMPLENTE",
-              "EM_NEGOCIACAO",
-              "RENEGOCIADA"
-            ],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusParcela"
           },
           "valorRecebido": {
             "type": "number"
@@ -2021,8 +1943,7 @@
             "type": "string"
           },
           "status": {
-            "enum": ["ATIVA", "PAGA", "EXPIRADA", "CANCELADA", "DIVERGENTE"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusPixReferenciaRecebimento"
           },
           "txid": {
             "type": "string"
@@ -2080,10 +2001,9 @@
         "description": "Parecer manual de operador FINANCEIRO sobre proposta de credito",
         "properties": {
           "decisao": {
+            "$ref": "#/components/schemas/DecisaoParecer",
             "description": "APROVAR, REJEITAR ou PENDENCIA",
-            "enum": ["APROVAR", "REJEITAR", "PENDENCIA"],
-            "example": "APROVAR",
-            "type": "string"
+            "example": "APROVAR"
           },
           "justificativa": {
             "description": "Min 10, max 1000 chars",
@@ -2148,8 +2068,7 @@
             "type": "string"
           },
           "resultado": {
-            "enum": ["PASSOU", "FALHOU", "PENDENTE"],
-            "type": "string"
+            "$ref": "#/components/schemas/ResultadoRegra"
           }
         },
         "type": "object"
@@ -2216,22 +2135,12 @@
             "type": "string"
           },
           "status": {
-            "description": "Status atual.",
-            "enum": ["PROPOSTA", "ACEITA", "RECUSADA", "EXPIRADA"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusRenegociacao",
+            "description": "Status atual."
           },
           "statusParcelaAnterior": {
-            "description": "Status da parcela antes de EM_NEGOCIACAO.",
-            "enum": [
-              "PENDENTE",
-              "PARCIALMENTE_PAGA",
-              "PAGA",
-              "ATRASADA",
-              "INADIMPLENTE",
-              "EM_NEGOCIACAO",
-              "RENEGOCIADA"
-            ],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusParcela",
+            "description": "Status da parcela antes de EM_NEGOCIACAO."
           },
           "tomadorId": {
             "description": "UUID do tomador.",
@@ -2291,9 +2200,8 @@
             "type": "string"
           },
           "status": {
-            "description": "Status da proposta (sempre PROPOSTA quando retornada)",
-            "enum": ["PROPOSTA", "ACEITA", "RECUSADA", "EXPIRADA"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusRenegociacao",
+            "description": "Status da proposta (sempre PROPOSTA quando retornada)"
           },
           "valorTotalRenegociado": {
             "description": "Valor total renegociado, calculado no backend",
@@ -2367,23 +2275,13 @@
             "type": "string"
           },
           "status": {
-            "enum": ["PENDENTE", "SUCESSO", "FALHA"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusReprocesso"
           },
           "tipo": {
-            "enum": ["WEBHOOK", "PROVIDER"],
-            "type": "string"
+            "$ref": "#/components/schemas/TipoReprocesso"
           },
           "tipoChamada": {
-            "enum": [
-              "KYC",
-              "KYB",
-              "PLD",
-              "OPEN_FINANCE",
-              "ASSINATURA_DIGITAL",
-              "PIX_TRANSFERENCIA"
-            ],
-            "type": "string"
+            "$ref": "#/components/schemas/TipoChamadaProvider"
           }
         },
         "type": "object"
@@ -2401,6 +2299,10 @@
         "required": ["justificativa"],
         "type": "object"
       },
+      "ResultadoRegra": {
+        "enum": ["PASSOU", "FALHOU", "PENDENTE"],
+        "type": "string"
+      },
       "ResultadoResponse": {
         "description": "Resultado final do KycProvider",
         "properties": {
@@ -2413,31 +2315,23 @@
             "type": "string"
           },
           "statusFinal": {
-            "enum": [
-              "INICIADO",
-              "DOCUMENTOS_RECEBIDOS",
-              "EM_VERIFICACAO",
-              "APROVADO",
-              "REPROVADO",
-              "PENDENCIA",
-              "APROVADO_FINAL",
-              "REPROVADO_PLD"
-            ],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusOnboarding"
           }
         },
         "type": "object"
       },
+      "Role": {
+        "enum": ["ADMIN", "CLIENTE", "FINANCEIRO", "BACKOFFICE"],
+        "type": "string"
+      },
       "RolesResponseDto": {
         "properties": {
           "principal": {
-            "enum": ["ADMIN", "CLIENTE", "FINANCEIRO", "BACKOFFICE"],
-            "type": "string"
+            "$ref": "#/components/schemas/Role"
           },
           "roles": {
             "items": {
-              "enum": ["ADMIN", "CLIENTE", "FINANCEIRO", "BACKOFFICE"],
-              "type": "string"
+              "$ref": "#/components/schemas/Role"
             },
             "type": "array",
             "uniqueItems": true
@@ -2461,8 +2355,7 @@
             "type": "integer"
           },
           "statusSugerido": {
-            "enum": ["EM_ANALISE", "PRE_APROVADA", "APROVADA", "REJEITADA", "PENDENCIA"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusProposta"
           },
           "valor": {
             "example": 850,
@@ -2517,6 +2410,10 @@
         },
         "type": "object"
       },
+      "StatusAporteCredora": {
+        "enum": ["PENDENTE", "EM_PROCESSAMENTO", "LIQUIDADO", "FALHOU"],
+        "type": "string"
+      },
       "StatusAssinaturaResponse": {
         "description": "Status agregado da assinatura digital de um contrato",
         "properties": {
@@ -2530,27 +2427,29 @@
             "type": "string"
           },
           "statusContrato": {
+            "$ref": "#/components/schemas/StatusFormalizacao",
             "description": "Status do contrato no fluxo de formalizacao",
-            "enum": [
-              "GERADO",
-              "AGUARDANDO_ACEITE",
-              "ACEITO",
-              "EM_ASSINATURA",
-              "ASSINADO",
-              "RECUSADO",
-              "CANCELADO"
-            ],
-            "example": "EM_ASSINATURA",
-            "type": "string"
+            "example": "EM_ASSINATURA"
           },
           "statusEnvelope": {
+            "$ref": "#/components/schemas/StatusEnvelope",
             "description": "Status do envelope no provider (null se nao houver envelope)",
-            "enum": ["RASCUNHO", "ENVIADO", "VISUALIZADO", "ASSINADO", "RECUSADO", "EXPIRADO"],
-            "example": "ENVIADO",
-            "type": "string"
+            "example": "ENVIADO"
           }
         },
         "type": "object"
+      },
+      "StatusChavePix": {
+        "enum": ["ATIVA", "INATIVA"],
+        "type": "string"
+      },
+      "StatusConsentimento": {
+        "enum": ["PENDENTE", "AUTORIZADO", "NEGADO", "EXPIRADO"],
+        "type": "string"
+      },
+      "StatusCredora": {
+        "enum": ["CADASTRADA", "ATIVA", "SUSPENSA"],
+        "type": "string"
       },
       "StatusDesembolsoResponse": {
         "description": "Status atual de um desembolso Pix",
@@ -2568,8 +2467,7 @@
             "type": "boolean"
           },
           "status": {
-            "enum": ["CRIADA", "SOLICITADA", "PROCESSANDO", "CONCLUIDA", "FALHOU", "CANCELADA"],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusPixTransferencia"
           },
           "transferenciaId": {
             "format": "uuid",
@@ -2580,6 +2478,55 @@
           }
         },
         "type": "object"
+      },
+      "StatusElegibilidade": {
+        "enum": ["PENDENTE", "ELEGIVEL", "INELEGIVEL"],
+        "type": "string"
+      },
+      "StatusEnvelope": {
+        "enum": ["RASCUNHO", "ENVIADO", "VISUALIZADO", "ASSINADO", "RECUSADO", "EXPIRADO"],
+        "type": "string"
+      },
+      "StatusEventoCobranca": {
+        "enum": ["SUCESSO", "FALHA"],
+        "type": "string"
+      },
+      "StatusFormalizacao": {
+        "enum": [
+          "GERADO",
+          "AGUARDANDO_ACEITE",
+          "ACEITO",
+          "EM_ASSINATURA",
+          "ASSINADO",
+          "RECUSADO",
+          "CANCELADO"
+        ],
+        "type": "string"
+      },
+      "StatusInteresseCredora": {
+        "enum": ["ATIVO", "CANCELADO"],
+        "type": "string"
+      },
+      "StatusItemFila": {
+        "enum": ["ABERTO", "EM_TRATAMENTO", "RESOLVIDO", "IGNORADO"],
+        "type": "string"
+      },
+      "StatusMatchingCredoraOperacao": {
+        "enum": ["SUGERIDA", "CONFIRMADA", "REJEITADA"],
+        "type": "string"
+      },
+      "StatusOnboarding": {
+        "enum": [
+          "INICIADO",
+          "DOCUMENTOS_RECEBIDOS",
+          "EM_VERIFICACAO",
+          "APROVADO",
+          "REPROVADO",
+          "PENDENCIA",
+          "APROVADO_FINAL",
+          "REPROVADO_PLD"
+        ],
+        "type": "string"
       },
       "StatusOnboardingEmpresaResponse": {
         "description": "Status atual PJ + dados KYB permitidos + documentos + representantes + resultado",
@@ -2616,17 +2563,7 @@
             "description": "Presente apenas quando ja existe resultado do KybProvider"
           },
           "status": {
-            "enum": [
-              "INICIADO",
-              "DOCUMENTOS_RECEBIDOS",
-              "EM_VERIFICACAO",
-              "APROVADO",
-              "REPROVADO",
-              "PENDENCIA",
-              "APROVADO_FINAL",
-              "REPROVADO_PLD"
-            ],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusOnboarding"
           }
         },
         "type": "object"
@@ -2657,20 +2594,74 @@
             "description": "Presente apenas quando ja existe resultado do KycProvider"
           },
           "status": {
-            "enum": [
-              "INICIADO",
-              "DOCUMENTOS_RECEBIDOS",
-              "EM_VERIFICACAO",
-              "APROVADO",
-              "REPROVADO",
-              "PENDENCIA",
-              "APROVADO_FINAL",
-              "REPROVADO_PLD"
-            ],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusOnboarding"
           }
         },
         "type": "object"
+      },
+      "StatusOperacaoFinanciada": {
+        "enum": ["ASSOCIADA", "ENCERRADA"],
+        "type": "string"
+      },
+      "StatusOportunidade": {
+        "enum": ["DISPONIVEL", "ENCERRADA"],
+        "type": "string"
+      },
+      "StatusParcela": {
+        "enum": [
+          "PENDENTE",
+          "PARCIALMENTE_PAGA",
+          "PAGA",
+          "ATRASADA",
+          "INADIMPLENTE",
+          "EM_NEGOCIACAO",
+          "RENEGOCIADA"
+        ],
+        "type": "string"
+      },
+      "StatusPixParcelaPublico": {
+        "enum": [
+          "AGUARDANDO",
+          "EM_PROCESSAMENTO",
+          "LIQUIDADO",
+          "DIVERGENTE",
+          "FALHOU",
+          "EXPIRADO",
+          "CANCELADO"
+        ],
+        "type": "string"
+      },
+      "StatusPixPublico": {
+        "enum": ["EM_PROCESSAMENTO", "LIQUIDADO", "FALHOU", "CANCELADO"],
+        "type": "string"
+      },
+      "StatusPixRecebimento": {
+        "enum": ["RECEBIDO", "EM_PROCESSAMENTO", "CONCILIADO", "NAO_IDENTIFICADO", "FALHOU"],
+        "type": "string"
+      },
+      "StatusPixReferenciaRecebimento": {
+        "enum": ["ATIVA", "PAGA", "EXPIRADA", "CANCELADA", "DIVERGENTE"],
+        "type": "string"
+      },
+      "StatusPixTransferencia": {
+        "enum": ["CRIADA", "SOLICITADA", "PROCESSANDO", "CONCLUIDA", "FALHOU", "CANCELADA"],
+        "type": "string"
+      },
+      "StatusPldRepresentante": {
+        "enum": ["PENDENTE", "LIMPO", "HIT"],
+        "type": "string"
+      },
+      "StatusProposta": {
+        "enum": ["EM_ANALISE", "PRE_APROVADA", "APROVADA", "REJEITADA", "PENDENCIA"],
+        "type": "string"
+      },
+      "StatusRenegociacao": {
+        "enum": ["PROPOSTA", "ACEITA", "RECUSADA", "EXPIRADA"],
+        "type": "string"
+      },
+      "StatusReprocesso": {
+        "enum": ["PENDENTE", "SUCESSO", "FALHA"],
+        "type": "string"
       },
       "StepUpCompleteRequestDto": {
         "description": "Conclui step-up apresentando codigo TOTP ou backup code.",
@@ -2712,8 +2703,7 @@
         "properties": {
           "roles": {
             "items": {
-              "enum": ["ADMIN", "CLIENTE", "FINANCEIRO", "BACKOFFICE"],
-              "type": "string"
+              "$ref": "#/components/schemas/Role"
             },
             "minItems": 1,
             "type": "array",
@@ -2722,6 +2712,89 @@
         },
         "required": ["roles"],
         "type": "object"
+      },
+      "TipoChamadaProvider": {
+        "enum": ["KYC", "KYB", "PLD", "OPEN_FINANCE", "ASSINATURA_DIGITAL", "PIX_TRANSFERENCIA"],
+        "type": "string"
+      },
+      "TipoChavePix": {
+        "enum": ["CPF", "CNPJ", "EMAIL", "TELEFONE", "EVP"],
+        "type": "string"
+      },
+      "TipoContrato": {
+        "enum": ["MUTUO", "CCB", "OUTROS"],
+        "type": "string"
+      },
+      "TipoCredora": {
+        "enum": ["EMPRESA", "INSTITUICAO_FINANCEIRA"],
+        "type": "string"
+      },
+      "TipoDocumento": {
+        "enum": [
+          "RG",
+          "CNH",
+          "PASSAPORTE",
+          "SELFIE",
+          "CONTRATO_SOCIAL",
+          "CCMEI",
+          "COMPROVANTE_ENDERECO"
+        ],
+        "type": "string"
+      },
+      "TipoEntidadeReferenciada": {
+        "enum": [
+          "ONBOARDING",
+          "PROPOSTA",
+          "CONTRATO",
+          "PARCELA_COBRANCA",
+          "WEBHOOK_EVENT_LOG",
+          "PIX_TRANSFERENCIA",
+          "PIX_RECEBIMENTO",
+          "OUTRO"
+        ],
+        "type": "string"
+      },
+      "TipoEventoCobranca": {
+        "enum": [
+          "NOTIFICACAO_AUTOMATICA",
+          "CONTATO_MANUAL",
+          "RENEGOCIACAO_PROPOSTA",
+          "RENEGOCIACAO_ACEITA",
+          "RENEGOCIACAO_RECUSADA",
+          "RENEGOCIACAO_EXPIRADA",
+          "PARCELA_INADIMPLENTE"
+        ],
+        "type": "string"
+      },
+      "TipoItemFila": {
+        "enum": [
+          "ONBOARDING_PENDENTE",
+          "ONBOARDING_ERRO",
+          "PROPOSTA_PENDENTE",
+          "CONTRATO_NAO_ASSINADO",
+          "COBRANCA_INADIMPLENTE",
+          "WEBHOOK_FALHOU",
+          "DESEMBOLSO_PIX_FALHOU",
+          "RECEBIMENTO_PIX_DIVERGENTE",
+          "OUTRO"
+        ],
+        "type": "string"
+      },
+      "TipoOperacao": {
+        "enum": ["CAPITAL_GIRO", "OUTROS"],
+        "type": "string"
+      },
+      "TipoParametroOperacional": {
+        "enum": ["INTEGER", "DECIMAL", "BOOLEAN", "STRING"],
+        "type": "string"
+      },
+      "TipoReprocesso": {
+        "enum": ["WEBHOOK", "PROVIDER"],
+        "type": "string"
+      },
+      "TipoSocietario": {
+        "enum": ["LTDA", "SA", "EIRELI", "MEI", "OUTROS"],
+        "type": "string"
       },
       "TokenResponseDto": {
         "description": "Resposta de autenticacao. Quando MFA esta ATIVO, login devolve apenas mfaChallengeId.",
@@ -2856,10 +2929,9 @@
             "type": "string"
           },
           "role": {
+            "$ref": "#/components/schemas/Role",
             "description": "ADMIN ou CLIENTE — FINANCEIRO so via /usuarios/{id}/role",
-            "enum": ["ADMIN", "CLIENTE", "FINANCEIRO", "BACKOFFICE"],
-            "example": "ADMIN",
-            "type": "string"
+            "example": "ADMIN"
           },
           "username": {
             "example": "operador@empresa.com",
@@ -2906,9 +2978,8 @@
             "type": "boolean"
           },
           "role": {
-            "enum": ["ADMIN", "CLIENTE", "FINANCEIRO", "BACKOFFICE"],
-            "example": "ADMIN",
-            "type": "string"
+            "$ref": "#/components/schemas/Role",
+            "example": "ADMIN"
           },
           "username": {
             "example": "admin@empresa.com",
@@ -2921,10 +2992,9 @@
         "description": "Alteracao de role de usuario — restrito a ADMIN + step-up",
         "properties": {
           "role": {
+            "$ref": "#/components/schemas/Role",
             "description": "ADMIN, CLIENTE ou FINANCEIRO",
-            "enum": ["ADMIN", "CLIENTE", "FINANCEIRO", "BACKOFFICE"],
-            "example": "FINANCEIRO",
-            "type": "string"
+            "example": "FINANCEIRO"
           }
         },
         "required": ["role"],
@@ -2979,16 +3049,7 @@
             "type": "number"
           },
           "status": {
-            "enum": [
-              "PENDENTE",
-              "PARCIALMENTE_PAGA",
-              "PAGA",
-              "ATRASADA",
-              "INADIMPLENTE",
-              "EM_NEGOCIACAO",
-              "RENEGOCIADA"
-            ],
-            "type": "string"
+            "$ref": "#/components/schemas/StatusParcela"
           },
           "totalRecebido": {
             "example": 0.0,
@@ -3373,7 +3434,7 @@
     },
     "/api/v1/auth/politica-lockout": {
       "get": {
-        "description": "Somente leitura e sem autenticacao: quem precisa do valor esta bloqueado e, por definicao, nao tem sessao. Serve a pagina de conta bloqueada, que renderiza sem ter recebido resposta de API e por isso fixava a duracao no texto. lockoutMinutes ja e publicado pela message do 423; os outros dois, apenas pelo /v3/api-docs, e com os defaults fixos no codigo — aqui vem o valor efetivo do ambiente.",
+        "description": "Somente leitura e sem autenticacao: quem precisa do valor esta bloqueado e, por definicao, nao tem sessao. Serve a pagina de conta bloqueada, que renderiza sem ter recebido resposta de API e por isso fixava a duracao no texto. Desde a Sprint 35 a message do 423 anuncia o tempo RESTANTE, nao a duracao configurada, entao os tres valores da politica so sao legiveis aqui — o /v3/api-docs traz apenas os defaults fixos no codigo, e aqui vem o valor efetivo do ambiente.",
         "operationId": "politicaLockout",
         "responses": {
           "200": {
@@ -3813,18 +3874,7 @@
             "name": "tipo",
             "required": false,
             "schema": {
-              "enum": [
-                "ONBOARDING_PENDENTE",
-                "ONBOARDING_ERRO",
-                "PROPOSTA_PENDENTE",
-                "CONTRATO_NAO_ASSINADO",
-                "COBRANCA_INADIMPLENTE",
-                "WEBHOOK_FALHOU",
-                "DESEMBOLSO_PIX_FALHOU",
-                "RECEBIMENTO_PIX_DIVERGENTE",
-                "OUTRO"
-              ],
-              "type": "string"
+              "$ref": "#/components/schemas/TipoItemFila"
             }
           },
           {
@@ -3832,8 +3882,7 @@
             "name": "prioridade",
             "required": false,
             "schema": {
-              "enum": ["BAIXA", "MEDIA", "ALTA", "CRITICA"],
-              "type": "string"
+              "$ref": "#/components/schemas/PrioridadeItem"
             }
           },
           {
@@ -3841,8 +3890,7 @@
             "name": "status",
             "required": false,
             "schema": {
-              "enum": ["ABERTO", "EM_TRATAMENTO", "RESOLVIDO", "IGNORADO"],
-              "type": "string"
+              "$ref": "#/components/schemas/StatusItemFila"
             }
           },
           {
@@ -3942,6 +3990,9 @@
             },
             "description": "Detalhe retornado."
           },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
+          },
           "401": {
             "content": {
               "*/*": {
@@ -4002,6 +4053,9 @@
               }
             },
             "description": "Item assumido."
+          },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
           },
           "401": {
             "content": {
@@ -4339,15 +4393,7 @@
             "name": "tipoChamada",
             "required": true,
             "schema": {
-              "enum": [
-                "KYC",
-                "KYB",
-                "PLD",
-                "OPEN_FINANCE",
-                "ASSINATURA_DIGITAL",
-                "PIX_TRANSFERENCIA"
-              ],
-              "type": "string"
+              "$ref": "#/components/schemas/TipoChamadaProvider"
             }
           },
           {
@@ -4477,6 +4523,9 @@
               }
             },
             "description": "Reprocesso registrado."
+          },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
           },
           "401": {
             "content": {
@@ -4613,16 +4662,7 @@
             "required": false,
             "schema": {
               "items": {
-                "enum": [
-                  "PENDENTE",
-                  "PARCIALMENTE_PAGA",
-                  "PAGA",
-                  "ATRASADA",
-                  "INADIMPLENTE",
-                  "EM_NEGOCIACAO",
-                  "RENEGOCIADA"
-                ],
-                "type": "string"
+                "$ref": "#/components/schemas/StatusParcela"
               },
               "type": "array",
               "uniqueItems": true
@@ -5238,6 +5278,9 @@
             },
             "description": "Renegociacao aceita."
           },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
+          },
           "401": {
             "content": {
               "*/*": {
@@ -5308,6 +5351,9 @@
               }
             },
             "description": "Renegociacao recusada."
+          },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
           },
           "401": {
             "content": {
@@ -5380,6 +5426,9 @@
             },
             "description": "OK"
           },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
+          },
           "401": {
             "content": {
               "*/*": {
@@ -5440,6 +5489,9 @@
               }
             },
             "description": "OK"
+          },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
           },
           "401": {
             "content": {
@@ -5519,6 +5571,9 @@
               }
             },
             "description": "Aceite registrado"
+          },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
           },
           "401": {
             "content": {
@@ -5987,6 +6042,9 @@
             },
             "description": "Lista de versoes"
           },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
+          },
           "401": {
             "content": {
               "*/*": {
@@ -6032,8 +6090,7 @@
             "name": "status",
             "required": false,
             "schema": {
-              "enum": ["EM_ANALISE", "PRE_APROVADA", "APROVADA", "REJEITADA", "PENDENCIA"],
-              "type": "string"
+              "$ref": "#/components/schemas/StatusProposta"
             }
           },
           {
@@ -6186,6 +6243,9 @@
             },
             "description": "OK"
           },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
+          },
           "401": {
             "content": {
               "*/*": {
@@ -6246,6 +6306,9 @@
               }
             },
             "description": "Status atual"
+          },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
           },
           "401": {
             "content": {
@@ -6501,6 +6564,9 @@
               }
             },
             "description": "Lista de regras"
+          },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
           },
           "401": {
             "content": {
@@ -6763,6 +6829,9 @@
             },
             "description": "Operacao retornada"
           },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
+          },
           "404": {
             "content": {
               "*/*": {
@@ -6907,6 +6976,9 @@
               }
             },
             "description": "Sugestao encontrada"
+          },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
           },
           "401": {
             "content": {
@@ -7150,6 +7222,9 @@
             },
             "description": "Aportes da operacao (criacao decrescente)"
           },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
+          },
           "401": {
             "content": {
               "*/*": {
@@ -7388,6 +7463,9 @@
             },
             "description": "Oportunidade retornada"
           },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
+          },
           "404": {
             "content": {
               "*/*": {
@@ -7427,6 +7505,9 @@
               }
             },
             "description": "Interesse registrado"
+          },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
           },
           "404": {
             "content": {
@@ -7481,6 +7562,9 @@
           "204": {
             "description": "Interesse cancelado"
           },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
+          },
           "404": {
             "content": {
               "*/*": {
@@ -7518,6 +7602,9 @@
               }
             },
             "description": "Interesse ativo retornado"
+          },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
           },
           "401": {
             "content": {
@@ -7568,6 +7655,9 @@
               }
             },
             "description": "Credora retornada"
+          },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
           },
           "401": {
             "content": {
@@ -7845,6 +7935,9 @@
             },
             "description": "Status PJ retornado"
           },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
+          },
           "401": {
             "content": {
               "*/*": {
@@ -7899,16 +7992,7 @@
             "name": "tipo",
             "required": true,
             "schema": {
-              "enum": [
-                "RG",
-                "CNH",
-                "PASSAPORTE",
-                "SELFIE",
-                "CONTRATO_SOCIAL",
-                "CCMEI",
-                "COMPROVANTE_ENDERECO"
-              ],
-              "type": "string"
+              "$ref": "#/components/schemas/TipoDocumento"
             }
           }
         ],
@@ -8004,6 +8088,9 @@
               }
             },
             "description": "Lista de representantes retornada"
+          },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
           },
           "401": {
             "content": {
@@ -8187,6 +8274,9 @@
             },
             "description": "Status retornado"
           },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
+          },
           "401": {
             "content": {
               "*/*": {
@@ -8241,16 +8331,7 @@
             "name": "tipo",
             "required": true,
             "schema": {
-              "enum": [
-                "RG",
-                "CNH",
-                "PASSAPORTE",
-                "SELFIE",
-                "CONTRATO_SOCIAL",
-                "CCMEI",
-                "COMPROVANTE_ENDERECO"
-              ],
-              "type": "string"
+              "$ref": "#/components/schemas/TipoDocumento"
             }
           }
         ],
@@ -8489,6 +8570,9 @@
           "204": {
             "description": "Chave removida (ou ja estava INATIVA)"
           },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
+          },
           "403": {
             "content": {
               "*/*": {
@@ -8721,6 +8805,9 @@
             },
             "description": "Status atual"
           },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
+          },
           "404": {
             "content": {
               "*/*": {
@@ -8770,6 +8857,9 @@
               }
             },
             "description": "Status reconciliado"
+          },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
           },
           "403": {
             "content": {
@@ -8972,6 +9062,9 @@
             },
             "description": "Referencia encontrada"
           },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
+          },
           "404": {
             "content": {
               "*/*": {
@@ -9011,6 +9104,9 @@
               }
             },
             "description": "Recebimento encontrado"
+          },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
           },
           "404": {
             "content": {
@@ -9143,6 +9239,9 @@
               }
             },
             "description": "Usuario encontrado"
+          },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
           },
           "401": {
             "content": {
@@ -9294,6 +9393,9 @@
             },
             "description": "Roles retornadas"
           },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
+          },
           "403": {
             "content": {
               "*/*": {
@@ -9414,8 +9516,7 @@
             "name": "role",
             "required": true,
             "schema": {
-              "enum": ["ADMIN", "CLIENTE", "FINANCEIRO", "BACKOFFICE"],
-              "type": "string"
+              "$ref": "#/components/schemas/Role"
             }
           },
           {
@@ -9490,8 +9591,7 @@
             "name": "role",
             "required": true,
             "schema": {
-              "enum": ["ADMIN", "CLIENTE", "FINANCEIRO", "BACKOFFICE"],
-              "type": "string"
+              "$ref": "#/components/schemas/Role"
             }
           },
           {
@@ -9514,6 +9614,9 @@
               }
             },
             "description": "Role adicionada"
+          },
+          "400": {
+            "description": "Identificador do path em formato invalido (por exemplo, um UUID malformado)."
           },
           "403": {
             "content": {

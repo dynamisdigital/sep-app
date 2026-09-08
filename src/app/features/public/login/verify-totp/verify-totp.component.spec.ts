@@ -87,10 +87,23 @@ function stubVerify(resposta: () => Response): void {
   server.use(http.post(VERIFY_URL, resposta));
 }
 
-/** Corpo `ErrorResponseDto` no formato que o sep-api realmente emite. */
-function erroDaApi(status: number, error: string, message: string): Response {
+/**
+ * Corpo `ErrorResponseDto` no formato que o sep-api realmente emite.
+ *
+ * `codigo` e opcional aqui pelo mesmo motivo que e opcional no contrato: backend anterior a Sprint
+ * 36, handler sem taxonomia e os `401`/`403`/`429` da cadeia de seguranca chegam sem ele. Omitir o
+ * parametro produz exatamente o corpo pre-36 — e e o que sustenta os testes de compatibilidade.
+ */
+function erroDaApi(status: number, error: string, message: string, codigo?: string): Response {
   return HttpResponse.json(
-    { timestamp: '2026-07-31T09:00:00Z', status, error, message, path: '/api/v1/auth/totp/verify' },
+    {
+      timestamp: '2026-07-31T09:00:00Z',
+      status,
+      error,
+      message,
+      path: '/api/v1/auth/totp/verify',
+      ...(codigo === undefined ? {} : { codigo }),
+    },
     { status },
   );
 }
@@ -112,6 +125,21 @@ function preencherEEnviar(codigo = '123456'): void {
 
 function textoDoErro(): string {
   return screen.getByTestId('sep-verify-totp-error').textContent?.trim() ?? '';
+}
+
+/**
+ * Texto do bloco terminal — o ramo em que o formulario **nao existe**. Ler por aqui, e nao por
+ * `textoDoErro`, e o que torna os dois desfechos distinguiveis: uma assercao so de texto passaria
+ * nos dois ramos e nao provaria qual deles o codigo escolheu.
+ */
+function textoTerminal(): string {
+  return screen.getByTestId('sep-verify-totp-no-challenge').textContent?.trim() ?? '';
+}
+
+/** O formulario sumiu: redigitar deixou de ser oferecido. E a metade do ramo que o texto nao prova. */
+function esperarFormularioAusente(): void {
+  expect(screen.queryByTestId('sep-verify-totp-input')).toBeNull();
+  expect(screen.queryByTestId('sep-verify-totp-submit')).toBeNull();
 }
 
 /** O CTA precisa voltar a ser clicavel apos erro, senao so um reload permite tentar de novo. */
@@ -200,7 +228,9 @@ describe('VerifyTotpComponent', () => {
   });
 
   // As tres causas do 400 (codigo invalido, challenge expirado, MFA nao habilitado) chegam com
-  // `message` distinto e o ErrorResponseDto nao serializa o codigo: o corpo e o unico discriminador.
+  // `message` distinto. Este teste cobre o corpo SEM `codigo` — o que um backend anterior a Sprint
+  // 36 emite —, e por isso segue caindo no erro inline: sem codigo nao ha ramo a escolher. A
+  // discriminacao por codigo tem bloco proprio no fim deste arquivo.
   it('usa o message do corpo no 400 em vez de fixar uma unica causa', async () => {
     semearChallenge();
     stubVerify(() =>
@@ -293,7 +323,12 @@ describe('VerifyTotpComponent', () => {
     preencherEEnviar();
     await estabilizar(fixture);
 
-    expect(textoDoErro()).toBe('Conta bloqueada temporariamente. Tente novamente em 30 minutos.');
+    // F-26.5: o fallback local nao cita duracao — ver o docblock de `CONTA_BLOQUEADA_FALLBACK`.
+    // Trava por texto integral, e nao por fragmento: a F-21 registrou que assert frouxo aqui deixa
+    // passar copy inventada.
+    expect(textoDoErro()).toBe(
+      'Conta bloqueada temporariamente. Aguarde o periodo de bloqueio antes de tentar de novo.',
+    );
   });
 
   // Sem este caso o ramo do 423 seria indistinguivel do `default`, que so difere no literal.
@@ -304,7 +339,12 @@ describe('VerifyTotpComponent', () => {
     preencherEEnviar();
     await estabilizar(fixture);
 
-    expect(textoDoErro()).toBe('Conta bloqueada temporariamente. Tente novamente em 30 minutos.');
+    // F-26.5: o fallback local nao cita duracao — ver o docblock de `CONTA_BLOQUEADA_FALLBACK`.
+    // Trava por texto integral, e nao por fragmento: a F-21 registrou que assert frouxo aqui deixa
+    // passar copy inventada.
+    expect(textoDoErro()).toBe(
+      'Conta bloqueada temporariamente. Aguarde o periodo de bloqueio antes de tentar de novo.',
+    );
   });
 
   // Validators.required aceita so espacos; sem o pattern isso chega ao backend, o @NotBlank
@@ -426,5 +466,169 @@ describe('VerifyTotpComponent', () => {
 
     expect(destino()).toBeNull();
     expect(textoDoErro()).toContain('armazenamento local');
+  });
+
+  /**
+   * F-Sprint 26. Ate aqui o `400` era um so: qualquer uma das tres causas mostrava erro inline e
+   * deixava o formulario de pe. Quem chegava com o desafio morto redigitava codigo contra um
+   * challenge que nunca mais aceitaria nada.
+   *
+   * A regra desta sprint: **o codigo escolhe o RAMO, o corpo continua escolhendo a FRASE.** Por isso
+   * cada caso abaixo assere as duas coisas separadamente — o desfecho (formulario de pe ou nao) e o
+   * texto. Um teste que so olhasse o texto passaria nos dois ramos.
+   */
+  describe('discriminacao do 400 por codigo de erro (Sprint 36)', () => {
+    it('MFA-400-002: mantem o formulario, porque o desafio segue vivo e retry e a acao certa', async () => {
+      semearChallenge();
+      stubVerify(() =>
+        erroDaApi(400, 'Bad Request', 'Codigo TOTP invalido ou expirado.', 'MFA-400-002'),
+      );
+      const { fixture } = await setup();
+
+      preencherEEnviar();
+      await estabilizar(fixture);
+
+      expect(textoDoErro()).toBe('Codigo TOTP invalido ou expirado.');
+      expect(screen.queryByTestId('sep-verify-totp-no-challenge')).toBeNull();
+      esperarCtaLiberado();
+    });
+
+    it('MFA-400-003: fecha o formulario, porque a conta nao tem TOTP e nenhum codigo serviria', async () => {
+      semearChallenge();
+      stubVerify(() =>
+        erroDaApi(
+          400,
+          'Bad Request',
+          'MFA TOTP nao esta habilitado para este usuario.',
+          'MFA-400-003',
+        ),
+      );
+      const { fixture } = await setup();
+
+      preencherEEnviar();
+      await estabilizar(fixture);
+
+      expect(textoTerminal()).toBe('MFA TOTP nao esta habilitado para este usuario.');
+      esperarFormularioAusente();
+    });
+
+    it('MFA-400-004: fecha o formulario, porque o desafio morreu e so refazer o login resolve', async () => {
+      semearChallenge();
+      stubVerify(() =>
+        erroDaApi(
+          400,
+          'Bad Request',
+          'Desafio MFA invalido ou expirado. Refaca o login.',
+          'MFA-400-004',
+        ),
+      );
+      const { fixture } = await setup();
+
+      preencherEEnviar();
+      await estabilizar(fixture);
+
+      expect(textoTerminal()).toBe('Desafio MFA invalido ou expirado. Refaca o login.');
+      esperarFormularioAusente();
+    });
+
+    /**
+     * Compatibilidade com backend anterior a Sprint 36, e com os 53 codigos que ela deixou fora do
+     * perimetro. Sem codigo nao ha ramo a escolher: cai no tratamento por status, que e o
+     * comportamento de antes desta sprint.
+     */
+    it('400 sem codigo preserva o comportamento legado, com o formulario de pe', async () => {
+      semearChallenge();
+      stubVerify(() =>
+        erroDaApi(400, 'Bad Request', 'Desafio MFA invalido ou expirado. Refaca o login.'),
+      );
+      const { fixture } = await setup();
+
+      preencherEEnviar();
+      await estabilizar(fixture);
+
+      expect(textoDoErro()).toBe('Desafio MFA invalido ou expirado. Refaca o login.');
+      expect(screen.queryByTestId('sep-verify-totp-no-challenge')).toBeNull();
+      esperarCtaLiberado();
+    });
+
+    /**
+     * A Sprint 37 vai criar codigos novos e o backend pode publicar codigo que este web nao conhece.
+     * Cliente tolera codigo futuro: desconhecido nao pode fechar o formulario nem virar erro proprio,
+     * tem de escorrer para o legado.
+     */
+    it('codigo desconhecido escorre para o comportamento legado', async () => {
+      semearChallenge();
+      stubVerify(() => erroDaApi(400, 'Bad Request', 'Alguma condicao nova.', 'MFA-400-999'));
+      const { fixture } = await setup();
+
+      preencherEEnviar();
+      await estabilizar(fixture);
+
+      expect(textoDoErro()).toBe('Alguma condicao nova.');
+      expect(screen.queryByTestId('sep-verify-totp-no-challenge')).toBeNull();
+    });
+
+    /**
+     * Ramo e frase sao independentes: aqui o codigo abre o desfecho terminal e o corpo NAO traz
+     * frase utilizavel, entao o literal local do `400` preenche. Se alguem trocar a origem do texto
+     * por literal fixo, os tres testes de cima reprovam; se alguem remover o fallback, este reprova.
+     */
+    it('usa o literal local quando o codigo abre o ramo terminal mas o corpo nao traz message', async () => {
+      semearChallenge();
+      stubVerify(() =>
+        HttpResponse.json(
+          {
+            timestamp: '2026-07-31T09:00:00Z',
+            status: 400,
+            error: 'Bad Request',
+            path: '/api/v1/auth/totp/verify',
+            codigo: 'MFA-400-004',
+          },
+          { status: 400 },
+        ),
+      );
+      const { fixture } = await setup();
+
+      preencherEEnviar();
+      await estabilizar(fixture);
+
+      expect(textoTerminal()).toBe(
+        'Codigo invalido ou desafio expirado. Refaca o login e tente de novo.',
+      );
+      esperarFormularioAusente();
+    });
+
+    /**
+     * A consulta ao codigo e exclusiva do `400`. Os codigos de `423`/`429` ficaram FORA do perimetro
+     * da Sprint 36 — vem da cadeia de seguranca, que escreve na response sem passar pelo handler —,
+     * mas um proxy ou um backend futuro pode carimbar qualquer coisa ali. Se a guarda de status cair,
+     * um `423` com codigo terminal fecharia o formulario e roubaria o `423` do errorInterceptor.
+     */
+    it('nao consulta o codigo fora do 400: um 423 com codigo terminal segue no tratamento de 423', async () => {
+      semearChallenge();
+      stubVerify(() =>
+        erroDaApi(
+          423,
+          'Locked',
+          'Conta bloqueada temporariamente. Tente novamente em 45 minutos.',
+          'MFA-400-004',
+        ),
+      );
+      const { fixture } = await setup();
+
+      preencherEEnviar();
+      await estabilizar(fixture);
+
+      expect(textoDoErro()).toBe('Conta bloqueada temporariamente. Tente novamente em 45 minutos.');
+      expect(screen.queryByTestId('sep-verify-totp-no-challenge')).toBeNull();
+    });
+
+    /** O ramo local de "nao ha challenge pendente" nao mudou: segue com a copy fixa do template. */
+    it('preserva a copy do ramo sem challenge, que nao vem da API', async () => {
+      await setup();
+
+      expect(textoTerminal()).toBe('Sessao de verificacao expirada. Refaca o login.');
+      esperarFormularioAusente();
+    });
   });
 });

@@ -59,3 +59,26 @@ export function mensagemBrutaDaApi(err: HttpErrorResponse): string | undefined {
   const mensagem = typeof bruto === 'string' ? bruto.trim() : undefined;
   return mensagem === '' ? undefined : mensagem;
 }
+
+/**
+ * O `codigo` do corpo de erro (`ErrorResponseDto.codigo`, backend Sprint 36), aparado, ou
+ * `undefined` quando nao ha nenhum utilizavel.
+ *
+ * **Escolhe o RAMO, nao a FRASE.** O texto continua vindo de `mensagemBrutaDaApi` onde o corpo e
+ * autoritativo — decisao de `copy-de-erro.ts`, e a razao de este helper nao devolver copy nenhuma.
+ *
+ * **Nao valida contra catalogo local, de proposito.** O backend publica hoje um subconjunto da
+ * taxonomia e a Sprint 37 vai mexer nele; um `enum` fechado aqui faria o web recusar codigo novo e
+ * cair no ramo legado sem sinal nenhum. Cliente tolera codigo futuro; quem nao reconhece o valor
+ * ramifica pelo status, que e o comportamento anterior a esta sprint.
+ *
+ * A guarda de `typeof` e a mesma de `mensagemBrutaDaApi`, pelo mesmo motivo documentado ali: um
+ * `codigo` nao-string faria `.trim()` lancar dentro do callback de erro, e o `loading.set(false)`
+ * seguinte nunca rodaria — tela carregando para sempre. Branco tambem vira `undefined`: `'   '` e
+ * truthy e um `switch` sobre ele escolheria `default` achando que recebeu identificador.
+ */
+export function codigoDeErroDaApi(err: HttpErrorResponse): string | undefined {
+  const bruto = (err.error as ApiErrorResponse | undefined)?.codigo;
+  const codigo = typeof bruto === 'string' ? bruto.trim() : undefined;
+  return codigo === '' ? undefined : codigo;
+}

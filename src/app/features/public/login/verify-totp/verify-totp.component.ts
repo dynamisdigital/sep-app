@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
-import { mensagemBrutaDaApi } from '../../../../core/api/api-error';
+import { codigoDeErroDaApi, mensagemBrutaDaApi } from '../../../../core/api/api-error';
 import {
   CONTA_BLOQUEADA_FALLBACK,
   FALHA_DE_ARMAZENAMENTO_LOCAL,
@@ -20,10 +20,14 @@ import { MfaService } from '../../../../core/auth/mfa.service';
  * status — "Codigo invalido, challenge expirado ou MFA nao habilitado" — e o backend discrimina as
  * tres pelo `message` (`TotpInvalidoException` "Codigo TOTP invalido ou expirado.",
  * `MfaChallengeInvalidoException` "Desafio MFA invalido ou expirado. Refaca o login.",
- * `MfaNaoHabilitadoException` "MFA TOTP nao esta habilitado para este usuario."). O `ErrorResponseDto`
- * nao serializa o codigo (`MFA-400-00x`), entao o `message` e o unico discriminador no fio: um
- * literal local mandaria quem teve o desafio expirado redigitar codigo para sempre, em vez de
- * refazer o login.
+ * `MfaNaoHabilitadoException` "MFA TOTP nao esta habilitado para este usuario."). O `message` segue
+ * fornecendo a FRASE — um literal local mandaria quem teve o desafio expirado redigitar codigo para
+ * sempre, em vez de refazer o login.
+ *
+ * **Mudou na F-26**: o `ErrorResponseDto` passou a serializar o codigo (`MFA-400-00x`) desde a
+ * Sprint 36 do `sep-api`, entao o `message` deixou de ser o unico discriminador. O codigo escolhe o
+ * RAMO; a frase continua vindo do corpo. Ver `ehDesfechoTerminal` logo abaixo — e o docblock de
+ * `copy-de-erro.ts`, que e a casa dessa separacao.
  *
  * O 401 e **fallback defensivo**, como o 423, e nao caminho normal. Contra o backend de hoje ele nao
  * e produzivel aqui: o unico 401 do lado do handler e
@@ -52,6 +56,39 @@ import { MfaService } from '../../../../core/auth/mfa.service';
  */
 const FORMATO_INVALIDO =
   'Informe o codigo de 6 digitos do aplicativo ou um backup code de 8 caracteres.';
+
+/**
+ * Os dois codigos do `400` em que **redigitar e impossivel**, e por isso o formulario vira armadilha:
+ *
+ * - `MFA-400-004` (`MfaChallengeInvalidoException`) — o desafio morreu. A propria copy do backend
+ *   manda refazer o login.
+ * - `MFA-400-003` (`MfaNaoHabilitadoException`) — a conta nao tem TOTP ativo. Nenhum codigo que o
+ *   usuario digite pode dar certo aqui.
+ *
+ * `MFA-400-002` (`TotpInvalidoException`) fica **fora** de proposito: ali o desafio segue vivo e
+ * tentar de novo e exatamente o que a pessoa deve fazer.
+ *
+ * Ate a F-26 os tres caiam no mesmo lugar — erro inline, formulario visivel —, e quem chegava aqui
+ * com desafio expirado redigitava codigo contra um challenge morto ate desistir. E um conjunto de
+ * RAMO, nao de copy: nenhuma frase mora nele.
+ */
+const CODIGOS_DE_DESFECHO_TERMINAL = new Set(['MFA-400-003', 'MFA-400-004']);
+
+/**
+ * So o `400` consulta o codigo. Os demais status ja tem tratamento proprio e nao ganham ramo novo
+ * nesta sprint — `423` e `429` inclusive, cujos codigos a Sprint 36 deixou **fora** do perimetro
+ * porque vem da cadeia de seguranca, que escreve na response sem passar pelo handler.
+ *
+ * Codigo ausente ou desconhecido devolve `false`: backend anterior a 36, handler sem taxonomia e
+ * codigo que a Sprint 37 venha a criar caem todos no comportamento legado por status.
+ */
+function ehDesfechoTerminal(erro: unknown): boolean {
+  if (!(erro instanceof HttpErrorResponse) || erro.status !== 400) {
+    return false;
+  }
+  const codigo = codigoDeErroDaApi(erro);
+  return codigo !== undefined && CODIGOS_DE_DESFECHO_TERMINAL.has(codigo);
+}
 
 function mensagemDeErroDeTotp(erro: unknown): string {
   if (!(erro instanceof HttpErrorResponse)) {
@@ -110,6 +147,15 @@ export class VerifyTotpComponent {
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly challengeAusente = signal<boolean>(!this.authService.pendingMfaChallenge());
+  /**
+   * Texto do bloco terminal quando quem o abriu foi o backend, e nao a ausencia local de challenge.
+   * `null` preserva a copy fixa do template — o ramo "nao ha challenge pendente" nao mudou.
+   *
+   * Existe separado de `errorMessage` porque os dois vivem em ramos mutuamente exclusivos do
+   * template: reaproveitar um so signal faria o bloco terminal e o erro inline disputarem o mesmo
+   * valor, e um teste que verificasse o texto nao distinguiria qual ramo o produziu.
+   */
+  protected readonly mensagemTerminal = signal<string | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
     // O formato vem do contrato do `TotpVerifyRequestDto`: 6 digitos OU backup code de 8
@@ -158,7 +204,14 @@ export class VerifyTotpComponent {
         },
         error: (erro: unknown) => {
           this.loading.set(false);
-          this.errorMessage.set(mensagemDeErroDeTotp(erro));
+          // A frase e a mesma dos dois lados: o codigo escolhe ONDE ela aparece, nao QUAL ela e.
+          const mensagem = mensagemDeErroDeTotp(erro);
+          if (ehDesfechoTerminal(erro)) {
+            this.mensagemTerminal.set(mensagem);
+            this.challengeAusente.set(true);
+            return;
+          }
+          this.errorMessage.set(mensagem);
         },
       });
   }

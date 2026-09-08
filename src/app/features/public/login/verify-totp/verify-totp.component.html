@@ -8,7 +8,7 @@
 
     @if (challengeAusente()) {
       <div role="alert" class="sep-verify-totp-error" data-testid="sep-verify-totp-no-challenge">
-        Sessao de verificacao expirada. Refaca o login.
+        {{ mensagemTerminal() ?? 'Sessao de verificacao expirada. Refaca o login.' }}
       </div>
       <a routerLink="/login">Voltar para o login</a>
     } @else {
