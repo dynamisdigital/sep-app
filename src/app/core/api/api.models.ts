@@ -92,11 +92,13 @@ export interface ApiErrorResponse {
    * digitos: mesmo nome, significado oposto, e o `consumed-contracts.json` ja carrega tres
    * ocorrencias daquele.
    *
-   * Opcional porque o backend so publica **80 dos 133** codigos que constroi (perimetro da Sprint
-   * 36) e porque `401`/`403`/`429` da cadeia de seguranca nunca passam pelo `@RestControllerAdvice`
-   * — quatro filtros montam o corpo direto na response. Backend anterior a 36, handler sem
-   * taxonomia e proxy que reescreve o corpo produzem o mesmo efeito: campo ausente. Quem le
-   * ramifica pelo legado nesse caso, nunca quebra.
+   * Opcional porque o backend publica so um **subconjunto** dos codigos que constroi (perimetro da
+   * Sprint 36; a particao vigente vive em `sep-api/CODIGOS-DE-ERRO.md` e e recalculada a cada build
+   * por `ParticaoDeCodigosErroTest` — nao repetir a contagem aqui, a Sprint 37 vai muda-la) e
+   * porque `401`/`403`/`429` da cadeia de seguranca nunca passam pelo `@RestControllerAdvice`:
+   * dois filtros e dois handlers do Spring Security montam o corpo direto na response. Backend
+   * anterior a 36, handler sem taxonomia e proxy que reescreve o corpo produzem o mesmo efeito:
+   * campo ausente. Quem le ramifica pelo legado nesse caso, nunca quebra.
    */
   codigo?: string;
 }
