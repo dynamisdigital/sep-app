@@ -323,7 +323,12 @@ describe('VerifyTotpComponent', () => {
     preencherEEnviar();
     await estabilizar(fixture);
 
-    expect(textoDoErro()).toBe('Conta bloqueada temporariamente. Tente novamente em 30 minutos.');
+    // F-26.5: o fallback local nao cita duracao — ver o docblock de `CONTA_BLOQUEADA_FALLBACK`.
+    // Trava por texto integral, e nao por fragmento: a F-21 registrou que assert frouxo aqui deixa
+    // passar copy inventada.
+    expect(textoDoErro()).toBe(
+      'Conta bloqueada temporariamente. Aguarde o periodo de bloqueio antes de tentar de novo.',
+    );
   });
 
   // Sem este caso o ramo do 423 seria indistinguivel do `default`, que so difere no literal.
@@ -334,7 +339,12 @@ describe('VerifyTotpComponent', () => {
     preencherEEnviar();
     await estabilizar(fixture);
 
-    expect(textoDoErro()).toBe('Conta bloqueada temporariamente. Tente novamente em 30 minutos.');
+    // F-26.5: o fallback local nao cita duracao — ver o docblock de `CONTA_BLOQUEADA_FALLBACK`.
+    // Trava por texto integral, e nao por fragmento: a F-21 registrou que assert frouxo aqui deixa
+    // passar copy inventada.
+    expect(textoDoErro()).toBe(
+      'Conta bloqueada temporariamente. Aguarde o periodo de bloqueio antes de tentar de novo.',
+    );
   });
 
   // Validators.required aceita so espacos; sem o pattern isso chega ao backend, o @NotBlank

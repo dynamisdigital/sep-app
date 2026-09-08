@@ -193,7 +193,10 @@ describe('LoginComponent', () => {
     await estabilizar(result.fixture);
 
     expect(screen.getByText(/conta bloqueada temporariamente/i)).toBeTruthy();
-    expect(screen.getByText(/30 minutos/i)).toBeTruthy();
+    // F-26.5: a copy local nao pode citar duracao. `lockout-minutes` e sobrescrivel por ambiente, e
+    // este literal so aparece quando corpo E `Retry-After` faltam — ou seja, justamente quando nao ha
+    // numero verdadeiro a dizer. O assert de AUSENCIA de digito e o que impede a duracao de voltar.
+    expect(screen.queryByText(/\d+\s*minutos?/i)).toBeNull();
   });
 
   it('423 com message vazia: cai no literal local em vez de deixar a tela muda', async () => {
