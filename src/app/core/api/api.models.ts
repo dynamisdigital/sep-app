@@ -86,6 +86,19 @@ export interface ApiErrorResponse {
   message: string;
   path: string;
   traceId?: string;
+  /**
+   * Codigo estavel da condicao de erro (`ErrorResponseDto.codigo`, backend Sprint 36). **Nao
+   * confundir com o `codigo` de `StepUpCompleteRequest`/`TotpVerifyRequest`**, que e o TOTP de seis
+   * digitos: mesmo nome, significado oposto, e o `consumed-contracts.json` ja carrega tres
+   * ocorrencias daquele.
+   *
+   * Opcional porque o backend so publica **80 dos 133** codigos que constroi (perimetro da Sprint
+   * 36) e porque `401`/`403`/`429` da cadeia de seguranca nunca passam pelo `@RestControllerAdvice`
+   * — quatro filtros montam o corpo direto na response. Backend anterior a 36, handler sem
+   * taxonomia e proxy que reescreve o corpo produzem o mesmo efeito: campo ausente. Quem le
+   * ramifica pelo legado nesse caso, nunca quebra.
+   */
+  codigo?: string;
 }
 
 /**
