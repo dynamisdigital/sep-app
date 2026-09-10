@@ -297,7 +297,13 @@ function verificarCampo(openapi, descriptor, especificacao, propriedade, caminho
       return;
     }
     verificarCampo(openapi, descriptor, especificacao.array, prop.items ?? {}, `${caminho}[]`, resultado, nomeTipo, nomeCampo, exigirRequired);
+    return;
   }
+  // Chave desconhecida (ex.: `enumsubset` digitado errado) desligaria a verificacao do campo em
+  // silencio, com o CI verde (F-28).
+  resultado.falhas.push(
+    `${caminho}: especificacao de campo nao reconhecida ${JSON.stringify(especificacao)} — use tipo primitivo, enum, enumSubset, $type ou array`,
+  );
 }
 
 function verificarTipoPrimitivo(tipoEsperado, prop, caminho, resultado) {

@@ -218,6 +218,28 @@ describe('verificarContratos', () => {
     ]);
   });
 
+  // Sem ramo para chave desconhecida, um erro de digitacao no descriptor desligava a verificacao do
+  // campo e o CI seguia verde — `enumsubset` no lugar de `enumSubset` apagaria o gate do catalogo.
+  it('falha quando a especificacao do campo nao e reconhecida', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComSchema(SCHEMA_ALINHADO),
+      descriptorBase({ status: { enumsubset: ['ATIVA'] } }),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining('especificacao de campo nao reconhecida'),
+    ]);
+  });
+
+  // Campo do tipo array passa pelo ramo `array` de verificarCampo, que precisa encerrar ali: sem o
+  // `return`, todo campo array cairia no ramo de especificacao nao reconhecida.
+  it('passa quando um campo array esta alinhado', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComSchema({ properties: { tags: { type: 'array', items: { type: 'string' } } } }),
+      descriptorBase({ tags: { array: 'string' } }),
+    );
+    expect(resultado.falhas).toEqual([]);
+  });
+
   it('falha quando um status de sucesso tratado nao esta documentado', () => {
     const descriptor = descriptorBase({ id: 'string' });
     (descriptor.operations[0] as { sucesso: number[] }).sucesso = [200, 201];
