@@ -1,5 +1,7 @@
 // Testes do verificador de contrato (F-Sprint 19, Step 119.1.2).
 // Fixtures minimas — nao copiam o OpenAPI real nem dependem de /tmp.
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 // @ts-expect-error modulo .mjs de tooling, sem declaracao de tipos
@@ -163,6 +165,81 @@ describe('verificarContratos', () => {
     );
     expect(resultado.falhas).toEqual([]);
     expect(resultado.lacunas).toEqual([expect.stringContaining('enum nao publicado')]);
+  });
+
+  // F-28: `enumSubset` e pertinencia, opt-in. Serve ao catalogo de codigos de erro, em que o web
+  // ramifica em poucos valores e precisa tolerar os demais; `enum` segue exigindo igualdade.
+  it('passa quando os valores de enumSubset pertencem ao enum documentado', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComSchema({
+        properties: { status: { type: 'string', enum: ['ATIVA', 'ENCERRADA', 'SUSPENSA'] } },
+      }),
+      descriptorBase({ status: { enumSubset: ['ATIVA', 'SUSPENSA'] } }),
+    );
+    expect(resultado.falhas).toEqual([]);
+    expect(resultado.lacunas).toEqual([]);
+  });
+
+  it('falha nomeando so o valor de enumSubset ausente do enum documentado', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComSchema(SCHEMA_ALINHADO),
+      descriptorBase({ status: { enumSubset: ['ATIVA', 'CANCELADA'] } }),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining("'CANCELADA', ausente do enum documentado"),
+    ]);
+  });
+
+  it('falha quando enumSubset e declarado e o OpenAPI nao publica enum, sem gap', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComSchema({ properties: { status: { type: 'string' } } }),
+      descriptorBase({ status: { enumSubset: ['ATIVA'] } }),
+    );
+    expect(resultado.falhas).toEqual([expect.stringContaining('OpenAPI nao publica enum')]);
+  });
+
+  it('reporta lacuna sem falhar quando o enum de um enumSubset esta em knownGaps', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComSchema({ properties: { status: { type: 'string' } } }),
+      descriptorBase({ status: { enumSubset: ['ATIVA'] } }, [
+        { kind: 'enum-undocumented', type: 'CoisaResponse', field: 'status', reason: 'teste' },
+      ]),
+    );
+    expect(resultado.falhas).toEqual([]);
+    expect(resultado.lacunas).toEqual([expect.stringContaining('enum nao publicado')]);
+    expect(resultado.obsoletos).toEqual([]);
+  });
+
+  it('rejeita enumSubset vazio, que passaria sem afirmar nada', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComSchema(SCHEMA_ALINHADO),
+      descriptorBase({ status: { enumSubset: [] } }),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining("'enumSubset' deve listar ao menos um valor"),
+    ]);
+  });
+
+  // Sem ramo para chave desconhecida, um erro de digitacao no descriptor desligava a verificacao do
+  // campo e o CI seguia verde — `enumsubset` no lugar de `enumSubset` apagaria o gate do catalogo.
+  it('falha quando a especificacao do campo nao e reconhecida', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComSchema(SCHEMA_ALINHADO),
+      descriptorBase({ status: { enumsubset: ['ATIVA'] } }),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining('especificacao de campo nao reconhecida'),
+    ]);
+  });
+
+  // Campo do tipo array passa pelo ramo `array` de verificarCampo, que precisa encerrar ali: sem o
+  // `return`, todo campo array cairia no ramo de especificacao nao reconhecida.
+  it('passa quando um campo array esta alinhado', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComSchema({ properties: { tags: { type: 'array', items: { type: 'string' } } } }),
+      descriptorBase({ tags: { array: 'string' } }),
+    );
+    expect(resultado.falhas).toEqual([]);
   });
 
   it('falha quando um status de sucesso tratado nao esta documentado', () => {
@@ -459,6 +536,139 @@ describe('verificarContratos', () => {
     expect(resultado.obsoletos).toEqual([]);
   });
 
+  // --- Corpo de erro por status (F-Sprint 28, Task 128.4) ---
+
+  const SCHEMA_ERRO = {
+    properties: {
+      codigo: { type: 'string', enum: ['COI-400-001', 'COI-400-002'] },
+      message: { type: 'string' },
+    },
+  };
+
+  function openapiComErro400(schema: object | undefined): object {
+    const openapi = openapiComSchema(SCHEMA_ALINHADO);
+    respostasDe(openapi)['400'] = schema ? { content: { 'application/json': { schema } } } : {};
+    return openapi;
+  }
+
+  function descriptorComErro(
+    errorResponses: unknown,
+    erros: number[] = [400],
+    campos: object = { message: 'string', codigo: { enumSubset: ['COI-400-001'] } },
+  ): ReturnType<typeof descriptorBase> {
+    const descriptor = descriptorBase({ id: 'string' });
+    descriptor.types['ErroResponse'] = { fields: campos };
+    Object.assign(descriptor.operations[0], { erros, errorResponses });
+    return descriptor;
+  }
+
+  it('passa quando o corpo de erro declarado bate com o schema do status', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComErro400(SCHEMA_ERRO),
+      descriptorComErro({ '400': { $type: 'ErroResponse' } }),
+    );
+    expect(resultado.falhas).toEqual([]);
+    expect(resultado.lacunas).toEqual([]);
+  });
+
+  it('falha quando campo do corpo de erro nao existe no schema do status', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComErro400(SCHEMA_ERRO),
+      descriptorComErro({ '400': { $type: 'ErroResponse' } }, [400], { detalhe: 'string' }),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining("coisas.consultar.errorResponses[400]: campo 'detalhe'"),
+    ]);
+  });
+
+  // O cenario que motiva a sprint: o backend deixa de publicar um codigo que a tela ramifica.
+  it('falha quando o catalogo do corpo de erro perde um codigo consumido', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComErro400({
+        properties: {
+          codigo: { type: 'string', enum: ['COI-400-002'] },
+          message: { type: 'string' },
+        },
+      }),
+      descriptorComErro({ '400': { $type: 'ErroResponse' } }),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining("'COI-400-001', ausente do enum documentado"),
+    ]);
+  });
+
+  it('falha quando errorResponses declara status fora de erros', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComErro400(SCHEMA_ERRO),
+      descriptorComErro({ '400': { $type: 'ErroResponse' } }, []),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining("'errorResponses' declara status 400 fora de 'erros'"),
+    ]);
+  });
+
+  it('falha quando o status de errorResponses nao tem schema JSON no OpenAPI', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComErro400(undefined),
+      descriptorComErro({ '400': { $type: 'ErroResponse' } }),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining('resposta de erro 400 sem schema JSON'),
+    ]);
+  });
+
+  it('rejeita errorResponses em lista, que nao diz a qual status o corpo pertence', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComErro400(SCHEMA_ERRO),
+      descriptorComErro([{ $type: 'ErroResponse' }]),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining("'errorResponses' e mapa por status"),
+    ]);
+  });
+
+  // null lancava TypeError dentro do check (e escondia as demais divergencias); string reprovava
+  // acusando "tipo 'undefined'", apontando o leitor para o lugar errado.
+  it('rejeita entrada null em errorResponses com falha nomeada, sem lancar', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComErro400(SCHEMA_ERRO),
+      descriptorComErro({ '400': null }),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining('\'errorResponses[400]\' deve ser { "$type": ... }'),
+    ]);
+  });
+
+  it('rejeita entrada string em errorResponses com falha nomeada', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComErro400(SCHEMA_ERRO),
+      descriptorComErro({ '400': 'ErroResponse' }),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining('\'errorResponses[400]\' deve ser { "$type": ... }'),
+    ]);
+  });
+
+  it('rejeita entrada objeto sem $type nem array em errorResponses', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComErro400(SCHEMA_ERRO),
+      descriptorComErro({ '400': { tipo: 'ErroResponse' } }),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining('\'errorResponses[400]\' deve ser { "$type": ... }'),
+    ]);
+  });
+
+  // Opt-in: status em erros e schema incompativel, mas sem errorResponses nada e verificado — e
+  // o caso das 85 operacoes atuais.
+  it('nao verifica corpo de erro quando a operacao nao declara errorResponses', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComErro400({ properties: {} }),
+      descriptorComErro(undefined, [400], { detalhe: 'string' }),
+    );
+    expect(resultado.falhas).toEqual([]);
+  });
+
   // --- responseHeaders por status (F-Sprint 22, Step 122.1.2) ---
 
   it('falha quando header de resposta de status de erro nao esta documentado nem tem gap', () => {
@@ -748,4 +958,39 @@ describe('decidirCodigoDeSaida', () => {
     expect(decidirCodigoDeSaida({ falhas: [], obsoletos: [], origem: SNAPSHOT_PADRAO })).toBe(0);
     expect(decidirCodigoDeSaida({ falhas: [], obsoletos: [], origem: EXTERNO })).toBe(0);
   });
+});
+
+// O gate do catalogo e dado no descriptor: apagar o `errorResponses` de mfa.totpVerify o desligava
+// com o CI verde (medido na Task 128.5: a perda de um codigo sai exit 0 sem a declaracao). Estes
+// testes prendem a declaracao ao snapshot versionado, um caso por codigo consumido.
+describe('catalogo de codigos consumido pelo verify-totp (descriptor real)', () => {
+  const snapshot = JSON.parse(readFileSync(SNAPSHOT_PADRAO, 'utf8'));
+  const descriptor = JSON.parse(
+    readFileSync(resolve(dirname(SNAPSHOT_PADRAO), 'consumed-contracts.json'), 'utf8'),
+  );
+
+  function snapshotSemCodigo(codigo: string): object {
+    const copia = JSON.parse(JSON.stringify(snapshot));
+    const prop = copia.components.schemas.ErrorResponseDto.properties.codigo;
+    prop.enum = prop.enum.filter((valor: string) => valor !== codigo);
+    return copia;
+  }
+
+  // Controle positivo: sem ele, os casos abaixo poderiam reprovar por outro motivo qualquer.
+  it('passa contra o snapshot versionado', () => {
+    const resultado: Resultado = verificarContratos(snapshot, descriptor);
+    expect(resultado.falhas).toEqual([]);
+  });
+
+  it.each(['MFA-400-003', 'MFA-400-004'])(
+    'reprova quando o snapshot deixa de publicar %s',
+    (codigo) => {
+      const resultado: Resultado = verificarContratos(snapshotSemCodigo(codigo), descriptor);
+      expect(resultado.falhas).toEqual([
+        expect.stringContaining(
+          `mfa.totpVerify.errorResponses[400].codigo: frontend depende de '${codigo}'`,
+        ),
+      ]);
+    },
+  );
 });

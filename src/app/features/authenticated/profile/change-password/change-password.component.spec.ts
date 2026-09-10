@@ -1,4 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
+import { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -13,12 +14,7 @@ async function setup() {
   });
 }
 
-async function logarAdmin(result: {
-  fixture: {
-    debugElement: { injector: { get: <T>(t: unknown) => T } };
-    whenStable: () => Promise<unknown>;
-  };
-}) {
+async function logarAdmin(result: { fixture: ComponentFixture<unknown> }) {
   const auth = result.fixture.debugElement.injector.get<AuthService>(AuthService);
   await new Promise<void>((resolve, reject) => {
     auth.login({ username: 'admin@empresa.com', password: '123456' }).subscribe({
