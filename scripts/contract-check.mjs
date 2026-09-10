@@ -60,6 +60,7 @@ function verificarOperacao(openapi, descriptor, operacao, resultado) {
   verificarHeadersDaResposta(doc, operacao, descriptor, resultado);
   verificarCorpoDaRequisicao(openapi, doc, operacao, descriptor, resultado);
   verificarCorpoDaResposta(openapi, doc, operacao, descriptor, resultado);
+  verificarCorpoDeErro(openapi, doc, operacao, descriptor, resultado);
 }
 
 function verificarParametros(params, operacao, descriptor, resultado) {
@@ -212,6 +213,30 @@ function verificarCorpoDaResposta(openapi, doc, operacao, descriptor, resultado)
       continue;
     }
     verificarExpectativa(openapi, descriptor, operacao.response, conteudo.schema, `${operacao.id}.response[${status}]`, resultado);
+  }
+}
+
+// Corpo de erro por status (F-28), espelho do responseHeaders. So vale para status que a tela
+// ramifica — precisa estar em `erros`, pela mesma regra da F-22 — e que o OpenAPI documenta com
+// schema JSON. E o que torna gateavel o catalogo de codigos que a tela consome.
+function verificarCorpoDeErro(openapi, doc, operacao, descriptor, resultado) {
+  const porStatus = operacao.errorResponses ?? {};
+  if (Array.isArray(porStatus)) {
+    resultado.falhas.push(`${operacao.id}: 'errorResponses' e mapa por status ({ "400": { "$type": ... } }), nao lista`);
+    return;
+  }
+  const errosRamificados = (operacao.erros ?? []).map(String);
+  for (const [status, expectativa] of Object.entries(porStatus)) {
+    if (!errosRamificados.includes(status)) {
+      resultado.falhas.push(`${operacao.id}: 'errorResponses' declara status ${status} fora de 'erros' — so se declara corpo de status que a tela ramifica`);
+      continue;
+    }
+    const conteudo = extrairConteudoJson(doc.responses?.[status]?.content);
+    if (!conteudo?.schema) {
+      resultado.falhas.push(`${operacao.id}: resposta de erro ${status} sem schema JSON no OpenAPI`);
+      continue;
+    }
+    verificarExpectativa(openapi, descriptor, expectativa, conteudo.schema, `${operacao.id}.errorResponses[${status}]`, resultado);
   }
 }
 

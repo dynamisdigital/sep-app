@@ -534,6 +534,107 @@ describe('verificarContratos', () => {
     expect(resultado.obsoletos).toEqual([]);
   });
 
+  // --- Corpo de erro por status (F-Sprint 28, Task 128.4) ---
+
+  const SCHEMA_ERRO = {
+    properties: {
+      codigo: { type: 'string', enum: ['COI-400-001', 'COI-400-002'] },
+      message: { type: 'string' },
+    },
+  };
+
+  function openapiComErro400(schema: object | undefined): object {
+    const openapi = openapiComSchema(SCHEMA_ALINHADO);
+    respostasDe(openapi)['400'] = schema ? { content: { 'application/json': { schema } } } : {};
+    return openapi;
+  }
+
+  function descriptorComErro(
+    errorResponses: unknown,
+    erros: number[] = [400],
+    campos: object = { message: 'string', codigo: { enumSubset: ['COI-400-001'] } },
+  ): ReturnType<typeof descriptorBase> {
+    const descriptor = descriptorBase({ id: 'string' });
+    descriptor.types['ErroResponse'] = { fields: campos };
+    Object.assign(descriptor.operations[0], { erros, errorResponses });
+    return descriptor;
+  }
+
+  it('passa quando o corpo de erro declarado bate com o schema do status', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComErro400(SCHEMA_ERRO),
+      descriptorComErro({ '400': { $type: 'ErroResponse' } }),
+    );
+    expect(resultado.falhas).toEqual([]);
+    expect(resultado.lacunas).toEqual([]);
+  });
+
+  it('falha quando campo do corpo de erro nao existe no schema do status', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComErro400(SCHEMA_ERRO),
+      descriptorComErro({ '400': { $type: 'ErroResponse' } }, [400], { detalhe: 'string' }),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining("coisas.consultar.errorResponses[400]: campo 'detalhe'"),
+    ]);
+  });
+
+  // O cenario que motiva a sprint: o backend deixa de publicar um codigo que a tela ramifica.
+  it('falha quando o catalogo do corpo de erro perde um codigo consumido', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComErro400({
+        properties: {
+          codigo: { type: 'string', enum: ['COI-400-002'] },
+          message: { type: 'string' },
+        },
+      }),
+      descriptorComErro({ '400': { $type: 'ErroResponse' } }),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining("'COI-400-001', ausente do enum documentado"),
+    ]);
+  });
+
+  it('falha quando errorResponses declara status fora de erros', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComErro400(SCHEMA_ERRO),
+      descriptorComErro({ '400': { $type: 'ErroResponse' } }, []),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining("'errorResponses' declara status 400 fora de 'erros'"),
+    ]);
+  });
+
+  it('falha quando o status de errorResponses nao tem schema JSON no OpenAPI', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComErro400(undefined),
+      descriptorComErro({ '400': { $type: 'ErroResponse' } }),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining('resposta de erro 400 sem schema JSON'),
+    ]);
+  });
+
+  it('rejeita errorResponses em lista, que nao diz a qual status o corpo pertence', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComErro400(SCHEMA_ERRO),
+      descriptorComErro([{ $type: 'ErroResponse' }]),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining("'errorResponses' e mapa por status"),
+    ]);
+  });
+
+  // Opt-in: status em erros e schema incompativel, mas sem errorResponses nada e verificado — e
+  // o caso das 85 operacoes atuais.
+  it('nao verifica corpo de erro quando a operacao nao declara errorResponses', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComErro400({ properties: {} }),
+      descriptorComErro(undefined, [400], { detalhe: 'string' }),
+    );
+    expect(resultado.falhas).toEqual([]);
+  });
+
   // --- responseHeaders por status (F-Sprint 22, Step 122.1.2) ---
 
   it('falha quando header de resposta de status de erro nao esta documentado nem tem gap', () => {
