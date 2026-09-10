@@ -9,7 +9,7 @@
     "lint": "ng lint",
     "lint:scss": "stylelint \"src/**/*.scss\"",
     "lint:scss:fix": "stylelint \"src/**/*.scss\" --fix",
-    "typecheck:spec": "tsc -p tsconfig.spec.json --noEmit",
+    "typecheck:spec": "tsc -p tsconfig.spec.json --noEmit && tsc -p tsconfig.e2e.json --noEmit",
     "format": "prettier --write \"src/**/*.{ts,html,scss,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,html,scss,json}\"",
     "audit": "npm audit --audit-level=high",
