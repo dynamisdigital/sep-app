@@ -1,5 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { importProvidersFrom } from '@angular/core';
+import { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
 import { LucideAngularModule } from 'lucide-angular';
@@ -11,9 +12,7 @@ import { DashboardComponent } from './dashboard.component';
 
 const ACCESS_TOKEN_KEY = 'SEP_ACCESS_TOKEN';
 
-async function logarAdmin(result: {
-  fixture: { debugElement: { injector: { get: <T>(t: unknown) => T } } };
-}) {
+async function logarAdmin(result: { fixture: ComponentFixture<unknown> }) {
   const auth = result.fixture.debugElement.injector.get<AuthService>(AuthService);
   await new Promise<void>((resolve, reject) => {
     auth.login({ username: 'admin@empresa.com', password: '123456' }).subscribe({
