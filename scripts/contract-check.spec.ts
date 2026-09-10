@@ -1,5 +1,7 @@
 // Testes do verificador de contrato (F-Sprint 19, Step 119.1.2).
 // Fixtures minimas — nao copiam o OpenAPI real nem dependem de /tmp.
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 // @ts-expect-error modulo .mjs de tooling, sem declaracao de tipos
@@ -956,4 +958,39 @@ describe('decidirCodigoDeSaida', () => {
     expect(decidirCodigoDeSaida({ falhas: [], obsoletos: [], origem: SNAPSHOT_PADRAO })).toBe(0);
     expect(decidirCodigoDeSaida({ falhas: [], obsoletos: [], origem: EXTERNO })).toBe(0);
   });
+});
+
+// O gate do catalogo e dado no descriptor: apagar o `errorResponses` de mfa.totpVerify o desligava
+// com o CI verde (medido na Task 128.5: a perda de um codigo sai exit 0 sem a declaracao). Estes
+// testes prendem a declaracao ao snapshot versionado, um caso por codigo consumido.
+describe('catalogo de codigos consumido pelo verify-totp (descriptor real)', () => {
+  const snapshot = JSON.parse(readFileSync(SNAPSHOT_PADRAO, 'utf8'));
+  const descriptor = JSON.parse(
+    readFileSync(resolve(dirname(SNAPSHOT_PADRAO), 'consumed-contracts.json'), 'utf8'),
+  );
+
+  function snapshotSemCodigo(codigo: string): object {
+    const copia = JSON.parse(JSON.stringify(snapshot));
+    const prop = copia.components.schemas.ErrorResponseDto.properties.codigo;
+    prop.enum = prop.enum.filter((valor: string) => valor !== codigo);
+    return copia;
+  }
+
+  // Controle positivo: sem ele, os casos abaixo poderiam reprovar por outro motivo qualquer.
+  it('passa contra o snapshot versionado', () => {
+    const resultado: Resultado = verificarContratos(snapshot, descriptor);
+    expect(resultado.falhas).toEqual([]);
+  });
+
+  it.each(['MFA-400-003', 'MFA-400-004'])(
+    'reprova quando o snapshot deixa de publicar %s',
+    (codigo) => {
+      const resultado: Resultado = verificarContratos(snapshotSemCodigo(codigo), descriptor);
+      expect(resultado.falhas).toEqual([
+        expect.stringContaining(
+          `mfa.totpVerify.errorResponses[400].codigo: frontend depende de '${codigo}'`,
+        ),
+      ]);
+    },
+  );
 });
