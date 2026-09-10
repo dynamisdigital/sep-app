@@ -39,6 +39,12 @@
     },
     "TotpConfirmRequest": { "fields": { "codigo": "string" } },
     "TotpVerifyRequest": { "fields": { "mfaChallengeId": "string", "codigo": "string" } },
+    "ApiErrorResponse": {
+      "fields": {
+        "message": "string",
+        "codigo": { "enumSubset": ["MFA-400-003", "MFA-400-004"] }
+      }
+    },
     "TotpDisableRequest": { "fields": { "passwordAtual": "string" } },
     "StepUpInitiateResponse": { "fields": { "stepUpChallengeId": "string" } },
     "StepUpCompleteRequest": { "fields": { "stepUpChallengeId": "string", "codigo": "string" } },
@@ -1024,6 +1030,7 @@
       "path": "/api/v1/auth/totp/verify",
       "sucesso": [200],
       "erros": [400, 423, 429],
+      "errorResponses": { "400": { "$type": "ApiErrorResponse" } },
       "request": { "$type": "TotpVerifyRequest" },
       "response": { "$type": "TokenResponse" }
     },
