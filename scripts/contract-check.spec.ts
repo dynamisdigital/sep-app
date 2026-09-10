@@ -165,6 +165,59 @@ describe('verificarContratos', () => {
     expect(resultado.lacunas).toEqual([expect.stringContaining('enum nao publicado')]);
   });
 
+  // F-28: `enumSubset` e pertinencia, opt-in. Serve ao catalogo de codigos de erro, em que o web
+  // ramifica em poucos valores e precisa tolerar os demais; `enum` segue exigindo igualdade.
+  it('passa quando os valores de enumSubset pertencem ao enum documentado', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComSchema({
+        properties: { status: { type: 'string', enum: ['ATIVA', 'ENCERRADA', 'SUSPENSA'] } },
+      }),
+      descriptorBase({ status: { enumSubset: ['ATIVA', 'SUSPENSA'] } }),
+    );
+    expect(resultado.falhas).toEqual([]);
+    expect(resultado.lacunas).toEqual([]);
+  });
+
+  it('falha nomeando so o valor de enumSubset ausente do enum documentado', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComSchema(SCHEMA_ALINHADO),
+      descriptorBase({ status: { enumSubset: ['ATIVA', 'CANCELADA'] } }),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining("'CANCELADA', ausente do enum documentado"),
+    ]);
+  });
+
+  it('falha quando enumSubset e declarado e o OpenAPI nao publica enum, sem gap', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComSchema({ properties: { status: { type: 'string' } } }),
+      descriptorBase({ status: { enumSubset: ['ATIVA'] } }),
+    );
+    expect(resultado.falhas).toEqual([expect.stringContaining('OpenAPI nao publica enum')]);
+  });
+
+  it('reporta lacuna sem falhar quando o enum de um enumSubset esta em knownGaps', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComSchema({ properties: { status: { type: 'string' } } }),
+      descriptorBase({ status: { enumSubset: ['ATIVA'] } }, [
+        { kind: 'enum-undocumented', type: 'CoisaResponse', field: 'status', reason: 'teste' },
+      ]),
+    );
+    expect(resultado.falhas).toEqual([]);
+    expect(resultado.lacunas).toEqual([expect.stringContaining('enum nao publicado')]);
+    expect(resultado.obsoletos).toEqual([]);
+  });
+
+  it('rejeita enumSubset vazio, que passaria sem afirmar nada', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComSchema(SCHEMA_ALINHADO),
+      descriptorBase({ status: { enumSubset: [] } }),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining("'enumSubset' deve listar ao menos um valor"),
+    ]);
+  });
+
   it('falha quando um status de sucesso tratado nao esta documentado', () => {
     const descriptor = descriptorBase({ id: 'string' });
     (descriptor.operations[0] as { sucesso: number[] }).sucesso = [200, 201];

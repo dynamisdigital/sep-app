@@ -283,6 +283,10 @@ function verificarCampo(openapi, descriptor, especificacao, propriedade, caminho
     verificarEnum(descriptor, especificacao.enum, prop, caminho, resultado, nomeTipo, nomeCampo);
     return;
   }
+  if (especificacao.enumSubset) {
+    verificarEnumSubset(descriptor, especificacao.enumSubset, prop, caminho, resultado, nomeTipo, nomeCampo);
+    return;
+  }
   if (especificacao.$type) {
     verificarTipoNomeado(openapi, descriptor, especificacao.$type, prop, caminho, resultado, exigirRequired);
     return;
@@ -312,11 +316,7 @@ function verificarTipoPrimitivo(tipoEsperado, prop, caminho, resultado) {
 
 function verificarEnum(descriptor, enumEsperado, prop, caminho, resultado, nomeTipo, nomeCampo) {
   if (!prop.enum) {
-    if (consumirGapDeEnum(descriptor, resultado, nomeTipo, nomeCampo)) {
-      resultado.lacunas.push(`${caminho}: enum nao publicado no OpenAPI (lacuna conhecida)`);
-    } else {
-      resultado.falhas.push(`${caminho}: frontend espera enum ${JSON.stringify(enumEsperado)}, OpenAPI nao publica enum`);
-    }
+    reportarEnumNaoPublicado(descriptor, enumEsperado, caminho, resultado, nomeTipo, nomeCampo);
     return;
   }
   const esperado = [...enumEsperado].sort();
@@ -325,6 +325,34 @@ function verificarEnum(descriptor, enumEsperado, prop, caminho, resultado, nomeT
     resultado.falhas.push(
       `${caminho}: enum divergente — frontend ${JSON.stringify(esperado)} vs OpenAPI ${JSON.stringify(documentado)}`,
     );
+  }
+}
+
+// Pertinencia, nao igualdade (F-28): o frontend depende destes valores e tolera os demais — caso do
+// catalogo de codigos de erro, em que o web ramifica em 2 de 80. Campo tipado como union fechada
+// continua em `enum`, que exige igualdade.
+function verificarEnumSubset(descriptor, valoresConsumidos, prop, caminho, resultado, nomeTipo, nomeCampo) {
+  // Lista vazia passaria sem afirmar nada: o gate existiria so no nome.
+  if (!Array.isArray(valoresConsumidos) || valoresConsumidos.length === 0) {
+    resultado.falhas.push(`${caminho}: 'enumSubset' deve listar ao menos um valor consumido`);
+    return;
+  }
+  if (!prop.enum) {
+    reportarEnumNaoPublicado(descriptor, valoresConsumidos, caminho, resultado, nomeTipo, nomeCampo);
+    return;
+  }
+  for (const valor of valoresConsumidos) {
+    if (!prop.enum.includes(valor)) {
+      resultado.falhas.push(`${caminho}: frontend depende de '${valor}', ausente do enum documentado no OpenAPI`);
+    }
+  }
+}
+
+function reportarEnumNaoPublicado(descriptor, valores, caminho, resultado, nomeTipo, nomeCampo) {
+  if (consumirGapDeEnum(descriptor, resultado, nomeTipo, nomeCampo)) {
+    resultado.lacunas.push(`${caminho}: enum nao publicado no OpenAPI (lacuna conhecida)`);
+  } else {
+    resultado.falhas.push(`${caminho}: frontend espera enum ${JSON.stringify(valores)}, OpenAPI nao publica enum`);
   }
 }
 
