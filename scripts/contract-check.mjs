@@ -227,6 +227,11 @@ function verificarCorpoDeErro(openapi, doc, operacao, descriptor, resultado) {
   }
   const errosRamificados = (operacao.erros ?? []).map(String);
   for (const [status, expectativa] of Object.entries(porStatus)) {
+    // Mesma guarda do responseHeaders[status]: entrada malformada vira falha nomeada, nao TypeError.
+    if (!expectativa || typeof expectativa !== 'object' || !(expectativa.$type || expectativa.array)) {
+      resultado.falhas.push(`${operacao.id}: 'errorResponses[${status}]' deve ser { "$type": ... } ou { "array": ... }`);
+      continue;
+    }
     if (!errosRamificados.includes(status)) {
       resultado.falhas.push(`${operacao.id}: 'errorResponses' declara status ${status} fora de 'erros' — so se declara corpo de status que a tela ramifica`);
       continue;

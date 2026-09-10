@@ -625,6 +625,38 @@ describe('verificarContratos', () => {
     ]);
   });
 
+  // null lancava TypeError dentro do check (e escondia as demais divergencias); string reprovava
+  // acusando "tipo 'undefined'", apontando o leitor para o lugar errado.
+  it('rejeita entrada null em errorResponses com falha nomeada, sem lancar', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComErro400(SCHEMA_ERRO),
+      descriptorComErro({ '400': null }),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining('\'errorResponses[400]\' deve ser { "$type": ... }'),
+    ]);
+  });
+
+  it('rejeita entrada string em errorResponses com falha nomeada', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComErro400(SCHEMA_ERRO),
+      descriptorComErro({ '400': 'ErroResponse' }),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining('\'errorResponses[400]\' deve ser { "$type": ... }'),
+    ]);
+  });
+
+  it('rejeita entrada objeto sem $type nem array em errorResponses', () => {
+    const resultado: Resultado = verificarContratos(
+      openapiComErro400(SCHEMA_ERRO),
+      descriptorComErro({ '400': { tipo: 'ErroResponse' } }),
+    );
+    expect(resultado.falhas).toEqual([
+      expect.stringContaining('\'errorResponses[400]\' deve ser { "$type": ... }'),
+    ]);
+  });
+
   // Opt-in: status em erros e schema incompativel, mas sem errorResponses nada e verificado — e
   // o caso das 85 operacoes atuais.
   it('nao verifica corpo de erro quando a operacao nao declara errorResponses', () => {
