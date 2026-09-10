@@ -47,14 +47,32 @@ precisa voltar.
   responsabilidade de quem declara, e nao do gate;
 - **headers de resposta por status** (`responseHeaders` e mapa `{ "200": [...] }`, nao lista plana) —
   e o que torna verificavel um header que so existe em resposta de erro, como o `Retry-After`;
+- **corpo de erro por status** (F-Sprint 28): `errorResponses` e mapa `{ "400": { "$type": ... } }`,
+  espelho do `responseHeaders`. Duas regras: o status precisa estar tambem em `erros` (so se declara
+  corpo de status que a tela ramifica) e ter schema JSON no OpenAPI. Campo, tipo, `enum` e
+  `enumSubset` valem para o corpo de erro como valem para o de sucesso. Primeiro uso: o `400` de
+  `mfa.totpVerify`, que gateia os dois codigos que o `verify-totp` ramifica (`MFA-400-003`/`004`);
+- **pertinencia de enum** (F-Sprint 28): `{ "enumSubset": [...] }` exige que cada valor declarado
+  exista no enum documentado, que pode ter mais — para catalogo que a tela consome em parte, como os
+  codigos de erro. `{ "enum": [...] }` continua exigindo **igualdade**, porque o web tipa esses campos
+  como uniao fechada e valor novo no backend e divergencia real;
+- **especificacao de campo nao reconhecida falha** (F-Sprint 28): chave desconhecida no descriptor
+  (ex.: `enumsubset` digitado errado) nao desliga mais a verificacao do campo em silencio;
 - **`knownGaps` obsoletos**, conforme descrito acima;
 - campos, tipos, enums e arrays dos DTOs de request/response consumidos.
 
 ## Limitacoes conhecidas
 
-- O springdoc do `sep-api` nao publica `required`/`nullable` nos schemas de response
-  (`required: []` em todos). Obrigatoriedade e nullability de campo **nao** sao verificaveis
-  contra o runtime hoje; registrado como follow-up backend na sprint F-19.
+- **Obrigatoriedade e nullability de campo de response nao sao verificadas** — o check so confere
+  `required` de request body. Parte dos schemas publica `required` (32 de 152 em 2026-09-10), mas nao
+  o `ErrorResponseDto`, e o descriptor nao tem nocao de campo opcional. Medido na F-Sprint 28: tornar
+  `codigo` obrigatorio de um lado so (no OpenAPI ou no `ApiErrorResponse` do TS) sobrevive a
+  `contract:check`, `typecheck:spec` e `build`, porque nada no repo constroi um `ApiErrorResponse`.
+- **O gate do catalogo de codigos morde na renovacao do snapshot, nao na mudanca do backend.** O CI
+  roda contra `openapi.snapshot.json`; se o `sep-api` deixar de publicar `MFA-400-003`/`004`, o CI do
+  web so reprova quando alguem renovar o snapshot (ou rodar com `SEP_OPENAPI_SCHEMA` contra o
+  runtime). O que o gate garante e que o snapshot nao pode ser renovado sem os dois codigos sem que o
+  CI acuse — e os testes de `scripts/contract-check.spec.ts` impedem que a declaracao seja apagada.
 - `X-Step-Up-Token` nao e documentado no OpenAPI em nenhuma operacao sensivel — lacuna
   registrada em `knownGaps` (follow-up backend).
 - Em uploads multipart o backend usa `@RequestParam`, que o Spring resolve tambem de form field;
