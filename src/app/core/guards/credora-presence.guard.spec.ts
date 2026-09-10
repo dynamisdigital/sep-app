@@ -1,14 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { Router, UrlTree } from '@angular/router';
+import { GuardResult, Router, UrlTree } from '@angular/router';
 import { provideRouter } from '@angular/router';
 import { Observable, firstValueFrom, isObservable, of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { CredoraService } from '../credora/credora.service';
 import { credoraPresenceGuard } from './credora-presence.guard';
-
-type GuardResult = boolean | UrlTree;
 
 function configurar(consultarMinhaCredora: () => Observable<unknown>): void {
   TestBed.configureTestingModule({

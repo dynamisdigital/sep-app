@@ -274,7 +274,9 @@ describe('errorInterceptor', () => {
       });
     });
 
-    expect(propagated?.error.message).toBe('Erro interno. Código de suporte: trace-abc.');
+    expect((propagated as HttpErrorResponse | null)?.error.message).toBe(
+      'Erro interno. Código de suporte: trace-abc.',
+    );
     expect(navigatedTo).toBeNull();
   });
 
@@ -300,6 +302,6 @@ describe('errorInterceptor', () => {
       });
     });
 
-    expect(propagated?.error.message).toBe('Proposta invalida.');
+    expect((propagated as HttpErrorResponse | null)?.error.message).toBe('Proposta invalida.');
   });
 });
