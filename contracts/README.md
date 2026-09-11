@@ -73,8 +73,6 @@ precisa voltar.
   web so reprova quando alguem renovar o snapshot (ou rodar com `SEP_OPENAPI_SCHEMA` contra o
   runtime). O que o gate garante e que o snapshot nao pode ser renovado sem os dois codigos sem que o
   CI acuse — e os testes de `scripts/contract-check.spec.ts` impedem que a declaracao seja apagada.
-- `X-Step-Up-Token` nao e documentado no OpenAPI em nenhuma operacao sensivel — lacuna
-  registrada em `knownGaps` (follow-up backend).
 - Em uploads multipart o backend usa `@RequestParam`, que o Spring resolve tambem de form field;
   o springdoc documenta como query. O descriptor usa `formParams` para esses casos.
 
