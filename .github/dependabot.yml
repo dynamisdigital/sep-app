@@ -103,6 +103,11 @@ updates:
       - dependency-name: '@types/node'
         update-types:
           - 'version-update:semver-major'
+      # jest-dom 7 exige Node 22 (engines `>=22`); o CI-APP roda em Node 20. Sobe junto com o
+      # bump de Node 22 da esteira, pela mesma politica do @types/node.
+      - dependency-name: '@testing-library/jest-dom'
+        update-types:
+          - 'version-update:semver-major'
       # Majors de tooling de lint sobem deliberadamente, nunca por bump
       # automatico (mesma politica dos demais ignores).
       - dependency-name: 'eslint-config-prettier'
