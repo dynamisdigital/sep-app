@@ -1,26 +1,15 @@
 import { provideHttpClient } from '@angular/common/http';
-import { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { AuthService } from '../../../../core/auth/auth.service';
 import { ChangePasswordComponent } from './change-password.component';
 import { flush } from '../../../../../testing/estabilizar';
+import { logarAdmin } from '../../../../../testing/logar-admin';
 
 async function setup() {
   return render(ChangePasswordComponent, {
     providers: [provideRouter([]), provideHttpClient()],
-  });
-}
-
-async function logarAdmin(result: { fixture: ComponentFixture<unknown> }) {
-  const auth = result.fixture.debugElement.injector.get<AuthService>(AuthService);
-  await new Promise<void>((resolve, reject) => {
-    auth.login({ username: 'admin@empresa.com', password: '123456' }).subscribe({
-      next: () => resolve(),
-      error: reject,
-    });
   });
 }
 

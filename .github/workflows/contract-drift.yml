@@ -1,0 +1,127 @@
+# =============================================================================
+# CONTRACT-DRIFT — contract:check do sep-app contra o runtime do sep-api `develop`
+# (follow-up (u) da F-Sprint 28).
+#
+# O CI-APP roda o check contra contracts/openapi.snapshot.json, offline; por isso
+# uma mudanca do backend so reprova no web quando alguem renova o snapshot. Aqui o
+# sep-api de `develop` sobe de verdade (repo publico: checkout sem secret), o
+# /v3/api-docs e exportado e o MESMO check roda contra ele. Detecta a divergencia
+# em ate um dia depois do merge no backend; nao impede o merge.
+#
+# Falha de run agendado notifica quem editou o `cron` por ultimo (regra do GitHub).
+# =============================================================================
+
+name: CONTRACT-DRIFT
+
+on:
+  schedule:
+    - cron: '0 9 * * *' # diario, 06:00 BRT
+  workflow_dispatch:
+  push:
+    # So quando o proprio workflow muda: prova o job na branch, antes do merge.
+    paths:
+      - '.github/workflows/contract-drift.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: contract-drift-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract-drift:
+    name: contract:check vs sep-api develop
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: sep
+          POSTGRES_PASSWORD: sep
+          POSTGRES_DB: sep_dev
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      # Sem credencial persistida: o job executa codigo do sep-api e nao faz git autenticado.
+      - name: Checkout sep-app
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Checkout sep-api (develop)
+        uses: actions/checkout@v7
+        with:
+          repository: dynamisdigital/sep-api
+          ref: develop
+          path: sep-api
+          persist-credentials: false
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build sep-api
+        working-directory: sep-api
+        run: |
+          echo "sep-api develop @ $(git rev-parse --short HEAD)" >> "$GITHUB_STEP_SUMMARY"
+          ./gradlew bootJar --no-daemon
+
+      # Perfil dev: le o Postgres do service acima pelos defaults (localhost:5432/sep_dev, sep/sep).
+      - name: Subir sep-api e exportar o OpenAPI
+        working-directory: sep-api
+        run: |
+          java -jar build/libs/sep-api-*.jar --spring.profiles.active=dev > "$RUNNER_TEMP/sep-api.log" 2>&1 &
+          pid=$!
+          # Prazo por relogio, e --max-time no curl: sem ele, um backend que aceita a conexao e
+          # nao responde prende o laco ate o timeout do job, e os 180s deixam de ser limite.
+          prazo=$((SECONDS + 180))
+          while [ "$SECONDS" -lt "$prazo" ]; do
+            if curl --fail --silent --max-time 10 --output "$RUNNER_TEMP/openapi.json" http://localhost:8080/v3/api-docs; then
+              echo "OpenAPI exportado apos ${SECONDS}s"
+              exit 0
+            fi
+            if ! kill -0 "$pid" 2>/dev/null; then
+              echo "::error::sep-api encerrou antes de responder /v3/api-docs"
+              tail -n 100 "$RUNNER_TEMP/sep-api.log"
+              exit 1
+            fi
+            sleep 2
+          done
+          echo "::error::sep-api nao respondeu /v3/api-docs em 180s"
+          tail -n 100 "$RUNNER_TEMP/sep-api.log"
+          exit 1
+
+      # O checker so usa builtins do Node: sem npm ci.
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+
+      - name: Contract check (runtime do sep-api develop)
+        env:
+          SEP_OPENAPI_SCHEMA: ${{ runner.temp }}/openapi.json
+        run: npm run contract:check
+
+      - name: Upload OpenAPI e log do sep-api
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: contract-drift
+          path: |
+            ${{ runner.temp }}/openapi.json
+            ${{ runner.temp }}/sep-api.log
+          retention-days: 14
