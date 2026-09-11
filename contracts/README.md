@@ -21,6 +21,10 @@ npm run contract:check
 SEP_OPENAPI_SCHEMA=/tmp/sep-api-openapi.json npm run contract:check
 ```
 
+No GitHub Actions, o workflow `CONTRACT-DRIFT` (`.github/workflows/contract-drift.yml`) faz o segundo
+modo todo dia contra o runtime do `sep-api` `develop`: sobe o backend, exporta o `/v3/api-docs` e
+roda o check. Tambem roda sob demanda, pelo `workflow_dispatch`.
+
 Exit code diferente de zero quando um contrato consumido diverge. Lacunas conhecidas do OpenAPI
 (ver `knownGaps` no descriptor) sao reportadas sem falhar o check enquanto forem reais; qualquer
 divergencia nova falha.
@@ -68,13 +72,13 @@ precisa voltar.
   o `ErrorResponseDto`, e o descriptor nao tem nocao de campo opcional. Medido na F-Sprint 28: tornar
   `codigo` obrigatorio de um lado so (no OpenAPI ou no `ApiErrorResponse` do TS) sobrevive a
   `contract:check`, `typecheck:spec` e `build`, porque nada no repo constroi um `ApiErrorResponse`.
-- **O gate do catalogo de codigos morde na renovacao do snapshot, nao na mudanca do backend.** O CI
-  roda contra `openapi.snapshot.json`; se o `sep-api` deixar de publicar `MFA-400-003`/`004`, o CI do
-  web so reprova quando alguem renovar o snapshot (ou rodar com `SEP_OPENAPI_SCHEMA` contra o
-  runtime). O que o gate garante e que o snapshot nao pode ser renovado sem os dois codigos sem que o
-  CI acuse — e os testes de `scripts/contract-check.spec.ts` impedem que a declaracao seja apagada.
-- `X-Step-Up-Token` nao e documentado no OpenAPI em nenhuma operacao sensivel — lacuna
-  registrada em `knownGaps` (follow-up backend).
+- **No CI-APP, o gate do catalogo de codigos morde na renovacao do snapshot, nao na mudanca do
+  backend.** O CI-APP roda contra `openapi.snapshot.json`; se o `sep-api` deixar de publicar
+  `MFA-400-003`/`004`, ele so reprova quando alguem renovar o snapshot. O que ele garante e que o
+  snapshot nao pode ser renovado sem os dois codigos sem que o CI acuse — e os testes de
+  `scripts/contract-check.spec.ts` impedem que a declaracao seja apagada. O intervalo e coberto pelo
+  `CONTRACT-DRIFT`, que reprova em ate um dia depois do merge no backend: **detecta, nao impede** o
+  merge.
 - Em uploads multipart o backend usa `@RequestParam`, que o Spring resolve tambem de form field;
   o springdoc documenta como query. O descriptor usa `formParams` para esses casos.
 
