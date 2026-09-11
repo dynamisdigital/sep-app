@@ -1,5 +1,4 @@
 import { provideHttpClient } from '@angular/common/http';
-import { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { beforeEach, describe, expect, it } from 'vitest';
