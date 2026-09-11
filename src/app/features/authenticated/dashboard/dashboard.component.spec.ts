@@ -1,5 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { importProvidersFrom } from '@angular/core';
+import { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
 import { LucideAngularModule } from 'lucide-angular';
