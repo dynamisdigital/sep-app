@@ -51,8 +51,11 @@ jobs:
           --health-retries 5
 
     steps:
+      # Sem credencial persistida: o job executa codigo do sep-api e nao faz git autenticado.
       - name: Checkout sep-app
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Checkout sep-api (develop)
         uses: actions/checkout@v7
@@ -60,6 +63,7 @@ jobs:
           repository: dynamisdigital/sep-api
           ref: develop
           path: sep-api
+          persist-credentials: false
 
       - name: Setup Java 21
         uses: actions/setup-java@v4
@@ -82,9 +86,12 @@ jobs:
         run: |
           java -jar build/libs/sep-api-*.jar --spring.profiles.active=dev > "$RUNNER_TEMP/sep-api.log" 2>&1 &
           pid=$!
-          for tentativa in $(seq 1 90); do
-            if curl --fail --silent --output "$RUNNER_TEMP/openapi.json" http://localhost:8080/v3/api-docs; then
-              echo "OpenAPI exportado na tentativa $tentativa"
+          # Prazo por relogio, e --max-time no curl: sem ele, um backend que aceita a conexao e
+          # nao responde prende o laco ate o timeout do job, e os 180s deixam de ser limite.
+          prazo=$((SECONDS + 180))
+          while [ "$SECONDS" -lt "$prazo" ]; do
+            if curl --fail --silent --max-time 10 --output "$RUNNER_TEMP/openapi.json" http://localhost:8080/v3/api-docs; then
+              echo "OpenAPI exportado apos ${SECONDS}s"
               exit 0
             fi
             if ! kill -0 "$pid" 2>/dev/null; then
