@@ -20,7 +20,7 @@ function usuario(id: string, username: string): UsuarioResponse {
     dataModificacao: '2026-09-14T10:00:00-03:00',
     criadoPor: 'system',
     modificadoPor: 'system',
-  } as UsuarioResponse;
+  };
 }
 
 const USUARIO_A = usuario('1f0799c0-98b9-6d9d-bc4a-7d6f5b77a001', 'a@empresa.com');
@@ -34,7 +34,15 @@ describe('NotificacoesNaoLidasStore', () => {
   let httpMock: HttpTestingController;
 
   function entrarComo(u: UsuarioResponse): void {
-    auth.applyMfaVerifyResponse({ accessToken: `token-${u.id}`, usuario: u } as never);
+    auth.applyMfaVerifyResponse({
+      accessToken: `token-${u.id}`,
+      tokenType: 'Bearer',
+      expiresIn: 3600,
+      refreshToken: null,
+      usuario: u,
+      mfaRequired: false,
+      mfaChallengeId: null,
+    });
   }
 
   beforeEach(() => {

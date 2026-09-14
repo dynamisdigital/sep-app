@@ -138,6 +138,8 @@ describe('HeaderComponent — contador de notificacoes', () => {
 
   afterEach(() => {
     vi.useRealTimers();
+    // Aqui, e nao no fim do teste: uma asserção que falhe antes deixaria o listener vivo.
+    server.events.removeAllListeners();
   });
 
   // `estabilizar` espera o `whenStable`, que inclui HTTP pendente: com a contagem presa, use `false`.
@@ -273,6 +275,5 @@ describe('HeaderComponent — contador de notificacoes', () => {
     await estabilizar(result.fixture);
 
     expect(consultas).toBe(1);
-    server.events.removeAllListeners();
   });
 });
