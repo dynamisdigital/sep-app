@@ -133,6 +133,8 @@ describe('NotificacoesPageComponent', () => {
     it('lista: itens na ordem do servidor, com data e estado de leitura por extenso', async () => {
       await abrirCentralComo('tomador@empresa.com');
 
+      // O happy-dom da o papel implicito; o atributo e o que protege no Safari/VoiceOver.
+      expect(lista()).toHaveAttribute('role', 'list');
       const itens = within(lista()).getAllByRole('listitem');
       expect(itens).toHaveLength(10);
       expect(itens[0]).toHaveTextContent('Desembolso concluido');

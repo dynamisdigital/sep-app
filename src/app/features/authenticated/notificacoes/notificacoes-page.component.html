@@ -35,7 +35,8 @@
         <p class="sep-notificacoes-total">
           {{ total() }} {{ total() === 1 ? 'notificacao' : 'notificacoes' }}
         </p>
-        <ul class="sep-notificacoes-lista" aria-label="Notificacoes">
+        <!-- role="list" explicito: o WebKit tira a semantica de lista de <ul> com list-style: none. -->
+        <ul class="sep-notificacoes-lista" role="list" aria-label="Notificacoes">
           @for (item of itens(); track item.id) {
             <li class="sep-notificacoes-item" [class.sep-notificacoes-item-nao-lida]="!item.lidaEm">
               <h2 class="sep-notificacoes-item-titulo">{{ item.titulo }}</h2>
