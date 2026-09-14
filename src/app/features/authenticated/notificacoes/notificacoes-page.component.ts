@@ -90,6 +90,7 @@ export class NotificacoesPageComponent implements OnInit, AfterViewInit {
   private readonly titulo = viewChild.required<ElementRef<HTMLHeadingElement>>('titulo');
 
   protected readonly formatarDataHora = formatarDataHora;
+  protected readonly idDoTitulo = idDoTitulo;
   protected readonly pagina = signal(0);
   protected readonly consulta = signal<Consulta>({ situacao: 'carregando' });
   protected readonly marcando = signal<ReadonlySet<string>>(new Set());
@@ -174,10 +175,6 @@ export class NotificacoesPageComponent implements OnInit, AfterViewInit {
           this.falhas.update((falhas) => new Map(falhas).set(id, { mensagem, naoEncontrada }));
         },
       });
-  }
-
-  protected idDoTitulo(id: string): string {
-    return idDoTitulo(id);
   }
 
   // Trocar de pagina ou repetir cancela a consulta anterior, entao uma resposta velha nunca
