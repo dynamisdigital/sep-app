@@ -82,6 +82,24 @@ export class NotificacoesNaoLidasStore {
     }
   }
 
+  // Leitura confirmada pelo servidor de um aviso que estava nao lido na tela ("read your writes").
+  // A contagem em voo foi pedida ANTES da leitura e pode trazer o numero antigo: e cancelada. Baixa
+  // local uma vez, so sobre numero conhecido e sem negativo; desconhecida segue desconhecida. A
+  // reconsulta reconcilia leitura feita em outro canal, e se falhar a baixa fica.
+  registrarLeitura(): void {
+    const dono = this.auth.currentUser()?.id;
+    if (!dono) {
+      return;
+    }
+    this.consultaEmVoo?.assinatura.unsubscribe();
+    const atual = this.registro();
+    if (atual?.dono === dono && atual.contagem.situacao === 'conhecida') {
+      const naoLidas = Math.max(0, atual.contagem.naoLidas - 1);
+      this.registro.set({ dono, contagem: { situacao: 'conhecida', naoLidas } });
+    }
+    this.carregar();
+  }
+
   private descartar(): void {
     this.consultaEmVoo?.assinatura.unsubscribe();
     this.consultaEmVoo = null;

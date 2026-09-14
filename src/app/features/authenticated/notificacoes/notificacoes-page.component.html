@@ -9,6 +9,8 @@
     </p>
   </header>
 
+  <p class="sep-notificacoes-anuncio" role="status">{{ anuncio() }}</p>
+
   @switch (consulta().situacao) {
     @case ('carregando') {
       <p class="sep-notificacoes-estado" role="status">Carregando notificacoes...</p>
@@ -39,7 +41,9 @@
         <ul class="sep-notificacoes-lista" role="list" aria-label="Notificacoes">
           @for (item of itens(); track item.id) {
             <li class="sep-notificacoes-item" [class.sep-notificacoes-item-nao-lida]="!item.lidaEm">
-              <h2 class="sep-notificacoes-item-titulo">{{ item.titulo }}</h2>
+              <h2 [id]="idDoTitulo(item.id)" class="sep-notificacoes-item-titulo" tabindex="-1">
+                {{ item.titulo }}
+              </h2>
               <p class="sep-notificacoes-item-mensagem">{{ item.mensagem }}</p>
               <p class="sep-notificacoes-item-meta">
                 <span>Recebida em {{ formatarDataHora(item.criadaEm) }}</span>
@@ -49,6 +53,32 @@
                   <span class="sep-notificacoes-item-rotulo-nao-lida">Nao lida</span>
                 }
               </p>
+              @if (!item.lidaEm) {
+                <!-- aria-disabled, e nao disabled: botao desabilitado perde o foco no meio do gesto. -->
+                <button
+                  type="button"
+                  class="sep-notificacoes-botao sep-notificacoes-item-acao"
+                  [attr.aria-describedby]="idDoTitulo(item.id)"
+                  [attr.aria-disabled]="marcando().has(item.id) ? 'true' : null"
+                  (click)="marcarComoLida(item.id)"
+                >
+                  {{ marcando().has(item.id) ? 'Marcando como lida...' : 'Marcar como lida' }}
+                </button>
+              }
+              @if (falhas().get(item.id); as falha) {
+                <div class="sep-notificacoes-item-falha" role="alert">
+                  <p>{{ falha.mensagem }}</p>
+                  @if (falha.naoEncontrada) {
+                    <button
+                      type="button"
+                      class="sep-notificacoes-botao"
+                      (click)="tentarNovamente()"
+                    >
+                      Atualizar lista
+                    </button>
+                  }
+                </div>
+              }
             </li>
           }
         </ul>

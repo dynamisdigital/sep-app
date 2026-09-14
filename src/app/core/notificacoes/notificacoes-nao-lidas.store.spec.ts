@@ -191,4 +191,85 @@ describe('NotificacoesNaoLidasStore', () => {
     httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 2 });
     expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 2 });
   });
+  describe('registrarLeitura', () => {
+    it('com contagem conhecida baixa uma vez na hora e reconsulta para reconciliar', () => {
+      entrarComo(USUARIO_A);
+      store.carregar();
+      httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 3 });
+
+      store.registrarLeitura();
+
+      expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 2 });
+      httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 1 });
+      expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 1 });
+    });
+
+    it('nunca fica negativa', () => {
+      entrarComo(USUARIO_A);
+      store.carregar();
+      httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 0 });
+
+      store.registrarLeitura();
+
+      expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 0 });
+      httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 0 });
+    });
+
+    it('cancela a contagem pedida antes da leitura: o numero antigo nao volta', () => {
+      entrarComo(USUARIO_A);
+      store.carregar();
+      httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 3 });
+      store.carregar();
+      const anteriorALeitura = httpMock.expectOne(CONTAGEM_URL);
+
+      store.registrarLeitura();
+
+      expect(anteriorALeitura.cancelled).toBe(true);
+      expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 2 });
+      httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 2 });
+    });
+
+    it('contagem desconhecida continua desconhecida ate a reconsulta: nao inventa numero', () => {
+      entrarComo(USUARIO_A);
+      store.carregar();
+      const primeira = httpMock.expectOne(CONTAGEM_URL);
+
+      store.registrarLeitura();
+
+      expect(primeira.cancelled).toBe(true);
+      expect(store.contagem()).toEqual({ situacao: 'carregando' });
+      httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 4 });
+      expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 4 });
+    });
+
+    it('contagem indisponivel nao vira numero pela baixa local', () => {
+      entrarComo(USUARIO_A);
+      store.carregar();
+      httpMock.expectOne(CONTAGEM_URL).flush(null, { status: 500, statusText: 'Erro' });
+
+      store.registrarLeitura();
+
+      expect(store.contagem()).toEqual({ situacao: 'indisponivel' });
+      httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 1 });
+      expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 1 });
+    });
+
+    it('reconsulta que falha nao desfaz a baixa da leitura confirmada', () => {
+      entrarComo(USUARIO_A);
+      store.carregar();
+      httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 3 });
+
+      store.registrarLeitura();
+      httpMock.expectOne(CONTAGEM_URL).flush(null, { status: 503, statusText: 'Erro' });
+
+      expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 2 });
+    });
+
+    it('sem sessao nao faz nada', () => {
+      store.registrarLeitura();
+
+      httpMock.expectNone(CONTAGEM_URL);
+      expect(store.contagem()).toBeNull();
+    });
+  });
 });

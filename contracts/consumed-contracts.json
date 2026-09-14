@@ -1670,6 +1670,7 @@
       "method": "post",
       "path": "/api/v1/notificacoes/{id}/leitura",
       "sucesso": [200],
+      "erros": [404],
       "response": { "$type": "NotificacaoResponse" }
     }
   ]

@@ -8,6 +8,7 @@ import { delay, http, HttpResponse } from 'msw';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { AuthService } from '../../../core/auth/auth.service';
+import { NotificacoesNaoLidasStore } from '../../../core/notificacoes/notificacoes-nao-lidas.store';
 import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
 import { authInterceptor } from '../../../core/interceptors/auth.interceptor';
 import { resetLoginMockState, resetNotificacoesState } from '../../../../mocks/handlers';
@@ -123,7 +124,7 @@ describe('NotificacoesPageComponent', () => {
 
       await abrirCentralComo('tomador@empresa.com', false);
 
-      expect(screen.getByRole('status')).toHaveTextContent('Carregando notificacoes...');
+      expect(screen.getByText('Carregando notificacoes...')).toHaveAttribute('role', 'status');
       expect(screen.queryByRole('list', { name: 'Notificacoes' })).toBeNull();
       expect(screen.queryByText('Voce nao tem notificacoes.')).toBeNull();
       expect(screen.queryByRole('alert')).toBeNull();
@@ -206,7 +207,7 @@ describe('NotificacoesPageComponent', () => {
       expect(screen.getByRole('alert')).toHaveTextContent(
         'Nao foi possivel carregar suas notificacoes.',
       );
-      expect(screen.queryByRole('status')).toBeNull();
+      expect(screen.queryByText('Carregando notificacoes...')).toBeNull();
     });
 
     it('usa a mensagem do backend quando ela vem', async () => {
@@ -280,6 +281,126 @@ describe('NotificacoesPageComponent', () => {
       await abrirCentralComo('tomador@empresa.com');
 
       expect(within(lista()).queryAllByRole('link')).toHaveLength(0);
+    });
+  });
+
+  describe('marcar como lida', () => {
+    function botoesMarcar(): HTMLElement[] {
+      return screen.queryAllByRole('button', { name: 'Marcar como lida' });
+    }
+
+    it('abrir a central nao marca nada: a leitura e sempre um gesto', async () => {
+      let leituras = 0;
+      server.events.on('request:start', ({ request }) => {
+        if (request.method === 'POST' && request.url.endsWith('/leitura')) {
+          leituras += 1;
+        }
+      });
+
+      await abrirCentralComo('tomador@empresa.com');
+
+      expect(leituras).toBe(0);
+      expect(botoesMarcar()).toHaveLength(3);
+    });
+
+    it('aplica a lidaEm do servidor, anuncia e leva o foco ao titulo do aviso', async () => {
+      server.use(
+        http.post(`${LISTA_URL}/:id/leitura`, ({ params }) =>
+          HttpResponse.json(item(params['id'] as string, { lidaEm: '2026-09-13T08:00:00-03:00' })),
+        ),
+      );
+      const { fixture } = await abrirCentralComo('tomador@empresa.com');
+
+      const primeiro = within(lista()).getAllByRole('listitem')[0];
+      fireEvent.click(within(primeiro).getByRole('button', { name: 'Marcar como lida' }));
+      await estabilizar(fixture);
+
+      const depois = within(lista()).getAllByRole('listitem')[0];
+      expect(depois).toHaveTextContent('Lida em 13/09/2026');
+      expect(depois).not.toHaveTextContent('Nao lida');
+      expect(within(depois).queryByRole('button')).toBeNull();
+      expect(screen.getByText('Aviso marcado como lido.')).toHaveAttribute('role', 'status');
+      expect(document.activeElement).toBe(within(depois).getByRole('heading', { level: 2 }));
+    });
+
+    it('com o mock real, a leitura grava e a contagem reconciliada cai para 2', async () => {
+      const { fixture } = await abrirCentralComo('tomador@empresa.com');
+      const store = fixture.debugElement.injector.get(NotificacoesNaoLidasStore);
+
+      const primeiro = within(lista()).getAllByRole('listitem')[0];
+      fireEvent.click(within(primeiro).getByRole('button', { name: 'Marcar como lida' }));
+      await estabilizar(fixture);
+      await estabilizar(fixture);
+
+      expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 2 });
+      expect(botoesMarcar()).toHaveLength(2);
+    });
+
+    it('404 e neutro: nada confirmado, e Atualizar lista reconsulta por gesto', async () => {
+      server.use(
+        http.post(`${LISTA_URL}/:id/leitura`, () =>
+          HttpResponse.json(
+            { message: 'Notificacao nao encontrada', codigo: 'NTF-404-001' },
+            { status: 404 },
+          ),
+        ),
+      );
+      const { fixture } = await abrirCentralComo('tomador@empresa.com');
+      const store = fixture.debugElement.injector.get(NotificacoesNaoLidasStore);
+      let listagens = 0;
+      server.events.on('request:start', ({ request }) => {
+        if (request.method === 'GET' && new URL(request.url).pathname === '/api/v1/notificacoes') {
+          listagens += 1;
+        }
+      });
+
+      const primeiro = within(lista()).getAllByRole('listitem')[0];
+      fireEvent.click(within(primeiro).getByRole('button', { name: 'Marcar como lida' }));
+      await estabilizar(fixture);
+
+      const alerta = within(within(lista()).getAllByRole('listitem')[0]).getByRole('alert');
+      expect(alerta).toHaveTextContent(
+        'Este aviso nao foi encontrado. Atualize a lista para ver seus avisos.',
+      );
+      expect(within(lista()).getAllByRole('listitem')[0]).toHaveTextContent('Nao lida');
+      expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 3 });
+
+      fireEvent.click(within(alerta).getByRole('button', { name: 'Atualizar lista' }));
+      await estabilizar(fixture);
+
+      expect(listagens).toBe(1);
+    });
+
+    it('falha tecnica: nada confirmado, o foco fica no botao e o retry marca', async () => {
+      server.use(
+        http.post(`${LISTA_URL}/:id/leitura`, () => new HttpResponse(null, { status: 503 }), {
+          once: true,
+        }),
+      );
+      const { fixture } = await abrirCentralComo('tomador@empresa.com');
+      const store = fixture.debugElement.injector.get(NotificacoesNaoLidasStore);
+
+      const botao = within(within(lista()).getAllByRole('listitem')[0]).getByRole('button', {
+        name: 'Marcar como lida',
+      });
+      botao.focus();
+      fireEvent.click(botao);
+      await estabilizar(fixture);
+
+      const primeiro = within(lista()).getAllByRole('listitem')[0];
+      expect(within(primeiro).getByRole('alert')).toHaveTextContent(
+        'Nao foi possivel marcar o aviso como lido. Tente novamente.',
+      );
+      expect(primeiro).toHaveTextContent('Nao lida');
+      expect(document.activeElement).toBe(botao);
+      expect(botao).not.toHaveAttribute('aria-disabled');
+      expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 3 });
+
+      fireEvent.click(botao);
+      await estabilizar(fixture);
+
+      expect(within(lista()).getAllByRole('listitem')[0]).toHaveTextContent('Lida em');
+      expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 2 });
     });
   });
 
@@ -368,6 +489,145 @@ describe('NotificacoesPageComponent — consultas sobrepostas', () => {
     expect(
       screen.getByRole('navigation', { name: 'Paginacao das notificacoes' }),
     ).toHaveTextContent('Pagina 1 de 2');
+    httpMock.verify();
+  });
+});
+
+// Leitura com as respostas na ordem que o teste quiser: e o HttpTestingController, e nao o MSW, que
+// deixa segurar o POST, a lista e a contagem para provar baixa unica e resposta tardia.
+describe('NotificacoesPageComponent — leitura com respostas controladas', () => {
+  const CONTAGEM_URL = `${API}/notificacoes/nao-lidas/contagem`;
+  const IDS = [
+    '9f0799c0-98b9-6d9d-bc4a-7d6f5b79f101',
+    '9f0799c0-98b9-6d9d-bc4a-7d6f5b79f102',
+    '9f0799c0-98b9-6d9d-bc4a-7d6f5b79f103',
+  ];
+  const LIDA_EM = '2026-09-13T08:00:00-03:00';
+
+  afterEach(() => {
+    window.localStorage.clear();
+  });
+
+  async function abrirComTresNaoLidas() {
+    const result = await render(NotificacoesPageComponent, {
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
+      detectChangesOnRender: false,
+      autoDetectChanges: false,
+    });
+    const injector = result.fixture.debugElement.injector;
+    injector.get(AuthService).applyMfaVerifyResponse({
+      accessToken: 'token-tomador',
+      tokenType: 'Bearer',
+      expiresIn: 3600,
+      refreshToken: null,
+      usuario: {
+        id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771011',
+        username: 'tomador@empresa.com',
+        role: 'CLIENTE',
+        precisaRedefinirSenha: false,
+        mfaHabilitado: true,
+        dataCriacao: '2026-09-14T10:00:00-03:00',
+        dataModificacao: '2026-09-14T10:00:00-03:00',
+        criadoPor: 'system',
+        modificadoPor: 'system',
+      },
+      mfaRequired: false,
+      mfaChallengeId: null,
+    });
+    const httpMock = injector.get(HttpTestingController);
+    const store = injector.get(NotificacoesNaoLidasStore);
+    result.fixture.autoDetectChanges();
+    httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 3 });
+    httpMock.expectOne((r) => r.url === LISTA_URL).flush(pagina(IDS.map((id) => item(id))));
+    await estabilizar(result.fixture);
+    return { fixture: result.fixture, httpMock, store };
+  }
+
+  function leituraDe(httpMock: HttpTestingController, id: string) {
+    return httpMock.expectOne({ method: 'POST', url: `${LISTA_URL}/${id}/leitura` });
+  }
+
+  it('a baixa do contador aparece antes da recontagem responder', async () => {
+    const { fixture, httpMock, store } = await abrirComTresNaoLidas();
+
+    fixture.componentInstance.marcarComoLida(IDS[0]);
+    leituraDe(httpMock, IDS[0]).flush(item(IDS[0], { lidaEm: LIDA_EM }));
+    await estabilizar(fixture);
+
+    expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 2 });
+    httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 2 });
+    httpMock.verify();
+  });
+
+  it('duplo gesto e chamada direta com a leitura em voo geram um POST so', async () => {
+    const { fixture, httpMock } = await abrirComTresNaoLidas();
+
+    fixture.componentInstance.marcarComoLida(IDS[1]);
+    fixture.componentInstance.marcarComoLida(IDS[1]);
+    await estabilizar(fixture);
+    const botao = within(within(lista()).getAllByRole('listitem')[1]).getByRole('button');
+    expect(botao).toHaveAttribute('aria-disabled', 'true');
+    fireEvent.click(botao);
+
+    leituraDe(httpMock, IDS[1]).flush(item(IDS[1], { lidaEm: LIDA_EM }));
+    httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 2 });
+    httpMock.verify();
+  });
+
+  it('aviso ja lido nao chama o servidor nem baixa o contador de novo', async () => {
+    const { fixture, httpMock, store } = await abrirComTresNaoLidas();
+    fixture.componentInstance.marcarComoLida(IDS[0]);
+    leituraDe(httpMock, IDS[0]).flush(item(IDS[0], { lidaEm: LIDA_EM }));
+    httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 2 });
+    await estabilizar(fixture);
+
+    fixture.componentInstance.marcarComoLida(IDS[0]);
+
+    httpMock.expectNone({ method: 'POST', url: `${LISTA_URL}/${IDS[0]}/leitura` });
+    httpMock.expectNone(CONTAGEM_URL);
+    expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 2 });
+  });
+
+  it('lista pedida antes da confirmacao nao ressuscita o aviso como nao lido', async () => {
+    const { fixture, httpMock } = await abrirComTresNaoLidas();
+
+    fixture.componentInstance.marcarComoLida(IDS[0]);
+    const leitura = leituraDe(httpMock, IDS[0]);
+    fixture.componentInstance.irParaPagina(0);
+    const listaAnterior = httpMock.expectOne((r) => r.url === LISTA_URL);
+    leitura.flush(item(IDS[0], { lidaEm: LIDA_EM }));
+    httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 2 });
+    listaAnterior.flush(pagina(IDS.map((id) => item(id))));
+    await estabilizar(fixture);
+
+    const primeiro = within(lista()).getAllByRole('listitem')[0];
+    expect(primeiro).toHaveTextContent('Lida em 13/09/2026');
+    expect(within(primeiro).queryByRole('button')).toBeNull();
+    httpMock.verify();
+  });
+
+  it('POST que falha nao baixa nem reconsulta, e o retry usa o mesmo id', async () => {
+    const { fixture, httpMock, store } = await abrirComTresNaoLidas();
+
+    fixture.componentInstance.marcarComoLida(IDS[2]);
+    // Timeout/queda de rede: o servidor pode ter gravado; o retry confia na idempotencia do POST.
+    leituraDe(httpMock, IDS[2]).error(new ProgressEvent('error'), { status: 0 });
+    await estabilizar(fixture);
+
+    httpMock.expectNone(CONTAGEM_URL);
+    expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 3 });
+
+    fixture.componentInstance.marcarComoLida(IDS[2]);
+    leituraDe(httpMock, IDS[2]).flush(item(IDS[2], { lidaEm: LIDA_EM }));
+    await estabilizar(fixture);
+
+    expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 2 });
+    httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 2 });
     httpMock.verify();
   });
 });

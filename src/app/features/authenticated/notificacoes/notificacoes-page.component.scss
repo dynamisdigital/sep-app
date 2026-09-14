@@ -109,3 +109,32 @@
   align-items: center;
   justify-content: space-between;
 }
+
+// Regiao de anuncio da leitura: existe desde a abertura (leitor de tela so anuncia mudanca em regiao
+// ja presente) e fica fora da vista, porque o proprio aviso ja mostra "Lida em".
+.sep-notificacoes-anuncio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.sep-notificacoes-item-acao {
+  align-self: flex-start;
+}
+
+.sep-notificacoes-item-falha {
+  @include sepType.sep-type-caption;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sep-space-8);
+  align-items: center;
+  color: hsl(var(--destructive));
+
+  p {
+    margin: 0;
+  }
+}
