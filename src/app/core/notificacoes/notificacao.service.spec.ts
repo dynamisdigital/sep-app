@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { NotificacaoResponse, PageResponse } from '../api/api.models';
+import { NotificacaoResponse, NotificacoesNaoLidasResponse, PageResponse } from '../api/api.models';
 import { NotificacaoService } from './notificacao.service';
 
 // Contrato HTTP exato da central (backend Sprint 38). O dono vem do token: nenhuma chamada leva
@@ -63,7 +63,7 @@ describe('NotificacaoService (contrato HTTP)', () => {
   });
 
   it('contarNaoLidas: GET /notificacoes/nao-lidas/contagem', async () => {
-    const resposta = new Promise<{ naoLidas: number }>((resolve) => {
+    const resposta = new Promise<NotificacoesNaoLidasResponse>((resolve) => {
       service.contarNaoLidas().subscribe(resolve);
     });
 

@@ -1042,9 +1042,9 @@ describe('central de notificacoes consumida pelo web (descriptor real)', () => {
 
     const resultado: Resultado = verificarContratos(copia, descriptor);
 
-    expect(resultado.falhas).toEqual(
-      expect.arrayContaining([expect.stringContaining('notificacoes.listar')]),
-    );
-    expect(resultado.falhas.join('\n')).toContain('lidaEm');
+    expect(resultado.falhas).toEqual([
+      "notificacoes.listar.response[200].content[]: campo 'lidaEm' de NotificacaoResponse nao existe no schema OpenAPI",
+      "notificacoes.marcarComoLida.response[200]: campo 'lidaEm' de NotificacaoResponse nao existe no schema OpenAPI",
+    ]);
   });
 });
