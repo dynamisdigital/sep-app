@@ -627,6 +627,53 @@ describe('NotificacoesPageComponent — leitura com respostas controladas', () =
     httpMock.verify();
   });
 
+  // Review humano de fim de sprint (P2): com duas leituras em voo, a recontagem pedida pela primeira
+  // confirmacao pode ja incluir a segunda leitura. Descontar de novo zerava o contador com aviso nao lido.
+  it('duas leituras em voo: recontagem que ja inclui a segunda nao e descontada de novo', async () => {
+    const { fixture, httpMock, store } = await abrirComTresNaoLidas();
+
+    fixture.componentInstance.marcarComoLida(IDS[0]);
+    fixture.componentInstance.marcarComoLida(IDS[1]);
+    const leituraX = leituraDe(httpMock, IDS[0]);
+    const leituraY = leituraDe(httpMock, IDS[1]);
+
+    leituraX.flush(item(IDS[0], { lidaEm: LIDA_EM }));
+    expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 2 });
+    // O servidor ja gravou Y quando esta recontagem roda: sobra so IDS[2].
+    httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 1 });
+
+    leituraY.flush(item(IDS[1], { lidaEm: LIDA_EM }));
+    httpMock
+      .expectOne(CONTAGEM_URL)
+      .flush(null, { status: 503, statusText: 'Service Unavailable' });
+    await estabilizar(fixture);
+
+    expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 1 });
+    httpMock.verify();
+  });
+
+  it('retry depois de timeout: recontagem que ja reflete a primeira tentativa nao e descontada de novo', async () => {
+    const { fixture, httpMock, store } = await abrirComTresNaoLidas();
+
+    fixture.componentInstance.marcarComoLida(IDS[0]);
+    // A primeira tentativa gravou no servidor, mas a resposta se perdeu.
+    leituraDe(httpMock, IDS[0]).error(new ProgressEvent('timeout'), { status: 0 });
+    // Outra superficie (o header) reconta e ja ve a leitura gravada.
+    store.carregar();
+    httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 2 });
+    await estabilizar(fixture);
+
+    fixture.componentInstance.marcarComoLida(IDS[0]);
+    leituraDe(httpMock, IDS[0]).flush(item(IDS[0], { lidaEm: LIDA_EM }));
+    httpMock
+      .expectOne(CONTAGEM_URL)
+      .flush(null, { status: 503, statusText: 'Service Unavailable' });
+    await estabilizar(fixture);
+
+    expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 2 });
+    httpMock.verify();
+  });
+
   it('POST que falha nao baixa nem reconsulta, e o retry usa o mesmo id', async () => {
     const { fixture, httpMock, store } = await abrirComTresNaoLidas();
 

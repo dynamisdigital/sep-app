@@ -152,6 +152,7 @@ export class NotificacoesPageComponent implements OnInit, AfterViewInit {
       return;
     }
     this.marcando.update((ids) => new Set(ids).add(id));
+    this.naoLidas.leituraEnviada(id);
     this.falhas.update((falhas) => semFalha(falhas, id));
     this.anuncio.set('');
 
@@ -164,7 +165,7 @@ export class NotificacoesPageComponent implements OnInit, AfterViewInit {
       .subscribe({
         next: (lida) => {
           this.lidasConfirmadas.update((lidas) => new Map(lidas).set(id, lida));
-          this.naoLidas.registrarLeitura();
+          this.naoLidas.registrarLeitura(id);
           this.anuncio.set('Aviso marcado como lido.');
           // O botao some com a leitura: o foco vai ao titulo do aviso em vez de cair no <body>.
           this.host.nativeElement.querySelector<HTMLElement>(`#${idDoTitulo(id)}`)?.focus();

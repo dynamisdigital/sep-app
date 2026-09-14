@@ -197,7 +197,8 @@ describe('NotificacoesNaoLidasStore', () => {
       store.carregar();
       httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 3 });
 
-      store.registrarLeitura();
+      store.leituraEnviada('aviso-1');
+      store.registrarLeitura('aviso-1');
 
       expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 2 });
       httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 1 });
@@ -209,7 +210,8 @@ describe('NotificacoesNaoLidasStore', () => {
       store.carregar();
       httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 0 });
 
-      store.registrarLeitura();
+      store.leituraEnviada('aviso-1');
+      store.registrarLeitura('aviso-1');
 
       expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 0 });
       httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 0 });
@@ -222,7 +224,8 @@ describe('NotificacoesNaoLidasStore', () => {
       store.carregar();
       const anteriorALeitura = httpMock.expectOne(CONTAGEM_URL);
 
-      store.registrarLeitura();
+      store.leituraEnviada('aviso-1');
+      store.registrarLeitura('aviso-1');
 
       expect(anteriorALeitura.cancelled).toBe(true);
       expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 2 });
@@ -234,7 +237,8 @@ describe('NotificacoesNaoLidasStore', () => {
       store.carregar();
       const primeira = httpMock.expectOne(CONTAGEM_URL);
 
-      store.registrarLeitura();
+      store.leituraEnviada('aviso-1');
+      store.registrarLeitura('aviso-1');
 
       expect(primeira.cancelled).toBe(true);
       expect(store.contagem()).toEqual({ situacao: 'carregando' });
@@ -247,7 +251,8 @@ describe('NotificacoesNaoLidasStore', () => {
       store.carregar();
       httpMock.expectOne(CONTAGEM_URL).flush(null, { status: 500, statusText: 'Erro' });
 
-      store.registrarLeitura();
+      store.leituraEnviada('aviso-1');
+      store.registrarLeitura('aviso-1');
 
       expect(store.contagem()).toEqual({ situacao: 'indisponivel' });
       httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 1 });
@@ -259,14 +264,74 @@ describe('NotificacoesNaoLidasStore', () => {
       store.carregar();
       httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 3 });
 
-      store.registrarLeitura();
+      store.leituraEnviada('aviso-1');
+      store.registrarLeitura('aviso-1');
       httpMock.expectOne(CONTAGEM_URL).flush(null, { status: 503, statusText: 'Erro' });
 
       expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 2 });
     });
 
+    it('leitura enviada antes de uma contagem ja recebida nao e descontada de novo', () => {
+      entrarComo(USUARIO_A);
+      store.carregar();
+      httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 3 });
+      store.leituraEnviada('aviso-x');
+      store.leituraEnviada('aviso-y');
+
+      store.registrarLeitura('aviso-x');
+      expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 2 });
+      httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 1 });
+
+      store.registrarLeitura('aviso-y');
+      expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 1 });
+      httpMock.expectOne(CONTAGEM_URL).flush(null, { status: 503, statusText: 'Erro' });
+      expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 1 });
+    });
+
+    it('duas confirmacoes sem contagem entre elas descontam as duas', () => {
+      entrarComo(USUARIO_A);
+      store.carregar();
+      httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 3 });
+      store.leituraEnviada('aviso-x');
+      store.leituraEnviada('aviso-y');
+
+      store.registrarLeitura('aviso-x');
+      const recontagemDeX = httpMock.expectOne(CONTAGEM_URL);
+      store.registrarLeitura('aviso-y');
+
+      expect(recontagemDeX.cancelled).toBe(true);
+      expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 1 });
+      httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 1 });
+    });
+
+    it('retry guarda o marco do primeiro envio', () => {
+      entrarComo(USUARIO_A);
+      store.carregar();
+      httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 3 });
+      store.leituraEnviada('aviso-x');
+      store.carregar();
+      httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 2 });
+
+      store.leituraEnviada('aviso-x');
+      store.registrarLeitura('aviso-x');
+
+      expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 2 });
+      httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 2 });
+    });
+
+    it('confirmacao sem envio registrado nao desconta: so a reconsulta decide', () => {
+      entrarComo(USUARIO_A);
+      store.carregar();
+      httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 3 });
+
+      store.registrarLeitura('nunca-enviado');
+
+      expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 3 });
+      httpMock.expectOne(CONTAGEM_URL).flush({ naoLidas: 2 });
+    });
+
     it('sem sessao nao faz nada', () => {
-      store.registrarLeitura();
+      store.registrarLeitura('aviso-1');
 
       httpMock.expectNone(CONTAGEM_URL);
       expect(store.contagem()).toBeNull();
