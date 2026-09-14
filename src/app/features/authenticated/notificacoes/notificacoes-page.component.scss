@@ -1,0 +1,111 @@
+@use "../../../../styles/sep-ds-typography" as sepType;
+@use "../../../../styles/sep-ds-components" as sepDs;
+
+.sep-notificacoes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-24);
+  max-width: 860px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) 0;
+}
+
+.sep-notificacoes-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+}
+
+.sep-notificacoes-title {
+  @include sepType.sep-type-page-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-notificacoes-subtitle,
+.sep-notificacoes-estado,
+.sep-notificacoes-total {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-notificacoes-estado {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-12);
+  align-items: flex-start;
+
+  p {
+    margin: 0;
+  }
+}
+
+.sep-notificacoes-erro {
+  color: hsl(var(--destructive));
+}
+
+.sep-notificacoes-botao {
+  @include sepDs.sep-button-outline;
+}
+
+.sep-notificacoes-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sep-notificacoes-item {
+  @include sepDs.sep-card;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sep-space-8);
+  padding: var(--sep-space-16);
+}
+
+.sep-notificacoes-item-nao-lida {
+  border-left: 3px solid hsl(var(--primary));
+}
+
+.sep-notificacoes-item-titulo {
+  @include sepType.sep-type-card-title;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-notificacoes-item-mensagem {
+  @include sepType.sep-type-body;
+
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-notificacoes-item-meta {
+  @include sepType.sep-type-caption;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sep-space-12);
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.sep-notificacoes-item-rotulo-nao-lida {
+  color: hsl(var(--primary));
+  font-weight: 600;
+}
+
+.sep-notificacoes-paginacao {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sep-space-12);
+  align-items: center;
+  justify-content: space-between;
+}
