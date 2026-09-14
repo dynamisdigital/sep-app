@@ -12,6 +12,20 @@
 
   <div class="sep-header-spacer"></div>
 
+  @if (currentUser()) {
+    <a
+      class="sep-header-notificacoes"
+      routerLink="/app/notificacoes"
+      [attr.aria-label]="rotuloCentral()"
+      title="A contagem atualiza ao abrir a central e ao marcar um aviso como lido"
+    >
+      <lucide-icon name="bell" [size]="18" aria-hidden="true" />
+      @if (marcadorCentral(); as marcador) {
+        <span class="sep-header-notificacoes-marcador" aria-hidden="true">{{ marcador }}</span>
+      }
+    </a>
+  }
+
   <button
     type="button"
     class="sep-header-theme-toggle"

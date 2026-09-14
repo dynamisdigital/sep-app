@@ -33,6 +33,31 @@
   flex: 1;
 }
 
+.sep-header-notificacoes {
+  @include sepDs.sep-button-ghost;
+  @include sepDs.sep-button-size-icon;
+
+  position: relative;
+  flex-shrink: 0;
+  color: hsl(var(--foreground));
+}
+
+// Marcador no canto, fora do desenho do sino: compacto para nao cobrir o icone.
+.sep-header-notificacoes-marcador {
+  @include sepDs.sep-badge-primary;
+
+  position: absolute;
+  top: 0;
+  right: 0;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 var(--sep-space-4);
+  font-size: 10px;
+  line-height: 16px;
+  transform: translate(25%, -10%);
+}
+
 .sep-header-theme-toggle {
   @include sepDs.sep-button-ghost;
   @include sepDs.sep-button-size-icon;
