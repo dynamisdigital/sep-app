@@ -48,6 +48,10 @@ async function abrirCentral(page: Page): Promise<void> {
   await page.waitForURL(/\/app\/notificacoes$/, { timeout: 10_000 });
 }
 
+function larguraDoDocumento(page: Page): Promise<number> {
+  return page.evaluate(() => document.documentElement.scrollWidth);
+}
+
 function avisos(page: Page) {
   return page.getByRole('list', { name: 'Notificacoes' }).getByRole('listitem');
 }
@@ -232,6 +236,9 @@ test('viewport estreito: sino e leitura operaveis com alvo de toque suficiente',
   // aquele defeito e nao o acesso a central. Follow-up registrado no fechamento da sprint.
   await page.evaluate(() => window.scrollTo(0, 0));
 
+  // Review de fim de sprint (P2): o sino somava 58px a um header que ja transbordava (455 -> 513px).
+  // Ver o sino nao basta; a pagina nao pode rolar na horizontal.
+  expect(await larguraDoDocumento(page)).toBeLessThanOrEqual(390);
   const sino = page.getByRole('link', { name: 'Notificacoes, 3 nao lidas' });
   await expect(sino).toBeInViewport();
   const caixaDoSino = await sino.boundingBox();
@@ -241,6 +248,8 @@ test('viewport estreito: sino e leitura operaveis com alvo de toque suficiente',
   await sino.click();
   await page.waitForURL(/\/app\/notificacoes$/, { timeout: 10_000 });
   const marcar = avisos(page).first().getByRole('button', { name: 'Marcar como lida' });
+  await expect(marcar).toBeVisible();
+  expect(await larguraDoDocumento(page)).toBeLessThanOrEqual(390);
   await marcar.scrollIntoViewIfNeeded();
   const caixaDoBotao = await marcar.boundingBox();
   expect(caixaDoBotao?.height).toBeGreaterThanOrEqual(24);

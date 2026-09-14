@@ -8,6 +8,10 @@
   display: flex;
   gap: var(--sep-space-16);
   align-items: center;
+
+  // Sem reset global de box-sizing: `width: 100%` + padding passava 48px da viewport, ate no
+  // desktop.
+  box-sizing: border-box;
   width: 100%;
   height: var(--header-height);
   padding: 0 var(--sep-space-24);
@@ -90,4 +94,17 @@
 .sep-header-logout {
   @include sepDs.sep-button-ghost;
   @include sepDs.sep-button-size-sm;
+}
+
+// Ate 600px o header nao cabe inteiro: a 390px ja transbordava (455px) antes do sino, e o
+// sino somava mais 58px. Nome e papel sao o maior item e o unico repetido na tela: a sidenav,
+// empilhada nessa largura, mostra o usuario no rodape. Os controles ficam.
+@media (width <= 600px) {
+  .sep-header {
+    padding: 0 var(--sep-space-16);
+  }
+
+  .sep-header-user {
+    display: none;
+  }
 }

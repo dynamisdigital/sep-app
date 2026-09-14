@@ -151,6 +151,10 @@
 @media (width <= 833px) {
   .sep-sidenav {
     position: static;
+
+    // Empilhada, `width: 100%` + padding passava 32px da viewport (sem reset global de
+    // box-sizing).
+    box-sizing: border-box;
     width: 100%;
     height: auto;
     border-right: none;
