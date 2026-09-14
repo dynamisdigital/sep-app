@@ -187,11 +187,15 @@ export class NotificacoesPageComponent implements OnInit, AfterViewInit {
     this.consulta.set({ situacao: 'carregando' });
     this.consultaEmVoo = this.notificacoes.listar(this.pagina(), TAMANHO_PAGINA).subscribe({
       next: (corpo) => {
+        const valida = ehPaginaValida(corpo);
         this.consulta.set(
-          ehPaginaValida(corpo)
+          valida
             ? { situacao: 'pronta', itens: corpo.content, total: corpo.totalElements }
             : { situacao: 'erro', mensagem: ERRO_PADRAO },
         );
+        if (porGesto && valida) {
+          this.anuncio.set(this.descricaoDaPagina());
+        }
         this.focarTituloSe(porGesto);
       },
       error: (err: HttpErrorResponse) => {
@@ -199,6 +203,17 @@ export class NotificacoesPageComponent implements OnInit, AfterViewInit {
         this.focarTituloSe(porGesto);
       },
     });
+  }
+
+  // O foco volta ao titulo depois do gesto; e a regiao de status que diz onde o usuario chegou.
+  private descricaoDaPagina(): string {
+    if (this.total() === 0) {
+      return 'Voce nao tem notificacoes.';
+    }
+    if (this.itens().length === 0) {
+      return 'Esta pagina nao tem notificacoes.';
+    }
+    return `Pagina ${this.pagina() + 1} de ${this.totalPaginas()}`;
   }
 
   private focarTituloSe(porGesto: boolean): void {

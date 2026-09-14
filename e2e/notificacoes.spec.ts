@@ -169,3 +169,82 @@ test('mock fiel ao contrato: 401, 400 com codigo, e-mail fora, recorte inteiro e
   const depois = await chamarApi(page, 'GET', '/notificacoes/nao-lidas/contagem');
   expect(depois.corpo).toEqual({ naoLidas: 2 });
 });
+
+// Acessibilidade no browser real: foco e teclado sao o que o happy-dom nao reproduz (ele nao move foco
+// no click nem tira foco de botao desabilitado).
+test('teclado: do sino a leitura e a paginacao, com foco e anuncios', async ({ page }) => {
+  await abrirLogin(page);
+  await entrarComo(page, 'tomador@empresa.com');
+
+  await page.getByRole('button', { name: 'Alternar menu lateral' }).focus();
+  await page.keyboard.press('Tab');
+  const sino = page.getByRole('link', { name: 'Notificacoes, 3 nao lidas' });
+  await expect(sino).toBeFocused();
+  await page.keyboard.press('Enter');
+  await page.waitForURL(/\/app\/notificacoes$/, { timeout: 10_000 });
+  await expect(page.getByRole('heading', { level: 1, name: 'Notificacoes' })).toBeFocused();
+  await expect(sino).toHaveAttribute('aria-current', 'page');
+
+  const anuncio = page.locator('.sep-notificacoes-anuncio');
+  // O titulo recebe foco ja no carregando; o Tab so encontra o botao depois que a lista chega.
+  await expect(avisos(page)).toHaveCount(10);
+  await page.keyboard.press('Tab');
+  const marcar = avisos(page).first().getByRole('button', { name: 'Marcar como lida' });
+  await expect(marcar).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(avisos(page).first()).toContainText('Lida em');
+  await expect(avisos(page).first().getByRole('heading', { level: 2 })).toBeFocused();
+  await expect(anuncio).toHaveText('Aviso marcado como lido.');
+  await expect(page.getByRole('link', { name: 'Notificacoes, 2 nao lidas' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Proxima pagina' }).focus();
+  await page.keyboard.press('Enter');
+  await expect(avisos(page)).toHaveCount(2);
+  await expect(page.getByRole('heading', { level: 1, name: 'Notificacoes' })).toBeFocused();
+  await expect(anuncio).toHaveText('Pagina 2 de 2');
+});
+
+// page.goto reinicia o MSW: a sessao mock volta ao usuario default (ADMIN), que nao tem avisos. E o
+// que torna este cenario tambem a prova do vazio pela URL direta.
+test('URL direta abre a central com foco no titulo', async ({ page }) => {
+  await abrirLogin(page);
+  await entrarComo(page, 'tomador@empresa.com');
+
+  await page.goto('/app/notificacoes');
+
+  await expect(page.getByRole('heading', { level: 1, name: 'Notificacoes' })).toBeFocused();
+  await expect(page.getByText('Voce nao tem notificacoes.')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Notificacoes, nenhuma nao lida' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+});
+
+test('viewport estreito: sino e leitura operaveis com alvo de toque suficiente', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await abrirLogin(page);
+  await entrarComo(page, 'tomador@empresa.com');
+  // DEFEITO PREEXISTENTE, fora da F-27 (medido em 2026-09-14): a 390px o login rola a pagina para
+  // alcancar o formulario, a navegacao SPA mantem scrollY=160 no dashboard e o header, apesar de
+  // `position: sticky`, fica em top=-160 — some inteiro, nao so o sino. Sem esta linha o teste mediria
+  // aquele defeito e nao o acesso a central. Follow-up registrado no fechamento da sprint.
+  await page.evaluate(() => window.scrollTo(0, 0));
+
+  const sino = page.getByRole('link', { name: 'Notificacoes, 3 nao lidas' });
+  await expect(sino).toBeInViewport();
+  const caixaDoSino = await sino.boundingBox();
+  expect(caixaDoSino?.width).toBeGreaterThanOrEqual(24);
+  expect(caixaDoSino?.height).toBeGreaterThanOrEqual(24);
+
+  await sino.click();
+  await page.waitForURL(/\/app\/notificacoes$/, { timeout: 10_000 });
+  const marcar = avisos(page).first().getByRole('button', { name: 'Marcar como lida' });
+  await marcar.scrollIntoViewIfNeeded();
+  const caixaDoBotao = await marcar.boundingBox();
+  expect(caixaDoBotao?.height).toBeGreaterThanOrEqual(24);
+  await marcar.click();
+  await expect(avisos(page).first()).toContainText('Lida em');
+  await expect(page.getByRole('link', { name: 'Notificacoes, 2 nao lidas' })).toBeVisible();
+});

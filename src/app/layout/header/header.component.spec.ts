@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/angular';
 import { Router, provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { importProvidersFrom } from '@angular/core';
+import { Component, importProvidersFrom } from '@angular/core';
 import { LucideAngularModule } from 'lucide-angular';
 import { delay, http, HttpResponse } from 'msw';
 
@@ -16,6 +16,9 @@ import { server } from '../../../mocks/server';
 import { estabilizar, flush } from '../../../testing/estabilizar';
 
 const API = 'http://localhost:8080/api/v1';
+
+@Component({ template: '' })
+class RotaVaziaComponent {}
 
 const ACCESS_TOKEN_KEY = 'SEP_ACCESS_TOKEN';
 
@@ -192,6 +195,35 @@ describe('HeaderComponent — contador de notificacoes', () => {
     expect(link).toHaveAccessibleName('Notificacoes, 3 nao lidas');
     expect(link.getAttribute('href')).toBe('/app/notificacoes');
     expect(link.textContent?.trim()).toBe('3');
+  });
+
+  it('marca o sino como pagina atual so dentro da central', async () => {
+    const result = await render(HeaderComponent, {
+      providers: [
+        provideRouter([
+          { path: 'app/notificacoes', component: RotaVaziaComponent },
+          { path: 'app/dashboard', component: RotaVaziaComponent },
+        ]),
+        provideHttpClient(withInterceptors([authInterceptor])),
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      ],
+    });
+    const injector = result.fixture.debugElement.injector;
+    await new Promise<void>((resolve, reject) => {
+      injector
+        .get(AuthService)
+        .login({ username: 'tomador@empresa.com', password: '123456' })
+        .subscribe({ next: () => resolve(), error: reject });
+    });
+    const router = injector.get(Router);
+
+    await router.navigateByUrl('/app/dashboard');
+    await estabilizar(result.fixture);
+    expect(linkDaCentral()).not.toHaveAttribute('aria-current');
+
+    await router.navigateByUrl('/app/notificacoes');
+    await estabilizar(result.fixture);
+    expect(linkDaCentral()).toHaveAttribute('aria-current', 'page');
   });
 
   it('zero e dito por extenso e sem marcador numerico', async () => {

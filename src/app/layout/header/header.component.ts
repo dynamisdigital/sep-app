@@ -8,7 +8,7 @@ import {
   inject,
   untracked,
 } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 
 import { AuthService } from '../../core/auth/auth.service';
@@ -49,7 +49,7 @@ function marcadorDaCentral(contagem: ContagemNaoLidas | null): string | null {
 
 @Component({
   selector: 'sep-header',
-  imports: [LucideAngularModule, RouterLink],
+  imports: [LucideAngularModule, RouterLink, RouterLinkActive],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

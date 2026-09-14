@@ -42,6 +42,11 @@
   color: hsl(var(--foreground));
 }
 
+.sep-header-notificacoes-ativo {
+  color: hsl(var(--accent-foreground));
+  background: hsl(var(--accent));
+}
+
 // Marcador no canto, fora do desenho do sino: compacto para nao cobrir o icone.
 .sep-header-notificacoes-marcador {
   @include sepDs.sep-badge-primary;

@@ -430,6 +430,19 @@ describe('NotificacoesPageComponent', () => {
       );
     });
 
+    // O foco volta ao titulo, que o leitor de tela le; a pagina nova so e ouvida pela regiao de status.
+    it('anuncia a pagina nova depois do gesto, e nao anuncia nada na abertura', async () => {
+      const { fixture } = await abrirCentralComo('tomador@empresa.com');
+      const regiao = screen.getByText('', { selector: '.sep-notificacoes-anuncio' });
+      expect(regiao).toHaveAttribute('role', 'status');
+      expect(regiao).toHaveTextContent('');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Proxima pagina' }));
+      await estabilizar(fixture);
+
+      expect(regiao).toHaveTextContent('Pagina 2 de 2');
+    });
+
     it('pagina alem do fim nao afirma que a central inteira esta vazia', async () => {
       server.use(http.get(LISTA_URL, () => HttpResponse.json(pagina([], 12))));
       const { fixture } = await abrirCentralComo('tomador@empresa.com');
@@ -442,6 +455,9 @@ describe('NotificacoesPageComponent', () => {
       await estabilizar(fixture);
 
       expect(within(lista()).getAllByRole('listitem')).toHaveLength(10);
+      expect(
+        screen.getByText('Pagina 1 de 2', { selector: '.sep-notificacoes-anuncio' }),
+      ).toBeTruthy();
     });
 
     it('com uma pagina so, nao mostra a navegacao de paginas', async () => {
