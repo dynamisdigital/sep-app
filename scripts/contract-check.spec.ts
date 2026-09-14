@@ -994,3 +994,57 @@ describe('catalogo de codigos consumido pelo verify-totp (descriptor real)', () 
     },
   );
 });
+
+// A central de notificacoes (F-Sprint 27) e a primeira superficie nova do web desde a F-25, e o
+// checker so verifica o que o descriptor declara: apagar uma das tres operacoes o deixaria verde.
+// Estes testes prendem o inventario ao descriptor real e provam que o snapshot versionado reprova
+// quando o backend perde a rota ou o campo que a tela le.
+describe('central de notificacoes consumida pelo web (descriptor real)', () => {
+  const snapshot = JSON.parse(readFileSync(SNAPSHOT_PADRAO, 'utf8'));
+  const descriptor = JSON.parse(
+    readFileSync(resolve(dirname(SNAPSHOT_PADRAO), 'consumed-contracts.json'), 'utf8'),
+  );
+  const OPERACOES = [
+    ['notificacoes.listar', 'get', '/api/v1/notificacoes'],
+    ['notificacoes.contarNaoLidas', 'get', '/api/v1/notificacoes/nao-lidas/contagem'],
+    ['notificacoes.marcarComoLida', 'post', '/api/v1/notificacoes/{id}/leitura'],
+  ];
+
+  function copiaDoSnapshot(): {
+    paths: Record<string, unknown>;
+    components: { schemas: Record<string, { properties: Record<string, unknown> }> };
+  } {
+    return JSON.parse(JSON.stringify(snapshot));
+  }
+
+  it('declara as tres operacoes da central com metodo e path', () => {
+    const declaradas = (descriptor.operations as { id: string; method: string; path: string }[])
+      .filter((operacao) => operacao.id.startsWith('notificacoes.'))
+      .map((operacao) => [operacao.id, operacao.method, operacao.path]);
+
+    expect(declaradas).toEqual(OPERACOES);
+  });
+
+  it.each(OPERACOES)('reprova quando o snapshot perde a rota de %s', (id, method, path) => {
+    const copia = copiaDoSnapshot();
+    delete copia.paths[path];
+
+    const resultado: Resultado = verificarContratos(copia, descriptor);
+
+    expect(resultado.falhas).toContain(
+      `${id}: ${method.toUpperCase()} ${path} nao existe no OpenAPI`,
+    );
+  });
+
+  it('reprova quando o item deixa de publicar lidaEm, que a central le', () => {
+    const copia = copiaDoSnapshot();
+    delete copia.components.schemas['NotificacaoResponse'].properties['lidaEm'];
+
+    const resultado: Resultado = verificarContratos(copia, descriptor);
+
+    expect(resultado.falhas).toEqual(
+      expect.arrayContaining([expect.stringContaining('notificacoes.listar')]),
+    );
+    expect(resultado.falhas.join('\n')).toContain('lidaEm');
+  });
+});
