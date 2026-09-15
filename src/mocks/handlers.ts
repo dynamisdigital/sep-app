@@ -3310,6 +3310,194 @@ const credoraHandlers = [
   }),
 ];
 
+// --- Central de notificacoes (F-Sprint 27 / backend Sprint 38) ---
+// Espelha NotificacaoController + ConsultarCentralNotificacoesUseCase. O fixture carrega dono e
+// canal, que o DTO publico NAO tem: o recorte (dono = usuario da sessao, canal IN_APP) acontece
+// ANTES de paginar e contar, como no backend. Um mock sem esse filtro faria a tela parecer certa
+// mostrando aviso de outra conta — o defeito mais grave possivel neste modulo.
+// Seed: o tomador tem mais de uma pagina (12 IN_APP, 3 nao lidas) e um e-mail de conta bloqueada
+// que nao pode aparecer nem contar; o cliente sem login tem um aviso que ninguem logado pode ver;
+// as demais contas, credora inclusive, tem central vazia — o caso mais comum em producao.
+type CanalNotificacaoMock = 'IN_APP' | 'EMAIL';
+
+interface NotificacaoMockState {
+  id: string;
+  usuarioId: string;
+  canal: CanalNotificacaoMock;
+  tipo: 'DESEMBOLSO_PIX_CONCLUIDO' | 'CONTA_BLOQUEADA';
+  titulo: string;
+  mensagem: string;
+  criadaEm: string;
+  lidaEm: string | null;
+  referencia: { tipo: 'CONTRATO'; id: string } | null;
+}
+
+const NOTIFICACAO_TOMADOR_ID_PREFIXO = '9f0799c0-98b9-6d9d-bc4a-7d6f5b79a0';
+const NOTIFICACAO_EMAIL_TOMADOR_ID = '9f0799c0-98b9-6d9d-bc4a-7d6f5b79b001';
+const NOTIFICACAO_OUTRO_USUARIO_ID = '9f0799c0-98b9-6d9d-bc4a-7d6f5b79c001';
+const NOTIFICACAO_CONTRATO_REFERENCIA_ID = '9f0799c0-98b9-6d9d-bc4a-7d6f5b79d001';
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function desembolsoConcluido(
+  id: string,
+  usuarioId: string,
+  criadaEm: string,
+  lidaEm: string | null,
+): NotificacaoMockState {
+  return {
+    id,
+    usuarioId,
+    canal: 'IN_APP',
+    tipo: 'DESEMBOLSO_PIX_CONCLUIDO',
+    titulo: 'Desembolso concluido',
+    mensagem: 'A transferencia Pix do desembolso do seu contrato foi concluida.',
+    criadaEm,
+    lidaEm,
+    referencia: { tipo: 'CONTRATO', id: NOTIFICACAO_CONTRATO_REFERENCIA_ID },
+  };
+}
+
+function seedNotificacoes(): NotificacaoMockState[] {
+  const doTomador = Array.from({ length: 12 }, (_, i) => {
+    const seq = String(i + 1).padStart(2, '0');
+    // Os dois mais antigos compartilham o instante: o desempate e por id desc, como no backend.
+    const dia = String(Math.max(2, 12 - i)).padStart(2, '0');
+    const lidaEm = i < 3 ? null : `2026-09-${dia}T18:00:00-03:00`;
+    return desembolsoConcluido(
+      `${NOTIFICACAO_TOMADOR_ID_PREFIXO}${seq}`,
+      tomadorMfaUsuario.id,
+      `2026-09-${dia}T10:00:00-03:00`,
+      lidaEm,
+    );
+  });
+  return [
+    ...doTomador,
+    {
+      id: NOTIFICACAO_EMAIL_TOMADOR_ID,
+      usuarioId: tomadorMfaUsuario.id,
+      canal: 'EMAIL',
+      tipo: 'CONTA_BLOQUEADA',
+      titulo: 'Conta bloqueada temporariamente',
+      mensagem: 'Detectamos tentativas de acesso sem sucesso e bloqueamos sua conta.',
+      criadaEm: '2026-09-13T10:00:00-03:00',
+      lidaEm: null,
+      referencia: null,
+    },
+    desembolsoConcluido(
+      NOTIFICACAO_OUTRO_USUARIO_ID,
+      clienteUsuario.id,
+      '2026-09-13T10:00:00-03:00',
+      null,
+    ),
+  ];
+}
+
+let notificacoesMock = seedNotificacoes();
+
+export function resetNotificacoesState(): void {
+  notificacoesMock = seedNotificacoes();
+}
+
+function centralDoUsuarioDaSessao(): NotificacaoMockState[] {
+  return notificacoesMock
+    .filter((n) => n.usuarioId === currentMockUser.id && n.canal === 'IN_APP')
+    .sort((a, b) => b.criadaEm.localeCompare(a.criadaEm) || b.id.localeCompare(a.id));
+}
+
+// DTO publico (NotificacaoResponse): sem dono, canal ou situacao de entrega.
+function notificacaoPublica(n: NotificacaoMockState) {
+  return {
+    id: n.id,
+    tipo: n.tipo,
+    titulo: n.titulo,
+    mensagem: n.mensagem,
+    criadaEm: n.criadaEm,
+    lidaEm: n.lidaEm,
+    referencia: n.referencia,
+  };
+}
+
+function erroComCodigo(
+  status: number,
+  error: string,
+  message: string,
+  path: string,
+  codigo: string,
+) {
+  return HttpResponse.json({ timestamp: now, status, error, message, path, codigo }, { status });
+}
+
+// Os tres endpoints sao autenticados no backend (401 sem token, CentralNotificacoesIT). Aqui a
+// sessao e o `currentMockUser`; sem `Authorization` o mock recusa, em vez de servir a central do
+// ultimo login a quem nao tem sessao.
+function exigirSessao(request: Request, path: string) {
+  if (!request.headers.get('Authorization')) {
+    return errorResponse(401, 'Unauthorized', 'Autenticacao requerida', path);
+  }
+  return null;
+}
+
+function parametroInteiro(valor: string | null, padrao: number): number {
+  return valor === null ? padrao : Number(valor);
+}
+
+const notificacaoHandlers = [
+  http.get(`${baseUrl}/notificacoes/nao-lidas/contagem`, ({ request }) => {
+    const negado = exigirSessao(request, '/api/v1/notificacoes/nao-lidas/contagem');
+    if (negado) {
+      return negado;
+    }
+    const naoLidas = centralDoUsuarioDaSessao().filter((n) => n.lidaEm === null).length;
+    return HttpResponse.json({ naoLidas });
+  }),
+
+  http.get(`${baseUrl}/notificacoes`, ({ request }) => {
+    const path = '/api/v1/notificacoes';
+    const negado = exigirSessao(request, path);
+    if (negado) {
+      return negado;
+    }
+    const params = new URL(request.url).searchParams;
+    const page = parametroInteiro(params.get('page'), 0);
+    const size = parametroInteiro(params.get('size'), 20);
+    if (!Number.isInteger(page) || !Number.isInteger(size)) {
+      return errorResponse(400, 'Bad Request', 'Path/query param invalido: nao eh int', path);
+    }
+    if (page < 0 || size < 1 || size > 100) {
+      return erroComCodigo(
+        400,
+        'Bad Request',
+        'Paginacao invalida: page deve ser maior ou igual a 0 e size entre 1 e 100',
+        path,
+        'NTF-400-001',
+      );
+    }
+    return HttpResponse.json(
+      paginar(centralDoUsuarioDaSessao().map(notificacaoPublica), page, size),
+    );
+  }),
+
+  http.post(`${baseUrl}/notificacoes/:id/leitura`, ({ params, request }) => {
+    const id = params['id'] as string;
+    const path = `/api/v1/notificacoes/${id}/leitura`;
+    const negado = exigirSessao(request, path);
+    if (negado) {
+      return negado;
+    }
+    if (!UUID_REGEX.test(id)) {
+      return errorResponse(400, 'Bad Request', "Path/query param 'id' invalido: nao eh UUID", path);
+    }
+    // Inexistente, de outra conta ou de e-mail: o mesmo 404, sem identificador.
+    const notificacao = centralDoUsuarioDaSessao().find((n) => n.id === id);
+    if (!notificacao) {
+      return erroComCodigo(404, 'Not Found', 'Notificacao nao encontrada', path, 'NTF-404-001');
+    }
+    // Idempotente: a primeira leitura fica.
+    notificacao.lidaEm ??= new Date().toISOString();
+    return HttpResponse.json(notificacaoPublica(notificacao));
+  }),
+];
+
 export const handlers = [
   http.post(`${baseUrl}/auth/login`, async ({ request }) => {
     const body = (await request.json()) as { username?: string; password?: string };
@@ -3437,4 +3625,5 @@ export const handlers = [
   ...pixHandlers,
   ...chavesPixHandlers,
   ...credoraHandlers,
+  ...notificacaoHandlers,
 ];

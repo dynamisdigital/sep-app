@@ -3,22 +3,22 @@
   "fonte": {
     "repo": "sep-api",
     "branch": "develop",
-    "commit": "a774aa4",
-    "runtimeRef": "develop@a774aa4",
-    "equivalencia": "Diferente do export anterior, este saiu do runtime DEPOIS do merge: em 2026-09-08 o checkout local estava em a774aa4, identico a origin/develop (0 commits atras, working tree limpa), e origin/develop == origin/main por diff de conteudo, os dois no tree 89441ab. Nao ha branch de feature a converter em squash.",
+    "commit": "98d427c",
+    "runtimeRef": "develop@98d427c (tree 6b3aab2)",
+    "equivalencia": "Exportado em 2026-09-14 do checkout local em b54e692 (branch verificada da Sprint 38), cuja arvore 6b3aab2 e identica a de origin/develop 98d427c e de origin/main 57b770b, conferido por git rev-parse <ref>^{tree} depois do git fetch. Working tree limpa; Flyway no schema 61, sem migration pendente. A comparacao e por arvore, nao por hash de commit, porque develop recebe squash.",
     "endpoint": "http://localhost:8080/v3/api-docs",
     "perfilSpring": "dev"
   },
-  "exportadoEm": "2026-09-08",
-  "sha256ExportBruto": "9e18e8c4e6cc941596ccd1de27ca520ec6d9bb889fd7f07e99ee00f1909fd3c4",
-  "sha256Snapshot": "aa49e5821cf4e5018f82b28e1c62744c8961e8797e2d7223084cc6489cf1e5d1",
+  "exportadoEm": "2026-09-14",
+  "sha256ExportBruto": "f843cb7c5575be9c8f2dc5d2bc098cee7dd014aef3d03f6705d26265fbbf5787",
+  "sha256Snapshot": "174978ad76b3d8c40af40784ff9cb215b884cdf587c502c1bebe405566c502ef",
   "sha256SnapshotObs": "sha256sum do arquivo commitado, ja depois do prettier do lint-staged. ATENCAO: ate 2026-07-16 este campo guardava o sha da saida crua do `jq -S`, antes do prettier — os dois valores sao diferentes e o campo mudou de significado aqui.",
   "comandoRegeneracao": "curl --fail --silent http://localhost:8080/v3/api-docs | jq -S . > contracts/openapi.snapshot.json && npx prettier --write contracts/openapi.snapshot.json",
   "comandoRegeneracaoObs": "O prettier faz parte do comando, nao e detalhe: o lint-staged o roda em *.json no commit e ele colapsa arrays curtos. Sem esse passo a regeneracao produz ~1372 linhas de diff espurio contra o arquivo versionado.",
   "estatisticas": {
     "openapi": "3.1.0",
-    "paths": 98,
-    "schemas": 152
+    "paths": 101,
+    "schemas": 158
   },
-  "estatisticasObs": "Os schemas saltam de 109 para 152 nesta renovacao, e os 43 novos NAO sao da Sprint 36: sao enums nomeados que a Sprint 35 passou a emitir com `enumsAsRef` (Role, StatusPixTransferencia, TipoChavePix, ...), acumulados porque o snapshot nao era renovado desde 2026-08-03. A contribuicao medida da Sprint 36 e o campo `ErrorResponseDto.codigo` com enum de 80 valores, mais 1 `description` e 1 `example`. Nenhum schema foi perdido; operacoes seguem 106 e paths 98."
+  "estatisticasObs": "Renovacao de 2026-09-14, diff separado por natureza com comparacao canonica (chaves ordenadas). Sprint 38: +3 paths/operacoes (GET /notificacoes, GET /notificacoes/nao-lidas/contagem, POST /notificacoes/{id}/leitura; operacoes 106 -> 109), +6 schemas (NotificacaoResponse, ReferenciaNotificacaoResponse, PageNotificacaoResponse, NotificacoesNaoLidasResponse, TipoNotificacao, TipoReferencia), tag notificacoes, NTF-400-001 e NTF-404-001 no enum de ErrorResponseDto.codigo, e a renumeracao de operationId de quatro GET (listar_4..7 -> listar_5..8), efeito colateral do novo metodo listar; o contract-check nao le operationId. Sprint 37, acumulada porque o snapshot nao era renovado desde 2026-09-08: +63 codigos no mesmo enum (80 -> 145 no total). Nenhum path, schema ou codigo removido; o resto do documento e identico."
 }

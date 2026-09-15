@@ -960,7 +960,23 @@
         "dataDisparo": "string",
         "disparadoPor": "string"
       }
-    }
+    },
+    "NotificacaoResponse": {
+      "fields": {
+        "id": "string",
+        "titulo": "string",
+        "mensagem": "string",
+        "criadaEm": "string",
+        "lidaEm": "string"
+      }
+    },
+    "PageNotificacaoResponse": {
+      "fields": {
+        "content": { "array": { "$type": "NotificacaoResponse" } },
+        "totalElements": "number"
+      }
+    },
+    "NotificacoesNaoLidasResponse": { "fields": { "naoLidas": "number" } }
   },
   "operations": [
     {
@@ -1633,6 +1649,29 @@
       "erros": [403],
       "request": { "$type": "UsuarioSenhaUpdateRequest" },
       "response": null
+    },
+    {
+      "id": "notificacoes.listar",
+      "method": "get",
+      "path": "/api/v1/notificacoes",
+      "sucesso": [200],
+      "query": ["page", "size"],
+      "response": { "$type": "PageNotificacaoResponse" }
+    },
+    {
+      "id": "notificacoes.contarNaoLidas",
+      "method": "get",
+      "path": "/api/v1/notificacoes/nao-lidas/contagem",
+      "sucesso": [200],
+      "response": { "$type": "NotificacoesNaoLidasResponse" }
+    },
+    {
+      "id": "notificacoes.marcarComoLida",
+      "method": "post",
+      "path": "/api/v1/notificacoes/{id}/leitura",
+      "sucesso": [200],
+      "erros": [404],
+      "response": { "$type": "NotificacaoResponse" }
     }
   ]
 }

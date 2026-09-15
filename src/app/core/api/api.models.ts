@@ -1042,3 +1042,36 @@ export interface AporteCredoraResponse {
   dataCriacao: string;
   dataAtualizacao: string;
 }
+
+// --- Central de notificacoes (F-Sprint 27 / backend Sprint 38) ---
+// So o canal IN_APP do usuario autenticado chega aqui; e-mail enviado fica no historico do backend.
+
+// Fato que originou a notificacao (TipoNotificacao no backend). CONTA_BLOQUEADA hoje so vai por
+// e-mail e nao aparece na central, mas o enum publicado e um so.
+export type TipoNotificacao = 'DESEMBOLSO_PIX_CONCLUIDO' | 'CONTA_BLOQUEADA';
+
+// Recurso ao qual a notificacao aponta, por allowlist (TipoReferencia no backend).
+export type TipoReferenciaNotificacao = 'CONTRATO';
+
+export interface ReferenciaNotificacaoResponse {
+  tipo: TipoReferenciaNotificacao;
+  id: string;
+}
+
+// Item de GET /notificacoes e resposta do POST /notificacoes/{id}/leitura. `lidaEm` e `referencia`
+// chegam presentes e nulos quando vazios, mas o OpenAPI nao os marca required (o springdoc descarta
+// `nullable` em 3.1): por isso opcionais E nulos, e quem renderiza tolera os dois.
+export interface NotificacaoResponse {
+  id: string;
+  tipo: TipoNotificacao;
+  titulo: string;
+  mensagem: string;
+  criadaEm: string;
+  lidaEm?: string | null;
+  referencia?: ReferenciaNotificacaoResponse | null;
+}
+
+// GET /notificacoes/nao-lidas/contagem: mesmo recorte da listagem, zero quando nao ha.
+export interface NotificacoesNaoLidasResponse {
+  naoLidas: number;
+}

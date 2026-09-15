@@ -40,6 +40,15 @@ export const AUTHENTICATED_ROUTES: Routes = [
         data: { breadcrumb: 'Habilitar MFA' },
       },
       {
+        // Qualquer usuario autenticado: a central e owner-scoped no backend, sem role.
+        path: 'notificacoes',
+        loadComponent: () =>
+          import('./notificacoes/notificacoes-page.component').then(
+            (m) => m.NotificacoesPageComponent,
+          ),
+        data: { breadcrumb: 'Notificacoes' },
+      },
+      {
         path: 'step-up',
         loadComponent: () => import('./step-up/step-up.component').then((m) => m.StepUpComponent),
         data: { breadcrumb: 'Confirmacao adicional' },
