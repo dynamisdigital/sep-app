@@ -690,6 +690,7 @@
           "codigo": {
             "description": "Codigo estavel da condicao de erro. Ausente quando a condicao nao tem identificador publicado.",
             "enum": [
+              "ASN-400-001",
               "ASN-400-002",
               "ASN-400-003",
               "AUTH-400-101",
@@ -706,7 +707,11 @@
               "COB-404-002",
               "COB-404-003",
               "COB-409-001",
+              "COB-409-002",
               "COB-409-003",
+              "COB-409-004",
+              "CRD-400-001",
+              "CRD-400-002",
               "CRD-400-003",
               "CRD-400-004",
               "CRD-400-005",
@@ -720,6 +725,9 @@
               "CRD-400-013",
               "CRD-400-014",
               "CRD-400-015",
+              "CRD-403-001",
+              "CRD-404-001",
+              "CRD-404-002",
               "CRD-404-003",
               "CRD-404-004",
               "CRD-404-005",
@@ -727,11 +735,15 @@
               "CRD-404-007",
               "CRD-404-008",
               "CRD-409-001",
+              "CRD-409-002",
               "CRD-409-003",
               "CRD-409-004",
               "CRD-409-005",
               "CRD-409-006",
               "CRD-409-007",
+              "CRD-422-001",
+              "CRD-422-002",
+              "CRD-422-003",
               "CRD-422-004",
               "CTR-400-001",
               "CTR-403-001",
@@ -750,26 +762,79 @@
               "MFA-400-003",
               "MFA-400-004",
               "MFA-409-001",
+              "NTF-400-001",
+              "NTF-404-001",
               "ONB-400-001",
+              "ONB-400-002",
               "ONB-400-003",
+              "ONB-400-004",
               "ONB-400-005",
+              "ONB-400-006",
+              "ONB-400-007",
+              "ONB-400-008",
               "ONB-400-009",
               "ONB-400-010",
               "ONB-400-011",
               "ONB-400-012",
               "ONB-400-013",
               "ONB-400-016",
+              "ONB-400-017",
               "ONB-400-018",
+              "ONB-400-019",
+              "ONB-404-001",
               "ONB-404-002",
               "ONB-409-001",
               "ONB-409-002",
               "PIX-400-001",
+              "PIX-400-003",
+              "PIX-400-004",
+              "PIX-400-005",
+              "PIX-400-006",
+              "PIX-400-007",
+              "PIX-400-008",
+              "PIX-400-009",
+              "PIX-400-010",
               "PIX-404-001",
+              "PIX-404-002",
+              "PIX-404-003",
+              "PIX-404-004",
+              "PIX-404-005",
+              "PIX-404-006",
+              "PIX-404-007",
+              "PIX-409-001",
+              "PIX-409-002",
+              "PIX-409-003",
+              "PIX-409-004",
+              "PIX-409-005",
+              "PIX-422-001",
+              "PIX-422-002",
+              "PIX-422-003",
+              "PIX-422-004",
+              "PIX-422-005",
+              "PIX-422-006",
+              "PIX-422-007",
+              "PIX-422-008",
+              "PRP-400-001",
+              "PRP-400-002",
+              "PRP-403-001",
+              "PRP-404-001",
+              "PRP-404-002",
+              "PRP-409-002",
+              "PRP-422-001",
+              "PRP-422-002",
+              "PRP-422-003",
+              "USR-400-001",
+              "USR-400-002",
+              "USR-400-003",
+              "USR-400-004",
               "USR-403-001",
               "USR-403-002",
               "USR-404-001",
               "USR-409-001",
-              "WHK-400-001"
+              "WHK-400-001",
+              "WHK-400-003",
+              "WHK-400-004",
+              "WHK-400-005"
             ],
             "example": "AUTH-423-001",
             "type": "string"
@@ -1262,6 +1327,59 @@
         },
         "type": "object"
       },
+      "NotificacaoResponse": {
+        "properties": {
+          "criadaEm": {
+            "description": "Instante em que a notificacao foi criada",
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "description": "Id da notificacao, usado para marcar como lida",
+            "example": "1f0a8c2e-7d3b-6e10-9a4f-2b7c5d8e9f00",
+            "format": "uuid",
+            "type": "string"
+          },
+          "lidaEm": {
+            "description": "Instante da primeira leitura; presente e nulo enquanto nao lida",
+            "format": "date-time",
+            "type": "string"
+          },
+          "mensagem": {
+            "description": "Mensagem pronta para exibir",
+            "example": "A transferencia Pix do desembolso do seu contrato foi concluida.",
+            "type": "string"
+          },
+          "referencia": {
+            "$ref": "#/components/schemas/ReferenciaNotificacaoResponse",
+            "description": "Recurso relacionado; presente e nulo quando o tipo nao aponta recurso"
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/TipoNotificacao",
+            "description": "Fato que originou a notificacao",
+            "example": "DESEMBOLSO_PIX_CONCLUIDO"
+          },
+          "titulo": {
+            "description": "Titulo curto, pronto para exibir",
+            "example": "Desembolso concluido",
+            "type": "string"
+          }
+        },
+        "required": ["criadaEm", "id", "mensagem", "tipo", "titulo"],
+        "type": "object"
+      },
+      "NotificacoesNaoLidasResponse": {
+        "properties": {
+          "naoLidas": {
+            "description": "Notificacoes nao lidas",
+            "example": 2,
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": ["naoLidas"],
+        "type": "object"
+      },
       "ObjetoOriginalResponse": {
         "description": "Resumo do objeto de dominio referenciado pelo item da fila.",
         "properties": {
@@ -1411,6 +1529,52 @@
           "content": {
             "items": {
               "$ref": "#/components/schemas/ItemFilaResponse"
+            },
+            "type": "array"
+          },
+          "empty": {
+            "type": "boolean"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "number": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "numberOfElements": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/PageableObject"
+          },
+          "size": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortObject"
+          },
+          "totalElements": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "totalPages": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PageNotificacaoResponse": {
+        "properties": {
+          "content": {
+            "items": {
+              "$ref": "#/components/schemas/NotificacaoResponse"
             },
             "type": "array"
           },
@@ -1922,6 +2086,23 @@
             "type": "number"
           }
         },
+        "type": "object"
+      },
+      "ReferenciaNotificacaoResponse": {
+        "properties": {
+          "id": {
+            "description": "Id do recurso referenciado",
+            "example": "1f0a8c2e-7d3b-6e10-9a4f-2b7c5d8e9f01",
+            "format": "uuid",
+            "type": "string"
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/TipoReferencia",
+            "description": "Tipo do recurso referenciado",
+            "example": "CONTRATO"
+          }
+        },
+        "required": ["id", "tipo"],
         "type": "object"
       },
       "ReferenciaRecebimentoResponse": {
@@ -2780,12 +2961,20 @@
         ],
         "type": "string"
       },
+      "TipoNotificacao": {
+        "enum": ["DESEMBOLSO_PIX_CONCLUIDO", "CONTA_BLOQUEADA"],
+        "type": "string"
+      },
       "TipoOperacao": {
         "enum": ["CAPITAL_GIRO", "OUTROS"],
         "type": "string"
       },
       "TipoParametroOperacional": {
         "enum": ["INTEGER", "DECIMAL", "BOOLEAN", "STRING"],
+        "type": "string"
+      },
+      "TipoReferencia": {
+        "enum": ["CONTRATO"],
         "type": "string"
       },
       "TipoReprocesso": {
@@ -3867,7 +4056,7 @@
     "/api/v1/backoffice/fila": {
       "get": {
         "description": "Filtros opcionais combinaveis + paginacao. Page size limitada a 100.",
-        "operationId": "listar_7",
+        "operationId": "listar_8",
         "parameters": [
           {
             "in": "query",
@@ -6684,7 +6873,7 @@
     },
     "/api/v1/credores/carteira": {
       "get": {
-        "operationId": "listar_6",
+        "operationId": "listar_7",
         "responses": {
           "200": {
             "content": {
@@ -7379,7 +7568,7 @@
     },
     "/api/v1/credores/oportunidades": {
       "get": {
-        "operationId": "listar_5",
+        "operationId": "listar_6",
         "responses": {
           "200": {
             "content": {
@@ -7696,7 +7885,7 @@
     },
     "/api/v1/governanca/parametros": {
       "get": {
-        "operationId": "listar_4",
+        "operationId": "listar_5",
         "responses": {
           "200": {
             "content": {
@@ -7849,6 +8038,161 @@
         },
         "summary": "Alterar valor de um parametro operacional (admin + step-up)",
         "tags": ["governanca"]
+      }
+    },
+    "/api/v1/notificacoes": {
+      "get": {
+        "description": "Notificacoes in-app do usuario autenticado, da mais recente para a mais antiga (desempate por id). Usuario sem notificacao recebe pagina vazia, nao erro. Nao inclui e-mails enviados.",
+        "operationId": "listar_4",
+        "parameters": [
+          {
+            "description": "Pagina, a partir de 0",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Itens por pagina, de 1 a 100",
+            "in": "query",
+            "name": "size",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageNotificacaoResponse"
+                }
+              }
+            },
+            "description": "Pagina de notificacoes (pode ser vazia)"
+          },
+          "400": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "NTF-400-001: page menor que 0, ou size fora de 1 a 100"
+          },
+          "401": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Token ausente ou invalido"
+          }
+        },
+        "summary": "Lista as minhas notificacoes",
+        "tags": ["notificacoes"]
+      }
+    },
+    "/api/v1/notificacoes/nao-lidas/contagem": {
+      "get": {
+        "description": "Mesmo recorte da listagem: notificacoes in-app do usuario autenticado ainda nao lidas.",
+        "operationId": "contarNaoLidas",
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificacoesNaoLidasResponse"
+                }
+              }
+            },
+            "description": "Contador de nao lidas (zero quando nao ha)"
+          },
+          "401": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Token ausente ou invalido"
+          }
+        },
+        "summary": "Conta as minhas notificacoes nao lidas",
+        "tags": ["notificacoes"]
+      }
+    },
+    "/api/v1/notificacoes/{id}/leitura": {
+      "post": {
+        "description": "Idempotente: marcar de novo devolve 200 com o instante da primeira leitura. Notificacao inexistente ou de outro usuario devolve o mesmo 404, sem identificador.",
+        "operationId": "marcarComoLida",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificacaoResponse"
+                }
+              }
+            },
+            "description": "Notificacao com lidaEm preenchido"
+          },
+          "400": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "id nao e UUID"
+          },
+          "401": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "Token ausente ou invalido"
+          },
+          "404": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            },
+            "description": "NTF-404-001: notificacao inexistente ou de outro usuario"
+          }
+        },
+        "summary": "Marca uma notificacao minha como lida",
+        "tags": ["notificacoes"]
       }
     },
     "/api/v1/onboarding/empresa": {
@@ -10303,6 +10647,10 @@
     {
       "description": "Desembolso Pix assistido pelo financeiro",
       "name": "pix-desembolsos"
+    },
+    {
+      "description": "Central de notificacoes do usuario autenticado (Sprint 38).",
+      "name": "notificacoes"
     },
     {
       "description": "Receptor generico de webhooks (HMAC + idempotencia)",
