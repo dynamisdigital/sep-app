@@ -16,6 +16,7 @@ import { Subscription, finalize } from 'rxjs';
 
 import { mensagemDeErroDaApi } from '../../../core/api/api-error';
 import { NotificacaoResponse, PageResponse } from '../../../core/api/api.models';
+import { formatarDataIso } from '../../../core/format/data';
 import { NotificacaoService } from '../../../core/notificacoes/notificacao.service';
 import { NotificacoesNaoLidasStore } from '../../../core/notificacoes/notificacoes-nao-lidas.store';
 
@@ -64,12 +65,10 @@ function semFalha(
   return copia;
 }
 
+// A guarda local da F-27 testava so `Number.isNaN(getTime())`, e por isso deixava `null` passar
+// como epoch (`31/12/1969` em -03). Delegada ao helper compartilhado na FMF-4.1.
 function formatarDataHora(iso: string): string {
-  const data = new Date(iso);
-  if (Number.isNaN(data.getTime())) {
-    return iso;
-  }
-  return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(data);
+  return formatarDataIso(iso, { dateStyle: 'short', timeStyle: 'short' });
 }
 
 // Central de notificacoes do usuario autenticado (F-Sprint 27, spec 127). Lista paginada na ordem

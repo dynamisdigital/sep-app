@@ -4,6 +4,8 @@ import { mensagemDeErroDaApi } from '../../../../core/api/api-error';
 
 import { StatusEnvelope, StatusFormalizacao } from '../../../../core/api/api.models';
 
+import { formatarDataIso } from '../../../../core/format/data';
+
 // Formatacao apenas visual da jornada de formalizacao. Valores chegam como number
 // BRL e datas como string ISO do backend; nada aqui interpreta regra de negocio.
 
@@ -12,7 +14,7 @@ export function formatarMoeda(valor: number, moeda: string): string {
 }
 
 export function formatarData(iso: string): string {
-  return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' }).format(new Date(iso));
+  return formatarDataIso(iso, { dateStyle: 'short' });
 }
 
 // Sufixo do UUID para identificacao curta em listas (o id completo permanece no link).

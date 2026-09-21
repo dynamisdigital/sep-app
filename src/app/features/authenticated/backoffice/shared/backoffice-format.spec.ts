@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatarDuracao } from './backoffice-format';
+import { formatarDataHora, formatarDuracao } from './backoffice-format';
 
 /**
  * `formatarDuracao` nao tinha NENHUM teste ate a F-24.4 — e e por isso que o `NaNmin` sobreviveu
@@ -79,5 +79,31 @@ describe('formatarDuracao', () => {
   ])('entrada nao-string (%s) vira travessao, sem lancar', (_tipo, entrada) => {
     expect(() => formatarDuracao(entrada as unknown as string)).not.toThrow();
     expect(formatarDuracao(entrada as unknown as string)).toBe('—');
+  });
+});
+
+/**
+ * Fiacao com `formatarDataIso` (FMF-4.1); contrato completo em `core/format/data.spec.ts`.
+ *
+ * **O precedente estava neste mesmo arquivo.** O bloco acima ja registrava, desde a F-24, que "o
+ * tipo diz `string`, mas o payload e `unknown` no fio" — e `formatarDuracao` foi endurecida por
+ * causa disso. A licao nao andou os poucos metros ate `formatarDataHora`, no modulo vizinho, que
+ * seguiu chamando o `Intl` direto por mais quatro sprints.
+ *
+ * Nenhum horario e afirmado: o CI roda em UTC e a maquina de dev em -03.
+ */
+describe('formatarDataHora', () => {
+  /** Era `31/12/1969` na tela (em -03), sem erro nenhum. */
+  it('null nao vira data de 1969', () => {
+    expect(formatarDataHora(null as unknown as string)).toBe('');
+  });
+
+  /** Era `RangeError: Invalid time value`, que quebrava a renderizacao do componente. */
+  it.each([undefined, '', 'lixo'])('%s nao lanca', (entrada) => {
+    expect(() => formatarDataHora(entrada as unknown as string)).not.toThrow();
+  });
+
+  it('data valida continua formatando', () => {
+    expect(formatarDataHora('2026-09-14T12:00:00Z')).toContain('14/09/2026');
   });
 });
