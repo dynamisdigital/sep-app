@@ -4,6 +4,8 @@ import { mensagemDeErroDaApi } from '../../../../core/api/api-error';
 
 import { TipoCredora } from '../../../../core/api/api.models';
 
+import { formatarDataIso } from '../../../../core/format/data';
+
 // Formatacao apenas visual da jornada credora. Valores chegam como number BRL; elegibilidade,
 // status cadastral e mascaramento de CNPJ pertencem ao backend — nada aqui interpreta regra de
 // negocio.
@@ -14,7 +16,7 @@ export function formatarMoeda(valor: number): string {
 
 // Data do backend (OffsetDateTime/LocalDate ISO) apenas para exibicao.
 export function formatarData(iso: string): string {
-  return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' }).format(new Date(iso));
+  return formatarDataIso(iso, { dateStyle: 'short' });
 }
 
 // Sufixo do UUID para identificacao curta em listas (o id completo permanece no link).

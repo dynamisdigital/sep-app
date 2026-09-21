@@ -243,6 +243,33 @@ describe('NotificacoesPageComponent', () => {
       expect(itens[0]).toHaveTextContent('Nao lida');
     });
 
+    /**
+     * `criadaEm` e `NOT NULL` na `V61`, entao este e o caso defensivo — mas era o unico dos campos
+     * de data que o template **nao** protege (`lidaEm` tem `@if`). A guarda local da F-27 testava so
+     * `Number.isNaN(getTime())`, e `new Date(null)` e a epoch, nao `NaN`: a central renderizava
+     * "Recebida em 31/12/1969" (em -03) ou "01/01/1970" (em UTC), sem erro nenhum. Fechado na
+     * FMF-4.1 delegando ao `formatarDataIso`.
+     *
+     * O teste afirma a **ausencia** das duas datas, e nao uma string formatada, porque o resultado
+     * do defeito dependia do fuso da maquina — o CI em UTC veria 1970 e a dev em -03 veria 1969.
+     */
+    it('criadaEm nulo nao vira data de 1969 nem de 1970', async () => {
+      server.use(
+        http.get(LISTA_URL, () =>
+          HttpResponse.json(
+            pagina([item('9f0799c0-98b9-6d9d-bc4a-7d6f5b79e003', { criadaEm: null })]),
+          ),
+        ),
+      );
+
+      await abrirCentralComo('tomador@empresa.com');
+
+      const item0 = within(lista()).getByRole('listitem');
+      expect(item0).toHaveTextContent('Recebida em');
+      expect(item0.textContent).not.toContain('1969');
+      expect(item0.textContent).not.toContain('1970');
+    });
+
     it('lidaEm nulo explicito le como nao lida', async () => {
       server.use(
         http.get(LISTA_URL, () =>
