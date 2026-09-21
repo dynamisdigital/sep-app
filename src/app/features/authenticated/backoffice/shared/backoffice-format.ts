@@ -11,6 +11,8 @@ import {
   TipoItemFila,
 } from '../../../../core/api/api.models';
 
+import { formatarDataIso } from '../../../../core/format/data';
+
 // Formatacao apenas visual da operacao de backoffice. Valores chegam como number BRL,
 // datas como string ISO e a duracao como string ISO-8601 (`Duration` do backend); nada
 // aqui interpreta regra de negocio (contadores, medias e somatorios vem do backend).
@@ -21,9 +23,7 @@ export function formatarMoeda(valor: number): string {
 
 // Instant ISO (ex.: geradoEm do dashboard) com data e hora.
 export function formatarDataHora(iso: string): string {
-  return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(
-    new Date(iso),
-  );
+  return formatarDataIso(iso, { dateStyle: 'short', timeStyle: 'short' });
 }
 
 /**

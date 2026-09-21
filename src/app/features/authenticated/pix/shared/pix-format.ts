@@ -10,6 +10,8 @@ import {
   TipoChavePix,
 } from '../../../../core/api/api.models';
 
+import { formatarDataIso } from '../../../../core/format/data';
+
 // Formatacao apenas visual da jornada Pix. Valores chegam como number BRL; nada aqui interpreta
 // regra de negocio (elegibilidade, status, conciliacao e mascaramento pertencem ao backend).
 
@@ -19,9 +21,7 @@ export function formatarMoeda(valor: number): string {
 
 // Data/hora do backend (OffsetDateTime ISO, ex.: recebidoEm).
 export function formatarDataHora(iso: string): string {
-  return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(
-    new Date(iso),
-  );
+  return formatarDataIso(iso, { dateStyle: 'short', timeStyle: 'short' });
 }
 
 // Sufixo do UUID para identificacao curta na tela (o id completo segue no path/link).

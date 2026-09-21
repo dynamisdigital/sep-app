@@ -4,6 +4,8 @@ import { mensagemDeErroDaApi } from '../../../../core/api/api-error';
 
 import { StatusParcela, StatusRenegociacao } from '../../../../core/api/api.models';
 
+import { formatarDataIso } from '../../../../core/format/data';
+
 // Formatacao apenas visual da jornada de cobranca. Valores chegam como number BRL e
 // datas como string do backend; nada aqui interpreta regra de negocio (saldo, mora,
 // multa, status e transicoes pertencem ao backend).
@@ -14,13 +16,22 @@ export function formatarMoeda(valor: number): string {
 
 // Datas com horario (OffsetDateTime ISO, ex.: dataGeracao da agenda).
 export function formatarData(iso: string): string {
-  return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' }).format(new Date(iso));
+  return formatarDataIso(iso, { dateStyle: 'short' });
 }
 
-// Datas sem horario (LocalDate 'yyyy-MM-dd', ex.: vencimento). Formatado sem Date
-// para evitar deslocamento de fuso (Date interpreta 'yyyy-MM-dd' como UTC).
+// Datas sem horario (LocalDate 'yyyy-MM-dd', ex.: vencimento). Nao usa `Date` — e portanto
+// nao usa o `formatarDataIso` — porque `new Date('2026-09-14')` e lido como UTC e volta um
+// dia num fuso a oeste. Mesmo contrato da FMF-4.1 com outra tecnica: so o formato exato
+// vira dd/MM/yyyy, o resto volta verbatim e o ausente vira vazio.
+//
+// A ancora `$` e material: sem ela um OffsetDateTime casaria o prefixo e a tela mostraria o
+// dia descartando o horario em silencio.
 export function formatarDataLocal(isoDate: string): string {
-  const [ano, mes, dia] = isoDate.split('-');
+  const partes = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate);
+  if (partes === null) {
+    return isoDate ?? '';
+  }
+  const [, ano, mes, dia] = partes;
   return `${dia}/${mes}/${ano}`;
 }
 
