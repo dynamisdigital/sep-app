@@ -173,6 +173,8 @@ const visaoGeral: Roteiro = {
       alvo: '.more-filters',
       acao: { tipo: 'clicar' },
       aguardarAlvo: '.advanced-filters',
+      // Se a faixa ja estiver aberta, clicar a fecharia: o passo so segue.
+      pularSe: () => !!document.querySelector('.advanced-filters'),
     },
     {
       titulo: 'Ocultar valores',
@@ -180,18 +182,21 @@ const visaoGeral: Roteiro = {
         'Ocultar valores troca todos os números por pontinhos. É útil quando a tela vai ser vista por outras pessoas.',
       alvo: '.advanced-filters button',
       acao: { tipo: 'clicar' },
+      pularSe: () => !document.querySelector('.advanced-filters'),
     },
     {
       titulo: 'Mostrar de novo',
       texto: 'Um novo clique mostra os valores outra vez.',
       alvo: '.advanced-filters button',
       acao: { tipo: 'clicar' },
+      pularSe: () => !document.querySelector('.advanced-filters'),
     },
     {
       titulo: 'Fechar os filtros extras',
       texto: 'E clicar em Mais filtros recolhe a faixa.',
       alvo: '.more-filters',
       acao: { tipo: 'clicar' },
+      pularSe: () => !document.querySelector('.advanced-filters'),
     },
     {
       titulo: 'Exportar relatório',

@@ -209,7 +209,14 @@ export class TourService {
   ): Promise<boolean> {
     const texto = typeof passo.texto === 'function' ? passo.texto(this.contexto) : passo.texto;
     this.focoAceso.set(false);
-    const alvo = passo.alvo ? await this.localizar(passo.alvo, vivo) : null;
+    // Passo so de leitura cujo alvo nao apareceu (a tela mudou de estado): segue sem destaque, em vez de
+    // parar o roteiro inteiro. Passo que age (clicar, digitar) continua parando, para nao agir no escuro.
+    const alvo = passo.alvo
+      ? await this.localizar(passo.alvo, vivo).catch((erro: unknown) => {
+          if (passo.acao?.tipo === 'observar' || !passo.acao) return null;
+          throw erro;
+        })
+      : null;
     if (!vivo()) return true;
 
     if (alvo) {

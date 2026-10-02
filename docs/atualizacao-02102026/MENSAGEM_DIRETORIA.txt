@@ -1,0 +1,28 @@
+🖥️ SEP — Atualização do Frontend · 1 e 2 de Outubro de 2026
+
+Prezada Diretoria e Conselho Executivo,
+
+Dando sequência à atualização de 24/09, concluí nesta semana três frentes no Frontend do
+Sistema SEP (Sociedade de Empréstimo entre Pessoas), todas verificadas no navegador e em
+testes automatizados:
+
+🎬 Tour assistido nos 10 módulos: o sistema demonstra as tarefas na própria tela, com
+destaque visual, narração em português e música de fundo. São 52 roteiros, de Onboarding
+a Perfil, e as 8 operações sensíveis são demonstradas com a mesma confirmação por TOTP
+que o sistema exige de quem usa de verdade.
+📊 Números que fecham: os indicadores de Crédito passaram a ser calculados das propostas,
+com uma regra única para "aprovada".
+🧱 Telas sem corte: 10 telas que escondiam conteúdo atrás do rodapé passaram a rolar; 0 de
+28 telas cortadas nos três tamanhos de referência.
+
+✅ 710 testes automatizados aprovados (100%)
+✅ Cada roteiro por tarefa executado no navegador, sem erro
+✅ O que ainda é fixo na tela ou depende do backend está declarado na apresentação
+
+📱 Acesse a apresentação interativa e o PDF oficial:
+[LINK]
+
+Responsável Técnico:
+Daniel Möllmann
+Frontend Development & Security Architecture
+2 de Outubro de 2026
