@@ -1,13 +1,16 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { importProvidersFrom } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { http, HttpResponse } from 'msw';
 import { Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { RecebimentoResponse } from '../../../../core/api/api.models';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
 import { CobrancaService } from '../../../../core/cobranca/cobranca.service';
 import { stepUpInterceptor } from '../../../../core/interceptors/step-up.interceptor';
@@ -30,6 +33,12 @@ function preencherRecebimento(container: HTMLElement): void {
   fireEvent.input(data, { target: { value: '2026-06-05T10:00' } });
 }
 
+// Dois botões levam o mesmo rótulo: o do cartão de estado (que apenas foca o formulário)
+// e o submit do formulário. Os testes de envio usam sempre o submit.
+function botaoSubmitRecebimento(): HTMLButtonElement {
+  return document.querySelector('.px31-form-receb button[type="submit"]') as HTMLButtonElement;
+}
+
 async function flush(times = 6): Promise<void> {
   for (let i = 0; i < times; i += 1) {
     await Promise.resolve();
@@ -47,6 +56,7 @@ function renderParcela(id: string, comStepUp = false) {
     providers: [
       comStepUp ? provideHttpClient(withInterceptors([stepUpInterceptor])) : provideHttpClient(),
       provideRouter([]),
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
       { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id }) } } },
     ],
   });
@@ -78,15 +88,28 @@ describe('ParcelaFinanceiraPageComponent', () => {
     await estabilizar(fixture);
 
     expect(screen.getByText('Valor em aberto')).toBeTruthy();
-    expect(screen.getByRole('button', { name: /Registrar recebimento/ })).toBeTruthy();
+    // Dois caminhos levam ao recebimento: o botão do cartão de estado e o submit do
+    // formulário. Ambos ficam habilitados quando a parcela aceita recebimento.
+    const botoes = screen.getAllByRole('button', {
+      name: /Registrar recebimento/,
+    }) as HTMLButtonElement[];
+    expect(botoes).toHaveLength(2);
+    expect(botoes.some((b) => b.disabled)).toBe(false);
+    expect(botaoSubmitRecebimento()).toBeTruthy();
   });
 
   it('parcela PAGA bloqueia recebimento manual', async () => {
     const { fixture } = await renderParcela(PARCELA_PAGA_ID);
     await estabilizar(fixture);
 
-    expect(screen.getByText(/nao aceita recebimento manual/)).toBeTruthy();
-    expect(screen.queryByRole('button', { name: /Registrar recebimento/ })).toBeNull();
+    // O Mockup 31 mantém o formulário visível: o bloqueio aparece no botão desabilitado,
+    // com o motivo no título, e não escondendo o cartão.
+    const botoes = screen.getAllByRole('button', {
+      name: /Registrar recebimento/,
+    }) as HTMLButtonElement[];
+    expect(botoes.length).toBeGreaterThan(0);
+    expect(botoes.every((b) => b.disabled)).toBe(true);
+    expect(botoes[0].getAttribute('title')).toContain('não aceita recebimento manual');
   });
 
   it('registra recebimento valido e passa a listar o recebimento da parcela', async () => {
@@ -103,10 +126,11 @@ describe('ParcelaFinanceiraPageComponent', () => {
     fireEvent.input(data, { target: { value: '2026-06-05T10:00' } });
     fixture.detectChanges();
 
-    fireEvent.click(screen.getByRole('button', { name: /Registrar recebimento/ }));
+    fireEvent.click(botaoSubmitRecebimento());
     await estabilizar(fixture);
 
-    expect(screen.getByText('Recebimentos desta parcela')).toBeTruthy();
+    // A trilha junta marcos do backend e recebimentos: é onde o lançamento aparece.
+    expect(screen.getByText(/Recebimento de R\$/)).toBeTruthy();
     expect(screen.queryByRole('alert')).toBeNull();
   });
 
@@ -126,7 +150,7 @@ describe('ParcelaFinanceiraPageComponent', () => {
     fireEvent.input(data, { target: { value: '2026-06-05T10:00' } });
     fixture.detectChanges();
 
-    fireEvent.click(screen.getByRole('button', { name: /Registrar recebimento/ }));
+    fireEvent.click(botaoSubmitRecebimento());
     await estabilizar(fixture);
 
     expect(spy).toHaveBeenCalledTimes(1);
@@ -145,7 +169,7 @@ describe('ParcelaFinanceiraPageComponent', () => {
     preencherRecebimento(container);
     fixture.detectChanges();
 
-    fireEvent.click(screen.getByRole('button', { name: /Registrar recebimento/ }));
+    fireEvent.click(botaoSubmitRecebimento());
     await estabilizar(fixture);
 
     expect(screen.getByText('payload invalido')).toBeTruthy();
@@ -162,10 +186,10 @@ describe('ParcelaFinanceiraPageComponent', () => {
     preencherRecebimento(container);
     fixture.detectChanges();
 
-    fireEvent.click(screen.getByRole('button', { name: /Registrar recebimento/ }));
+    fireEvent.click(botaoSubmitRecebimento());
     await estabilizar(fixture);
 
-    expect(screen.getByText(/conflito ou parcela nao aceita pagamento/)).toBeTruthy();
+    expect(screen.getByText(/conflito ou parcela não aceita pagamento/)).toBeTruthy();
     // Recarregou o detalhe (parcela continua visivel apos o 409).
     expect(screen.getByText('Parcela 2')).toBeTruthy();
   });
@@ -179,9 +203,7 @@ describe('ParcelaFinanceiraPageComponent', () => {
 
     preencherRecebimento(container);
     fixture.detectChanges();
-    const botao = screen.getByRole('button', {
-      name: /Registrar recebimento|Registrando/,
-    }) as HTMLButtonElement;
+    const botao = botaoSubmitRecebimento();
 
     fireEvent.click(botao);
     fixture.detectChanges();
@@ -215,10 +237,12 @@ describe('ParcelaFinanceiraPageComponent', () => {
     preencherRenegociacao(container);
     fixture.detectChanges();
 
-    fireEvent.click(screen.getByRole('button', { name: /Propor renegociacao/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Propor renegociação/ }));
     await estabilizar(fixture);
 
-    expect(screen.getByText('Proposta de renegociacao criada')).toBeTruthy();
+    // O cartão passa a mostrar a proposta criada no lugar do formulário.
+    expect(screen.getByText(/em 6x/)).toBeTruthy();
+    expect(screen.getByText(/Vencimento inicial: 10\/07\/2026/)).toBeTruthy();
   });
 
   it('renegociacao com proposta ativa (409) mostra conflito', async () => {
@@ -229,10 +253,10 @@ describe('ParcelaFinanceiraPageComponent', () => {
     preencherRenegociacao(container);
     fixture.detectChanges();
 
-    fireEvent.click(screen.getByRole('button', { name: /Propor renegociacao/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Propor renegociação/ }));
     await estabilizar(fixture);
 
-    expect(screen.getByText(/Ja existe renegociacao ativa/)).toBeTruthy();
+    expect(screen.getByText(/Já existe renegociação ativa/)).toBeTruthy();
   });
 
   it('renegociacao sem step-up (403) redireciona para a confirmacao adicional', async () => {
@@ -245,7 +269,7 @@ describe('ParcelaFinanceiraPageComponent', () => {
     preencherRenegociacao(container);
     fixture.detectChanges();
 
-    fireEvent.click(screen.getByRole('button', { name: /Propor renegociacao/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Propor renegociação/ }));
     await estabilizar(fixture);
 
     expect(navegar).toHaveBeenCalledWith(
@@ -263,7 +287,7 @@ describe('ParcelaFinanceiraPageComponent', () => {
     preencherRenegociacao(container);
     fixture.detectChanges();
 
-    fireEvent.click(screen.getByRole('button', { name: /Propor renegociacao/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Propor renegociação/ }));
     await estabilizar(fixture);
 
     expect(navegar).not.toHaveBeenCalled();

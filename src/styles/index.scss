@@ -1,12 +1,32 @@
+// SEP — Frontend
+// Frontend Development: Daniel Möllmann
+// Angular • TypeScript • SCSS — 2026
+
 // Indice central de estilos globais.
 // Design vigente (Epic 17 / F-Sprint 14): New Design System SEP.
 // Fonte oficial: docs-sep/New Design System Sep.md.
 
 // ===== New Design System SEP =====
 @use "sep-ds-tokens";
+
+// Tokens semanticos da superficie operacional (dark/light). Entram logo apos os tokens
+// do New Design System porque sao a camada de cor das telas imersivas.
+@use "sep-op-tokens";
 @use "sep-ds-typography" as sepType;
 @use "sep-ds-components";
 @use "backoffice-dashboard-icons";
+
+// Tom e caixa dos icones vetorizados. Entra antes da moldura operacional porque so declara
+// cor e alinhamento: qualquer regra de tela que precise divergir sobrescreve sem esforco.
+@use "icones-vetor";
+@use "arte-bitmap";
+
+// Canais de cor do site publico (landing, login e telas institucionais).
+@use "publico-tokens";
+
+// A moldura operacional entra depois do pacote de icones: e a ordem que valia quando
+// estas regras eram estilo de componente, e ha sobrescritas que dependem dela.
+@use "shell-operacional";
 
 // ===== Globais do New Design System SEP =====
 
@@ -71,4 +91,71 @@ svg {
   overflow: hidden;
   white-space: nowrap;
   clip-path: inset(50%);
+}
+
+// ============ BARRAS DE ROLAGEM ============
+// Regra unica para toda a aplicacao, em vez de cada tela redeclarar a sua. Antes as barras
+// saiam no cinza do sistema operacional — inclusive o fundo do trilho — e destoavam do tema em
+// qualquer area rolavel. Agora trilho e polegar vem dos tokens, e o tema escuro os troca junto
+// com o resto da paleta.
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--sep-scroll-thumb) / 78%) hsl(var(--sep-scroll-track) / 60%);
+}
+
+*::-webkit-scrollbar {
+  width: var(--sep-scroll-size);
+  height: var(--sep-scroll-size);
+}
+
+*::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: hsl(var(--sep-scroll-track) / 60%);
+}
+
+*::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: hsl(var(--sep-scroll-thumb) / 78%);
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--sep-scroll-thumb-hover) / 92%);
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+// ============ CONTROLES NATIVOS NO TEMA ============
+// `color-scheme` e o que faz o navegador desenhar o painel do `<select>`, o calendario do
+// `<input type="date">` e o relogio do `datetime-local` na cor certa; sem ele o menu abre branco
+// sobre uma tela escura. `accent-color` cobre checkbox, radio e range.
+
+:root {
+  color-scheme: light;
+  accent-color: hsl(var(--primary));
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+// O `<option>` herda do documento, nao do `<select>` estilizado: sem estas duas declaracoes a
+// lista aberta volta ao branco padrao mesmo com o campo tematizado.
+option,
+optgroup {
+  color: hsl(var(--popover-foreground));
+  background: hsl(var(--popover));
+}
+
+// O icone do seletor de data e mono e escuro por padrao; no tema escuro ele some no fundo.
+.dark input[type="date"]::-webkit-calendar-picker-indicator,
+.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+.dark input[type="time"]::-webkit-calendar-picker-indicator,
+.dark input[type="month"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.6);
 }

@@ -1,74 +1,152 @@
-<section class="sep-credora-perfil">
-  @if (loading()) {
-    <p class="sep-credora-perfil-state" role="status">Carregando perfil...</p>
-  } @else if (errorMessage(); as msg) {
-    <div class="sep-credora-perfil-state sep-credora-perfil-error" role="alert">
-      <p>{{ msg }}</p>
-      <button type="button" class="sep-credora-perfil-retry" (click)="carregar()">
-        Tentar novamente
-      </button>
-    </div>
-  } @else if (empresa(); as e) {
-    <header class="sep-credora-perfil-header">
-      <div class="sep-credora-perfil-heading">
-        <h1 class="sep-credora-perfil-title">{{ e.razaoSocial }}</h1>
-        <p class="sep-credora-perfil-cnpj">{{ e.cnpj }}</p>
+<sep-operational-shell>
+  <section class="px43-page">
+    @if (loading()) {
+      <p class="px43-estado" role="status">Carregando perfil...</p>
+    } @else if (errorMessage(); as msg) {
+      <div class="px43-estado px43-erro" role="alert">
+        <lucide-icon name="triangle-alert" [size]="18" />
+        <p>{{ msg }}</p>
+        <button type="button" class="px43-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
       </div>
-      <div class="sep-credora-perfil-badges">
-        <sep-credora-status [status]="e.status" />
-        @if (elegibilidade(); as el) {
-          <sep-elegibilidade-status [elegibilidade]="el.elegibilidade" />
-        }
-      </div>
-    </header>
+    } @else if (empresa(); as e) {
+      <!-- ============ CABEÇALHO ============ -->
+      <header class="px43-heading">
+        <nav aria-label="Navegação estrutural">
+          <a routerLink="/app/dashboard">Início</a><span>›</span
+          ><a routerLink="/app/credora">Credora</a><span>›</span><strong>Perfil</strong>
+        </nav>
+        <div class="px43-heading-row">
+          <div class="px43-titulo-wrap">
+            <span class="px43-titulo-icone"><lucide-icon name="building-2" [size]="24" /></span>
+            <div>
+              <h1>{{ e.razaoSocial }}</h1>
+              <p class="px43-subtitulo">CNPJ {{ e.cnpj }}</p>
+            </div>
+          </div>
+          <div class="px43-selos">
+            <span class="px43-selo" [attr.data-tone]="statusTom()">{{ e.status }}</span>
+            @if (elegibilidade(); as el) {
+              <span class="px43-selo" [attr.data-tone]="elegibilidadeTom()">
+                {{ el.elegibilidade }}
+              </span>
+            }
+          </div>
+        </div>
+      </header>
 
-    @if (elegibilidade(); as el) {
-      @if (el.elegibilidade === 'INELEGIVEL') {
-        <div class="sep-credora-perfil-aviso sep-credora-perfil-aviso-bloqueio" role="alert">
-          <p>Sua credora está inelegível e não pode manifestar interesse em oportunidades.</p>
-          @if (el.motivoInelegibilidade; as motivo) {
-            <p class="sep-credora-perfil-motivo">Motivo: {{ motivo }}</p>
+      <!-- ============ SITUAÇÃO ============ -->
+      @if (situacao(); as s) {
+        <article class="px43-card px43-situacao" [attr.data-tone]="s.tom">
+          <span class="px43-situacao-icone"
+            ><lucide-icon [name]="$any(s.icone)" [size]="26"
+          /></span>
+          <div>
+            <strong>{{ s.titulo }}</strong>
+            <p>{{ s.mensagem }}</p>
+            @if (elegibilidade()?.motivoInelegibilidade; as motivo) {
+              <small>Motivo informado pelo backend: {{ motivo }}</small>
+            }
+          </div>
+          @if (podeManifestarInteresse()) {
+            <a class="px43-btn-primary" routerLink="/app/credora/oportunidades">
+              <lucide-icon name="chart-column" [size]="17" />Ver oportunidades
+            </a>
           }
-        </div>
-      } @else if (el.status === 'SUSPENSA') {
-        <p class="sep-credora-perfil-aviso sep-credora-perfil-aviso-bloqueio" role="alert">
-          Sua credora está suspensa e não pode manifestar interesse no momento.
-        </p>
-      } @else if (el.elegibilidade === 'PENDENTE') {
-        <p class="sep-credora-perfil-aviso" role="status">
-          Sua elegibilidade está em análise. Você será habilitado a manifestar interesse quando o
-          backend concluir a verificação do onboarding.
-        </p>
-      } @else if (podeManifestarInteresse()) {
-        <div class="sep-credora-perfil-aviso sep-credora-perfil-aviso-ok">
-          <p>Sua credora está apta a manifestar interesse em oportunidades disponíveis.</p>
-          <a routerLink="/app/credora/oportunidades" class="sep-credora-perfil-cta">
-            Ver oportunidades
-          </a>
-        </div>
-      } @else {
-        <p class="sep-credora-perfil-aviso" role="status">
-          Seu cadastro foi concluído e a ativação está em processamento. Você será habilitado a
-          manifestar interesse após a ativação.
-        </p>
+        </article>
       }
-    }
 
-    <dl class="sep-credora-perfil-grid">
-      <div class="sep-credora-perfil-row">
-        <dt>Tipo de credora</dt>
-        <dd>{{ tipoLabel[e.tipoCredora] }}</dd>
-      </div>
-      <div class="sep-credora-perfil-row">
-        <dt>Capacidade de aporte</dt>
-        <dd>
-          @if (e.capacidadeAporte !== null) {
-            {{ formatarMoeda(e.capacidadeAporte) }}
-          } @else {
-            Nao informada
-          }
-        </dd>
-      </div>
-    </dl>
-  }
-</section>
+      <!-- ============ DADOS CADASTRAIS ============ -->
+      <article class="px43-card px43-dados">
+        <h2>Dados cadastrais</h2>
+        <dl>
+          <div>
+            <dt>Razão social</dt>
+            <dd>{{ e.razaoSocial }}</dd>
+          </div>
+          <div>
+            <dt>CNPJ</dt>
+            <dd>{{ e.cnpj }}</dd>
+          </div>
+          <div>
+            <dt>Tipo de credora</dt>
+            <dd>{{ tipoLabel[e.tipoCredora] }}</dd>
+          </div>
+          <div>
+            <dt>Capacidade de aporte</dt>
+            <dd>
+              {{
+                e.capacidadeAporte !== null ? formatarMoeda(e.capacidadeAporte) : 'Não informada'
+              }}
+            </dd>
+          </div>
+          <div>
+            <dt>Cadastrada em</dt>
+            <dd>{{ data(e.dataCriacao) }}</dd>
+          </div>
+          <div>
+            <dt>Última atualização</dt>
+            <dd>{{ data(e.dataModificacao) }}</dd>
+          </div>
+        </dl>
+      </article>
+
+      <!-- ============ COLUNA LATERAL ============ -->
+      <aside class="px43-side">
+        <section class="px43-card px43-atalhos">
+          <h2>Jornada credora</h2>
+          <a
+            class="px43-atalho"
+            data-tone="green"
+            routerLink="/app/credora/oportunidades"
+            [class.px43-atalho-bloqueado]="!podeManifestarInteresse()"
+            [attr.aria-disabled]="!podeManifestarInteresse()"
+            [title]="
+              podeManifestarInteresse()
+                ? 'Ver oportunidades disponíveis'
+                : 'Disponível quando a credora estiver ativa e elegível'
+            "
+          >
+            <span class="px43-atalho-icone"><lucide-icon name="chart-column" [size]="19" /></span>
+            <div>
+              <strong>Oportunidades</strong>
+              <small>Operações disponíveis para investimento.</small>
+            </div>
+            <lucide-icon name="arrow-right" [size]="16" class="px43-atalho-seta" />
+          </a>
+          <a class="px43-atalho" data-tone="purple" routerLink="/app/credora/carteira">
+            <span class="px43-atalho-icone"><lucide-icon name="wallet" [size]="19" /></span>
+            <div>
+              <strong>Carteira</strong>
+              <small>Operações financiadas e acompanhamento de cobrança.</small>
+            </div>
+            <lucide-icon name="arrow-right" [size]="16" class="px43-atalho-seta" />
+          </a>
+        </section>
+
+        <section class="px43-card px43-explicacao">
+          <h2>O que define a elegibilidade</h2>
+          <ul>
+            <li>
+              <lucide-icon name="circle-check" [size]="16" />
+              <span>Onboarding PJ aprovado e vinculado à credora.</span>
+            </li>
+            <li>
+              <lucide-icon name="circle-check" [size]="16" />
+              <span>Cadastro ativo, sem suspensão vigente.</span>
+            </li>
+            <li>
+              <lucide-icon name="circle-check" [size]="16" />
+              <span>Verificações de conformidade concluídas pelo backend.</span>
+            </li>
+          </ul>
+          <p class="px43-explicacao-nota">
+            <lucide-icon name="info" [size]="15" />
+            A elegibilidade é decidida pelo backend. Esta tela apenas apresenta o resultado.
+          </p>
+        </section>
+      </aside>
+    }
+  </section>
+</sep-operational-shell>

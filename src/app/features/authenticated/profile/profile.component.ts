@@ -7,6 +7,8 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import {
@@ -16,10 +18,17 @@ import {
 import { AuthService } from '../../../core/auth/auth.service';
 import { ProfileService } from '../../../core/profile/profile.service';
 import { OperationalShellComponent } from '../../../layout/operational-shell/operational-shell.component';
+import { SepArteComponent } from '../../../shared/arte/sep-arte.component';
 
 @Component({
   selector: 'sep-profile',
-  imports: [OperationalShellComponent, ReactiveFormsModule],
+  imports: [
+    SepArteComponent,
+    LucideAngularModule,
+    OperationalShellComponent,
+    ReactiveFormsModule,
+    RouterLink,
+  ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,6 +40,10 @@ export class ProfileComponent {
   private readonly fb = inject(FormBuilder);
 
   protected readonly currentUser = this.auth.currentUser;
+  /** Inicial do usuario no avatar — substitui o PNG do mockup, que trazia a letra e o fundo escuro. */
+  protected readonly inicial = computed(() =>
+    (this.currentUser()?.username ?? '?').trim().charAt(0).toUpperCase(),
+  );
   protected readonly profile = signal<PerfilOperacionalResponse | null>(null);
   protected readonly loading = signal(true);
   protected readonly errorMessage = signal<string | null>(null);

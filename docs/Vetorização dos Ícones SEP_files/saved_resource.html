@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<!-- saved from url=(0253)https://935a5c86-981f-4ec4-ab62-54754a3cb18a.frame.claudeusercontent.com/_f/1787773407-8520/?__frame_t=UbNQNjX2u3GX_phZFYzEfQ5Q.e222a597-5dbf-447b-8e0d-f6daa6b7caf8.c971e9ff-135a-4dc5-be84-ca344cc45bcf.1787777037&__frame_v=manifest.14a5398c0bc96a59.json -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><!-- frame-runtime --><!--<base href="/_f/1787773407-8520/">--><base href="."><script>window.__FRAME_PREAMBLE={"v":1,"capabilities":{"artifact":"artifact.oqIe8shs.js","assets":"assets.DBUJcvq_.js","comments":"comments.GLuHR3zP.js","db":"db.CRhVHzSt.js","downloads":"downloads.C3GSvEDP.js","embed":"embed.CxGAyc-v.js","mcp":"mcp.Bvma3qD7.js","network":"network.B5UA9Su4.js","permissions":"permissions.BNySkLV5.js","room":"room.DE7EMui-.js","sample":"sample.BW2Uysoh.js","self":"artifact.oqIe8shs.js","user":"user.BpKav-Rf.js"},"transforms":"_transforms.CQm3TZ9K.js","comments":"_comments.PBVy184F.js","translate":"_translate.5HCW4BJh.js"}</script><script>(function(){"use strict";var Z=["light","dark","system"],J=/^[A-Za-z0-9_-]{1,64}$/,z=/^[a-zA-Z_:][a-zA-Z0-9_:.-]{0,127}$/,Q=new Set(["class","hidden","value","checked"]);function ee(e){const t=e.toLowerCase();return t.startsWith("data-")||t.startsWith("aria-")||Q.has(t)}var Me="http://www.w3.org/1999/xhtml",te="http://www.w3.org/2000/svg",re=new Set(["script","style","iframe","noscript","noframes","noembed","xmp","plaintext","template","title","textarea","object","embed"]),ne=new Set(["script","style"]);function oe(e){const t=e.localName.toLowerCase();return e.namespaceURI==="http://www.w3.org/1999/xhtml"?!re.has(t):e.namespaceURI===te?!ne.has(t):!1}var se=new Set(["html","head","body","frameset"]);function ae(e){return e.namespaceURI==="http://www.w3.org/1999/xhtml"&&se.has(e.localName)}function ie(e){if(e===null||typeof e!="object")return!1;const t=e;if(typeof t.target!="string"||!J.test(t.target)||t.text!==void 0&&typeof t.text!="string")return!1;if(t.attrsSet!==void 0){if(t.attrsSet===null||typeof t.attrsSet!="object")return!1;for(const[r,n]of Object.entries(t.attrsSet))if(!z.test(r)||typeof n!="string")return!1}if(t.attrsRemoved!==void 0){if(!Array.isArray(t.attrsRemoved))return!1;for(const r of t.attrsRemoved)if(typeof r!="string"||!z.test(r))return!1}return!0}function ce(e,t){if(e===null||typeof e!="object")return!1;const{seq:r,elements:n}=e;if(typeof r!="number"||!Number.isSafeInteger(r)||!Array.isArray(n)||n.length===0||n.length>64)return!1;for(let s=0;s<n.length;s++)if(!t(n[s]))return!1;return!0}function le(e){return e===null||typeof e!="object"?!1:ce(e.__frame_patch,ie)}function ue(e){if(e===null||typeof e!="object")return!1;const t=e.__frame_init;return t!==null&&typeof t=="object"}function fe(e){return e!==null&&typeof e=="object"&&e.__frame_size_poke===!0}function pe(e){if(e===null||typeof e!="object")return!1;const t=e.__frame_theme;if(t===null||typeof t!="object")return!1;const r=t.theme;return typeof r=="string"&&Z.includes(r)}var g=/^[\w.-]+\.js$/;function de(e,t,r){return r?"inert":typeof t=="string"&&g.test(t)?e?[t]:"inert":e?"inert":"framed"}function me(){return{post(e,t){parent.postMessage(e,t)},on(e){const t=r=>{r.source===parent&&e(r.data,r.origin)};return addEventListener("message",t),()=>removeEventListener("message",t)}}}function he(){return{post:()=>{},on:()=>()=>{}}}var O="__frame_scroll",_e=150,ve=310,ye=160,we=3e4;function be(){let e=0,t=!1,r=!1,n=!1,s=0,a=null;const u=i=>{try{sessionStorage.setItem(O,JSON.stringify({y:i}))}catch{}},f=()=>{if(clearTimeout(e),a===null)return;const i=a;a=null,u(i)},R=()=>{if(t){t=!1;return}r=!0,a=scrollY,clearTimeout(e),e=setTimeout(f,_e)};try{addEventListener("scroll",R,{passive:!0}),addEventListener("pagehide",f)}catch{}const v=()=>{let i;try{i=sessionStorage.getItem(O)}catch{return null}if(i===null)return null;let m;try{m=JSON.parse(i)}catch{m=null}const l=m?.y;if(!(typeof l=="number"&&Number.isFinite(l)&&l>=0)){try{sessionStorage.removeItem(O)}catch{}return null}return l};let S=!1;const h=i=>{try{const m=scrollY;scrollTo({top:i,left:0,behavior:"instant"}),s=i,n=!0,clearTimeout(e),a=null,u(i);const l=scrollY;l!==m&&(t=!0),l!==i&&!S&&(S=!0,addEventListener("load",()=>{try{if(scrollY===l){const k=v();h(k!==null?k:s)}}catch{}},{once:!0}))}catch{}},y=()=>{try{return!!location.hash}catch{return!0}};let o=!1;const p=()=>{try{if(o||innerWidth>ve||innerHeight>ye)return;o=!0;const i=Date.now(),m=()=>{try{removeEventListener("resize",m)}catch{}if(Date.now()-i>we||r||y())return;const l=v();h(l!==null?l:s)};addEventListener("resize",m)}catch{}};let _=!1,w=!1;return{restore(){if(_||(_=!0,y()))return;const i=v();i!==null&&(h(i),p())},promoted(){if(w||(w=!0,y()))return;const i=v();i!==null?(h(i),p()):n&&h(s)}}}function Ee(e,t,r){let n=null;try{n=window.trustedTypes?.createPolicy("frame-runtime",{createScriptURL:f=>f})??null}catch{}const s=window.Worker,a=s?.prototype,u=Object.freeze({Worker:s,workerOn:a?.addEventListener,workerPost:a?.postMessage,workerTerminate:a?.terminate,fetch:window.fetch.bind(window),preventDefault:Event.prototype.preventDefault,policy:n});t(e).then(f=>f?.bootTopLevel?f.bootTopLevel(u,{settle:r}):r()).catch(r)}var Oe="modulepreload",Ce=function(e){return"/"+e},je={},ge=function(t,r,n){let s=Promise.resolve();function a(u){const f=new Event("vite:preloadError",{cancelable:!0});if(f.payload=u,window.dispatchEvent(f),!f.defaultPrevented)throw u}return s.then(u=>{for(const f of u||[])f.status==="rejected"&&a(f.reason);return t().catch(a)})},Ae=window===top,H=Object.getOwnPropertyDescriptor(window,"claude"),T=de(Ae,window.__FRAME_PREAMBLE?.topLevel,H?.writable===!1),C=typeof T=="object"&&T[0],d=C?he():me();(function(){const e=Object.defineProperty,t=globalThis,r=["RTCPeerConnection","webkitRTCPeerConnection","RTCDataChannel","RTCIceCandidate","RTCSessionDescription","RTCRtpSender","RTCRtpReceiver"];let n=0;for(let s=0;s<r.length;s++){const a=r[s];try{e(t,a,{value:void 0,writable:!1,configurable:!1})}catch{try{delete t[a]}catch{}try{e(t,a,{value:void 0,writable:!1,configurable:!0})}catch{}}typeof t[a]=="function"&&n++}if(n&&T==="framed")try{d.post({__frame_rtc_lockdown_failed:n},"*")}catch{}})();var Re=1e4,Se=Object.freeze([...window.__FRAME_PREAMBLE?.origins??["https://claude.ai","https://preview.claude.ai"]]);function q(e){for(const t of Se)if(t.endsWith(":*"))try{const r=new URL(e);if(`${r.protocol}//${r.hostname}:*`===t)return!0}catch{}else if(e===t)return!0;return!1}var L=Object.freeze({...window.__FRAME_PREAMBLE?.capabilities}),j=window.__FRAME_PREAMBLE?.transforms,N=window.__FRAME_PREAMBLE?.comments,I=window.__FRAME_PREAMBLE?.translate;function A(e){return ge(()=>import("/_runtime/"+e),void 0)}function W(e,t){return{contract:e.contract,changes:new Set(e.changes??[]),flags:new Set(e.flags??[]),capabilities:e.capabilities??{},capBudgets:e.capBudgets??{},transforms:new Map,shellOrigin:t,mount:G,pipe:()=>({wrap:(r,n)=>(...s)=>{try{return n(...s)}catch(a){return Promise.reject(a)}}})}}var P=null,b=null;function $(e,t,r){try{Object.defineProperty(e,t,{value:r,writable:!1,configurable:!1,enumerable:!0})}catch{try{Object.defineProperty(e,t,{value:r,writable:!1,configurable:!0,enumerable:!0})}catch{}}}var B=!1;function ke(e,t){const r=[];for(const n of e.elements){const s=document.querySelector(`[data-id="${n.target}"]`);if(!s){d.post({__frame_patch_miss:{seq:e.seq}},t);return}if([...Object.keys(n.attrsSet??{}),...n.attrsRemoved??[]].some(a=>!ee(a))){d.post({__frame_patch_miss:{seq:e.seq}},t);return}if(n.text!==void 0&&(!oe(s)||ae(s))){d.post({__frame_patch_miss:{seq:e.seq}},t);return}for(const[a,u]of Object.entries(n.attrsSet??{}))if(!Y(s,a)){try{s.setAttribute(a,u)}catch{}K(s,a,u)}for(const a of n.attrsRemoved??[])Y(s,a)||(s.removeAttribute(a),K(s,a,null));typeof n.text=="string"&&(s.textContent=n.text),r.push(n.target)}try{document.dispatchEvent(new CustomEvent("claude:edit",{detail:{seq:e.seq,targets:r}}))}catch{}}function K(e,t,r){if(!(e instanceof HTMLInputElement))return;const n=t.toLowerCase();n==="checked"?e.checked=r!==null:n==="value"&&e.type!=="file"&&(e.value=r??"")}function Y(e,t){const r=t.toLowerCase(),n=e;return r==="data-id"||(r==="value"||r==="checked")&&(n.__artifactSecret===!0||/^(password|hidden|file)$/.test(n.type??"")||/(^|\s)(cc-|one-time-code|current-password|new-password)/i.test(`${e.getAttribute("autocomplete")??""} ${n.autocomplete??""}`))}function X(e){const t=document.documentElement;e==="light"||e==="dark"?(t.dataset.theme=e,t.style.colorScheme=e,B=!0):B&&(delete t.dataset.theme,t.style.colorScheme="",B=!1)}var M=new Map;function Te(){let e;const t={u:new Promise(r=>{e=r}),r:r=>{t.done=!0,e(r)},done:!1,nulled:!1};return t}function U(){for(const e of M.values())e.done||(e.nulled=!0,e.r(null))}var Le=Object.freeze(Object.assign(Object.create(null),{call:Function.prototype.call,apply:Function.prototype.apply,bind:Function.prototype.bind})),G=(e,t)=>{const r=M.get(e);if(!r||r.done){r?.nulled&&b&&d.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:e}},b);return}const n=typeof t=="function"?Object.setPrototypeOf(t,Le):Object.assign(Object.create(null),t);typeof n.then=="function"&&delete n.then,r.r(Object.freeze(n))};function V(){const e=H?.value??{};$(window,"claude",e);for(const t of Object.keys(L)){if(e[t]!==void 0){$(e,t,e[t]);continue}M.set(t,Te())}if(e.use===void 0){const t=r=>{if(typeof r!="string"||!Object.hasOwn(L,r))return Promise.resolve(null);const n=M.get(r);return n?n.u:Promise.resolve(e[r]??null)};try{Object.defineProperty(e,"use",{value:t,writable:!0,configurable:!0,enumerable:!1})}catch{}}}if(T==="framed"){const e=j&&g.test(j)?A(j).catch(()=>{}):Promise.resolve(void 0),t=o=>{if(o.type==="auxclick"&&o.button!==1)return;const p=o.target,_=p&&p.closest?p.closest("a[href],area[href]"):null;if(!_)return;const w=_.getAttribute("href");if(!w)return;let i;try{i=new URL(w,document.baseURI)}catch{return}if((i.protocol==="http:"||i.protocol==="https:")&&i.origin!==location.origin){o.preventDefault();const m=(_.getAttribute("target")??"").toLowerCase(),l=o.type==="auxclick"||o.metaKey||o.ctrlKey||o.shiftKey||o.altKey||!["","_self","_top","_parent"].includes(m);d.post({__frame_nav:!0,url:i.href,newTab:l},"*")}};addEventListener("click",t,!0),addEventListener("auxclick",t,!0);const r={},n=o=>{o.isTrusted&&(r.pointer=!0)},s=o=>{o.isTrusted&&(r.click=!0)};addEventListener("pointermove",n,{capture:!0,passive:!0}),addEventListener("click",s,{capture:!0,passive:!0}),e.then(o=>{o?.wireNav&&(o.wireNav(),removeEventListener("click",t,!0),removeEventListener("auxclick",t,!0),removeEventListener("pointermove",n,!0),removeEventListener("click",s,!0),o.wireEngagement?.(r))});let a=null;try{a=be()}catch{}V();let u=null,f=null,R=0;const v=d.on((o,p)=>{q(p)&&ue(o)&&(u=o.__frame_init,b=p,v(),clearTimeout(R),f?.())});d.post({__frame_connect:!0},"*");const S=new Promise(o=>{f=o,R=setTimeout(()=>{v(),o()},Re)}),h=document.readyState==="loading"?new Promise(o=>document.addEventListener("DOMContentLoaded",()=>o(),{once:!0})):Promise.resolve();h.then(()=>{try{a?.restore()}catch{}});const y={cb:null};d.on((o,p)=>{if(q(p)&&fe(o)){try{a?.promoted()}catch{}y.cb?.()}}),S.then(async()=>{if(!u||!b){U();return}X(u.theme);const o=b;let p=!1,_=!1;d.on((c,D)=>{if(D!==o)return;pe(c)&&X(c.__frame_theme.theme),le(c)&&ke(c.__frame_patch,o);const E=c?.__fc_mode;E&&typeof E=="object"&&!p&&N&&g.test(N)&&(p=!0,A(N).then(F=>F.install?.(o,E.on===!0)).catch(()=>{}));const x=c?.__ft_cmd;x&&typeof x=="object"&&!_&&I&&g.test(I)&&(_=!0,A(I).then(F=>F.install?.(o,x)).catch(()=>{}))});const w=Object.keys(u.capabilities??{}).filter(c=>Object.hasOwn(L,c)).map(c=>[c,L[c]]).filter(c=>typeof c[1]=="string"&&g.test(c[1])),i=await Promise.allSettled(w.map(([,c])=>A(c))),m=await e,l=b;if(m?.buildBoot||d.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:"_transforms"}},l),m?.buildBoot)try{P=m.buildBoot(u,m.TRANSFORMS??{},{shellOrigin:l,mount:G},c=>d.post({__frame_cap_telemetry:c},l))}catch{d.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:"_transforms"}},l),P=W(u,l)}else P=W(u,l);const k=c=>d.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:c}},l),Pe=P;i.forEach((c,D)=>{const E=w[D][0];if(c.status!=="fulfilled"){k(E);return}try{c.value?.install?.(Pe)}catch{k(E)}}),U(),await h,d.post({__frame_ready:!0},b),e.then(c=>c?.installSizeReporter?.(l,y))})}else C&&(V(),Ee(C,A,U))})();</script><!-- /frame-runtime --><meta name="viewport" content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}</style></head><body>
+<title>Vetorização dos Ícones SEP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link rel="stylesheet" href="./css2">
+<style>
+:root {
+  --ground: #f4f6f8;
+  --surface: #ffffff;
+  --surface-2: #eef1f5;
+  --line: #d9dfe6;
+  --line-forte: #c3ccd6;
+  --ink: #16202c;
+  --ink-2: #4a5a6d;
+  --ink-3: #74838f;
+  --accent: #0a6f95;
+  --fundo-cor: #8f4f0e;
+  --fundo-bg: #fbeedd;
+  --proprio-cor: #63479a;
+  --proprio-bg: #eee9f9;
+  --sombra: 0 1px 2px rgb(22 32 44 / 6%), 0 8px 24px rgb(22 32 44 / 5%);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0b1119;
+    --surface: #111a24;
+    --surface-2: #16212d;
+    --line: #22303e;
+    --line-forte: #2e3f50;
+    --ink: #e3eaf2;
+    --ink-2: #a3b3c4;
+    --ink-3: #78889a;
+    --accent: #4bb8dd;
+    --fundo-cor: #e0a566;
+    --fundo-bg: #2e2318;
+    --proprio-cor: #b49ce4;
+    --proprio-bg: #241f33;
+    --sombra: 0 1px 2px rgb(0 0 0 / 30%), 0 8px 24px rgb(0 0 0 / 26%);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground: #0b1119;
+  --surface: #111a24;
+  --surface-2: #16212d;
+  --line: #22303e;
+  --line-forte: #2e3f50;
+  --ink: #e3eaf2;
+  --ink-2: #a3b3c4;
+  --ink-3: #78889a;
+  --accent: #4bb8dd;
+  --fundo-cor: #e0a566;
+  --fundo-bg: #2e2318;
+  --proprio-cor: #b49ce4;
+  --proprio-bg: #241f33;
+  --sombra: 0 1px 2px rgb(0 0 0 / 30%), 0 8px 24px rgb(0 0 0 / 26%);
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+.folha {
+  width: min(1120px, 100% - 3rem);
+  margin-inline: auto;
+  padding-block: 3.5rem 5rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.6rem;
+  color: var(--accent);
+  font-family: "IBM Plex Sans Condensed", "IBM Plex Sans", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0 0 0.85rem;
+  font-size: clamp(1.9rem, 3.4vw, 2.55rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.abertura {
+  max-width: 64ch;
+  margin: 0;
+  color: var(--ink-2);
+}
+
+.abertura strong,
+.legenda strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.numeros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 168px), 1fr));
+  gap: 1px;
+  margin: 2.5rem 0 1.1rem;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--line);
+}
+
+.num {
+  display: grid;
+  gap: 0.15rem;
+  padding: 1.05rem 1.2rem;
+  background: var(--surface);
+}
+
+.num b {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 1.8rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.num span {
+  color: var(--ink-3);
+  font-size: 0.82rem;
+}
+
+.num.destaque b {
+  color: var(--accent);
+}
+
+.legenda {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0 0 2.8rem;
+  padding: 0.95rem 1.15rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: 0.85rem;
+}
+
+.legenda p {
+  max-width: 88ch;
+  margin: 0;
+}
+
+.tela {
+  margin-bottom: 1.35rem;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--sombra);
+}
+
+.tela-cab {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem 1.5rem;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 1.1rem 1.35rem 0.9rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.tela-id {
+  display: grid;
+  gap: 0.16rem;
+  min-width: 0;
+}
+
+.modulo {
+  color: var(--ink-3);
+  font-family: "IBM Plex Sans Condensed", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.tela-cab h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.caminho {
+  color: var(--ink-3);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.73rem;
+  overflow-wrap: anywhere;
+}
+
+.tela-num {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-family: "IBM Plex Mono", monospace;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.contagem {
+  font-size: 1.45rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.unidade {
+  color: var(--ink-3);
+  font-size: 0.8rem;
+}
+
+.kb {
+  margin-left: 0.35rem;
+  padding-left: 0.55rem;
+  border-left: 1px solid var(--line-forte);
+  color: var(--ink-3);
+  font-size: 0.8rem;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding: 0.8rem 1.35rem 0;
+}
+
+.chip {
+  padding: 0.18rem 0.55rem;
+  border-radius: 5px;
+  font-size: 0.76rem;
+  font-weight: 500;
+}
+
+.chip-fundo {
+  color: var(--fundo-cor);
+  background: var(--fundo-bg);
+}
+
+.chip-proprio {
+  color: var(--proprio-cor);
+  background: var(--proprio-bg);
+}
+
+.tabela-caixa {
+  padding: 0.5rem 0.35rem 0.75rem;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.82rem;
+}
+
+thead th {
+  padding: 0.3rem 1rem 0.5rem;
+  color: var(--ink-3);
+  font-family: "IBM Plex Sans Condensed", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+thead th:last-child {
+  text-align: right;
+}
+
+tbody td {
+  padding: 0.34rem 1rem;
+  border-top: 1px solid var(--line);
+  vertical-align: middle;
+}
+
+tbody tr:first-child td {
+  border-top: 0;
+}
+
+tbody code {
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+}
+
+.alvo {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.seta {
+  width: 1.4rem;
+  color: var(--ink-3);
+  text-align: center;
+}
+
+.proprio {
+  color: var(--proprio-cor);
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.l-proprio {
+  background: color-mix(in srgb, var(--proprio-bg) 50%, transparent);
+}
+
+.marcas {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-end;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.marca {
+  padding: 0.1rem 0.38rem;
+  border-radius: 4px;
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.marca-fundo {
+  color: var(--fundo-cor);
+  background: var(--fundo-bg);
+}
+
+.peso {
+  display: inline-block;
+  min-width: 4.2rem;
+  color: var(--ink-3);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.rodape {
+  max-width: 70ch;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+  color: var(--ink-3);
+  font-size: 0.86rem;
+}
+
+.rodape p {
+  margin: 0 0 0.7rem;
+}
+
+.rodape strong {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+</style>
+<main class="folha">
+<p class="eyebrow">SEP · Frontend · proposta para aprovação</p>
+<h1>Vetorização dos ícones</h1>
+<p class="abertura">Cada arquivo PNG usado como ícone hoje, com o equivalente em Lucide proposto. São <strong>176 ocorrências</strong> em <strong>22 telas</strong>, resolvidas por <strong>77 ícones distintos</strong> da biblioteca. Todos os nomes foram validados contra o pacote instalado — nenhum aponta para ícone inexistente.</p>
+<div class="numeros"><div class="num"><b>176</b><span>arquivos PNG</span></div><div class="num destaque"><b>169</b><span>viram Lucide</span></div><div class="num"><b>7</b><span>desenho próprio</span></div><div class="num"><b>517</b><span>KB fora da rede</span></div><div class="num"><b>42</b><span>com fundo embutido</span></div></div>
+<div class="legenda"><p><strong>fundo</strong> — o arquivo tem retângulo opaco pintado. Some no tema escuro, aparece como caixa no claro. Não é ajustável por CSS.</p><p><strong>desenho próprio</strong> — carrega identidade do produto (marca, selo regulatório, avatar). Merece SVG desenhado, não ícone de biblioteca.</p></div>
+<section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Conta</span><h3>Meu perfil</h3><code class="caminho">features/authenticated/profile/profile</code></div><div class="tela-num"><span class="contagem">29</span><span class="unidade">ícones</span><span class="kb">96.7 KB</span></div></header><div class="chips"><span class="chip chip-proprio">1 de desenho próprio</span></div><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr><td><code>icon_action_edit_profile.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">user-pen</code></td><td class="marcas"><span class="peso">1.5 KB</span></td></tr><tr><td><code>icon_action_export_report.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">file-down</code></td><td class="marcas"><span class="peso">1.3 KB</span></td></tr><tr><td><code>icon_audit_criado_em_calendar.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">calendar</code></td><td class="marcas"><span class="peso">1.5 KB</span></td></tr><tr><td><code>icon_audit_criado_por_user.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">user</code></td><td class="marcas"><span class="peso">1.6 KB</span></td></tr><tr><td><code>icon_audit_logs_document.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">scroll-text</code></td><td class="marcas"><span class="peso">1.5 KB</span></td></tr><tr><td><code>icon_audit_modificado_em_edit.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">calendar-clock</code></td><td class="marcas"><span class="peso">1.5 KB</span></td></tr><tr><td><code>icon_audit_modificado_por_user.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">user-pen</code></td><td class="marcas"><span class="peso">1.6 KB</span></td></tr><tr><td><code>icon_audit_tentativas_login_shield.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">shield-alert</code></td><td class="marcas"><span class="peso">1.7 KB</span></td></tr><tr><td><code>icon_audit_ultima_autenticacao_fingerprint.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">fingerprint</code></td><td class="marcas"><span class="peso">1.7 KB</span></td></tr><tr><td><code>icon_id_dispositivos_autorizados.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">smartphone</code></td><td class="marcas"><span class="peso">1.6 KB</span></td></tr><tr><td><code>icon_id_email.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">mail</code></td><td class="marcas"><span class="peso">1.4 KB</span></td></tr><tr><td><code>icon_id_mfa_lock.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">lock-keyhole</code></td><td class="marcas"><span class="peso">1.5 KB</span></td></tr><tr><td><code>icon_id_nivel_acesso.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">key-round</code></td><td class="marcas"><span class="peso">1.5 KB</span></td></tr><tr><td><code>icon_id_perfil.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">user-round</code></td><td class="marcas"><span class="peso">1.5 KB</span></td></tr><tr><td><code>icon_id_status_sessao.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">monitor</code></td><td class="marcas"><span class="peso">1.4 KB</span></td></tr><tr><td><code>icon_id_ultimo_acesso.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">clock</code></td><td class="marcas"><span class="peso">1.7 KB</span></td></tr><tr><td><code>icon_info_armazenamento_cloud.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">cloud</code></td><td class="marcas"><span class="peso">2.3 KB</span></td></tr><tr><td><code>icon_info_comunicacoes_email.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">mail</code></td><td class="marcas"><span class="peso">2.4 KB</span></td></tr><tr><td><code>icon_info_fuso_horario_clock.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">clock</code></td><td class="marcas"><span class="peso">2.8 KB</span></td></tr><tr><td><code>icon_info_idioma_globe.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">globe</code></td><td class="marcas"><span class="peso">2.8 KB</span></td></tr><tr><td><code>icon_info_notificacoes_bell.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">bell</code></td><td class="marcas"><span class="peso">2.5 KB</span></td></tr><tr><td><code>icon_info_preferencia_tema.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">palette</code></td><td class="marcas"><span class="peso">2.8 KB</span></td></tr><tr class="l-proprio"><td><code>icon_profile_avatar_b.png</code></td><td class="seta" aria-hidden="true">→</td><td><span class="proprio">desenho próprio</span></td><td class="marcas"><span class="peso">23.5 KB</span></td></tr><tr><td><code>icon_profile_status_conta_shield.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">shield-check</code></td><td class="marcas"><span class="peso">4.8 KB</span></td></tr><tr><td><code>icon_security_auditoria.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">scroll-text</code></td><td class="marcas"><span class="peso">6.5 KB</span></td></tr><tr><td><code>icon_security_dispositivos.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">smartphone</code></td><td class="marcas"><span class="peso">3.8 KB</span></td></tr><tr><td><code>icon_security_mfa_lock.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">lock-keyhole</code></td><td class="marcas"><span class="peso">4.3 KB</span></td></tr><tr><td><code>icon_security_senha_forte.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">key-round</code></td><td class="marcas"><span class="peso">8.7 KB</span></td></tr><tr><td><code>icon_security_sessoes.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">monitor</code></td><td class="marcas"><span class="peso">5.0 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Pix</span><h3>Desembolsos Pix</h3><code class="caminho">features/authenticated/pix/pages/desembolsos-page</code></div><div class="tela-num"><span class="contagem">14</span><span class="unidade">ícones</span><span class="kb">23.6 KB</span></div></header><div class="chips"><span class="chip chip-fundo">14 com fundo embutido</span></div><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr><td><code>icon_card_consultar_search.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">search</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.3 KB</span></td></tr><tr><td><code>icon_card_limpar_refresh.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">rotate-ccw</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.6 KB</span></td></tr><tr><td><code>icon_comprovante_download.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">download</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.3 KB</span></td></tr><tr><td><code>icon_comprovante_visualizar_eye.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">eye</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.3 KB</span></td></tr><tr><td><code>icon_quick_abrir_fila_list.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">list</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">2.0 KB</span></td></tr><tr><td><code>icon_quick_reenviar_comprovante_plane.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">send</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">2.0 KB</span></td></tr><tr><td><code>icon_quick_registrar_ocorrencia_warning.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">triangle-alert</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.9 KB</span></td></tr><tr><td><code>icon_resumo_sla.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">timer</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.5 KB</span></td></tr><tr><td><code>icon_resumo_taxa.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">percent</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.5 KB</span></td></tr><tr><td><code>icon_resumo_tempo_total.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">clock</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.4 KB</span></td></tr><tr><td><code>icon_resumo_valor_final.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">circle-dollar-sign</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.4 KB</span></td></tr><tr><td><code>icon_resumo_valor_original.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">banknote</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.4 KB</span></td></tr><tr><td><code>icon_status_desembolso_encontrado_check.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">circle-check</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">2.5 KB</span></td></tr><tr><td><code>icon_title_desembolsos_pix_plane.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">send</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">2.5 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Crédito</span><h3>Nova proposta</h3><code class="caminho">features/authenticated/credito/propostas/proposta-create-page</code></div><div class="tela-num"><span class="contagem">14</span><span class="unidade">ícones</span><span class="kb">63.1 KB</span></div></header><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr><td><code>icon_conditions_shield.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">shield</code></td><td class="marcas"><span class="peso">4.6 KB</span></td></tr><tr><td><code>icon_form_data_aprovacao_calendar.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">calendar-check</code></td><td class="marcas"><span class="peso">3.4 KB</span></td></tr><tr><td><code>icon_form_onboarding_aprovado.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">badge-check</code></td><td class="marcas"><span class="peso">3.4 KB</span></td></tr><tr><td><code>icon_info_alerta_analise.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">info</code></td><td class="marcas"><span class="peso">3.4 KB</span></td></tr><tr><td><code>icon_operation_capital_giro.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">trending-up</code></td><td class="marcas"><span class="peso">3.6 KB</span></td></tr><tr><td><code>icon_precisa_ajuda_headset.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">headset</code></td><td class="marcas"><span class="peso">5.2 KB</span></td></tr><tr><td><code>icon_regras_credito_shield.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">shield-check</code></td><td class="marcas"><span class="peso">5.4 KB</span></td></tr><tr><td><code>icon_resumo_proposta_calculadora.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">calculator</code></td><td class="marcas"><span class="peso">5.3 KB</span></td></tr><tr><td><code>icon_seguranca_conformidade_lock.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">lock</code></td><td class="marcas"><span class="peso">4.9 KB</span></td></tr><tr><td><code>icon_simulacao_parcela_estimada.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">receipt</code></td><td class="marcas"><span class="peso">5.0 KB</span></td></tr><tr><td><code>icon_simulacao_prazo_calendar.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">calendar</code></td><td class="marcas"><span class="peso">5.1 KB</span></td></tr><tr><td><code>icon_simulacao_taxa_percent.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">percent</code></td><td class="marcas"><span class="peso">5.2 KB</span></td></tr><tr><td><code>icon_simulacao_valor_solicitado.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">banknote</code></td><td class="marcas"><span class="peso">5.5 KB</span></td></tr><tr><td><code>icon_title_nova_proposta_shield.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">shield-plus</code></td><td class="marcas"><span class="peso">3.1 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Backoffice</span><h3>Fila operacional</h3><code class="caminho">features/authenticated/backoffice/pages/fila-operacional-page</code></div><div class="tela-num"><span class="contagem">11</span><span class="unidade">ícones</span><span class="kb">16.6 KB</span></div></header><div class="chips"><span class="chip chip-fundo">1 com fundo embutido</span></div><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr><td><code>icon_filter_periodo_calendar.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">calendar</code></td><td class="marcas"><span class="peso">0.9 KB</span></td></tr><tr><td><code>icon_filter_search.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">search</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">0.7 KB</span></td></tr><tr><td><code>icon_quick_filter_atrasados.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">triangle-alert</code></td><td class="marcas"><span class="peso">1.2 KB</span></td></tr><tr><td><code>icon_quick_filter_atribuidos.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">user-check</code></td><td class="marcas"><span class="peso">1.4 KB</span></td></tr><tr><td><code>icon_quick_filter_lightning.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">zap</code></td><td class="marcas"><span class="peso">2.0 KB</span></td></tr><tr><td><code>icon_quick_filter_sem_atribuicao.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">user-x</code></td><td class="marcas"><span class="peso">1.7 KB</span></td></tr><tr><td><code>icon_quick_filter_sla_risco.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">alarm-clock</code></td><td class="marcas"><span class="peso">1.0 KB</span></td></tr><tr><td><code>icon_shortcut_gerenciar_integracoes.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">plug</code></td><td class="marcas"><span class="peso">2.1 KB</span></td></tr><tr><td><code>icon_shortcut_reprocessos.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">refresh-cw</code></td><td class="marcas"><span class="peso">2.1 KB</span></td></tr><tr><td><code>icon_table_action_visualizar_eye.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">eye</code></td><td class="marcas"><span class="peso">2.5 KB</span></td></tr><tr><td><code>icon_title_fila_operacional_list.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">list-checks</code></td><td class="marcas"><span class="peso">1.0 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Onboarding</span><h3>Onboarding pessoa física</h3><code class="caminho">features/authenticated/onboarding/pessoa/onboarding-pessoa-page</code></div><div class="tela-num"><span class="contagem">10</span><span class="unidade">ícones</span><span class="kb">19.8 KB</span></div></header><div class="chips"><span class="chip chip-proprio">2 de desenho próprio</span></div><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr><td><code>back_to_onboarding_arrow.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">arrow-left</code></td><td class="marcas"><span class="peso">0.1 KB</span></td></tr><tr class="l-proprio"><td><code>badge_ambiente_regulado_icon.png</code></td><td class="seta" aria-hidden="true">→</td><td><span class="proprio">desenho próprio</span></td><td class="marcas"><span class="peso">2.6 KB</span></td></tr><tr><td><code>card_dados_pessoais_icon.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">user-round</code></td><td class="marcas"><span class="peso">3.0 KB</span></td></tr><tr><td><code>footnote_lock.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">lock</code></td><td class="marcas"><span class="peso">0.1 KB</span></td></tr><tr><td><code>help_chat_icon.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">message-circle-question-mark</code></td><td class="marcas"><span class="peso">2.2 KB</span></td></tr><tr><td><code>info_kyc_icon.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">badge-info</code></td><td class="marcas"><span class="peso">2.3 KB</span></td></tr><tr><td><code>input_cpf_document.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">id-card</code></td><td class="marcas"><span class="peso">1.5 KB</span></td></tr><tr><td><code>input_data_calendario.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">calendar</code></td><td class="marcas"><span class="peso">1.3 KB</span></td></tr><tr><td><code>input_nome_usuario.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">user</code></td><td class="marcas"><span class="peso">1.3 KB</span></td></tr><tr class="l-proprio"><td><code>step_identificacao_1_active.png</code></td><td class="seta" aria-hidden="true">→</td><td><span class="proprio">desenho próprio</span></td><td class="marcas"><span class="peso">5.4 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Conta</span><h3>Alterar senha</h3><code class="caminho">features/authenticated/profile/change-password/change-password</code></div><div class="tela-num"><span class="contagem">10</span><span class="unidade">ícones</span><span class="kb">23.3 KB</span></div></header><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr><td><code>icon_alert_lock.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">lock-keyhole</code></td><td class="marcas"><span class="peso">3.3 KB</span></td></tr><tr><td><code>icon_button_save_shield.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">shield-check</code></td><td class="marcas"><span class="peso">2.1 KB</span></td></tr><tr><td><code>icon_field_eye.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">eye</code></td><td class="marcas"><span class="peso">1.4 KB</span></td></tr><tr><td><code>icon_field_lock_confirm.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">lock</code></td><td class="marcas"><span class="peso">1.9 KB</span></td></tr><tr><td><code>icon_field_lock_current.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">lock</code></td><td class="marcas"><span class="peso">1.7 KB</span></td></tr><tr><td><code>icon_field_lock_new.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">lock-keyhole</code></td><td class="marcas"><span class="peso">1.5 KB</span></td></tr><tr><td><code>icon_page_title_shield.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">shield</code></td><td class="marcas"><span class="peso">2.1 KB</span></td></tr><tr><td><code>icon_req_check_ok.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">check</code></td><td class="marcas"><span class="peso">2.1 KB</span></td></tr><tr><td><code>icon_security_note_shield.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">shield-check</code></td><td class="marcas"><span class="peso">4.7 KB</span></td></tr><tr><td><code>icon_tips_lightbulb.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">lightbulb</code></td><td class="marcas"><span class="peso">2.5 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Cobrança</span><h3>Cobrança</h3><code class="caminho">features/authenticated/cobranca/cobranca-shell</code></div><div class="tela-num"><span class="contagem">9</span><span class="unidade">ícones</span><span class="kb">40.3 KB</span></div></header><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr><td><code>icon_alerta_parcela_15_dias_red.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">triangle-alert</code></td><td class="marcas"><span class="peso">0.6 KB</span></td></tr><tr><td><code>icon_alerta_parcela_5_dias_orange.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">triangle-alert</code></td><td class="marcas"><span class="peso">0.3 KB</span></td></tr><tr><td><code>icon_alerta_vencimento_amanha_info.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">info</code></td><td class="marcas"><span class="peso">1.4 KB</span></td></tr><tr><td><code>icon_jornada_cobranca_bell_hud.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">bell-ring</code></td><td class="marcas"><span class="peso">8.0 KB</span></td></tr><tr><td><code>icon_metric_atraso_15_dias.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">hourglass</code></td><td class="marcas"><span class="peso">3.2 KB</span></td></tr><tr><td><code>icon_metric_proximo_vencimento.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">calendar-clock</code></td><td class="marcas"><span class="peso">8.5 KB</span></td></tr><tr><td><code>icon_metric_valor_em_aberto.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">wallet</code></td><td class="marcas"><span class="peso">9.5 KB</span></td></tr><tr><td><code>icon_metric_valor_total_contratado.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">circle-dollar-sign</code></td><td class="marcas"><span class="peso">7.8 KB</span></td></tr><tr><td><code>icon_title_cobranca_money.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">circle-dollar-sign</code></td><td class="marcas"><span class="peso">1.0 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Crédito</span><h3>Crédito</h3><code class="caminho">features/authenticated/credito/credito-home</code></div><div class="tela-num"><span class="contagem">9</span><span class="unidade">ícones</span><span class="kb">59.3 KB</span></div></header><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr><td><code>icon_approval_check_hud.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">circle-check-big</code></td><td class="marcas"><span class="peso">9.5 KB</span></td></tr><tr><td><code>icon_como_funciona_interrogacao.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">circle-question-mark</code></td><td class="marcas"><span class="peso">8.4 KB</span></td></tr><tr><td><code>icon_minhas_propostas.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">folder-open</code></td><td class="marcas"><span class="peso">6.4 KB</span></td></tr><tr><td><code>icon_nova_proposta_plus.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">plus</code></td><td class="marcas"><span class="peso">4.9 KB</span></td></tr><tr><td><code>icon_resumo_credito_calculadora.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">calculator</code></td><td class="marcas"><span class="peso">6.3 KB</span></td></tr><tr><td><code>icon_resumo_credito_calendario.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">calendar</code></td><td class="marcas"><span class="peso">5.9 KB</span></td></tr><tr><td><code>icon_seguranca_conformidade_shield.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">shield-check</code></td><td class="marcas"><span class="peso">8.8 KB</span></td></tr><tr><td><code>icon_simule_credito_calculadora.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">calculator</code></td><td class="marcas"><span class="peso">6.6 KB</span></td></tr><tr><td><code>icon_title_credito_shield.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">shield</code></td><td class="marcas"><span class="peso">2.5 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Formalização</span><h3>Detalhe do contrato</h3><code class="caminho">features/authenticated/formalizacao/contrato-detail</code></div><div class="tela-num"><span class="contagem">8</span><span class="unidade">ícones</span><span class="kb">26.8 KB</span></div></header><div class="chips"><span class="chip chip-fundo">1 com fundo embutido</span></div><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr><td><code>icon_accept_digital_shield.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">shield-check</code></td><td class="marcas"><span class="peso">7.7 KB</span></td></tr><tr><td><code>icon_contract_toolbar_download.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">download</code></td><td class="marcas"><span class="peso">1.6 KB</span></td></tr><tr><td><code>icon_contract_toolbar_fullscreen.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">maximize</code></td><td class="marcas"><span class="peso">1.9 KB</span></td></tr><tr><td><code>icon_contract_toolbar_print.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">printer</code></td><td class="marcas"><span class="peso">1.8 KB</span></td></tr><tr><td><code>icon_timeline_aceite_tomador.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">user-check</code></td><td class="marcas"><span class="peso">2.4 KB</span></td></tr><tr><td><code>icon_timeline_contrato_formalizado.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">file-check</code></td><td class="marcas"><span class="peso">2.3 KB</span></td></tr><tr><td><code>icon_timeline_contrato_gerado.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">file-plus</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">6.7 KB</span></td></tr><tr><td><code>icon_timeline_disponibilizado.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">send</code></td><td class="marcas"><span class="peso">2.4 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Público</span><h3>Acesso à plataforma</h3><code class="caminho">features/public/login/login</code></div><div class="tela-num"><span class="contagem">8</span><span class="unidade">ícones</span><span class="kb">16.1 KB</span></div></header><div class="chips"><span class="chip chip-fundo">5 com fundo embutido</span></div><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr><td><code>icon_login_acesso_monitorado.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">shield-check</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">3.4 KB</span></td></tr><tr><td><code>icon_login_biometria.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">fingerprint</code></td><td class="marcas"><span class="peso">2.5 KB</span></td></tr><tr><td><code>icon_login_check_lembrar.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">check</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.1 KB</span></td></tr><tr><td><code>icon_login_email.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">mail</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.5 KB</span></td></tr><tr><td><code>icon_login_entrar.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">log-in</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.4 KB</span></td></tr><tr><td><code>icon_login_eye.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">eye</code></td><td class="marcas"><span class="peso">1.7 KB</span></td></tr><tr><td><code>icon_login_senha_lock.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">lock</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.6 KB</span></td></tr><tr><td><code>icon_top_ambiente_seguro.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">shield-check</code></td><td class="marcas"><span class="peso">2.9 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Pix</span><h3>Divergências Pix</h3><code class="caminho">features/authenticated/pix/pages/divergencias-page</code></div><div class="tela-num"><span class="contagem">7</span><span class="unidade">ícones</span><span class="kb">19.1 KB</span></div></header><div class="chips"><span class="chip chip-fundo">7 com fundo embutido</span></div><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr><td><code>icon_atalho_fila_operacional_list.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">list-checks</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">2.7 KB</span></td></tr><tr><td><code>icon_atalho_reprocessos_refresh.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">refresh-cw</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">2.7 KB</span></td></tr><tr><td><code>icon_button_suporte_headset.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">headset</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">2.0 KB</span></td></tr><tr><td><code>icon_card_sobre_divergencias_info.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">info</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">2.1 KB</span></td></tr><tr><td><code>icon_provider_status_shield_online.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">shield-check</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">4.3 KB</span></td></tr><tr><td><code>icon_title_divergencias_alert.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">triangle-alert</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">2.8 KB</span></td></tr><tr><td><code>operation_tip_icon_lamp.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">lightbulb</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">2.5 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Backoffice</span><h3>Painel do backoffice</h3><code class="caminho">features/authenticated/backoffice/pages/backoffice-dashboard-page</code></div><div class="tela-num"><span class="contagem">7</span><span class="unidade">ícones</span><span class="kb">9.9 KB</span></div></header><div class="chips"><span class="chip chip-proprio">1 de desenho próprio</span></div><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr class="l-proprio"><td><code>icon_badge_ambiente_regulado_topbar.png</code></td><td class="seta" aria-hidden="true">→</td><td><span class="proprio">desenho próprio</span></td><td class="marcas"><span class="peso">2.2 KB</span></td></tr><tr><td><code>icon_bell_notification.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">bell</code></td><td class="marcas"><span class="peso">1.8 KB</span></td></tr><tr><td><code>icon_help_topbar.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">circle-question-mark</code></td><td class="marcas"><span class="peso">1.2 KB</span></td></tr><tr><td><code>icon_horario_sistema.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">clock</code></td><td class="marcas"><span class="peso">2.1 KB</span></td></tr><tr><td><code>icon_menu_hamburger.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">menu</code></td><td class="marcas"><span class="peso">0.7 KB</span></td></tr><tr><td><code>icon_search_topbar.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">search</code></td><td class="marcas"><span class="peso">0.9 KB</span></td></tr><tr><td><code>icon_theme_sun_topbar.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">sun</code></td><td class="marcas"><span class="peso">1.0 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Sistema</span><h3>Moldura operacional</h3><code class="caminho">layout/operational-shell/operational-shell</code></div><div class="tela-num"><span class="contagem">7</span><span class="unidade">ícones</span><span class="kb">9.9 KB</span></div></header><div class="chips"><span class="chip chip-proprio">1 de desenho próprio</span></div><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr class="l-proprio"><td><code>icon_badge_ambiente_regulado_topbar.png</code></td><td class="seta" aria-hidden="true">→</td><td><span class="proprio">desenho próprio</span></td><td class="marcas"><span class="peso">2.2 KB</span></td></tr><tr><td><code>icon_bell_notification.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">bell</code></td><td class="marcas"><span class="peso">1.8 KB</span></td></tr><tr><td><code>icon_help_topbar.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">circle-question-mark</code></td><td class="marcas"><span class="peso">1.2 KB</span></td></tr><tr><td><code>icon_horario_sistema.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">clock</code></td><td class="marcas"><span class="peso">2.1 KB</span></td></tr><tr><td><code>icon_menu_hamburger.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">menu</code></td><td class="marcas"><span class="peso">0.7 KB</span></td></tr><tr><td><code>icon_search_topbar.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">search</code></td><td class="marcas"><span class="peso">0.9 KB</span></td></tr><tr><td><code>icon_theme_sun_topbar.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">sun</code></td><td class="marcas"><span class="peso">1.0 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Pix</span><h3>Painel Pix</h3><code class="caminho">features/authenticated/pix/pages/pix-operacional-page</code></div><div class="tela-num"><span class="contagem">7</span><span class="unidade">ícones</span><span class="kb">25.6 KB</span></div></header><div class="chips"><span class="chip chip-proprio">1 de desenho próprio</span></div><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr><td><code>icon_conciliacao_operacional_shield.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">shield-check</code></td><td class="marcas"><span class="peso">3.3 KB</span></td></tr><tr><td><code>icon_provider_pix_shield_online.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">shield-check</code></td><td class="marcas"><span class="peso">3.9 KB</span></td></tr><tr><td><code>icon_quick_consultar_recebimento.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">search</code></td><td class="marcas"><span class="peso">3.8 KB</span></td></tr><tr><td><code>icon_quick_exportar_relatorio.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">file-down</code></td><td class="marcas"><span class="peso">4.0 KB</span></td></tr><tr><td><code>icon_quick_novo_desembolso_pix.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">send</code></td><td class="marcas"><span class="peso">5.4 KB</span></td></tr><tr><td><code>icon_quick_verificar_divergencias.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">file-search</code></td><td class="marcas"><span class="peso">3.7 KB</span></td></tr><tr class="l-proprio"><td><code>icon_sidebar_pix.png</code></td><td class="seta" aria-hidden="true">→</td><td><span class="proprio">desenho próprio</span></td><td class="marcas"><span class="peso">1.5 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Onboarding</span><h3>Onboarding empresa</h3><code class="caminho">features/authenticated/onboarding/empresa/onboarding-empresa-page</code></div><div class="tela-num"><span class="contagem">6</span><span class="unidade">ícones</span><span class="kb">31.2 KB</span></div></header><div class="chips"><span class="chip chip-proprio">1 de desenho próprio</span></div><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr class="l-proprio"><td><code>icon_form_ambiente_regulado_badge.png</code></td><td class="seta" aria-hidden="true">→</td><td><span class="proprio">desenho próprio</span></td><td class="marcas"><span class="peso">2.8 KB</span></td></tr><tr><td><code>icon_form_cnpj_building.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">building-2</code></td><td class="marcas"><span class="peso">2.5 KB</span></td></tr><tr><td><code>icon_form_date_calendar.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">calendar</code></td><td class="marcas"><span class="peso">2.5 KB</span></td></tr><tr><td><code>icon_form_info_shield_note.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">badge-info</code></td><td class="marcas"><span class="peso">5.5 KB</span></td></tr><tr><td><code>icon_previsao_conclusao_clock.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">clock</code></td><td class="marcas"><span class="peso">14.2 KB</span></td></tr><tr><td><code>icon_what_is_kyb_info.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">circle-question-mark</code></td><td class="marcas"><span class="peso">3.7 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Formalização</span><h3>Formalização</h3><code class="caminho">features/authenticated/formalizacao/formalizacao-home</code></div><div class="tela-num"><span class="contagem">5</span><span class="unidade">ícones</span><span class="kb">5.4 KB</span></div></header><div class="chips"><span class="chip chip-fundo">5 com fundo embutido</span></div><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr><td><code>icon_acessar_contrato_document.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">file-text</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">0.9 KB</span></td></tr><tr><td><code>icon_status_assinatura_lock.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">file-lock</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.1 KB</span></td></tr><tr><td><code>icon_status_contrato_gerado.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">file-check</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.2 KB</span></td></tr><tr><td><code>icon_status_formalizado_lock.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">file-lock</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.0 KB</span></td></tr><tr><td><code>icon_status_proposta_aprovada.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">file-check</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.2 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Backoffice</span><h3>Item da fila</h3><code class="caminho">features/authenticated/backoffice/pages/item-fila-detail-page</code></div><div class="tela-num"><span class="contagem">5</span><span class="unidade">ícones</span><span class="kb">7.3 KB</span></div></header><div class="chips"><span class="chip chip-fundo">3 com fundo embutido</span></div><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr><td><code>icon_back_arrow_voltar_fila.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">arrow-left</code></td><td class="marcas"><span class="peso">0.7 KB</span></td></tr><tr><td><code>icon_card_acoes_plus.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">plus</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.6 KB</span></td></tr><tr><td><code>icon_card_comentarios_bubble.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">message-square</code></td><td class="marcas"><span class="peso">1.5 KB</span></td></tr><tr><td><code>icon_card_descricao_documento.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">file-text</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.7 KB</span></td></tr><tr><td><code>icon_card_objeto_original.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">package</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.8 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Crédito</span><h3>Minhas propostas</h3><code class="caminho">features/authenticated/credito/propostas/propostas-list-page</code></div><div class="tela-num"><span class="contagem">4</span><span class="unidade">ícones</span><span class="kb">8.3 KB</span></div></header><div class="chips"><span class="chip chip-fundo">4 com fundo embutido</span></div><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr><td><code>icon_table_document.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">file-text</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.9 KB</span></td></tr><tr><td><code>icon_table_more_dots.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">ellipsis-vertical</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.4 KB</span></td></tr><tr><td><code>icon_table_view_eye.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">eye</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">1.9 KB</span></td></tr><tr><td><code>icon_title_minhas_propostas_shield.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">shield</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">3.1 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Backoffice</span><h3>Reprocessos</h3><code class="caminho">features/authenticated/backoffice/pages/reprocessos-page</code></div><div class="tela-num"><span class="contagem">2</span><span class="unidade">ícones</span><span class="kb">1.5 KB</span></div></header><div class="chips"><span class="chip chip-fundo">1 com fundo embutido</span></div><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr><td><code>icon_filter_search.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">search</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">0.7 KB</span></td></tr><tr><td><code>icon_title_reprocessos_refresh.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">refresh-cw</code></td><td class="marcas"><span class="peso">0.8 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Backoffice</span><h3>Reprocessar provider</h3><code class="caminho">features/authenticated/backoffice/pages/reprocessar-provider-page</code></div><div class="tela-num"><span class="contagem">2</span><span class="unidade">ícones</span><span class="kb">7.7 KB</span></div></header><div class="chips"><span class="chip chip-fundo">1 com fundo embutido</span></div><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr><td><code>icon_suporte_tecnico_card.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">headset</code></td><td class="marcas"><span class="marca marca-fundo" title="Fundo opaco embutido no arquivo">fundo</span><span class="peso">5.1 KB</span></td></tr><tr><td><code>icon_title_reprocessar_refresh.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">refresh-cw</code></td><td class="marcas"><span class="peso">2.6 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Público</span><h3>Página inicial</h3><code class="caminho">features/public/landing/landing</code></div><div class="tela-num"><span class="contagem">1</span><span class="unidade">ícones</span><span class="kb">1.7 KB</span></div></header><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr><td><code>icon_plataforma_regulada_escudo_pequeno.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">shield-check</code></td><td class="marcas"><span class="peso">1.7 KB</span></td></tr></tbody></table></div></section><section class="tela"><header class="tela-cab"><div class="tela-id"><span class="modulo">Onboarding</span><h3>Onboarding</h3><code class="caminho">features/authenticated/onboarding/onboarding-home</code></div><div class="tela-num"><span class="contagem">1</span><span class="unidade">ícones</span><span class="kb">4.2 KB</span></div></header><div class="tabela-caixa"><table><thead><tr><th>arquivo hoje</th><th></th><th>vira</th><th>peso</th></tr></thead><tbody><tr><td><code>icon_toast_jornada_digital.png</code></td><td class="seta" aria-hidden="true">→</td><td><code class="alvo">sparkles</code></td><td class="marcas"><span class="peso">4.2 KB</span></td></tr></tbody></table></div></section><div class="rodape"><p><strong>Ordem sugerida.</strong> As telas estão listadas pela quantidade de ícones, que é também a ordem de maior ganho por tela migrada.</p><p><strong>O que confere a troca.</strong> Cada tela migrada passa por comparação de pixel antes e depois, para o visual homologado não mudar sozinho — o mesmo método das etapas de responsividade e tema claro.</p><p><strong>Ganho além do peso.</strong> Hoje o tamanho do ícone está no arquivo. Em vetor ele passa a acompanhar o contrato responsivo como o resto do sistema: encolhe com o widget em vez de ficar grande demais em um terço de tela.</p></div>
+</main>
+
+</body></html>

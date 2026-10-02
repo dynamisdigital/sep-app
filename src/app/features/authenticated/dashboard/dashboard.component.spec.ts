@@ -1,120 +1,92 @@
 import { provideHttpClient } from '@angular/common/http';
-import { importProvidersFrom } from '@angular/core';
+import { importProvidersFrom, signal } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
 import { LucideAngularModule } from 'lucide-angular';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
+import { UsuarioResponse, UsuarioRole } from '../../../core/api/api.models';
 import { AuthService } from '../../../core/auth/auth.service';
+import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
 import { DashboardComponent } from './dashboard.component';
 
-const ACCESS_TOKEN_KEY = 'SEP_ACCESS_TOKEN';
+function usuario(role: UsuarioRole): UsuarioResponse {
+  return {
+    id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771001',
+    username: `${role.toLowerCase()}@empresa.com`,
+    role,
+    dataCriacao: '2026-05-28T12:00:00-03:00',
+    dataModificacao: '2026-05-28T12:00:00-03:00',
+    criadoPor: 'system',
+    modificadoPor: 'system',
+    precisaRedefinirSenha: false,
+    mfaHabilitado: true,
+  };
+}
 
-async function logarAdmin(result: {
-  fixture: { debugElement: { injector: { get: <T>(t: unknown) => T } } };
-}) {
-  const auth = result.fixture.debugElement.injector.get<AuthService>(AuthService);
-  await new Promise<void>((resolve, reject) => {
-    auth.login({ username: 'admin@empresa.com', password: '123456' }).subscribe({
-      next: () => resolve(),
-      error: reject,
-    });
+function renderDashboard(atual: UsuarioResponse | null) {
+  return render(DashboardComponent, {
+    providers: [
+      provideRouter([]),
+      provideHttpClient(),
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      { provide: AuthService, useValue: { currentUser: signal(atual).asReadonly() } },
+    ],
   });
 }
 
+function atalho(rotulo: string): HTMLAnchorElement | null {
+  return screen.getByText(rotulo, { selector: '.px48-no strong' }).closest('a');
+}
+
 describe('DashboardComponent', () => {
-  beforeEach(() => {
-    window.localStorage.clear();
+  it('saúda o usuário da sessão e mostra o papel', async () => {
+    await renderDashboard(usuario('ADMIN'));
+
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toContain('admin@empresa.com');
+    expect(screen.getByText('ADMIN', { selector: '.px48-selo' })).toBeTruthy();
   });
 
-  it('sem usuario: mostra titulo Dashboard generico', async () => {
-    await render(DashboardComponent, {
-      providers: [
-        provideRouter([]),
-        provideHttpClient(),
-        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
-      ],
-    });
+  // Os atalhos seguem a mesma regra de papel do menu: a tela nunca oferece um caminho que o
+  // usuário não pode percorrer.
+  it('ADMIN vê operação e administração', async () => {
+    await renderDashboard(usuario('ADMIN'));
 
-    expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeTruthy();
+    expect(atalho('Administração')?.getAttribute('href')).toBe('/app/admin');
+    expect(atalho('Backoffice')?.getAttribute('href')).toBe('/app/backoffice');
+    expect(atalho('Pix')?.getAttribute('href')).toBe('/app/pix');
+    expect(screen.queryByText('Credora', { selector: '.px48-no strong' })).toBeNull();
   });
 
-  it('ADMIN: mostra saudacao, role e atalho de Administracao', async () => {
-    const result = await render(DashboardComponent, {
-      providers: [
-        provideRouter([]),
-        provideHttpClient(),
-        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
-      ],
-    });
-    await logarAdmin(result);
-    result.fixture.detectChanges();
+  it('CLIENTE vê a jornada credora e não vê operação nem administração', async () => {
+    await renderDashboard(usuario('CLIENTE'));
 
-    expect(screen.getByText(/ola, admin@empresa.com/i)).toBeTruthy();
-    expect(screen.getByText('ADMIN')).toBeTruthy();
-    expect(screen.getByText('Administração de usuários')).toBeTruthy();
-    expect(screen.getByText('Meu perfil')).toBeTruthy();
-    expect(screen.getByText('Alterar senha')).toBeTruthy();
+    expect(atalho('Credora')?.getAttribute('href')).toBe('/app/credora');
+    expect(screen.queryByText('Administração', { selector: '.px48-no strong' })).toBeNull();
+    expect(screen.queryByText('Backoffice', { selector: '.px48-no strong' })).toBeNull();
+    expect(screen.queryByText('Pix', { selector: '.px48-no strong' })).toBeNull();
   });
 
-  it('CLIENTE: ve atalhos de perfil e senha mas nao ve Administracao', async () => {
-    window.localStorage.setItem(ACCESS_TOKEN_KEY, 'mock-jwt-token');
-    const result = await render(DashboardComponent, {
-      providers: [
-        provideRouter([]),
-        provideHttpClient(),
-        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
-      ],
-    });
-    const auth = result.fixture.debugElement.injector.get(AuthService) as unknown as {
-      currentUserState: { set: (u: unknown) => void };
-    };
-    auth.currentUserState.set({
-      id: 'cli-1',
-      username: 'cliente@empresa.com',
-      role: 'CLIENTE',
-      dataCriacao: '2026-04-24T18:30:00-03:00',
-      dataModificacao: '2026-04-24T18:30:00-03:00',
-      criadoPor: 'system',
-      modificadoPor: 'system',
-    });
-    result.fixture.detectChanges();
+  it('as jornadas comuns aparecem para qualquer papel', async () => {
+    await renderDashboard(usuario('FINANCEIRO'));
 
-    expect(screen.getByText('Meu perfil')).toBeTruthy();
-    expect(screen.getByText('Alterar senha')).toBeTruthy();
-    expect(screen.queryByText('Administração de usuários')).toBeNull();
+    expect(atalho('Onboarding')?.getAttribute('href')).toBe('/app/onboarding');
+    expect(atalho('Crédito')?.getAttribute('href')).toBe('/app/credito');
+    expect(atalho('Formalização')?.getAttribute('href')).toBe('/app/formalizacao');
+    expect(atalho('Cobrança')?.getAttribute('href')).toBe('/app/cobranca');
   });
 
-  it('cards placeholder existem como articles sem href', async () => {
-    await render(DashboardComponent, {
-      providers: [
-        provideRouter([]),
-        provideHttpClient(),
-        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
-      ],
-    });
+  it('os atalhos de conta apontam para perfil e troca de senha', async () => {
+    await renderDashboard(usuario('CLIENTE'));
 
-    expect(screen.getByText('Onboarding')).toBeTruthy();
-    expect(screen.getByText('Análise de crédito')).toBeTruthy();
-    expect(screen.getByText('Formalização')).toBeTruthy();
-    expect(screen.getByText('Cobrança')).toBeTruthy();
-    const onboarding = screen.getByText('Onboarding').closest('article');
-    expect(onboarding?.getAttribute('aria-disabled')).toBe('true');
+    expect(atalho('Meu perfil')?.getAttribute('href')).toBe('/app/profile');
+    expect(atalho('Alterar senha')?.getAttribute('href')).toBe('/app/profile/change-password');
   });
 
-  it('atalho Meu perfil aponta para /app/profile', async () => {
-    const result = await render(DashboardComponent, {
-      providers: [
-        provideRouter([]),
-        provideHttpClient(),
-        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
-      ],
-    });
-    await logarAdmin(result);
-    result.fixture.detectChanges();
+  it('sem usuário na sessão, a saudação não quebra e some o selo de papel', async () => {
+    await renderDashboard(null);
 
-    const link = screen.getByText('Meu perfil').closest('a');
-    expect(link?.getAttribute('href')).toBe('/app/profile');
+    expect(screen.getByRole('heading', { level: 1 })).toBeTruthy();
+    expect(screen.queryByText('ADMIN', { selector: '.px48-selo' })).toBeNull();
   });
 });

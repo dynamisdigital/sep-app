@@ -16,11 +16,13 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 
 import { ApiErrorResponse } from '../../../../core/api/api.models';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { UsuariosService } from '../../../../core/users/usuarios.service';
 import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
+import { SepArteComponent } from '../../../../shared/arte/sep-arte.component';
 
 function confirmacaoIgualValidator(control: AbstractControl): ValidationErrors | null {
   const novaSenha = control.get('novaSenha')?.value;
@@ -31,7 +33,13 @@ function confirmacaoIgualValidator(control: AbstractControl): ValidationErrors |
 
 @Component({
   selector: 'sep-change-password',
-  imports: [OperationalShellComponent, ReactiveFormsModule, RouterLink],
+  imports: [
+    SepArteComponent,
+    LucideAngularModule,
+    OperationalShellComponent,
+    ReactiveFormsModule,
+    RouterLink,
+  ],
   templateUrl: './change-password.component.html',
   styleUrl: './change-password.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -76,33 +84,33 @@ export class ChangePasswordComponent {
     return [
       {
         label: 'Mínimo de 12 caracteres',
-        icon: 'icon_req_min_12.png',
+        icon: 'ruler',
         valid: password.length >= 12,
       },
       {
         label: 'Contém letras maiúsculas e minúsculas',
-        icon: 'icon_req_letters_aa.png',
+        icon: 'case-sensitive',
         valid: /[a-z]/.test(password) && /[A-Z]/.test(password),
       },
       {
         label: 'Contém números (0-9)',
-        icon: 'icon_req_numbers_123.png',
+        icon: 'hash',
         valid: /\d/.test(password),
       },
       {
         label: 'Contém símbolos especiais (!@#$%&*)',
-        icon: 'icon_req_symbols.png',
+        icon: 'asterisk',
         valid: /[^A-Za-z0-9]/.test(password),
       },
       {
         label: 'Não deve conter dados pessoais',
-        icon: 'icon_req_no_personal_data.png',
+        icon: 'user-x',
         valid:
           password.length > 0 && (!username || !password.toLocaleLowerCase().includes(username)),
       },
       {
         label: 'Não deve ser uma senha comum',
-        icon: 'icon_req_not_common_password.png',
+        icon: 'shield-off',
         valid: !['123456', 'password', 'senha123', 'admin123'].includes(
           password.toLocaleLowerCase(),
         ),
@@ -129,7 +137,7 @@ export class ChangePasswordComponent {
   });
   protected readonly strengthRingStyle = computed(
     () =>
-      `conic-gradient(#32eda2 0 ${this.strengthPercentage()}%, rgba(36, 93, 102, .38) ${this.strengthPercentage()}% 100%)`,
+      `conic-gradient(var(--sep-success) 0 ${this.strengthPercentage()}%, rgb(var(--sep-c-line) / 55%) ${this.strengthPercentage()}% 100%)`,
   );
 
   constructor() {

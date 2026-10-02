@@ -1,0 +1,83 @@
+// ============ SOBRE O SEP ============
+
+@use "../shared/site-tema" as site;
+
+:host {
+  @include site.tokens;
+}
+
+@include site.base("px52");
+
+.px52-nao {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.px52-nao li {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 14px 18px;
+  color: var(--site-suave);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  border: 1px solid rgb(var(--lp-c-vermelho) / 24%);
+  border-radius: 13px;
+  background: rgb(var(--lp-c-vermelho) / 6%);
+}
+
+.px52-nao lucide-icon {
+  display: grid;
+  margin-top: 1px;
+  color: rgb(var(--lp-c-vermelho));
+  place-items: center;
+}
+
+.px52-identificacao {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(272px, 1fr));
+  gap: 14px;
+  margin: 0;
+}
+
+.px52-identificacao > div {
+  display: grid;
+  gap: 5px;
+  padding: 17px 20px;
+  border: 1px solid var(--site-linha);
+  border-radius: 14px;
+  background: var(--site-cartao);
+}
+
+.px52-identificacao dt {
+  color: var(--site-fraco);
+  font-size: 0.79rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.px52-identificacao dd {
+  margin: 0;
+  font-size: 0.97rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+// Janela panoramica: secoes lado a lado, cabendo na altura da tela (ver `site.painel`).
+@include site.painel("px52");
+
+// A identificacao sempre em duas colunas dentro da zona, como as grades (ver `site.painel`).
+@include site.panoramica {
+  .px52-identificacao {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .px52-identificacao > :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}

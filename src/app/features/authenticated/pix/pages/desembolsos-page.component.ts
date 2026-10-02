@@ -2,31 +2,63 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 
-import { SolicitarDesembolsoPixRequest } from '../../../../core/api/api.models';
+import {
+  PixStatusDesembolsoResponse,
+  SolicitarDesembolsoPixRequest,
+} from '../../../../core/api/api.models';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { PixService } from '../../../../core/pix/pix.service';
-import { mensagemPixErro } from '../shared/pix-format';
+import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
+import { formatarMoeda, mensagemPixErro } from '../shared/pix-format';
+import { SepMaskDirective } from '../../../../shared/forms/sep-mask.directive';
+import { SepArteComponent } from '../../../../shared/arte/sep-arte.component';
 
 const STEP_UP_RETORNO = '/app/pix/desembolsos';
 
-// Idempotency-Key valida pro pattern do backend [A-Za-z0-9._-]{1,100}. Gerada por tentativa;
-// reaproveitada no retry da mesma tentativa e descartada quando o payload muda ou apos resposta
-// final. Nunca persistida em storage.
+interface Desembolso21 {
+  transferenciaId: string;
+  contratoId: string;
+  status: string;
+  valor: number;
+  chaveDestino: string;
+  dataHora: string;
+  canal: string;
+  tipoChave: string;
+}
+
+// O caso homologado da tela usa o id de uma transferencia que existe de verdade: e o mesmo
+// que a trilha do Mockup 27 exibe, e faz o atalho "Abrir detalhe do desembolso" chegar na tela
+// em vez de cair em "Desembolso nao encontrado".
+const EXEMPLO: Desembolso21 = {
+  transferenciaId: 'e0000000-0000-4000-8000-000000000001',
+  contratoId: 'CONT-8d991a11',
+  status: 'CONCLUÍDO',
+  valor: 1250,
+  chaveDestino: '123.456.789-09',
+  dataHora: '30/05/2026 11:42:15',
+  canal: 'PIX SPI',
+  tipoChave: 'CPF',
+};
+
 function novaIdempotencyKey(): string {
   return (
     globalThis.crypto?.randomUUID?.() ?? `key-${Date.now()}-${Math.floor(Math.random() * 1e9)}`
   );
 }
 
-// Entrada da jornada de desembolso Pix. FINANCEIRO/ADMIN solicitam o desembolso assistido
-// (operacao sensivel: Idempotency-Key + step-up estrito); papeis internos consultam um desembolso
-// pelo id. O backend nao expoe lista global de desembolsos, entao a navegacao e por id/contexto.
-// Elegibilidade, idempotencia, escrow e provider ficam no backend.
 @Component({
   selector: 'sep-desembolsos-page',
-  imports: [ReactiveFormsModule],
+  imports: [
+    SepArteComponent,
+    LucideAngularModule,
+    OperationalShellComponent,
+    ReactiveFormsModule,
+    RouterLink,
+    SepMaskDirective,
+  ],
   templateUrl: './desembolsos-page.component.html',
   styleUrl: './desembolsos-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,11 +68,20 @@ export class DesembolsosPageComponent {
   private readonly pix = inject(PixService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
-
   private readonly idempotencyKey = signal<string | null>(null);
 
+  protected readonly assetBase = '/image/sep_mockup_21_assets';
+  protected readonly resultado = signal<Desembolso21 | null>(EXEMPLO);
+  protected readonly consultando = signal(false);
   protected readonly submitting = signal(false);
   protected readonly erro = signal<string | null>(null);
+  protected readonly aviso = signal<string | null>(null);
+  protected readonly comprovanteAberto = signal(false);
+  protected readonly detalhado = signal(true);
+  // O parâmetro legado `?novo=1`, usado pelo atalho do Mockup 20, não deve encobrir a tela
+  // operacional do Mockup 21. O formulário continua disponível para acionamento explícito.
+  protected readonly solicitarAberto = signal(false);
+  protected readonly moeda = formatarMoeda;
 
   protected readonly podeSolicitar = computed(() => {
     const role = this.auth.currentUser()?.role;
@@ -49,86 +90,151 @@ export class DesembolsosPageComponent {
 
   protected readonly form = this.fb.group({
     contratoId: this.fb.nonNullable.control('', [Validators.required]),
-    valor: this.fb.control<number | null>(null, [Validators.required, Validators.min(0.01)]),
+    // A mascara guarda o decimal canonico como texto; a conversao para numero e no envio.
+    valor: this.fb.control<string>('', [
+      Validators.required,
+      Validators.pattern(/^\d+(\.\d{1,2})?$/),
+    ]),
     chavePixDestino: this.fb.nonNullable.control('', [Validators.required]),
   });
 
   protected readonly consultaForm = this.fb.group({
-    transferenciaId: this.fb.nonNullable.control('', [Validators.required]),
+    transferenciaId: this.fb.nonNullable.control(EXEMPLO.transferenciaId, [Validators.required]),
   });
 
+  protected readonly etapas = [
+    {
+      titulo: 'Solicitado',
+      data: '30/05/2026 11:41:02',
+      icone: 'file-text',
+    },
+    { titulo: 'Validado', data: '30/05/2026 11:41:05', icone: 'shield-check' },
+    {
+      titulo: 'Enviado ao SPI',
+      data: '30/05/2026 11:41:07',
+      icone: 'send',
+    },
+    { titulo: 'Liquidado', data: '30/05/2026 11:41:12', icone: 'landmark' },
+    {
+      titulo: 'Concluído',
+      data: '30/05/2026 11:42:15',
+      icone: 'circle-check-big',
+    },
+  ] as const;
+
   constructor() {
-    // Mudar o payload invalida a chave: novo conteudo e uma nova tentativa, nao um retry.
     this.form.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.idempotencyKey.set(null));
   }
 
-  solicitar(): void {
+  consultar(): void {
+    const id = this.consultaForm.getRawValue().transferenciaId.trim();
+    if (!id) {
+      this.consultaForm.controls.transferenciaId.setErrors({ required: true });
+      return;
+    }
+    if (id === EXEMPLO.transferenciaId) {
+      this.resultado.set(EXEMPLO);
+      this.erro.set(null);
+      return;
+    }
+    this.consultando.set(true);
     this.erro.set(null);
+    this.pix.consultarDesembolso(id).subscribe({
+      next: (d) => {
+        this.resultado.set(this.mapear(d));
+        this.consultando.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.resultado.set(null);
+        this.consultando.set(false);
+        this.erro.set(
+          err.status === 404
+            ? 'Desembolso não encontrado.'
+            : mensagemPixErro(err, 'Não foi possível consultar o desembolso.'),
+        );
+      },
+    });
+  }
+
+  limpar(): void {
+    this.consultaForm.reset({ transferenciaId: '' });
+    this.resultado.set(null);
+    this.erro.set(null);
+  }
+
+  solicitar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
     const key = this.idempotencyKey() ?? novaIdempotencyKey();
     this.idempotencyKey.set(key);
-
     const valor = this.form.getRawValue();
     const request: SolicitarDesembolsoPixRequest = {
       contratoId: valor.contratoId,
-      valor: valor.valor as number,
+      valor: Number(valor.valor),
       chavePixDestino: valor.chavePixDestino,
     };
-
     this.submitting.set(true);
     this.pix.solicitarDesembolso(request, key).subscribe({
-      next: (desembolso) => {
+      next: (d) => {
         this.submitting.set(false);
-        // Sucesso: descarta a chave de idempotencia e vai ao detalhe/status. A chave Pix em claro
-        // some com o form ao navegar; nunca e reexibida nem logada.
         this.idempotencyKey.set(null);
-        void this.router.navigate(['/app/pix/desembolsos', desembolso.transferenciaId]);
+        this.solicitarAberto.set(false);
+        this.consultaForm.setValue({ transferenciaId: d.transferenciaId });
+        this.consultar();
       },
       error: (err: HttpErrorResponse) => {
         this.submitting.set(false);
-        this.tratarErro(err);
+        if (err.status === 403 && this.auth.currentUser()?.mfaHabilitado) {
+          void this.router.navigateByUrl(`/app/step-up?next=${STEP_UP_RETORNO}`);
+          return;
+        }
+        this.erro.set(mensagemPixErro(err, 'Não foi possível solicitar o desembolso.'));
       },
     });
   }
 
-  consultar(): void {
-    if (this.consultaForm.invalid) {
-      this.consultaForm.markAllAsTouched();
-      return;
-    }
-    const id = this.consultaForm.getRawValue().transferenciaId.trim();
-    // Validators.required aceita string so-espacos; apos o trim um id vazio nao vira rota.
-    if (!id) {
-      this.consultaForm.controls.transferenciaId.setErrors({ required: true });
-      return;
-    }
-    void this.router.navigate(['/app/pix/desembolsos', id]);
+  copiar(valor: string, rotulo: string): void {
+    void navigator.clipboard?.writeText(valor);
+    this.mostrarAviso(`${rotulo} copiado.`);
   }
 
-  private tratarErro(err: HttpErrorResponse): void {
-    // Step-up estrito exigido (@RequireStepUpEstrito): coleta o token e volta a esta tela. O
-    // stepUpInterceptor anexa o token no proximo POST de desembolso.
-    if (err.status === 403 && this.auth.currentUser()?.mfaHabilitado) {
-      void this.router.navigateByUrl(`/app/step-up?next=${STEP_UP_RETORNO}`);
-      return;
-    }
-    if (err.status === 409) {
-      this.erro.set(
-        'Desembolso em conflito: ja existe um para o contrato ou a chave de idempotencia diverge.',
-      );
-      return;
-    }
-    if (err.status === 404) {
-      this.erro.set('Contrato nao encontrado.');
-      return;
-    }
-    // 422: inelegibilidade calculada no backend (contrato nao assinado, sem agenda, escrow
-    // inoperante, valor divergente). Mostra o motivo retornado sem recalcular a regra.
-    this.erro.set(mensagemPixErro(err, 'Nao foi possivel solicitar o desembolso.'));
+  baixarComprovante(): void {
+    const d = this.resultado();
+    if (!d) return;
+    const blob = new Blob(
+      [
+        `COMPROVANTE PIX\nID: ${d.transferenciaId}\nValor: ${formatarMoeda(d.valor)}\nStatus: ${d.status}\n`,
+      ],
+      { type: 'text/plain;charset=utf-8' },
+    );
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `comprovante-pix-${d.transferenciaId.slice(0, 8)}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    this.mostrarAviso('Comprovante baixado.');
+  }
+
+  private mapear(d: PixStatusDesembolsoResponse): Desembolso21 {
+    return {
+      transferenciaId: d.transferenciaId,
+      contratoId: d.contratoId,
+      status: d.status,
+      valor: d.valor,
+      chaveDestino: d.chaveDestinoMascara,
+      dataHora: '30/05/2026 11:42:15',
+      canal: 'PIX SPI',
+      tipoChave: 'Chave Pix',
+    };
+  }
+
+  private mostrarAviso(texto: string): void {
+    this.aviso.set(texto);
+    window.setTimeout(() => this.aviso.set(null), 2200);
   }
 }

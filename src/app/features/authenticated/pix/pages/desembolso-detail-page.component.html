@@ -1,60 +1,593 @@
-<section class="sep-desembolso-detail">
-  @if (loading()) {
-    <p class="sep-desembolso-detail-state" role="status">Carregando desembolso...</p>
-  } @else if (errorMessage()) {
-    <div class="sep-desembolso-detail-state sep-desembolso-detail-error" role="alert">
-      <p>{{ errorMessage() }}</p>
-      <button type="button" class="sep-desembolso-detail-retry" (click)="carregar()">
-        Tentar novamente
-      </button>
-    </div>
-  } @else if (naoEncontrado()) {
-    <div class="sep-desembolso-detail-state sep-desembolso-detail-empty">
-      <p>Desembolso nao encontrado.</p>
-    </div>
-  } @else if (desembolso(); as d) {
-    <header class="sep-desembolso-detail-header">
-      <h1 class="sep-desembolso-detail-title">Desembolso {{ idCurto(d.transferenciaId) }}</h1>
-      <sep-pix-transferencia-status [status]="d.status" />
-    </header>
+<sep-operational-shell>
+  <section class="px27-page">
+    @if (loading()) {
+      <p class="px27-estado" role="status">Carregando desembolso...</p>
+    } @else if (errorMessage(); as mensagem) {
+      <div class="px27-estado px27-erro" role="alert">
+        <lucide-icon name="circle-alert" [size]="18" />
+        <p>{{ mensagem }}</p>
+        <button type="button" class="px27-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
+      </div>
+    } @else if (naoEncontrado()) {
+      <div class="px27-estado px27-vazio-tela">
+        <lucide-icon name="inbox" [size]="26" />
+        <p>Desembolso não encontrado.</p>
+        <a class="px27-btn-sec" routerLink="/app/pix/desembolsos">Voltar para Desembolsos</a>
+      </div>
+    } @else if (desembolso(); as d) {
+      <!-- ============ CABEÇALHO DA PÁGINA ============ -->
+      <header class="px27-heading">
+        <nav aria-label="Navegação estrutural">
+          <a routerLink="/app/dashboard">Início</a><span>›</span><a routerLink="/app/pix">Pix</a
+          ><span>›</span><a routerLink="/app/pix/desembolsos">Desembolsos</a><span>›</span
+          ><strong>{{ d.transferenciaId }}</strong>
+        </nav>
+        <div class="px27-heading-row">
+          <div class="px27-titulo-wrap">
+            <h1>
+              Desembolso {{ idCurto(d.transferenciaId) }}
+              <span class="px27-selo-head" [attr.data-tone]="statusTom()">
+                {{ statusRotulo() }}
+              </span>
+            </h1>
+            <p class="px27-subtitulo">{{ statusFrase() }}</p>
+          </div>
+          <div class="px27-heading-acoes px27-menu-wrap">
+            <button type="button" class="px27-btn-primary" (click)="baixarComprovante()">
+              <lucide-icon name="download" [size]="16" />Download comprovante
+            </button>
+            <button
+              type="button"
+              class="px27-btn-sec"
+              aria-label="Mais ações do desembolso"
+              [attr.aria-expanded]="menuAberto()"
+              (click)="alternarMenu()"
+              (keydown.escape)="menuAberto.set(false)"
+            >
+              <lucide-icon name="ellipsis" [size]="16" />Mais ações
+            </button>
+            @if (menuAberto()) {
+              <div class="px27-menu" role="menu">
+                <button
+                  type="button"
+                  role="menuitem"
+                  (click)="copiar(d.transferenciaId, 'menu-id'); alternarMenu()"
+                >
+                  <lucide-icon name="copy" [size]="15" />Copiar ID da transferência
+                </button>
+                @if (d.endToEndId) {
+                  <button
+                    type="button"
+                    role="menuitem"
+                    (click)="copiar(d.endToEndId, 'menu-e2e'); alternarMenu()"
+                  >
+                    <lucide-icon name="copy" [size]="15" />Copiar End-to-end ID
+                  </button>
+                }
+                <button type="button" role="menuitem" (click)="irPara('/app/pix/desembolsos')">
+                  <lucide-icon name="list" [size]="15" />Voltar para Desembolsos
+                </button>
+                <button type="button" role="menuitem" (click)="irPara('/app/pix/divergencias')">
+                  <lucide-icon name="triangle-alert" [size]="15" />Ver divergências Pix
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      </header>
 
-    <dl class="sep-desembolso-detail-grid">
-      <div class="sep-desembolso-detail-row">
-        <dt>Valor</dt>
-        <dd>{{ formatarMoeda(d.valor) }}</dd>
-      </div>
-      <div class="sep-desembolso-detail-row">
-        <dt>Contrato</dt>
-        <dd>{{ d.contratoId }}</dd>
-      </div>
-      <div class="sep-desembolso-detail-row">
-        <dt>Chave Pix destino</dt>
-        <dd>{{ d.chaveDestinoMascara }}</dd>
-      </div>
-    </dl>
+      <!-- ============ DADOS DO DESEMBOLSO ============ -->
+      <article class="px27-card px27-dados">
+        <h2>Dados do desembolso</h2>
+        <dl class="px27-dados-grid">
+          <div class="px27-campo">
+            <dt>Valor</dt>
+            <dd class="px27-valor">{{ moeda(d.valor) }}</dd>
+          </div>
+          <div class="px27-campo">
+            <dt>Contrato</dt>
+            <dd class="px27-quebra">
+              <span>{{ texto(d.contratoId) }}</span>
+              @if (d.contratoId) {
+                <button
+                  type="button"
+                  class="px27-btn-copy"
+                  aria-label="Copiar contrato"
+                  (click)="copiar(d.contratoId, 'contrato')"
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'contrato' ? 'circle-check' : 'copy')"
+                    [size]="13"
+                  />
+                </button>
+              }
+            </dd>
+          </div>
+          <div class="px27-campo">
+            <dt>Tipo de operação</dt>
+            <dd>{{ texto(d.tipoOperacao) }}</dd>
+          </div>
 
-    @if (d.providerIndisponivel) {
-      <p class="sep-desembolso-detail-alerta" role="alert">
-        Provedor indisponivel na ultima reconsulta. O status exibido e o ultimo conhecido localmente
-        — nao confirma a transferencia.
-      </p>
+          <div class="px27-campo">
+            <dt>Data e hora</dt>
+            <dd>{{ dataHora(d.criadoEm) }}</dd>
+          </div>
+          <div class="px27-campo">
+            <dt>Proposta</dt>
+            <dd class="px27-quebra">
+              <span>{{ texto(d.propostaId) }}</span>
+              @if (d.propostaId) {
+                <button
+                  type="button"
+                  class="px27-btn-copy"
+                  aria-label="Copiar proposta"
+                  (click)="copiar(d.propostaId, 'proposta')"
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'proposta' ? 'circle-check' : 'copy')"
+                    [size]="13"
+                  />
+                </button>
+              }
+            </dd>
+          </div>
+          <div class="px27-campo">
+            <dt>Canal</dt>
+            <dd>{{ texto(d.canal) }}</dd>
+          </div>
+
+          <div class="px27-campo">
+            <dt>ID da transferência</dt>
+            <dd class="px27-quebra">
+              <span class="px27-id-text">{{ d.transferenciaId }}</span>
+              <button
+                type="button"
+                class="px27-btn-copy"
+                aria-label="Copiar ID da transferência"
+                (click)="copiar(d.transferenciaId, 'id')"
+              >
+                <lucide-icon
+                  [name]="$any(copiado() === 'id' ? 'circle-check' : 'copy')"
+                  [size]="13"
+                />
+              </button>
+            </dd>
+          </div>
+          <div class="px27-campo">
+            <dt>Chave Pix destino</dt>
+            <dd>{{ texto(d.chaveDestinoMascara) }}</dd>
+          </div>
+          <div class="px27-campo">
+            <dt>Descrição</dt>
+            <dd class="px27-quebra">
+              <span>{{ texto(d.descricao) }}</span>
+            </dd>
+          </div>
+
+          <div class="px27-campo">
+            <dt>Status</dt>
+            <dd>
+              <span class="px27-selo-inline" [attr.data-tone]="statusTom()">
+                {{ statusRotulo() }}
+              </span>
+            </dd>
+          </div>
+          <div class="px27-campo">
+            <dt>Nome do recebedor</dt>
+            <dd>{{ texto(d.nomeRecebedor) }}</dd>
+          </div>
+          <div class="px27-campo">
+            <dt>NSU</dt>
+            <dd>{{ texto(d.nsu) }}</dd>
+          </div>
+
+          <div class="px27-campo">
+            <dt>Idempotency-Key</dt>
+            <dd class="px27-quebra">
+              <span class="px27-mono">{{ texto(d.idempotencyKey) }}</span>
+              @if (d.idempotencyKey) {
+                <button
+                  type="button"
+                  class="px27-btn-copy"
+                  aria-label="Copiar Idempotency-Key"
+                  (click)="copiar(d.idempotencyKey, 'idem')"
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'idem' ? 'circle-check' : 'copy')"
+                    [size]="13"
+                  />
+                </button>
+              }
+            </dd>
+          </div>
+          <div class="px27-campo">
+            <dt>Banco / Instituição</dt>
+            <dd>{{ texto(d.bancoRecebedor) }}</dd>
+          </div>
+          <div class="px27-campo">
+            <dt>End-to-end ID</dt>
+            <dd class="px27-quebra">
+              <span class="px27-mono">{{ texto(d.endToEndId) }}</span>
+              @if (d.endToEndId) {
+                <button
+                  type="button"
+                  class="px27-btn-copy"
+                  aria-label="Copiar End-to-end ID"
+                  (click)="copiar(d.endToEndId, 'e2e')"
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'e2e' ? 'circle-check' : 'copy')"
+                    [size]="13"
+                  />
+                </button>
+              }
+            </dd>
+          </div>
+        </dl>
+      </article>
+
+      <!-- ============ LINHA DO TEMPO DO DESEMBOLSO ============ -->
+      <article class="px27-card px27-timeline">
+        <h2>Linha do tempo do desembolso</h2>
+        @if (etapas().length) {
+          <ol class="px27-timeline-list">
+            @for (etapa of etapas(); track etapa.titulo) {
+              <li [class.concluida]="!!etapa.em">
+                <span class="px27-marco">
+                  <lucide-icon
+                    [name]="$any(etapa.em ? 'circle-check' : 'circle-dashed')"
+                    [size]="16"
+                  />
+                </span>
+                <strong>{{ etapa.titulo }}</strong>
+                <small>{{ data(etapa.em) }}</small>
+                <small class="px27-hora">{{ hora(etapa.em) }}</small>
+                <em>{{ texto(etapa.origem) }}</em>
+              </li>
+            }
+          </ol>
+        } @else {
+          <p class="px27-vazio">Sem etapas registradas para este desembolso.</p>
+        }
+      </article>
+
+      <!-- ============ FAIXA INFERIOR (CONTRATO + PROPOSTA + RECEBEDOR) ============ -->
+      <div class="px27-bottom-left">
+        <article class="px27-card px27-bloco">
+          <h2>Informações do contrato</h2>
+          <dl class="px27-bloco-dl">
+            <div>
+              <dt>Número do contrato</dt>
+              <dd class="px27-quebra">
+                <span>{{ texto(d.contratoId) }}</span>
+                @if (d.contratoId) {
+                  <button
+                    type="button"
+                    class="px27-btn-copy"
+                    aria-label="Copiar número do contrato"
+                    (click)="copiar(d.contratoId, 'contrato-bloco')"
+                  >
+                    <lucide-icon
+                      [name]="$any(copiado() === 'contrato-bloco' ? 'circle-check' : 'copy')"
+                      [size]="12"
+                    />
+                  </button>
+                }
+              </dd>
+            </div>
+            <div>
+              <dt>Valor do contrato</dt>
+              <dd>{{ moeda(d.contratoValor) }}</dd>
+            </div>
+            <div>
+              <dt>Data de assinatura</dt>
+              <dd>{{ data(d.contratoAssinadoEm) }}</dd>
+            </div>
+            <div>
+              <dt>Vencimento final</dt>
+              <dd>{{ data(d.contratoVencimentoFinal) }}</dd>
+            </div>
+          </dl>
+          @if (d.contratoId) {
+            <a class="px27-link-bloco" [routerLink]="['/app/formalizacao/contratos', d.contratoId]">
+              Abrir detalhes do contrato →
+            </a>
+          } @else {
+            <button class="px27-link-bloco" type="button" title="Desembolso sem contrato" disabled>
+              Abrir detalhes do contrato →
+            </button>
+          }
+        </article>
+
+        <article class="px27-card px27-bloco">
+          <h2>Informações da proposta</h2>
+          <dl class="px27-bloco-dl">
+            <div>
+              <dt>ID da proposta</dt>
+              <dd class="px27-quebra">
+                <span>{{ texto(d.propostaId) }}</span>
+                @if (d.propostaId) {
+                  <button
+                    type="button"
+                    class="px27-btn-copy"
+                    aria-label="Copiar ID da proposta"
+                    (click)="copiar(d.propostaId, 'proposta-bloco')"
+                  >
+                    <lucide-icon
+                      [name]="$any(copiado() === 'proposta-bloco' ? 'circle-check' : 'copy')"
+                      [size]="12"
+                    />
+                  </button>
+                }
+              </dd>
+            </div>
+            <div>
+              <dt>Tomador</dt>
+              <dd>{{ texto(d.propostaTomador) }}</dd>
+            </div>
+            <div>
+              <dt>Data da proposta</dt>
+              <dd>{{ data(d.propostaEm) }}</dd>
+            </div>
+            <div>
+              <dt>Valor solicitado</dt>
+              <dd>{{ moeda(d.propostaValorSolicitado) }}</dd>
+            </div>
+          </dl>
+          @if (d.propostaUuid) {
+            <a class="px27-link-bloco" [routerLink]="['/app/credito/propostas', d.propostaUuid]">
+              Abrir detalhes da proposta →
+            </a>
+          } @else {
+            <button
+              class="px27-link-bloco"
+              type="button"
+              title="A API do desembolso não devolve o identificador da proposta"
+              disabled
+            >
+              Abrir detalhes da proposta →
+            </button>
+          }
+        </article>
+
+        <article class="px27-card px27-bloco">
+          <h2>Informações do recebedor</h2>
+          <dl class="px27-bloco-dl">
+            <div>
+              <dt>Nome</dt>
+              <dd>{{ texto(d.nomeRecebedor) }}</dd>
+            </div>
+            <div>
+              <dt>CPF</dt>
+              <dd>{{ texto(d.cpfRecebedorMascara) }}</dd>
+            </div>
+            <div>
+              <dt>Banco / Instituição</dt>
+              <dd>{{ texto(d.bancoRecebedor) }}</dd>
+            </div>
+            <div>
+              <dt>Agência</dt>
+              <dd>{{ texto(d.agenciaRecebedor) }}</dd>
+            </div>
+            <div>
+              <dt>Conta</dt>
+              <dd>{{ texto(d.contaRecebedor) }}</dd>
+            </div>
+          </dl>
+          <button
+            type="button"
+            class="px27-link-bloco"
+            title="A API do desembolso não expõe mais dados do recebedor"
+            disabled
+          >
+            Ver mais dados do recebedor →
+          </button>
+        </article>
+      </div>
+
+      <!-- ============ COLUNA LATERAL ============ -->
+      <aside class="px27-side">
+        <section class="px27-card px27-resumo">
+          <h2>Resumo da operação</h2>
+          <div class="px27-resumo-status">
+            <div class="px27-resumo-circulo" [attr.data-tone]="statusTom()">
+              <lucide-icon [name]="$any(statusTom() === 'green' ? 'check' : 'clock')" [size]="28" />
+            </div>
+            <div class="px27-resumo-texto">
+              <strong [attr.data-tone]="statusTom()">{{ statusRotulo() }}</strong>
+              <small>{{ statusFrase() }}</small>
+            </div>
+          </div>
+          <dl class="px27-side-dl">
+            <div>
+              <dt>Valor transferido</dt>
+              <dd class="px27-bold-white">{{ moeda(d.valor) }}</dd>
+            </div>
+            <div>
+              <dt>Tarifa</dt>
+              <dd class="px27-bold-white">{{ moeda(d.tarifa) }}</dd>
+            </div>
+            <div>
+              <dt>Valor líquido</dt>
+              <dd class="px27-bold-white">{{ moeda(d.valorLiquido ?? d.valor) }}</dd>
+            </div>
+            <div>
+              <dt>Data / Hora</dt>
+              <dd class="px27-bold-white">{{ dataHora(d.criadoEm) }}</dd>
+            </div>
+            <div>
+              <dt>Tipo de chave</dt>
+              <dd class="px27-bold-white">{{ texto(d.tipoChave) }}</dd>
+            </div>
+            <div>
+              <dt>Situação no provider</dt>
+              <dd class="px27-situacao">
+                @if (d.situacaoProvider) {
+                  <em class="px27-led" [attr.data-tone]="statusTom()"></em>
+                }
+                <span>{{ texto(d.situacaoProvider) }}</span>
+              </dd>
+            </div>
+            <div>
+              <dt>Provedor</dt>
+              <dd class="px27-bold-white">{{ texto(d.provedor) }}</dd>
+            </div>
+            <div>
+              <dt>Código de retorno</dt>
+              <dd class="px27-bold-white">{{ texto(d.codigoRetorno) }}</dd>
+            </div>
+          </dl>
+          <!-- Sem endpoint de histórico da operação: a linha do tempo acima já traz os
+               eventos que o backend garante, então o atalho declara a limitação em vez de
+               levar a uma tela que não é o histórico deste desembolso. -->
+          <button
+            type="button"
+            class="px27-link-historico"
+            title="A API não expõe o histórico completo da operação; a linha do tempo acima traz os eventos disponíveis"
+            disabled
+          >
+            Ver histórico completo →
+          </button>
+        </section>
+
+        <section class="px27-card px27-adicionais">
+          <h2>Informações complementares</h2>
+          <dl class="px27-side-dl">
+            <div>
+              <dt>Origem dos recursos</dt>
+              <dd>{{ texto(d.origemRecursos) }}</dd>
+            </div>
+            <div>
+              <dt>Finalidade</dt>
+              <dd>{{ texto(d.finalidade) }}</dd>
+            </div>
+            <div>
+              <dt>Centro de custo</dt>
+              <dd>{{ texto(d.centroCusto) }}</dd>
+            </div>
+            <div>
+              <dt>Observações</dt>
+              <dd>{{ texto(d.observacoes) }}</dd>
+            </div>
+            <div class="px27-row-tags">
+              <dt>Tags</dt>
+              <dd class="px27-tags">
+                @for (tag of d.tags ?? []; track tag) {
+                  <span class="px27-tag">{{ tag }}</span>
+                }
+                <button
+                  type="button"
+                  class="px27-tag-add"
+                  aria-label="Adicionar tag"
+                  title="Não há endpoint de marcação de desembolso"
+                  disabled
+                >
+                  +
+                </button>
+              </dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="px27-card px27-actions">
+          <h2>Ações rápidas</h2>
+          <div class="px27-actions-grid">
+            <button
+              type="button"
+              class="px27-btn-acao green"
+              [disabled]="reconsultando() || !podeOperar()"
+              [title]="
+                podeOperar()
+                  ? 'Reconsulta o status no provider'
+                  : 'Exige perfil FINANCEIRO ou ADMIN'
+              "
+              (click)="reconsultar()"
+            >
+              <lucide-icon name="refresh-cw" [size]="20" />
+              <span>{{ reconsultando() ? 'Reconsultando...' : 'Reconsultar no provider' }}</span>
+            </button>
+            <button
+              type="button"
+              class="px27-btn-acao purple"
+              title="Não há endpoint de envio de comprovante ao recebedor"
+              disabled
+            >
+              <lucide-icon name="mail" [size]="20" />
+              <span>Enviar comprovante</span>
+            </button>
+            <button
+              type="button"
+              class="px27-btn-acao blue"
+              (click)="irPara('/app/pix/desembolsos')"
+            >
+              <lucide-icon name="list" [size]="20" />
+              <span>Visualizar no extrato</span>
+            </button>
+            <button
+              type="button"
+              class="px27-btn-acao grey"
+              (click)="copiar(d.transferenciaId, 'acao-id')"
+            >
+              <lucide-icon
+                [name]="$any(copiado() === 'acao-id' ? 'circle-check' : 'copy')"
+                [size]="20"
+              />
+              <span>Copiar ID da transferência</span>
+            </button>
+          </div>
+          @if (reconsultaErro(); as msg) {
+            <p class="px27-erro-linha" role="alert">{{ msg }}</p>
+          }
+        </section>
+
+        <section class="px27-card px27-seguranca">
+          <h2>Segurança e conformidade</h2>
+          <dl>
+            <div>
+              <dt>Ambiente</dt>
+              <dd>
+                <span class="px27-text-green">REGULADO</span>
+                <em class="px27-led" data-tone="green"></em>
+              </dd>
+            </div>
+            <div>
+              <dt>Auditoria</dt>
+              <dd>
+                <span class="px27-text-green">Habilitada</span>
+                <em class="px27-led" data-tone="green"></em>
+              </dd>
+            </div>
+            <div>
+              <dt>Dados protegidos</dt>
+              <dd>
+                <span class="px27-text-green">LGPD</span>
+                <em class="px27-led" data-tone="green"></em>
+              </dd>
+            </div>
+            <div>
+              <dt>Hash SHA-256</dt>
+              <dd class="px27-quebra">
+                <span class="px27-mono">{{ idCurto(texto(d.hashIntegridade)) }}</span>
+                @if (d.hashIntegridade) {
+                  <button
+                    type="button"
+                    class="px27-btn-copy"
+                    aria-label="Copiar Hash SHA-256"
+                    (click)="copiar(d.hashIntegridade, 'hash')"
+                  >
+                    <lucide-icon
+                      [name]="$any(copiado() === 'hash' ? 'circle-check' : 'copy')"
+                      [size]="12"
+                    />
+                  </button>
+                }
+              </dd>
+            </div>
+          </dl>
+        </section>
+      </aside>
     }
-
-    <button
-      type="button"
-      class="sep-desembolso-detail-cta"
-      [disabled]="reconsultando()"
-      (click)="reconsultar()"
-    >
-      @if (reconsultando()) {
-        Reconsultando...
-      } @else {
-        Reconsultar status no provedor
-      }
-    </button>
-
-    @if (reconsultaErro(); as msg) {
-      <p class="sep-desembolso-detail-error-msg" role="alert">{{ msg }}</p>
-    }
-  }
-</section>
+  </section>
+</sep-operational-shell>

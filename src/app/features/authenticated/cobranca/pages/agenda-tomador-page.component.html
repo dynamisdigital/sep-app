@@ -1,49 +1,488 @@
-<section class="sep-agenda">
-  @if (loading()) {
-    <p class="sep-agenda-state" role="status">Carregando agenda...</p>
-  } @else if (errorMessage()) {
-    <div class="sep-agenda-state sep-agenda-error" role="alert">
-      <p>{{ errorMessage() }}</p>
-      <button type="button" class="sep-agenda-retry" (click)="carregar()">Tentar novamente</button>
-    </div>
-  } @else if (indisponivel()) {
-    <div class="sep-agenda-state sep-agenda-empty">
-      <p>Agenda em geracao ou indisponivel para este contrato.</p>
-    </div>
-  } @else if (agenda(); as a) {
-    <header class="sep-agenda-header">
-      <h1 class="sep-agenda-title">Agenda de cobranca</h1>
-      <p class="sep-agenda-subtitle">Contrato {{ idCurto(a.contratoId) }}</p>
-    </header>
+<sep-operational-shell>
+  <section class="px32-page">
+    @if (loading()) {
+      <p class="px32-estado" role="status">Carregando agenda...</p>
+    } @else if (errorMessage(); as mensagem) {
+      <div class="px32-estado px32-erro" role="alert">
+        <lucide-icon name="circle-alert" [size]="18" />
+        <p>{{ mensagem }}</p>
+        <button type="button" class="px32-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
+      </div>
+    } @else if (indisponivel()) {
+      <div class="px32-estado">
+        <lucide-icon name="calendar-days" [size]="18" />
+        <p>Agenda em geração ou indisponível para este contrato.</p>
+        <a class="px32-btn-primary" routerLink="/app/cobranca">
+          <lucide-icon name="wallet" [size]="16" />Voltar para a Cobrança
+        </a>
+      </div>
+    } @else if (agenda(); as a) {
+      <!-- ============ CABEÇALHO ============ -->
+      <header class="px32-heading">
+        <nav aria-label="Navegação estrutural">
+          <a routerLink="/app/dashboard">Início</a><span>›</span
+          ><a routerLink="/app/cobranca">Cobrança</a><span>›</span
+          ><a routerLink="/app/cobranca">Contratos</a><span>›</span
+          ><strong>{{ contratoCurto() }}</strong
+          ><span>›</span><strong>Agenda</strong>
+        </nav>
+        <div class="px32-heading-row">
+          <div class="px32-titulo-wrap">
+            <h1>
+              Agenda do contrato {{ contratoCurto() }}
+              <button
+                type="button"
+                class="px32-btn-icone"
+                title="Copiar ID do contrato"
+                aria-label="Copiar ID do contrato"
+                (click)="copiar(a.contratoId, 'contrato')"
+              >
+                <lucide-icon
+                  [name]="$any(copiado() === 'contrato' ? 'circle-check' : 'copy')"
+                  [size]="15"
+                />
+              </button>
+            </h1>
+            <p class="px32-subtitulo">
+              Acompanhe recebimentos, parcelas e atividades deste contrato.
+            </p>
+          </div>
+          <button type="button" class="px32-btn-sec" (click)="exportar()">
+            <lucide-icon name="download" [size]="16" />Exportar relatório
+          </button>
+        </div>
+      </header>
 
-    <dl class="sep-agenda-resumo">
-      <div class="sep-agenda-resumo-item">
-        <dt>Parcelas</dt>
-        <dd>{{ a.numeroParcelas }}</dd>
-      </div>
-      <div class="sep-agenda-resumo-item">
-        <dt>Valor total</dt>
-        <dd>{{ formatarMoeda(a.valorTotal) }}</dd>
-      </div>
-      <div class="sep-agenda-resumo-item">
-        <dt>Gerada em</dt>
-        <dd>{{ formatarData(a.dataGeracao) }}</dd>
-      </div>
-    </dl>
+      <!-- ============ PAINEL DO CONTRATO ============ -->
+      <article class="px32-card px32-contrato">
+        <dl class="px32-contrato-linha">
+          <div class="px32-contrato-id">
+            <dt>Contrato</dt>
+            <dd>
+              <span>{{ contratoCurto() }}</span>
+              <button
+                type="button"
+                class="px32-btn-icone"
+                title="Copiar ID do contrato"
+                aria-label="Copiar ID do contrato no painel"
+                (click)="copiar(a.contratoId, 'painel')"
+              >
+                <lucide-icon
+                  [name]="$any(copiado() === 'painel' ? 'circle-check' : 'copy')"
+                  [size]="13"
+                />
+              </button>
+            </dd>
+            <small>Tomador: {{ texto(a.tomador) }}</small>
+          </div>
+          <div>
+            <dt>Produto</dt>
+            <dd>{{ texto(a.produto) }}</dd>
+          </div>
+          <div>
+            <dt>Valor contratado</dt>
+            <dd>{{ formatarMoeda(valorContratado()) }}</dd>
+          </div>
+          <div>
+            <dt>Valor liberado</dt>
+            <dd>{{ a.valorLiberado === undefined ? '—' : formatarMoeda(a.valorLiberado) }}</dd>
+          </div>
+          <div>
+            <dt>Vencimento final</dt>
+            <dd>{{ a.vencimentoFinal ? formatarDataLocal(a.vencimentoFinal) : '—' }}</dd>
+          </div>
+        </dl>
+        <dl class="px32-contrato-linha px32-contrato-linha-2">
+          <div>
+            <dt>Status do contrato</dt>
+            <dd>
+              <span class="px32-selo" [attr.data-tone]="totalAtrasado() > 0 ? 'orange' : 'green'">
+                {{ texto(a.statusContrato) }}
+              </span>
+            </dd>
+          </div>
+          <div>
+            <dt>Parcelas</dt>
+            <dd>{{ a.numeroParcelas }}</dd>
+          </div>
+          <div>
+            <dt>Parcelas pagas</dt>
+            <dd>{{ numero(a.parcelasPagas) }}</dd>
+          </div>
+          <div>
+            <dt>Parcelas em aberto</dt>
+            <dd class="px32-destaque-laranja">{{ qtdEmAberto() }}</dd>
+          </div>
+          <div>
+            <dt>Inadimplentes</dt>
+            <dd class="px32-destaque-vermelho">{{ qtdAtrasado() }}</dd>
+          </div>
+          <div>
+            <dt>Próxima parcela</dt>
+            <dd>{{ a.proximoVencimento ? formatarDataLocal(a.proximoVencimento) : '—' }}</dd>
+          </div>
+        </dl>
+      </article>
 
-    <ul class="sep-agenda-parcelas">
-      @for (parcela of a.parcelas; track parcela.id) {
-        <li class="sep-agenda-parcela">
-          <a [routerLink]="['/app/cobranca/parcelas', parcela.id]" class="sep-agenda-parcela-link">
-            <span class="sep-agenda-parcela-numero">Parcela {{ parcela.numero }}</span>
-            <sep-parcela-status [status]="parcela.status" />
-            <span class="sep-agenda-parcela-vencimento">
-              Vence {{ formatarDataLocal(parcela.dataVencimento) }}
-            </span>
-            <span class="sep-agenda-parcela-total">{{ formatarMoeda(parcela.total) }}</span>
-          </a>
-        </li>
-      }
-    </ul>
-  }
-</section>
+      <!-- ============ MÉTRICAS ============ -->
+      <div class="px32-metricas">
+        <article class="px32-card px32-metrica" data-tone="green">
+          <header>
+            <span class="px32-metrica-icone"
+              ><lucide-icon name="circle-dollar-sign" [size]="18"
+            /></span>
+            <small>Total recebido</small>
+          </header>
+          <strong>{{ formatarMoeda(totalRecebido()) }}</strong>
+          <em>{{ percentualRecebido() }}% do contratado</em>
+          <span class="px32-trilho"><span [style.width.%]="percentualRecebido()"></span></span>
+        </article>
+        <article class="px32-card px32-metrica" data-tone="blue">
+          <header>
+            <span class="px32-metrica-icone"><lucide-icon name="wallet" [size]="18" /></span>
+            <small>Em aberto</small>
+          </header>
+          <strong>{{ formatarMoeda(totalEmAberto()) }}</strong>
+          <em>{{ qtdEmAberto() }} {{ qtdEmAberto() === 1 ? 'parcela' : 'parcelas' }}</em>
+          <span class="px32-trilho"
+            ><span [style.width.%]="100 - percentualRecebido()"></span
+          ></span>
+        </article>
+        <article class="px32-card px32-metrica" data-tone="red">
+          <header>
+            <span class="px32-metrica-icone"
+              ><lucide-icon name="triangle-alert" [size]="18"
+            /></span>
+            <small>Atrasado</small>
+          </header>
+          <strong>{{ formatarMoeda(totalAtrasado()) }}</strong>
+          <em>{{ qtdAtrasado() }} {{ qtdAtrasado() === 1 ? 'parcela' : 'parcelas' }}</em>
+          <span class="px32-trilho"
+            ><span
+              [style.width.%]="totalEmAberto() ? (totalAtrasado() / totalEmAberto()) * 100 : 0"
+            ></span
+          ></span>
+        </article>
+        <article class="px32-card px32-metrica" data-tone="orange">
+          <header>
+            <span class="px32-metrica-icone"
+              ><lucide-icon name="calendar-clock" [size]="18"
+            /></span>
+            <small>A vencer</small>
+          </header>
+          <strong>{{ formatarMoeda(totalAVencer()) }}</strong>
+          <em>{{ qtdAVencer() }} {{ qtdAVencer() === 1 ? 'parcela' : 'parcelas' }}</em>
+          <span class="px32-trilho"
+            ><span
+              [style.width.%]="totalEmAberto() ? (totalAVencer() / totalEmAberto()) * 100 : 0"
+            ></span
+          ></span>
+        </article>
+        <article class="px32-card px32-liquidez" [attr.data-tone]="liquidezTom()">
+          <small>Liquidez do contrato</small>
+          <div>
+            <span
+              class="px32-anel"
+              role="img"
+              [style.background]="anelLiquidez()"
+              [attr.aria-label]="'Liquidez do contrato ' + liquidez() + ' por cento'"
+            ></span>
+            <div class="px32-liquidez-texto">
+              <strong>{{ liquidez() }}%</strong>
+              <em>{{ liquidezRotulo() }}</em>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- ============ AGENDA DE PARCELAS ============ -->
+      <article class="px32-card px32-tabela-card">
+        <header class="px32-tabela-topo">
+          <h2>Agenda de parcelas</h2>
+          <button
+            type="button"
+            class="px32-btn-sec px32-btn-filtrar"
+            title="Os filtros desta agenda são as próprias abas abaixo"
+            disabled
+          >
+            <lucide-icon name="settings" [size]="15" />Filtrar
+          </button>
+        </header>
+
+        <div class="px32-abas" role="tablist" aria-label="Filtro de parcelas">
+          @for (item of abas; track item.chave) {
+            <button
+              type="button"
+              role="tab"
+              [class.ativa]="aba() === item.chave"
+              [attr.aria-selected]="aba() === item.chave"
+              (click)="selecionarAba(item.chave)"
+            >
+              {{ item.rotulo }}
+            </button>
+          }
+        </div>
+
+        <div class="px32-tabela-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Parcela</th>
+                <th>Vencimento</th>
+                <th class="px32-num">Valor (R$)</th>
+                <th>Status</th>
+                <th>Dias em atraso</th>
+                <th>Recebido em</th>
+                <th>Meio de pagamento</th>
+                <th class="px32-acoes-col">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of visiveis(); track p.id) {
+                <tr>
+                  <td>
+                    <a class="px32-link" [routerLink]="['/app/cobranca/financeiro/parcelas', p.id]">
+                      {{ p.numero }} de {{ a.numeroParcelas }}
+                    </a>
+                  </td>
+                  <td>{{ formatarDataLocal(p.dataVencimento) }}</td>
+                  <td class="px32-num px32-valor">{{ formatarMoeda(p.total) }}</td>
+                  <td>
+                    <span class="px32-selo" [attr.data-tone]="statusTom(p)">
+                      {{ statusCelula(p) }}
+                    </span>
+                  </td>
+                  <td [class.px32-atraso]="emAtraso(p)">
+                    @if (emAtraso(p)) {
+                      {{ p.diasAtraso }} dias
+                    } @else if (diasAte(p); as dias) {
+                      <span class="px32-prazo">{{ dias }} dias</span>
+                    } @else {
+                      —
+                    }
+                  </td>
+                  <td>{{ p.dataPagamento ? formatarDataLocal(p.dataPagamento) : '—' }}</td>
+                  <td>{{ texto(p.meioPagamento) }}</td>
+                  <td class="px32-acoes-col">
+                    <button
+                      type="button"
+                      class="px32-btn-linha"
+                      title="Abrir detalhe da parcela"
+                      [attr.aria-label]="'Abrir detalhe da parcela ' + p.numero"
+                      (click)="abrirParcela(p.id)"
+                    >
+                      <lucide-icon name="eye" [size]="15" />
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="8" class="px32-vazio">Nenhuma parcela para este filtro.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <footer class="px32-tabela-rodape">
+          <span>
+            Exibindo {{ primeiraVisivel() }} a {{ ultimaVisivel() }} de
+            {{ filtradas().length }} parcelas
+          </span>
+          <div class="px32-paginacao">
+            <button
+              type="button"
+              aria-label="Primeira página"
+              [disabled]="paginaAtual() === 1"
+              (click)="irParaPagina(1)"
+            >
+              «
+            </button>
+            <button
+              type="button"
+              aria-label="Página anterior"
+              [disabled]="paginaAtual() === 1"
+              (click)="irParaPagina(paginaAtual() - 1)"
+            >
+              ‹
+            </button>
+            @for (n of paginas(); track n) {
+              <button
+                type="button"
+                [attr.aria-label]="'Página ' + n"
+                [class.ativa]="n === paginaAtual()"
+                (click)="irParaPagina(n)"
+              >
+                {{ n }}
+              </button>
+            }
+            <button
+              type="button"
+              aria-label="Próxima página"
+              [disabled]="paginaAtual() === totalPaginas()"
+              (click)="irParaPagina(paginaAtual() + 1)"
+            >
+              ›
+            </button>
+            <button
+              type="button"
+              aria-label="Última página"
+              [disabled]="paginaAtual() === totalPaginas()"
+              (click)="irParaPagina(totalPaginas())"
+            >
+              »
+            </button>
+          </div>
+          <span class="px32-por-pagina">{{ porPagina }} por página</span>
+        </footer>
+      </article>
+
+      <!-- ============ COLUNA LATERAL ============ -->
+      <aside class="px32-side">
+        <section class="px32-card px32-lista">
+          <header>
+            <h2>Próximas parcelas</h2>
+            <button type="button" class="px32-link-todos" (click)="selecionarAba('A_VENCER')">
+              Ver todas <lucide-icon name="arrow-right" [size]="14" />
+            </button>
+          </header>
+          <ul>
+            @for (p of proximasParcelas(); track p.id) {
+              <li>
+                <span class="px32-lista-icone" data-tone="blue">
+                  <lucide-icon name="calendar-days" [size]="15" />
+                </span>
+                <div>
+                  <strong>{{ formatarDataLocal(p.dataVencimento) }}</strong>
+                  <small>Parcela {{ p.numero }} de {{ a.numeroParcelas }}</small>
+                </div>
+                <div class="px32-lista-valor">
+                  <strong>{{ formatarMoeda(p.total) }}</strong>
+                  @if (diasAte(p); as dias) {
+                    <span class="px32-selo px32-selo-mini" data-tone="blue">{{ dias }} dias</span>
+                  }
+                </div>
+              </li>
+            } @empty {
+              <li class="px32-vazio">Nenhuma parcela a vencer.</li>
+            }
+          </ul>
+        </section>
+
+        <section class="px32-card px32-lista">
+          <header>
+            <h2>Parcelas em atraso</h2>
+            <button type="button" class="px32-link-todos" (click)="selecionarAba('ATRASADAS')">
+              Ver todas <lucide-icon name="arrow-right" [size]="14" />
+            </button>
+          </header>
+          <ul>
+            @for (p of parcelasEmAtraso(); track p.id) {
+              <li>
+                <span class="px32-lista-icone" data-tone="red">
+                  <lucide-icon name="calendar-clock" [size]="15" />
+                </span>
+                <div>
+                  <strong>{{ formatarDataLocal(p.dataVencimento) }}</strong>
+                  <small>Parcela {{ p.numero }} de {{ a.numeroParcelas }}</small>
+                </div>
+                <div class="px32-lista-valor">
+                  <strong>{{ formatarMoeda(p.total) }}</strong>
+                  <span class="px32-selo px32-selo-mini" data-tone="red">
+                    {{ p.diasAtraso }} dias
+                  </span>
+                </div>
+              </li>
+            } @empty {
+              <li class="px32-vazio">Nenhuma parcela em atraso.</li>
+            }
+          </ul>
+        </section>
+
+        <section class="px32-card px32-actions">
+          <h2>Ações rápidas</h2>
+          <div class="px32-actions-grid">
+            @if (parcelasEmAtraso()[0] ?? proximasParcelas()[0]; as alvo) {
+              <button
+                type="button"
+                class="px32-btn-acao green"
+                title="Abrir a parcela para registrar o recebimento"
+                (click)="abrirParcela(alvo.id)"
+              >
+                <lucide-icon name="circle-dollar-sign" [size]="19" />
+                <span>Registrar recebimento</span>
+              </button>
+            }
+            <button
+              type="button"
+              class="px32-btn-acao blue"
+              title="Não há endpoint de envio de lembrete nesta fase"
+              disabled
+            >
+              <lucide-icon name="send" [size]="19" />
+              <span>Enviar lembrete</span>
+            </button>
+            @if (parcelasEmAtraso()[0]; as alvo) {
+              <button
+                type="button"
+                class="px32-btn-acao amber"
+                title="Abrir a parcela para propor a renegociação"
+                (click)="abrirParcela(alvo.id)"
+              >
+                <lucide-icon name="handshake" [size]="19" />
+                <span>Negociar parcela</span>
+              </button>
+            } @else {
+              <button
+                type="button"
+                class="px32-btn-acao amber"
+                title="Não há parcela em atraso para renegociar neste contrato"
+                disabled
+              >
+                <lucide-icon name="handshake" [size]="19" />
+                <span>Negociar parcela</span>
+              </button>
+            }
+            <button type="button" class="px32-btn-acao purple" (click)="exportar()">
+              <lucide-icon name="file-text" [size]="19" />
+              <span>Gerar relatório</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="px32-card px32-documentos">
+          <header>
+            <h2>Documentos do contrato</h2>
+            <a class="px32-link-todos" routerLink="/app/formalizacao">
+              Ver todas <lucide-icon name="arrow-right" [size]="14" />
+            </a>
+          </header>
+          <ul>
+            @for (doc of a.documentos ?? []; track doc.nome) {
+              <li>
+                <span class="px32-doc-icone"><lucide-icon name="file-text" [size]="16" /></span>
+                <div>
+                  <strong>{{ doc.nome }}</strong>
+                  <small>{{ texto(doc.tipo) }} • {{ texto(doc.tamanho) }}</small>
+                </div>
+                <button
+                  type="button"
+                  class="px32-btn-linha"
+                  disabled
+                  title="Não há endpoint de download de documentos nesta fase"
+                  [attr.aria-label]="'Baixar ' + doc.nome"
+                >
+                  <lucide-icon name="download" [size]="15" />
+                </button>
+              </li>
+            } @empty {
+              <li class="px32-vazio">Nenhum documento vinculado a este contrato.</li>
+            }
+          </ul>
+        </section>
+      </aside>
+    }
+  </section>
+</sep-operational-shell>

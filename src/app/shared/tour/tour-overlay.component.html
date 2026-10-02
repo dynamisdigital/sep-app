@@ -1,0 +1,158 @@
+@if (tour.ativo()) {
+  <!-- Bloqueia o clique do usuario durante o roteiro: quem opera a tela e o roteiro. -->
+  <div class="sep-tour-bloqueio" aria-hidden="true"></div>
+
+  @if (caixa(); as c) {
+    <div
+      class="sep-tour-foco"
+      [class.sep-tour-foco-aceso]="tour.focoAceso()"
+      [class.sep-tour-foco-digitando]="tour.digitando()"
+      [style.top.px]="c.top - 6"
+      [style.left.px]="c.left - 6"
+      [style.width.px]="c.width + 12"
+      [style.height.px]="c.height + 12"
+      aria-hidden="true"
+    ></div>
+  }
+
+  @if (tour.cursor(); as cur) {
+    <div
+      class="sep-tour-cursor"
+      [class.sep-tour-cursor-clique]="tour.clicando()"
+      [style.transform]="'translate(' + cur.x + 'px, ' + cur.y + 'px)'"
+      aria-hidden="true"
+    >
+      <svg viewBox="0 0 24 24" width="26" height="26">
+        <path d="M4 2.5 19.5 12l-6.8 1.4 3.9 7.1-2.9 1.5-3.9-7.2L4 19.6Z" />
+      </svg>
+      <span class="sep-tour-onda"></span>
+    </div>
+  }
+
+  <section
+    #cartao
+    class="sep-tour-cartao"
+    [style.top.px]="posicaoCartao().top"
+    [style.left.px]="posicaoCartao().left"
+    role="dialog"
+    aria-label="Tour assistido"
+  >
+    <header>
+      <span class="sep-tour-selo"
+        ><lucide-icon name="circle-play" [size]="14" />Tour assistido</span
+      >
+      <small>{{ tour.roteiro()?.modulo }} · {{ tour.roteiro()?.titulo }}</small>
+      <button
+        type="button"
+        class="sep-tour-fechar"
+        aria-label="Sair do tour assistido"
+        (click)="sair()"
+      >
+        <lucide-icon name="x" [size]="16" />
+      </button>
+    </header>
+
+    <div class="sep-tour-barra" aria-hidden="true">
+      <span [style.width.%]="progresso()"></span>
+    </div>
+    <p class="sep-tour-contagem">
+      Passo {{ tour.indice() + 1 }} de {{ tour.passos().length }}
+      @if (tour.estado() === 'pausado') {
+        · <strong>pausado</strong>
+      }
+    </p>
+
+    <h3>{{ tour.passoAtual()?.titulo }}</h3>
+    <p class="sep-tour-texto" aria-live="polite">{{ tour.textoAtual() }}</p>
+
+    @if (tour.mensagem(); as msg) {
+      <p
+        class="sep-tour-aviso"
+        [attr.data-tone]="tour.estado() === 'concluido' ? 'green' : 'amber'"
+        role="status"
+      >
+        <lucide-icon
+          [name]="tour.estado() === 'concluido' ? 'circle-check' : 'triangle-alert'"
+          [size]="15"
+        />
+        {{ msg }}
+      </p>
+    }
+
+    <footer>
+      @if (tour.estado() === 'concluido' || tour.estado() === 'interrompido') {
+        <button type="button" class="sep-tour-btn" (click)="tour.repetir()">
+          <lucide-icon name="rotate-ccw" [size]="15" />Repetir
+        </button>
+        <button type="button" class="sep-tour-btn sep-tour-btn-primario" (click)="sair()">
+          Fechar
+        </button>
+      } @else {
+        @if (tour.estado() === 'pausado') {
+          <button
+            type="button"
+            class="sep-tour-btn sep-tour-btn-primario"
+            (click)="tour.continuar()"
+          >
+            <lucide-icon name="play" [size]="15" />Continuar
+          </button>
+        } @else {
+          <button type="button" class="sep-tour-btn" (click)="tour.pausar()">
+            <lucide-icon name="pause" [size]="15" />Pausar
+          </button>
+        }
+        <button
+          type="button"
+          class="sep-tour-btn"
+          [attr.title]="
+            tour.estado() === 'pausado'
+              ? 'Executa um passo e pausa de novo'
+              : 'Encurta a leitura deste passo'
+          "
+          (click)="tour.avancar()"
+        >
+          <lucide-icon name="skip-forward" [size]="15" />Próximo
+        </button>
+        <span class="sep-tour-espaco"></span>
+        <button
+          type="button"
+          class="sep-tour-btn sep-tour-btn-icone"
+          [attr.aria-label]="'Velocidade ' + tour.velocidade() + 'x'"
+          title="Velocidade"
+          (click)="tour.alternarVelocidade()"
+        >
+          {{ tour.velocidade() }}×
+        </button>
+        @if (musica.disponivel) {
+          <button
+            type="button"
+            class="sep-tour-btn sep-tour-btn-icone"
+            [class.sep-tour-btn-ligado]="musica.ativa()"
+            [attr.aria-pressed]="musica.ativa()"
+            [attr.aria-label]="
+              musica.ativa() ? 'Desligar música de fundo' : 'Ligar música de fundo'
+            "
+            [attr.data-musica-nivel]="musica.nivel()"
+            [title]="musica.ativa() ? 'Música de fundo ligada' : 'Música de fundo desligada'"
+            (click)="musica.alternar()"
+          >
+            <lucide-icon name="music" [size]="16" />
+          </button>
+        }
+        @if (narrador.disponivel) {
+          <button
+            type="button"
+            class="sep-tour-btn sep-tour-btn-icone"
+            [class.sep-tour-btn-ligado]="narrador.ativo()"
+            [attr.aria-pressed]="narrador.ativo()"
+            [attr.aria-label]="narrador.ativo() ? 'Desligar narração' : 'Ligar narração'"
+            [title]="narrador.ativo() ? 'Narração ligada' : 'Narração desligada'"
+            (click)="narrador.alternar()"
+          >
+            <lucide-icon [name]="narrador.ativo() ? 'volume-2' : 'volume-x'" [size]="16" />
+          </button>
+        }
+      }
+    </footer>
+  </section>
+}

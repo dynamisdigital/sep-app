@@ -1,3 +1,4 @@
+import { importProvidersFrom } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
@@ -5,6 +6,8 @@ import { fireEvent, render, screen } from '@testing-library/angular';
 import { describe, expect, it, vi } from 'vitest';
 
 import { OnboardingEmpresaPageComponent } from './onboarding-empresa-page.component';
+import { LucideAngularModule } from 'lucide-angular';
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 
 const EMPRESA_ID = '2f0799c0-98b9-6d9d-bc4a-7d6f5b771f02';
 
@@ -15,7 +18,7 @@ async function flush(times = 5): Promise<void> {
 }
 
 async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
+  await new Promise((resolve) => setTimeout(resolve, 50));
   await flush();
   fixture.detectChanges();
 }
@@ -27,6 +30,7 @@ function activatedRoute(id?: string) {
 function renderPagina(id?: string) {
   return render(OnboardingEmpresaPageComponent, {
     providers: [
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
       provideHttpClient(),
       provideRouter([]),
       { provide: ActivatedRoute, useValue: activatedRoute(id) },
@@ -58,7 +62,7 @@ describe('OnboardingEmpresaPageComponent', () => {
 
     preencherFormulario('27.865.757/0001-02');
     fixture.detectChanges();
-    fireEvent.click(screen.getByText('Iniciar onboarding'));
+    fireEvent.click(screen.getByText('Continuar para sócios'));
 
     await estabilizar(fixture);
 
@@ -70,7 +74,7 @@ describe('OnboardingEmpresaPageComponent', () => {
 
     preencherFormulario('99.999.999/9999-99');
     fixture.detectChanges();
-    fireEvent.click(screen.getByText('Iniciar onboarding'));
+    fireEvent.click(screen.getByText('Continuar para sócios'));
 
     await estabilizar(fixture);
 
@@ -84,5 +88,13 @@ describe('OnboardingEmpresaPageComponent', () => {
 
     expect(screen.getByText('APROVADO_FINAL')).toBeTruthy();
     expect(screen.getByText('529****4725')).toBeTruthy();
+  });
+
+  it('reutiliza o shell operacional e os assets oficiais do mockup 08', async () => {
+    await renderPagina();
+
+    expect(screen.getByRole('region', { name: /área operacional sep/i })).toBeTruthy();
+    expect(screen.getByText('Resumo da jornada KYB')).toBeTruthy();
+    expect(document.querySelector('.field-control lucide-icon svg')).toBeTruthy();
   });
 });

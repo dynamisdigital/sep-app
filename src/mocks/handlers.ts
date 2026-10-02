@@ -1,5 +1,8 @@
 import { http, HttpResponse } from 'msw';
 
+import { qrDataUrl } from './qr';
+import { codigoTotpValido } from './totp';
+
 import {
   buildOperationalDashboardSnapshot,
   operationalDashboardStore,
@@ -16,6 +19,21 @@ const adminUsuario = {
   // sensiveis so redirecionam para /app/step-up quando currentUser().mfaHabilitado e true.
   precisaRedefinirSenha: false,
   mfaHabilitado: true,
+  dataCriacao: now,
+  dataModificacao: now,
+  criadoPor: 'system',
+  modificadoPor: 'system',
+};
+
+// Usuario ficticio de desenvolvimento: papel ADMIN (alcanca todas as telas), sem MFA e sem
+// redefinicao pendente, para o login do dev-offline entrar direto. Some junto com o mock
+// quando o sistema for fechado.
+const devUsuario = {
+  id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b7710de',
+  username: 'dev@sep.local',
+  role: 'ADMIN',
+  precisaRedefinirSenha: false,
+  mfaHabilitado: false,
   dataCriacao: now,
   dataModificacao: now,
   criadoPor: 'system',
@@ -133,6 +151,7 @@ const credoraNovoUsuario = {
 };
 
 const usuariosFake = [
+  devUsuario,
   adminUsuario,
   clienteUsuario,
   financeiroUsuario,
@@ -143,7 +162,25 @@ const usuariosFake = [
 // Credenciais aceitas no dev-offline (senha unica 123456). Permite exercitar as jornadas
 // de cobranca (FINANCEIRO) e de backoffice (BACKOFFICE), nao so ADMIN. currentMockUser
 // segue o ultimo login pra /auth/me e /auth/refresh refletirem a role correta apos reload.
+// Senha vigente de cada conta do dev-offline. Comeca na senha unica e passa a refletir a troca
+// feita em `/app/profile/change-password`: sem isso o operador trocava a senha, saia, e so
+// conseguia voltar com a senha antiga — o oposto do que a tela acabara de dizer.
+const SENHA_PADRAO_DEV = '123456';
+const senhasPorUsuario: Record<string, string> = {};
+
+function senhaDe(username: string): string {
+  return senhasPorUsuario[username] ?? SENHA_PADRAO_DEV;
+}
+
+/** Devolve todas as contas a senha unica. Testes que trocam senha precisam chamar no beforeEach. */
+export function resetSenhasDev(): void {
+  for (const chave of Object.keys(senhasPorUsuario)) {
+    delete senhasPorUsuario[chave];
+  }
+}
+
 const loginUsuarios: Record<string, typeof adminUsuario> = {
+  'dev@sep.local': devUsuario,
   'admin@empresa.com': adminUsuario,
   'financeiro@empresa.com': financeiroUsuario,
   'backoffice@empresa.com': backofficeUsuario,
@@ -152,6 +189,9 @@ const loginUsuarios: Record<string, typeof adminUsuario> = {
   'credora-novo@empresa.com': credoraNovoUsuario,
 };
 let currentMockUser = adminUsuario;
+// Contas criadas por POST /usuarios nesta sessao do mock; o reset da governanca as remove.
+let usuariosCriados = 0;
+const QTD_USUARIOS_SEED = usuariosFake.length;
 
 function errorResponse(status: number, error: string, message: string, path: string) {
   return HttpResponse.json(
@@ -386,24 +426,102 @@ const PROPOSTA_PENDENCIA_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c04';
 const PROPOSTA_OF_PENDENTE_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c05';
 const PROPOSTA_OF_AUTORIZADO_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c06';
 const PROPOSTA_CRIADA_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c07';
+const PROPOSTA_REJEITADA_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c08';
 const PROPOSTA_SEM_OWNERSHIP_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771ff03';
 const ONBOARDING_NAO_APROVADO = '99999999-9999-9999-9999-999999999999';
 const TOMADOR_ID = clienteUsuario.id;
 
-function propostaFake(id: string, status: string, score: unknown = null, parecer: unknown = null) {
+// Etapas da proposta (Mockup 28). Cada status so garante ate um ponto da trilha: o que vem
+// depois aparece aguardando, e a etapa corrente aparece em andamento.
+const ETAPAS_PROPOSTA = [
+  'Proposta criada',
+  'Validação cadastral',
+  'Em análise de crédito',
+  'Oferta de crédito',
+  'Formalização',
+];
+
+const ETAPA_CORRENTE: Record<string, number> = {
+  CRIADA: 0,
+  EM_ANALISE: 2,
+  PRE_APROVADA: 3,
+  PENDENCIA: 2,
+  APROVADA: 4,
+  REJEITADA: 3,
+};
+
+const PERCENTUAL_ANALISE: Record<string, number> = {
+  EM_ANALISE: 65,
+  PRE_APROVADA: 80,
+  PENDENCIA: 45,
+  APROVADA: 100,
+  REJEITADA: 100,
+};
+
+function etapasProposta(status: string, criacao: string, modificacao: string) {
+  const corrente = ETAPA_CORRENTE[status] ?? 0;
+  return ETAPAS_PROPOSTA.map((titulo, i) => {
+    if (i < corrente) {
+      return { titulo, em: i === 0 ? criacao : modificacao, situacao: 'CONCLUIDO' };
+    }
+    if (i === corrente) {
+      return { titulo, em: modificacao, situacao: 'EM_ANDAMENTO' };
+    }
+    return { titulo, situacao: 'AGUARDANDO' };
+  });
+}
+
+function propostaFake(
+  id: string,
+  status: string,
+  score: unknown = null,
+  parecer: unknown = null,
+  valorSolicitado = 1250.0,
+  prazoMeses = 12,
+  tipoOperacao = 'CAPITAL_GIRO',
+) {
+  const criacao = now;
+  // Depois da criacao (18:30:00): uma proposta nao e alterada antes de existir. Antes, 14:20:33 deixava
+  // a duracao da analise negativa e a linha do tempo contava o score antes do registro. 2h15min
+  // exatos, que e o "tempo medio de analise" que a tela ja mostrava, agora calculado.
+  const modificacao = '2026-04-24T20:45:00-03:00';
   return {
     id,
     tomadorId: TOMADOR_ID,
     solicitacaoOnboardingId: '2f0799c0-98b9-6d9d-bc4a-7d6f5b771f01',
-    tipoOperacao: 'CAPITAL_GIRO',
-    valorSolicitado: 10000.0,
+    tipoOperacao,
+    valorSolicitado,
     moeda: 'BRL',
-    prazoMeses: 12,
+    prazoMeses,
     status,
-    dataCriacao: now,
-    dataModificacao: now,
+    dataCriacao: criacao,
+    dataModificacao: modificacao,
     score,
     parecer,
+    // Apresentacao do Mockup 28: nenhum destes participa de decisao de credito.
+    finalidade: 'Compra de estoque',
+    carenciaMeses: 0,
+    valorParcelaEstimado: Number((valorSolicitado / prazoMeses).toFixed(2)),
+    empresaNome: 'Empresa Exemplo Ltda.',
+    cnpj: '11.111.111/0001-91',
+    porte: 'Pequeno Porte',
+    setor: 'Comércio',
+    taxaEstimada: '2,4% a.m.',
+    garantia: 'Conta escrow',
+    canalOrigem: 'Portal SEP',
+    analista: status === 'EM_ANALISE' ? 'Equipe de crédito' : 'Motor de crédito',
+    percentualAnalise: PERCENTUAL_ANALISE[status] ?? 0,
+    etapas: etapasProposta(status, criacao, modificacao),
+    documentos: [
+      { nome: 'Contrato social.pdf', tipo: 'PDF', tamanho: '412 KB', enviadoEm: criacao },
+      { nome: 'Faturamento 12 meses.xlsx', tipo: 'XLSX', tamanho: '86 KB', enviadoEm: criacao },
+      { nome: 'Comprovante de endereço.pdf', tipo: 'PDF', tamanho: '221 KB', enviadoEm: criacao },
+    ],
+    historico: [
+      { titulo: 'Proposta registrada no portal', em: criacao, autor: 'Tomador' },
+      { titulo: 'Validação cadastral concluída', em: criacao, autor: 'Sistema' },
+      { titulo: 'Score do motor calculado', em: modificacao, autor: 'Motor de crédito' },
+    ],
   };
 }
 
@@ -437,7 +555,25 @@ const propostasFake: Record<string, ReturnType<typeof propostaFake>> = {
   [PROPOSTA_APROVADA_ID]: propostaFake(PROPOSTA_APROVADA_ID, 'APROVADA'),
   [PROPOSTA_PENDENCIA_ID]: propostaFake(PROPOSTA_PENDENCIA_ID, 'PENDENCIA'),
   [PROPOSTA_OF_PENDENTE_ID]: propostaFake(PROPOSTA_OF_PENDENTE_ID, 'EM_ANALISE'),
-  [PROPOSTA_OF_AUTORIZADO_ID]: propostaFake(PROPOSTA_OF_AUTORIZADO_ID, 'EM_ANALISE'),
+  [PROPOSTA_OF_AUTORIZADO_ID]: propostaFake(
+    PROPOSTA_OF_AUTORIZADO_ID,
+    'EM_ANALISE',
+    null,
+    null,
+    1875,
+    18,
+    'OUTROS',
+  ),
+  [PROPOSTA_CRIADA_ID]: propostaFake(
+    PROPOSTA_CRIADA_ID,
+    'EM_ANALISE',
+    null,
+    null,
+    3125,
+    36,
+    'OUTROS',
+  ),
+  [PROPOSTA_REJEITADA_ID]: propostaFake(PROPOSTA_REJEITADA_ID, 'REJEITADA', null, null, 1500),
 };
 
 function pageOf<T>(content: T[]) {
@@ -456,7 +592,12 @@ function pageOf<T>(content: T[]) {
 
 const creditoHandlers = [
   http.post(`${baseUrl}/credito/propostas`, async ({ request }) => {
-    const body = (await request.json()) as { solicitacaoOnboardingId?: string };
+    const body = (await request.json()) as {
+      solicitacaoOnboardingId?: string;
+      tipoOperacao?: string;
+      valorSolicitado?: number;
+      prazoMeses?: number;
+    };
 
     if (body.solicitacaoOnboardingId === ONBOARDING_NAO_APROVADO) {
       return errorResponse(
@@ -467,16 +608,32 @@ const creditoHandlers = [
       );
     }
 
-    return HttpResponse.json(propostaFake(PROPOSTA_CRIADA_ID, 'EM_ANALISE'), { status: 201 });
+    const propostaCriada = propostaFake(
+      PROPOSTA_CRIADA_ID,
+      'EM_ANALISE',
+      null,
+      null,
+      Number(body.valorSolicitado ?? 0),
+      Number(body.prazoMeses ?? 0),
+      body.tipoOperacao ?? 'CAPITAL_GIRO',
+    );
+    propostaCriada.solicitacaoOnboardingId = body.solicitacaoOnboardingId ?? '';
+    propostasFake[PROPOSTA_CRIADA_ID] = propostaCriada;
+
+    return HttpResponse.json(propostaCriada, { status: 201 });
   }),
 
   http.get(`${baseUrl}/credito/propostas`, ({ request }) => {
     const status = new URL(request.url).searchParams.get('status');
     const todas = [
+      propostasFake[PROPOSTA_CRIADA_ID],
       propostasFake[PROPOSTA_EM_ANALISE_ID],
       propostasFake[PROPOSTA_PRE_APROVADA_ID],
       propostasFake[PROPOSTA_APROVADA_ID],
       propostasFake[PROPOSTA_PENDENCIA_ID],
+      propostasFake[PROPOSTA_OF_PENDENTE_ID],
+      propostasFake[PROPOSTA_OF_AUTORIZADO_ID],
+      propostasFake[PROPOSTA_REJEITADA_ID],
     ];
     const filtradas = status ? todas.filter((p) => p.status === status) : todas;
     return HttpResponse.json(pageOf(filtradas));
@@ -549,10 +706,13 @@ const creditoHandlers = [
         dataInicio: now,
         dataAutorizacao: now,
         dataExpiracao: '2026-04-25T18:30:00-03:00',
+        // Coerente com a carteira: o maior contrato e de R$ 6.000,00 em 10x de R$ 600,00.
+        // Entradas de 30x a parcela satisfazem o bonus de "entradas >= 3x parcela" sem
+        // descrever uma empresa que nunca precisaria de um emprestimo de ate R$ 15.000,00.
         ultimaMovimentacao: {
-          mediaEntradasMensal: 45000.0,
-          mediaSaidasMensal: 38000.0,
-          saldoMedio: 12000.0,
+          mediaEntradasMensal: 18000.0,
+          mediaSaidasMensal: 15400.0,
+          saldoMedio: 3200.0,
           numeroMesesAvaliados: 6,
           dataRecebimento: now,
         },
@@ -885,42 +1045,32 @@ const STATUS_PERMITEM_RENEGOCIACAO = ['ATRASADA', 'INADIMPLENTE'];
 // Mesmo pattern do CobrancaController.validarIdempotencyKey.
 const IDEMPOTENCY_KEY_PATTERN = /^[A-Za-z0-9._-]{1,100}$/;
 
-function parcelaEstatica(
-  id: string,
-  numero: number,
-  principal: number,
-  juros: number,
-  multa: number,
-  encargos: number,
-  dataVencimento: string,
-  status: string,
-) {
-  return {
-    id,
-    numero,
-    principal,
-    juros,
-    multa,
-    encargos,
-    total: principal + juros + multa + encargos,
-    dataVencimento,
-    status,
-  };
+// Formatacao usada so nos textos de apresentacao do mock (trilha do Mockup 31).
+const agoraIso = '2026-05-30T11:58:44-03:00';
+
+function moedaBr(valor: number): string {
+  return `R$ ${valor
+    .toFixed(2)
+    .replace('.', ',')
+    .replace(/\B(?=(\d{3})+(?!\d),)/g, '.')}`;
 }
 
-const agendaFake = {
-  id: AGENDA_ID,
-  contratoId: COBRANCA_CONTRATO_ID,
-  numeroParcelas: 4,
-  valorTotal: 4000.0,
-  dataGeracao: now,
-  parcelas: [
-    parcelaEstatica(PARCELA_PENDENTE_ID, 1, 1000.0, 0, 0, 0, '2026-07-15', 'PENDENTE'),
-    parcelaEstatica(PARCELA_ATRASADA_ID, 2, 1000.0, 0, 0, 0, '2026-05-15', 'ATRASADA'),
-    parcelaEstatica(PARCELA_PARCIAL_ID, 3, 1000.0, 0, 0, 0, '2026-06-15', 'PARCIALMENTE_PAGA'),
-    parcelaEstatica(PARCELA_PAGA_ID, 4, 1000.0, 0, 0, 0, '2026-04-15', 'PAGA'),
-  ],
-};
+function dataBr(isoDate: string): string {
+  const [ano, mes, dia] = isoDate.split('-');
+  return `${dia}/${mes}/${ano}`;
+}
+
+// Extras de apresentacao do Mockup 31: quando a parcela pertence a um contrato da
+// CARTEIRA, o detalhe precisa mostrar o mesmo contrato, tomador e total de parcelas que a
+// triagem de inadimplencia mostrou, e nao o contrato generico do seed antigo.
+interface ExtrasParcela {
+  diasAtraso?: number;
+  contratoCurto?: string;
+  contratoTipo?: string;
+  tomador?: string;
+  parcelasTotais?: number;
+  valorTotalContrato?: number;
+}
 
 function valorAtualizado(
   parcelaId: string,
@@ -932,8 +1082,60 @@ function valorAtualizado(
   jurosMora: number,
   multa: number,
   totalRecebido: number,
+  extras: ExtrasParcela = {},
 ) {
   const valorDevidoAtualizado = principalOriginal + jurosOriginal + jurosMora + multa;
+  // Emissao 30 dias antes do vencimento, no mesmo contrato de 12 parcelas mensais de mil reais.
+  const emissao = new Date(`${dataVencimento}T00:00:00-03:00`);
+  emissao.setDate(emissao.getDate() - 30);
+  const dataEmissao = emissao.toISOString().slice(0, 10);
+  const criadoEm = `${dataEmissao}T10:32:11-03:00`;
+  const liquidada = status === 'PAGA';
+  const recebida = liquidada || status === 'PARCIALMENTE_PAGA';
+  const eventos: { rotulo: string; dataHora: string; origem: string; detalhe?: string }[] = [
+    {
+      rotulo: 'Parcela gerada',
+      dataHora: criadoEm,
+      origem: 'Sistema',
+      detalhe: `Valor original: ${moedaBr(principalOriginal + jurosOriginal)}`,
+    },
+    {
+      rotulo: 'Boleto gerado',
+      dataHora: `${dataEmissao}T10:32:12-03:00`,
+      origem: 'Sistema',
+      detalhe: 'Cobranca disponibilizada ao tomador',
+    },
+    {
+      rotulo: 'Aguardando pagamento',
+      dataHora: `${dataEmissao}T10:32:12-03:00`,
+      origem: 'Sistema',
+      detalhe: `Vencimento em ${dataBr(dataVencimento)}`,
+    },
+  ];
+  // Marcos de atraso: a trilha do Mockup 31 mostra o vencimento e o estado atual.
+  const dias = extras.diasAtraso ?? 0;
+  if (dias > 0) {
+    eventos.push({
+      rotulo: 'Parcela vencida',
+      dataHora: `${dataVencimento}T00:00:00-03:00`,
+      origem: 'Sistema',
+      detalhe: `Vencimento original: ${dataBr(dataVencimento)}`,
+    });
+    eventos.push({
+      rotulo: `${dias} dias de atraso`,
+      dataHora: agoraIso,
+      origem: 'Sistema',
+      detalhe: 'Parcela em atraso',
+    });
+  }
+  if (recebida) {
+    eventos.push({
+      rotulo: 'Pagamento recebido',
+      dataHora: `${dataVencimento}T14:08:45-03:00`,
+      origem: 'Conciliacao Pix',
+      detalhe: `Total recebido: ${moedaBr(totalRecebido)}`,
+    });
+  }
   return {
     parcelaId,
     numero,
@@ -946,6 +1148,51 @@ function valorAtualizado(
     valorDevidoAtualizado,
     totalRecebido,
     valorEmAberto: valorDevidoAtualizado - totalRecebido,
+    // --- Campos de apresentacao do Mockup 24 (nao participam de calculo) ---
+    desconto: 0,
+    propostaNumero: 'PROP-5b771e05',
+    tomador: extras.tomador ?? 'Empresa Exemplo Ltda.',
+    periodicidade: 'Mensal',
+    dataEmissao,
+    criadoEm,
+    criadoPor: 'Sistema',
+    atualizadoEm: recebida ? `${dataVencimento}T14:08:45-03:00` : criadoEm,
+    contrato: {
+      contratoId: extras.contratoCurto ?? COBRANCA_CONTRATO_ID,
+      numero: extras.contratoCurto ? `CONT-${extras.contratoCurto}` : 'CONT-8d991a11',
+      status: 'Ativo',
+      valorTotal: extras.valorTotalContrato ?? 12000,
+      parcelasTotais: extras.parcelasTotais ?? 12,
+      parcelasPagas: 1,
+      parcelasEmAberto: (extras.parcelasTotais ?? 12) - 1,
+      proximoVencimento: '2026-07-15',
+    },
+    cobranca: {
+      tipoCobranca: 'Normal',
+      formaPagamento: 'Boleto / Pix',
+      bancoRecebedor: 'Banco ABCD S.A.',
+      nossoNumero: `0000001234567${8900 + numero}`,
+      linhaDigitavel: '12345.67890 12345.678901 12345.678901 1 123456789000',
+    },
+    complementares: {
+      categoria: 'Capital de Giro',
+      finalidade: 'Compra de estoque',
+      centroCusto: 'Administrativo',
+      observacoes: null as string | null,
+      tags: ['operacional', 'mensal', 'cliente-pj'],
+    },
+    eventos,
+    // --- Campos de apresentacao do Mockup 31 ---
+    diasAtraso: extras.diasAtraso ?? 0,
+    documentos: [
+      {
+        nome: `Contrato ${extras.contratoCurto ?? '5b771e03'}`,
+        tipo: 'PDF',
+        tamanho: '245 KB',
+      },
+      { nome: 'Demonstrativo da parcela', tipo: 'PDF', tamanho: '120 KB' },
+      { nome: 'Boleto (PIX)', tipo: 'PDF', tamanho: '98 KB' },
+    ],
   };
 }
 
@@ -1020,44 +1267,322 @@ const detalheParcela: Record<string, ReturnType<typeof valorAtualizado>> = {
   ),
 };
 
-const inadimplenciaSeed = [
-  {
-    parcelaId: PARCELA_ATRASADA_ID,
-    agendaId: AGENDA_ID,
-    contratoId: COBRANCA_CONTRATO_ID,
-    tomadorId: TOMADOR_ID,
-    numeroParcela: 2,
-    status: 'ATRASADA',
-    dataVencimento: '2026-05-15',
-    diasAtraso: 21,
-    valorOriginal: 1000.0,
+// ============ CARTEIRA UNICA DA BASE FICTICIA ============
+//
+// Quatro contratos somando R$ 15.000,00 contratados, o teto do regimento SEP. Cada um tem
+// prazo e valor de parcela coerentes com o que foi contratado (parcela = contratado / prazo),
+// e TODAS as parcelas da base nascem daqui. Inadimplencia (Mockup 30), agenda financeira
+// (Mockup 29), detalhe da parcela (Mockup 31), agenda do contrato (Mockup 32) e os
+// indicadores da Cobranca (Mockup 14) sao somados dessas parcelas, entao os numeros batem
+// entre as telas por construcao, e nao por coincidencia de constantes.
+//
+//   contrato    tipo             contratado   prazo   parcela   pagas   em aberto   estado
+//   5b771c03    CAPITAL_GIRO     R$ 1.250,00    10    R$ 125,00     8   R$   250,00  em dia
+//   5b771c05    INVESTIMENTO     R$ 3.125,00    10    R$ 312,50     7   R$   937,50  atrasado
+//   5b771c06    REFINANCIAMENTO  R$ 4.625,00    10    R$ 462,50     6   R$ 1.850,00  atrasado
+//   5b771c08    CAPITAL_GIRO     R$ 6.000,00    10    R$ 600,00     8   R$ 1.200,00  em dia
+const CARTEIRA = {
+  '5b771c03': {
+    tipo: 'CAPITAL_GIRO',
+    tomador: 'Empresa Exemplo Ltda.',
+    documento: '11.111.111/0001-91',
+    contratado: 1250.0,
+    prazo: 10,
+    primeiroVencimento: '2025-10-20',
+    pagas: 8,
+    meio: 'PIX',
   },
-  {
-    parcelaId: PARCELA_INADIMPLENTE_ID,
-    agendaId: AGENDA_ID,
-    contratoId: COBRANCA_CONTRATO_ID,
-    tomadorId: TOMADOR_ID,
-    numeroParcela: 6,
-    status: 'INADIMPLENTE',
-    dataVencimento: '2026-02-01',
-    diasAtraso: 124,
-    valorOriginal: 1000.0,
+  '5b771c05': {
+    tipo: 'INVESTIMENTO',
+    tomador: 'Cliente Demonstracao S.A.',
+    documento: '33.333.333/0001-33',
+    contratado: 3125.0,
+    prazo: 10,
+    primeiroVencimento: '2025-09-05',
+    pagas: 7,
+    meio: 'PIX',
   },
+  '5b771c06': {
+    tipo: 'REFINANCIAMENTO',
+    tomador: 'Industria Alpha Ltda.',
+    documento: '22.222.222/0001-22',
+    contratado: 4625.0,
+    prazo: 10,
+    primeiroVencimento: '2025-09-15',
+    pagas: 6,
+    meio: 'BOLETO',
+  },
+  '5b771c08': {
+    tipo: 'CAPITAL_GIRO',
+    tomador: 'Comercio Beta ME',
+    documento: '44.444.444/0001-44',
+    contratado: 6000.0,
+    prazo: 10,
+    primeiroVencimento: '2025-10-25',
+    pagas: 8,
+    meio: 'TRANSFERENCIA',
+  },
+} as const;
+
+type ChaveContrato = keyof typeof CARTEIRA;
+
+const HOJE_BASE = new Date('2026-05-30T00:00:00-03:00');
+const DIA_MS = 24 * 60 * 60 * 1000;
+
+interface ParcelaCarteira {
+  contrato: ChaveContrato;
+  numero: number;
+  totalParcelas: number;
+  valor: number;
+  vencimento: string;
+  paga: boolean;
+  dataPagamento: string | null;
+  diasAtraso: number;
+  status: 'PAGA' | 'PENDENTE' | 'ATRASADA' | 'INADIMPLENTE';
+  parcelaId: string;
+}
+
+// Vencimentos mensais a partir do primeiro, preservando o dia do mes.
+function vencimentoMensal(primeiro: string, indice: number): string {
+  const [ano, mes, dia] = primeiro.split('-').map(Number);
+  const data = new Date(Date.UTC(ano, mes - 1 + indice, dia));
+  return data.toISOString().slice(0, 10);
+}
+
+// Gera todas as parcelas da carteira. Status e dias de atraso saem da comparacao entre o
+// vencimento e a data de referencia do mock — e so aqui, para nenhuma tela recalcular.
+function carteiraParcelas(): ParcelaCarteira[] {
+  const lista: ParcelaCarteira[] = [];
+  let seq = 300;
+  for (const chave of Object.keys(CARTEIRA) as ChaveContrato[]) {
+    const c = CARTEIRA[chave];
+    const valor = Math.round((c.contratado / c.prazo) * 100) / 100;
+    for (let i = 0; i < c.prazo; i += 1) {
+      const numero = i + 1;
+      const vencimento = vencimentoMensal(c.primeiroVencimento, i);
+      const paga = numero <= c.pagas;
+      const atraso = Math.floor(
+        (HOJE_BASE.getTime() - new Date(`${vencimento}T00:00:00-03:00`).getTime()) / DIA_MS,
+      );
+      const diasAtraso = paga || atraso <= 0 ? 0 : atraso;
+      const status: ParcelaCarteira['status'] = paga
+        ? 'PAGA'
+        : diasAtraso === 0
+          ? 'PENDENTE'
+          : diasAtraso <= 15
+            ? 'ATRASADA'
+            : 'INADIMPLENTE';
+      seq += 1;
+      lista.push({
+        contrato: chave,
+        numero,
+        totalParcelas: c.prazo,
+        valor,
+        vencimento,
+        paga,
+        dataPagamento: paga ? vencimento : null,
+        diasAtraso,
+        status,
+        parcelaId: novoId('a0000000', seq),
+      });
+    }
+  }
+  return lista;
+}
+
+const PARCELAS_CARTEIRA = carteiraParcelas();
+
+// Agregados do painel de backoffice tirados da propria carteira, para nenhum numero do
+// dashboard divergir das telas de Cobranca nem estourar o teto de R$ 15.000,00 do regimento.
+const INADIMPLENCIA_CARTEIRA = PARCELAS_CARTEIRA.filter((p) => p.diasAtraso > 0).reduce(
+  (acc, p) => ({
+    valorTotal: Math.round((acc.valorTotal + p.valor) * 100) / 100,
+    numeroParcelas: acc.numeroParcelas + 1,
+  }),
+  { valorTotal: 0, numeroParcelas: 0 },
+);
+
+// O ultimo dia com pagamento na carteira (25/05/2026), que e o "dia" do painel enquanto a
+// data de referencia do mock e 30/05/2026.
+const RECEBIMENTOS_ULTIMO_DIA = (() => {
+  const pagas = PARCELAS_CARTEIRA.filter((p) => p.dataPagamento);
+  const ultima = pagas
+    .map((p) => p.dataPagamento)
+    .sort()
+    .pop();
+  return (
+    Math.round(
+      pagas.filter((p) => p.dataPagamento === ultima).reduce((soma, p) => soma + p.valor, 0) * 100,
+    ) / 100
+  );
+})();
+
+// ============ INADIMPLENCIA (Mockup 30) ============
+
+// As parcelas em atraso da carteira, na ordem de vencimento. Nada e inventado aqui: a
+// triagem e um recorte da mesma lista.
+const inadimplenciaSeed = PARCELAS_CARTEIRA.filter((p) => p.diasAtraso > 0)
+  .sort((a, b) => a.vencimento.localeCompare(b.vencimento))
+  .map((p) => {
+    const c = CARTEIRA[p.contrato];
+    return {
+      parcelaId: p.parcelaId,
+      agendaId: AGENDA_ID,
+      contratoId: COBRANCA_CONTRATO_ID,
+      tomadorId: TOMADOR_ID,
+      numeroParcela: p.numero,
+      status: p.status,
+      dataVencimento: p.vencimento,
+      diasAtraso: p.diasAtraso,
+      valorOriginal: p.valor,
+      codigoParcela: `P${String(p.numero).padStart(3, '0')}`,
+      totalParcelas: p.totalParcelas,
+      contratoCurto: p.contrato,
+      contratoTipo: c.tipo,
+      tomadorNome: c.tomador,
+      tomadorDocumento: c.documento,
+    };
+  });
+
+// Detalhe de TODA parcela da carteira (Mockup 31): o link de qualquer lista abre uma
+// parcela com o mesmo numero, vencimento, valor e status que a lista mostrava. Mora de
+// 0,033% ao dia e multa de 2% sobre o principal, so nas que estao em atraso.
+for (const p of PARCELAS_CARTEIRA) {
+  const c = CARTEIRA[p.contrato];
+  const centavos = (valor: number) => Math.round(valor * 100) / 100;
+  detalheParcela[p.parcelaId] = valorAtualizado(
+    p.parcelaId,
+    p.numero,
+    p.status,
+    p.vencimento,
+    p.valor,
+    0,
+    p.diasAtraso > 0 ? centavos(p.valor * 0.00033 * p.diasAtraso) : 0,
+    p.diasAtraso > 0 ? centavos(p.valor * 0.02) : 0,
+    p.paga ? p.valor : 0,
+    {
+      diasAtraso: p.diasAtraso,
+      contratoCurto: p.contrato,
+      contratoTipo: c.tipo,
+      tomador: c.tomador,
+      parcelasTotais: p.totalParcelas,
+      valorTotalContrato: c.contratado,
+    },
+  );
+}
+
+// ============ RECEBIMENTOS DA AGENDA FINANCEIRA (Mockup 29) ============
+
+// Uma linha por parcela da carteira: as pagas viram recebimento conciliado, as demais
+// entram com valor recebido zero. A tela soma os proprios agregados desta lista, entao o
+// recebido, o em atraso e o a vencer batem com a Cobranca e com a inadimplencia.
+function recebimentosSeed(): Record<string, unknown>[] {
+  return PARCELAS_CARTEIRA.map((p, i) => {
+    const c = CARTEIRA[p.contrato];
+    return {
+      recebimentoId: novoId('c0000000', 400 + i),
+      parcelaId: p.parcelaId,
+      statusParcela: p.status,
+      valorRecebido: p.paga ? p.valor : 0,
+      dataRecebimento: `${p.dataPagamento ?? p.vencimento}T11:20:00-03:00`,
+      meioPagamento: p.paga ? c.meio : 'BOLETO',
+      identificadorExterno: p.paga
+        ? `comp-${p.contrato}-${String(p.numero).padStart(2, '0')}`
+        : null,
+      movimentacaoEscrowId: p.paga ? ESCROW_MOV_ID : null,
+      novo: false,
+      contrato: p.contrato,
+      recebedor: c.tomador,
+      vencimento: `${p.vencimento}T12:00:00-03:00`,
+      dataPagamento: p.dataPagamento ? `${p.dataPagamento}T11:20:00-03:00` : null,
+      valorParcela: p.valor,
+    };
+  });
+}
+
+const recebimentos: Record<string, unknown>[] = recebimentosSeed();
+
+// ============ AGENDA DO CONTRATO (Mockup 32) ============
+
+// Cada contrato da carteira tem um UUID de rota; o id curto continua sendo o que a tela
+// mostra, no mesmo padrao ja homologado. 5b771c05 reaproveita o contrato assinado que ja
+// existia, para os fluxos e testes anteriores continuarem valendo.
+const CONTRATO_UUID: Record<ChaveContrato, string> = {
+  '5b771c03': '6f0799c0-98b9-6d9d-bc4a-7d6f5b771c03',
+  '5b771c05': COBRANCA_CONTRATO_ID,
+  '5b771c06': '6f0799c0-98b9-6d9d-bc4a-7d6f5b771c06',
+  '5b771c08': '6f0799c0-98b9-6d9d-bc4a-7d6f5b771c08',
+};
+
+const DOCUMENTOS_CONTRATO = [
+  { nome: 'Contrato assinado', tipo: 'PDF', tamanho: '245 KB' },
+  { nome: 'Cédula de crédito', tipo: 'PDF', tamanho: '180 KB' },
+  { nome: 'Plano de pagamento', tipo: 'PDF', tamanho: '120 KB' },
 ];
 
-const recebimentos: Record<string, unknown>[] = [
-  {
-    recebimentoId: 'c0000000-0000-4000-8000-000000000071',
-    parcelaId: PARCELA_PARCIAL_ID,
-    statusParcela: 'PARCIALMENTE_PAGA',
-    valorRecebido: 400.0,
-    dataRecebimento: now,
-    meioPagamento: 'PIX',
-    identificadorExterno: 'comp-seed-001',
-    movimentacaoEscrowId: ESCROW_MOV_ID,
-    novo: false,
-  },
-];
+// Agenda montada a partir das mesmas parcelas da carteira: contratado, pagas, em aberto,
+// inadimplentes e proximo vencimento sao somados da lista que a propria agenda devolve.
+function agendaDoContrato(chave: ChaveContrato) {
+  const c = CARTEIRA[chave];
+  const parcelas = PARCELAS_CARTEIRA.filter((p) => p.contrato === chave);
+  const emAberto = parcelas.filter((p) => !p.paga);
+  const proxima = emAberto.find((p) => p.diasAtraso === 0) ?? emAberto[0] ?? null;
+  return {
+    id: novoId('a0000000', 900 + Object.keys(CARTEIRA).indexOf(chave)),
+    contratoId: CONTRATO_UUID[chave],
+    numeroParcelas: c.prazo,
+    valorTotal: c.contratado,
+    dataGeracao: `${c.primeiroVencimento}T09:12:00-03:00`,
+    parcelas: parcelas.map((p) => ({
+      id: p.parcelaId,
+      numero: p.numero,
+      principal: p.valor,
+      juros: 0,
+      multa: 0,
+      encargos: 0,
+      total: p.valor,
+      dataVencimento: p.vencimento,
+      status: p.status,
+      // --- apresentacao (Mockup 32) ---
+      diasAtraso: p.diasAtraso,
+      dataPagamento: p.dataPagamento,
+      meioPagamento: p.paga ? c.meio : null,
+    })),
+    // --- apresentacao (Mockup 32) ---
+    contratoCurto: chave,
+    produto: c.tipo,
+    tomador: c.tomador,
+    valorContratado: c.contratado,
+    // Liberado = contratado menos a taxa de originacao de 4% retida no desembolso.
+    valorLiberado: Math.round(c.contratado * 0.96 * 100) / 100,
+    vencimentoFinal: parcelas[parcelas.length - 1].vencimento,
+    statusContrato: parcelas.some((p) => p.diasAtraso > 0) ? 'Em atraso' : 'Em andamento',
+    parcelasPagas: c.pagas,
+    parcelasEmAberto: emAberto.length,
+    parcelasInadimplentes: parcelas.filter((p) => p.diasAtraso > 0).length,
+    proximoVencimento: proxima ? proxima.vencimento : null,
+    documentos: DOCUMENTOS_CONTRATO,
+  };
+}
+
+const agendasPorContrato = new Map<string, ReturnType<typeof agendaDoContrato>>();
+for (const chave of Object.keys(CARTEIRA) as ChaveContrato[]) {
+  const agenda = agendaDoContrato(chave);
+  agendasPorContrato.set(CONTRATO_UUID[chave], agenda);
+  agendasPorContrato.set(chave, agenda);
+}
+
+// Segredo TOTP do dev-offline (Mockup 34). O desenho traz uma chave com 0/1/8/9, que nao
+// existem no alfabeto Base32 (A-Z e 2-7); aqui a chave e valida de verdade. Ainda assim o
+// codigo aceito e fixo: nenhum aplicativo autenticador real vai gerar o mesmo numero.
+const TOTP_SECRET = 'JBSWY3DPK5Q6V7HZM4PLR2NXW7T3Y6DF';
+
+// Estado do step-up do dev-offline (Mockup 33): desafios abertos, o codigo TOTP aceito e
+// os codigos de backup de uso unico.
+const stepUpDesafios = new Set<string>();
+const STEP_UP_TOTP = '123456';
+const STEP_UP_BACKUP = new Set(['SEP-BACKUP-01', 'SEP-BACKUP-02', 'SEP-BACKUP-03']);
+let stepUpSeq = 0;
 
 // Idempotency-Key -> { hash do payload, resposta original } para detectar replay vs conflito.
 const recebimentoPorChave = new Map<string, { hash: string; response: Record<string, unknown> }>();
@@ -1100,33 +1625,49 @@ function renegociacaoFake(
   };
 }
 
-const renegociacoes: Record<string, ReturnType<typeof renegociacaoFake>> = {
-  [RENEG_PARA_ACEITE_ID]: renegociacaoFake(
-    RENEG_PARA_ACEITE_ID,
-    PARCELA_INADIMPLENTE_ID,
-    'PROPOSTA',
-    {
-      novoValorParcela: 950.0,
-      novoVencimento: '2026-07-10',
-      numeroParcelas: 6,
-      desconto: 50.0,
-    },
-  ),
-  [RENEG_PARA_RECUSA_ID]: renegociacaoFake(RENEG_PARA_RECUSA_ID, PARCELA_ATRASADA_ID, 'PROPOSTA', {
-    novoValorParcela: 980.0,
-    novoVencimento: '2026-07-10',
-    numeroParcelas: 4,
-    desconto: 20.0,
-  }),
-  [RENEG_DECIDIDA_ID]: renegociacaoFake(
-    RENEG_DECIDIDA_ID,
-    PARCELA_PARA_RECEBIMENTO_ID,
-    'ACEITA',
-    { novoValorParcela: 900.0, novoVencimento: '2026-07-10', numeroParcelas: 3, desconto: 100.0 },
-    now,
-    AGENDA_SUBSTITUTA_ID,
-  ),
-};
+function seedRenegociacoes(): Record<string, ReturnType<typeof renegociacaoFake>> {
+  return {
+    [RENEG_PARA_ACEITE_ID]: renegociacaoFake(
+      RENEG_PARA_ACEITE_ID,
+      PARCELA_INADIMPLENTE_ID,
+      'PROPOSTA',
+      {
+        novoValorParcela: 950.0,
+        novoVencimento: '2026-07-10',
+        numeroParcelas: 6,
+        desconto: 50.0,
+      },
+    ),
+    [RENEG_PARA_RECUSA_ID]: renegociacaoFake(
+      RENEG_PARA_RECUSA_ID,
+      PARCELA_ATRASADA_ID,
+      'PROPOSTA',
+      {
+        novoValorParcela: 980.0,
+        novoVencimento: '2026-07-10',
+        numeroParcelas: 4,
+        desconto: 20.0,
+      },
+    ),
+    [RENEG_DECIDIDA_ID]: renegociacaoFake(
+      RENEG_DECIDIDA_ID,
+      PARCELA_PARA_RECEBIMENTO_ID,
+      'ACEITA',
+      { novoValorParcela: 900.0, novoVencimento: '2026-07-10', numeroParcelas: 3, desconto: 100.0 },
+      now,
+      AGENDA_SUBSTITUTA_ID,
+    ),
+  };
+}
+
+let renegociacoes = seedRenegociacoes();
+
+// Restaura o estado mutavel da cobranca (as decisoes de renegociacao) para o seed. Passou a
+// importar quando surgiu `GET /cobranca/renegociacoes`: antes so o proprio id decidido enxergava
+// a mutacao, agora a listagem enxerga, e um teste de aceite mudaria a contagem do seguinte.
+export function resetCobrancaState(): void {
+  renegociacoes = seedRenegociacoes();
+}
 
 const cobrancaHandlers = [
   http.get(`${baseUrl}/cobranca/contratos/:contratoId/agenda`, ({ params }) => {
@@ -1135,10 +1676,11 @@ const cobrancaHandlers = [
     if (contratoId === CONTRATO_SEM_OWNERSHIP_ID) {
       return errorResponse(403, 'Forbidden', 'Contrato de outro tomador', path);
     }
-    if (contratoId !== COBRANCA_CONTRATO_ID) {
+    const agenda = agendasPorContrato.get(contratoId);
+    if (!agenda) {
       return errorResponse(404, 'Not Found', 'Agenda nao encontrada', path);
     }
-    return HttpResponse.json(agendaFake);
+    return HttpResponse.json(agenda);
   }),
 
   http.get(`${baseUrl}/cobranca/recebimentos`, () => HttpResponse.json(recebimentos)),
@@ -1269,6 +1811,15 @@ const cobrancaHandlers = [
     });
   }),
 
+  // Listagem da carteira de renegociacoes. Existia so a consulta por id, entao o painel da
+  // Cobranca anunciava um total digitado no HTML. Filtro opcional por status, no mesmo formato dos
+  // demais filtros de listagem (query param simples, valor do enum).
+  http.get(`${baseUrl}/cobranca/renegociacoes`, ({ request }) => {
+    const status = new URL(request.url).searchParams.get('status');
+    const todas = Object.values(renegociacoes);
+    return HttpResponse.json(status ? todas.filter((r) => r.status === status) : todas);
+  }),
+
   http.patch(`${baseUrl}/cobranca/renegociacoes/:id/aceite`, ({ params, request }) => {
     const id = params['id'] as string;
     const path = `/api/v1/cobranca/renegociacoes/${id}/aceite`;
@@ -1334,7 +1885,11 @@ const ITEM_DESEMBOLSO_PIX_ID = 'c0000000-0000-4000-8000-000000000005'; // ABERTO
 const ITEM_RECEBIMENTO_PIX_ID = 'c0000000-0000-4000-8000-000000000006'; // ABERTO / RECEBIMENTO_PIX_DIVERGENTE
 // id 'c0000000-...-0000000000aa' (usado nas specs) cai no 404 generico de item nao encontrado.
 const WEBHOOK_EVENT_ID = 'd0000000-0000-4000-8000-000000000001';
-const PIX_ENTIDADE_ID = 'd0000000-0000-4000-8000-000000000002';
+// Entidade do item de fila DESEMBOLSO_PIX_FALHOU: precisa ser um id de transferencia real, e nao
+// um id proprio de evento. Com o id antigo ('d0000000-...-002') o atalho "Reconsultar status" das
+// Divergencias caia em "Desembolso nao encontrado". Aponta para a transferencia com provider
+// indisponivel, coerente com a falha que abriu o item.
+const PIX_ENTIDADE_ID = 'e0000000-0000-4000-8000-000000000003';
 
 const TIPOS_CHAMADA_PROVIDER = [
   'KYC',
@@ -1455,6 +2010,41 @@ const objetoOriginalPorItem: Record<string, unknown> = {
 // Anti-abuso 429: conta reprocessos por entidade (reinicia a cada carga do modulo).
 const contadorReprocessos = new Map<string, number>();
 
+// Interruptor de falha so do mock, para conferir os estados de erro das telas sem backend real
+// (o MSW responde no service worker, entao bloquear a requisicao pelo DevTools nao funciona).
+// Duas formas de ligar, ambas aceitando varias chaves separadas por virgula:
+// - URL: /app/pix/divergencias?mock_erro=fila-pix
+// - console: localStorage.setItem('SEP_MOCK_ERRO', 'fila-pix')
+// O sufixo `:once` falha so na primeira carga da pagina: a tela abre no painel de erro e o botao
+// "Tentar novamente" ja devolve o estado normal, sem mexer na URL nem no console.
+const errosSimuladosConsumidos = new Set<string>();
+
+function chavesErroSimulado(): string[] {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+  const doStorage = window.localStorage?.getItem('SEP_MOCK_ERRO') ?? '';
+  const daUrl = new URLSearchParams(window.location.search).get('mock_erro') ?? '';
+  return `${doStorage},${daUrl}`
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+// Nao afeta os testes: sem chave ligada, e sempre false.
+function erroSimulado(chave: string): boolean {
+  const chaves = chavesErroSimulado();
+  if (chaves.includes(chave)) {
+    return true;
+  }
+  const umaVez = `${chave}:once`;
+  if (chaves.includes(umaVez) && !errosSimuladosConsumidos.has(umaVez)) {
+    errosSimuladosConsumidos.add(umaVez);
+    return true;
+  }
+  return false;
+}
+
 // Espelha @PreAuthorize do backend: CLIENTE nao acessa o backoffice.
 function negarSeNaoOperador(path: string) {
   if (currentMockUser.role === 'CLIENTE') {
@@ -1547,8 +2137,11 @@ const backofficeHandlers = [
           { tipo: 'WEBHOOK_FALHOU', total: 3 },
           { tipo: 'ONBOARDING_PENDENTE', total: 2 },
         ],
-        recebimentosDoDia: 18450.75,
-        inadimplenciaTotal: { valorTotal: 92000.0, numeroParcelas: 5 },
+        recebimentosDoDia: RECEBIMENTOS_ULTIMO_DIA,
+        inadimplenciaTotal: {
+          valorTotal: INADIMPLENCIA_CARTEIRA.valorTotal,
+          numeroParcelas: INADIMPLENCIA_CARTEIRA.numeroParcelas,
+        },
         propostasPorStatus: [
           { status: 'EM_ANALISE', total: 4 },
           { status: 'APROVADA', total: 7 },
@@ -1569,6 +2162,16 @@ const backofficeHandlers = [
     const status = url.searchParams.get('status');
     const tipo = url.searchParams.get('tipo');
     const prioridade = url.searchParams.get('prioridade');
+
+    // Estado de erro das telas Pix (divergencias): SEP_MOCK_ERRO=fila-pix.
+    if (erroSimulado('fila-pix') && tipo?.includes('PIX')) {
+      return errorResponse(
+        503,
+        'Service Unavailable',
+        'Erro ao obter dados do provider Pix. Timeout excedido.',
+        '/api/v1/backoffice/fila',
+      );
+    }
     const dataDe = url.searchParams.get('data_abertura_de');
     const dataAte = url.searchParams.get('data_abertura_ate');
     const atribuidoA = url.searchParams.get('atribuido_a');
@@ -1869,13 +2472,9 @@ function parametro(chave: string, tipo: string, valor: string, descricao: string
 function seedParametros() {
   parametroSeq = 0;
   return [
-    parametro('credito.valor.maximo.pf', 'DECIMAL', '50000.00', 'Valor maximo de proposta para PF'),
-    parametro(
-      'credito.valor.maximo.pj',
-      'DECIMAL',
-      '200000.00',
-      'Valor maximo de proposta para PJ',
-    ),
+    // Teto do regimento do SEP: nenhuma proposta pode passar de R$ 15.000,00, PF ou PJ.
+    parametro('credito.valor.maximo.pf', 'DECIMAL', '15000.00', 'Valor maximo de proposta para PF'),
+    parametro('credito.valor.maximo.pj', 'DECIMAL', '15000.00', 'Valor maximo de proposta para PJ'),
     parametro('credito.prazo.maximo.pf.meses', 'INTEGER', '12', 'Prazo maximo em meses para PF'),
     parametro('credito.prazo.maximo.pj.meses', 'INTEGER', '24', 'Prazo maximo em meses para PJ'),
     // versao 3 com historico de 2 alteracoes para exercitar a trilha auditavel (F-12.4/F-12.5).
@@ -1978,6 +2577,11 @@ function valorValidoParaTipo(tipo: string, valor: string): boolean {
 // Restaura o estado mutavel da governanca (roles, parametros, historico) para o seed.
 // Usado pelos testes para garantir independencia (F.I.R.S.T.) ao exercitar mutacoes 200.
 export function resetGovernancaState(): void {
+  for (const criado of usuariosFake.splice(QTD_USUARIOS_SEED)) {
+    delete loginUsuarios[criado.username];
+    delete senhasPorUsuario[criado.username];
+  }
+  usuariosCriados = 0;
   rolesPorUsuario = seedRolesPorUsuario();
   parametrosFake = seedParametros();
   historicoPorChave = seedHistorico();
@@ -2020,6 +2624,9 @@ const governancaHandlers = [
       return errorResponse(404, 'Not Found', 'usuário não encontrado', path);
     }
     rolesPorUsuario[id] = [...new Set(body.roles)];
+    // O perfil exibido na lista e no detalhe acompanha a role principal, como no backend.
+    const alvo = usuariosFake.find((u) => u.id === id);
+    if (alvo) alvo.role = principalDe(rolesPorUsuario[id]);
     return HttpResponse.json(rolesResponse(id));
   }),
 
@@ -2160,6 +2767,9 @@ interface DesembolsoMockState {
   status: string;
   valor: number;
   chaveDestinoMascara: string;
+  // Campos de apresentacao do Mockup 27. Opcionais no contrato: a tela mostra travessao
+  // quando ausentes. Nenhum participa de conciliacao ou de calculo.
+  [extra: string]: unknown;
 }
 
 // Mascara a chave Pix destino sem nunca devolver a original (mantem so os primeiros 3 chars).
@@ -2183,24 +2793,92 @@ function negarSeNaoInternoPix(path: string) {
   return null;
 }
 
+// Carimbos da linha do tempo do Mockup 27. Cada etapa so recebe hora quando o status a
+// garante: PROCESSANDO para na autorizacao e SOLICITADA para no envio ao provider.
+const ETAPAS_DESEMBOLSO: { titulo: string; em: string; origem: string }[] = [
+  { titulo: 'Solicitação criada', em: '2026-05-30T11:31:58-03:00', origem: 'Sistema' },
+  { titulo: 'Validação dos dados', em: '2026-05-30T11:31:59-03:00', origem: 'Sistema' },
+  { titulo: 'Enviado ao provider', em: '2026-05-30T11:32:01-03:00', origem: 'Sistema' },
+  { titulo: 'Autorização do Pix', em: '2026-05-30T11:32:03-03:00', origem: 'Celcoin BaaS' },
+  { titulo: 'Transferência realizada', em: '2026-05-30T11:32:05-03:00', origem: 'Celcoin BaaS' },
+  { titulo: 'Desembolso concluído', em: '2026-05-30T11:32:10-03:00', origem: 'Sistema' },
+];
+
+const ETAPAS_CARIMBADAS: Record<string, number> = {
+  CONCLUIDA: 6,
+  PROCESSANDO: 4,
+  SOLICITADA: 3,
+  CRIADA: 1,
+  FALHOU: 3,
+};
+
+function etapasDesembolso(status: string): { titulo: string; em?: string; origem?: string }[] {
+  const carimbadas = ETAPAS_CARIMBADAS[status] ?? 1;
+  return ETAPAS_DESEMBOLSO.map((etapa, i) => (i < carimbadas ? etapa : { titulo: etapa.titulo }));
+}
+
 function seedTransferenciasPix(): Record<string, DesembolsoMockState> {
   const base = (transferenciaId: string, status: string): DesembolsoMockState => ({
     transferenciaId,
-    contratoId: '6f0799c0-98b9-6d9d-bc4a-7d6f5b772a01',
+    contratoId: CONTRATO_ASSINADO_ID,
     status,
     valor: VALOR_DESEMBOLSO_ELEGIVEL,
     chaveDestinoMascara: 'joa***',
+    // Apresentacao do Mockup 27: o que vale para qualquer status.
+    criadoEm: '2026-05-30T11:32:10-03:00',
+    tipoOperacao: 'Desembolso de crédito',
+    canal: 'PIX SPI',
+    descricao: `Desembolso referente ao contrato ${CONTRATO_ASSINADO_ID}`,
+    idempotencyKey: '2f6c9c05-9f2b-4c75-8f79-3c1d63b59e9f',
+    nomeRecebedor: 'João da Silva',
+    bancoRecebedor: 'Banco ABCD S.A. (123)',
+    agenciaRecebedor: '0001',
+    contaRecebedor: '12345-6',
+    cpfRecebedorMascara: '123.***.***-**',
+    tipoChave: 'CPF',
+    propostaId: 'PROP-5b771e05',
+    propostaUuid: PROPOSTA_EM_ANALISE_ID,
+    tarifa: 0,
+    valorLiquido: VALOR_DESEMBOLSO_ELEGIVEL,
+    provedor: 'Celcoin BaaS',
+    origemRecursos: 'Conta Escrow / Garantia',
+    finalidade: 'Desembolso de crédito',
+    centroCusto: 'Administrativo',
+    tags: ['desembolso', 'credito', 'spi'],
+    contratoValor: 50000.0,
+    contratoAssinadoEm: '2026-05-20T00:00:00-03:00',
+    contratoVencimentoFinal: '2027-05-20T00:00:00-03:00',
+    propostaTomador: 'Empresa Exemplo Ltda.',
+    propostaEm: '2026-05-15T00:00:00-03:00',
+    propostaValorSolicitado: 50000.0,
+    hashIntegridade: 'a8b9f7c3e4d5f6a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5',
+    etapas: etapasDesembolso(status),
   });
+  // NSU, end-to-end e codigo de retorno so existem depois que o provider liquida.
+  const concluida = base(TRANSFERENCIA_CONCLUIDA_ID, 'CONCLUIDA');
+  concluida['nsu'] = '000123456789';
+  concluida['endToEndId'] = 'E18236120260530113210A1B2C3D4E5F';
+  concluida['situacaoProvider'] = 'Autorizado';
+  concluida['codigoRetorno'] = '00 - Sucesso';
+  const processando = base(TRANSFERENCIA_PROCESSANDO_ID, 'PROCESSANDO');
+  processando['situacaoProvider'] = 'Autorizado';
+  processando['endToEndId'] = 'E18236120260530113210A1B2C3D4E5F';
   return {
-    [TRANSFERENCIA_CONCLUIDA_ID]: base(TRANSFERENCIA_CONCLUIDA_ID, 'CONCLUIDA'),
-    [TRANSFERENCIA_PROCESSANDO_ID]: base(TRANSFERENCIA_PROCESSANDO_ID, 'PROCESSANDO'),
+    [TRANSFERENCIA_CONCLUIDA_ID]: concluida,
+    [TRANSFERENCIA_PROCESSANDO_ID]: processando,
     [TRANSFERENCIA_PROVIDER_OFF_ID]: base(TRANSFERENCIA_PROVIDER_OFF_ID, 'SOLICITADA'),
   };
 }
 
 // Recurso de referencia (sem o flag `novo`, que e definido por operacao: POST novo/reaproveitado,
 // GET sempre false). codigoCopiaCola e dado de pagamento nao sensivel.
+// Campos de apresentacao do Mockup 26, opcionais: quando o backend nao os envia, a tela mostra
+// travessao. Nenhum deles participa de conciliacao ou de calculo.
 function referenciaAtivaSeed(): Record<string, unknown> {
+  const agora = '2026-04-24T17:21:15-03:00';
+  const disponibilizada = '2026-04-24T17:21:16-03:00';
+  const recebimentoVinculado = '2026-04-24T18:30:45-03:00';
+  const conciliacao = '2026-04-24T18:31:02-03:00';
   return {
     referenciaId: REFERENCIA_ATIVA_ID,
     parcelaId: PIX_PARCELA_RECEBIVEL_ID,
@@ -2208,6 +2886,45 @@ function referenciaAtivaSeed(): Record<string, unknown> {
     codigoCopiaCola: `00020126360014br.gov.bcb.pix0114${REFERENCIA_ATIVA_ID.slice(0, 8)}5204000053039865802BR6304ABCD`,
     valorEsperado: VALOR_PARCELA_PIX,
     status: 'ATIVA',
+    novo: false,
+    // Campos de apresentacao do Mockup 26
+    chavePix: '11.111.111/0001-91 (CNPJ)',
+    tipoChave: 'CNPJ',
+    canal: 'PIX SPI',
+    instituicaoRecebedora: 'Banco ABCD S.A.',
+    descricao: 'Pagamento de parcela 1/12',
+    criadaEm: agora,
+    atualizadaEm: recebimentoVinculado,
+    expiracao: '2026-04-29T23:59:59-03:00',
+    periodicidade: 'Única',
+    finalidade: 'Pagamento de parcela',
+    contrato: 'CONT-8d991a11',
+    proposta: 'PROP-5b771e05',
+    tomador: 'Empresa Exemplo Ltda.',
+    observacoes: null,
+    tags: ['operacional', 'mensal', 'cliente-pj'],
+    hashIntegridade: '9f7a2c8e5d6f7a8b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6',
+    recebidoTotal: VALOR_PARCELA_PIX,
+    quantidadeRecebimentos: 1,
+    primeiroRecebimento: recebimentoVinculado,
+    ultimoRecebimento: recebimentoVinculado,
+    recebimentosVinculados: [
+      {
+        recebimentoId: RECEBIMENTO_CONCILIADO_ID,
+        valor: VALOR_PARCELA_PIX,
+        recebidoEm: recebimentoVinculado,
+        status: 'CONCILIADO',
+        nsu: '000123456789',
+        metodo: 'PIX',
+      },
+    ],
+    eventos: [
+      { rotulo: 'Referência criada', dataHora: agora, origem: 'Sistema' },
+      { rotulo: 'Disponibilizada para pagamento', dataHora: disponibilizada, origem: 'Sistema' },
+      { rotulo: 'Recebimento vinculado', dataHora: recebimentoVinculado, origem: 'Sistema' },
+      { rotulo: 'Conciliação automática', dataHora: conciliacao, origem: 'Sistema' },
+      { rotulo: 'Referência ativa', dataHora: conciliacao, origem: 'Sistema' },
+    ],
   };
 }
 
@@ -2234,6 +2951,76 @@ const recebimentosPix: Record<string, Record<string, unknown>> = {
     recebimentoCobrancaId: 'c0000000-0000-4000-8000-000000000010',
     motivoDivergencia: null,
     recebidoEm: now,
+    // --- Campos de apresentacao do Mockup 25 (nao participam de conciliacao) ---
+    chavePix: '11.111.111/0001-91 (CNPJ)',
+    instituicaoRecebedora: 'Banco ABCD S.A.',
+    canal: 'PIX SPI',
+    nsu: '000123456789',
+    tipoRecebimento: 'Transferencia recebida',
+    formaPagamento: 'Conta Escrow / Garantia',
+    hashIntegridade: 'a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d67f8e9d0c',
+    conciliacao: {
+      dataHora: '2026-04-24T18:31:02-03:00',
+      metodo: 'Automatico',
+      responsavel: 'Sistema',
+      protocolo: 'CONC-240426-183102',
+    },
+    parcela: {
+      contrato: 'CONT-8d991a11',
+      proposta: 'PROP-5b771e05',
+      numero: '1 / 12',
+      vencimento: '2026-07-15',
+      valorOriginal: VALOR_PARCELA_PIX,
+      valorPago: VALOR_PARCELA_PIX,
+    },
+    adicionais: {
+      versaoPix: '2.0',
+      tipoChave: 'CNPJ',
+      valorTarifa: 0,
+      iniciadorPagamento: 'Pagador',
+      localizacao: 'Sao Paulo - SP',
+      ipOrigem: '177.12.45.98',
+    },
+    complementares: {
+      categoria: 'Capital de Giro',
+      finalidade: 'Compra de estoque',
+      centroCusto: 'Administrativo',
+      observacoes: null,
+      tags: ['operacional', 'mensal', 'cliente-pj'],
+    },
+    comprovante: {
+      arquivo: 'PDF',
+      tamanho: '132 KB',
+      geradoEm: '2026-04-24T18:31:02-03:00',
+      documentoId: '8f7e2bff-8c1a-4b2a-9b2a-3c5d2e3f7a11',
+    },
+    eventos: [
+      {
+        rotulo: 'Recebimento Pix iniciado',
+        dataHora: '2026-04-24T18:30:45-03:00',
+        origem: 'Sistema',
+      },
+      {
+        rotulo: 'Pagamento recebido no SPI',
+        dataHora: '2026-04-24T18:30:45-03:00',
+        origem: 'Sistema',
+      },
+      {
+        rotulo: 'Validacao de dados e chave',
+        dataHora: '2026-04-24T18:30:47-03:00',
+        origem: 'Sistema',
+      },
+      {
+        rotulo: 'Conciliacao com parcela',
+        dataHora: '2026-04-24T18:31:02-03:00',
+        origem: 'Sistema',
+      },
+      {
+        rotulo: 'Recebimento conciliado',
+        dataHora: '2026-04-24T18:31:02-03:00',
+        origem: 'Sistema',
+      },
+    ],
   },
   [RECEBIMENTO_NAO_IDENTIFICADO_ID]: {
     recebimentoId: RECEBIMENTO_NAO_IDENTIFICADO_ID,
@@ -2245,6 +3032,34 @@ const recebimentosPix: Record<string, Record<string, unknown>> = {
     recebimentoCobrancaId: null,
     motivoDivergencia: 'Referencia Pix nao localizada para o txid recebido',
     recebidoEm: now,
+    // Sem vinculo nao ha conciliacao, parcela nem comprovante: a tela mostra travessao nesses
+    // blocos e mantem apenas o que o evento do provider trouxe.
+    chavePix: '11.111.111/0001-91 (CNPJ)',
+    instituicaoRecebedora: 'Banco ABCD S.A.',
+    canal: 'PIX SPI',
+    nsu: '000987654321',
+    tipoRecebimento: 'Transferencia recebida',
+    formaPagamento: 'Conta Escrow / Garantia',
+    adicionais: {
+      versaoPix: '2.0',
+      tipoChave: 'CNPJ',
+      valorTarifa: 0,
+      iniciadorPagamento: 'Pagador',
+      localizacao: 'Sao Paulo - SP',
+      ipOrigem: '200.145.8.32',
+    },
+    eventos: [
+      {
+        rotulo: 'Recebimento Pix iniciado',
+        dataHora: '2026-04-24T18:30:45-03:00',
+        origem: 'Sistema',
+      },
+      {
+        rotulo: 'Pagamento recebido no SPI',
+        dataHora: '2026-04-24T18:30:45-03:00',
+        origem: 'Sistema',
+      },
+    ],
   },
 };
 
@@ -2345,9 +3160,14 @@ const pixHandlers = [
     if (id === TRANSFERENCIA_PROVIDER_OFF_ID) {
       return HttpResponse.json({ ...transferencia, providerIndisponivel: true });
     }
-    // Reconciliacao so avanca: PROCESSANDO -> CONCLUIDA ao reconsultar o provider.
+    // Reconciliacao so avanca: PROCESSANDO -> CONCLUIDA ao reconsultar o provider. Os campos
+    // que so existem depois da liquidacao entram junto com a transicao, e a linha do tempo
+    // do Mockup 27 recebe os carimbos das etapas que o novo status garante.
     if (transferencia.status === 'PROCESSANDO') {
       transferencia.status = 'CONCLUIDA';
+      transferencia['etapas'] = etapasDesembolso('CONCLUIDA');
+      transferencia['nsu'] = '000123456789';
+      transferencia['codigoRetorno'] = '00 - Sucesso';
     }
     return HttpResponse.json({ ...transferencia, providerIndisponivel: false });
   }),
@@ -2417,6 +3237,17 @@ const pixHandlers = [
       return errorResponse(404, 'Not Found', 'Referencia nao encontrada', path);
     }
     return HttpResponse.json({ ...referencia, novo: false });
+  }),
+
+  // Listagem dos recebimentos Pix da carteira. Precisa vir antes do GET por id, senao
+  // `/recebimentos` cairia no `:id`. E a fonte do painel de status da conciliacao, que ate aqui
+  // trazia um agregado digitado na tela.
+  http.get(`${baseUrl}/pix/recebimentos`, () => {
+    const negado = negarSeNaoInternoPix('/api/v1/pix/recebimentos');
+    if (negado) {
+      return negado;
+    }
+    return HttpResponse.json(Object.values(recebimentosPix));
   }),
 
   http.get(`${baseUrl}/pix/recebimentos/:id`, ({ params }) => {
@@ -2498,13 +3329,16 @@ function seedCredorasPorUsuario(): Record<string, Record<string, unknown>> {
 }
 
 function seedOportunidadesCredora(): Record<string, Record<string, unknown>> {
+  // Valores conciliados com a carteira canonica (CARTEIRA): nenhuma operacao excede o teto de
+  // R$ 15.000,00 do regimento SEP e a oportunidade 1 espelha o contrato 5b771c08 (R$ 6.000,00 em
+  // 10 parcelas), que e o mesmo associado na carteira da credora.
   return {
     [OPORTUNIDADE_DISPONIVEL_ID]: {
       id: OPORTUNIDADE_DISPONIVEL_ID,
       propostaId: '7f0799c0-98b9-6d9d-bc4a-7d6f5b78d001',
       contratoId: '7f0799c0-98b9-6d9d-bc4a-7d6f5b78e001',
-      valor: 25000.0,
-      prazoMeses: 12,
+      valor: 6000.0,
+      prazoMeses: 10,
       taxaJurosMensal: 0.025,
       status: 'DISPONIVEL',
       dataCriacao: now,
@@ -2513,8 +3347,8 @@ function seedOportunidadesCredora(): Record<string, Record<string, unknown>> {
       id: OPORTUNIDADE_DISPONIVEL_2_ID,
       propostaId: '7f0799c0-98b9-6d9d-bc4a-7d6f5b78d002',
       contratoId: null,
-      valor: 40000.0,
-      prazoMeses: 24,
+      valor: 4625.0,
+      prazoMeses: 10,
       taxaJurosMensal: 0.019,
       status: 'DISPONIVEL',
       dataCriacao: now,
@@ -2523,8 +3357,8 @@ function seedOportunidadesCredora(): Record<string, Record<string, unknown>> {
       id: OPORTUNIDADE_ENCERRADA_ID,
       propostaId: '7f0799c0-98b9-6d9d-bc4a-7d6f5b78d003',
       contratoId: '7f0799c0-98b9-6d9d-bc4a-7d6f5b78e003',
-      valor: 15000.0,
-      prazoMeses: 6,
+      valor: 3125.0,
+      prazoMeses: 10,
       taxaJurosMensal: 0.031,
       status: 'ENCERRADA',
       dataCriacao: now,
@@ -2540,17 +3374,19 @@ function operacaoAssociadaSeed(): Record<string, unknown> {
     oportunidadeId: OPORTUNIDADE_DISPONIVEL_ID,
     status: 'ASSOCIADA',
     justificativa: 'Associacao assistida apos formalizacao do contrato',
-    valor: 25000.0,
-    prazoMeses: 12,
+    valor: 6000.0,
+    prazoMeses: 10,
     taxaJurosMensal: 0.025,
     contratoStatus: 'ASSINADO',
+    // Espelho do contrato 5b771c08 da carteira: 10 parcelas de R$ 600,00, 8 pagas ate 2026-05-30,
+    // nenhuma em atraso e a 9a vencendo em 2026-06-25.
     cobranca: {
-      numeroParcelas: 12,
-      valorTotal: 27000.0,
-      parcelasPagas: 2,
+      numeroParcelas: 10,
+      valorTotal: 6000.0,
+      parcelasPagas: 8,
       parcelasAtrasadas: 0,
-      totalRecebido: 4500.0,
-      proximoVencimento: '2026-07-10',
+      totalRecebido: 4800.0,
+      proximoVencimento: '2026-06-25',
     },
     dataCriacao: now,
   };
@@ -2761,7 +3597,9 @@ const credoraHandlers = [
 export const handlers = [
   http.post(`${baseUrl}/auth/login`, async ({ request }) => {
     const body = (await request.json()) as { username?: string; password?: string };
-    const usuario = body.password === '123456' ? loginUsuarios[body.username ?? ''] : undefined;
+    const candidato = loginUsuarios[body.username ?? ''];
+    const usuario =
+      candidato && body.password === senhaDe(body.username ?? '') ? candidato : undefined;
     if (!usuario) {
       return errorResponse(401, 'Unauthorized', 'Credenciais invalidas', '/api/v1/auth/login');
     }
@@ -2781,22 +3619,37 @@ export const handlers = [
       role?: string;
     };
 
-    if (body.username === 'duplicado@empresa.com') {
+    const username = (body.username ?? '').trim().toLowerCase();
+    if (
+      username === 'duplicado@empresa.com' ||
+      usuariosFake.some((u) => u.username === username) ||
+      loginUsuarios[username]
+    ) {
       return errorResponse(409, 'Conflict', 'username ja cadastrado', '/api/v1/usuarios');
     }
 
-    return HttpResponse.json(
-      {
-        id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771010',
-        username: body.username,
-        role: body.role,
-        dataCriacao: now,
-        dataModificacao: now,
-        criadoPor: 'system',
-        modificadoPor: 'system',
-      },
-      { status: 201 },
-    );
+    // Como o backend: o cadastro sempre nasce CLIENTE (o role do corpo e ignorado). O usuario
+    // entra na lista, ganha o conjunto de roles e passa a logar com a senha informada, para o
+    // "Novo usuario" da administracao levar a um detalhe que existe de fato.
+    usuariosCriados += 1;
+    const criadoEm = new Date().toISOString();
+    const criado = {
+      id: `1f0799c0-98b9-6d9d-bc4a-7d6f5b77${String(1100 + usuariosCriados).padStart(4, '0')}`,
+      username,
+      role: 'CLIENTE',
+      precisaRedefinirSenha: false,
+      mfaHabilitado: false,
+      dataCriacao: criadoEm,
+      dataModificacao: criadoEm,
+      criadoPor: currentMockUser.username,
+      modificadoPor: currentMockUser.username,
+    };
+    usuariosFake.push(criado);
+    loginUsuarios[username] = criado;
+    rolesPorUsuario[criado.id] = ['CLIENTE'];
+    if (body.password) senhasPorUsuario[username] = body.password;
+
+    return HttpResponse.json(criado, { status: 201 });
   }),
 
   http.post(`${baseUrl}/auth/logout`, () => new HttpResponse(null, { status: 204 })),
@@ -2814,6 +3667,73 @@ export const handlers = [
   ),
 
   http.post(`${baseUrl}/auth/logout-all`, () => new HttpResponse(null, { status: 204 })),
+
+  // ===== TOTP (Mockup 34) =====
+  // Setup responde sempre 200, inclusive para quem ja tem MFA: sem isso a tela ficaria
+  // indemonstravel no dev-offline, porque o usuario padrao do mock volta a ser o ADMIN
+  // (com MFA ligado) a cada recarga. O 409 do backend real continua tratado na tela.
+  http.post(`${baseUrl}/auth/totp/setup`, () => {
+    const uri = `otpauth://totp/${encodeURIComponent(`SEP:${currentMockUser.username}`)}?secret=${TOTP_SECRET}&issuer=SEP&algorithm=SHA1&digits=6&period=30`;
+    return HttpResponse.json({
+      secretBase32: TOTP_SECRET,
+      otpAuthUri: uri,
+      // QR legivel de verdade: da para escanear com um aplicativo autenticador e conferir
+      // o fluxo de ponta a ponta no dev-offline.
+      qrCodeDataUrl: qrDataUrl(uri),
+      backupCodes: [...STEP_UP_BACKUP],
+    });
+  }),
+
+  http.post(`${baseUrl}/auth/totp/confirm`, async ({ request }) => {
+    const path = '/api/v1/auth/totp/confirm';
+    const body = (await request.json()) as { codigo?: string };
+    const codigo = (body.codigo ?? '').trim();
+    // Aceita o codigo real do aplicativo autenticador (o mesmo segredo do QR) e tambem o
+    // codigo fixo do dev-offline, que mantem os testes determinsticos.
+    const valido = codigo === STEP_UP_TOTP || (await codigoTotpValido(TOTP_SECRET, codigo));
+    if (!valido) {
+      return errorResponse(422, 'Unprocessable Entity', 'Codigo invalido', path);
+    }
+    currentMockUser = { ...currentMockUser, mfaHabilitado: true };
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // ===== Step-up (Mockup 33) =====
+  // Confirmacao adicional exigida por operacoes sensiveis. So quem tem MFA habilitado
+  // consegue iniciar; o desafio vale uma tentativa e expira apos o uso.
+  http.post(`${baseUrl}/auth/step-up/initiate`, () => {
+    const path = '/api/v1/auth/step-up/initiate';
+    if (!currentMockUser.mfaHabilitado) {
+      return errorResponse(400, 'Bad Request', 'MFA nao habilitado para este usuario', path);
+    }
+    stepUpSeq += 1;
+    const challengeId = novoId('50000000', stepUpSeq);
+    stepUpDesafios.add(challengeId);
+    return HttpResponse.json({ stepUpChallengeId: challengeId });
+  }),
+
+  http.post(`${baseUrl}/auth/step-up/complete`, async ({ request }) => {
+    const path = '/api/v1/auth/step-up/complete';
+    const body = (await request.json()) as { stepUpChallengeId?: string; codigo?: string };
+    const challengeId = body.stepUpChallengeId ?? '';
+    // 422 e nao 401: um codigo digitado errado nao pode derrubar a sessao. O
+    // errorInterceptor global trata 401 como sessao expirada e faz logout.
+    if (!stepUpDesafios.has(challengeId)) {
+      return errorResponse(410, 'Gone', 'Desafio inexistente ou ja utilizado', path);
+    }
+    const codigo = (body.codigo ?? '').trim().toUpperCase();
+    const valido =
+      codigo === STEP_UP_TOTP ||
+      STEP_UP_BACKUP.has(codigo) ||
+      (await codigoTotpValido(TOTP_SECRET, codigo));
+    if (!valido) {
+      return errorResponse(422, 'Unprocessable Entity', 'Codigo invalido', path);
+    }
+    // Codigo de backup e de uso unico, como no backend real.
+    STEP_UP_BACKUP.delete(codigo);
+    stepUpDesafios.delete(challengeId);
+    return HttpResponse.json({ stepUpToken: `step-up-${challengeId}` });
+  }),
 
   http.get(`${baseUrl}/auth/me`, () => HttpResponse.json(currentMockUser)),
 
@@ -2867,8 +3787,9 @@ export const handlers = [
   http.patch(`${baseUrl}/usuarios/:id/senha`, async ({ request, params }) => {
     const id = params['id'] as string;
     const body = (await request.json()) as { passwordAtual?: string; novaSenha?: string };
+    const dono = Object.keys(loginUsuarios).find((u) => loginUsuarios[u].id === id) ?? '';
 
-    if (body.passwordAtual !== '123456') {
+    if (body.passwordAtual !== senhaDe(dono)) {
       return errorResponse(
         400,
         'Bad Request',
@@ -2890,6 +3811,9 @@ export const handlers = [
         'novaSenha deve ter 12+ caracteres, letras maiúsculas e minúsculas, número e símbolo',
         `/api/v1/usuarios/${id}/senha`,
       );
+    }
+    if (dono) {
+      senhasPorUsuario[dono] = body.novaSenha!;
     }
     return new HttpResponse(null, { status: 204 });
   }),

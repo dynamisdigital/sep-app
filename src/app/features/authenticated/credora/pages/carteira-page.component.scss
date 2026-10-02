@@ -1,90 +1,413 @@
-@use "../../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../../styles/sep-ds-components" as sepDs;
+// ============ CARTEIRA — TELA DERIVADA DA JORNADA CREDORA ============
+// Sem arte de designer: construída no padrão visual do tema, na linguagem dos Mockups 35 e 36.
 
-.sep-carteira {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-24);
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+@use "../shared/credora-tema" as tema;
+@use "../../../../../styles/sep-responsivo" as resp;
+
+:host {
+  @include tema.tokens;
 }
 
-.sep-carteira-header {
+@include tema.base("px46");
+@include tema.tabela("px46");
+
+// ============ GRADE PRINCIPAL ============
+
+.px46-page {
+  display: grid;
+  grid-template-rows: auto min-content minmax(0, auto) minmax(0, 1fr);
+  gap: 18px;
+  width: 100%;
+  height: 100%;
+  padding: 16px 26px 18px;
+  overflow: hidden auto;
+  background: radial-gradient(circle at 45% 14%, rgb(var(--sep-c-blue) / 6%), transparent 48%);
+}
+
+// ============ MÉTRICAS ============
+
+.px46-metricas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  gap: 14px;
+  min-width: 0;
+}
+
+.px46-metrica {
   display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 15px 18px;
+
+  header {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    min-width: 0;
+  }
+
+  small {
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 12.5px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  strong {
+    color: var(--sep-text);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    white-space: nowrap;
+  }
+
+  em {
+    overflow: hidden;
+    color: var(--tone, var(--blue));
+    font-style: normal;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.px46-metrica-icone {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  color: var(--tone, var(--blue));
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+  border-radius: 9px;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+  transition:
+    box-shadow 0.18s,
+    transform 0.18s;
+}
+
+.px46-metrica:hover .px46-metrica-icone {
+  box-shadow: 0 0 12px var(--tone-fundo, rgb(var(--sep-c-blue) / calc(35% * var(--sep-glow-alpha))));
+  transform: scale(1.06);
+}
+
+// ============ TABELA ============
+
+/* Tabela abraca as linhas que existem; o excedente rola dentro dela, nunca na pagina. */
+.px46-tabela-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.px46-tabela-wrap {
+  max-height: 42vh;
+}
+
+.px46-valor {
+  color: var(--sep-text);
+  font-weight: 700;
+}
+
+.px46-acoes-col {
+  text-align: center;
+}
+
+/* Progresso da cobrança: barra e contagem na mesma célula, sem alterar a largura da coluna. */
+.px46-progresso {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  min-width: 150px;
+
+  small {
+    flex-shrink: 0;
+    color: var(--muted);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+}
+
+.px46-progresso-trilho {
+  flex: 1 1 auto;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(var(--sep-c-active) / 90%);
+}
+
+.px46-progresso-barra {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--sep-success), var(--sep-accent));
+}
+
+.px46-btn-linha {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  color: var(--blue);
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 8px;
+  background: rgb(var(--sep-c-surf) / 80%);
+  cursor: pointer;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s,
+    transform 0.18s;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--blue);
+    box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(28% * var(--sep-glow-alpha)));
+    transform: translateY(-1px);
+  }
+}
+
+.px46-tabela-rodape {
+  display: flex;
+  gap: 14px;
   align-items: center;
   justify-content: space-between;
-  gap: var(--sep-space-16);
+  padding-top: 13px;
+  color: var(--muted);
+  font-size: 12.5px;
+  border-top: 1px solid rgb(var(--sep-c-line) / 70%);
 }
 
-.sep-carteira-title {
-  @include sepType.sep-type-page-title;
+.px46-nota {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
 
-  margin: 0;
-  color: hsl(var(--foreground));
+  lucide-icon {
+    flex-shrink: 0;
+    color: var(--blue);
+  }
 }
 
-.sep-carteira-back {
-  @include sepType.sep-type-body;
+// ============ CARTEIRA VAZIA ============
 
-  color: hsl(var(--primary));
-  text-decoration: none;
-}
-
-.sep-carteira-state {
-  @include sepType.sep-type-body;
-
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-carteira-error {
+/* Estado vazio ocupa a caixa inteira: o cartão não fica oco quando não há operação. */
+.px46-vazio {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
-  gap: var(--sep-space-8);
-  align-items: flex-start;
-  color: hsl(var(--destructive));
-}
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  text-align: center;
 
-.sep-carteira-retry {
-  @include sepDs.sep-button-outline;
-}
-
-.sep-carteira-empty {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-  align-items: flex-start;
-}
-
-.sep-carteira-empty-nota {
-  @include sepType.sep-type-caption;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-carteira-table {
-  width: 100%;
-  border-collapse: collapse;
-
-  th,
-  td {
-    @include sepType.sep-type-body;
-
-    padding: var(--sep-space-8) var(--sep-space-12);
-    text-align: left;
-    border-bottom: 1px solid hsl(var(--border));
-    color: hsl(var(--foreground));
+  strong {
+    color: var(--sep-text);
+    font-size: 15px;
+    font-weight: 600;
   }
 
-  th {
-    @include sepType.sep-type-caption;
+  p {
+    max-width: 520px;
+    margin: 0;
+    color: var(--muted-forte);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+}
 
-    color: hsl(var(--muted-foreground));
+.px46-vazio-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  color: var(--blue);
+  border: 1px solid rgb(var(--sep-c-blue) / 45%);
+  border-radius: 15px;
+  background: rgb(var(--sep-c-blue) / 12%);
+}
+
+// ============ COMO A CARTEIRA FUNCIONA ============
+
+/* Ocupa a folga que sobra abaixo da tabela com conteudo util, sem esticar a tabela. */
+.px46-fluxo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: min-content;
+}
+
+.px46-etapas {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: center;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    padding: 15px 16px;
+    border: 1px solid var(--sep-surface-active);
+    border-radius: 11px;
+    background: rgb(var(--sep-c-surf) / 70%);
+    transition:
+      border-color 0.18s,
+      box-shadow 0.18s,
+      transform 0.18s;
   }
 
-  a {
-    color: hsl(var(--primary));
-    text-decoration: none;
+  li:hover {
+    border-color: var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+    box-shadow: 0 0 14px
+      var(--tone-fundo, rgb(var(--sep-c-blue) / calc(20% * var(--sep-glow-alpha))));
+    transform: translateY(-2px);
+  }
+
+  strong {
+    color: var(--sep-text);
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+    color: var(--muted-forte);
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+}
+
+.px46-etapa-icone {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: var(--tone, var(--blue));
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+  border-radius: 10px;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+}
+
+.px46-fluxo-link {
+  align-self: flex-start;
+}
+
+// ============ TELAS BAIXAS E ESTREITAS ============
+
+/* Degraus de compactação: reduzem vão e respiro, nunca o tamanho do texto. */
+@include resp.altura-baixa {
+  .px46-page {
+    gap: 13px;
+    padding: 13px 24px 15px;
+  }
+
+  .px46-card {
+    padding: 15px 20px;
+  }
+
+  .px46-card h2 {
+    margin-bottom: 12px;
+  }
+
+  .px46-metrica {
+    padding: 12px 16px;
+  }
+
+  .px46-heading nav {
+    margin-bottom: 9px;
+  }
+
+  .px46-fluxo,
+  .px46-etapas {
+    gap: 12px;
+  }
+
+  .px46-etapas li {
+    padding: 12px 14px;
+  }
+}
+
+@include resp.altura-curta {
+  .px46-page {
+    gap: 10px;
+    padding: 10px 22px 11px;
+  }
+
+  .px46-card {
+    padding: 12px 17px;
+  }
+
+  .px46-metrica {
+    gap: 3px;
+    padding: 10px 14px;
+  }
+
+  .px46-tabela-rodape {
+    padding-top: 10px;
+  }
+
+  .px46-heading nav {
+    margin-bottom: 7px;
+  }
+
+  .px46-subtitulo {
+    margin-top: 4px;
+  }
+
+  .px46-fluxo,
+  .px46-etapas {
+    gap: 9px;
+  }
+
+  .px46-fluxo-link {
+    height: 36px;
+    padding: 0 15px;
+  }
+
+  .px46-tabela-wrap {
+    max-height: 34vh;
+  }
+
+  /* Etapa deitada: o icone sai de cima do texto e a mesma informacao ocupa menos altura. */
+  .px46-etapas li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 4px 11px;
+    padding: 10px 12px;
+  }
+
+  .px46-etapas li strong {
+    align-self: end;
+  }
+
+  .px46-etapas li .px46-etapa-icone {
+    grid-row: 1 / 3;
+    align-self: center;
+    width: 32px;
+    height: 32px;
+  }
+
+  .px46-etapas p {
+    line-height: 1.35;
+  }
+}
+
+@include resp.ate-larga {
+  .px46-progresso {
+    min-width: 120px;
   }
 }

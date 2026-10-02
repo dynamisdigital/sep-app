@@ -1,0 +1,253 @@
+// SEP — Frontend
+// Frontend Development: Daniel Möllmann
+// Angular • TypeScript • SCSS — 2026
+
+// ============ CONTRATO RESPONSIVO: FULL / HALF / THIRD ============
+// O componente reage ao espaço que **recebeu**, não à largura da janela. Um painel pode ocupar um
+// terço de um monitor 4K e a tela inteira de um notebook estreito: são apresentações diferentes,
+// e nenhuma delas é descrita por "desktop" ou "mobile".
+// Uso típico:
+//   .minha-area { @include resp.container("minha-area"); }
+//   .meu-grid   { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+//   @include resp.half { .meu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+//   @include resp.third { .meu-grid { grid-template-columns: minmax(0, 1fr); } }
+// Antes de alcançar estes mixins, verifique se a própria geometria resolve: `auto-fit` com
+// `minmax` e `clamp` eliminam a regra sem nenhum limiar. O contrato existe para o que a geometria
+// não resolve — ordem de leitura, o que recolher, o que virar menu.
+
+// Fronteiras do contrato, em largura de container. Espelham `core/layout/sep-layout-mode.ts`.
+$third: 620px;
+$half: 960px;
+
+/// Declara o elemento como container de consulta. Sem isto, os mixins abaixo não têm o que medir.
+/// `inline-size` (e não `size`) porque o contrato é horizontal: medir altura obrigaria o elemento
+/// a ter altura própria, o que quebraria as grades que crescem com o conteúdo.
+@mixin container($nome) {
+  container: #{$nome} / inline-size;
+}
+
+/// Um terço da área: o mais estreito dos três.
+@mixin third {
+  @container (max-width: #{$third - 1px}) {
+    @content;
+  }
+}
+
+/// Metade ou menos. Use para o que vale tanto em `half` quanto em `third`.
+@mixin half {
+  @container (max-width: #{$half - 1px}) {
+    @content;
+  }
+}
+
+/// Somente metade — exclui `third`, para quando o terço precisa de tratamento próprio.
+@mixin so-half {
+  @container (min-width: #{$third}) and (max-width: #{$half - 1px}) {
+    @content;
+  }
+}
+
+/// Tela inteira. Raramente necessário: `full` é o estado base, escrito fora de qualquer mixin.
+@mixin full {
+  @container (min-width: #{$half}) {
+    @content;
+  }
+}
+
+// ============ JANELA ============
+// Eixo à parte do contrato de container, e por um motivo: moldura não é componente. O shell, o
+// rodapé institucional e as páginas públicas reagem à **janela**, porque é a janela que decide se
+// a barra lateral cabe — não o espaço que sobrou para o conteúdo. Um `@container` ali mediria o
+// próprio elemento que se quer encolher.
+
+// Oito degraus no lugar dos 27 valores medidos a olho que existiam (1400, 1360, 1350, 1320, 1300,
+// 1280, 1250, 1240, 1220, 1200, 1180, 1100, 1080, 1060, 1050, 980, 920, 900, 860, 833, 760, 720,
+// 700, 640, 620, 460, 419). Mesma regra de snap do eixo vertical: cada folha sobe para o degrau
+// imediatamente **acima**, para nenhuma reorganização começar mais tarde do que começava.
+
+// Para layout de componente, prefira `third`/`half` acima: eles medem o espaço recebido, que é o
+// que descreve a apresentação. Esta escada é para a moldura.
+
+$janela-maximizada: 1440px;
+$janela-larga: 1400px;
+$janela-ampla: 1320px;
+$janela-media: 1200px;
+$janela-estreita: 1080px;
+$janela-tablet: 900px;
+$janela-compacta: 760px;
+$janela-minima: 620px;
+$janela-telefone: 460px;
+
+/// Janela maior que a de referencia (1440): o monitor Full HD ou maior, maximizado. So para as
+/// regras de **crescimento**, na forma `max(<medida homologada>, <porcentagem>)`: a porcentagem e
+/// calculada para dar a medida homologada a 1440, e o degrau garante que nada abaixo disso muda —
+/// numa janela menor o conteudo pode receber um container **maior** (a coluna lateral desce e o
+/// cartao principal alarga), e ali a porcentagem passaria do piso.
+@mixin maximizada {
+  @media (width > #{$janela-maximizada}) {
+    @content;
+  }
+}
+
+/// Janela panoramica: ultrawide (2560x1080, inclusive com zoom de 75%, ~3413x1260) e QHD. So para
+/// as paginas de apresentacao, que deixam de empilhar secoes e passam a diagrama-las lado a lado,
+/// cabendo na altura da tela. Abaixo disso o empilhamento com rolagem continua sendo o desenho.
+$janela-panoramica: 2400px;
+
+@mixin panoramica {
+  @media (width > #{$janela-panoramica}) {
+    @content;
+  }
+}
+
+/// O segundo degrau do panoramico: largura em que uma faixa de cartoes sozinha ja estica o conteudo
+/// (~590px por cartao a 2400-3000 ainda le bem; acima disso passa de 700 com uma linha de texto).
+/// A partir daqui dois grupos dividem a mesma linha, com o cartao na largura de leitura.
+$janela-panoramica-larga: 3000px;
+
+@mixin panoramica-larga {
+  @media (width > #{$janela-panoramica-larga}) {
+    @content;
+  }
+}
+
+@mixin ate-larga {
+  @media (width <= #{$janela-larga}) {
+    @content;
+  }
+}
+
+@mixin ate-ampla {
+  @media (width <= #{$janela-ampla}) {
+    @content;
+  }
+}
+
+@mixin ate-media {
+  @media (width <= #{$janela-media}) {
+    @content;
+  }
+}
+
+/// O degrau da moldura: abaixo disto a barra lateral do shell recolhe.
+@mixin ate-estreita {
+  @media (width <= #{$janela-estreita}) {
+    @content;
+  }
+}
+
+/// O complemento de `ate-estreita`: janela larga o bastante para a moldura inteira.
+@mixin acima-de-estreita {
+  @media (width > #{$janela-estreita}) {
+    @content;
+  }
+}
+
+@mixin ate-tablet {
+  @media (width <= #{$janela-tablet}) {
+    @content;
+  }
+}
+
+@mixin ate-compacta {
+  @media (width <= #{$janela-compacta}) {
+    @content;
+  }
+}
+
+@mixin ate-minima {
+  @media (width <= #{$janela-minima}) {
+    @content;
+  }
+}
+
+@mixin ate-telefone {
+  @media (width <= #{$janela-telefone}) {
+    @content;
+  }
+}
+
+// ============ ALTURA ============
+// Eixo separado, de propósito. Altura curta e largura curta são problemas diferentes: a primeira
+// pede menos respiro, a segunda pede outra organização. Misturar os dois num contrato só foi o
+// que produziu os limiares verticais espalhados pelas telas.
+
+// A escada tem cinco degraus de 100px, e não os 18 valores medidos a olho que existiam (1200,
+// 1180, 1100, 1050, 1040, 1020, 1000, 980, 960, 940, 920, 910, 900, 880, 860, 820, 800, 740).
+// O ponto não é ter menos números: é que duas telas lado a lado passem a compactar no **mesmo**
+// momento. Cada folha snapeia o próprio limiar para o degrau imediatamente **acima**, para a
+// compactação nunca começar mais tarde do que começava.
+
+// Regra de conteúdo destes mixins: mexer em **espaçamento** — padding, gap, margem, entrelinha.
+// Nunca em tamanho de fonte: a tela tem de continuar legível em janela baixa.
+
+$altura-ampla: 1200px;
+$altura-densa: 1100px;
+$altura-baixa: 1000px;
+$altura-curta: 920px;
+$altura-muito-curta: 820px;
+
+/// Primeiro aperto, só para as telas mais cheias (agenda, parcela financeira).
+@mixin altura-ampla {
+  @media (height <= #{$altura-ampla}) {
+    @content;
+  }
+}
+
+@mixin altura-densa {
+  @media (height <= #{$altura-densa}) {
+    @content;
+  }
+}
+
+/// O degrau mais usado: é onde a maioria das telas começa a apertar.
+@mixin altura-baixa {
+  @media (height <= #{$altura-baixa}) {
+    @content;
+  }
+}
+
+@mixin altura-curta {
+  @media (height <= #{$altura-curta}) {
+    @content;
+  }
+}
+
+@mixin altura-muito-curta {
+  @media (height <= #{$altura-muito-curta}) {
+    @content;
+  }
+}
+
+// ============ OS DOIS EIXOS JUNTOS ============
+// Uma combinação aparecia em nove folhas: janela larga o bastante para a moldura inteira, mas
+// baixa — o notebook widescreen. Estava escrita de dois jeitos que são a mesma condição
+// (`width > 1080px` e `width >= 1081px`), com a altura em número cru.
+
+/// Janela larga e baixa. `$ate` é o teto de altura; `$de` abre uma faixa fechada.
+@mixin larga-e-baixa($ate: $altura-curta, $de: null) {
+  @if $de {
+    @media (width > #{$janela-estreita}) and (height > #{$de}) and (height <= #{$ate}) {
+      @content;
+    }
+  } @else {
+    @media (width > #{$janela-estreita}) and (height <= #{$ate}) {
+      @content;
+    }
+  }
+}
+
+/// Janela larga e alta: o oposto da anterior.
+@mixin larga-e-folgada {
+  @media (width > #{$janela-estreita}) and (height > #{$altura-densa}) {
+    @content;
+  }
+}
+
+/// O inverso: janela alta o bastante para a tela respirar. Existe para as poucas folhas que
+/// **ganham** espaço quando sobra altura, em vez de perder quando falta.
+@mixin altura-folgada {
+  @media (height >= #{$altura-densa}) {
+    @content;
+  }
+}

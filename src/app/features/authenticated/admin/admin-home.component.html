@@ -1,23 +1,146 @@
-<section class="sep-admin-home">
-  <header class="sep-admin-home-header">
-    <h1 class="sep-admin-home-title">Administração</h1>
-    <p class="sep-admin-home-subtitle">Governança de usuários, roles e parâmetros operacionais.</p>
-  </header>
+<sep-operational-shell>
+  <section class="px37-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px37-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span><strong>Administração</strong>
+      </nav>
+      <div class="px37-heading-row">
+        <div class="px37-titulo-wrap">
+          <div>
+            <h1>Administração</h1>
+            <p class="px37-subtitulo">
+              Governança de usuários, papéis e parâmetros operacionais da plataforma.
+            </p>
+          </div>
+        </div>
+      </div>
+    </header>
 
-  <div class="sep-admin-home-cards">
-    @for (card of cards; track card.label) {
-      @if (card.disabled) {
-        <div class="sep-admin-home-card sep-admin-home-card-disabled" aria-disabled="true">
-          <span class="sep-admin-home-card-title">{{ card.label }}</span>
-          <span class="sep-admin-home-card-body">{{ card.description }}</span>
-          <span class="sep-admin-home-card-soon">Disponível em breve</span>
+    <!-- ============ MÓDULOS ============ -->
+    <div class="px37-modulos">
+      <article class="px37-card px37-modulo" data-tone="blue">
+        <span class="px37-modulo-icone"><lucide-icon name="users" [size]="30" /></span>
+        <h2>Usuários</h2>
+        <p>Lista de usuários, detalhe de perfis e gestão de roles e permissões.</p>
+        <a class="px37-btn-sec px37-modulo-btn" routerLink="/app/admin/users">
+          Acessar módulo<lucide-icon name="arrow-right" [size]="16" />
+        </a>
+      </article>
+      <article class="px37-card px37-modulo" data-tone="purple">
+        <span class="px37-modulo-icone"><lucide-icon name="settings" [size]="30" /></span>
+        <h2>Parâmetros operacionais</h2>
+        <p>Catálogo de parâmetros do sistema e histórico de alterações.</p>
+        <a class="px37-btn-sec px37-modulo-btn" routerLink="/app/admin/parametros">
+          Acessar módulo<lucide-icon name="arrow-right" [size]="16" />
+        </a>
+      </article>
+    </div>
+
+    <!-- ============ RESUMO DO SISTEMA ============ -->
+    <article class="px37-card px37-resumo">
+      <h2>Resumo do sistema</h2>
+      @if (loading()) {
+        <p class="px37-estado" role="status">Carregando resumo...</p>
+      } @else if (errorMessage(); as msg) {
+        <div class="px37-estado px37-erro" role="alert">
+          <lucide-icon name="triangle-alert" [size]="18" />
+          <p>{{ msg }}</p>
+          <button type="button" class="px37-btn-primary" (click)="carregar()">
+            <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+          </button>
         </div>
       } @else {
-        <a [routerLink]="card.route" class="sep-admin-home-card">
-          <span class="sep-admin-home-card-title">{{ card.label }}</span>
-          <span class="sep-admin-home-card-body">{{ card.description }}</span>
-        </a>
+        <div class="px37-metricas">
+          <article class="px37-metrica" data-tone="blue">
+            <span class="px37-metrica-icone"><lucide-icon name="user-check" [size]="18" /></span>
+            <small>Usuários ativos</small>
+            <strong>{{ totalUsuarios() }}</strong>
+            <em>{{ papeisEmUso() }} papéis em uso</em>
+          </article>
+          <article class="px37-metrica" data-tone="green">
+            <span class="px37-metrica-icone"><lucide-icon name="shield-check" [size]="18" /></span>
+            <small>Papéis de acesso</small>
+            <strong>{{ totalPapeis }}</strong>
+            <em>fechados pelo contrato</em>
+          </article>
+          <article class="px37-metrica" data-tone="purple">
+            <span class="px37-metrica-icone"><lucide-icon name="lock" [size]="18" /></span>
+            <small>Permissões</small>
+            <strong>—</strong>
+            <em>sem endpoint de catálogo</em>
+          </article>
+          <article class="px37-metrica" data-tone="amber">
+            <span class="px37-metrica-icone"><lucide-icon name="settings" [size]="18" /></span>
+            <small>Parâmetros</small>
+            <strong>{{ parametrosAtivos() }}</strong>
+            <em>ativos no catálogo</em>
+          </article>
+          <article class="px37-metrica" data-tone="red">
+            <span class="px37-metrica-icone"><lucide-icon name="history" [size]="18" /></span>
+            <small>Alterações registradas</small>
+            <strong>{{ totalAlteracoes() }}</strong>
+            <em>na trilha auditável</em>
+          </article>
+        </div>
       }
-    }
-  </div>
-</section>
+    </article>
+
+    <!-- ============ AÇÕES RÁPIDAS ============ -->
+    <article class="px37-card px37-acoes">
+      <h2>Ações rápidas</h2>
+      <div class="px37-atalhos">
+        <a class="px37-atalho" data-tone="blue" routerLink="/app/admin/users/novo">
+          <span class="px37-atalho-icone"><lucide-icon name="user-plus" [size]="20" /></span>
+          <span>
+            <strong>Novo usuário</strong>
+            <small>Criar usuário no sistema</small>
+          </span>
+        </a>
+        <a class="px37-atalho" data-tone="green" routerLink="/app/admin/users">
+          <span class="px37-atalho-icone"><lucide-icon name="users" [size]="20" /></span>
+          <span>
+            <strong>Gerenciar papéis</strong>
+            <small>Criar e editar papéis</small>
+          </span>
+        </a>
+        <a class="px37-atalho" data-tone="purple" routerLink="/app/admin/parametros">
+          <span class="px37-atalho-icone"><lucide-icon name="settings" [size]="20" /></span>
+          <span>
+            <strong>Configurar parâmetros</strong>
+            <small>Acessar catálogo</small>
+          </span>
+        </a>
+        <a class="px37-atalho" data-tone="amber" routerLink="/app/admin/parametros">
+          <span class="px37-atalho-icone"><lucide-icon name="history" [size]="20" /></span>
+          <span>
+            <strong>Histórico de auditoria</strong>
+            <small>Ver logs e alterações</small>
+          </span>
+        </a>
+        <span
+          class="px37-atalho px37-atalho-inerte"
+          data-tone="red"
+          title="Sem endpoint de exportação de relatórios administrativos"
+          aria-disabled="true"
+        >
+          <span class="px37-atalho-icone"><lucide-icon name="download" [size]="20" /></span>
+          <span>
+            <strong>Exportar relatórios</strong>
+            <small>Dados administrativos</small>
+          </span>
+        </span>
+      </div>
+    </article>
+
+    <!-- ============ AVISO ============ -->
+    <aside class="px37-card px37-aviso">
+      <span class="px37-aviso-icone"><lucide-icon name="info" [size]="22" /></span>
+      <p>
+        A área administrativa permite configurar o sistema de acordo com as políticas da sua
+        organização.<br />
+        Todas as alterações são registradas e auditadas para garantir a segurança e conformidade.
+      </p>
+    </aside>
+  </section>
+</sep-operational-shell>

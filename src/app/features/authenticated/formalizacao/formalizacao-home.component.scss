@@ -1,93 +1,858 @@
-@use "../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../styles/sep-ds-components" as sepDs;
+@use "../../../../styles/sep-responsivo" as resp;
 
-.sep-formalizacao-home {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-32);
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--sep-space-16) 0;
-}
-
-.sep-formalizacao-home-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-}
-
-.sep-formalizacao-home-title {
-  @include sepType.sep-type-page-title;
-
+.formalization-page {
+  width: 100%;
+  min-width: 0;
   margin: 0;
-  color: hsl(var(--foreground));
+  padding: 0 0 8px;
+  color: var(--sep-text);
+  font-family: Inter, "Segoe UI", sans-serif;
+  box-sizing: border-box;
+  zoom: 1;
 }
 
-.sep-formalizacao-home-subtitle {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
+.formalization-page *,
+.formalization-page *::before,
+.formalization-page *::after {
+  box-sizing: border-box;
 }
 
-.sep-formalizacao-home-state {
-  @include sepType.sep-type-body;
-
-  color: hsl(var(--muted-foreground));
+// O modo de mistura escondia o fundo escuro gravado no arquivo, e so faz sentido no tema escuro:
+// no claro `screen`/`lighten` sobre a superficie clara apaga o proprio desenho.
+:host-context(.dark) .formalization-page img {
+  mix-blend-mode: screen;
 }
 
-.sep-formalizacao-home-error {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-  align-items: flex-start;
-  color: hsl(var(--warning));
-}
-
-.sep-formalizacao-home-retry {
-  @include sepDs.sep-button-outline;
-}
-
-.sep-formalizacao-home-empty {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-  align-items: flex-start;
-}
-
-.sep-formalizacao-home-cards {
+.formalization-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--sep-space-16);
+  grid-template-columns: minmax(0, 1fr) 286px;
+  gap: 22px;
+  align-items: start;
 }
 
-.sep-formalizacao-home-card {
-  @include sepDs.sep-card;
-
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-6);
-  padding: var(--sep-space-24);
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
-  transition: border-color 120ms ease;
-
-  &:hover {
-    border-color: hsl(var(--primary));
+/* Largura natural deste layout: 1135px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 1131px) {
+  .formalization-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
-.sep-formalizacao-home-card-title {
-  @include sepType.sep-type-card-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
+.formalization-main {
+  min-width: 0;
 }
 
-.sep-formalizacao-home-card-body {
-  @include sepType.sep-type-body;
+.formalization-heading {
+  height: 121px;
+}
 
+.formalization-heading nav {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 0 0 9px;
+  color: var(--sep-text-muted);
+  font-size: 12.5px;
+}
+
+.formalization-heading nav a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.formalization-heading nav strong {
+  color: var(--sep-text);
+  font-weight: 500;
+}
+
+.formalization-heading h1 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin: 0;
-  color: hsl(var(--muted-foreground));
+  color: var(--sep-text-strong);
+  font-size: 31px;
+  line-height: 37px;
+  letter-spacing: -0.35px;
+}
+
+.formalization-heading h1 img {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+}
+
+.title-shield {
+  width: 31px;
+  height: 37px;
+  flex: 0 0 31px;
+  fill: rgb(var(--sep-c-blue) / 12%);
+  stroke: var(--sep-accent);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 5px rgb(var(--sep-c-blue) / calc(28% * var(--sep-glow-alpha))));
+}
+
+.formalization-heading p {
+  margin: 4px 0 0;
+  color: var(--sep-text-secondary);
+  font-size: 14.5px;
+}
+
+.glow-card {
+  border: 1px solid var(--sep-accent);
+  background: linear-gradient(
+    137deg,
+    rgb(var(--sep-c-surf3) / 92%),
+    rgb(var(--sep-c-sunken) / 96%)
+  );
+  box-shadow: inset 0 0 28px rgb(var(--sep-c-blue) / calc(7% * var(--sep-glow-alpha)));
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.glow-card:hover {
+  border-color: var(--sep-accent);
+  box-shadow:
+    inset 0 0 32px rgb(var(--sep-c-blue) / calc(11% * var(--sep-glow-alpha))),
+    0 0 15px rgb(var(--sep-c-blue) / calc(10% * var(--sep-glow-alpha)));
+}
+
+.formalization-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 196px), 1fr));
+  gap: 12px;
+  height: 126px;
+}
+
+.formalization-metrics article {
+  --accent: var(--sep-accent);
+
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  column-gap: 16px;
+  align-items: center;
+  min-width: 0;
+  padding: 12px 10px;
+  border: 1px solid color-mix(in srgb, var(--accent) 65%, var(--sep-surface-hover));
+  border-radius: 8px;
+  background:
+    radial-gradient(
+      circle at 15% 45%,
+      color-mix(in srgb, var(--accent) 11%, transparent),
+      transparent 48%
+    ),
+    linear-gradient(140deg, rgb(var(--sep-c-surf2) / 90%), rgb(var(--sep-c-sunken) / 96%));
+  box-shadow: inset 0 0 25px color-mix(in srgb, var(--accent) 6%, transparent);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.formalization-metrics article:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow:
+    inset 0 0 26px color-mix(in srgb, var(--accent) 12%, transparent),
+    0 0 14px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+// O icone assume o tom que o cartao ja usava na borda e no numero.
+.formalization-metrics article[data-tone="purple"] lucide-icon {
+  color: var(--sep-purple);
+}
+
+.formalization-metrics article[data-tone="blue"] lucide-icon {
+  color: var(--sep-accent);
+}
+
+.formalization-metrics article[data-tone="green"] lucide-icon {
+  color: var(--sep-success);
+}
+
+.formalization-metrics article[data-tone="amber"] lucide-icon {
+  color: var(--sep-warning);
+}
+
+.formalization-metrics article[data-tone="purple"] {
+  --accent: var(--sep-purple);
+}
+
+.formalization-metrics article[data-tone="green"] {
+  --accent: var(--sep-success);
+}
+
+.formalization-metrics article[data-tone="amber"] {
+  --accent: var(--sep-warning);
+}
+
+.formalization-metrics lucide-icon {
+  width: 54px;
+  height: 54px;
+}
+
+.formalization-metrics span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding-left: 2px;
+}
+
+.formalization-metrics small {
+  color: var(--sep-text);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.formalization-metrics strong {
+  margin: 3px 0 4px;
+  color: var(--accent);
+  font-size: 27px;
+  line-height: 29px;
+  font-weight: 600;
+}
+
+.formalization-metrics em {
+  color: var(--sep-text-muted);
+  font-size: 11.75px;
+  line-height: 15px;
+  font-style: normal;
+  white-space: nowrap;
+}
+
+.contracts-card {
+  min-height: 555px;
+  margin-top: 16px;
+  padding: 19px 15px 13px;
+  border-radius: 9px;
+}
+
+.contracts-card > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  padding: 0 4px 15px;
+}
+
+.contracts-card h2,
+.timeline-card h2,
+.aside-card h2 {
+  margin: 0;
+  color: var(--sep-text-strong);
+  font-size: 16px;
+  line-height: 21px;
+}
+
+.contracts-card header p,
+.timeline-card header p {
+  margin: 4px 0 0;
+  color: var(--sep-text-muted);
+  font-size: 12.5px;
+  line-height: 17px;
+}
+
+.contracts-card > header > a {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 7px;
+  color: var(--sep-accent);
+  font-size: 12.5px;
+  text-decoration: none;
+}
+
+.contracts-card > header > a span {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.contract-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.contract-row {
+  position: relative;
+  min-height: 64px;
+  padding: 10px 9px 9px 12px;
+  overflow: hidden;
+  border: 1px solid var(--sep-border);
+  border-left: 3px solid var(--sep-border-strong);
+  border-radius: 7px;
+  background: linear-gradient(90deg, rgb(var(--sep-c-surf2) / 92%), rgb(var(--sep-c-sunken) / 88%));
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.contract-row:hover {
+  border-color: var(--sep-accent);
+  background: linear-gradient(90deg, rgb(var(--sep-c-hover) / 95%), rgb(var(--sep-c-surf) / 92%));
+  transform: translateX(1px);
+}
+
+.contract-featured {
+  min-height: 124px;
+  border-left-color: var(--sep-purple);
+}
+
+.contract-data {
+  display: grid;
+  grid-template-columns: 0.82fr 1.14fr 0.92fr 0.75fr 1fr 1.08fr 120px;
+  align-items: center;
+}
+
+/* Largura natural desta fileira: 770px. Ate ai as colunas mantem a proporcao do
+   mockup; abaixo disso passam a caber quantas couberem, e o que sobra desce. */
+@container (max-width: 766px) {
+  .contract-data {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 104px), 1fr));
+  }
+}
+
+.contract-data > span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 3px;
+}
+
+.contract-data small {
+  color: var(--sep-text-muted);
+  font-size: 12px;
+  line-height: 15px;
+}
+
+.contract-data strong {
+  overflow: hidden;
+  color: var(--sep-text);
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-pill {
+  justify-self: start;
+  width: max-content;
+  padding: 4px 9px;
+  border: 1px solid currentcolor;
+  border-radius: 12px;
+  color: var(--sep-purple) !important;
+  background: rgb(var(--sep-c-active) / 35%);
+  font-size: 10.5px !important;
+  line-height: 13px;
+}
+
+.status-pill[data-status="1"] {
+  color: var(--sep-accent) !important;
+  background: rgb(var(--sep-c-blue) / 34%);
+}
+
+.status-pill[data-status="2"] {
+  color: var(--sep-warning) !important;
+  background: rgb(var(--sep-c-active) / 35%);
+}
+
+.contract-action {
+  width: 116px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  justify-self: end;
+  border: 1px solid var(--sep-accent);
+  border-radius: 6px;
+  color: var(--sep-on-solid);
+  background:
+    radial-gradient(circle at 18% 45%, rgb(var(--sep-c-blue) / 30%), transparent 38%),
+    linear-gradient(
+      135deg,
+      var(--sep-accent) 0%,
+      var(--sep-accent) 44%,
+      var(--sep-surface-active) 72%,
+      var(--sep-surface-2) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 rgb(var(--sep-c-fg) / 28%),
+    inset 0 -7px 13px rgb(var(--sep-c-surf) / 22%),
+    0 0 9px rgb(var(--sep-c-blue) / calc(16% * var(--sep-glow-alpha)));
+  font-size: 10.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+// No tema claro o acento e escuro e as superficies sao brancas: o degrade que passa por superficie
+// deixa o texto branco sem fundo. Aqui o botao vira preenchimento de acento cheio.
+:host-context(html:not(.dark)) .contract-action {
+  background: linear-gradient(
+    180deg,
+    var(--sep-accent),
+    color-mix(in srgb, var(--sep-accent) 82%, #000)
+  );
+}
+
+.contract-action lucide-icon {
+  width: 21px;
+  height: 21px;
+}
+
+.contract-action:hover {
+  border-color: var(--sep-accent);
+  color: var(--sep-text);
+  box-shadow:
+    inset 0 1px 0 rgb(var(--sep-c-blue) / calc(24% * var(--sep-glow-alpha))),
+    0 0 14px rgb(var(--sep-c-blue) / calc(28% * var(--sep-glow-alpha)));
+  transform: translateY(-1px);
+}
+
+.contract-progress {
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  margin: 15px 25px 0;
+  color: var(--sep-text-muted);
+  font-size: 11.5px;
+}
+
+/* Largura natural desta fileira: 720px. Ate ai as colunas mantem a proporcao do
+   mockup; abaixo disso passam a caber quantas couberem, e o que sobra desce. */
+@container (max-width: 716px) {
+  .contract-progress {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 90px), 1fr));
+  }
+}
+
+.contract-progress span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 32px;
+  white-space: nowrap;
+}
+
+.contract-progress lucide-icon {
+  width: 16px;
+  height: 16px;
+  object-position: center;
+  clip-path: circle(13px at 50% 50%);
+}
+
+.contract-progress i {
+  height: 1px;
+  align-self: center;
+  background: linear-gradient(
+    90deg,
+    var(--sep-surface-active),
+    var(--sep-surface-active),
+    var(--sep-surface-active)
+  );
+}
+
+.contract-progress .done {
+  color: var(--sep-text);
+}
+
+.contract-progress .current {
+  color: var(--sep-text);
+}
+
+.contracts-state {
+  min-height: 356px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 11px;
+  color: var(--sep-text-secondary);
+  font-size: 13px;
+}
+
+.contracts-state a,
+.contracts-state button {
+  padding: 8px 15px;
+  border: 1px solid var(--sep-accent);
+  border-radius: 6px;
+  color: var(--sep-accent);
+  background: var(--sep-surface-2);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.contracts-error {
+  color: var(--sep-warning);
+}
+
+.timeline-card {
+  height: 238px;
+  margin-top: 15px;
+  padding: 17px 18px 19px;
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.timeline-card header {
+  height: 58px;
+}
+
+.timeline {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 148px), 1fr));
+  gap: 8px;
+  padding-inline: 4px;
+}
+
+.timeline article {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  place-items: center center;
+  text-align: center;
+  color: var(--sep-text-muted);
+  min-width: 0;
+}
+
+.timeline article:not(:first-child)::before {
+  position: absolute;
+  z-index: 0;
+  top: 29px;
+  right: calc(50% + 29px);
+  width: calc(100% - 50px + 8px);
+  content: "";
+  border-top: 2px dashed var(--sep-border-strong);
+  filter: drop-shadow(0 0 3px rgb(var(--sep-c-muted) / 28%));
+}
+
+.timeline article:nth-child(2)::before {
+  border-color: var(--sep-accent);
+}
+
+.timeline article:nth-child(3)::before {
+  border-color: var(--sep-accent);
+}
+
+.timeline article:nth-child(4)::before {
+  border-color: var(--sep-border-strong);
+}
+
+.timeline article:nth-child(5)::before {
+  border-color: var(--sep-border-strong);
+}
+
+.timeline article lucide-icon {
+  z-index: 1;
+  display: block;
+  width: 60px;
+  height: 60px;
+  margin-inline: auto;
+  object-position: center;
+  clip-path: circle(27px at 50% 50%);
+}
+
+.timeline article strong {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  color: var(--sep-text);
+  font-size: 12.5px;
+  line-height: 17px;
+  text-align: center;
+}
+
+.timeline article span {
+  display: block;
+  width: 148px;
+  max-width: 100%;
+  margin-top: 8px;
+  color: var(--sep-text-muted);
+  font-size: 12px;
+  line-height: 17px;
+  text-align: center;
+}
+
+.formalization-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 19px;
+  padding-top: 18px;
+}
+
+.aside-card {
+  border-radius: 9px;
+}
+
+.onboarding-card {
+  min-height: 170px;
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr);
+  column-gap: 20px;
+  align-items: center;
+  padding: 15px 14px;
+}
+
+.onboarding-card > sep-arte {
+  width: 78px;
+  height: 78px;
+  object-fit: contain;
+}
+
+.onboarding-card h2 {
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.onboarding-card p {
+  margin: 12px 0 13px;
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.onboarding-card a {
+  display: flex;
+  justify-content: space-between;
+  color: var(--sep-accent);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.onboarding-card a span,
+.security-card > a span,
+.help-card > a span {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.summary-card {
+  min-height: 286px;
+  padding: 24px 21px 18px;
+}
+
+.summary-card h2 {
+  margin-bottom: 15px;
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+.summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.summary-list > span {
+  display: grid;
+  grid-template-columns: 33px minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 28px;
+}
+
+.summary-list img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.summary-svg {
+  width: 29px;
+  height: 29px;
+  padding: 5px;
+  color: var(--sep-text-secondary);
+  fill: rgb(var(--sep-c-hover) / 55%);
+  stroke: currentcolor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  border: 1px solid rgb(var(--sep-c-edge) / 25%);
+  border-radius: 6px;
+}
+
+.summary-list small {
+  color: var(--sep-text-secondary);
+  font-size: 12.25px;
+}
+
+.summary-list strong {
+  color: var(--sep-text-strong);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.security-card {
+  min-height: 310px;
+  padding: 21px 20px 20px;
+}
+
+.aside-card header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.aside-card header > img {
+  width: 47px;
+  height: 47px;
+  object-fit: contain;
+}
+
+.aside-title-svg {
+  width: 43px;
+  height: 43px;
+  flex: 0 0 43px;
+  padding: 7px;
+  fill: rgb(var(--sep-c-green) / 10%);
+  stroke: var(--sep-success);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(var(--sep-c-green) / 13%), transparent 68%);
+  filter: drop-shadow(0 0 5px rgb(var(--sep-c-green) / calc(22% * var(--sep-glow-alpha))));
+}
+
+.security-card ul {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0 25px;
+  padding: 0;
+  list-style: none;
+}
+
+.security-card li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--sep-text-secondary);
+  font-size: 11.75px;
+  line-height: 16px;
+}
+
+.security-card li img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.security-check {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  flex: 0 0 20px;
+  place-items: center;
+  color: var(--sep-success);
+  border: 1px solid currentcolor;
+  border-radius: 50%;
+  background: rgb(var(--sep-c-green) / 8%);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 0 6px rgb(var(--sep-c-green) / calc(14% * var(--sep-glow-alpha)));
+}
+
+.security-card > a,
+.help-card > a {
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 6px;
+  color: var(--sep-success);
+  font-size: 11.5px;
+  text-decoration: none;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.security-card > a:hover,
+.help-card > a:hover {
+  border-color: var(--sep-success);
+  box-shadow: 0 0 12px rgb(var(--sep-c-green) / calc(20% * var(--sep-glow-alpha)));
+  transform: translateY(-1px);
+}
+
+.help-card {
+  min-height: 177px;
+  padding: 15px 20px;
+}
+
+.help-card p {
+  margin: 6px 0 13px;
+  padding-left: 49px;
+  color: var(--sep-text-secondary);
+  font-size: 11.75px;
+  line-height: 17px;
+}
+
+@include resp.ate-ampla {
+  .formalization-page {
+    width: 100%;
+    zoom: 1;
+  }
+}
+
+@include resp.ate-tablet {
+  .formalization-page {
+    width: 100%;
+    min-width: 0;
+    padding: 16px;
+    zoom: 1;
+  }
+
+  .formalization-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .formalization-aside {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding-top: 0;
+  }
+
+  .formalization-metrics {
+    grid-template-columns: repeat(2, 1fr);
+    height: auto;
+  }
+
+  .contract-data {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .contract-action {
+    grid-column: span 3;
+  }
+}
+
+// ============ JANELA MAXIMIZADA ============
+// Acima de 1440 as medidas homologadas viram piso e o layout acompanha o espaco. Nada aqui vale de
+// 1440 para baixo: a forma original fica intacta.
+@include resp.maximizada {
+  // Coluna lateral: 286px viram piso. 25.13% da grade de 1138px (1440) dao o mesmo.
+  @container (min-width: 1132px) {
+    .formalization-grid {
+      grid-template-columns: minmax(0, 1fr) max(286px, 25.13%);
+    }
+  }
 }

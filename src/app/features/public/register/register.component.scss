@@ -1,5 +1,6 @@
 @use "../../../../styles/sep-ds-typography" as sepType;
 @use "../../../../styles/sep-ds-components" as sepDs;
+@use "../../../../styles/sep-responsivo" as resp;
 
 :host {
   display: block;
@@ -179,7 +180,7 @@ select.register-input {
 
 // ===== Responsivo: empilha o painel de marca como faixa superior =====
 
-@media (width <= 860px) {
+@include resp.ate-tablet {
   .register-page {
     grid-template-columns: 1fr;
   }
@@ -197,7 +198,7 @@ select.register-input {
   }
 }
 
-@media (width <= 419px) {
+@include resp.ate-telefone {
   .register-form-panel {
     padding: var(--sep-space-48) var(--sep-space-24);
   }

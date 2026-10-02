@@ -1,0 +1,79 @@
+// ============ COMO FUNCIONA ============
+
+@use "../shared/site-tema" as site;
+
+:host {
+  @include site.tokens;
+}
+
+@include site.base("px51");
+
+// A trilha é uma lista ordenada: a numeração é conteúdo, e não decoração.
+.px51-trilha {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: etapa;
+}
+
+.px51-trilha .px51-card {
+  padding-top: 30px;
+}
+
+.px51-passo {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  color: var(--tone, var(--site-ciano));
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+  opacity: 0.34;
+}
+
+.px51-card:hover .px51-passo {
+  opacity: 0.68;
+}
+
+// Janela panoramica: secoes lado a lado, cabendo na altura da tela (ver `site.painel`).
+@include site.painel("px51");
+
+// A trilha e uma sequencia de seis etapas: ganha uma zona dupla e se le em 3 x 2, da esquerda para
+// a direita. Numa zona simples ela empilharia seis cartoes e passaria da altura da tela.
+// Posicao explicita: com o aviso fixado nas colunas 2 e 3 (abaixo), a colocacao automatica
+// empurrava a trilha para a direita e deixava uma coluna vazia no meio.
+@include site.panoramica {
+  .px51-page > .px51-secao:first-of-type {
+    grid-column: 2 / span 2;
+  }
+
+  .px51-page > .px51-secao:nth-of-type(2) {
+    grid-column: 4;
+  }
+
+  .px51-trilha {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+// O aviso ("passar por uma etapa nao garante a seguinte") comenta a trilha, entao assenta na base
+// da zona dela, alinhado a base da chamada. A secao continua ocupando a altura toda da zona — o
+// filete segue inteiro — e reserva o espaco do aviso no proprio padding, para os cartoes nunca
+// descerem sobre ele.
+@include site.panoramica {
+  .px51-page > .px51-secao:first-of-type {
+    padding-bottom: 104px;
+  }
+
+  .px51-aviso {
+    grid-row: 2;
+    grid-column: 2 / span 2;
+    align-self: end;
+
+    // So o recuo do filete: o aviso e um `<p>` e a margem padrao o deixava 14px acima da base.
+    margin: 0 0 0 calc(clamp(24px, 1.3vw, 48px) + 1px);
+  }
+}

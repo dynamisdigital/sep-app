@@ -1,3 +1,4 @@
+import { importProvidersFrom } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
@@ -8,6 +9,8 @@ import { PerfilOperacionalResponse, UsuarioResponse } from '../../../core/api/ap
 import { AuthService } from '../../../core/auth/auth.service';
 import { ProfileService } from '../../../core/profile/profile.service';
 import { ProfileComponent } from './profile.component';
+import { LucideAngularModule } from 'lucide-angular';
+import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
 
 const user: UsuarioResponse = {
   id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771004',
@@ -51,6 +54,7 @@ async function renderProfile(service: Partial<ProfileService> = {}) {
   };
   const result = await render(ProfileComponent, {
     providers: [
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
       provideRouter([]),
       provideHttpClient(),
       { provide: ProfileService, useValue: profileService },
@@ -77,20 +81,16 @@ describe('ProfileComponent', () => {
     expect(screen.getByText('Informações complementares')).toBeTruthy();
     expect(screen.getByText('Administrador')).toBeTruthy();
     expect(screen.getByText('Português (Brasil)')).toBeTruthy();
-    expect(screen.getByAltText('Avatar da conta').getAttribute('src')).toBe(
-      '/image/sep_mockup_04_assets/icons/icon_profile_avatar_b.png',
-    );
-    expect(
-      document.querySelector(
-        'img[src="/image/sep_mockup_04_assets/icons/icon_security_mfa_lock.png"]',
-      ),
-    ).toBeTruthy();
-    expect(document.querySelector('sep-profile lucide-icon')).toBeNull();
+    // O avatar e a inicial do usuario desenhada em CSS, nao mais o PNG com a letra "B" do mockup.
+    expect(document.querySelector('.profile-avatar span')?.textContent?.trim()).toMatch(/^[A-Z]$/);
+    // O cadeado do MFA saiu do PNG e virou `lock-keyhole` desenhado em vetor.
+    expect(document.querySelector('.profile-security lucide-icon svg')).toBeTruthy();
+    expect(document.querySelectorAll('.profile-rows lucide-icon svg').length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: 'Voltar para a tela anterior' })).toBeTruthy();
     expect(screen.getAllByRole('button', { name: /editar perfil/i })).toHaveLength(1);
     expect(screen.getByText('Logs de auditoria')).toBeTruthy();
     expect(screen.getByText('Armazenamento')).toBeTruthy();
-    expect(document.querySelector('.profile-regulatory-art img')).toBeTruthy();
+    expect(document.querySelector('.profile-regulatory-art sep-arte')).toBeTruthy();
     expect(document.querySelector('.profile-hero-hud')).toBeNull();
     expect(document.querySelector('.profile-now-badge')?.textContent).toContain('Agora');
     expect(document.querySelectorAll('.profile-live-state i')).toHaveLength(2);

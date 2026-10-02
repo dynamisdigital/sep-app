@@ -1,11 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
 import {
-  ApiErrorResponse,
   StatusPixRecebimento,
   StatusPixReferenciaRecebimento,
   StatusPixTransferencia,
 } from '../../../../core/api/api.models';
+import { extrairMensagemErroSegura } from '../../../../core/api/api-error-sanitizer';
 
 // Formatacao apenas visual da jornada Pix. Valores chegam como number BRL; nada aqui interpreta
 // regra de negocio (elegibilidade, status, conciliacao e mascaramento pertencem ao backend).
@@ -55,9 +55,8 @@ export const STATUS_RECEBIMENTO_LABEL: Record<StatusPixRecebimento, string> = {
   FALHOU: 'Falhou',
 };
 
-// Extrai a mensagem amigavel do corpo de erro padronizado da API, com fallback. 401/403/423
+// Extrai a mensagem amigavel do corpo de erro padronizado da API, com fallback e sanitizacao. 401/403/423
 // globais sao tratados pelo errorInterceptor/fluxo de step-up; aqui cobrimos 404/409/422/5xx.
 export function mensagemPixErro(err: HttpErrorResponse, padrao: string): string {
-  const apiErr = err.error as ApiErrorResponse | undefined;
-  return apiErr?.message ?? padrao;
+  return extrairMensagemErroSegura(err, padrao);
 }

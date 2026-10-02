@@ -1,0 +1,577 @@
+// ============ MOCKUP 33 — CONFIRMAÇÃO ADICIONAL (STEP-UP) ============
+
+@use "../../../../styles/sep-responsivo" as resp;
+
+:host {
+  --linha: var(--sep-border);
+  --muted: var(--sep-text-muted);
+  --muted-forte: var(--sep-text-secondary);
+  --blue: var(--sep-accent);
+  --green: var(--sep-success);
+  --purple: var(--sep-purple);
+  --red-forte: var(--sep-danger);
+
+  display: block;
+  color: var(--sep-text);
+  font-size: 13.5px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button {
+  font: inherit;
+}
+
+/* stylelint-disable selector-pseudo-element-no-unknown -- Angular ::ng-deep */
+
+:host ::ng-deep .op-content:has(> .px33-page) {
+  /* Container do contrato responsivo: e esta area que recebe o espaco restante depois da barra
+       lateral, entao e ela que a pagina mede. Declarar no `:host` do componente nao serve — o host
+       envolve o shell inteiro e tem a largura da janela. */
+  container: sep-conteudo / inline-size;
+  display: block;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+:host ::ng-deep .op-main:has(.px33-page) {
+  grid-template-rows: 70px minmax(0, 1fr) 80px;
+}
+
+:host ::ng-deep .op-main:has(.px33-page) > .op-footer {
+  min-height: 80px;
+}
+
+:host ::ng-deep .op-dashboard:has(.px33-page) > .op-sidebar {
+  grid-template-rows: 70px minmax(0, 1fr) 130px 80px;
+}
+
+/* stylelint-enable selector-pseudo-element-no-unknown */
+
+[data-tone="blue"] {
+  --tone: var(--blue);
+  --tone-borda: rgb(var(--sep-c-blue) / 55%);
+  --tone-fundo: rgb(var(--sep-c-blue) / 12%);
+}
+
+[data-tone="green"] {
+  --tone: var(--green);
+  --tone-borda: rgb(var(--sep-c-green) / 55%);
+  --tone-fundo: rgb(var(--sep-c-green) / 12%);
+}
+
+[data-tone="purple"] {
+  --tone: var(--purple);
+  --tone-borda: rgb(var(--sep-c-purple) / 55%);
+  --tone-fundo: rgb(var(--sep-c-purple) / 12%);
+}
+
+[data-tone="red"] {
+  --tone: var(--red-forte);
+  --tone-borda: rgb(var(--sep-c-red) / 55%);
+  --tone-fundo: rgb(var(--sep-c-red) / 12%);
+}
+
+// ============ GRADE PRINCIPAL ============
+
+/* Uma coluna centrada: o cartão da confirmação e, abaixo, o painel de dúvidas — como no
+   desenho, que não usa a largura toda da área útil. */
+.px33-page {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 14px;
+  align-content: start;
+  width: 100%;
+  height: 100%;
+  padding: 12px 24px 14px;
+  overflow: hidden auto;
+  background: radial-gradient(circle at 50% 26%, rgb(var(--sep-c-blue) / 7%), transparent 46%);
+}
+
+.px33-page > .px33-card {
+  width: min(100%, 560px);
+  margin-inline: auto;
+}
+
+// ============ CARTÃO BASE ============
+
+.px33-card {
+  padding: 20px 26px;
+  border: 1px solid var(--linha);
+  border-radius: 12px;
+  background: linear-gradient(
+    160deg,
+    rgb(var(--sep-c-sunken) / 96%),
+    rgb(var(--sep-c-sunken) / 94%)
+  );
+  box-shadow: inset 0 1px 0 rgb(var(--sep-c-blue) / calc(4% * var(--sep-glow-alpha)));
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+
+  /* Widget principal: reforça borda e glow, sem alterar dimensões. */
+  &:hover,
+  &:focus-within {
+    border-color: rgb(var(--sep-c-blue) / 38%);
+    box-shadow:
+      0 0 18px rgb(var(--sep-c-blue) / calc(7% * var(--sep-glow-alpha))),
+      inset 0 1px 0 rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha)));
+  }
+}
+
+// ============ CABEÇALHO ============
+
+.px33-heading {
+  grid-row: 1;
+}
+
+.px33-heading nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.px33-heading nav a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.18s;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sep-text);
+    text-decoration: underline;
+  }
+}
+
+.px33-heading nav span {
+  color: var(--sep-text-muted);
+}
+
+.px33-heading nav strong {
+  color: var(--sep-text);
+  font-weight: 600;
+}
+
+// ============ CARTÃO DA CONFIRMAÇÃO ============
+
+.px33-confirmacao {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  text-align: center;
+
+  h1 {
+    margin: 4px 0 0;
+    color: var(--sep-text);
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  hr {
+    width: 100%;
+    height: 1px;
+    margin: 2px 0;
+    border: 0;
+    background: rgb(var(--sep-c-active) / 80%);
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+}
+
+.px33-subtitulo {
+  max-width: 400px;
+  margin: 0;
+  color: var(--muted-forte);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+/* Escudo do desenho: halo azul em duas camadas, com o ícone centrado no miolo opaco. */
+.px33-escudo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 112px;
+  height: 112px;
+  margin-bottom: 2px;
+  color: var(--blue);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgb(var(--sep-c-blue) / 22%),
+    rgb(var(--sep-c-blue) / 4%) 62%,
+    transparent 74%
+  );
+  transition:
+    filter 0.18s,
+    transform 0.18s;
+
+  &::before {
+    position: absolute;
+    inset: 21px;
+    border: 1px solid rgb(var(--sep-c-blue) / 30%);
+    border-radius: 50%;
+    content: "";
+  }
+
+  lucide-icon {
+    position: relative;
+    filter: drop-shadow(0 0 14px rgb(var(--sep-c-blue) / calc(55% * var(--sep-glow-alpha))));
+  }
+}
+
+.px33-confirmacao:hover .px33-escudo {
+  filter: brightness(1.08);
+  transform: scale(1.03);
+}
+
+// ============ AVISOS ============
+
+.px33-aviso {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  width: 100%;
+  padding: 12px 14px;
+  color: var(--muted-forte);
+  text-align: left;
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 40%));
+  border-left: 3px solid var(--tone, var(--blue));
+  border-radius: 9px;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 10%));
+
+  lucide-icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--tone, var(--blue));
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+}
+
+// ============ BOTÕES ============
+
+.px33-btn-primary {
+  display: inline-flex;
+  gap: 9px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 46px;
+  padding: 0 18px;
+  color: var(--sep-on-solid);
+  font-size: 14.5px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid rgb(var(--sep-c-blue) / 60%);
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--sep-accent), var(--sep-accent));
+  box-shadow: 0 0 16px rgb(var(--sep-c-blue) / calc(28% * var(--sep-glow-alpha)));
+  cursor: pointer;
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s,
+    border-color 0.18s;
+
+  lucide-icon {
+    flex-shrink: 0;
+    transition: transform 0.18s;
+  }
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    border-color: var(--blue);
+    box-shadow: 0 0 24px rgb(var(--sep-c-blue) / calc(48% * var(--sep-glow-alpha)));
+    transform: translateY(-2px);
+  }
+
+  &:hover:not(:disabled) lucide-icon,
+  &:focus-visible lucide-icon {
+    transform: scale(1.08);
+  }
+
+  &:disabled {
+    color: var(--muted);
+    border-color: var(--sep-border-strong);
+    background: rgb(var(--sep-c-surf2) / 85%);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+}
+
+.px33-btn-sec {
+  display: inline-flex;
+  gap: 9px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 46px;
+  padding: 0 18px;
+  color: var(--sep-text);
+  font-size: 14.5px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 9px;
+  background: rgb(var(--sep-c-surf2) / 70%);
+  cursor: pointer;
+  transition:
+    border-color 0.18s,
+    background 0.18s,
+    box-shadow 0.18s,
+    transform 0.18s;
+
+  em {
+    color: var(--muted);
+    font-style: normal;
+    font-size: 12.5px;
+    font-weight: 500;
+  }
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--blue);
+    background: rgb(var(--sep-c-hover) / 90%);
+    box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(22% * var(--sep-glow-alpha)));
+    transform: translateY(-2px);
+  }
+}
+
+.px33-btn-texto {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 600;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 0.18s,
+    text-shadow 0.18s;
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    color: var(--sep-accent);
+    text-shadow: 0 0 10px rgb(var(--sep-c-blue) / calc(45% * var(--sep-glow-alpha)));
+  }
+
+  &:disabled {
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+}
+
+// ============ CAMPO DO CÓDIGO ============
+
+.px33-confirmacao label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  width: 100%;
+  text-align: left;
+
+  > span {
+    color: var(--muted-forte);
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  input {
+    width: 100%;
+    height: 52px;
+    padding: 0 14px;
+    color: var(--sep-text);
+    font: inherit;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    text-align: center;
+    border: 1px solid var(--sep-border-strong);
+    border-radius: 9px;
+    background: rgb(var(--sep-c-sunken) / 92%);
+    transition:
+      border-color 0.18s,
+      box-shadow 0.18s;
+
+    &::placeholder {
+      color: var(--sep-text-muted);
+      font-weight: 600;
+    }
+
+    &:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 14px rgb(var(--sep-c-blue) / calc(28% * var(--sep-glow-alpha)));
+      outline: none;
+    }
+  }
+}
+
+// ============ DÚVIDAS ============
+
+.px33-duvidas {
+  width: min(100%, 830px) !important;
+  align-self: start;
+  padding: 16px 22px;
+
+  h2 {
+    margin: 0 0 12px;
+    color: var(--sep-text);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.1px;
+  }
+}
+
+.px33-duvidas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+
+  /* Divisórias verticais entre as colunas, como no desenho. */
+  section + section {
+    padding-left: 18px;
+    border-left: 1px solid rgb(var(--sep-c-line) / 80%);
+  }
+
+  section {
+    display: flex;
+    gap: 11px;
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  strong {
+    color: var(--sep-text);
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+}
+
+.px33-duvida-icone {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  color: var(--tone, var(--blue));
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+  border-radius: 9px;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+  transition:
+    box-shadow 0.18s,
+    transform 0.18s;
+}
+
+.px33-duvidas-grid section:hover .px33-duvida-icone {
+  box-shadow: 0 0 12px var(--tone-fundo, rgb(var(--sep-c-blue) / calc(35% * var(--sep-glow-alpha))));
+  transform: scale(1.06);
+}
+
+// ============ TELAS BAIXAS E ESTREITAS ============
+
+@include resp.altura-muito-curta {
+  .px33-page {
+    gap: 11px;
+    padding: 10px 22px 12px;
+  }
+
+  .px33-card {
+    padding: 15px 22px;
+  }
+
+  .px33-escudo {
+    width: 86px;
+    height: 86px;
+
+    &::before {
+      inset: 16px;
+    }
+  }
+
+  .px33-confirmacao {
+    gap: 10px;
+
+    h1 {
+      font-size: 22px;
+    }
+  }
+
+  .px33-btn-primary,
+  .px33-btn-sec {
+    height: 42px;
+  }
+}
+
+@include resp.ate-tablet {
+  .px33-duvidas-grid {
+    grid-template-columns: minmax(0, 1fr);
+
+    section + section {
+      padding-top: 14px;
+      padding-left: 0;
+      border-top: 1px solid rgb(var(--sep-c-line) / 80%);
+      border-left: 0;
+    }
+  }
+}
+
+// ============ ACESSIBILIDADE ============
+
+:focus-visible {
+  outline: 2px solid rgb(var(--sep-c-blue) / 70%);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+
+  .px33-btn-primary:hover,
+  .px33-btn-sec:hover,
+  .px33-confirmacao:hover .px33-escudo,
+  .px33-duvidas-grid section:hover .px33-duvida-icone {
+    transform: none;
+  }
+}

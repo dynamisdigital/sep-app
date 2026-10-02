@@ -1,0 +1,326 @@
+// ============ TOUR ASSISTIDO ============
+// Sem encapsulamento (a classe de destaque vai no elemento da pagina). O brilho usa opacidade
+// fixa, e nao `--sep-glow-alpha`: no tema claro esse multiplicador e zero, e o foco do roteiro
+// precisa aparecer nos dois temas.
+
+.sep-tour-bloqueio {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  cursor: progress;
+}
+
+/* O foco escurece o resto da tela pela propria sombra e acende a borda do alvo. Em transito (entre
+   dois alvos, ou numa tela que acabou de abrir) a sombra fica transparente e a moldura discreta:
+   o espectador ve a tela inteira na luminosidade real. Ao chegar, o fundo escurece. */
+.sep-tour-foco {
+  position: fixed;
+  z-index: 1001;
+  border: 2px solid rgb(var(--sep-c-cyan) / 45%);
+  border-radius: 12px;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 200vmax rgb(2 8 20 / 0%),
+    0 0 0 4px rgb(var(--sep-c-cyan) / 0%),
+    0 0 14px 2px rgb(var(--sep-c-cyan) / 22%);
+  transition:
+    top 380ms ease,
+    left 380ms ease,
+    width 380ms ease,
+    height 380ms ease,
+    border-color 380ms ease,
+    box-shadow 520ms ease;
+}
+
+.sep-tour-foco-aceso {
+  border-color: var(--sep-glow);
+  box-shadow:
+    0 0 0 200vmax rgb(2 8 20 / 42%),
+    0 0 0 4px rgb(var(--sep-c-cyan) / 22%),
+    0 0 26px 6px rgb(var(--sep-c-cyan) / 55%);
+  animation: sep-tour-pulso 1.6s ease-in-out infinite;
+}
+
+.sep-tour-foco-aceso.sep-tour-foco-digitando {
+  border-color: var(--sep-success);
+  box-shadow:
+    0 0 0 200vmax rgb(2 8 20 / 42%),
+    0 0 0 4px rgb(var(--sep-c-green) / 24%),
+    0 0 26px 6px rgb(var(--sep-c-green) / 55%);
+}
+
+@keyframes sep-tour-pulso {
+  50% {
+    border-color: color-mix(in srgb, var(--sep-glow) 55%, transparent);
+  }
+}
+
+/* Destaque no proprio elemento: o campo em uso fica com a borda acesa e o fundo iluminado. */
+.sep-tour-alvo {
+  border-color: var(--sep-glow) !important;
+  box-shadow:
+    0 0 0 1px var(--sep-glow),
+    0 0 18px rgb(var(--sep-c-cyan) / 45%),
+    inset 0 0 14px rgb(var(--sep-c-cyan) / 18%) !important;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+// ============ CURSOR ============
+
+.sep-tour-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1003;
+  pointer-events: none;
+  transition: transform 560ms cubic-bezier(0.3, 0.7, 0.2, 1);
+
+  svg {
+    display: block;
+    fill: #fff;
+    stroke: #03101f;
+    stroke-width: 1.4;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 2px 6px rgb(0 0 0 / 55%));
+  }
+}
+
+.sep-tour-onda {
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--sep-glow);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.sep-tour-cursor-clique .sep-tour-onda {
+  animation: sep-tour-clique 420ms ease-out;
+}
+
+@keyframes sep-tour-clique {
+  from {
+    opacity: 1;
+    transform: scale(0.4);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.9);
+  }
+}
+
+// ============ CARTAO ============
+
+.sep-tour-cartao {
+  position: fixed;
+  top: auto;
+  left: auto;
+  z-index: 1004;
+  display: grid;
+  gap: 8px;
+  width: min(390px, calc(100vw - 32px));
+  padding: 14px 16px;
+  color: var(--sep-text);
+  border: 1px solid rgb(var(--sep-c-cyan) / 55%);
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgb(var(--sep-c-surf) / 98%), rgb(var(--sep-c-sunken) / 98%));
+  box-shadow:
+    0 22px 60px rgb(0 0 0 / 45%),
+    0 0 24px rgb(var(--sep-c-cyan) / 22%);
+  transition:
+    top 300ms ease,
+    left 300ms ease;
+
+  header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+
+    small {
+      overflow: hidden;
+      color: var(--sep-text-muted);
+      font-size: 11.5px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  h3 {
+    margin: 2px 0 0;
+    color: var(--sep-text-strong);
+    font-size: 15.5px;
+    font-weight: 800;
+  }
+}
+
+.sep-tour-selo {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  padding: 3px 9px;
+  color: var(--sep-glow);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid rgb(var(--sep-c-cyan) / 45%);
+  border-radius: 999px;
+  background: rgb(var(--sep-c-cyan) / 12%);
+
+  lucide-icon {
+    display: grid;
+    place-items: center;
+  }
+}
+
+.sep-tour-fechar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: var(--sep-text-muted);
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sep-text-strong);
+    border-color: var(--sep-glow);
+    outline: none;
+  }
+}
+
+.sep-tour-barra {
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(var(--sep-c-cyan) / 14%);
+
+  span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--sep-accent), var(--sep-glow));
+    transition: width 300ms ease;
+  }
+}
+
+.sep-tour-contagem {
+  margin: 0;
+  color: var(--sep-text-muted);
+  font-size: 11.5px;
+
+  strong {
+    color: var(--sep-warning);
+  }
+}
+
+.sep-tour-texto {
+  min-height: 3.1em;
+  margin: 0;
+  color: var(--sep-text-secondary);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.sep-tour-aviso {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 0;
+  padding: 8px 10px;
+  color: var(--sep-warning);
+  font-size: 12.3px;
+  line-height: 1.45;
+  border: 1px solid color-mix(in srgb, var(--sep-warning) 40%, transparent);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--sep-warning) 10%, transparent);
+
+  &[data-tone="green"] {
+    color: var(--sep-success);
+    border-color: color-mix(in srgb, var(--sep-success) 40%, transparent);
+    background: color-mix(in srgb, var(--sep-success) 10%, transparent);
+  }
+
+  lucide-icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    margin-top: 1px;
+  }
+}
+
+.sep-tour-cartao footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.sep-tour-espaco {
+  flex: 1 1 auto;
+}
+
+.sep-tour-btn {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding: 0 12px;
+  color: var(--sep-text);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 8px;
+  background: rgb(var(--sep-c-surf2) / 80%);
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--sep-glow);
+    outline: none;
+    box-shadow: 0 0 12px rgb(var(--sep-c-cyan) / 24%);
+  }
+
+  lucide-icon {
+    display: grid;
+    place-items: center;
+  }
+}
+
+.sep-tour-btn-primario {
+  color: var(--sep-on-solid);
+  border-color: var(--sep-accent);
+  background: var(--sep-accent);
+}
+
+.sep-tour-btn-icone {
+  width: 38px;
+  padding: 0;
+}
+
+.sep-tour-btn-ligado {
+  color: var(--sep-glow);
+  border-color: rgb(var(--sep-c-cyan) / 55%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sep-tour-foco,
+  .sep-tour-cursor,
+  .sep-tour-cartao {
+    transition: none;
+    animation: none;
+  }
+}

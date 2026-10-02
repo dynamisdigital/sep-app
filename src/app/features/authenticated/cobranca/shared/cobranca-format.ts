@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { ApiErrorResponse, StatusParcela } from '../../../../core/api/api.models';
+import { StatusParcela } from '../../../../core/api/api.models';
+import { extrairMensagemErroSegura } from '../../../../core/api/api-error-sanitizer';
 
 // Formatacao apenas visual da jornada de cobranca. Valores chegam como number BRL e
 // datas como string do backend; nada aqui interpreta regra de negocio (saldo, mora,
@@ -13,6 +14,13 @@ export function formatarMoeda(valor: number): string {
 // Datas com horario (OffsetDateTime ISO, ex.: dataGeracao da agenda).
 export function formatarData(iso: string): string {
   return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' }).format(new Date(iso));
+}
+
+// Data com hora e minuto, como a trilha e o "ultima atualizacao" do Mockup 31 exibem.
+export function formatarDataHora(iso: string): string {
+  return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(
+    new Date(iso),
+  );
 }
 
 // Datas sem horario (LocalDate 'yyyy-MM-dd', ex.: vencimento). Formatado sem Date
@@ -39,10 +47,9 @@ export const STATUS_PARCELA_LABEL: Record<StatusParcela, string> = {
   RENEGOCIADA: 'Renegociada',
 };
 
-// Extrai a mensagem amigavel do corpo de erro padronizado da API, com fallback.
+// Extrai a mensagem amigavel do corpo de erro padronizado da API, com fallback e sanitizacao.
 // 401/403/423 sao tratados pelo errorInterceptor global (redirecionamento); aqui
 // cobrimos 404/409/422/5xx como fallback defensivo.
 export function mensagemCobrancaErro(err: HttpErrorResponse, padrao: string): string {
-  const apiErr = err.error as ApiErrorResponse | undefined;
-  return apiErr?.message ?? padrao;
+  return extrairMensagemErroSegura(err, padrao);
 }

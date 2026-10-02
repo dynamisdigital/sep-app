@@ -8,13 +8,23 @@
     <span aria-hidden="true">&larr;</span>
   </button>
 
-  <aside class="op-sidebar" aria-label="Navegação operacional">
+  <aside
+    class="op-sidebar"
+    [class.op-sidebar-colapsada]="colapsado()"
+    aria-label="Navegação operacional"
+  >
     <header class="op-sidebar-head">
-      <button type="button" class="op-menu-button" aria-label="Menu">
-        <img [src]="assetBase + '/icons/icon_menu_hamburger.png'" alt="" />
+      <button
+        type="button"
+        class="op-menu-button"
+        [attr.aria-label]="colapsado() ? 'Expandir menu' : 'Recolher menu'"
+        [attr.aria-expanded]="!colapsado()"
+        (click)="alternarMenu()"
+      >
+        <lucide-icon name="menu" [size]="20" [strokeWidth]="2.25" />
       </button>
-      <a class="op-brand" routerLink="/app/backoffice/dashboard" aria-label="Dashboard SEP">
-        <img [src]="assetBase + '/logos/logo_sep_header_completo.png'" alt="SEP" />
+      <a class="op-brand" routerLink="/app/dashboard" aria-label="Dashboard SEP">
+        <sep-logo />
       </a>
     </header>
 
@@ -22,11 +32,13 @@
       @for (item of itemsBySection('primary'); track item.route) {
         <a
           class="op-nav-link op-nav-link-primary"
+          [class.op-nav-link-active]="selecionado(item)"
+          [style.--glow]="item.tom"
           [routerLink]="item.route"
-          routerLinkActive="op-nav-link-active"
-          [routerLinkActiveOptions]="{ exact: true }"
+          [attr.aria-current]="selecionado(item) ? 'page' : null"
+          [attr.title]="colapsado() ? item.label : null"
         >
-          <img [src]="assetBase + '/' + item.icon" alt="" aria-hidden="true" />
+          <lucide-icon class="op-nav-lucide" [name]="item.lucide!" [size]="20" aria-hidden="true" />
           <span>{{ item.label }}</span>
         </a>
       }
@@ -39,28 +51,123 @@
         ];
         track section.id
       ) {
-        <div class="op-nav-section" [attr.data-section]="section.id">
-          <p>{{ section.label }}</p>
-          @for (item of itemsBySection($any(section.id)); track item.route) {
-            <a
-              class="op-nav-link"
-              [routerLink]="item.route"
-              routerLinkActive="op-nav-link-active"
-              [routerLinkActiveOptions]="{ exact: item.route === '/app/profile' }"
-            >
-              <img [src]="assetBase + '/' + item.icon" alt="" aria-hidden="true" />
-              <span>{{ item.label }}</span>
-              @if (item.badge) {
-                <small>{{ item.badge }}</small>
-              }
-            </a>
-          }
-        </div>
+        @if (itemsBySection($any(section.id)).length) {
+          <div class="op-nav-section" [attr.data-section]="section.id">
+            <p>{{ section.label }}</p>
+            @for (item of itemsBySection($any(section.id)); track item.route) {
+              <div
+                class="op-nav-group"
+                [class.op-nav-group-aberto]="expandido(item)"
+                [class.op-nav-group-ativo]="ramoAtivo(item)"
+              >
+                <a
+                  class="op-nav-link"
+                  [class.op-nav-link-active]="selecionado(item)"
+                  [class.op-nav-link-ramo]="!selecionado(item) && ramoAtivo(item)"
+                  [style.--glow]="item.tom"
+                  [routerLink]="item.route"
+                  [attr.aria-current]="selecionado(item) ? 'page' : null"
+                  [attr.title]="colapsado() ? item.label : null"
+                >
+                  @if (item.icon) {
+                    <sep-arte nome="pix" />
+                  } @else {
+                    <lucide-icon class="op-nav-lucide" [name]="item.lucide!" [size]="20" />
+                  }
+                  <span>{{ item.label }}</span>
+                  @if (item.badge) {
+                    <small>{{ item.badge }}</small>
+                  }
+                </a>
+
+                <!-- A seta fica fora da âncora: botão dentro de link é inválido e o clique
+                     acabaria navegando em vez de abrir o submenu. -->
+                @if (item.children?.length && !colapsado()) {
+                  <button
+                    type="button"
+                    class="op-nav-caret"
+                    [attr.aria-label]="(expandido(item) ? 'Recolher ' : 'Expandir ') + item.label"
+                    [attr.aria-expanded]="expandido(item)"
+                    (click)="alternarSubmenu(item, $event)"
+                  >
+                    <lucide-icon
+                      [name]="expandido(item) ? 'chevron-up' : 'chevron-down'"
+                      [size]="14"
+                    />
+                  </button>
+                }
+
+                @if (item.children?.length && expandido(item)) {
+                  <div class="op-subnav">
+                    @for (filho of item.children; track filho.route) {
+                      <div
+                        class="op-subnav-group"
+                        [class.op-subnav-group-aberto]="expandido(filho)"
+                      >
+                        <a
+                          class="op-subnav-link"
+                          [class.op-subnav-link-active]="selecionado(filho)"
+                          [class.op-subnav-link-ramo]="!selecionado(filho) && ramoAtivo(filho)"
+                          [style.--glow]="filho.tom"
+                          [routerLink]="filho.route"
+                          [attr.aria-current]="selecionado(filho) ? 'page' : null"
+                        >
+                          <lucide-icon [name]="filho.lucide!" [size]="15" />
+                          <span>{{ filho.label }}</span>
+                        </a>
+
+                        @if (filho.children?.length) {
+                          <button
+                            type="button"
+                            class="op-nav-caret op-subnav-caret"
+                            [attr.aria-label]="
+                              (expandido(filho) ? 'Recolher ' : 'Expandir ') + filho.label
+                            "
+                            [attr.aria-expanded]="expandido(filho)"
+                            (click)="alternarSubmenu(filho, $event)"
+                          >
+                            <lucide-icon
+                              [name]="expandido(filho) ? 'chevron-up' : 'chevron-down'"
+                              [size]="13"
+                            />
+                          </button>
+                        }
+
+                        <!-- Terceiro nível: as rotas folha de cada módulo, para nenhuma ficar
+                             acessível só por link interno. -->
+                        @if (filho.children?.length && expandido(filho)) {
+                          <div class="op-subnav op-subnav-neto">
+                            @for (neto of filho.children; track neto.route) {
+                              <a
+                                class="op-subnav-link op-subnav-link-neto"
+                                [class.op-subnav-link-active]="selecionado(neto)"
+                                [style.--glow]="neto.tom"
+                                [routerLink]="neto.route"
+                                [attr.aria-current]="selecionado(neto) ? 'page' : null"
+                              >
+                                <lucide-icon [name]="neto.lucide!" [size]="14" />
+                                <span>{{ neto.label }}</span>
+                              </a>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
       }
     </nav>
 
-    <a class="op-side-user op-glow-card" routerLink="/app/profile">
-      <span>{{ currentUser().username.charAt(0).toUpperCase() }}</span>
+    <a
+      class="op-side-user op-glow-card"
+      routerLink="/app/profile"
+      [attr.title]="colapsado() ? currentUser().username : null"
+    >
+      <span>{{ iniciais() }}</span>
       <div>
         <strong>{{ currentUser().username }}</strong>
         <em>Online</em>
@@ -70,24 +177,32 @@
     </a>
 
     <footer class="op-side-footer">
-      <img [src]="assetBase + '/logos/logo_sep_footer_completo.png'" alt="SEP" />
-      <span>v0.6.1</span>
+      <sep-logo />
+      <span>v{{ projeto.versao }}</span>
     </footer>
   </aside>
 
   <div class="op-main">
     <header class="op-topbar">
       <div class="op-topbar-left">
-        <div class="op-regulated op-glow-card" style="grid-template-columns: 28px auto 14px">
-          <img [src]="assetBase + '/icons/icon_badge_ambiente_regulado_topbar.png'" alt="" />
+        <!-- A seta prometia um destino que a div nao tinha: agora abre a pagina de seguranca. -->
+        <a
+          class="op-regulated op-glow-card"
+          style="grid-template-columns: 28px auto 14px"
+          href="/seguranca"
+          target="_blank"
+          rel="noopener"
+          aria-label="Ambiente regulado: ver as garantias de segurança"
+        >
+          <lucide-icon class="ic-verde" name="shield-check" [size]="28" [strokeWidth]="1.75" />
           <div>
             <span>Ambiente</span>
             <strong>Regulado</strong>
           </div>
           <b aria-hidden="true">›</b>
-        </div>
+        </a>
         <div class="op-clock op-glow-card" style="grid-template-columns: 34px auto auto">
-          <img [src]="assetBase + '/icons/icon_horario_sistema.png'" alt="" />
+          <lucide-icon class="ic-verde" name="clock" [size]="26" [strokeWidth]="1.75" />
           <div>
             <span>Horário do sistema</span>
             <strong>{{ systemTime() }}</strong>
@@ -97,29 +212,396 @@
       </div>
 
       <div class="op-topbar-actions">
-        <button type="button" class="op-icon-button" aria-label="Pesquisar">
-          <img [src]="assetBase + '/icons/icon_search_topbar.png'" alt="" />
-        </button>
-        <button type="button" class="op-icon-button op-notification" aria-label="Notificações">
-          <img [src]="assetBase + '/icons/icon_bell_notification.png'" alt="" />
-        </button>
-        <button type="button" class="op-icon-button" aria-label="Ajuda">
-          <img [src]="assetBase + '/icons/icon_help_topbar.png'" alt="" />
-        </button>
-        <a class="op-user op-glow-card" routerLink="/app/profile">
-          <span>{{ currentUser().username.charAt(0).toUpperCase() }}</span>
-          <div>
-            <strong>{{ currentUser().username }}</strong>
-            <small>{{ currentUser().role }}</small>
-          </div>
-        </a>
+        <!-- ============ PESQUISA ============ -->
+        <div class="op-painel-ancora">
+          <button
+            type="button"
+            class="op-icon-button"
+            [class.op-icon-button-aberto]="pesquisaAberta()"
+            aria-label="Pesquisar telas"
+            [attr.aria-expanded]="pesquisaAberta()"
+            aria-haspopup="dialog"
+            (click)="alternarPesquisa()"
+          >
+            <lucide-icon name="search" [size]="24" [strokeWidth]="2" />
+          </button>
+
+          @if (pesquisaAberta()) {
+            <div
+              class="op-painel op-painel-pesquisa"
+              role="dialog"
+              aria-label="Pesquisar telas"
+              (keydown.escape)="fecharPesquisa()"
+            >
+              <header>
+                <label class="op-pesquisa">
+                  <lucide-icon name="search" [size]="16" />
+                  <input
+                    class="op-pesquisa-campo"
+                    type="search"
+                    placeholder="Ir para uma tela..."
+                    aria-label="Nome da tela"
+                    [value]="termoPesquisa()"
+                    (input)="termoPesquisa.set($any($event.target).value)"
+                    (keydown.enter)="abrirPrimeiroResultado()"
+                  />
+                </label>
+              </header>
+
+              <div class="op-painel-corpo">
+                <section class="op-ajuda-links" aria-live="polite">
+                  @for (tela of resultadosPesquisa(); track tela.route) {
+                    <a [routerLink]="tela.route" (click)="fecharPesquisa()">
+                      <lucide-icon [name]="tela.lucide" [size]="15" />
+                      <span class="op-pesquisa-item">
+                        {{ tela.label }}
+                        @if (tela.caminho) {
+                          <small>{{ tela.caminho }}</small>
+                        }
+                      </span>
+                    </a>
+                  } @empty {
+                    <p class="op-painel-vazio">
+                      <lucide-icon name="search-x" [size]="22" />
+                      Nenhuma tela do seu menu corresponde a “{{ termoPesquisa() }}”.
+                    </p>
+                  }
+                </section>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="op-painel-fundo"
+              aria-label="Fechar pesquisa"
+              (click)="fecharPesquisa()"
+            ></button>
+          }
+        </div>
+        <!-- ============ ALERTAS ============ -->
+        <div class="op-painel-ancora">
+          <button
+            type="button"
+            class="op-icon-button op-notification"
+            [class.op-icon-button-aberto]="alertasAberto()"
+            [attr.aria-label]="
+              notificacoes.total() > 0 ? notificacoes.total() + ' alerta(s) para você' : 'Alertas'
+            "
+            [attr.aria-expanded]="alertasAberto()"
+            aria-haspopup="dialog"
+            (click)="alternarAlertas()"
+          >
+            <lucide-icon class="ic-ciano" name="bell" [size]="24" [strokeWidth]="2" />
+            @if (notificacoes.total() > 0) {
+              <span class="op-badge" aria-hidden="true">{{ notificacoes.total() }}</span>
+            }
+          </button>
+
+          @if (alertasAberto()) {
+            <div class="op-painel" role="dialog" aria-label="Alertas">
+              <header>
+                <div>
+                  <strong>Alertas</strong>
+                  <small>
+                    @if (notificacoes.carregando()) {
+                      Consultando o painel de operação...
+                    } @else if (notificacoes.total() === 0) {
+                      Nada pendente para o seu papel.
+                    } @else {
+                      {{ notificacoes.total() }} item(ns) derivado(s) do estado atual
+                    }
+                  </small>
+                </div>
+                <button
+                  type="button"
+                  class="op-painel-acao"
+                  aria-label="Atualizar alertas"
+                  [disabled]="notificacoes.carregando()"
+                  (click)="notificacoes.atualizar()"
+                >
+                  <lucide-icon name="refresh-cw" [size]="15" />
+                </button>
+              </header>
+
+              <div class="op-painel-corpo">
+                @for (alerta of notificacoes.alertas(); track alerta.id) {
+                  @if (alerta.rota) {
+                    <a
+                      class="op-alerta"
+                      [attr.data-tone]="alerta.tom"
+                      [routerLink]="alerta.rota"
+                      (click)="fecharAlertas()"
+                    >
+                      <span class="op-alerta-icone">
+                        <lucide-icon [name]="alerta.icone" [size]="17" />
+                      </span>
+                      <strong>{{ alerta.titulo }}</strong>
+                      <span>{{ alerta.detalhe }}</span>
+                      <small>{{ alerta.origem }}</small>
+                    </a>
+                  } @else {
+                    <div class="op-alerta" [attr.data-tone]="alerta.tom">
+                      <span class="op-alerta-icone">
+                        <lucide-icon [name]="alerta.icone" [size]="17" />
+                      </span>
+                      <strong>{{ alerta.titulo }}</strong>
+                      <span>{{ alerta.detalhe }}</span>
+                      <small>{{ alerta.origem }}</small>
+                    </div>
+                  }
+                } @empty {
+                  @if (!notificacoes.carregando()) {
+                    <p class="op-painel-vazio">
+                      <lucide-icon name="circle-check" [size]="22" />
+                      Nenhum alerta agora. A lista é derivada do estado real da operação, então só
+                      aparece aqui o que existe de fato.
+                    </p>
+                  }
+                }
+
+                @if (notificacoes.erro(); as msg) {
+                  <p class="op-painel-erro" role="alert">
+                    <lucide-icon name="triangle-alert" [size]="15" />{{ msg }}
+                  </p>
+                }
+              </div>
+            </div>
+            <button
+              type="button"
+              class="op-painel-fundo"
+              aria-label="Fechar alertas"
+              (click)="fecharAlertas()"
+            ></button>
+          }
+        </div>
+
+        <!-- ============ AJUDA ============ -->
+        <div class="op-painel-ancora">
+          <button
+            type="button"
+            class="op-icon-button"
+            [class.op-icon-button-aberto]="ajudaAberta()"
+            aria-label="Ajuda"
+            [attr.aria-expanded]="ajudaAberta()"
+            aria-haspopup="dialog"
+            (click)="alternarAjuda()"
+          >
+            <lucide-icon name="circle-question-mark" [size]="24" [strokeWidth]="2" />
+          </button>
+
+          @if (ajudaAberta()) {
+            <div class="op-painel op-painel-ajuda" role="dialog" aria-label="Ajuda">
+              <header>
+                <div>
+                  <strong>Ajuda</strong>
+                  <small>Sobre a tela em que você está</small>
+                </div>
+              </header>
+
+              <div class="op-painel-corpo">
+                @if (ajudaDaTela(); as ajuda) {
+                  <section class="op-ajuda-contexto">
+                    <h3>{{ ajuda.titulo }}</h3>
+                    <p>{{ ajuda.descricao }}</p>
+                    <ul>
+                      @for (dica of ajuda.dicas; track dica) {
+                        <li><lucide-icon name="check" [size]="14" />{{ dica }}</li>
+                      }
+                    </ul>
+                  </section>
+                }
+
+                <!-- ============ TOURS ASSISTIDOS ============ -->
+                @if (tour.catalogo().length) {
+                  <section class="op-ajuda-testes">
+                    <p class="op-ajuda-titulo">Tours assistidos</p>
+                    <p class="op-ajuda-testes-intro">
+                      O sistema executa a tarefa na tela, passo a passo, destacando cada campo, com
+                      narração opcional.
+                    </p>
+                    @for (grupo of tour.catalogo(); track grupo.modulo) {
+                      <details class="op-ajuda-grupo" [style.--tom]="grupo.tom" open>
+                        <summary>
+                          <span class="op-ajuda-icone op-ajuda-icone-grupo">
+                            <lucide-icon [name]="grupo.icone" [size]="17" />
+                          </span>
+                          <strong>{{ grupo.modulo }}</strong>
+                          <small>{{ grupo.roteiros.length }} roteiros</small>
+                          <!-- A classe fica no span: o lucide-icon a copia para o svg de dentro, e a
+                               rotacao de abrir/fechar era aplicada duas vezes (a seta virava 180 graus). -->
+                          <span class="op-ajuda-seta"
+                            ><lucide-icon name="chevron-right" [size]="14"
+                          /></span>
+                        </summary>
+                        @for (roteiro of grupo.roteiros; track roteiro.id) {
+                          <button
+                            type="button"
+                            class="op-ajuda-roteiro"
+                            [disabled]="!!tour.impedimento(roteiro)"
+                            (click)="iniciarRoteiro(roteiro.id)"
+                          >
+                            <span class="op-ajuda-icone">
+                              <lucide-icon [name]="roteiro.icone" [size]="15" />
+                            </span>
+                            <span>
+                              <strong>{{ roteiro.titulo }}</strong>
+                              <small>{{ tour.impedimento(roteiro) ?? roteiro.descricao }}</small>
+                            </span>
+                            <em>{{ roteiro.duracao }}</em>
+                          </button>
+                        }
+                      </details>
+                    }
+                    @if (!trocaDeUsuarioDisponivel) {
+                      <p class="op-ajuda-testes-intro">
+                        Fora do ambiente de demonstração os roteiros mostram e explicam, mas param
+                        antes de gravar qualquer dado.
+                      </p>
+                    }
+                  </section>
+                }
+
+                <section class="op-ajuda-links">
+                  <p class="op-ajuda-titulo">Documentação</p>
+                  <a href="/como-funciona" target="_blank" rel="noopener">
+                    <lucide-icon name="activity" [size]="15" />Como funciona a plataforma
+                  </a>
+                  <a href="/seguranca" target="_blank" rel="noopener">
+                    <lucide-icon name="shield" [size]="15" />Segurança
+                  </a>
+                  <a href="/termos-de-uso" target="_blank" rel="noopener">
+                    <lucide-icon name="file-text" [size]="15" />Termos de uso
+                  </a>
+                  <a href="/politica-de-privacidade" target="_blank" rel="noopener">
+                    <lucide-icon name="lock" [size]="15" />Política de privacidade
+                  </a>
+                </section>
+
+                <section class="op-ajuda-links">
+                  <p class="op-ajuda-titulo">Suporte</p>
+                  <a href="mailto:contato&#64;dynamisbank.com">
+                    <lucide-icon name="mail" [size]="15" />contato&#64;dynamisbank.com
+                  </a>
+                  <a href="tel:+558100000000">
+                    <lucide-icon name="headphones" [size]="15" />(81) 0000-0000
+                  </a>
+                  <a href="/contato?assunto=Suporte" target="_blank" rel="noopener">
+                    <lucide-icon name="external-link" [size]="15" />Abrir um chamado
+                  </a>
+                </section>
+
+                <section class="op-ajuda-creditos">
+                  <p class="op-ajuda-titulo">Sobre o sistema</p>
+                  <p class="op-ajuda-versao">
+                    {{ projeto.sistema }} · {{ projeto.camada }} · v{{ projeto.versao }}
+                  </p>
+                  @for (responsavel of responsaveis; track responsavel.nome) {
+                    <p class="op-ajuda-credito">
+                      <span>{{ responsavel.camada }}</span>
+                      <strong>{{ responsavel.nome }}</strong>
+                    </p>
+                  }
+                </section>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="op-painel-fundo"
+              aria-label="Fechar ajuda"
+              (click)="fecharAjuda()"
+            ></button>
+          }
+        </div>
+        <div class="op-conta">
+          <button
+            type="button"
+            class="op-user op-glow-card"
+            [class.op-user-aberto]="contaAberta()"
+            [attr.aria-expanded]="contaAberta()"
+            aria-haspopup="menu"
+            aria-label="Menu da conta"
+            (click)="alternarConta()"
+          >
+            <span>{{ iniciais() }}</span>
+            <div>
+              <strong>{{ currentUser().username }}</strong>
+              <small>{{ currentUser().role }}</small>
+            </div>
+            <lucide-icon
+              class="op-user-caret"
+              [name]="contaAberta() ? 'chevron-up' : 'chevron-down'"
+              [size]="15"
+            />
+          </button>
+
+          @if (contaAberta()) {
+            <div class="op-conta-menu" role="menu">
+              <header>
+                <span>{{ iniciais() }}</span>
+                <div>
+                  <strong>{{ currentUser().username }}</strong>
+                  <small>Sessão ativa · {{ currentUser().role }}</small>
+                </div>
+              </header>
+
+              <a class="op-conta-item" role="menuitem" routerLink="/app/profile">
+                <lucide-icon name="user-check" [size]="16" />Meu perfil
+              </a>
+              <a class="op-conta-item" role="menuitem" routerLink="/app/profile/change-password">
+                <lucide-icon name="key-round" [size]="16" />Alterar senha
+              </a>
+
+              @if (trocaDeUsuarioDisponivel) {
+                <p class="op-conta-secao">Trocar de usuário</p>
+                @for (conta of contasDemo; track conta.username) {
+                  <button
+                    type="button"
+                    class="op-conta-item op-conta-troca"
+                    role="menuitem"
+                    [class.op-conta-item-ativo]="conta.username === currentUser().username"
+                    [disabled]="trocandoConta() !== null"
+                    (click)="trocarUsuario(conta)"
+                  >
+                    <span class="op-conta-avatar">{{ conta.rotulo.charAt(0) }}</span>
+                    <span class="op-conta-troca-texto">
+                      <strong>{{ conta.rotulo }}</strong>
+                      <small>{{ conta.username }}</small>
+                    </span>
+                    @if (trocandoConta() === conta.username) {
+                      <lucide-icon name="loader-circle" [size]="15" />
+                    } @else if (conta.username === currentUser().username) {
+                      <lucide-icon name="check" [size]="15" />
+                    } @else {
+                      <em>{{ conta.papel }}</em>
+                    }
+                  </button>
+                }
+              }
+
+              <button
+                type="button"
+                class="op-conta-item op-conta-sair"
+                role="menuitem"
+                (click)="sair()"
+              >
+                <lucide-icon name="log-out" [size]="16" />Sair da conta
+              </button>
+            </div>
+            <button
+              type="button"
+              class="op-conta-fundo"
+              aria-label="Fechar menu da conta"
+              (click)="fecharConta()"
+            ></button>
+          }
+        </div>
+        <!-- ============ TEMA E ENQUADRAMENTO ============ -->
         <button
           type="button"
           class="op-icon-button"
           aria-label="Alternar tema"
           (click)="toggleTheme()"
         >
-          <img [src]="assetBase + '/icons/icon_theme_sun_topbar.png'" alt="" />
+          <lucide-icon name="sun" [size]="24" [strokeWidth]="2" />
         </button>
       </div>
     </header>
@@ -132,7 +614,7 @@
       <div class="op-footer-status">
         @for (item of footerItems; track item.label) {
           <div class="op-footer-item">
-            <img [src]="assetBase + '/' + item.icon" alt="" />
+            <lucide-icon [class]="item.tom" [name]="item.icon" [size]="34" />
             <span>{{ item.label }}</span>
             <small>{{ item.detail }}</small>
           </div>
@@ -142,11 +624,7 @@
         <span>Último acesso: {{ lastAccess }}</span>
         <small>Sessão autenticada · conexão protegida</small>
       </div>
-      <img
-        class="op-footer-hud"
-        [src]="assetBase + '/visuals/visual_footer_escudo_hud.png'"
-        alt=""
-      />
+      <sep-arte class="op-footer-hud" nome="escudo-rodape" />
     </footer>
   </div>
 </section>

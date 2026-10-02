@@ -1,85 +1,293 @@
-<section class="sep-divergencias">
-  <header class="sep-divergencias-header">
-    <h1 class="sep-divergencias-title">Divergencias Pix</h1>
-    <p class="sep-divergencias-subtitle">
-      Itens operacionais Pix da fila do backoffice. O tratamento (assumir, comentar, resolver,
-      ignorar) acontece no backoffice; recebimento divergente nao tem reprocesso de provedor e
-      desembolso falho apenas reconsulta status.
-    </p>
-  </header>
+<sep-operational-shell>
+  <section class="px23-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px23-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span><a routerLink="/app/pix">Pix</a
+        ><span>›</span><strong>Divergências</strong>
+      </nav>
+      <div class="px23-heading-row">
+        <div>
+          <h1>
+            Divergências Pix
+            <lucide-icon
+              class="ic-vermelho"
+              name="triangle-alert"
+              [size]="20"
+              [strokeWidth]="2.25"
+            />
+          </h1>
+          <p>Itens operacionais Pix da fila do backoffice com divergência detectada.</p>
+        </div>
+        <div class="px23-card px23-about">
+          <lucide-icon class="ic-ciano" name="info" [size]="16" [strokeWidth]="2.25" />
+          <div>
+            <strong>Sobre divergências</strong>
+            <p>
+              São itens que não puderam ser conciliados automaticamente ou apresentam
+              inconsistências entre o sistema e o provider Pix.
+            </p>
+            <a routerLink="/app/pix" class="px23-link">Ver regras de divergência →</a>
+          </div>
+        </div>
+      </div>
+    </header>
 
-  @if (loading()) {
-    <p class="sep-divergencias-state" role="status">Carregando divergencias...</p>
-  } @else if (errorMessage()) {
-    <div class="sep-divergencias-state sep-divergencias-error" role="alert">
-      <p>{{ errorMessage() }}</p>
-      <button type="button" class="sep-divergencias-retry" (click)="carregar()">
-        Tentar novamente
-      </button>
+    <!-- ============ COLUNA PRINCIPAL ============ -->
+    <div class="px23-main">
+      @if (loading()) {
+        <div class="px23-card px23-error-panel">
+          <p class="px23-loading" role="status">Carregando divergências...</p>
+        </div>
+      } @else if (errorMessage(); as mensagem) {
+        <!-- Painel de erro central: no mockup o bloco de causas e a faixa de suporte ficam dentro
+             do mesmo cartão do erro, e não em cartões soltos. -->
+        <div class="px23-card px23-error-panel" role="alert">
+          <sep-arte class="px23-error-visual" nome="pasta-alerta" />
+          <h2>Não foi possível carregar as divergências</h2>
+          <p class="px23-error-desc">
+            Ocorreu um erro ao buscar os itens divergentes Pix.<br />
+            Pode ser uma instabilidade temporária ou falha na comunicação com o provider.
+          </p>
+          <p class="px23-error-detalhe">
+            <span class="px23-selo" data-tone="red">Falha</span>
+            <span>{{ mensagem }}</span>
+          </p>
+          <button type="button" class="px23-retry" (click)="carregar()">
+            <svg class="px23-icone" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20 11a8 8 0 1 0-2.3 6.3" />
+              <path d="M20 5v6h-6" />
+            </svg>
+            Tentar novamente
+          </button>
+
+          <div class="px23-causes-box">
+            <h3>O que pode ter acontecido?</h3>
+            <div class="px23-causes-grid">
+              @for (causa of possiveisCausasErro; track causa.titulo) {
+                <div class="px23-cause-item" [attr.data-tone]="causa.tom">
+                  <lucide-icon [name]="causa.icon" [size]="14" [strokeWidth]="2.25" />
+                  <div>
+                    <strong>{{ causa.titulo }}</strong>
+                    <span>{{ causa.subtitulo }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <p class="px23-support-text">
+            Persistiu o problema? Acesse o suporte técnico ou verifique o status do provider.
+          </p>
+          <div class="px23-support-actions">
+            <a
+              class="px23-btn-support"
+              href="/contato?assunto=Suporte"
+              target="_blank"
+              rel="noopener"
+            >
+              <lucide-icon name="headset" [size]="14" [strokeWidth]="2.25" />
+              Abrir chamado de suporte
+            </a>
+            <button type="button" class="px23-btn-support">
+              <svg class="px23-icone px23-icone-verde" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3 5 6v6c0 4.2 2.9 7.6 7 9 4.1-1.4 7-4.8 7-9V6l-7-3Z" />
+                <path d="m9 12 2.2 2.2L15.5 10" />
+              </svg>
+              Verificar status do provider
+            </button>
+          </div>
+        </div>
+      } @else {
+        <!-- Estado de sucesso: listagem -->
+        <div class="px23-card px23-data-panel">
+          <section class="px23-grupo">
+            <h2>
+              <span class="px23-dot" data-tone="orange"></span>
+              Recebimentos Pix divergentes
+              <span class="px23-contador">{{ recebimentosDivergentes().length }}</span>
+            </h2>
+            @if (recebimentosDivergentes().length === 0) {
+              <p class="px23-empty">Nenhum recebimento Pix divergente em aberto.</p>
+            } @else {
+              <ul class="px23-item-list">
+                @for (item of recebimentosDivergentes(); track item.id) {
+                  <li [attr.data-tone]="tomPrioridade(item.prioridade)">
+                    <span class="px23-item-titulo">{{ item.titulo }}</span>
+                    <span class="px23-selo" [attr.data-tone]="tomPrioridade(item.prioridade)">
+                      {{ prioridadeLabel[item.prioridade] }}
+                    </span>
+                    <span class="px23-selo px23-selo-status">{{ statusLabel[item.status] }}</span>
+                    <span class="px23-item-data">{{ formatarDataHora(item.dataAbertura) }}</span>
+                    <div class="px23-item-acoes">
+                      <a [routerLink]="['/app/backoffice/fila', item.id]">Tratar no backoffice</a>
+                      @if (item.tipoEntidade === 'PIX_RECEBIMENTO') {
+                        <a [routerLink]="['/app/pix/recebimentos', item.entidadeId]"
+                          >Ver recebimento</a
+                        >
+                      }
+                    </div>
+                  </li>
+                }
+              </ul>
+            }
+          </section>
+
+          <section class="px23-grupo">
+            <h2>
+              <span class="px23-dot" data-tone="red"></span>
+              Desembolsos Pix com falha
+              <span class="px23-contador">{{ desembolsosFalhos().length }}</span>
+            </h2>
+            @if (desembolsosFalhos().length === 0) {
+              <p class="px23-empty">Nenhum desembolso Pix com falha em aberto.</p>
+            } @else {
+              <ul class="px23-item-list">
+                @for (item of desembolsosFalhos(); track item.id) {
+                  <li [attr.data-tone]="tomPrioridade(item.prioridade)">
+                    <span class="px23-item-titulo">{{ item.titulo }}</span>
+                    <span class="px23-selo" [attr.data-tone]="tomPrioridade(item.prioridade)">
+                      {{ prioridadeLabel[item.prioridade] }}
+                    </span>
+                    <span class="px23-selo px23-selo-status">{{ statusLabel[item.status] }}</span>
+                    <span class="px23-item-data">{{ formatarDataHora(item.dataAbertura) }}</span>
+                    <div class="px23-item-acoes">
+                      <a [routerLink]="['/app/backoffice/fila', item.id]">Tratar no backoffice</a>
+                      @if (item.tipoEntidade === 'PIX_TRANSFERENCIA') {
+                        <a [routerLink]="['/app/pix/desembolsos', item.entidadeId]"
+                          >Reconsultar status</a
+                        >
+                      }
+                    </div>
+                  </li>
+                }
+              </ul>
+            }
+          </section>
+        </div>
+      }
+
+      <!-- Dica de operação: no mockup acompanha a coluna principal em qualquer estado -->
+      <div class="px23-card px23-tip">
+        <div class="px23-tip-left">
+          <lucide-icon class="ic-ambar" name="lightbulb" [size]="22" [strokeWidth]="2.25" />
+          <div>
+            <strong>Dica de operação</strong>
+            <span
+              >Após a correção, execute um reprocessamento dos itens divergentes para nova tentativa
+              de conciliação automática.</span
+            >
+          </div>
+        </div>
+        <a routerLink="/app/backoffice/reprocessos" class="px23-btn-reprocess">
+          Ir para reprocessos →
+        </a>
+      </div>
     </div>
-  } @else {
-    <section class="sep-divergencias-grupo">
-      <h2 class="sep-divergencias-subtitle">
-        Recebimentos Pix divergentes ({{ recebimentosDivergentes().length }})
-      </h2>
-      @if (recebimentosDivergentes().length === 0) {
-        <p class="sep-divergencias-vazio">Nenhum recebimento Pix divergente em aberto.</p>
-      } @else {
-        <ul class="sep-divergencias-lista">
-          @for (item of recebimentosDivergentes(); track item.id) {
-            <li class="sep-divergencias-item">
-              <div class="sep-divergencias-item-topo">
-                <span class="sep-divergencias-item-titulo">{{ item.titulo }}</span>
-                <div class="sep-divergencias-chips">
-                  <sep-backoffice-chip [prioridade]="item.prioridade" />
-                  <sep-backoffice-chip [status]="item.status" />
-                </div>
-              </div>
-              <span class="sep-divergencias-item-data">
-                Aberto em {{ formatarDataHora(item.dataAbertura) }}
-              </span>
-              <div class="sep-divergencias-item-acoes">
-                <a [routerLink]="['/app/backoffice/fila', item.id]">Tratar no backoffice</a>
-                @if (item.tipoEntidade === 'PIX_RECEBIMENTO') {
-                  <a [routerLink]="['/app/pix/recebimentos', item.entidadeId]">Ver recebimento</a>
-                }
-              </div>
-            </li>
-          }
-        </ul>
-      }
-    </section>
 
-    <section class="sep-divergencias-grupo">
-      <h2 class="sep-divergencias-subtitle">
-        Desembolsos Pix com falha ({{ desembolsosFalhos().length }})
-      </h2>
-      @if (desembolsosFalhos().length === 0) {
-        <p class="sep-divergencias-vazio">Nenhum desembolso Pix com falha em aberto.</p>
-      } @else {
-        <ul class="sep-divergencias-lista">
-          @for (item of desembolsosFalhos(); track item.id) {
-            <li class="sep-divergencias-item">
-              <div class="sep-divergencias-item-topo">
-                <span class="sep-divergencias-item-titulo">{{ item.titulo }}</span>
-                <div class="sep-divergencias-chips">
-                  <sep-backoffice-chip [prioridade]="item.prioridade" />
-                  <sep-backoffice-chip [status]="item.status" />
-                </div>
-              </div>
-              <span class="sep-divergencias-item-data">
-                Aberto em {{ formatarDataHora(item.dataAbertura) }}
-              </span>
-              <div class="sep-divergencias-item-acoes">
-                <a [routerLink]="['/app/backoffice/fila', item.id]">Tratar no backoffice</a>
-                @if (item.tipoEntidade === 'PIX_TRANSFERENCIA') {
-                  <a [routerLink]="['/app/pix/desembolsos', item.entidadeId]">Reconsultar status</a>
-                }
+    <!-- ============ COLUNA LATERAL ============ -->
+    <aside class="px23-side">
+      <!-- Status do provider Pix -->
+      <div class="px23-card px23-provider">
+        <div class="px23-provider-head">
+          <strong>Status do provider Pix</strong>
+          <a routerLink="/app/pix" class="px23-link">Detalhes →</a>
+        </div>
+        <div class="px23-provider-body">
+          <div class="px23-provider-status">
+            <lucide-icon class="ic-verde" name="shield-check" [size]="32" [strokeWidth]="1.5" />
+            <div>
+              <em class="px23-online">ONLINE</em>
+              <span>Operação normal</span>
+            </div>
+          </div>
+          <div class="px23-provider-tempo">
+            <span>Tempo de resposta</span>
+            <strong>{{ providerTempoResposta() }}</strong>
+            <!-- Sparkline em SVG: o PNG do pacote traz fundo opaco e um resto do texto "186 ms"
+                 no recorte, o que sobrepunha o valor do widget. -->
+            <svg
+              class="px23-sparkline"
+              viewBox="0 0 120 26"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <polyline [attr.points]="sparklinePontos()" />
+            </svg>
+          </div>
+        </div>
+        <div class="px23-provider-foot">
+          <span class="px23-led"></span>
+          <span>Última verificação: {{ ultimaVerificacao() }}</span>
+        </div>
+      </div>
+
+      <!-- Possíveis causas das divergências -->
+      <div class="px23-card px23-causas">
+        <strong>Possíveis causas das divergências</strong>
+        <ul>
+          @for (causa of causas; track causa.titulo) {
+            <li [attr.data-tone]="causa.tom">
+              <lucide-icon [name]="causa.icon" [size]="20" [strokeWidth]="2.25" />
+              <div>
+                <strong>{{ causa.titulo }}</strong>
+                <span>{{ causa.descricao }}</span>
               </div>
             </li>
           }
         </ul>
-      }
-    </section>
-  }
-</section>
+        <a routerLink="/app/pix" class="px23-link">Ver todas as regras →</a>
+      </div>
+
+      <!-- Última tentativa de consulta -->
+      <div class="px23-card px23-tentativa">
+        <strong>Última tentativa de consulta</strong>
+        <div class="px23-tentativa-head">
+          <div class="px23-tentativa-data">
+            <!-- Relógio em SVG: o PNG `icon_ultima_tentativa_clock` do pacote é um recorte de
+                 texto, não do ícone. -->
+            <svg class="px23-clock" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7v5.2l3.4 2" />
+            </svg>
+            <span>{{ ultimaTentativaData() }}</span>
+          </div>
+          <span class="px23-selo" [attr.data-tone]="tentativaFalhou() ? 'red' : 'green'">
+            {{ tentativaFalhou() ? 'Falha' : 'Sucesso' }}
+          </span>
+        </div>
+        <div class="px23-tentativa-detail">
+          <div>
+            <span class="px23-label">Protocolo</span>
+            <span class="px23-protocolo">{{ ultimaTentativaProtocolo() }}</span>
+          </div>
+          <div>
+            <span class="px23-label">Mensagem</span>
+            <span [class.px23-error-msg]="tentativaFalhou()">{{ ultimaTentativaMensagem() }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Atalhos úteis -->
+      <div class="px23-card px23-atalhos">
+        <strong>Atalhos úteis</strong>
+        <div class="px23-atalhos-grid">
+          <a routerLink="/app/backoffice/fila" class="px23-atalho">
+            <lucide-icon class="ic-azul" name="list-checks" [size]="18" [strokeWidth]="2.25" />
+            <div>
+              <strong>Ir para fila operacional</strong>
+              <span>Ver itens da fila</span>
+            </div>
+          </a>
+          <a routerLink="/app/backoffice/reprocessos" class="px23-atalho">
+            <lucide-icon class="ic-verde" name="refresh-cw" [size]="18" [strokeWidth]="2.25" />
+            <div>
+              <strong>Reprocessos</strong>
+              <span>Executar reprocessamento</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </aside>
+  </section>
+</sep-operational-shell>

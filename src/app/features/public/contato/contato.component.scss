@@ -1,0 +1,425 @@
+// ============ CONTATO ============
+
+@use "../shared/site-tema" as site;
+@use "../../../../styles/sep-responsivo" as resp;
+
+:host {
+  @include site.tokens;
+}
+
+@include site.base("px53");
+
+.px53-colunas {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 22px;
+
+  /* Sem isto as duas colunas esticam até a altura da mais alta, e o cartão do formulário
+     ficava com um vão vazio embaixo do botão. */
+  align-items: start;
+  margin-bottom: 26px;
+}
+
+// ============ FORMULÁRIO ============
+
+.px53-form-card {
+  display: grid;
+  gap: 20px;
+  align-content: start;
+  padding: 28px;
+  border: 1px solid var(--site-linha);
+  border-radius: 18px;
+  background: var(--site-cartao);
+}
+
+.px53-form-card h2 {
+  margin: 0;
+  font-size: 1.28rem;
+  font-weight: 800;
+}
+
+.px53-form {
+  display: grid;
+  gap: 16px;
+}
+
+.px53-linha-dupla {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.px53-campo {
+  display: grid;
+  gap: 7px;
+}
+
+.px53-campo > span {
+  color: var(--site-suave);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.px53-campo > span em {
+  color: var(--site-fraco);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.px53-campo input,
+.px53-campo select,
+.px53-campo textarea {
+  width: 100%;
+  padding: 12px 14px;
+  color: var(--site-texto);
+  font: inherit;
+  font-size: 0.94rem;
+  border: 1px solid var(--site-linha);
+  border-radius: 11px;
+  background: rgb(var(--lp-c-fundo) / 62%);
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.px53-campo textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.px53-campo input:focus,
+.px53-campo select:focus,
+.px53-campo textarea:focus {
+  border-color: rgb(var(--lp-c-ciano) / 70%);
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(var(--lp-c-ciano) / 16%);
+}
+
+.px53-campo input[aria-invalid="true"] {
+  border-color: rgb(var(--lp-c-vermelho) / 70%);
+}
+
+.px53-campo small,
+.px53-erro {
+  color: rgb(var(--lp-c-vermelho));
+  font-size: 0.8rem;
+}
+
+.px53-consent {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 11px;
+  align-items: start;
+  color: var(--site-suave);
+  font-size: 0.87rem;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.px53-consent input {
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: rgb(var(--lp-c-verde));
+}
+
+.px53-consent a {
+  color: var(--site-ciano);
+  text-decoration: none;
+  border-bottom: 1px solid rgb(var(--lp-c-ciano) / 40%);
+}
+
+.px53-form .px53-btn-primary {
+  justify-self: start;
+  min-width: 210px;
+}
+
+// ============ ESTADO DE SUCESSO ============
+
+.px53-sucesso {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  padding: 18px 8px 8px;
+  text-align: center;
+}
+
+.px53-sucesso-icone {
+  display: grid;
+  width: 62px;
+  height: 62px;
+  color: var(--site-verde);
+  border: 1px solid rgb(var(--lp-c-verde) / 42%);
+  border-radius: 50%;
+  background: rgb(var(--lp-c-verde) / 12%);
+  box-shadow: 0 0 28px rgb(var(--lp-c-verde) / 22%);
+  place-items: center;
+}
+
+.px53-sucesso h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.px53-sucesso p {
+  max-width: 420px;
+  margin: 0;
+  color: var(--site-suave);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+// ============ CANAIS ============
+
+.px53-lado {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+.px53-canais {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.px53-canal {
+  display: grid;
+  gap: 4px;
+  padding: 20px;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid var(--site-linha);
+  border-radius: 15px;
+  background: var(--site-cartao);
+  transition:
+    border-color 220ms ease,
+    transform 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.px53-canal:hover {
+  border-color: rgb(var(--lp-c-verde) / 58%);
+  box-shadow: 0 14px 34px rgb(var(--lp-c-fundo) / 48%);
+  transform: translateY(-3px);
+}
+
+.px53-canal-largo {
+  grid-column: 1 / -1;
+}
+
+.px53-canal-icone {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 8px;
+  color: var(--site-verde);
+  border: 1px solid rgb(var(--lp-c-verde) / 34%);
+  border-radius: 12px;
+  background: rgb(var(--lp-c-verde) / 10%);
+  place-items: center;
+  transition:
+    filter 220ms ease,
+    transform 220ms ease;
+}
+
+.px53-canal:hover .px53-canal-icone {
+  filter: drop-shadow(0 0 10px rgb(var(--lp-c-verde)));
+  transform: scale(1.06);
+}
+
+.px53-canal strong {
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.px53-canal > span:last-child {
+  color: var(--site-suave);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+// ============ MAPA ============
+// O mapa é uma consulta por endereço, sem chave de API e sem token pré-gerado — o que evita
+// que o embed quebre quando o token expira.
+
+.px53-mapa {
+  display: grid;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--site-linha);
+  border-radius: 16px;
+  background: var(--site-cartao);
+}
+
+.px53-mapa-espera {
+  display: grid;
+  height: 268px;
+  color: rgb(var(--lp-c-verde) / 40%);
+  background:
+    linear-gradient(rgb(var(--lp-c-azul) / 4%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--lp-c-azul) / 4%) 1px, transparent 1px),
+    rgb(var(--lp-c-fundo) / 62%);
+  background-size:
+    22px 22px,
+    22px 22px,
+    auto;
+  gap: 14px;
+  place-items: center;
+  align-content: center;
+}
+
+.px53-mapa iframe {
+  width: 100%;
+  height: 268px;
+  border: 0;
+  filter: grayscale(0.72) contrast(1.05) brightness(0.86);
+  transition: filter 500ms ease;
+}
+
+.px53-mapa:hover iframe {
+  filter: grayscale(0) contrast(1) brightness(1);
+}
+
+.px53-mapa figcaption {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 13px 16px;
+  color: var(--site-suave);
+  font-size: 0.86rem;
+  border-top: 1px solid var(--site-linha);
+}
+
+.px53-mapa figcaption lucide-icon {
+  display: grid;
+  color: var(--site-verde);
+  place-items: center;
+}
+
+.px53-mapa figcaption a {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--site-ciano);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.px53-mapa figcaption a:hover {
+  color: rgb(var(--lp-c-rotulo));
+}
+
+// ============ RESPONSIVIDADE ============
+
+@include site.half {
+  .px53-colunas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@include resp.ate-minima {
+  .px53-canais {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .px53-canal-largo {
+    grid-column: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .px53-canal,
+  .px53-canal-icone,
+  .px53-mapa iframe {
+    transition: none;
+  }
+}
+
+// ============ JANELA PANORAMICA ============
+// Quatro zonas lado a lado, como nas outras paginas de apresentacao: abertura (com o aviso
+// anti-golpe ancorado na base, no lugar da chamada), formulario, canais e mapa. Os dois invólucros
+// do HTML saem da frente (`display: contents`) e os blocos entram direto na grade da pagina. As
+// quatro zonas tem a mesma altura e cada uma a preenche por dentro — o campo de mensagem, as
+// linhas dos canais e o proprio mapa crescem —, para nao sobrar faixa morta em nenhum cartao.
+@include site.panoramica {
+  .px53-page {
+    grid-template-rows: auto auto;
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr) minmax(0, 0.84fr) minmax(0, 1fr);
+    column-gap: clamp(24px, 1.6vw, 56px);
+    align-content: center;
+    height: 100%;
+    padding: clamp(24px, 3vh, 56px) clamp(40px, 2.4vw, 88px);
+  }
+
+  .px53-colunas,
+  .px53-lado {
+    display: contents;
+  }
+
+  .px53-heading {
+    grid-row: 1;
+    grid-column: 1;
+    align-self: start;
+    max-width: none;
+    margin: 0 0 clamp(28px, 3vh, 48px);
+  }
+
+  // `margin: 0` porque o aviso e um `<p>`: a margem padrao deixava a base dele 14px acima da base
+  // dos cartoes ao lado.
+  .px53-aviso {
+    grid-row: 2;
+    grid-column: 1;
+    align-self: end;
+    margin: 0;
+  }
+
+  .px53-form-card {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    grid-template-rows: auto minmax(0, 1fr);
+    align-content: stretch;
+    padding: clamp(20px, 2.4vh, 28px);
+  }
+
+  .px53-form {
+    grid-template-rows: auto auto minmax(0, 1fr);
+    gap: clamp(12px, 1.6vh, 16px);
+  }
+
+  .px53-form > .px53-campo:has(textarea) {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .px53-campo textarea {
+    height: 100%;
+    resize: none;
+  }
+
+  .px53-canais {
+    grid-row: 1 / span 2;
+    grid-column: 3;
+    grid-auto-rows: minmax(0, 1fr);
+    gap: clamp(12px, 1.5vh, 14px);
+  }
+
+  .px53-canal {
+    align-content: center;
+    padding: clamp(16px, 2vh, 20px);
+  }
+
+  .px53-mapa {
+    grid-row: 1 / span 2;
+    grid-column: 4;
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+
+  .px53-mapa iframe,
+  .px53-mapa-espera {
+    height: 100%;
+    min-height: 220px;
+  }
+}

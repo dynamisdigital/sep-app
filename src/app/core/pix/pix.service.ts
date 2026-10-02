@@ -61,6 +61,12 @@ export class PixService {
     return this.http.get<PixReferenciaRecebimentoResponse>(`${RECEBIMENTOS_URL}/referencias/${id}`);
   }
 
+  // Carteira de recebimentos. O painel de status da conciliacao conta a partir desta lista; antes
+  // so existia a consulta por id, e o agregado da tela era um numero digitado.
+  listarRecebimentos(): Observable<PixRecebimentoResponse[]> {
+    return this.http.get<PixRecebimentoResponse[]>(RECEBIMENTOS_URL);
+  }
+
   consultarRecebimento(id: string): Observable<PixRecebimentoResponse> {
     return this.http.get<PixRecebimentoResponse>(`${RECEBIMENTOS_URL}/${id}`);
   }

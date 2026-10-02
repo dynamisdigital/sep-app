@@ -1,63 +1,427 @@
-<section class="sep-financeira">
-  <header class="sep-financeira-header">
-    <h1 class="sep-financeira-title">Agenda financeira</h1>
-    <p class="sep-financeira-subtitle">Recebimentos registrados e acesso a uma parcela.</p>
-  </header>
-
-  <p class="sep-financeira-gap" role="note">
-    Sem lista global de agendas no backend: abra a parcela pelo id. A lista de recebimentos nao e
-    paginada nesta fase.
-  </p>
-
-  <form class="sep-financeira-lookup" [formGroup]="lookupForm" (ngSubmit)="abrirParcela()">
-    <label class="sep-financeira-lookup-label" for="parcelaId">Abrir parcela por id</label>
-    <div class="sep-financeira-lookup-row">
-      <input
-        id="parcelaId"
-        type="text"
-        class="sep-financeira-lookup-input"
-        formControlName="parcelaId"
-        placeholder="UUID da parcela"
-      />
-      <button type="submit" class="sep-financeira-lookup-cta">Abrir</button>
-    </div>
-  </form>
-
-  @if (loading()) {
-    <p class="sep-financeira-state" role="status">Carregando recebimentos...</p>
-  } @else if (errorMessage()) {
-    <div class="sep-financeira-state sep-financeira-error" role="alert">
-      <p>{{ errorMessage() }}</p>
-      <button type="button" class="sep-financeira-retry" (click)="carregar()">
-        Tentar novamente
-      </button>
-    </div>
-  } @else if (recebimentos().length === 0) {
-    <div class="sep-financeira-state sep-financeira-empty">
-      <p>Nenhum recebimento registrado.</p>
-    </div>
-  } @else {
-    <ul class="sep-financeira-recebimentos">
-      @for (r of recebimentos(); track r.recebimentoId) {
-        <li class="sep-financeira-recebimento">
-          <a
-            [routerLink]="['/app/cobranca/financeiro/parcelas', r.parcelaId]"
-            class="sep-financeira-recebimento-link"
+<sep-operational-shell>
+  <section class="px29-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px29-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>/</span
+        ><a routerLink="/app/cobranca">Cobrança</a><span>/</span><strong>Agenda financeira</strong>
+      </nav>
+      <div class="px29-heading-row">
+        <div class="px29-titulo-wrap">
+          <h1>
+            Agenda financeira
+            <lucide-icon name="circle-alert" [size]="18" />
+          </h1>
+          <p class="px29-subtitulo">Recebimentos registrados e acesso a uma parcela.</p>
+          <p class="px29-nota" role="note">
+            Sem lista global de agendas no backend: abra a parcela pelo id. Os totais desta tela são
+            somados a partir dos recebimentos registrados.
+          </p>
+        </div>
+        <div class="px29-heading-acoes">
+          <button type="button" class="px29-btn-sec" (click)="exportar()">
+            <lucide-icon name="download" [size]="16" />Exportar
+          </button>
+          <button
+            type="button"
+            class="px29-btn-sec"
+            title="Não há endpoint de filtros da agenda financeira nesta fase"
+            disabled
           >
-            <span class="sep-financeira-recebimento-valor">{{
-              formatarMoeda(r.valorRecebido)
-            }}</span>
-            <span class="sep-financeira-recebimento-meio">{{ r.meioPagamento }}</span>
-            <span class="sep-financeira-recebimento-data">{{
-              formatarData(r.dataRecebimento)
-            }}</span>
-            <span class="sep-financeira-recebimento-parcela">
-              Parcela {{ idCurto(r.parcelaId) }}
-            </span>
-            <sep-parcela-status [status]="r.statusParcela" />
+            <lucide-icon name="settings" [size]="16" />Filtros
+          </button>
+          <button type="button" class="px29-btn-primary" (click)="abrirParcela()">
+            <lucide-icon name="search" [size]="16" />Abrir parcela
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============ ABRIR PARCELA POR ID ============ -->
+    <form class="px29-card px29-lookup" [formGroup]="lookupForm" (ngSubmit)="abrirParcela()">
+      <label for="parcelaId">Abrir parcela por ID</label>
+      <div class="px29-lookup-campo">
+        <input
+          id="parcelaId"
+          type="text"
+          formControlName="parcelaId"
+          placeholder="Digite o UUID da parcela"
+        />
+        <lucide-icon name="search" [size]="17" />
+      </div>
+      <button type="submit" class="px29-btn-primary">Abrir</button>
+    </form>
+
+    @if (loading()) {
+      <p class="px29-estado" role="status">Carregando recebimentos...</p>
+    } @else if (errorMessage(); as mensagem) {
+      <div class="px29-estado px29-erro" role="alert">
+        <lucide-icon name="circle-alert" [size]="18" />
+        <p>{{ mensagem }}</p>
+        <button type="button" class="px29-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
+      </div>
+    } @else {
+      <!-- ============ MÉTRICAS ============ -->
+      <div class="px29-metricas">
+        <article class="px29-card px29-metrica" data-tone="blue">
+          <div>
+            <small>Recebimentos do dia</small>
+            <strong>{{ moeda(recebidoHoje()) }}</strong>
+            <em>último dia com recebimento registrado</em>
+          </div>
+          <span class="px29-metrica-icone"><lucide-icon name="calendar" [size]="22" /></span>
+        </article>
+        <article class="px29-card px29-metrica" data-tone="green">
+          <div>
+            <small>Recebimentos do mês</small>
+            <strong>{{ moeda(recebidoMes()) }}</strong>
+            <em>
+              {{ parcelasPagasMes() }}
+              {{ parcelasPagasMes() === 1 ? 'parcela paga' : 'parcelas pagas' }}
+            </em>
+          </div>
+          <span class="px29-metrica-icone"><lucide-icon name="banknote" [size]="22" /></span>
+        </article>
+        @if (aVencer(); as av) {
+          <article class="px29-card px29-metrica" data-tone="blue">
+            <div>
+              <small>A vencer</small>
+              <strong>{{ moeda(av.valor) }}</strong>
+              <em>{{ av.quantidade }} parcelas</em>
+            </div>
+            <span class="px29-metrica-icone"><lucide-icon name="clock" [size]="22" /></span>
+          </article>
+        }
+        @if (emAtraso(); as ea) {
+          <article class="px29-card px29-metrica" data-tone="red">
+            <div>
+              <small>Em atraso</small>
+              <strong>{{ moeda(ea.valor) }}</strong>
+              <em>{{ ea.quantidade }} parcelas</em>
+            </div>
+            <span class="px29-metrica-icone"
+              ><lucide-icon name="triangle-alert" [size]="22"
+            /></span>
+          </article>
+        }
+      </div>
+
+      <!-- ============ RECEBIMENTOS REGISTRADOS ============ -->
+      <article class="px29-card px29-tabela-card">
+        <h2>Recebimentos registrados</h2>
+        <div class="px29-tabela-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>UUID da parcela</th>
+                <th>Contrato</th>
+                <th>Recebedor</th>
+                <th>Vencimento</th>
+                <th class="px29-num">Valor (R$)</th>
+                <th>Pagamento</th>
+                <th>Status</th>
+                <th>Método</th>
+                <th class="px29-acoes-col">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (linha of linhas(); track linha.r.recebimentoId) {
+                <tr>
+                  <td class="px29-mono">
+                    <a
+                      [routerLink]="['/app/cobranca/financeiro/parcelas', linha.r.parcelaId]"
+                      title="Abrir a parcela"
+                    >
+                      {{ linha.r.parcelaId }}
+                    </a>
+                  </td>
+                  <td>{{ texto(linha.r.contrato) }}</td>
+                  <td>{{ texto(linha.r.recebedor) }}</td>
+                  <td>{{ data(linha.r.vencimento) }}</td>
+                  <td class="px29-num px29-valor">
+                    {{ moeda(linha.r.valorParcela ?? linha.r.valorRecebido) }}
+                  </td>
+                  <td>{{ data(linha.r.dataPagamento) }}</td>
+                  <td>
+                    <span class="px29-selo" [attr.data-tone]="situacaoTom(linha.situacao)">
+                      {{ situacaoRotulo(linha.situacao) }}
+                    </span>
+                  </td>
+                  <td>{{ linha.r.meioPagamento }}</td>
+                  <td class="px29-acoes-col">
+                    <button
+                      type="button"
+                      class="px29-btn-linha"
+                      title="Abrir detalhe da parcela"
+                      (click)="abrirLinha(linha.r.parcelaId)"
+                    >
+                      <lucide-icon name="eye" [size]="15" />
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="9" class="px29-vazio-linha">Nenhum recebimento registrado.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <footer class="px29-tabela-rodape">
+          <span>Exibindo {{ exibindo() }} de {{ recebimentos().length }} recebimentos</span>
+          <div class="px29-paginacao">
+            <button
+              type="button"
+              aria-label="Primeira página"
+              [disabled]="paginaAtual() === 1"
+              (click)="irParaPagina(1)"
+            >
+              «
+            </button>
+            <button
+              type="button"
+              aria-label="Página anterior"
+              [disabled]="paginaAtual() === 1"
+              (click)="irParaPagina(paginaAtual() - 1)"
+            >
+              ‹
+            </button>
+            @for (n of paginas(); track n) {
+              <button
+                type="button"
+                [attr.aria-label]="'Página ' + n"
+                [class.ativa]="n === paginaAtual()"
+                (click)="irParaPagina(n)"
+              >
+                {{ n }}
+              </button>
+            }
+            <button
+              type="button"
+              aria-label="Próxima página"
+              [disabled]="paginaAtual() === totalPaginas()"
+              (click)="irParaPagina(paginaAtual() + 1)"
+            >
+              ›
+            </button>
+            <button
+              type="button"
+              aria-label="Última página"
+              [disabled]="paginaAtual() === totalPaginas()"
+              (click)="irParaPagina(totalPaginas())"
+            >
+              »
+            </button>
+            <span class="px29-por-pagina">{{ porPagina }} por página</span>
+          </div>
+        </footer>
+      </article>
+
+      <!-- ============ FAIXA DE GRÁFICOS ============ -->
+      <div class="px29-graficos">
+        <article class="px29-card px29-status">
+          <h2>Recebimentos por status (mês)</h2>
+          <div class="px29-status-corpo">
+            <div
+              class="px29-rosca"
+              [style.background]="anelGradiente()"
+              role="img"
+              [attr.aria-label]="'Distribuição por status, total ' + moeda(totalCarteira())"
+            >
+              <span></span>
+            </div>
+            <ul class="px29-legenda">
+              @for (f of fatias(); track f.chave) {
+                <li [attr.data-tone]="f.tom">
+                  <em></em>
+                  <div>
+                    <strong>{{ f.rotulo }}</strong>
+                    <small>{{ moeda(f.valor) }}</small>
+                  </div>
+                  <span>{{ f.percentual }}%</span>
+                </li>
+              }
+            </ul>
+          </div>
+        </article>
+
+        <article class="px29-card px29-metodo">
+          <h2>Recebimentos por método (mês)</h2>
+          <ul class="px29-barras">
+            @for (m of porMetodo(); track m.metodo) {
+              <li>
+                <span class="px29-barra-rotulo">{{ m.metodo }}</span>
+                <span class="px29-barra-trilha">
+                  <span class="px29-barra" [style.width.%]="m.percentual"></span>
+                </span>
+                <span class="px29-barra-valor">{{ moeda(m.valor) }}</span>
+                <span class="px29-barra-pct">{{ m.percentual }}%</span>
+              </li>
+            }
+          </ul>
+        </article>
+
+        <article class="px29-card px29-evolucao">
+          <h2>
+            Evolução dos recebimentos
+            <span class="px29-periodo">Últimos 7 dias</span>
+          </h2>
+          <div class="px29-grafico">
+            <ul class="px29-eixo-y" aria-hidden="true">
+              @for (marca of escalaY(); track marca.valor) {
+                <li>{{ marca.rotulo }}</li>
+              }
+            </ul>
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+              @for (marca of escalaY(); track marca.valor) {
+                <line
+                  x1="0"
+                  x2="100"
+                  [attr.y1]="marca.y"
+                  [attr.y2]="marca.y"
+                  stroke="rgb(23 69 104 / 55%)"
+                  stroke-width="1"
+                  vector-effect="non-scaling-stroke"
+                />
+              }
+              <defs>
+                <linearGradient id="px29-area" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" style="stop-color: var(--sep-accent)" stop-opacity="0.45" />
+                  <stop offset="100%" style="stop-color: var(--sep-accent)" stop-opacity="0" />
+                </linearGradient>
+              </defs>
+              <polygon [attr.points]="evolucaoArea()" fill="url(#px29-area)" />
+              <polyline
+                [attr.points]="evolucaoLinha()"
+                fill="none"
+                style="stroke: var(--sep-accent)"
+                stroke-width="1.6"
+                vector-effect="non-scaling-stroke"
+              />
+              @for (p of evolucao(); track p.dia) {
+                <circle [attr.cx]="p.x" [attr.cy]="p.y" r="1.6" style="fill: var(--sep-glow)" />
+              }
+            </svg>
+            <ul class="px29-eixo">
+              @for (p of evolucao(); track p.dia) {
+                <li>
+                  <span>{{ p.dia }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+          <p class="px29-legenda-eixo">
+            Pico do período: <strong>{{ moeda(evolucaoMaximo()) }}</strong>
+          </p>
+        </article>
+      </div>
+
+      <!-- ============ COLUNA LATERAL ============ -->
+      <aside class="px29-side">
+        <section class="px29-card px29-resumo">
+          <h2>Resumo financeiro</h2>
+          <div class="px29-resumo-corpo">
+            <div
+              class="px29-rosca px29-rosca-grande"
+              [style.background]="anelGradiente()"
+              role="img"
+              [attr.aria-label]="'Resumo financeiro, total ' + moeda(totalCarteira())"
+            >
+              <span>
+                <small>Total mês</small>
+                <strong>{{ moeda(totalCarteira()) }}</strong>
+              </span>
+            </div>
+            <ul class="px29-legenda">
+              @for (f of fatias(); track f.chave) {
+                <li [attr.data-tone]="f.tom">
+                  <em></em>
+                  <div>
+                    <strong>{{ f.rotulo }}</strong>
+                    <small>{{ moeda(f.valor) }} ({{ f.percentual }}%)</small>
+                  </div>
+                </li>
+              }
+            </ul>
+          </div>
+        </section>
+
+        <section class="px29-card px29-proximos">
+          <h2>Próximos vencimentos</h2>
+          <ul>
+            @for (v of proximosVencimentos(); track v.parcelaId) {
+              <li>
+                <a [routerLink]="['/app/cobranca/financeiro/parcelas', v.parcelaId]">
+                  <span class="px29-mono">{{ v.parcelaId }}</span>
+                  <small>{{ data(v.vencimento) }}</small>
+                </a>
+                <strong>{{ moeda(v.valor) }}</strong>
+                <span class="px29-prazo">{{ v.dias }} {{ v.dias === 1 ? 'dia' : 'dias' }}</span>
+              </li>
+            } @empty {
+              <li class="px29-vazio-linha">Nenhuma parcela a vencer.</li>
+            }
+          </ul>
+          <a class="px29-link-todos" routerLink="/app/cobranca/financeiro/inadimplencia">
+            Ver agenda completa →
           </a>
-        </li>
-      }
-    </ul>
-  }
-</section>
+        </section>
+
+        <section class="px29-card px29-actions">
+          <h2>Ações rápidas</h2>
+          <div class="px29-actions-grid">
+            <button type="button" class="px29-btn-acao blue" (click)="abrirParcela()">
+              <lucide-icon name="search" [size]="19" />
+              <span>Abrir parcela por ID</span>
+            </button>
+            <button type="button" class="px29-btn-acao green" (click)="exportar()">
+              <lucide-icon name="download" [size]="19" />
+              <span>Exportar relatório</span>
+            </button>
+            <button
+              type="button"
+              class="px29-btn-acao purple"
+              title="Não há endpoint de emissão de boletos nesta fase"
+              disabled
+            >
+              <lucide-icon name="file-text" [size]="19" />
+              <span>Gerar boletos</span>
+            </button>
+            <a class="px29-btn-acao orange" routerLink="/app/cobranca/financeiro/inadimplencia">
+              <lucide-icon name="triangle-alert" [size]="19" />
+              <span>Ver inadimplência</span>
+            </a>
+          </div>
+        </section>
+
+        <section class="px29-card px29-seguranca">
+          <h2>Segurança e conformidade</h2>
+          <dl>
+            <div>
+              <dt>Ambiente</dt>
+              <dd><span class="px29-chip green">REGULADO</span></dd>
+            </div>
+            <div>
+              <dt>Auditoria</dt>
+              <dd><span class="px29-chip green">Habilitada</span></dd>
+            </div>
+            <div>
+              <dt>Dados protegidos</dt>
+              <dd><span class="px29-chip green">LGPD</span></dd>
+            </div>
+            <div>
+              <dt>Integridade do dado</dt>
+              <dd><span class="px29-chip green">Verificada</span></dd>
+            </div>
+            <div>
+              <dt>Total conferido</dt>
+              <dd class="px29-bold-white">{{ moeda(totalCarteira()) }}</dd>
+            </div>
+          </dl>
+        </section>
+      </aside>
+    }
+  </section>
+</sep-operational-shell>

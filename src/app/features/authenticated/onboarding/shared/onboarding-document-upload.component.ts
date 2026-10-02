@@ -11,6 +11,22 @@ import {
 
 import { TipoDocumento } from '../../../../core/api/api.models';
 
+const EXTENSOES_PERMITIDAS = ['.pdf', '.jpg', '.jpeg', '.png'];
+const EXTENSOES_PERIGOSAS = [
+  '.exe',
+  '.bat',
+  '.cmd',
+  '.sh',
+  '.svg',
+  '.html',
+  '.htm',
+  '.js',
+  '.vbs',
+  '.msi',
+  '.ps1',
+  '.jar',
+];
+const MIMES_PERMITIDOS = ['application/pdf', 'image/jpeg', 'image/png'];
 const TAMANHO_MAXIMO_BYTES = 10 * 1024 * 1024;
 
 // Bloco reutilizavel de envio de documento: selecao de tipo, escolha de arquivo
@@ -43,12 +59,56 @@ export class OnboardingDocumentUploadComponent {
     this.erro.set(null);
     const input = event.target as HTMLInputElement;
     const arquivo = input.files?.[0] ?? null;
-    if (arquivo && arquivo.size > TAMANHO_MAXIMO_BYTES) {
+    if (!arquivo) {
+      this.arquivo.set(null);
+      return;
+    }
+
+    if (arquivo.size > TAMANHO_MAXIMO_BYTES) {
       this.erro.set('Arquivo excede o limite de 10MB.');
       this.arquivo.set(null);
       input.value = ''; // permite reselecionar o mesmo arquivo apos corrigir
       return;
     }
+
+    // Hardening defensivo de upload no frontend (SEC-06 / OWASP File Upload)
+    const nomeMinusculo = arquivo.name.toLowerCase();
+    const indicePonto = nomeMinusculo.lastIndexOf('.');
+    if (indicePonto === -1) {
+      this.erro.set('Arquivo sem extensão. Formatos aceitos: PDF, JPEG ou PNG.');
+      this.arquivo.set(null);
+      input.value = '';
+      return;
+    }
+
+    const extensao = nomeMinusculo.slice(indicePonto);
+    if (!EXTENSOES_PERMITIDAS.includes(extensao)) {
+      this.erro.set('Formato não permitido. Envie documentos em PDF, JPEG ou PNG.');
+      this.arquivo.set(null);
+      input.value = '';
+      return;
+    }
+
+    // Bloqueio de dupla extensão ou executáveis camuflados (ex: doc.exe.pdf, doc.svg.png)
+    const partes = nomeMinusculo.split('.');
+    if (partes.length > 2) {
+      const extensaoSecundaria = `.${partes[partes.length - 2]}`;
+      if (EXTENSOES_PERIGOSAS.includes(extensaoSecundaria)) {
+        this.erro.set('Nome de arquivo inválido ou suspeito detectado.');
+        this.arquivo.set(null);
+        input.value = '';
+        return;
+      }
+    }
+
+    // Verificação defensiva de MIME type quando informado pelo navegador
+    if (arquivo.type && !MIMES_PERMITIDOS.includes(arquivo.type)) {
+      this.erro.set('Tipo de arquivo não permitido. Apenas PDF, JPEG e PNG são aceitos.');
+      this.arquivo.set(null);
+      input.value = '';
+      return;
+    }
+
     this.arquivo.set(arquivo);
   }
 

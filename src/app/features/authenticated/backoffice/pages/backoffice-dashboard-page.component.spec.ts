@@ -1,3 +1,5 @@
+import { importProvidersFrom } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
@@ -11,10 +13,12 @@ import {
   createOperationalDashboardStore,
 } from '../../../../../mocks/data/operational-dashboard.store';
 import { BackofficeDashboardPageComponent } from './backoffice-dashboard-page.component';
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 
 async function renderPagina() {
   const result = await render(BackofficeDashboardPageComponent, {
     providers: [
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
       provideHttpClient(),
       provideRouter([]),
       {
@@ -75,30 +79,30 @@ describe('BackofficeDashboardPageComponent', () => {
     expect(screen.getByText('Saúde da plataforma')).toBeTruthy();
   });
 
-  it('usa os assets públicos do mockup 03 e preserva links principais', async () => {
+  it('usa a moldura do shell homologado, e nao uma copia propria', async () => {
     await renderPagina();
 
-    const logo = screen.getAllByRole('img', { name: 'SEP' })[0] as HTMLImageElement;
-    const filaLink = screen.getByRole('link', { name: /Backoffice/ });
-
-    expect(logo.src).toContain('/image/sep_mockup_03_assets/logos/logo_sep_header_completo.png');
-    expect(document.body.innerHTML).toContain('/image/sep_mockup_03_assets/icons/');
-    expect(filaLink.getAttribute('href')).toBe('/app/backoffice/fila');
+    // A pagina tinha menu e cabecalho proprios, com pesquisa, alertas e ajuda sem acao. Agora a
+    // moldura e a do shell: um unico menu lateral, e os botoes do cabecalho abrem painel.
+    expect(document.querySelectorAll('.op-sidebar')).toHaveLength(1);
+    expect(document.querySelector('sep-operational-shell .op-welcome')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Pesquisar telas' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Ajuda' })).toBeTruthy();
   });
 
-  it('mantém os PNGs corrigidos e os wrappers de escala por categoria', async () => {
+  it('leva "Ver todas" das atividades para a fila operacional', async () => {
     await renderPagina();
 
-    const pesquisa = screen.getByRole('button', { name: 'Pesquisar' });
-    const notificacoes = screen.getByRole('button', { name: 'Notificações' });
-
-    expect(pesquisa.querySelector('img')?.getAttribute('src')).toContain('icon_search_topbar.png');
-    expect(notificacoes.querySelector('img')?.getAttribute('src')).toContain(
-      'icon_bell_notification.png',
+    expect(screen.getByRole('link', { name: 'Ver todas' }).getAttribute('href')).toBe(
+      '/app/backoffice/fila',
     );
-    expect(notificacoes.querySelector('span')).toBeNull();
-    expect(document.querySelectorAll('.op-metric-icon img')).toHaveLength(6);
-    expect(document.querySelectorAll('.op-journey-icon img')).toHaveLength(4);
+  });
+
+  it('desenha os simbolos em vetor e mantém os wrappers de escala por categoria', async () => {
+    await renderPagina();
+
+    expect(document.querySelectorAll('.op-metric-icon lucide-icon')).toHaveLength(6);
+    expect(document.querySelectorAll('.op-journey-icon lucide-icon')).toHaveLength(4);
     expect(document.querySelectorAll('.op-performance-ring')).toHaveLength(4);
 
     const journeyProgress = Array.from(
@@ -110,6 +114,7 @@ describe('BackofficeDashboardPageComponent', () => {
   it('apresenta erro recuperavel quando o snapshot operacional falha', async () => {
     await render(BackofficeDashboardPageComponent, {
       providers: [
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
         provideHttpClient(),
         provideRouter([]),
         {

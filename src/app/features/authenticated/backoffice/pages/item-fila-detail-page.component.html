@@ -1,192 +1,438 @@
-<section class="sep-bo-item">
-  <a class="sep-bo-item-voltar" routerLink="/app/backoffice/fila">&larr; Voltar para a fila</a>
-
-  @if (loading()) {
-    <p class="sep-bo-item-state">Carregando...</p>
-  } @else if (naoEncontrado()) {
-    <p class="sep-bo-item-state">Item nao encontrado.</p>
-  } @else if (errorMessage()) {
-    <p class="sep-bo-item-state sep-bo-item-error" role="alert">{{ errorMessage() }}</p>
-  } @else if (item(); as it) {
-    <header class="sep-bo-item-header">
-      <h1 class="sep-bo-item-title">{{ it.titulo }}</h1>
-      <div class="sep-bo-item-chips">
-        <sep-backoffice-chip [prioridade]="it.prioridade" />
-        <sep-backoffice-chip [status]="it.status" />
-        <span class="sep-bo-item-tipo">{{ tipoLabel[it.tipo] }}</span>
+<sep-operational-shell>
+  <main class="bo17-page">
+    @if (loading()) {
+      <div class="bo17-state"><span class="bo17-spinner"></span>Carregando item...</div>
+    } @else if (naoEncontrado()) {
+      <div class="bo17-state">
+        <p>Item não encontrado.</p>
+        <a routerLink="/app/backoffice/fila">Voltar para a fila</a>
       </div>
-    </header>
-
-    <dl class="sep-bo-item-meta">
-      <div class="sep-bo-item-meta-row">
-        <dt>Aberto em</dt>
-        <dd>{{ formatarDataHora(it.dataAbertura) }}</dd>
+    } @else if (errorMessage(); as msg) {
+      <div class="bo17-state bo17-error" role="alert">
+        <p>{{ msg }}</p>
+        <a routerLink="/app/backoffice/fila">Voltar para a fila</a>
       </div>
-      @if (it.dataResolucao) {
-        <div class="sep-bo-item-meta-row">
-          <dt>Resolvido em</dt>
-          <dd>{{ formatarDataHora(it.dataResolucao) }}</dd>
-        </div>
-      }
-      <div class="sep-bo-item-meta-row">
-        <dt>Atribuido a</dt>
-        <dd>{{ it.atribuidoA ? idCurto(it.atribuidoA) : 'Sem atribuicao' }}</dd>
-      </div>
-    </dl>
-
-    @if (it.descricao) {
-      <article class="sep-bo-item-panel">
-        <h2 class="sep-bo-item-panel-title">Descricao</h2>
-        <p class="sep-bo-item-descricao">{{ it.descricao }}</p>
-      </article>
-    }
-
-    @if (it.objetoOriginal; as obj) {
-      <article class="sep-bo-item-panel">
-        <h2 class="sep-bo-item-panel-title">Objeto original</h2>
-        <dl class="sep-bo-item-meta">
-          <div class="sep-bo-item-meta-row">
-            <dt>Origem</dt>
-            <dd>{{ entidadeLabel[obj.tipoEntidade] }}</dd>
-          </div>
-          <div class="sep-bo-item-meta-row">
-            <dt>Status</dt>
-            <dd>{{ obj.status }}</dd>
-          </div>
-          <div class="sep-bo-item-meta-row">
-            <dt>Resumo</dt>
-            <dd>{{ obj.descricaoCurta }}</dd>
-          </div>
-        </dl>
-      </article>
-    }
-
-    @if (acaoErro(); as msg) {
-      <p class="sep-bo-item-error" role="alert">{{ msg }}</p>
-    }
-
-    @if (podeAssumir() || podeResolver() || podeIgnorar()) {
-      <article class="sep-bo-item-panel">
-        <h2 class="sep-bo-item-panel-title">Acoes</h2>
-
-        @if (podeAssumir()) {
-          <button
-            type="button"
-            class="sep-bo-item-acao-primaria"
-            [disabled]="acaoEmAndamento()"
-            (click)="assumir()"
-          >
-            Assumir item
-          </button>
-        }
-
-        @if (podeResolver()) {
-          <form class="sep-bo-item-form" [formGroup]="resolverForm" (ngSubmit)="resolver()">
-            <label class="sep-bo-field">
-              <span class="sep-bo-field-label"
-                >Justificativa para resolver (min. 20 caracteres)</span
-              >
-              <textarea
-                formControlName="justificativa"
-                class="sep-bo-textarea"
-                rows="3"
-                [maxlength]="textoMax"
-              ></textarea>
-            </label>
-            <button type="submit" class="sep-bo-item-acao-primaria" [disabled]="acaoEmAndamento()">
-              Resolver
-            </button>
-          </form>
-        }
-
-        @if (podeIgnorar()) {
-          <form class="sep-bo-item-form" [formGroup]="ignorarForm" (ngSubmit)="ignorar()">
-            <label class="sep-bo-field">
-              <span class="sep-bo-field-label"
-                >Justificativa para ignorar (min. 20 caracteres)</span
-              >
-              <textarea
-                formControlName="justificativa"
-                class="sep-bo-textarea"
-                rows="3"
-                [maxlength]="textoMax"
-              ></textarea>
-            </label>
-            <button
-              type="submit"
-              class="sep-bo-item-acao-secundaria"
-              [disabled]="acaoEmAndamento()"
+    } @else if (item(); as it) {
+      <section class="bo17-main">
+        <header class="bo17-heading">
+          <p class="bo17-breadcrumb">
+            <a routerLink="/app/dashboard">Início</a>　›　<a routerLink="/app/backoffice"
+              >Backoffice</a
+            >　›　<a routerLink="/app/backoffice/fila">Fila operacional</a>　›　<strong
+              >Item da fila</strong
             >
-              Ignorar
+          </p>
+          <a class="bo17-back" routerLink="/app/backoffice/fila">
+            <lucide-icon class="ic-azul" name="arrow-left" [size]="16" [strokeWidth]="2.25" />Voltar
+            para a fila
+          </a>
+
+          <div class="bo17-title-row">
+            <div class="bo17-title">
+              <sep-backoffice-chip [prioridade]="it.prioridade" />
+              <h1>{{ it.titulo }}</h1>
+            </div>
+
+            <div class="bo17-top-actions">
+              @if (podeAssumir()) {
+                <button
+                  type="button"
+                  class="bo17-primary"
+                  [disabled]="acaoEmAndamento()"
+                  (click)="assumir()"
+                >
+                  <lucide-icon name="user-check" [size]="15" />Assumir item
+                </button>
+              }
+              @if (podeResolver()) {
+                <button
+                  type="button"
+                  class="bo17-primary"
+                  [disabled]="acaoEmAndamento()"
+                  (click)="marcarComoResolvido()"
+                >
+                  <lucide-icon name="circle-check" [size]="15" />Marcar como resolvido
+                </button>
+              }
+              <div class="bo17-menu-wrap">
+                <button
+                  type="button"
+                  class="bo17-secondary"
+                  [attr.aria-expanded]="menuAberto()"
+                  (click)="alternarMenu()"
+                >
+                  Mais ações<lucide-icon name="chevron-down" [size]="15" />
+                </button>
+                @if (menuAberto()) {
+                  <div class="bo17-menu" role="menu">
+                    <a role="menuitem" routerLink="/app/backoffice/reprocessos">Ver reprocessos</a>
+                    <a role="menuitem" routerLink="/app/backoffice/fila">Voltar para a fila</a>
+                    <a role="menuitem" routerLink="/app/backoffice">Dashboard operacional</a>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <span class="bo17-subtitle">{{ it.tipo }}　•　ID {{ idCurto(it.id) }}</span>
+        </header>
+
+        <section class="bo17-summary" aria-label="Resumo do item">
+          <div>
+            <small>Aberto em</small><strong>{{ formatarDataHora(it.dataAbertura) }}</strong>
+          </div>
+          <div>
+            <small>Prioridade</small
+            ><strong [attr.data-priority]="it.prioridade">{{
+              prioridadeLabel[it.prioridade]
+            }}</strong>
+          </div>
+          <div>
+            <small>Status</small
+            ><strong data-field="status" [attr.data-status]="it.status">{{
+              statusLabel[it.status]
+            }}</strong>
+          </div>
+          <div>
+            <small>Atribuído a</small>
+            @if (it.atribuidoA; as autor) {
+              <strong class="bo17-assigned"
+                ><i>{{ iniciais(autorNome(autor)) }}</i
+                >{{ autorNome(autor) }}</strong
+              >
+            } @else {
+              <strong class="bo17-unassigned">Sem atribuição</strong>
+            }
+          </div>
+          <div>
+            <small>SLA</small>
+            @if (sla(); as s) {
+              <strong [attr.data-sla]="s.tom">{{ s.valor }}</strong>
+              <span class="bo17-sla-nota" [attr.data-sla]="s.tom">{{ s.nota }}</span>
+            }
+          </div>
+        </section>
+
+        <div class="bo17-cards">
+          <article class="bo17-card">
+            <h2>
+              <lucide-icon
+                class="ic-azul"
+                name="file-text"
+                [size]="16"
+                [strokeWidth]="2.25"
+              />Descrição
+            </h2>
+            <p class="bo17-descricao">
+              {{ it.descricao || 'Sem descrição registrada para este item.' }}
+            </p>
+          </article>
+
+          <article class="bo17-card">
+            <h2>
+              <lucide-icon class="ic-azul" name="package" [size]="16" [strokeWidth]="2.25" />Objeto
+              original
+            </h2>
+            @if (it.objetoOriginal; as obj) {
+              <dl class="bo17-obj">
+                <div>
+                  <dt>Origem</dt>
+                  <dd>{{ entidadeLabel[obj.tipoEntidade] }}</dd>
+                </div>
+                <div>
+                  <dt>Status original</dt>
+                  <dd>{{ obj.status }}</dd>
+                </div>
+                <div>
+                  <dt>Entidade</dt>
+                  <dd>{{ idCurto(obj.entidadeId) }}</dd>
+                </div>
+                <div class="bo17-obj-wide">
+                  <dt>Resumo</dt>
+                  <dd>{{ obj.descricaoCurta }}</dd>
+                </div>
+              </dl>
+            } @else {
+              <p class="bo17-empty">Este item não referencia um objeto de origem.</p>
+            }
+          </article>
+        </div>
+
+        <article class="bo17-card bo17-acoes">
+          <h2><lucide-icon class="ic-azul" name="plus" [size]="16" [strokeWidth]="2.25" />Ações</h2>
+
+          @if (acaoErro(); as erro) {
+            <p class="bo17-acao-erro" role="alert">{{ erro }}</p>
+          }
+
+          @if (podeResolver() || podeIgnorar()) {
+            <div class="bo17-acoes-grid">
+              <section [class.bo17-off]="!podeResolver()">
+                <h3>Resolver ocorrência</h3>
+                <p>Informe a justificativa e as ações tomadas para resolver este item.</p>
+                <label>
+                  <small
+                    >Justificativa para resolver (mín. {{ justificativaMin }} caracteres)</small
+                  >
+                  <textarea
+                    id="bo17-justificativa-resolver"
+                    [formControl]="resolverForm.controls.justificativa"
+                    [maxlength]="justificativaMax"
+                    placeholder="Descreva como o problema foi resolvido..."
+                  ></textarea>
+                  <em>{{ resolverLen() }}/{{ justificativaMax }}</em>
+                </label>
+                <label>
+                  <small>Ação realizada</small>
+                  <select [formControl]="resolverForm.controls.acao">
+                    <option value="">Selecione a ação realizada</option>
+                    @for (acao of acoesResolver; track acao) {
+                      <option [value]="acao">{{ acao }}</option>
+                    }
+                  </select>
+                </label>
+                <button
+                  type="button"
+                  class="bo17-resolver"
+                  [disabled]="!podeResolver() || acaoEmAndamento() || !resolverPronto()"
+                  (click)="resolver()"
+                >
+                  <lucide-icon name="circle-check" [size]="15" />Resolver ocorrência
+                </button>
+              </section>
+
+              <span class="bo17-ou" aria-hidden="true">OU</span>
+
+              <section [class.bo17-off]="!podeIgnorar()">
+                <h3>Ignorar ocorrência</h3>
+                <p>Informe o motivo para ignorar este item. Apenas use se for um falso positivo.</p>
+                <label>
+                  <small>Justificativa para ignorar (mín. {{ justificativaMin }} caracteres)</small>
+                  <textarea
+                    [formControl]="ignorarForm.controls.justificativa"
+                    [maxlength]="justificativaMax"
+                    placeholder="Explique o motivo para ignorar esta ocorrência..."
+                  ></textarea>
+                  <em>{{ ignorarLen() }}/{{ justificativaMax }}</em>
+                </label>
+                <label>
+                  <small>Motivo da ignorância</small>
+                  <select [formControl]="ignorarForm.controls.motivo">
+                    <option value="">Selecione o motivo</option>
+                    @for (motivo of motivosIgnorar; track motivo) {
+                      <option [value]="motivo">{{ motivo }}</option>
+                    }
+                  </select>
+                </label>
+                <button
+                  type="button"
+                  class="bo17-ignorar"
+                  [disabled]="!podeIgnorar() || acaoEmAndamento() || !ignorarPronto()"
+                  (click)="ignorar()"
+                >
+                  <lucide-icon name="circle-x" [size]="15" />Ignorar ocorrência
+                </button>
+              </section>
+            </div>
+          } @else {
+            <p class="bo17-empty">
+              Este item já foi encerrado; não há ações de tratamento disponíveis.
+            </p>
+          }
+
+          @if (podeReprocessarWebhook() || podeReprocessarProvider()) {
+            <div class="bo17-reprocesso">
+              <h3>Reprocesso</h3>
+              @if (podeReprocessarWebhook()) {
+                <button type="button" [disabled]="acaoEmAndamento()" (click)="reprocessarWebhook()">
+                  <lucide-icon name="share-2" [size]="15" />Reprocessar webhook
+                </button>
+              }
+              @if (podeReprocessarProvider()) {
+                <button
+                  type="button"
+                  [disabled]="acaoEmAndamento()"
+                  (click)="reprocessarProvider()"
+                >
+                  <lucide-icon name="landmark" [size]="15" />Reprocessar transferencia Pix
+                </button>
+              }
+            </div>
+          }
+
+          @if (acaoResultado(); as r) {
+            <sep-reprocesso-resultado [reprocesso]="r" />
+          }
+        </article>
+
+        <article class="bo17-card bo17-comentarios">
+          <h2>
+            <lucide-icon
+              class="ic-azul"
+              name="message-square"
+              [size]="30"
+              [strokeWidth]="1.5"
+            />Comentários internos
+          </h2>
+
+          <div class="bo17-tabs">
+            <button
+              type="button"
+              [class.active]="abaComentarios() === 'comentarios'"
+              (click)="abaComentarios.set('comentarios')"
+            >
+              Comentários ({{ it.comentarios.length }})
             </button>
-          </form>
-        }
-      </article>
+            <button
+              type="button"
+              [class.active]="abaComentarios() === 'privadas'"
+              (click)="abaComentarios.set('privadas')"
+            >
+              Anotações privadas ({{ anotacoesPrivadas().length }})
+            </button>
+            <label class="bo17-only-mine">
+              <input
+                type="checkbox"
+                [checked]="apenasMeus()"
+                (change)="apenasMeus.set(!apenasMeus())"
+              />Apenas meus comentários
+            </label>
+          </div>
+
+          @if (abaComentarios() === 'comentarios') {
+            <form class="bo17-novo" [formGroup]="comentarioForm" (ngSubmit)="comentar()">
+              <i class="bo17-avatar">EU</i>
+              <textarea
+                formControlName="conteudo"
+                [maxlength]="textoMax"
+                placeholder="Digite um comentário interno..."
+                aria-label="Novo comentário interno"
+              ></textarea>
+              <button type="submit" [disabled]="acaoEmAndamento() || !comentarioPronto()">
+                Comentar
+              </button>
+            </form>
+
+            <ul class="bo17-lista">
+              @for (comentario of comentariosVisiveis(); track comentario.id) {
+                @let nome = autorNome(comentario.autorId);
+                <li>
+                  <i class="bo17-avatar">{{ iniciais(nome) }}</i>
+                  <div>
+                    <p class="bo17-meta">
+                      <strong>{{ nome }}</strong
+                      ><span>{{ formatarDataHora(comentario.dataCriacao) }}</span
+                      ><em>Comentário</em>
+                      <!-- O backend so expoe criacao de comentario: sao registros imutaveis de
+                           auditoria. Os controles aparecem como no mockup, porem desabilitados e
+                           com o motivo no title, em vez de simular uma acao inexistente. -->
+                      <span class="bo17-acoes-coment">
+                        <button
+                          type="button"
+                          disabled
+                          title="Comentários internos são imutáveis (trilha de auditoria)"
+                          aria-label="Editar comentário (indisponível)"
+                        >
+                          <lucide-icon name="pencil" [size]="14" />
+                        </button>
+                        <button
+                          type="button"
+                          disabled
+                          title="Comentários internos são imutáveis (trilha de auditoria)"
+                          aria-label="Excluir comentário (indisponível)"
+                        >
+                          <lucide-icon name="trash-2" [size]="14" />
+                        </button>
+                      </span>
+                    </p>
+                    <p class="bo17-texto">{{ comentario.conteudo }}</p>
+                  </div>
+                </li>
+              } @empty {
+                <li class="bo17-empty-li">
+                  {{
+                    apenasMeus()
+                      ? 'Você ainda não comentou neste item.'
+                      : 'Nenhum comentário interno registrado.'
+                  }}
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="bo17-empty">Nenhuma anotação privada registrada para este item.</p>
+          }
+        </article>
+      </section>
+
+      <aside class="bo17-side">
+        <section class="bo17-side-card">
+          <h2>Linha do tempo do item</h2>
+          <ol class="bo17-tempo">
+            @for (etapa of linhaTempo(); track etapa.titulo) {
+              <li [attr.data-tone]="etapa.tom">
+                <i></i>
+                <div>
+                  <strong>{{ etapa.titulo }}</strong>
+                  <span>{{ etapa.data ? formatarDataHora(etapa.data) : '—' }}</span>
+                  @if (etapa.autor && etapa.data) {
+                    <small>{{ etapa.autor }}</small>
+                  }
+                </div>
+              </li>
+            }
+          </ol>
+          <a routerLink="/app/backoffice/fila">Ver linha do tempo completa　→</a>
+        </section>
+
+        <section class="bo17-side-card">
+          <h2>Informações adicionais</h2>
+          <dl class="bo17-info">
+            @for (linha of informacoes(); track linha.rotulo) {
+              <div>
+                <dt>{{ linha.rotulo }}</dt>
+                <dd>
+                  <span>{{ linha.valor }}</span>
+                  @if (linha.copia; as copia) {
+                    <button
+                      type="button"
+                      [attr.aria-label]="'Copiar ' + linha.rotulo"
+                      [class.copied]="copiado() === linha.rotulo"
+                      (click)="copiar(copia, linha.rotulo)"
+                    >
+                      <lucide-icon
+                        [name]="$any(copiado() === linha.rotulo ? 'circle-check' : 'copy')"
+                        [size]="12"
+                      />
+                    </button>
+                  }
+                </dd>
+              </div>
+            }
+          </dl>
+        </section>
+
+        <section class="bo17-side-card">
+          <h2>Auditoria do item</h2>
+          <ul class="bo17-auditoria">
+            @for (registro of auditoria(); track registro.rotulo) {
+              <li>
+                <i></i>
+                <div>
+                  <strong>{{ registro.rotulo }}</strong
+                  ><span>{{ formatarDataHora(registro.data) }}</span
+                  ><small>{{ registro.autor }}</small>
+                </div>
+              </li>
+            }
+            <li class="bo17-total">
+              <i></i>
+              <div>
+                <strong>Total de atualizações</strong><span>{{ totalAtualizacoes() }}</span>
+              </div>
+            </li>
+          </ul>
+        </section>
+      </aside>
     }
-
-    @if (podeReprocessarWebhook() || podeReprocessarProvider()) {
-      <article class="sep-bo-item-panel">
-        <h2 class="sep-bo-item-panel-title">Reprocesso</h2>
-
-        @if (podeReprocessarWebhook()) {
-          <button
-            type="button"
-            class="sep-bo-item-acao-primaria"
-            [disabled]="acaoEmAndamento()"
-            (click)="reprocessarWebhook()"
-          >
-            Reprocessar webhook
-          </button>
-        }
-
-        @if (podeReprocessarProvider()) {
-          <button
-            type="button"
-            class="sep-bo-item-acao-primaria"
-            [disabled]="acaoEmAndamento()"
-            (click)="reprocessarProvider()"
-          >
-            Reprocessar transferencia Pix
-          </button>
-        }
-
-        @if (acaoResultado(); as r) {
-          <sep-reprocesso-resultado [reprocesso]="r" />
-        }
-      </article>
-    }
-
-    <article class="sep-bo-item-panel">
-      <h2 class="sep-bo-item-panel-title">Comentarios internos</h2>
-
-      <form class="sep-bo-item-form" [formGroup]="comentarioForm" (ngSubmit)="comentar()">
-        <label class="sep-bo-field">
-          <span class="sep-bo-field-label">Novo comentario</span>
-          <textarea
-            formControlName="conteudo"
-            class="sep-bo-textarea"
-            rows="2"
-            [maxlength]="textoMax"
-            placeholder="Registre uma nota interna"
-          ></textarea>
-        </label>
-        <button type="submit" class="sep-bo-item-acao-secundaria" [disabled]="acaoEmAndamento()">
-          Comentar
-        </button>
-      </form>
-
-      <ul class="sep-bo-item-comentarios">
-        @for (c of it.comentarios; track c.id) {
-          <li class="sep-bo-item-comentario">
-            <span class="sep-bo-item-comentario-meta">
-              {{ idCurto(c.autorId) }} &middot; {{ formatarDataHora(c.dataCriacao) }}
-            </span>
-            <span class="sep-bo-item-comentario-texto">{{ c.conteudo }}</span>
-          </li>
-        } @empty {
-          <li class="sep-bo-item-state">Nenhum comentario.</li>
-        }
-      </ul>
-    </article>
-  }
-</section>
+  </main>
+</sep-operational-shell>

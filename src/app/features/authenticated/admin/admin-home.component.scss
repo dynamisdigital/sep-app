@@ -1,85 +1,442 @@
-@use "../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../styles/sep-ds-components" as sepDs;
+// ============ MOCKUP 37 — ADMINISTRAÇÃO ============
 
-.sep-admin-home {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-32);
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+@use "../../../../styles/tela-operacional-tema" as tema;
+
+:host {
+  @include tema.tokens;
 }
 
-.sep-admin-home-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-}
+@include tema.base("px37");
 
-.sep-admin-home-title {
-  @include sepType.sep-type-page-title;
+// ============ GRADE PRINCIPAL ============
 
-  margin: 0;
-  color: hsl(var(--foreground));
-}
-
-.sep-admin-home-subtitle {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-admin-home-cards {
+.px37-page {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--sep-space-16);
+
+  /* min-content em cada faixa: nenhuma linha pode encolher abaixo do próprio conteúdo, senão os
+     cartões se sobrepõem em vez de a página rolar. */
+  grid-template-rows:
+    auto
+    minmax(min-content, 1.15fr)
+    minmax(min-content, 1fr)
+    minmax(min-content, 1fr)
+    min-content;
+  gap: 14px;
+  width: 100%;
+  height: 100%;
+  padding: 16px 26px 18px;
+  overflow: hidden auto;
+  background: radial-gradient(circle at 46% 14%, rgb(var(--sep-c-blue) / 6%), transparent 48%);
 }
 
-.sep-admin-home-card {
-  @include sepDs.sep-card;
+/* Escala do cabeçalho medida contra o desenho: o h1 do Mockup 37 tem 180px de largura contra os
+   165px que o tamanho padrão do tema produz, e o subtítulo 468 contra 438. */
+.px37-heading h1 {
+  font-size: 27px;
+}
 
+.px37-subtitulo {
+  font-size: 14.5px;
+}
+
+// ============ MÓDULOS ============
+
+.px37-modulos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 560px), 1fr));
+  gap: 16px;
+  min-height: min-content;
+}
+
+.px37-modulo {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-6);
-  padding: var(--sep-space-24);
-  text-decoration: none;
+  gap: 12px;
+  min-width: 0;
+  padding: 22px 26px;
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+  }
+
+  p {
+    flex: 1 1 auto;
+    margin: 0;
+    padding-bottom: 14px;
+    color: var(--muted-forte);
+    font-size: 13.5px;
+    line-height: 1.5;
+    border-bottom: 1px solid rgb(var(--sep-c-line) / 70%);
+  }
+}
+
+.px37-modulo-icone {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 62px;
+  height: 62px;
+  color: var(--tone, var(--blue));
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+  border-radius: 999px;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+  box-shadow: 0 0 18px var(--tone-fundo, rgb(var(--sep-c-blue) / calc(18% * var(--sep-glow-alpha))));
+  transition:
+    box-shadow 0.18s,
+    transform 0.18s;
+}
+
+.px37-modulo:hover .px37-modulo-icone {
+  box-shadow: 0 0 24px var(--tone-fundo, rgb(var(--sep-c-blue) / calc(40% * var(--sep-glow-alpha))));
+  transform: scale(1.05);
+}
+
+/* Botão do módulo separado do texto pela linha do parágrafo, como no desenho. */
+.px37-modulo-btn {
+  align-self: flex-start;
+
+  lucide-icon {
+    transition: transform 0.18s;
+  }
+
+  &:hover lucide-icon,
+  &:focus-visible lucide-icon {
+    transform: translateX(3px);
+  }
+}
+
+// ============ RESUMO DO SISTEMA ============
+
+.px37-resumo {
+  display: flex;
+  flex-direction: column;
+  min-height: min-content;
+}
+
+.px37-metricas {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 205px), 1fr));
+  align-content: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.px37-metrica {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--sep-surface-active);
+  border-radius: 11px;
+  background: rgb(var(--sep-c-surf) / 70%);
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s,
+    transform 0.18s;
+
+  &:hover {
+    border-color: var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+    box-shadow: 0 0 14px
+      var(--tone-fundo, rgb(var(--sep-c-blue) / calc(20% * var(--sep-glow-alpha))));
+    transform: translateY(-2px);
+  }
+
+  small {
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 12.5px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  strong {
+    color: var(--sep-text);
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    white-space: nowrap;
+  }
+
+  em {
+    overflow: hidden;
+    color: var(--tone, var(--blue));
+    font-style: normal;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.px37-metrica-icone {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-bottom: 5px;
+  color: var(--tone, var(--blue));
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+  border-radius: 999px;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+}
+
+// ============ AÇÕES RÁPIDAS ============
+
+.px37-acoes {
+  display: flex;
+  flex-direction: column;
+  min-height: min-content;
+}
+
+.px37-atalhos {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 205px), 1fr));
+  align-content: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.px37-atalho {
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  min-width: 0;
+  padding: 12px 13px;
   color: inherit;
-  cursor: pointer;
-  transition: border-color 120ms ease;
+  text-decoration: none;
+  border: 1px solid var(--sep-surface-active);
+  border-radius: 11px;
+  background: rgb(var(--sep-c-surf) / 70%);
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s,
+    transform 0.18s;
 
-  &:hover {
-    border-color: hsl(var(--primary));
+  span {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  /* Coluna mais estreita que a do desenho: o rótulo quebra em até duas linhas em vez de
+     terminar em reticências. */
+  strong {
+    color: var(--sep-text);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+    box-shadow: 0 0 14px
+      var(--tone-fundo, rgb(var(--sep-c-blue) / calc(20% * var(--sep-glow-alpha))));
+    transform: translateY(-2px);
   }
 }
 
-.sep-admin-home-card-disabled {
+.px37-atalho-icone {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  color: var(--tone, var(--blue));
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+  border-radius: 10px;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+}
+
+/* Atalho sem endpoint: mantém o lugar no desenho, sem convite ao clique. */
+.px37-atalho-inerte {
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.55;
 
   &:hover {
-    border-color: hsl(var(--border));
+    border-color: var(--sep-surface-active);
+    box-shadow: none;
+    transform: none;
   }
 }
 
-.sep-admin-home-card-title {
-  @include sepType.sep-type-card-title;
+// ============ AVISO ============
 
-  margin: 0;
-  color: hsl(var(--foreground));
+.px37-aviso {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  min-height: min-content;
+  border-color: rgb(var(--sep-c-blue) / 32%);
+  background: linear-gradient(
+    160deg,
+    rgb(var(--sep-c-surf2) / 96%),
+    rgb(var(--sep-c-sunken) / 94%)
+  );
+
+  p {
+    margin: 0;
+    color: var(--muted-forte);
+    font-size: 13.5px;
+    line-height: 1.55;
+  }
 }
 
-.sep-admin-home-card-body {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
+.px37-aviso-icone {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  color: var(--blue);
+  border: 1px solid rgb(var(--sep-c-blue) / 45%);
+  border-radius: 999px;
+  background: rgb(var(--sep-c-blue) / 12%);
 }
 
-.sep-admin-home-card-soon {
-  @include sepType.sep-type-body;
+// ============ TELAS BAIXAS E ESTREITAS ============
 
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-  font-style: italic;
+/* Degraus de compactação: reduzem vão e respiro, nunca o tamanho do texto. */
+@include tema.resp-altura-baixa {
+  .px37-page {
+    gap: 10px;
+    padding: 12px 24px 13px;
+  }
+
+  .px37-card {
+    padding: 13px 20px;
+  }
+
+  .px37-card h2 {
+    margin-bottom: 10px;
+  }
+
+  .px37-modulo {
+    gap: 9px;
+    padding: 15px 20px;
+  }
+
+  .px37-modulo p {
+    padding-bottom: 11px;
+  }
+
+  .px37-modulos {
+    gap: 12px;
+  }
+
+  .px37-heading nav {
+    margin-bottom: 8px;
+  }
+}
+
+@include tema.resp-altura-curta {
+  .px37-page {
+    gap: 8px;
+    padding: 9px 22px 10px;
+  }
+
+  .px37-card {
+    padding: 11px 17px;
+  }
+
+  .px37-card h2 {
+    margin-bottom: 9px;
+  }
+
+  .px37-modulo {
+    gap: 7px;
+    padding: 12px 17px;
+  }
+
+  .px37-modulo p {
+    padding-bottom: 7px;
+  }
+
+  .px37-modulo-icone {
+    width: 44px;
+    height: 44px;
+  }
+
+  .px37-metricas,
+  .px37-atalhos {
+    gap: 11px;
+  }
+
+  .px37-metrica {
+    padding: 10px 13px;
+  }
+
+  .px37-metrica-icone {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 3px;
+  }
+
+  .px37-atalho {
+    padding: 9px 11px;
+  }
+
+  .px37-atalho-icone {
+    width: 31px;
+    height: 31px;
+  }
+
+  .px37-aviso-icone {
+    width: 38px;
+    height: 38px;
+  }
+
+  .px37-heading nav {
+    margin-bottom: 7px;
+  }
+
+  .px37-subtitulo {
+    margin-top: 4px;
+  }
+}
+
+/* Largura menor deixa rótulos e descrições em mais linhas; o último respiro sai daqui, para a
+   página continuar sem rolagem. */
+@include tema.resp-ate-ampla {
+  .px37-atalho {
+    gap: 9px;
+    padding: 9px 11px;
+  }
+
+  .px37-atalho-icone {
+    width: 30px;
+    height: 30px;
+  }
+
+  .px37-metrica {
+    padding: 10px 12px;
+  }
+
+  .px37-modulo p {
+    padding-bottom: 8px;
+  }
+
+  .px37-aviso {
+    gap: 12px;
+  }
+
+  .px37-aviso-icone {
+    width: 38px;
+    height: 38px;
+  }
 }

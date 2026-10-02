@@ -1,32 +1,116 @@
-<section class="sep-credora-shell">
-  <header class="sep-credora-shell-header">
-    <h1 class="sep-credora-shell-title">Credora</h1>
-    <p class="sep-credora-shell-subtitle">
-      Cadastre sua empresa credora e acompanhe oportunidades e carteira.
-    </p>
-  </header>
+<sep-operational-shell>
+  <section class="px35-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px35-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span><strong>Credora</strong>
+      </nav>
+      <div class="px35-titulo-row">
+        <span class="px35-titulo-icone"><lucide-icon name="building-2" [size]="26" /></span>
+        <div>
+          <h1>Credora</h1>
+          <p class="px35-subtitulo">
+            Cadastre sua empresa credora e acompanhe oportunidades e carteira.
+          </p>
+        </div>
+      </div>
+    </header>
 
-  @if (loading()) {
-    <p class="sep-credora-shell-status">Carregando...</p>
-  } @else if (errorMessage(); as erro) {
-    <p class="sep-credora-shell-status sep-credora-shell-error">{{ erro }}</p>
-  } @else if (empresaCredora()) {
-    <div class="sep-credora-shell-cards">
-      @for (item of links; track item.label) {
-        <a
-          [routerLink]="item.route"
-          routerLinkActive="sep-credora-shell-card-active"
-          class="sep-credora-shell-card"
-        >
-          <span class="sep-credora-shell-card-title">{{ item.label }}</span>
-          <span class="sep-credora-shell-card-body">{{ item.description }}</span>
+    @if (loading()) {
+      <p class="px35-estado" role="status">Carregando sua credora...</p>
+    } @else if (errorMessage(); as erro) {
+      <div class="px35-estado px35-erro" role="alert">
+        <lucide-icon name="triangle-alert" [size]="18" />
+        <p>{{ erro }}</p>
+        <button type="button" class="px35-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
+      </div>
+    } @else if (empresaCredora(); as credora) {
+      <!-- ============ COM CREDORA: ATALHOS DA JORNADA ============ -->
+      <article class="px35-card px35-credora">
+        <div class="px35-credora-topo">
+          <span class="px35-titulo-icone" data-tone="green">
+            <lucide-icon name="building-2" [size]="22" />
+          </span>
+          <div>
+            <strong>{{ credora.razaoSocial }}</strong>
+            <small>{{ credora.cnpj }}</small>
+          </div>
+          <span class="px35-selo" [attr.data-tone]="credora.status === 'ATIVA' ? 'green' : 'amber'">
+            {{ credora.status }}
+          </span>
+        </div>
+      </article>
+
+      <div class="px35-atalhos">
+        @for (item of links; track item.label) {
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="px35-atalho-ativo"
+            class="px35-card px35-atalho"
+            [attr.data-tone]="item.tom"
+          >
+            <span class="px35-atalho-icone"
+              ><lucide-icon [name]="$any(item.icone)" [size]="20"
+            /></span>
+            <div>
+              <strong>{{ item.label }}</strong>
+              <small>{{ item.description }}</small>
+            </div>
+            <lucide-icon name="arrow-right" [size]="16" class="px35-atalho-seta" />
+          </a>
+        }
+      </div>
+    } @else {
+      <!-- ============ SEM CREDORA: CONVITE AO CADASTRO ============ -->
+      <article class="px35-card px35-vazio">
+        <span class="px35-ilustracao" aria-hidden="true">
+          <lucide-icon name="building-2" [size]="58" />
+          <em><lucide-icon name="plus" [size]="20" /></em>
+        </span>
+        <h2>Você ainda não tem uma empresa credora cadastrada.</h2>
+        <p>
+          Cadastre sua empresa credora para começar a receber propostas, acompanhar oportunidades e
+          visualizar sua carteira de contratos.
+        </p>
+        <a class="px35-btn-primary" routerLink="/app/credora/cadastro">
+          <lucide-icon name="plus" [size]="18" />Cadastrar credora
         </a>
-      }
-    </div>
-  } @else {
-    <div class="sep-credora-shell-empty">
-      <p>Voce ainda nao tem uma empresa credora cadastrada.</p>
-      <a routerLink="/app/credora/cadastro" class="sep-credora-shell-link">Cadastrar credora</a>
-    </div>
-  }
-</section>
+      </article>
+
+      <!-- ============ POR QUE CADASTRAR ============ -->
+      <section class="px35-motivos">
+        <h2>Por que cadastrar sua empresa credora?</h2>
+        <div class="px35-motivos-grid">
+          @for (motivo of motivos; track motivo.titulo) {
+            <article class="px35-card px35-motivo" [attr.data-tone]="motivo.tom">
+              <span class="px35-motivo-icone">
+                <lucide-icon [name]="$any(motivo.icone)" [size]="20" />
+              </span>
+              <div>
+                <strong>{{ motivo.titulo }}</strong>
+                <small>{{ motivo.descricao }}</small>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+
+      <!-- ============ AVISO ============ -->
+      <div class="px35-aviso" role="note">
+        <lucide-icon name="info" [size]="18" />
+        <div>
+          <p>
+            A informação da sua empresa é importante para a segurança das operações e cumprimento
+            regulatório.
+          </p>
+          <p>
+            Tenha em mãos os dados cadastrais da empresa, documentos e conta bancária para o
+            cadastro.
+          </p>
+        </div>
+      </div>
+    }
+  </section>
+</sep-operational-shell>

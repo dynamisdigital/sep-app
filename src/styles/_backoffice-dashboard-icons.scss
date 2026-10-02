@@ -1,16 +1,18 @@
+@use "sep-responsivo" as resp;
+
 .op-dashboard {
   // Tokens locais do mockup 03. Mantidos no estilo global da superficie para evitar
   // duplicacao com os tokens universais e preservar o budget do componente.
-  --op-cyan: #00efff;
-  --op-blue: #139dff;
-  --op-green: #18f7a7;
-  --op-amber: #ffb545;
-  --op-purple: #b65cff;
-  --op-red: #ff5f72;
-  --op-muted: #8aa6bf;
-  --op-line: rgb(0 180 255 / 34%);
-  --op-panel: rgb(4 20 36 / 76%);
-  --op-panel-dark: rgb(2 12 24 / 86%);
+  --op-cyan: var(--sep-glow);
+  --op-blue: var(--sep-accent);
+  --op-green: var(--sep-success);
+  --op-amber: var(--sep-warning);
+  --op-purple: var(--sep-purple);
+  --op-red: var(--sep-danger);
+  --op-muted: var(--sep-text-muted);
+  --op-line: rgb(var(--sep-c-blue) / 34%);
+  --op-panel: rgb(var(--sep-c-surf) / 76%);
+  --op-panel-dark: rgb(var(--sep-c-sunken) / 86%);
 
   .op-data-status {
     position: absolute;
@@ -32,42 +34,40 @@
     align-items: center;
     max-width: 430px;
     padding: 10px 12px;
-    color: #ffd9de;
+    color: var(--sep-text);
     font-size: 12px;
-    border: 1px solid rgb(255 95 114 / 45%);
+    border: 1px solid rgb(var(--sep-c-red) / 45%);
     border-radius: 8px;
-    background: rgb(39 8 18 / 94%);
-    box-shadow: 0 0 16px rgb(255 95 114 / 18%);
+    background: rgb(var(--sep-c-surf) / 94%);
+    box-shadow: 0 0 16px rgb(var(--sep-c-red) / calc(18% * var(--sep-glow-alpha)));
   }
 
   .op-data-error button {
     padding: 5px 9px;
-    color: #fff;
+    color: var(--sep-text-strong);
     cursor: pointer;
-    border: 1px solid rgb(255 95 114 / 55%);
+    border: 1px solid rgb(var(--sep-c-red) / 55%);
     border-radius: 5px;
-    background: rgb(255 95 114 / 14%);
+    background: rgb(var(--sep-c-red) / 14%);
   }
 
   .op-content:has(> .profile-page) {
     display: block;
     min-height: 0;
     padding: 14px 28px 12px;
-    overflow: hidden;
+
+    // Rola quando a janela e mais baixa que a tela (grade de 925px de altura fixa): com `hidden`
+    // a auditoria no pe do perfil ficava atras do rodape sem como ser alcancada.
+    overflow: hidden auto;
   }
 
+  // Os simbolos desta tela sao vetor (`lucide-icon`). O bloco que existia aqui compensava o
+  // PNG: caixa maior que o desenho, `translate` para reancorar o glifo dentro da folga
+  // transparente do recorte e `saturate`/`brightness` para reacender a cor gravada. Nada disso
+  // sobrevive ao vetor — o que fica e a caixa, o tom por token e o brilho.
+
   .op-menu-button img,
-  .op-icon-button img,
-  .op-regulated img,
-  .op-clock img,
-  .op-nav-link img,
-  .op-metric-icon img,
-  .op-journey-icon img,
-  .op-summary-item img,
-  .op-performance-item img,
-  .op-health-item img,
-  .op-activity img,
-  .op-footer-item img,
+  .op-nav-link sep-arte,
   .op-footer-hud {
     display: block;
     max-width: none;
@@ -82,39 +82,32 @@
     grid-template: minmax(0, 1fr) / minmax(0, 1fr);
   }
 
-  .op-menu-button img {
-    width: 84px;
-    height: 84px;
-    filter: drop-shadow(0 0 8px rgb(0 239 255 / 40%)) saturate(1.25) brightness(1.22);
+  // Sem `color`: os PNG da barra superior eram neutros, e o ciano que estava aqui trocava o
+  // tom que eles tinham. O brilho fica; a cor volta a ser herdada do proprio botao.
+  .op-menu-button lucide-icon,
+  .op-icon-button lucide-icon {
+    filter: drop-shadow(0 0 8px rgb(var(--sep-c-cyan) / calc(40% * var(--sep-glow-alpha))));
+
+    svg {
+      stroke-width: 2;
+    }
   }
 
-  .op-icon-button img {
-    width: 96px;
-    height: 96px;
-    filter: drop-shadow(0 0 8px rgb(0 239 255 / 40%)) saturate(1.25) brightness(1.22);
+  .op-regulated lucide-icon {
+    filter: drop-shadow(0 0 9px rgb(var(--sep-c-cyan) / calc(38% * var(--sep-glow-alpha))));
   }
 
-  .op-notification img {
-    width: 96px;
-    height: 96px;
+  .op-clock lucide-icon {
+    filter: drop-shadow(0 0 9px rgb(var(--sep-c-cyan) / calc(38% * var(--sep-glow-alpha))));
+
+    svg {
+      stroke-width: 2.25;
+    }
   }
 
-  .op-regulated img {
-    width: 72px;
-    height: 72px;
-    filter: drop-shadow(0 0 9px rgb(0 239 255 / 38%)) saturate(1.3) brightness(1.2);
-  }
-
-  .op-clock img {
-    width: 72px;
-    height: 72px;
-    filter: drop-shadow(0 0 9px rgb(0 239 255 / 38%)) saturate(1.3) brightness(1.2);
-  }
-
-  .op-nav-link img {
-    width: 72px;
-    height: 72px;
-    filter: drop-shadow(0 0 8px rgb(0 178 255 / 34%)) saturate(1.35) brightness(1.3);
+  // O simbolo Pix e vetor (`sep-arte`), na mesma caixa dos icones Lucide do menu.
+  .op-nav-link sep-arte {
+    width: 24px;
   }
 
   .op-metric-icon,
@@ -129,90 +122,90 @@
     height: 66px;
   }
 
-  .op-metric-icon img {
-    width: 128px;
-    height: 128px;
-    filter: drop-shadow(0 0 14px rgb(0 178 255 / 28%)) saturate(1.18) brightness(1.12);
+  .op-metric-icon lucide-icon {
+    color: var(--sep-glow);
+    filter: drop-shadow(0 0 14px rgb(var(--sep-c-cyan) / calc(28% * var(--sep-glow-alpha))));
+
+    svg {
+      stroke-width: 1;
+    }
   }
 
   .op-metric:last-child .op-metric-icon {
     width: 62px;
   }
 
+  // 60px e a medida do mockup; num cartao estreito ela nao cabe ao lado do texto e a linha
+  // quebrava, empurrando o conteudo para fora da propria faixa do cartao. Vira preferencia, com
+  // piso: o simbolo cede alguns pixels para o texto continuar ao lado dele.
   .op-journey-icon {
+    flex: 0 1 60px;
     width: 60px;
+    min-width: 34px;
     height: 64px;
   }
 
-  .op-journey-icon img {
-    width: 128px;
-    height: 128px;
-    filter: drop-shadow(0 0 12px rgb(0 178 255 / 28%)) saturate(1.2) brightness(1.12);
+  .op-journey-icon lucide-icon {
+    color: var(--sep-glow);
+    filter: drop-shadow(0 0 12px rgb(var(--sep-c-cyan) / calc(28% * var(--sep-glow-alpha))));
+
+    svg {
+      stroke-width: 1.5;
+    }
   }
 
-  .op-summary-item img {
-    width: 84px;
-    height: 84px;
-    translate: 0 -18px;
-    filter: drop-shadow(0 0 8px rgb(0 178 255 / 32%)) saturate(1.28) brightness(1.18);
-  }
+  .op-summary-item lucide-icon {
+    color: var(--sep-glow);
+    filter: drop-shadow(0 0 8px rgb(var(--sep-c-cyan) / calc(32% * var(--sep-glow-alpha))));
 
-  .op-summary-item:nth-child(1) img {
-    translate: 0 -15px;
-  }
-
-  .op-summary-item:nth-child(3) img {
-    translate: 0 -21px;
-  }
-
-  .op-summary-item:nth-child(4) img {
-    translate: 0 -23px;
-  }
-
-  .op-summary-item:nth-child(5) img {
-    translate: 0 -27px;
+    svg {
+      stroke-width: 1.25;
+    }
   }
 
   .op-performance-item {
     grid-template-rows: 124px 30px auto;
   }
 
-  .op-performance-item img {
-    width: 148px;
-    height: 148px;
+  .op-health-item lucide-icon {
+    color: var(--sep-success);
+    filter: drop-shadow(0 0 7px rgb(var(--sep-c-green) / calc(30% * var(--sep-glow-alpha))));
+
+    svg {
+      stroke-width: 1.5;
+    }
   }
 
-  .op-health-item img {
-    width: 84px;
-    height: 84px;
-    filter: drop-shadow(0 0 7px rgb(22 242 173 / 30%)) saturate(1.28) brightness(1.16);
-  }
-
-  .op-footer-item img {
+  .op-footer-item lucide-icon {
     grid-row: span 2;
-    width: 88px;
-    height: auto;
-    filter: drop-shadow(0 0 10px rgb(0 239 255 / 26%)) saturate(1.28) brightness(1.14);
+    filter: drop-shadow(0 0 10px rgb(var(--sep-c-cyan) / calc(26% * var(--sep-glow-alpha))));
+
+    svg {
+      stroke-width: 1.5;
+    }
   }
 
+  // O HUD acompanha a altura da faixa: fixo em 94px ele estourava a base nos rodapés de 80px
+  // das telas imersivas.
   .op-footer-hud {
     width: 156px;
-    height: 94px;
+    height: auto;
+    max-height: calc(100% - 14px);
   }
 
   .op-journey[data-tone="cyan"] .op-progress span {
-    background: linear-gradient(90deg, #4d9fff, #25d8ff);
-    box-shadow: 0 0 8px rgb(37 216 255 / 55%);
+    background: linear-gradient(90deg, var(--sep-accent), var(--sep-accent));
+    box-shadow: 0 0 8px rgb(var(--sep-c-blue) / calc(55% * var(--sep-glow-alpha)));
   }
 
   .op-journey[data-tone="green"] .op-progress span {
-    background: linear-gradient(90deg, #55e69d, #16f2ad);
-    box-shadow: 0 0 8px rgb(22 242 173 / 55%);
+    background: linear-gradient(90deg, var(--sep-success), var(--sep-success));
+    box-shadow: 0 0 8px rgb(var(--sep-c-green) / calc(55% * var(--sep-glow-alpha)));
   }
 
   .op-journey[data-tone="amber"] .op-progress span {
-    background: linear-gradient(90deg, #ffd16a, #ffad32);
-    box-shadow: 0 0 8px rgb(255 181 69 / 55%);
+    background: linear-gradient(90deg, var(--sep-warning), var(--sep-warning));
+    box-shadow: 0 0 8px rgb(var(--sep-c-amber) / calc(55% * var(--sep-glow-alpha)));
   }
 
   .op-journey-footer {
@@ -224,17 +217,18 @@
   }
 
   .op-journey a {
-    border-color: rgb(60 196 255 / 75%);
-    text-shadow: 0 0 7px rgb(64 213 255 / 80%);
+    border-color: rgb(var(--sep-c-blue) / 75%);
+    text-shadow: 0 0 7px rgb(var(--sep-c-blue) / calc(80% * var(--sep-glow-alpha)));
     box-shadow:
-      inset 0 0 8px rgb(0 178 255 / 10%),
-      0 0 8px rgb(0 178 255 / 34%);
+      inset 0 0 8px rgb(var(--sep-c-cyan) / calc(10% * var(--sep-glow-alpha))),
+      0 0 8px rgb(var(--sep-c-cyan) / calc(34% * var(--sep-glow-alpha)));
   }
 
   .op-journey a b {
     font-size: 18px;
     line-height: 1;
-    text-shadow: 0 0 8px currentcolor;
+    text-shadow: 0 0 8px
+      color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent);
   }
 
   .op-activity {
@@ -242,9 +236,10 @@
     grid-template-rows: auto minmax(0, 1fr);
   }
 
+  // Sem `translate: 0 15px`: a lista descia 15px dentro de um painel que ja preenche a propria
+  // faixa, entao os 15px saiam pela base. Era ajuste do mockup, quando o painel tinha folga.
   .op-activity ol {
     grid-template-rows: repeat(5, minmax(0, 1fr));
-    translate: 0 15px;
   }
 
   .op-activity ol::before {
@@ -260,8 +255,8 @@
     width: 1px;
     content: "";
     translate: 0 -50%;
-    background: rgb(31 153 207 / 42%);
-    box-shadow: 0 0 5px rgb(0 178 255 / 18%);
+    background: rgb(var(--sep-c-blue) / 42%);
+    box-shadow: 0 0 5px rgb(var(--sep-c-cyan) / calc(18% * var(--sep-glow-alpha)));
   }
 
   .op-activity li {
@@ -278,28 +273,28 @@
     width: 10px;
     height: 10px;
     translate: 0 -7px;
-    border: 2px solid #6cc9ff;
+    border: 2px solid var(--sep-accent);
     border-radius: 50%;
-    background: #168fff;
+    background: var(--sep-accent);
     box-shadow:
-      0 0 0 2px rgb(22 143 255 / 18%),
-      0 0 9px rgb(22 143 255 / 90%);
+      0 0 0 2px rgb(var(--sep-c-blue) / calc(18% * var(--sep-glow-alpha))),
+      0 0 9px rgb(var(--sep-c-blue) / calc(90% * var(--sep-glow-alpha)));
   }
 
   .op-activity li[data-tone="green"] .op-timeline-dot {
-    border-color: #65ffc2;
-    background: #16d987;
+    border-color: var(--sep-success);
+    background: var(--sep-success);
     box-shadow:
-      0 0 0 2px rgb(22 217 135 / 16%),
-      0 0 9px rgb(22 242 173 / 82%);
+      0 0 0 2px rgb(var(--sep-c-green) / calc(16% * var(--sep-glow-alpha))),
+      0 0 9px rgb(var(--sep-c-green) / calc(82% * var(--sep-glow-alpha)));
   }
 
   .op-activity li[data-tone="red"] .op-timeline-dot {
-    border-color: #ff8796;
-    background: #f04458;
+    border-color: var(--sep-danger);
+    background: var(--sep-danger);
     box-shadow:
-      0 0 0 2px rgb(240 68 88 / 17%),
-      0 0 9px rgb(255 95 114 / 85%);
+      0 0 0 2px rgb(var(--sep-c-red) / calc(17% * var(--sep-glow-alpha))),
+      0 0 9px rgb(var(--sep-c-red) / calc(85% * var(--sep-glow-alpha)));
   }
 
   .op-activity li > span {
@@ -324,7 +319,7 @@
     gap: 3px;
     align-items: baseline;
     justify-content: center;
-    color: #8fa9bf;
+    color: var(--sep-text-muted);
     line-height: 1;
   }
 
@@ -335,15 +330,22 @@
 
   .op-performance .op-performance-item small span {
     margin-top: 0;
-    color: #8fa9bf;
+    color: var(--sep-text-muted);
     font-size: 12px !important;
     font-weight: 400;
     line-height: inherit;
   }
 
+  // As linhas seguem o conteudo em vez de 155px travados para o anel: o anel agora acompanha a
+  // faixa, e uma linha fixa desse tamanho deixava 67px de vazio que os empurroes de `top` abaixo
+  // tentavam compensar.
   .op-performance .op-performance-item {
-    grid-template-rows: 155px 26px 22px !important;
+    grid-template-rows: auto auto auto !important;
     align-content: start;
+    gap: 6px;
+
+    // Container de consulta para o número dentro do anel poder se medir pela faixa recebida.
+    container-type: inline-size;
   }
 
   .op-performance .op-performance-ring {
@@ -351,12 +353,22 @@
     --ring-color: var(--op-cyan);
 
     position: relative;
-    width: 223px !important;
-    height: 223px !important;
+
+    // 223px era o tamanho do mockup, travado com `!important`. Quatro aneis nesse tamanho pedem
+    // 892px, e o painel recebe 382px a 1440: os quatro escapavam da caixa. Vira teto, com o anel
+    // acompanhando a faixa e mantendo-se redondo por `aspect-ratio`.
+    width: min(100%, 223px) !important;
+    height: auto !important;
+    aspect-ratio: 1;
     display: grid;
     place-items: center;
     justify-self: center;
+
+    // Sem isto o anel não desce abaixo do número que traz dentro: a 1120 o painel recebe 263px,
+    // a faixa fica em 44px e o anel insistia em 72, saindo do painel.
+    min-width: 0;
     color: var(--ring-color);
+    filter: drop-shadow(0 0 1px rgb(var(--sep-c-strong) / 18%));
     transform-origin: center bottom;
     transition:
       transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
@@ -373,10 +385,16 @@
     background: conic-gradient(
       from 0deg,
       var(--ring-color) 0 var(--ring-progress),
-      rgb(23 59 80 / 48%) var(--ring-progress) 100%
+      rgb(var(--sep-c-muted) / 48%) var(--ring-progress) 100%
     );
-    mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
-    filter: drop-shadow(0 0 1px currentcolor);
+    mask: radial-gradient(
+      farthest-side,
+      transparent calc(100% - 6px),
+      var(--sep-canvas) calc(100% - 5px)
+    );
+    filter: drop-shadow(
+      0 0 1px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+    );
   }
 
   .op-performance .op-performance-ring::after {
@@ -388,11 +406,11 @@
     border-radius: 50%;
     background: radial-gradient(
       circle,
-      rgb(12 35 53 / 68%),
-      rgb(4 17 31 / 22%) 68%,
+      rgb(var(--sep-c-surf3) / 68%),
+      rgb(var(--sep-c-sunken) / 22%) 68%,
       transparent 70%
     );
-    box-shadow: inset 0 0 24px rgb(0 178 255 / 7%);
+    box-shadow: inset 0 0 24px rgb(var(--sep-c-cyan) / calc(7% * var(--sep-glow-alpha)));
   }
 
   .op-performance .op-performance-ring strong {
@@ -401,97 +419,59 @@
     width: auto !important;
     height: auto !important;
     overflow: visible !important;
-    color: #f4fbff;
-    font-size: 24px;
+    color: var(--sep-text-strong);
+
+    // 24px onde couber, encolhendo com a faixa: é o número dentro do anel que definia a largura
+    // mínima dele, e portanto o transbordo do painel em janela estreita.
+    font-size: clamp(11px, 26cqi, 24px);
     font-weight: 500;
     line-height: 1;
     text-shadow:
-      0 0 4px rgb(255 255 255 / 70%),
-      0 0 9px rgb(255 255 255 / 28%);
+      0 0 4px rgb(var(--sep-c-strong) / 70%),
+      0 0 9px rgb(var(--sep-c-strong) / 28%);
     clip: auto !important;
   }
 
+  // Sem `top: 25px`/`top: 45px` e sem `width: max-content`: os deslocamentos preenchiam o vazio da
+  // linha fixa do anel, e a largura por conteudo fazia um rotulo invadir o vizinho.
   .op-performance .op-performance-item > span {
-    position: relative;
-    top: 25px;
     justify-self: center;
-    width: max-content;
     max-width: 100%;
     text-align: center;
-  }
-
-  .op-performance .op-performance-item > small {
-    position: relative;
-    top: 45px;
   }
 
   .op-performance .op-performance-grid {
     padding-inline: 15px;
   }
 
-  .op-performance .op-performance-item:nth-child(1) .op-performance-ring {
-    left: -52px;
-    filter: drop-shadow(0 0 1px rgb(255 255 255 / 18%));
-  }
-
-  .op-performance .op-performance-item:nth-child(1) > span,
-  .op-performance .op-performance-item:nth-child(1) > small {
-    position: relative;
-    left: -57px;
-  }
-
-  .op-performance .op-performance-item:nth-child(2) .op-performance-ring {
-    left: -46px;
-    filter: drop-shadow(0 0 1px rgb(255 255 255 / 18%));
-  }
-
-  .op-performance .op-performance-item:nth-child(2) > span,
-  .op-performance .op-performance-item:nth-child(2) > small {
-    position: relative;
-    left: -47px;
-  }
-
-  .op-performance .op-performance-item:nth-child(3) .op-performance-ring {
-    left: -35px;
-    filter: drop-shadow(0 0 1px rgb(255 255 255 / 18%));
-  }
-
-  .op-performance .op-performance-item:nth-child(3) > span,
-  .op-performance .op-performance-item:nth-child(3) > small {
-    position: relative;
-    left: -40px;
-  }
-
-  .op-performance .op-performance-item:nth-child(4) .op-performance-ring {
-    left: -30px;
-    filter: drop-shadow(0 0 1px rgb(255 255 255 / 18%));
-  }
-
+  // Cada um dos quatro medidores tinha o proprio deslocamento negativo (-52, -46, -35 e -30px, e
+  // outros quatro para os rotulos), calibrados quando o anel media 223px travados e a faixa era do
+  // mockup. Com o anel acompanhando a faixa, os deslocamentos passaram a sobrepor um medidor no
+  // outro e a jogar o primeiro para fora da borda esquerda do painel. A grade de quatro faixas
+  // iguais ja posiciona os quatro; nao ha o que reancorar.
   .op-performance .op-performance-ring:hover {
     z-index: 2;
     transform: translateY(-14px) scale(1.04);
   }
 
   .op-performance .op-performance-item:nth-child(1) .op-performance-ring:hover {
-    filter: drop-shadow(0 0 8px rgb(41 151 255 / 72%)) drop-shadow(0 0 3px rgb(255 255 255 / 42%));
+    filter: drop-shadow(0 0 8px rgb(var(--sep-c-blue) / calc(72% * var(--sep-glow-alpha))))
+      drop-shadow(0 0 3px rgb(var(--sep-c-strong) / 42%));
   }
 
   .op-performance .op-performance-item:nth-child(2) .op-performance-ring:hover {
-    filter: drop-shadow(0 0 8px rgb(55 224 166 / 72%)) drop-shadow(0 0 3px rgb(255 255 255 / 42%));
+    filter: drop-shadow(0 0 8px rgb(var(--sep-c-green) / calc(72% * var(--sep-glow-alpha))))
+      drop-shadow(0 0 3px rgb(var(--sep-c-strong) / 42%));
   }
 
   .op-performance .op-performance-item:nth-child(3) .op-performance-ring:hover {
-    filter: drop-shadow(0 0 8px rgb(184 92 255 / 74%)) drop-shadow(0 0 3px rgb(255 255 255 / 42%));
+    filter: drop-shadow(0 0 8px rgb(var(--sep-c-purple) / calc(74% * var(--sep-glow-alpha))))
+      drop-shadow(0 0 3px rgb(var(--sep-c-strong) / 42%));
   }
 
   .op-performance .op-performance-item:nth-child(4) .op-performance-ring:hover {
-    filter: drop-shadow(0 0 8px rgb(255 181 69 / 74%)) drop-shadow(0 0 3px rgb(255 255 255 / 42%));
-  }
-
-  .op-performance .op-performance-item:nth-child(4) > span,
-  .op-performance .op-performance-item:nth-child(4) > small {
-    position: relative;
-    left: -36px;
+    filter: drop-shadow(0 0 8px rgb(var(--sep-c-amber) / calc(74% * var(--sep-glow-alpha))))
+      drop-shadow(0 0 3px rgb(var(--sep-c-strong) / 42%));
   }
 
   .op-health footer span {
@@ -499,25 +479,22 @@
   }
 
   .op-health .op-health-item {
-    position: relative;
-    left: -4px;
     align-items: center;
-    width: calc(100% + 9px);
     min-height: 34px;
     padding-inline: 10px;
-    border-color: rgb(0 178 255 / 7%) !important;
-    background: rgb(2 13 27 / 4%);
+    border-color: rgb(var(--sep-c-cyan) / 7%) !important;
+    background: rgb(var(--sep-c-sunken) / 4%);
     box-shadow: none;
   }
 
+  // Sem `left: -11px` nem `translate: 0 -21px`: eram ajustes calibrados para o PNG antigo, que era
+  // muito maior que a fileira. Com o simbolo em vetor, o unico efeito que sobrava era subir o texto
+  // 21px e deixa-lo desalinhado do proprio simbolo — que ficava parado no lugar.
   .op-health .op-health-item span {
-    position: relative;
-    left: -11px;
     display: flex;
     align-items: center;
     place-self: center start;
     height: auto;
-    translate: 0 -21px;
     font-size: 12px !important;
     line-height: 1;
   }
@@ -528,12 +505,11 @@
     align-items: center;
     place-self: center end;
     height: auto;
-    translate: 0 -21px;
     font-size: 12px !important;
     line-height: 1;
     text-shadow:
-      0 0 5px rgb(24 247 167 / 95%),
-      0 0 10px rgb(24 247 167 / 72%);
+      0 0 5px rgb(var(--sep-c-green) / calc(95% * var(--sep-glow-alpha))),
+      0 0 10px rgb(var(--sep-c-green) / calc(72% * var(--sep-glow-alpha)));
   }
 
   .op-health .op-health-item em::before {
@@ -541,13 +517,13 @@
     width: 7px;
     height: 7px;
     content: "";
-    border: 1px solid #75ffd0;
+    border: 1px solid var(--sep-success);
     border-radius: 50%;
-    background: #18f7a7;
+    background: var(--sep-success);
     box-shadow:
-      0 0 0 2px rgb(24 247 167 / 28%),
-      0 0 7px rgb(24 247 167 / 100%),
-      0 0 13px rgb(24 247 167 / 82%);
+      0 0 0 2px rgb(var(--sep-c-green) / calc(28% * var(--sep-glow-alpha))),
+      0 0 7px rgb(var(--sep-c-green) / calc(100% * var(--sep-glow-alpha))),
+      0 0 13px rgb(var(--sep-c-green) / calc(82% * var(--sep-glow-alpha)));
   }
 
   .op-health footer strong {
@@ -559,26 +535,12 @@
     gap: 6px;
   }
 
-  .op-health .op-health-item img {
-    translate: -7px -20px;
-  }
-
-  .op-health .op-health-item:nth-child(2) img,
-  .op-health .op-health-item:nth-child(3) img {
-    translate: -7px -18px;
-  }
-
-  .op-health .op-health-item:nth-child(4) img,
-  .op-health .op-health-item:nth-child(5) img {
-    translate: -7px -16px;
-  }
-
   .op-health footer {
     align-items: center;
     min-height: 32px;
     margin-top: 8px;
     padding-top: 7px;
-    border-top: 1px solid rgb(0 178 255 / 9%);
+    border-top: 1px solid rgb(var(--sep-c-cyan) / 9%);
   }
 
   .op-footer .op-footer-item {
@@ -611,9 +573,12 @@
     font-size: 13px !important;
   }
 
+  // O HUD acompanha a faixa: com altura fixa por breakpoint ele estourava a base nos rodapés
+  // de 80px das telas imersivas.
   .op-footer .op-footer-hud {
     place-self: center;
-    translate: 0 7px;
+    height: auto;
+    max-height: calc(100% - 16px);
   }
 
   .op-side-user {
@@ -656,12 +621,12 @@
     width: 7px;
     height: 7px;
     content: "";
-    border: 1px solid #75ffd0;
+    border: 1px solid var(--sep-success);
     border-radius: 50%;
-    background: #18f7a7;
+    background: var(--sep-success);
     box-shadow:
-      0 0 0 2px rgb(24 247 167 / 18%),
-      0 0 8px rgb(24 247 167 / 88%);
+      0 0 0 2px rgb(var(--sep-c-green) / calc(18% * var(--sep-glow-alpha))),
+      0 0 8px rgb(var(--sep-c-green) / calc(88% * var(--sep-glow-alpha)));
   }
 
   .op-side-user small {
@@ -729,10 +694,9 @@
     line-height: 1;
   }
 
-  .op-sidebar .op-nav-link img {
+  .op-sidebar .op-nav-link sep-arte {
     align-self: center;
-    width: 76px;
-    height: 76px;
+    width: 24px;
   }
 
   .op-sidebar .op-nav-link small {
@@ -745,7 +709,7 @@
   }
 }
 
-@media (width <= 1320px) {
+@include resp.ate-ampla {
   .op-dashboard {
     .op-metric-icon {
       width: 62px;
@@ -774,7 +738,7 @@
   }
 }
 
-@media (height <= 820px) and (width > 1080px) {
+@include resp.larga-e-baixa(resp.$altura-muito-curta) {
   .op-dashboard {
     .op-metric-icon {
       width: 48px;
@@ -832,7 +796,7 @@
   }
 }
 
-@media (width <= 640px) {
+@include resp.ate-minima {
   .op-dashboard {
     .op-icon-button img {
       width: 84px;
@@ -872,4 +836,16 @@
       height: 77px;
     }
   }
+}
+
+// ============ RODAPÉ OPERACIONAL ============
+// O conteúdo do rodapé é dimensionado para a faixa de 96px do Mockup 03. Nas telas imersivas a
+// faixa tem 80px, e sem `align-content` o conjunto ficava 8px abaixo do centro.
+
+.op-dashboard .op-footer {
+  align-content: center;
+}
+
+.op-dashboard .op-footer > * {
+  align-self: center;
 }

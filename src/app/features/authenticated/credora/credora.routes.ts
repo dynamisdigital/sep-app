@@ -10,26 +10,27 @@ export const CREDORA_ROUTES: Routes = [
   {
     path: '',
     loadComponent: () => import('./credora-shell.component').then((m) => m.CredoraShellComponent),
+    data: { immersive: true },
   },
   {
     path: 'cadastro',
     loadComponent: () =>
       import('./pages/credora-cadastro-page.component').then((m) => m.CredoraCadastroPageComponent),
-    data: { breadcrumb: 'Cadastro' },
+    data: { breadcrumb: 'Cadastro', immersive: true },
   },
   {
     path: 'perfil',
     canActivate: [credoraPresenceGuard],
     loadComponent: () =>
       import('./pages/credora-perfil-page.component').then((m) => m.CredoraPerfilPageComponent),
-    data: { breadcrumb: 'Perfil' },
+    data: { breadcrumb: 'Perfil', immersive: true },
   },
   {
     path: 'oportunidades',
     canActivate: [credoraPresenceGuard],
     loadComponent: () =>
       import('./pages/oportunidades-page.component').then((m) => m.OportunidadesPageComponent),
-    data: { breadcrumb: 'Oportunidades' },
+    data: { breadcrumb: 'Oportunidades', immersive: true },
   },
   {
     path: 'oportunidades/:id',
@@ -38,14 +39,14 @@ export const CREDORA_ROUTES: Routes = [
       import('./pages/oportunidade-detail-page.component').then(
         (m) => m.OportunidadeDetailPageComponent,
       ),
-    data: { breadcrumb: 'Detalhe da oportunidade' },
+    data: { breadcrumb: 'Detalhe da oportunidade', immersive: true },
   },
   {
     path: 'carteira',
     canActivate: [credoraPresenceGuard],
     loadComponent: () =>
       import('./pages/carteira-page.component').then((m) => m.CarteiraPageComponent),
-    data: { breadcrumb: 'Carteira' },
+    data: { breadcrumb: 'Carteira', immersive: true },
   },
   {
     path: 'carteira/:id',
@@ -54,6 +55,6 @@ export const CREDORA_ROUTES: Routes = [
       import('./pages/operacao-carteira-detail-page.component').then(
         (m) => m.OperacaoCarteiraDetailPageComponent,
       ),
-    data: { breadcrumb: 'Detalhe da operacao' },
+    data: { breadcrumb: 'Detalhe da operacao', immersive: true },
   },
 ];

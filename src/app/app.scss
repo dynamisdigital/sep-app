@@ -2,3 +2,88 @@
   display: block;
   min-height: 100vh;
 }
+
+// ============ SESSÃO ENTREGUE À JANELA PRÓPRIA ============
+// Cobre a aplicação inteira: a aba de origem para de ser uma segunda cópia do sistema. Cores pelos
+// tokens do tema, como o resto do produto.
+
+.sep-entregue {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  padding: 24px;
+  background: rgb(var(--sep-c-canvas) / 92%);
+  backdrop-filter: blur(6px);
+  place-items: center;
+}
+
+.sep-entregue-caixa {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  width: min(420px, 100%);
+  padding: 28px 30px;
+  text-align: center;
+  border: 1px solid rgb(var(--sep-c-cyan) / 46%);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgb(var(--sep-c-surf) / 96%), rgb(var(--sep-c-sunken) / 97%));
+  box-shadow: 0 26px 60px rgb(var(--sep-c-shadow) / 72%);
+}
+
+.sep-entregue-caixa svg {
+  width: 44px;
+  height: auto;
+  fill: none;
+  stroke: var(--sep-accent);
+  stroke-width: 1.1;
+  opacity: 0.8;
+}
+
+.sep-entregue-caixa strong {
+  color: var(--sep-text-strong);
+  font-size: 1.02rem;
+}
+
+.sep-entregue-caixa p {
+  margin: 0;
+  color: var(--sep-text-secondary);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.sep-entregue-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.sep-entregue-acoes button {
+  height: 38px;
+  padding: 0 18px;
+  color: var(--sep-text);
+  font: inherit;
+  font-size: 0.86rem;
+  cursor: pointer;
+  border: 1px solid rgb(var(--sep-c-cyan) / 32%);
+  border-radius: 10px;
+  background: rgb(var(--sep-c-sunken) / 70%);
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    background 150ms ease;
+}
+
+.sep-entregue-acoes button:hover,
+.sep-entregue-acoes button:focus-visible {
+  border-color: rgb(var(--sep-c-cyan) / 72%);
+  background: rgb(var(--sep-c-blue) / 22%);
+  box-shadow: 0 0 22px rgb(var(--sep-c-cyan) / calc(26% * var(--sep-glow-alpha)));
+}
+
+.sep-entregue-primaria {
+  border-color: rgb(var(--sep-c-cyan) / 60%);
+  background: rgb(var(--sep-c-blue) / 26%);
+}

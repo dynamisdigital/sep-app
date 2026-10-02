@@ -6,3 +6,5 @@ playwright-report
 test-results
 *.lock
 package-lock.json
+docs
+public/relatorio-seguranca

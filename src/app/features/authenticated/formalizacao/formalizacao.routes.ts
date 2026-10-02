@@ -9,16 +9,17 @@ export const FORMALIZACAO_ROUTES: Routes = [
     path: '',
     loadComponent: () =>
       import('./formalizacao-home.component').then((m) => m.FormalizacaoHomeComponent),
+    data: { immersive: true },
   },
   {
     path: 'proposta/:propostaId',
     loadComponent: () => import('./proposta-entry.component').then((m) => m.PropostaEntryComponent),
-    data: { breadcrumb: 'Por proposta' },
+    data: { breadcrumb: 'Por proposta', immersive: true },
   },
   {
     path: 'contratos/:id',
     loadComponent: () =>
       import('./contrato-detail.component').then((m) => m.ContratoDetailComponent),
-    data: { breadcrumb: 'Contrato' },
+    data: { breadcrumb: 'Contrato', immersive: true },
   },
 ];

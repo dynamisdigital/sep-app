@@ -1,12 +1,15 @@
+import { importProvidersFrom } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/angular';
 import { provideRouter } from '@angular/router';
 import { LandingComponent } from './landing.component';
+import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
 
 describe('LandingComponent', () => {
   it('renderiza headline principal', async () => {
     await render(LandingComponent, {
-      providers: [provideRouter([])],
+      providers: [importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)), provideRouter([])],
     });
 
     expect(
@@ -19,7 +22,7 @@ describe('LandingComponent', () => {
 
   it('expoe links para /login e /register', async () => {
     await render(LandingComponent, {
-      providers: [provideRouter([])],
+      providers: [importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)), provideRouter([])],
     });
 
     const loginLinks = screen.getAllByRole('link', { name: /entrar/i });
@@ -31,7 +34,7 @@ describe('LandingComponent', () => {
 
   it('expoe secao de seguranca/escrow', async () => {
     await render(LandingComponent, {
-      providers: [provideRouter([])],
+      providers: [importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)), provideRouter([])],
     });
 
     expect(screen.getByRole('heading', { name: /formalização e escrow/i })).toBeTruthy();
@@ -40,16 +43,14 @@ describe('LandingComponent', () => {
 
   it('usa assets extraidos do mockup na landing', async () => {
     await render(LandingComponent, {
-      providers: [provideRouter([])],
+      providers: [importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)), provideRouter([])],
     });
 
     expect(screen.getAllByText('SEP').length).toBeGreaterThan(0);
     expect(screen.getAllByText(/sociedade de empréstimo entre pessoas/i).length).toBeGreaterThan(0);
-    expect(document.querySelector('.landing-brand-symbol')?.getAttribute('src')).toContain(
-      '/image/sep_mockup_01_assets/logos/logo_sep_simbolo_header.png',
-    );
-    expect(screen.getByAltText(/regulado pela/i).getAttribute('src')).toContain(
-      '/image/sep_mockup_01_assets/icons/icon_regulacao_cmn.png',
-    );
+    // A marca virou vetor (`sep-logo`): o simbolo le nos dois temas sem arquivo por variante.
+    expect(document.querySelector('sep-logo.landing-brand-symbol svg')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /tema (claro|escuro)/i })).toBeTruthy();
+    expect(document.querySelector('.trust-badges lucide-icon svg')).toBeTruthy();
   });
 });

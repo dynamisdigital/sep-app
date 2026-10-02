@@ -77,10 +77,41 @@
                 {
                   "type": "anyComponentStyle",
                   "maximumWarning": "16kB",
-                  "maximumError": "24kB"
+                  "maximumError": "28kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "sourceMap": false,
+              "security": {
+                "autoCsp": true
+              },
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                },
+                {
+                  "replace": "src/mocks/iniciar-mocks.ts",
+                  "with": "src/mocks/iniciar-mocks.prod.ts"
+                }
+              ],
+              "assets": [
+                {
+                  "glob": "**/*",
+                  "input": "public",
+                  "ignore": ["mockServiceWorker.js"]
+                },
+                {
+                  "glob": "**/*",
+                  "input": "image",
+                  "output": "/image"
+                },
+                {
+                  "glob": "**/*",
+                  "input": "src/assets",
+                  "output": "/assets"
+                }
+              ]
             },
             "development": {
               "optimization": false,

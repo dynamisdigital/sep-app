@@ -1,3 +1,4 @@
+import { importProvidersFrom } from '@angular/core';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
@@ -10,6 +11,8 @@ import { StepUpTokenStore } from '../../../core/auth/step-up-token.store';
 import { stepUpInterceptor } from '../../../core/interceptors/step-up.interceptor';
 import { server } from '../../../../mocks/server';
 import { ContratoDetailComponent } from './contrato-detail.component';
+import { LucideAngularModule } from 'lucide-angular';
+import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
 
 const CONTRATO_AGUARDANDO_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e01';
 const CONTRATO_EM_ASSINATURA_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e02';
@@ -26,9 +29,11 @@ async function flush(times = 5): Promise<void> {
 }
 
 async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
+  for (let tentativa = 0; tentativa < 25; tentativa += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    await flush();
+    fixture.detectChanges();
+  }
 }
 
 function activatedRoute(id: string) {
@@ -38,6 +43,7 @@ function activatedRoute(id: string) {
 function renderDetail(id: string, comStepUp = false) {
   return render(ContratoDetailComponent, {
     providers: [
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
       comStepUp ? provideHttpClient(withInterceptors([stepUpInterceptor])) : provideHttpClient(),
       provideRouter([]),
       { provide: ActivatedRoute, useValue: activatedRoute(id) },
@@ -70,9 +76,9 @@ describe('ContratoDetailComponent', () => {
     const { fixture } = await renderDetail(CONTRATO_AGUARDANDO_ID);
     await estabilizar(fixture);
 
-    expect(screen.getByText('Aguardando aceite')).toBeTruthy();
-    expect(screen.getByText('OBJETO')).toBeTruthy();
-    expect(screen.getByText('PRAZO')).toBeTruthy();
+    expect(screen.getAllByText('Aguardando aceite').length).toBeGreaterThan(0);
+    expect(screen.getByText(/OBJETO/)).toBeTruthy();
+    expect(screen.getByText(/PRAZO/)).toBeTruthy();
     expect(
       screen.getByText('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad'),
     ).toBeTruthy();
@@ -85,7 +91,7 @@ describe('ContratoDetailComponent', () => {
     // Vigente (versao 2) selecionada por padrao -> hash bb22.
     expect(screen.getByText('bb22')).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('button', { name: /Versao 1/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Versão 1/ }));
     fixture.detectChanges();
 
     // Apos selecionar a versao 1, mostra o hash aa11.
@@ -102,7 +108,7 @@ describe('ContratoDetailComponent', () => {
     const { fixture } = await renderDetail(CONTRATO_AGUARDANDO_ID);
     await estabilizar(fixture);
 
-    expect(screen.getByText('OBJETO')).toBeTruthy();
+    expect(screen.getByText(/OBJETO/)).toBeTruthy();
     expect(screen.queryByRole('alert')).toBeNull();
   });
 
@@ -128,7 +134,7 @@ describe('ContratoDetailComponent', () => {
     fireEvent.click(screen.getByRole('button', { name: /Aceitar contrato/ }));
     await estabilizar(fixture);
 
-    expect(screen.getByText('Em assinatura')).toBeTruthy();
+    expect(screen.getAllByText('Em assinatura').length).toBeGreaterThan(0);
     expect(screen.getByText(/Aceite registrado em/)).toBeTruthy();
     expect(screen.queryByRole('button', { name: /Aceitar contrato/ })).toBeNull();
   });
@@ -185,7 +191,7 @@ describe('ContratoDetailComponent', () => {
     const { fixture } = await renderDetail(CONTRATO_EM_ASSINATURA_ID);
     await estabilizar(fixture);
 
-    expect(screen.getByText('Enviado para assinatura')).toBeTruthy();
+    expect(screen.getByText(/Enviado para assinatura/)).toBeTruthy();
   });
 
   it('baixa o documento assinado como blob e exibe o hash, revogando o object URL', async () => {

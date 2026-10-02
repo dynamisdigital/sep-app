@@ -1,84 +1,650 @@
-<section class="sep-bo-reproc">
-  <header class="sep-bo-reproc-header">
-    <h1 class="sep-bo-reproc-title">Reprocessos</h1>
-    <p class="sep-bo-reproc-sub">
-      Reenvio manual de webhook e chamadas de provider. Exige confirmacao adicional (step-up).
-    </p>
-  </header>
+<sep-operational-shell>
+  <main class="bo18-page">
+    <section class="bo18-main" aria-labelledby="bo18-title">
+      <header class="bo18-heading">
+        <p>
+          <a routerLink="/app/dashboard">Início</a>　›　<a routerLink="/app/backoffice"
+            >Backoffice</a
+          >　›　<strong>Reprocessos</strong>
+        </p>
+        <h1 id="bo18-title">
+          Reprocessos
+          <lucide-icon class="ic-ciano" name="refresh-cw" [size]="22" [strokeWidth]="2.25" />
+        </h1>
+        <span>Gerencie solicitações de reprocessamento e acompanhe execuções.</span>
+      </header>
 
-  <div class="sep-bo-reproc-abas" role="tablist">
-    <button
-      type="button"
-      role="tab"
-      class="sep-bo-reproc-aba"
-      [class.sep-bo-reproc-aba-ativa]="aba() === 'webhook'"
-      [attr.aria-selected]="aba() === 'webhook'"
-      (click)="selecionarAba('webhook')"
-    >
-      Webhook
-    </button>
-    <button
-      type="button"
-      role="tab"
-      class="sep-bo-reproc-aba"
-      [class.sep-bo-reproc-aba-ativa]="aba() === 'provider'"
-      [attr.aria-selected]="aba() === 'provider'"
-      (click)="selecionarAba('provider')"
-    >
-      Provider
-    </button>
-  </div>
+      <section class="bo18-metrics" aria-label="Resumo dos reprocessos">
+        @for (metrica of metricas(); track metrica.chave) {
+          <article class="bo18-metric" [attr.data-tone]="metrica.tom">
+            <header>
+              <small>{{ metrica.rotulo }}</small>
+              <lucide-icon [name]="metrica.icone" [size]="28" [strokeWidth]="1.75" />
+            </header>
+            <strong>{{ metrica.valor }}</strong>
+            <p>
+              <b>{{ metrica.destaque }}</b> {{ metrica.nota }}
+            </p>
+            <svg viewBox="0 0 190 34" preserveAspectRatio="none" aria-hidden="true">
+              <polyline [attr.points]="sparkline(metrica.serie)" />
+            </svg>
+          </article>
+        }
+      </section>
 
-  @if (aba() === 'webhook') {
-    <form class="sep-bo-reproc-form" [formGroup]="webhookForm" (ngSubmit)="reprocessarWebhook()">
-      <label class="sep-bo-field">
-        <span class="sep-bo-field-label">ID do evento de webhook</span>
-        <input type="text" formControlName="webhookEventId" class="sep-bo-field-control" />
-      </label>
-      <label class="sep-bo-field">
-        <span class="sep-bo-field-label">ID do item da fila (opcional)</span>
-        <input type="text" formControlName="itemId" class="sep-bo-field-control" />
-      </label>
-      <button type="submit" class="sep-bo-reproc-enviar" [disabled]="enviando()">
-        Reprocessar webhook
-      </button>
-    </form>
-  } @else {
-    <form class="sep-bo-reproc-form" [formGroup]="providerForm" (ngSubmit)="reprocessarProvider()">
-      <label class="sep-bo-field">
-        <span class="sep-bo-field-label">Tipo de chamada</span>
-        <select formControlName="tipoChamada" class="sep-bo-field-control">
-          @for (t of tiposChamada; track t) {
-            <option [value]="t">{{ chamadaLabel[t] }}</option>
+      <form class="bo18-filters" [formGroup]="filtros" (ngSubmit)="aplicarFiltros()">
+        <label class="bo18-search">
+          <span class="sr-only">Buscar reprocessos</span>
+          <input
+            formControlName="busca"
+            placeholder="Buscar por ID, proposta, contrato ou origem..."
+          />
+          <button type="submit" aria-label="Buscar reprocessos">
+            <lucide-icon name="search" [size]="14" [strokeWidth]="2.25" />
+          </button>
+        </label>
+        <label>
+          <small>Status</small>
+          <select formControlName="status">
+            <option value="">Todos</option>
+            @for (s of statusReprocesso; track s) {
+              <option [value]="s">{{ statusLabel[s] }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          <small>Tipo de reprocesso</small>
+          <select formControlName="tipo">
+            <option value="">Todos</option>
+            @for (t of tiposReprocesso; track t) {
+              <option [value]="t">{{ tipoLabel[t] }}</option>
+            }
+          </select>
+        </label>
+        <fieldset class="bo18-period">
+          <legend>Período de criação</legend>
+          <input type="date" formControlName="criadoDe" aria-label="Início do período de criação" />
+          <span>–</span>
+          <input type="date" formControlName="criadoAte" aria-label="Fim do período de criação" />
+        </fieldset>
+        <label>
+          <small>Origem</small>
+          <select formControlName="origem">
+            <option value="">Todos</option>
+            @for (t of tiposReprocesso; track t) {
+              <option [value]="t">{{ origemLabel[t] }}</option>
+            }
+          </select>
+        </label>
+        <button type="button" class="bo18-new" (click)="novoReprocesso()">
+          <lucide-icon name="plus" [size]="17" aria-hidden="true" />Novo reprocesso
+        </button>
+      </form>
+
+      <section class="bo18-table-card" aria-label="Solicitações de reprocessamento">
+        <div class="bo18-table-head">
+          <span>ID</span><span>Tipo de reprocesso</span><span>Origem</span><span>Referência</span>
+          <span>Status</span><span>Criado em</span><span>Solicitante</span>
+          <span>Última atualização</span><span>Ações</span>
+        </div>
+
+        @if (carregando()) {
+          <div class="bo18-state"><span class="bo18-spinner"></span>Carregando reprocessos...</div>
+        } @else if (erroLista()) {
+          <div class="bo18-state bo18-error" role="alert">
+            <p>{{ erroLista() }}</p>
+            <button type="button" (click)="aplicarFiltros()">Tentar novamente</button>
+          </div>
+        } @else if (visiveis().length === 0) {
+          <div class="bo18-state">Nenhum reprocesso para os filtros selecionados.</div>
+        } @else {
+          <div class="bo18-rows">
+            @for (linha of visiveis(); track linha.id) {
+              @let criado = dataHora(linha.criadoEm);
+              @let atualizado = dataHora(linha.atualizadoEm);
+              <article class="bo18-row" [attr.data-status]="linha.status">
+                <div class="bo18-id">
+                  <strong>{{ linha.codigo }}</strong>
+                  <button
+                    type="button"
+                    (click)="copiarId(linha)"
+                    [attr.aria-label]="'Copiar ID ' + linha.codigo"
+                    [class.copiado]="copiado() === linha.id"
+                  >
+                    <lucide-icon
+                      [name]="$any(copiado() === linha.id ? 'circle-check' : 'copy')"
+                      [size]="11"
+                    />
+                  </button>
+                </div>
+                <div class="bo18-type">{{ tipoLabel[linha.tipo] }}</div>
+                <div>
+                  <span class="bo18-origin" [attr.data-tipo-key]="linha.tipo">
+                    <lucide-icon
+                      [name]="iconeTipo(linha.tipo)"
+                      [size]="18"
+                      [strokeWidth]="2.25"
+                    />{{ origemLabel[linha.tipo] }}
+                  </span>
+                </div>
+                <div class="bo18-reference">{{ linha.referencia }}</div>
+                <div>
+                  <span class="bo18-status" [attr.data-status-key]="linha.status">
+                    {{ statusLabel[linha.status] }}
+                    <lucide-icon [name]="$any(iconeStatus(linha.status))" [size]="12" />
+                  </span>
+                </div>
+                <div class="bo18-date">
+                  <span>{{ criado[0] }}</span
+                  ><small>{{ criado[1] }}</small>
+                </div>
+                <div class="bo18-requester">
+                  <span
+                    class="bo18-avatar"
+                    [style.background]="corDoAvatar(linha.solicitante)"
+                    [title]="linha.solicitante"
+                    aria-hidden="true"
+                    >{{ iniciais(linha.solicitante) }}</span
+                  >
+                  <span class="sr-only">{{ linha.solicitante }}</span>
+                </div>
+                <div class="bo18-date">
+                  <span>{{ atualizado[0] }}</span
+                  ><small>{{ atualizado[1] }}</small>
+                </div>
+                <div class="bo18-actions">
+                  @if (emCurso(linha)) {
+                    <button
+                      type="button"
+                      class="bo18-play"
+                      (click)="reexecutar(linha)"
+                      [attr.aria-label]="'Executar agora ' + linha.codigo"
+                    >
+                      <lucide-icon name="play" [size]="15" />
+                    </button>
+                  } @else {
+                    <button
+                      type="button"
+                      class="bo18-view"
+                      (click)="abrirDetalhe(linha)"
+                      [attr.aria-label]="'Ver detalhes de ' + linha.codigo"
+                    >
+                      <lucide-icon name="eye" [size]="15" />
+                    </button>
+                  }
+                  <div class="bo18-menu">
+                    <button
+                      type="button"
+                      (click)="alternarMenu(linha)"
+                      [attr.aria-expanded]="menuAberto() === linha.id"
+                      [attr.aria-label]="'Mais ações de ' + linha.codigo"
+                    >
+                      <lucide-icon name="ellipsis-vertical" [size]="15" />
+                    </button>
+                    @if (menuAberto() === linha.id) {
+                      <ul role="menu">
+                        <li>
+                          <button type="button" role="menuitem" (click)="abrirDetalhe(linha)">
+                            <lucide-icon name="eye" [size]="14" />Ver detalhes
+                          </button>
+                        </li>
+                        <li>
+                          <button type="button" role="menuitem" (click)="reexecutar(linha)">
+                            <lucide-icon name="refresh-cw" [size]="14" />Reexecutar agora
+                          </button>
+                        </li>
+                        <li>
+                          <button type="button" role="menuitem" (click)="copiarId(linha)">
+                            <lucide-icon name="copy" [size]="14" />Copiar ID técnico
+                          </button>
+                        </li>
+                        @if (linha.itemId) {
+                          <li>
+                            <a
+                              role="menuitem"
+                              [routerLink]="['/app/backoffice/fila', linha.itemId]"
+                              (click)="alternarMenu(linha)"
+                            >
+                              <lucide-icon name="inbox" [size]="14" />Ver item da fila
+                            </a>
+                          </li>
+                        }
+                      </ul>
+                    }
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        }
+
+        <footer class="bo18-pagination">
+          @let intervalo = faixa();
+          <span>
+            Mostrando {{ intervalo.de }} a {{ intervalo.ate }} de {{ intervalo.total }} reprocessos
+          </span>
+          <nav aria-label="Paginação dos reprocessos">
+            <button type="button" [disabled]="paginaAtual() === 0" (click)="irParaPagina(0)">
+              <span class="sr-only">Primeira</span>«
+            </button>
+            <button
+              type="button"
+              [disabled]="paginaAtual() === 0"
+              (click)="irParaPagina(paginaAtual() - 1)"
+            >
+              <span class="sr-only">Anterior</span>‹
+            </button>
+            @for (numero of botoesPagina(); track $index) {
+              @if (numero === null) {
+                <span class="bo18-gap" aria-hidden="true">…</span>
+              } @else {
+                <button
+                  type="button"
+                  [class.active]="numero === paginaAtual()"
+                  [attr.aria-current]="numero === paginaAtual() ? 'page' : null"
+                  (click)="irParaPagina(numero)"
+                >
+                  {{ numero + 1 }}
+                </button>
+              }
+            }
+            <button
+              type="button"
+              [disabled]="paginaAtual() >= totalPaginas() - 1"
+              (click)="irParaPagina(paginaAtual() + 1)"
+            >
+              <span class="sr-only">Próxima</span>›
+            </button>
+            <button
+              type="button"
+              [disabled]="paginaAtual() >= totalPaginas() - 1"
+              (click)="irParaPagina(totalPaginas() - 1)"
+            >
+              <span class="sr-only">Última</span>»
+            </button>
+          </nav>
+          <label>
+            Itens por página
+            <select
+              aria-label="Itens por página"
+              [value]="pageSize()"
+              (change)="alterarTamanhoPagina($event)"
+            >
+              @for (tamanho of pageSizes; track tamanho) {
+                <option [value]="tamanho">{{ tamanho }}</option>
+              }
+            </select>
+          </label>
+        </footer>
+      </section>
+
+      <section class="bo18-history" aria-label="Histórico de reprocessos">
+        <div class="bo18-history-chart">
+          <header>
+            <h2>Histórico de reprocessos</h2>
+            <ul class="bo18-chart-legend">
+              @for (serie of series(); track serie.chave) {
+                <li [attr.data-tone]="serie.tom"><i></i>{{ serie.rotulo }}</li>
+              }
+            </ul>
+          </header>
+          <div class="bo18-plot">
+            <span class="bo18-axis">
+              @for (marca of escalaHistorico(); track $index) {
+                <b>{{ marca }}</b>
+              }
+            </span>
+            <svg
+              viewBox="0 0 420 140"
+              preserveAspectRatio="none"
+              role="img"
+              aria-label="Histórico diário de reprocessos por status, de 24/04 a 30/05"
+            >
+              <defs>
+                @for (serie of series(); track serie.chave) {
+                  <linearGradient
+                    [attr.id]="'bo18-area-' + serie.chave"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop offset="0" [attr.stop-color]="corDaSerie(serie.tom)" stop-opacity=".34" />
+                    <stop offset="1" [attr.stop-color]="corDaSerie(serie.tom)" stop-opacity="0" />
+                  </linearGradient>
+                }
+              </defs>
+              <g class="bo18-grid">
+                @for (linha of linhasGrade(); track $index) {
+                  <line
+                    [attr.x1]="linha.x1"
+                    [attr.y1]="linha.y1"
+                    [attr.x2]="linha.x2"
+                    [attr.y2]="linha.y2"
+                  />
+                }
+              </g>
+              @for (serie of series(); track serie.chave) {
+                <polygon
+                  [attr.fill]="'url(#bo18-area-' + serie.chave + ')'"
+                  [attr.points]="'0,128 ' + serie.pontos + ' 420,128'"
+                />
+              }
+              @for (serie of series(); track serie.chave) {
+                <polyline
+                  class="bo18-line"
+                  [attr.data-tone]="serie.tom"
+                  [attr.points]="serie.pontos"
+                />
+              }
+              @for (serie of marcasHistorico(); track serie.chave) {
+                <g class="bo18-dots" [attr.data-tone]="serie.tom">
+                  @for (marca of serie.marcas; track $index) {
+                    <circle [attr.cx]="marca.x" [attr.cy]="marca.y" r="1.9" />
+                  }
+                </g>
+              }
+            </svg>
+            <div class="bo18-dates">
+              @for (data of datasHistorico; track data) {
+                <span>{{ data }}</span>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="bo18-history-total">
+          <small>Total no período</small>
+          <strong>{{ total() }}</strong>
+          <ul>
+            @for (faixa of legendaStatus(); track faixa.chave) {
+              <li [attr.data-tone]="faixa.tom" [attr.data-status-key]="faixa.chave">
+                <i></i><span>{{ faixa.rotulo }}</span>
+                <b>{{ faixa.valor }} ({{ faixa.percentual }})</b>
+              </li>
+            }
+          </ul>
+        </div>
+      </section>
+    </section>
+
+    <aside class="bo18-side">
+      <section class="bo18-side-card bo18-distribution">
+        <h2>Distribuição por status</h2>
+        <div class="bo18-donut-wrap">
+          <div class="bo18-donut" [style.background]="donutStatus()">
+            <span
+              ><strong>{{ total() }}</strong
+              ><small>Total</small></span
+            >
+          </div>
+          <ul>
+            @for (faixa of legendaStatus(); track faixa.chave) {
+              <li [attr.data-tone]="faixa.tom" [attr.data-status-key]="faixa.chave">
+                <i></i><span>{{ faixa.rotulo }}</span>
+                <b>{{ faixa.valor }} ({{ faixa.percentual }})</b>
+              </li>
+            }
+          </ul>
+        </div>
+        <button type="button" (click)="verDistribuicao('status')">Ver detalhes　→</button>
+      </section>
+
+      <section class="bo18-side-card bo18-distribution">
+        <h2>Distribuição por tipo</h2>
+        <div class="bo18-donut-wrap">
+          <div class="bo18-donut" [style.background]="donutTipo()">
+            <span
+              ><strong>{{ total() }}</strong
+              ><small>Total</small></span
+            >
+          </div>
+          <ul>
+            @for (faixa of legendaTipo(); track faixa.chave) {
+              <li [attr.data-tone]="faixa.tom" [attr.data-tipo-key]="faixa.chave">
+                <i></i><span>{{ faixa.rotulo }}</span>
+                <b>{{ faixa.valor }} ({{ faixa.percentual }})</b>
+              </li>
+            }
+          </ul>
+        </div>
+        <button type="button" (click)="verDistribuicao('tipo')">Ver detalhes　→</button>
+      </section>
+
+      <section class="bo18-side-card bo18-running">
+        <h2>Execuções em andamento</h2>
+        @if (emAndamento().length === 0) {
+          <p class="bo18-empty">Nenhuma execução em andamento no momento.</p>
+        } @else {
+          <ol>
+            @for (linha of emAndamento().slice(0, 2); track linha.id) {
+              <li>
+                <lucide-icon name="loader-circle" [size]="15" aria-hidden="true" />
+                <div>
+                  <header>
+                    <strong>{{ linha.codigo }}</strong>
+                    <span class="bo18-status" data-status-key="EM_EXECUCAO">Em execução</span>
+                  </header>
+                  <small>{{ tipoLabel[linha.tipo] }} • {{ linha.referencia }}</small>
+                  <p>
+                    <b [style.width.%]="linha.progresso"></b>
+                    <em>{{ linha.progresso }}%</em>
+                  </p>
+                </div>
+              </li>
+            }
+          </ol>
+        }
+        <button type="button" (click)="filtrarPorStatus('EM_EXECUCAO')">
+          Ver todas ({{ emAndamento().length }})　→
+        </button>
+      </section>
+
+      <section class="bo18-side-card bo18-quick">
+        <h2>Ações rápidas</h2>
+        <button type="button" (click)="novoReprocesso()">
+          <lucide-icon name="plus" [size]="19" aria-hidden="true" /><span>Novo reprocesso</span>
+        </button>
+        <button type="button" (click)="reexecutarFalhas()">
+          <lucide-icon name="refresh-cw" [size]="19" aria-hidden="true" /><span
+            >Reexecutar falhas</span
+          >
+        </button>
+        <button type="button" (click)="verAgendados()">
+          <lucide-icon name="calendar" [size]="19" aria-hidden="true" /><span
+            >Reprocessos agendados</span
+          >
+        </button>
+        <button type="button" (click)="exportarRelatorio()">
+          <lucide-icon name="download" [size]="19" aria-hidden="true" /><span
+            >Exportar relatório</span
+          >
+        </button>
+      </section>
+    </aside>
+
+    @if (aviso(); as mensagem) {
+      <p class="bo18-toast" role="status">{{ mensagem }}</p>
+    }
+
+    @if (detalhe(); as linha) {
+      <div class="bo18-overlay">
+        <button
+          type="button"
+          class="bo18-backdrop"
+          (click)="fecharDetalhe()"
+          aria-label="Fechar detalhes"
+        ></button>
+        <article
+          class="bo18-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="bo18-detalhe-title"
+          (keydown.escape)="fecharDetalhe()"
+        >
+          <header>
+            <h2 id="bo18-detalhe-title">Reprocesso {{ linha.codigo }}</h2>
+            <button type="button" (click)="fecharDetalhe()" aria-label="Fechar detalhes">
+              <lucide-icon name="x" [size]="17" />
+            </button>
+          </header>
+          <dl class="bo18-detail-grid">
+            <div>
+              <dt>Tipo de reprocesso</dt>
+              <dd>{{ tipoLabel[linha.tipo] }}</dd>
+            </div>
+            <div>
+              <dt>Origem</dt>
+              <dd>{{ origemLabel[linha.tipo] }}</dd>
+            </div>
+            <div>
+              <dt>Referência</dt>
+              <dd>{{ linha.referencia }}</dd>
+            </div>
+            <div>
+              <dt>Status</dt>
+              <dd>
+                <span class="bo18-status" [attr.data-status-key]="linha.status">
+                  {{ statusLabel[linha.status] }}
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt>Criado em</dt>
+              <dd>{{ dataHora(linha.criadoEm).join(' às ') }}</dd>
+            </div>
+            <div>
+              <dt>Última atualização</dt>
+              <dd>{{ dataHora(linha.atualizadoEm).join(' às ') }}</dd>
+            </div>
+            <div>
+              <dt>Solicitante</dt>
+              <dd>{{ linha.solicitante }}</dd>
+            </div>
+            <div>
+              <dt>ID técnico</dt>
+              <dd class="bo18-mono">{{ linha.id }}</dd>
+            </div>
+          </dl>
+          @if (linha.resultado) {
+            <p class="bo18-detail-result">{{ linha.resultado }}</p>
           }
-        </select>
-      </label>
-      <label class="sep-bo-field">
-        <span class="sep-bo-field-label">ID da entidade</span>
-        <input type="text" formControlName="entidadeId" class="sep-bo-field-control" />
-      </label>
-      <label class="sep-bo-field">
-        <span class="sep-bo-field-label">ID do item da fila (opcional)</span>
-        <input type="text" formControlName="itemId" class="sep-bo-field-control" />
-      </label>
-      <p class="sep-bo-reproc-aviso">
-        Apenas Transferencia Pix tem reconsulta real de status; outros tipos podem nao ter
-        retentativa efetiva no backend.
-      </p>
-      <button type="submit" class="sep-bo-reproc-enviar" [disabled]="enviando()">
-        Reprocessar provider
-      </button>
-    </form>
-  }
+          <footer>
+            @if (linha.itemId) {
+              <a class="bo18-secondary" [routerLink]="['/app/backoffice/fila', linha.itemId]">
+                Ver item da fila
+              </a>
+            }
+            <button type="button" class="bo18-secondary" (click)="copiarId(linha)">
+              {{ copiado() === linha.id ? 'ID copiado' : 'Copiar ID técnico' }}
+            </button>
+            <button type="button" class="bo18-primary" (click)="reexecutar(linha)">
+              Reexecutar agora
+            </button>
+          </footer>
+        </article>
+      </div>
+    }
 
-  @if (erro(); as msg) {
-    <p class="sep-bo-reproc-erro" role="alert">{{ msg }}</p>
-  }
+    @if (dialogoAberto() || resultado() || erro()) {
+      <div class="bo18-overlay">
+        <button
+          type="button"
+          class="bo18-backdrop"
+          (click)="fecharDialogo()"
+          aria-label="Fechar novo reprocesso"
+        ></button>
+        <article
+          class="bo18-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="bo18-novo-title"
+          (keydown.escape)="fecharDialogo()"
+        >
+          <header>
+            <h2 id="bo18-novo-title">Novo reprocesso</h2>
+            <button type="button" (click)="fecharDialogo()" aria-label="Fechar">
+              <lucide-icon name="x" [size]="17" />
+            </button>
+          </header>
+          <p class="bo18-dialog-sub">
+            Reenvio manual de webhook e chamadas de provider. Exige confirmação adicional (step-up).
+          </p>
 
-  @if (resultado(); as r) {
-    <article class="sep-bo-reproc-painel">
-      <h2 class="sep-bo-reproc-painel-title">Resultado</h2>
-      <sep-reprocesso-resultado [reprocesso]="r" />
-    </article>
-  }
-</section>
+          <div class="bo18-tabs" role="tablist">
+            <button
+              type="button"
+              role="tab"
+              [class.ativa]="aba() === 'webhook'"
+              [attr.aria-selected]="aba() === 'webhook'"
+              (click)="selecionarAba('webhook')"
+            >
+              Webhook
+            </button>
+            <button
+              type="button"
+              role="tab"
+              [class.ativa]="aba() === 'provider'"
+              [attr.aria-selected]="aba() === 'provider'"
+              (click)="selecionarAba('provider')"
+            >
+              Provider
+            </button>
+          </div>
+
+          @if (aba() === 'webhook') {
+            <form class="bo18-form" [formGroup]="webhookForm" (ngSubmit)="reprocessarWebhook()">
+              <label>
+                <span>ID do evento de webhook</span>
+                <input type="text" formControlName="webhookEventId" />
+              </label>
+              <label>
+                <span>ID do item da fila (opcional)</span>
+                <input type="text" formControlName="itemId" />
+              </label>
+              <button type="submit" class="bo18-primary" [disabled]="enviando()">
+                {{ enviando() ? 'Enviando...' : 'Reprocessar webhook' }}
+              </button>
+            </form>
+          } @else {
+            <form class="bo18-form" [formGroup]="providerForm" (ngSubmit)="reprocessarProvider()">
+              <label>
+                <span>Tipo de chamada</span>
+                <select formControlName="tipoChamada">
+                  @for (t of tiposChamada; track t) {
+                    <option [value]="t">{{ chamadaLabel[t] }}</option>
+                  }
+                </select>
+              </label>
+              <label>
+                <span>ID da entidade</span>
+                <input type="text" formControlName="entidadeId" />
+              </label>
+              <label>
+                <span>ID do item da fila (opcional)</span>
+                <input type="text" formControlName="itemId" />
+              </label>
+              <p class="bo18-warning">
+                Apenas Transferência Pix tem reconsulta real de status; outros tipos podem não ter
+                retentativa efetiva no backend.
+              </p>
+              <button type="submit" class="bo18-primary" [disabled]="enviando()">
+                {{ enviando() ? 'Enviando...' : 'Reprocessar provider' }}
+              </button>
+            </form>
+          }
+
+          @if (erro(); as msg) {
+            <p class="bo18-dialog-error" role="alert">{{ msg }}</p>
+          }
+
+          @if (resultado(); as r) {
+            <section class="bo18-dialog-result">
+              <h3>Resultado</h3>
+              <sep-reprocesso-resultado [reprocesso]="r" />
+            </section>
+          }
+        </article>
+      </div>
+    }
+  </main>
+</sep-operational-shell>

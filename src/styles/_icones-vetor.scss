@@ -1,0 +1,49 @@
+// SEP — Frontend
+// Frontend Development: Daniel Möllmann
+// Angular • TypeScript • SCSS — 2026
+
+// ============ TOM DO ICONE VETORIZADO ============
+// Os PNG das telas traziam a cor gravada no arquivo — desenhados sobre a superficie escura do
+// mockup, com um tom por familia (azul na identificacao, verde na seguranca, ambar nos avisos).
+// O vetor herda `currentColor`, entao o tom volta por token e acompanha a troca de tema.
+// Onde o grupo inteiro compartilha um tom, a cor fica na regra do proprio grupo, no estilo do
+// componente. Estas classes sao para os grupos de tom misto, em que cada icone carrega o seu.
+// Nao levam `!important`: o estilo do componente tem especificidade maior por causa do atributo
+// de encapsulamento, entao o grupo misto simplesmente nao declara `color`.
+
+.ic-azul {
+  color: var(--sep-accent);
+}
+
+.ic-ciano {
+  color: var(--sep-glow);
+}
+
+.ic-verde {
+  color: var(--sep-success);
+}
+
+.ic-ambar {
+  color: var(--sep-warning);
+}
+
+.ic-vermelho {
+  color: var(--sep-danger);
+}
+
+.ic-roxo {
+  color: var(--sep-purple);
+}
+
+.ic-neutro {
+  color: var(--sep-text-secondary);
+}
+
+// O `lucide-icon` e um elemento de bloco vazio: sem isto ele nao centraliza o SVG dentro da
+// caixa que o PNG ocupava, e a linha da tabela perde o alinhamento vertical.
+lucide-icon {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  line-height: 0;
+}

@@ -1,98 +1,1112 @@
-@use "../../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../../styles/sep-ds-components" as sepDs;
+@use "../../../../../styles/sep-responsivo" as resp;
 
-.sep-desembolsos {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-24);
-  max-width: 720px;
-  margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+:host {
+  --blue: var(--sep-accent);
+  --green: var(--sep-success);
+  --muted: var(--sep-text-muted);
+
+  display: block;
+  color: var(--sep-text-strong);
 }
 
-.sep-desembolsos-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
+* {
+  box-sizing: border-box;
 }
 
-.sep-desembolsos-title {
-  @include sepType.sep-type-page-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
+button,
+input {
+  font: inherit;
 }
 
-.sep-desembolsos-subtitle {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
+// O conteudo projetado pertence ao shell; o ajuste e restrito a esta rota imersiva.
+// stylelint-disable-next-line selector-pseudo-element-no-unknown -- ::ng-deep e do Angular
+:host ::ng-deep .op-content:has(> .px21-page) {
+  display: block;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden auto;
+}
+// stylelint-disable-next-line selector-pseudo-element-no-unknown -- ::ng-deep e do Angular
+:host ::ng-deep .op-main:has(.px21-page) {
+  grid-template-rows: 70px minmax(0, 1fr) 120px;
+}
+// stylelint-disable-next-line selector-pseudo-element-no-unknown -- ::ng-deep e do Angular
+:host ::ng-deep .op-main:has(.px21-page) > .op-footer {
+  min-height: 120px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+// stylelint-disable-next-line selector-pseudo-element-no-unknown -- ::ng-deep e do Angular
+:host ::ng-deep .op-main:has(.px21-page) > .op-footer .op-footer-hud {
+  place-self: center;
+  translate: 0 0;
+  max-height: 94px;
+}
+// stylelint-disable-next-line selector-pseudo-element-no-unknown -- ::ng-deep e do Angular
+:host ::ng-deep .op-dashboard:has(.px21-page) > .op-sidebar {
+  grid-template-rows: 70px minmax(0, 1fr) 130px 120px;
 }
 
-.sep-desembolsos-card {
-  @include sepDs.sep-card;
-
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-16);
-  padding: var(--sep-space-24);
+.px21-page {
+  display: grid;
+  grid-template:
+    "heading side" 106px "query side" 208px "result side" 630px / minmax(0, 3fr)
+    minmax(285px, 1fr);
+  gap: 16px 22px;
+  width: 100%;
+  height: 984px;
+  max-height: none;
+  min-height: 0;
+  padding: 4px 18px;
+  background: radial-gradient(circle at 48% 34%, rgb(var(--sep-c-blue) / 8%), transparent 37%);
 }
 
-.sep-desembolsos-card .sep-desembolsos-subtitle {
-  @include sepType.sep-type-card-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
-}
-
-.sep-desembolsos-aviso {
-  @include sepType.sep-type-caption;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-desembolsos-field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-6);
-
-  span {
-    @include sepType.sep-type-caption;
-
-    color: hsl(var(--muted-foreground));
+/* Largura natural deste layout: 1133px. Abaixo disso a coluna lateral desce para baixo do
+   conteudo principal, em vez de ser cortada. O numero e a medida do proprio widget. */
+@container (max-width: 1129px) {
+  .px21-page {
+    grid-template:
+      "heading"
+      "query"
+      "result"
+      "side"
+      / minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto;
+    height: auto;
   }
 
-  input {
-    padding: var(--sep-space-11) var(--sep-space-12);
-    color: hsl(var(--foreground));
-    background: hsl(var(--background));
-    border: 1px solid hsl(var(--input));
-    border-radius: var(--sep-radius-sm);
-    font-size: 15px;
+  /* Empilhada, a area de resultado deixa de distribuir altura em faixas fixas e passa a seguir o
+     conteudo. Sem isto o cartao do comprovante ficava com 65px para um conteudo de 177: a faixa
+     do meio colapsava e o rodape do cartao subia por cima do bloco acima — era isso que
+     aglutinava os widgets aqui.
+     O prefixo `.px21-page` e o desempate: as regras base destas classes vem depois no arquivo. */
+  .px21-page .px21-resultado {
+    grid-template-rows: repeat(4, min-content);
+    height: auto;
+  }
+
+  .px21-page .px21-comprovante {
+    grid-template-rows: repeat(3, min-content);
+    gap: 8px;
+    height: auto;
+    align-content: start;
   }
 }
 
-.sep-desembolsos-cta {
-  align-self: flex-start;
-  padding: var(--sep-space-11) var(--sep-space-17);
-  border-radius: var(--sep-radius-md);
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  border: none;
+.px21-card {
+  border: 1px solid var(--sep-accent);
+  border-radius: 9px;
+  background: linear-gradient(135deg, rgb(var(--sep-c-surf) / 96%), rgb(var(--sep-c-sunken) / 94%));
+  box-shadow: inset 0 0 28px rgb(var(--sep-c-blue) / calc(5% * var(--sep-glow-alpha)));
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.px21-card:hover {
+  border-color: rgb(var(--sep-c-blue) / 62%);
+  box-shadow:
+    inset 0 0 30px rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha))),
+    0 0 16px rgb(var(--sep-c-blue) / calc(10% * var(--sep-glow-alpha)));
+}
+
+.px21-heading {
+  position: relative;
+  grid-area: heading;
+  padding: 4px 5px;
+}
+
+/* Entrada do formulário sensível (só FINANCEIRO/ADMIN). Posicionada fora do
+   fluxo para não deslocar migalha, título e subtítulo já homologados. */
+.px21-novo-cta {
+  position: absolute;
+  right: 5px;
+  bottom: 4px;
+  height: 38px;
+  padding: 0 18px;
+  color: var(--sep-accent);
+  font-size: 13.5px;
   font-weight: 600;
+  border: 1px solid var(--sep-accent);
+  border-radius: 9px;
+  background: rgb(var(--sep-c-surf2) / 80%);
+  box-shadow: inset 0 0 18px rgb(var(--sep-c-blue) / calc(10% * var(--sep-glow-alpha)));
   cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  &:hover,
+  &:focus-visible {
+    border-color: var(--blue);
+    box-shadow: 0 0 14px rgb(var(--sep-c-blue) / calc(22% * var(--sep-glow-alpha)));
+    transform: translateY(-2px);
   }
 }
 
-.sep-desembolsos-error {
-  @include sepType.sep-type-body;
+@media (prefers-reduced-motion: reduce) {
+  .px21-novo-cta:hover,
+  .px21-novo-cta:focus-visible {
+    transform: none;
+  }
+}
 
+.px21-heading p {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin: 0 0 13px;
+  color: var(--sep-text-muted);
+  font-size: 12px;
+}
+
+.px21-heading a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.px21-heading strong {
+  color: var(--sep-text-strong);
+}
+
+.px21-heading i {
+  font-style: normal;
+}
+
+.px21-heading h1 {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  margin: 0 0 7px;
+  font-size: 25px;
+  line-height: 1;
+}
+
+.px21-heading h1 lucide-icon {
+  width: 21px;
+  height: 21px;
+}
+
+.px21-heading span {
+  color: var(--sep-text-secondary);
+  font-size: 15px;
+}
+
+.px21-consulta {
+  grid-area: query;
+  padding: 18px 22px;
+}
+
+h2,
+h3 {
   margin: 0;
-  color: hsl(var(--destructive));
+}
+
+.px21-consulta h2 {
+  margin-bottom: 18px;
+  font-size: 16px;
+}
+
+.px21-consulta form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 255px;
+  grid-template-rows: auto 48px auto;
+  gap: 9px 22px;
+}
+
+.px21-consulta label {
+  color: var(--sep-text-secondary);
+  font-size: 13px;
+}
+
+.px21-consulta label b {
+  color: var(--sep-danger);
+}
+
+.px21-consulta input {
+  width: 100%;
+  height: 38px;
+  padding: 0 13px;
+  border: 1px solid var(--sep-border);
+  border-radius: 7px;
+  outline: 0;
+  background: var(--sep-surface-sunken);
+  color: var(--sep-text);
+}
+
+.px21-consulta input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(18% * var(--sep-glow-alpha)));
+}
+
+.px21-consulta small {
+  color: var(--sep-text-muted);
+  font-size: 12px;
+}
+
+.px21-consulta button {
+  grid-column: 2;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  overflow: hidden;
+  border: 1px solid var(--sep-surface-active);
+  border-radius: 7px;
+  background: var(--sep-surface);
+  color: var(--sep-text-strong);
+  font-size: 13px;
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    filter 150ms ease;
+}
+
+.px21-consulta button:hover {
+  border-color: var(--blue);
+  box-shadow: 0 0 14px rgb(var(--sep-c-blue) / calc(22% * var(--sep-glow-alpha)));
+  filter: brightness(1.16);
+}
+
+.px21-consulta button.primary {
+  grid-row: 1 / span 2;
+  align-self: end;
+  border-color: var(--sep-accent);
+  color: var(--sep-accent);
+  box-shadow: inset 0 0 18px rgb(var(--sep-c-blue) / calc(10% * var(--sep-glow-alpha)));
+}
+
+.px21-consulta button:last-child {
+  grid-row: 3;
+  align-self: start;
+}
+
+.px21-consulta button lucide-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 38px;
+  margin: 0;
+}
+
+.px21-error {
+  margin: 3px 0 0;
+  color: var(--sep-danger);
+  font-size: 12px;
+}
+
+.px21-resultado {
+  grid-area: result;
+  display: grid;
+  grid-template-rows: 40px 130px 190px 244px;
+  min-height: 0;
+  padding: 10px 15px 14px;
+}
+
+.px21-resultado > header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--sep-surface-hover);
+}
+
+.px21-resultado > header h2 {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 16px;
+}
+
+.px21-resultado > header h2 lucide-icon {
+  color: var(--sep-success);
+  width: 16px;
+  height: 16px;
+}
+
+.px21-resultado > header button {
+  border: 1px solid var(--sep-border);
+  border-radius: 15px;
+  background: var(--sep-surface-sunken);
+  color: var(--sep-text);
+  font-size: 11px;
+}
+
+.px21-resultado-acoes {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.px21-abrir-detalhe {
+  color: var(--sep-accent);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 180ms ease;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sep-accent);
+    text-decoration: underline;
+  }
+}
+
+.px21-resumo {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 22px;
+  padding: 0 8px 9px;
+  border-bottom: 1px solid var(--sep-surface-hover);
+}
+
+/* Largura natural deste layout: 800px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 796px) {
+  .px21-resumo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.px21-status {
+  display: grid;
+  align-content: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--sep-border);
+  border-radius: 7px;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.px21-resultado:has(.px21-status:hover) {
+  border-color: rgb(var(--sep-c-green) / 70%);
+  box-shadow:
+    inset 0 0 28px rgb(var(--sep-c-green) / calc(6% * var(--sep-glow-alpha))),
+    0 0 18px rgb(var(--sep-c-green) / calc(13% * var(--sep-glow-alpha)));
+}
+
+.px21-status:hover {
+  border-color: rgb(var(--sep-c-green) / 66%);
+  box-shadow: 0 0 16px rgb(var(--sep-c-green) / calc(16% * var(--sep-glow-alpha)));
+}
+
+.px21-status small,
+.px21-status span {
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+}
+
+.px21-status strong {
+  justify-self: start;
+  padding: 7px 10px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--sep-surface-active), var(--sep-surface-active));
+  color: var(--sep-success);
+  box-shadow: 0 0 13px rgb(var(--sep-c-green) / calc(22% * var(--sep-glow-alpha)));
+  font-size: 14px;
+}
+
+dl {
+  margin: 0;
+}
+
+.px21-resumo > dl {
+  display: grid;
+  grid-template-columns: 1.25fr 0.8fr 0.75fr;
+  gap: 16px 22px;
+  align-content: center;
+}
+
+.px21-resumo dl div {
+  min-width: 0;
+}
+
+.px21-resumo dt {
+  margin-bottom: 5px;
+  color: var(--sep-text-muted);
+  font-size: 12px;
+}
+
+.px21-resumo dd {
+  overflow: hidden;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.green {
+  color: var(--green) !important;
+}
+
+.px21-resumo dd button,
+.px21-detalhes dd button {
+  border: 0;
+  background: transparent;
+  color: var(--sep-text-secondary);
+  cursor: pointer;
+}
+
+.px21-timeline {
+  margin: 0 -15px;
+  padding: 13px 15px 8px;
+  border-bottom: 1px solid var(--sep-surface-hover);
+  background: var(--sep-canvas);
+}
+
+.px21-timeline h3 {
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.px21-timeline > div {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.px21-timeline > div::before {
+  position: absolute;
+  top: 33px;
+  right: 9%;
+  left: 9%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--sep-accent), var(--sep-accent), var(--sep-success));
+  box-shadow: 0 0 8px var(--sep-accent);
+  content: "";
+}
+
+.px21-timeline article {
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  transition:
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.px21-timeline article:hover {
+  color: var(--sep-accent);
+  transform: translateY(-3px);
+}
+
+.px21-timeline article:hover img {
+  filter: brightness(1.2)
+    drop-shadow(0 0 13px rgb(var(--sep-c-blue) / calc(62% * var(--sep-glow-alpha))));
+  transform: scale(1.1);
+}
+
+.px21-timeline lucide-icon {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgb(var(--sep-c-blue) / calc(32% * var(--sep-glow-alpha))));
+}
+
+.px21-timeline article.final img {
+  filter: drop-shadow(0 0 8px rgb(var(--sep-c-green) / calc(45% * var(--sep-glow-alpha))));
+}
+
+.px21-timeline strong {
+  font-size: 12px;
+}
+
+.px21-timeline small {
+  color: var(--sep-text-muted);
+  font-size: 12px;
+}
+
+.px21-detalhes {
+  display: grid;
+  grid-template-columns: 1.08fr 1fr 0.93fr;
+  gap: 18px;
+  min-height: 0;
+  padding-top: 13px;
+}
+
+/* Largura natural deste layout: 798px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 794px) {
+  .px21-detalhes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.px21-detalhes > article {
+  min-width: 0;
+  min-height: 0;
+  padding: 12px 13px;
+  overflow: hidden;
+  border: 1px solid var(--sep-border);
+  border-radius: 7px;
+  background: var(--sep-surface);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.px21-detalhes > article:hover {
+  border-color: rgb(var(--sep-c-blue) / 58%);
+  box-shadow: inset 0 0 18px rgb(var(--sep-c-blue) / calc(7% * var(--sep-glow-alpha)));
+  transform: translateY(-2px);
+}
+
+.px21-detalhes h3 {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.px21-detalhes h3 b {
+  padding: 5px 9px;
+  border: 1px solid rgb(var(--sep-c-green) / 58%);
+  border-radius: 6px;
+  background: linear-gradient(
+    180deg,
+    rgb(var(--sep-c-active) / 92%),
+    rgb(var(--sep-c-hover) / 92%)
+  );
+  color: var(--sep-success);
+  box-shadow:
+    inset 0 0 9px rgb(var(--sep-c-green) / calc(10% * var(--sep-glow-alpha))),
+    0 0 8px rgb(var(--sep-c-green) / calc(15% * var(--sep-glow-alpha)));
+  font-size: 11px;
+  transition:
+    filter 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.px21-detalhes h3 b:hover {
+  box-shadow:
+    inset 0 0 12px rgb(var(--sep-c-green) / calc(18% * var(--sep-glow-alpha))),
+    0 0 13px rgb(var(--sep-c-green) / calc(38% * var(--sep-glow-alpha)));
+  filter: brightness(1.18);
+  transform: scale(1.04);
+}
+
+.px21-detalhes > article:has(h3 b:hover) {
+  border-color: rgb(var(--sep-c-green) / 68%);
+  box-shadow:
+    inset 0 0 20px rgb(var(--sep-c-green) / calc(8% * var(--sep-glow-alpha))),
+    0 0 14px rgb(var(--sep-c-green) / calc(15% * var(--sep-glow-alpha)));
+}
+
+.px21-detalhes dl {
+  display: grid;
+}
+
+.px21-detalhes dl div {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--sep-surface-hover);
+}
+
+.px21-detalhes dt {
+  color: var(--sep-text-muted);
+  font-size: 12.5px;
+}
+
+.px21-detalhes dd {
+  margin: 0;
+  font-size: 12.5px;
+  text-align: right;
+}
+
+.px21-detalhes dd i {
+  padding: 4px;
+  border-radius: 50%;
+  background: var(--sep-accent);
+  color: var(--sep-on-accent);
+  font-style: normal;
+}
+
+.px21-comprovante {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.px21-comprovante > div {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  align-self: start;
+}
+
+.px21-comprovante > div > img {
+  width: 70px;
+  height: 92px;
+  object-fit: contain;
+  transition:
+    filter 160ms ease,
+    transform 160ms ease;
+}
+
+.px21-comprovante:hover > div > img {
+  filter: drop-shadow(0 0 9px rgb(var(--sep-c-blue) / calc(38% * var(--sep-glow-alpha))));
+  transform: scale(1.04);
+}
+
+.px21-comprovante p {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+}
+
+.px21-comprovante p strong {
+  font-size: 13px;
+}
+
+.px21-comprovante p span,
+.px21-comprovante p small {
+  color: var(--sep-text-muted);
+  font-size: 11px;
+}
+
+.px21-comprovante footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  align-self: end;
+  margin-top: 18px;
+}
+
+.px21-comprovante footer button {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  border: 1px solid var(--sep-border);
+  border-radius: 5px;
+  background: var(--sep-surface);
+  color: var(--sep-text);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.px21-comprovante footer button lucide-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.px21-lateral {
+  grid-area: side;
+  display: grid;
+  grid-template-rows: 260px 222px 182px 194px;
+  gap: 16px;
+  min-height: 0;
+  transform: translateY(70px);
+}
+
+.px21-lateral section {
+  padding: 18px 20px;
+}
+
+.px21-lateral h2 {
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.px21-seguranca > div {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  gap: 30px;
+  align-items: center;
+}
+
+.px21-seguranca {
+  overflow: hidden;
+  padding-left: 10px;
+  background: var(--sep-canvas);
+}
+
+.px21-seguranca sep-arte {
+  width: 90px;
+  height: 90px;
+
+  // Sem margem negativa, `lighten` nem mascara radial: eram os truques para esconder o fundo escuro
+  // do arquivo. O arquivo agora e transparente, e `lighten` sobre o tema claro apagava o desenho.
+  object-fit: contain;
+  transition:
+    filter 170ms ease,
+    transform 170ms ease;
+}
+
+.px21-seguranca:has(dl div:hover) sep-arte {
+  filter: brightness(1.22)
+    drop-shadow(0 0 12px rgb(var(--sep-c-green) / calc(55% * var(--sep-glow-alpha))));
+  transform: scale(1.08);
+}
+
+.px21-seguranca dl,
+.px21-op dl,
+.px21-info dl {
+  display: grid;
+  gap: 12px;
+}
+
+.px21-seguranca dl {
+  gap: 8px;
+}
+
+.px21-seguranca dl div,
+.px21-op dl div,
+.px21-info dl div {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  transition:
+    color 150ms ease,
+    transform 150ms ease;
+}
+
+.px21-seguranca dl div:hover,
+.px21-op dl div:hover,
+.px21-info dl div:hover {
+  transform: translateX(3px);
+}
+
+.px21-seguranca dl div:hover dd,
+.px21-op dl div:hover dd {
+  text-shadow: 0 0 8px
+    color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent);
+}
+
+.px21-lateral dt {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--sep-text-muted);
+  font-size: 13px;
+}
+
+.px21-lateral dd {
+  margin: 0;
+  font-size: 12px;
+  text-align: right;
+}
+
+.px21-seguranca dd {
+  color: var(--green);
+}
+
+.px21-seguranca > strong {
+  display: block;
+  margin-top: 14px;
+  padding-top: 11px;
+  border-top: 1px solid var(--sep-surface-hover);
+  color: var(--green);
+  font-size: 12px;
+  text-align: center;
+}
+
+.px21-op dl {
+  gap: 10px;
+}
+
+.px21-op hr {
+  width: 100%;
+  margin: 1px 0;
+  border: 0;
+  border-top: 1px solid var(--sep-border);
+}
+
+.px21-op dd {
+  font-weight: 600;
+}
+
+.px21-op dt lucide-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.px21-info dl {
+  gap: 8px;
+}
+
+.px21-lateral .px21-info {
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+.px21-info h2 {
+  margin-bottom: 12px;
+}
+
+.px21-acoes {
+  display: grid;
+  grid-template-rows: auto repeat(3, 1fr);
+  gap: 8px;
+}
+
+.px21-acoes h2 {
+  margin: 0;
+}
+
+.px21-acoes button,
+.px21-acoes a {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--sep-border);
+  border-radius: 6px;
+  background: var(--sep-surface-sunken);
+  color: var(--sep-text);
+  font-size: 13.5px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.px21-acoes lucide-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.px21-acoes button:hover,
+.px21-acoes a:hover {
+  border-color: var(--sep-accent);
+  box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(18% * var(--sep-glow-alpha)));
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+
+.px21-resultado.resumido {
+  grid-template-rows: 40px 130px minmax(0, 1fr);
+}
+
+.px21-resultado.resumido .px21-timeline,
+.px21-resultado.resumido .px21-detalhes {
+  display: none;
+}
+
+.px21-toast {
+  position: fixed;
+  right: 24px;
+  bottom: 80px;
+  z-index: 20;
+  padding: 10px 16px;
+  border: 1px solid var(--sep-success);
+  border-radius: 7px;
+  background: var(--sep-surface-3);
+  color: var(--sep-success);
+  font-size: 12px;
+}
+
+.px21-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: rgb(var(--sep-c-canvas) / 78%);
+  backdrop-filter: blur(4px);
+}
+
+.px21-modal > button {
+  position: absolute;
+  top: 24px;
+  right: 30px;
+  border: 0;
+  background: transparent;
+  color: white;
+  font-size: 32px;
+}
+
+.px21-documento {
+  width: min(520px, 88vw);
+  max-height: 86vh;
+  padding: 30px 34px;
+  overflow-y: auto;
+  border: 1px solid var(--sep-accent);
+  border-radius: 10px;
+  background: var(--sep-surface-active);
+  color: var(--sep-surface-3);
+  box-shadow: 0 0 32px rgb(var(--sep-c-blue) / calc(28% * var(--sep-glow-alpha)));
+  font-size: 14px;
+}
+
+.px21-documento > header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  padding-bottom: 18px;
+  border-bottom: 2px solid var(--sep-border-strong);
+}
+
+.px21-documento > header strong {
+  color: var(--sep-accent);
+  font-size: 30px;
+  letter-spacing: 2px;
+}
+
+.px21-documento > header span {
+  color: var(--sep-text-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.px21-documento-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 22px;
+}
+
+.px21-documento-status b {
+  font-size: 18px;
+}
+
+.px21-documento-status span {
+  padding: 5px 9px;
+  border-radius: 5px;
+  background: var(--sep-surface-active);
+  color: var(--sep-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.px21-documento-valor {
+  margin: 12px 0 22px;
+  color: var(--sep-text-muted);
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.px21-documento dl {
+  display: grid;
+  gap: 0;
+}
+
+.px21-documento dl div {
+  display: grid;
+  grid-template-columns: 155px minmax(0, 1fr);
+  gap: 18px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--sep-border-strong);
+}
+
+.px21-documento dt {
+  color: var(--sep-text-muted);
+  font-weight: 500;
+}
+
+.px21-documento dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-weight: 650;
+  text-align: right;
+}
+
+.px21-documento footer {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 22px;
+}
+
+.px21-documento footer p {
+  max-width: 240px;
+  margin: 0;
+  color: var(--sep-text-muted);
+  font-size: 12px;
+}
+
+.px21-documento footer button {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--sep-accent);
+  border-radius: 6px;
+  background: var(--sep-surface-active);
+  color: var(--sep-accent);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.px21-novo {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  width: min(500px, 90vw);
+  padding: 24px;
+  border: 1px solid var(--sep-accent);
+  border-radius: 10px;
+  background: var(--sep-surface);
+}
+
+.px21-novo > button:first-child {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  border: 0;
+  background: transparent;
+  color: white;
+  font-size: 22px;
+}
+
+.px21-novo label {
+  display: grid;
+  gap: 5px;
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+}
+
+.px21-novo input {
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 6px;
+  background: var(--sep-surface-sunken);
+  color: white;
+}
+
+.px21-novo .primary {
+  height: 40px;
+  border: 1px solid var(--sep-accent);
+  border-radius: 6px;
+  background: var(--sep-surface-active);
+  color: var(--sep-accent);
+}
+
+@include resp.ate-media {
+  .px21-page {
+    grid-template: "heading" auto "query" auto "result" auto "side" auto / 1fr;
+    height: auto;
+  }
+
+  .px21-lateral {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto auto;
+  }
+
+  .px21-resultado {
+    min-height: 545px;
+  }
+}
+
+// ============ JANELA MAXIMIZADA ============
+// Acima de 1440 as medidas homologadas viram piso e o layout acompanha o espaco. Nada aqui vale de
+// 1440 para baixo: a forma original fica intacta.
+@include resp.maximizada {
+  // 220px viram piso: 27.81% da faixa de 791px (1440) dao o mesmo, e o status acompanha a linha
+  // do tempo em vez de ficar travado.
+  @container (min-width: 797px) {
+    .px21-resumo {
+      grid-template-columns: max(220px, 27.81%) minmax(0, 1fr);
+    }
+  }
 }

@@ -1,0 +1,90 @@
+# MANIFESTO ASSETS MOCKUP 19
+
+Mockup_19 — Reprocessar via Provider / Backoffice SEP
+
+Pasta destino sugerida no projeto:
+
+C:\Pastas\PROJETOS\Projeto Dynamis SEP\sep-app 16062026\image\sep_mockup_19_assets
+
+Critério aplicado: recorte pelo centro visual do elemento para fora, canvas transparente centralizado e margem segura aproximada nas extremidades para evitar corte de HUDs, glows, circunferências e bordas neon.
+
+- badges/badge_ambiente_regulado_header.png — 142x40 px
+- badges/badge_central_ajuda_sidebar.png — 179x45 px
+- badges/badge_operacao_monitorada_registrada.png — 381x75 px
+- badges/badge_reprocessar_provider_button.png — 209x36 px
+- badges/badge_tab_provider_ativo.png — 206x46 px
+- badges/badge_tab_webhook.png — 213x46 px
+- icons/icon_avatar_am.png — 36x36 px
+- icons/icon_avatar_ca.png — 36x36 px
+- icons/icon_avatar_js.png — 36x36 px
+- icons/icon_avatar_lg.png — 36x36 px
+- icons/icon_avatar_rf.png — 36x36 px
+- icons/icon_button_reprocessar_provider_cloud.png — 30x30 px
+- icons/icon_dropdown_arrow.png — 28x28 px
+- icons/icon_footer_ambiente_regulado.png — 56x56 px
+- icons/icon_footer_dados_criptografados.png — 56x56 px
+- icons/icon_footer_operacoes_protegidas.png — 56x56 px
+- icons/icon_footer_rastreabilidade_total.png — 56x56 px
+- icons/icon_footer_segregacao_patrimonial.png — 56x56 px
+- icons/icon_info_alerta_reconsulta.png — 48x48 px
+- icons/icon_info_sobre_tipo_chamada.png — 26x26 px
+- icons/icon_link_arrow_right.png — 26x26 px
+- icons/icon_risco_alerta_warning.png — 38x38 px
+- icons/icon_security_ambiente.png — 34x34 px
+- icons/icon_security_autenticacao.png — 34x34 px
+- icons/icon_security_check_green.png — 28x28 px
+- icons/icon_security_criptografia_tls.png — 34x34 px
+- icons/icon_security_perfil_atual.png — 34x34 px
+- icons/icon_security_permissao.png — 34x34 px
+- icons/icon_security_registro_auditoria.png — 34x34 px
+- icons/icon_sidebar_backoffice.png — 36x36 px
+- icons/icon_sidebar_central_ajuda.png — 42x42 px
+- icons/icon_sidebar_cobranca.png — 36x36 px
+- icons/icon_sidebar_credito.png — 36x36 px
+- icons/icon_sidebar_dashboard.png — 36x36 px
+- icons/icon_sidebar_formalizacao.png — 36x36 px
+- icons/icon_sidebar_onboarding.png — 36x36 px
+- icons/icon_sidebar_perfil.png — 36x36 px
+- icons/icon_sidebar_pix.png — 36x36 px
+- icons/icon_sidebar_subitem_dot.png — 28x28 px
+- icons/icon_suporte_tecnico_card.png — 58x58 px
+- icons/icon_tab_provider_cloud.png — 44x44 px
+- icons/icon_tab_webhook_lightning.png — 42x42 px
+- icons/icon_table_action_eye.png — 32x32 px
+- icons/icon_title_reprocessar_refresh.png — 34x34 px
+- icons/icon_topbar_ambiente_regulado.png — 52x52 px
+- icons/icon_topbar_avatar_user_d.png — 56x56 px
+- icons/icon_topbar_bell_notification.png — 56x56 px
+- icons/icon_topbar_help.png — 48x48 px
+- icons/icon_topbar_horario_sistema.png — 52x52 px
+- icons/icon_topbar_search.png — 48x48 px
+- icons/icon_topbar_theme_sun.png — 50x50 px
+- icons/icon_view_eye_table.png — 34x34 px
+- logos/logo_footer_completo.png — 114x42 px
+- logos/logo_footer_simbolo.png — 41x43 px
+- logos/logo_footer_wordmark.png — 65x29 px
+- logos/logo_header_completo.png — 126x38 px
+- logos/logo_header_simbolo.png — 42x41 px
+- logos/logo_header_texto_institucional.png — 82x29 px
+- logos/logo_header_wordmark.png — 80x33 px
+- ui-groups/ui_card_reprocessamento_manual.png — 403x116 px
+- ui-groups/ui_card_risco_operacional.png — 403x190 px
+- ui-groups/ui_card_seguranca_conformidade.png — 403x361 px
+- ui-groups/ui_card_suporte_tecnico.png — 403x173 px
+- ui-groups/ui_footer_regulatorio.png — 1219x86 px
+- ui-groups/ui_form_dados_reprocessamento.png — 771x446 px
+- ui-groups/ui_header_pagina.png — 416x94 px
+- ui-groups/ui_historico_reprocessamentos.png — 771x255 px
+- ui-groups/ui_mockup_19_referencia_completa.png — 1444x1089 px
+- ui-groups/ui_sidebar.png — 205x1089 px
+- ui-groups/ui_tabs_reprocessamento.png — 418x46 px
+- ui-groups/ui_topbar.png — 1444x69 px
+- visuals/visual_background_grid_main.png — 350x530 px
+- visuals/visual_card_reprocessamento_manual_gear_hud.png — 88x88 px
+- visuals/visual_historico_reprocessamentos_tabela.png — 771x255 px
+- visuals/visual_operacao_monitorada_shield.png — 68x68 px
+- visuals/visual_risco_operacional_card.png — 403x190 px
+- visuals/visual_risco_operacional_ring_medio.png — 150x150 px
+- visuals/visual_seguranca_conformidade_panel.png — 403x361 px
+- visuals/visual_suporte_headset_hud.png — 136x136 px
+- visuals/visual_suporte_tecnico_card.png — 403x173 px

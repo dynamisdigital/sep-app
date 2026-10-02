@@ -1,133 +1,31 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 
 import { MfaService } from '../../../core/auth/mfa.service';
 import { StepUpTokenStore } from '../../../core/auth/step-up-token.store';
+import { OperationalShellComponent } from '../../../layout/operational-shell/operational-shell.component';
 
-/**
- * Sprint 5: rota intermediaria que coleta codigo TOTP e produz step-up token
- * antes de uma operacao sensivel. Recebe {@code next} via query string e
- * redireciona apos sucesso.
- */
+// Rota intermediaria que coleta o codigo TOTP e produz o step-up token antes de uma
+// operacao sensivel (Sprint 5, desenho do Mockup 33). Recebe `next` na query string e
+// volta para la depois do sucesso — e tambem no cancelamento, porque `next` e a tela de
+// onde o operador veio. A decisao de exigir step-up e do backend (403 + @RequireStepUp);
+// esta tela apenas conduz a confirmacao.
 @Component({
   selector: 'sep-step-up',
-  imports: [ReactiveFormsModule, RouterLink],
-  template: `
-    <section class="sep-step-up">
-      <div class="sep-step-up-card">
-        <h1>Confirmacao adicional</h1>
-        <p>
-          Esta operacao exige uma confirmacao por TOTP (segunda etapa) alem da sua sessao atual.
-        </p>
-
-        @if (!challengeId() && !iniciando()) {
-          <button type="button" class="sep-step-up-cta" (click)="iniciar()">Iniciar</button>
-        }
-
-        @if (challengeId()) {
-          <form [formGroup]="form" (ngSubmit)="completar()">
-            <label>
-              <span>Codigo TOTP ou backup code</span>
-              <input
-                type="text"
-                inputmode="text"
-                autocomplete="one-time-code"
-                formControlName="codigo"
-                data-testid="sep-step-up-input"
-              />
-            </label>
-
-            @if (errorMessage(); as msg) {
-              <p role="alert" class="sep-step-up-error">{{ msg }}</p>
-            }
-
-            <button type="submit" [disabled]="completando()" class="sep-step-up-cta">
-              @if (completando()) {
-                Validando...
-              } @else {
-                Confirmar
-              }
-            </button>
-          </form>
-        }
-
-        <a [routerLink]="fallbackUrl()" class="sep-step-up-cancel">Cancelar</a>
-      </div>
-    </section>
-  `,
-  styles: [
-    `
-      :host {
-        display: block;
-        padding: 24px;
-      }
-      .sep-step-up {
-        max-width: 480px;
-        margin: 48px auto;
-      }
-      .sep-step-up-card {
-        background: hsl(var(--card));
-        border: 1px solid hsl(var(--border));
-        border-radius: var(--sep-radius-lg);
-        padding: 24px;
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-      }
-      h1 {
-        margin: 0;
-        font-size: 22px;
-        color: hsl(var(--foreground));
-      }
-      p {
-        margin: 0;
-        color: hsl(var(--muted-foreground));
-      }
-      label {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        span {
-          font-size: 13px;
-          color: hsl(var(--muted-foreground));
-        }
-        input {
-          padding: 10px 12px;
-          color: hsl(var(--foreground));
-          background: hsl(var(--background));
-          border: 1px solid hsl(var(--input));
-          border-radius: var(--sep-radius-sm);
-          font-size: 16px;
-          letter-spacing: 0.15em;
-          text-align: center;
-        }
-      }
-      .sep-step-up-cta {
-        align-self: flex-start;
-        padding: 10px 18px;
-        border-radius: var(--sep-radius-md);
-        background: hsl(var(--primary));
-        color: hsl(var(--primary-foreground));
-        border: none;
-        font-weight: 600;
-        cursor: pointer;
-        &:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-      }
-      .sep-step-up-error {
-        color: hsl(var(--destructive));
-        font-size: 14px;
-      }
-      .sep-step-up-cancel {
-        font-size: 14px;
-        color: hsl(var(--muted-foreground));
-        text-decoration: none;
-      }
-    `,
-  ],
+  imports: [ReactiveFormsModule, RouterLink, LucideAngularModule, OperationalShellComponent],
+  templateUrl: './step-up.component.html',
+  styleUrl: './step-up.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StepUpComponent {
@@ -141,9 +39,30 @@ export class StepUpComponent {
   protected readonly iniciando = signal(false);
   protected readonly completando = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly bloqueado = signal(false);
 
   protected readonly form = this.fb.nonNullable.group({
-    codigo: ['', [Validators.required]],
+    codigo: ['', [Validators.required, Validators.minLength(6)]],
+  });
+
+  private readonly campoCodigo = viewChild<ElementRef<HTMLInputElement>>('campoCodigo');
+
+  constructor() {
+    // Assim que o campo entra no template, o cursor vai para ele: o operador chega
+    // digitando o código, sem um clique a mais.
+    effect(() => this.campoCodigo()?.nativeElement.focus());
+  }
+
+  // Rótulo da origem, para o operador saber para onde volta ao cancelar.
+  protected readonly origem = computed(() => {
+    const destino = this.next();
+    if (!destino) return null;
+    if (destino.includes('/cobranca/financeiro/parcelas')) return 'a parcela';
+    if (destino.includes('/cobranca')) return 'a Cobrança';
+    if (destino.includes('/credito')) return 'o Crédito';
+    if (destino.includes('/admin')) return 'a Administração';
+    if (destino.includes('/pix')) return 'o Pix';
+    return 'a tela anterior';
   });
 
   protected fallbackUrl(): string {
@@ -153,6 +72,7 @@ export class StepUpComponent {
   iniciar(): void {
     this.iniciando.set(true);
     this.errorMessage.set(null);
+    this.bloqueado.set(false);
     this.mfaService.stepUpInitiate().subscribe({
       next: (response) => {
         this.challengeId.set(response.stepUpChallengeId);
@@ -161,12 +81,13 @@ export class StepUpComponent {
       error: (err: { status?: number }) => {
         this.iniciando.set(false);
         if (err.status === 400) {
+          this.bloqueado.set(true);
           this.errorMessage.set(
-            'MFA nao habilitado nesta conta. Habilite antes de tentar a operacao.',
+            'MFA não habilitado nesta conta. Habilite a segunda etapa antes de repetir a operação.',
           );
-        } else {
-          this.errorMessage.set('Falha ao iniciar step-up.');
+          return;
         }
+        this.errorMessage.set('Não foi possível iniciar a confirmação. Tente novamente.');
       },
     });
   }
@@ -185,17 +106,44 @@ export class StepUpComponent {
         next: (response) => {
           this.completando.set(false);
           this.store.set(response.stepUpToken);
-          const proximo = this.next() ?? '/app/profile';
-          void this.router.navigateByUrl(proximo);
+          void this.router.navigateByUrl(this.fallbackUrl());
         },
-        error: () => {
+        error: (err: { status?: number }) => {
           this.completando.set(false);
-          this.errorMessage.set('Codigo invalido ou challenge expirado.');
+          this.form.reset();
+          // 410: o desafio já foi usado ou caducou — não adianta redigitar, tem de recomeçar.
+          if (err.status === 410) {
+            this.challengeId.set(null);
+            this.errorMessage.set('Esta confirmação expirou. Inicie uma nova para continuar.');
+            return;
+          }
+          this.errorMessage.set(
+            'Código inválido. Confira o aplicativo autenticador e tente de novo.',
+          );
+          this.campoCodigo()?.nativeElement.focus();
         },
       });
   }
 
+  // Descarta o desafio atual e abre outro: saída para quando o código expirou no
+  // aplicativo ou o operador prefere recomeçar do zero.
+  recomecar(): void {
+    this.challengeId.set(null);
+    this.errorMessage.set(null);
+    this.form.reset();
+    this.iniciar();
+  }
+
   private next(): string | null {
-    return this.route.snapshot.queryParamMap.get('next');
+    const raw = this.route.snapshot.queryParamMap.get('next');
+    if (!raw) return null;
+    // Hardening contra Open Redirect (SEC-05):
+    // Garante que o destino seja estritamente um caminho relativo interno sob /app/,
+    // rejeitando URLs absolutas (https://, http://), esquema relativo (//), backslashes (\)
+    // ou tentativa de redirecionamento para fora da área autenticada.
+    if (raw.startsWith('/app/') && !raw.startsWith('//') && !raw.includes('\\')) {
+      return raw;
+    }
+    return null;
   }
 }

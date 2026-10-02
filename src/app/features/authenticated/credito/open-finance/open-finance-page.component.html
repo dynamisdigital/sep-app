@@ -1,120 +1,259 @@
-<section class="sep-open-finance">
-  <header class="sep-open-finance-header">
-    <h1 class="sep-open-finance-title">Open Finance</h1>
-    @if (propostaId(); as id) {
-      <a [routerLink]="['/app/credito/propostas', id]" class="sep-open-finance-back">
-        Voltar para a proposta
-      </a>
+<sep-operational-shell>
+  <section class="px58-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px58-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/credito/propostas">Crédito</a><span>›</span
+        ><strong>Open Finance</strong>
+      </nav>
+      <div class="px58-heading-row">
+        <div class="px58-titulo-wrap">
+          @if (propostaId(); as id) {
+            <a
+              class="px58-voltar-circulo"
+              [routerLink]="['/app/credito/propostas', id]"
+              aria-label="Voltar para a proposta"
+            >
+              <lucide-icon name="arrow-left" [size]="20" />
+            </a>
+          }
+          <div>
+            <h1>Open Finance</h1>
+            <p class="px58-subtitulo">
+              Compartilhamento opcional do extrato bancário para apoiar a análise da proposta.
+            </p>
+          </div>
+        </div>
+        <div class="px58-acoes-topo">
+          @if (status(); as s) {
+            <span class="px58-situacao" [attr.data-tone]="tom()">
+              <lucide-icon [name]="icone()" [size]="15" />{{ rotulo() }}
+            </span>
+          }
+          @if (propostaId(); as id) {
+            <a class="px58-btn-sec" [routerLink]="['/app/credito/propostas', id]">
+              <lucide-icon name="arrow-left" [size]="16" />Voltar para a proposta
+            </a>
+          }
+        </div>
+      </div>
+    </header>
+
+    <!-- ============ VOLTA DA AUTORIZAÇÃO ============ -->
+    <!-- Quem volta do provedor não deveria precisar clicar em "Atualizar" para descobrir se o
+         banco confirmou: o status já é consultado na entrada da rota. -->
+    @if (ehRetorno()) {
+      <div class="px58-retorno" role="status">
+        <span class="px58-retorno-icone"><lucide-icon name="arrow-right" [size]="20" /></span>
+        <div>
+          <strong>Você voltou da autorização</strong>
+          <p>
+            O status abaixo foi consultado agora, direto da API do SEP. O provedor pode levar alguns
+            instantes para confirmar — se ainda constar como pendente, consulte de novo em seguida.
+          </p>
+        </div>
+        <button
+          type="button"
+          class="px58-btn-sec"
+          [disabled]="carregando()"
+          (click)="atualizarStatus()"
+        >
+          <lucide-icon name="refresh-cw" [size]="16" />
+          {{ carregando() ? 'Consultando...' : 'Consultar de novo' }}
+        </button>
+      </div>
     }
-  </header>
 
-  @if (ehRetorno()) {
-    <p class="sep-open-finance-retorno" role="status">
-      Voce voltou da autorizacao. Atualize para consultar o status mais recente.
-    </p>
-  }
+    @if (carregando() && !status()) {
+      <p class="px58-estado" role="status">Consultando o consentimento...</p>
+    }
 
-  @if (carregando()) {
-    <p class="sep-open-finance-state" role="status">Consultando status...</p>
-  }
+    @if (errorMessage(); as msg) {
+      <div class="px58-estado px58-erro" role="alert">
+        <lucide-icon name="triangle-alert" [size]="18" />
+        <p>{{ msg }}</p>
+      </div>
+    }
 
-  @if (errorMessage(); as msg) {
-    <p class="sep-open-finance-state sep-open-finance-error" role="alert">{{ msg }}</p>
-  }
+    @if (consentimentoPendente()) {
+      <div class="px58-estado px58-aviso" role="alert">
+        <lucide-icon name="info" [size]="18" />
+        <p>
+          Já existe um consentimento pendente para esta proposta. Não é preciso iniciar outro:
+          conclua a autorização no provedor e consulte o status abaixo.
+        </p>
+      </div>
+    }
 
-  @if (consentimentoPendente()) {
-    <p class="sep-open-finance-state sep-open-finance-pendente" role="alert">
-      Ja existe um consentimento pendente para esta proposta. Atualize o status abaixo.
-    </p>
-  }
-
-  @if (status(); as status) {
-    <div class="sep-open-finance-status">
-      <h2 class="sep-open-finance-subtitle">Consentimento</h2>
-      <dl class="sep-open-finance-grid">
-        <div>
-          <dt>Status</dt>
-          <dd>{{ status.statusConsentimento }}</dd>
-        </div>
-        <div>
-          <dt>Iniciado em</dt>
-          <dd>{{ formatarData(status.dataInicio) }}</dd>
-        </div>
-        @if (status.dataAutorizacao) {
-          <div>
-            <dt>Autorizado em</dt>
-            <dd>{{ formatarData(status.dataAutorizacao) }}</dd>
-          </div>
-        }
-        @if (status.dataExpiracao) {
-          <div>
-            <dt>Expira em</dt>
-            <dd>{{ formatarData(status.dataExpiracao) }}</dd>
-          </div>
-        }
-      </dl>
-
-      @if (status.ultimaMovimentacao; as mov) {
-        <section class="sep-open-finance-card">
-          <h2 class="sep-open-finance-subtitle">Movimentacao consolidada</h2>
-          <dl class="sep-open-finance-grid">
+    <!-- ============ CONSENTIMENTO ATIVO ============ -->
+    @if (status(); as s) {
+      <div class="px58-duplo">
+        <article class="px58-card px58-consentimento">
+          <header>
+            <span class="px58-card-icone" [attr.data-tone]="tom()">
+              <lucide-icon [name]="icone()" [size]="24" />
+            </span>
             <div>
-              <dt>Media de entradas</dt>
-              <dd>{{ formatarMoeda(mov.mediaEntradasMensal, 'BRL') }}</dd>
+              <h2>Consentimento</h2>
+              <p>Autorização dada por você no provedor, e revogável a qualquer momento.</p>
+            </div>
+          </header>
+          <dl>
+            <div>
+              <dt>Situação</dt>
+              <dd>
+                <span class="px58-selo" [attr.data-tone]="tom()">{{ rotulo() }}</span>
+              </dd>
             </div>
             <div>
-              <dt>Media de saidas</dt>
-              <dd>{{ formatarMoeda(mov.mediaSaidasMensal, 'BRL') }}</dd>
+              <dt><lucide-icon name="calendar-days" [size]="16" />Iniciado em</dt>
+              <dd>{{ formatarDataHora(s.dataInicio) }}</dd>
             </div>
             <div>
-              <dt>Saldo medio</dt>
-              <dd>{{ formatarMoeda(mov.saldoMedio, 'BRL') }}</dd>
+              <dt><lucide-icon name="circle-check" [size]="16" />Autorizado em</dt>
+              <dd>{{ s.dataAutorizacao ? formatarDataHora(s.dataAutorizacao) : '—' }}</dd>
             </div>
             <div>
-              <dt>Meses avaliados</dt>
-              <dd>{{ mov.numeroMesesAvaliados }}</dd>
-            </div>
-            <div>
-              <dt>Recebido em</dt>
-              <dd>{{ formatarData(mov.dataRecebimento) }}</dd>
+              <dt><lucide-icon name="calendar-clock" [size]="16" />Expira em</dt>
+              <dd>{{ s.dataExpiracao ? formatarDataHora(s.dataExpiracao) : '—' }}</dd>
             </div>
           </dl>
-        </section>
-      }
-    </div>
 
-    <button type="button" class="sep-open-finance-refresh" (click)="atualizarStatus()">
-      Atualizar status
-    </button>
-  }
+          <div class="px58-card-rodape">
+            <button
+              type="button"
+              class="px58-btn-sec"
+              [disabled]="carregando()"
+              (click)="atualizarStatus()"
+            >
+              <lucide-icon name="refresh-cw" [size]="16" />
+              {{ carregando() ? 'Consultando...' : 'Atualizar status' }}
+            </button>
+            @if (s.statusConsentimento === 'PENDENTE' && urlAutorizacao(); as url) {
+              <button type="button" class="px58-btn-primary" (click)="abrirAutorizacao(url)">
+                <lucide-icon name="external-link" [size]="16" />Abrir a autorização
+              </button>
+            }
+          </div>
+        </article>
 
-  @if (semConsentimento()) {
-    <form
-      class="sep-open-finance-form"
-      [formGroup]="form"
-      (ngSubmit)="iniciar()"
-      novalidate
-      autocomplete="off"
-    >
-      <p class="sep-open-finance-intro">
-        Compartilhe sua movimentacao bancaria via Open Finance para apoiar a analise. O acesso e
-        opcional e autorizado por voce no provedor.
-      </p>
-      <div class="sep-open-finance-field">
-        <label for="cpfCnpjTomador">CPF ou CNPJ do titular</label>
-        <input
-          id="cpfCnpjTomador"
-          type="text"
-          inputmode="numeric"
-          formControlName="cpfCnpjTomador"
-        />
-        @if (form.controls.cpfCnpjTomador.touched && form.controls.cpfCnpjTomador.invalid) {
-          <p class="sep-open-finance-field-error">Informe 11 (CPF) ou 14 (CNPJ) digitos.</p>
-        }
+        <article class="px58-card px58-movimentacao">
+          <header>
+            <span class="px58-card-icone" data-tone="blue">
+              <lucide-icon name="chart-column" [size]="24" />
+            </span>
+            <div>
+              <h2>Movimentação consolidada</h2>
+              <p>Médias enviadas pelo provedor. O extrato detalhado não trafega para o SEP.</p>
+            </div>
+          </header>
+
+          @if (s.ultimaMovimentacao; as mov) {
+            <dl class="px58-numeros">
+              <div>
+                <dt>Média de entradas</dt>
+                <dd class="px58-verde">{{ formatarMoeda(mov.mediaEntradasMensal, 'BRL') }}</dd>
+                <small>por mês</small>
+              </div>
+              <div>
+                <dt>Média de saídas</dt>
+                <dd class="px58-vermelho">{{ formatarMoeda(mov.mediaSaidasMensal, 'BRL') }}</dd>
+                <small>por mês</small>
+              </div>
+              <div>
+                <dt>Saldo médio</dt>
+                <dd>{{ formatarMoeda(mov.saldoMedio, 'BRL') }}</dd>
+                <small>no período</small>
+              </div>
+              <div>
+                <dt>Meses avaliados</dt>
+                <dd>{{ mov.numeroMesesAvaliados }}</dd>
+                <small>recebido em {{ formatarData(mov.dataRecebimento) }}</small>
+              </div>
+            </dl>
+          } @else if (aguardandoDados()) {
+            <div class="px58-vazio" role="status">
+              <span class="px58-vazio-icone"><lucide-icon name="clock" [size]="24" /></span>
+              <strong>Consolidação a caminho</strong>
+              <p>
+                A autorização foi concedida, mas o provedor ainda não devolveu as médias. Consulte o
+                status de novo em instantes.
+              </p>
+            </div>
+          } @else {
+            <div class="px58-vazio" role="status">
+              <span class="px58-vazio-icone"><lucide-icon name="chart-column" [size]="24" /></span>
+              <strong>Sem dados consolidados</strong>
+              <p>
+                As médias só aparecem depois que a autorização é concedida no provedor. Nada é
+                calculado aqui a partir de dado parcial.
+              </p>
+            </div>
+          }
+        </article>
       </div>
-      <button type="submit" class="sep-open-finance-submit" [disabled]="enviando() || form.invalid">
-        {{ enviando() ? 'Iniciando...' : 'Iniciar consentimento' }}
-      </button>
-    </form>
-  }
-</section>
+
+      <p class="px58-nota">
+        <lucide-icon name="lock" [size]="15" />
+        O compartilhamento é opcional e pode ser revogado a qualquer momento, no provedor ou na sua
+        instituição financeira. Recusar não impede a análise: apenas reduz a informação disponível.
+      </p>
+    }
+
+    <!-- ============ INÍCIO DO CONSENTIMENTO ============ -->
+    @if (semConsentimento()) {
+      <article class="px58-card px58-inicio">
+        <header>
+          <span class="px58-card-icone" data-tone="green">
+            <lucide-icon name="share-2" [size]="24" />
+          </span>
+          <div>
+            <h2>Compartilhar o extrato</h2>
+            <p>
+              Autorizar o Open Finance melhora a leitura de capacidade de pagamento e pode elevar o
+              score da proposta. É opcional, e a autorização acontece no seu banco.
+            </p>
+          </div>
+        </header>
+
+        <form [formGroup]="form" (ngSubmit)="iniciar()" novalidate autocomplete="off">
+          <div class="px58-campo">
+            <label for="cpfCnpjTomador">CPF ou CNPJ do titular da conta</label>
+            <input
+              id="cpfCnpjTomador"
+              type="text"
+              sepMask="cpf-cnpj"
+              formControlName="cpfCnpjTomador"
+              placeholder="000.000.000-00"
+              [attr.aria-invalid]="
+                form.controls.cpfCnpjTomador.invalid && form.controls.cpfCnpjTomador.touched
+              "
+            />
+            @if (form.controls.cpfCnpjTomador.touched && form.controls.cpfCnpjTomador.invalid) {
+              <p class="px58-campo-erro" role="alert">
+                Informe um CPF (11 dígitos) ou CNPJ (14 dígitos) completo.
+              </p>
+            }
+          </div>
+
+          <ol class="px58-passos">
+            <li>
+              <span>1</span>Você informa o titular e o SEP abre a autorização do provedor em outra
+              aba.
+            </li>
+            <li><span>2</span>A autorização acontece no seu banco, não aqui.</li>
+            <li>
+              <span>3</span>Ao voltar, o SEP consulta o status e mostra as médias consolidadas.
+            </li>
+          </ol>
+
+          <button type="submit" class="px58-btn-primary" [disabled]="enviando() || form.invalid">
+            <lucide-icon name="share-2" [size]="16" />
+            {{ enviando() ? 'Iniciando...' : 'Iniciar consentimento' }}
+          </button>
+        </form>
+      </article>
+    }
+  </section>
+</sep-operational-shell>

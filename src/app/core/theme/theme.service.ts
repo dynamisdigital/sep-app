@@ -45,10 +45,10 @@ export class ThemeService {
     if (stored) {
       return stored;
     }
-    const prefersDark = this.document.defaultView?.matchMedia?.(
-      '(prefers-color-scheme: dark)',
-    ).matches;
-    return prefersDark ? 'dark' : 'light';
+    // Sem preferencia salva, o SEP abre no escuro: e o tema do projeto, e o claro e a alternativa
+    // que o operador escolhe. O `prefers-color-scheme` do sistema nao decide mais — quem nunca
+    // tocou no botao via a tela ora escura, ora clara, conforme a maquina.
+    return 'dark';
   }
 
   private readStored(): Theme | null {

@@ -1,9 +1,12 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { importProvidersFrom } from '@angular/core';
 import { ActivatedRoute, Router, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AuthService } from '../../../../core/auth/auth.service';
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
 import { stepUpInterceptor } from '../../../../core/interceptors/step-up.interceptor';
 import { resetGovernancaState } from '../../../../../mocks/handlers';
@@ -52,6 +55,7 @@ async function setup(chave: string, opts: { token?: string; mfaHabilitado?: bool
     providers: [
       provideRouter([]),
       provideHttpClient(withInterceptors([stepUpInterceptor])),
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
       { provide: ActivatedRoute, useValue: activatedRouteMock(chave) },
     ],
   });
@@ -69,6 +73,7 @@ async function setup(chave: string, opts: { token?: string; mfaHabilitado?: bool
 describe('ParametroDetailPageComponent', () => {
   beforeEach(() => {
     window.localStorage.clear();
+    window.sessionStorage.clear();
     resetGovernancaState();
   });
 
@@ -76,9 +81,10 @@ describe('ParametroDetailPageComponent', () => {
     await setup(CHAVE_COM_HISTORICO);
 
     expect(screen.getByText(CHAVE_COM_HISTORICO, { selector: 'h2' })).toBeTruthy();
-    expect(screen.getByText(/Trilha auditavel/)).toBeTruthy();
-    expect(screen.getByText('v3')).toBeTruthy();
-    expect(screen.getByText('v2')).toBeTruthy();
+    expect(screen.getAllByText('v3').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('v2').length).toBeGreaterThan(0);
+    // A trilha mostra o par valor anterior/valor novo de cada versao.
+    expect(screen.getAllByText('720').length).toBeGreaterThan(0);
     expect(screen.getByText('Retorno ao score padrao apos revisao de risco.')).toBeTruthy();
   });
 
@@ -94,18 +100,55 @@ describe('ParametroDetailPageComponent', () => {
     await flush();
     result.fixture.detectChanges();
 
-    expect(screen.getByText('Parametro atualizado.')).toBeTruthy();
-    expect(screen.getByText('v2')).toBeTruthy();
+    expect(screen.getByText('Parâmetro atualizado.')).toBeTruthy();
+    expect(screen.getAllByText('v2').length).toBeGreaterThan(0);
     expect(screen.getByText('Reajuste do teto PF.')).toBeTruthy();
   });
 
   it('mostra erro quando a chave nao existe', async () => {
     await setup('chave.inexistente');
 
-    expect(screen.getByRole('alert').textContent).toMatch(/parametro nao encontrado/i);
+    // A tela mostra a mensagem que o backend devolveu, e nao um texto proprio.
+    expect(screen.getByRole('alert').textContent).toMatch(/par.metro n.o encontrado/i);
   });
 
-  it('403 sem step-up redireciona para /app/step-up', async () => {
+  // Sem justificativa a tela nem chega a chamar o backend: o campo e obrigatorio porque a
+  // justificativa entra na trilha de auditoria.
+  it('exige justificativa antes de enviar', async () => {
+    const result = await setup(CHAVE_DECIMAL, { token: 'step-up-tok' });
+
+    fireEvent.input(screen.getByLabelText(/Novo valor/), { target: { value: '60000.00' } });
+    fireEvent.click(screen.getByText('Salvar valor'));
+    await result.fixture.whenStable();
+    await flush();
+    result.fixture.detectChanges();
+
+    expect(screen.getByText(/justificativa é obrigatória/i)).toBeTruthy();
+    expect(screen.queryByText('Parâmetro atualizado.')).toBeNull();
+  });
+
+  // Sem isto o administrador confirma a identidade no step-up e volta para um formulario vazio.
+  it('retoma a alteracao autorizada ao voltar do step-up', async () => {
+    window.sessionStorage.setItem(
+      'SEP_PARAMETRO_PENDENTE',
+      JSON.stringify({
+        chave: CHAVE_DECIMAL,
+        novoValor: '75000.00',
+        justificativa: 'Autorizado no step-up.',
+      }),
+    );
+
+    const result = await setup(CHAVE_DECIMAL, { token: 'step-up-tok' });
+    await result.fixture.whenStable();
+    await flush();
+    result.fixture.detectChanges();
+
+    expect(screen.getByText('Parâmetro atualizado.')).toBeTruthy();
+    expect(screen.getByText('Autorizado no step-up.')).toBeTruthy();
+    expect(window.sessionStorage.getItem('SEP_PARAMETRO_PENDENTE')).toBeNull();
+  });
+
+  it('403 sem step-up redireciona para /app/step-up e guarda a intencao', async () => {
     const result = await setup(CHAVE_DECIMAL, { mfaHabilitado: true });
     const router = result.fixture.debugElement.injector.get(Router);
     const navSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
@@ -120,5 +163,6 @@ describe('ParametroDetailPageComponent', () => {
     result.fixture.detectChanges();
 
     expect(navSpy).toHaveBeenCalledWith(`/app/step-up?next=/app/admin/parametros/${CHAVE_DECIMAL}`);
+    expect(window.sessionStorage.getItem('SEP_PARAMETRO_PENDENTE')).toContain('60000.00');
   });
 });

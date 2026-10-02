@@ -1,0 +1,693 @@
+[
+  {
+    "name": "sep_header_complete.png",
+    "category": "logos",
+    "source": "box",
+    "box": [17, 12, 185, 52],
+    "transparent": true,
+    "note": "Logo completo SEP do topo"
+  },
+  {
+    "name": "sep_symbol_header.png",
+    "category": "logos",
+    "source": "center",
+    "center": [48, 32],
+    "size": [54, 54],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "sep_wordmark_header.png",
+    "category": "logos",
+    "source": "box",
+    "box": [75, 18, 143, 48],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "sep_header_texto_institucional.png",
+    "category": "logos",
+    "source": "box",
+    "box": [154, 15, 270, 50],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "sep_footer_complete.png",
+    "category": "logos",
+    "source": "box",
+    "box": [22, 943, 156, 999],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "sep_symbol_footer.png",
+    "category": "logos",
+    "source": "center",
+    "center": [43, 970],
+    "size": [58, 58],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "sep_wordmark_footer.png",
+    "category": "logos",
+    "source": "box",
+    "box": [72, 954, 138, 985],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_menu_hamburger.png",
+    "category": "icons",
+    "source": "center",
+    "center": [28, 34],
+    "size": [42, 42],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_topbar_ambiente_regulado.png",
+    "category": "icons",
+    "source": "center",
+    "center": [342, 34],
+    "size": [54, 54],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_topbar_horario_sistema.png",
+    "category": "icons",
+    "source": "center",
+    "center": [497, 34],
+    "size": [54, 54],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_topbar_search.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1067, 34],
+    "size": [50, 50],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_topbar_bell_notification.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1140, 32],
+    "size": [64, 64],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_topbar_help.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1203, 33],
+    "size": [50, 50],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_topbar_avatar_user_d.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1265, 33],
+    "size": [58, 58],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_topbar_theme_sun.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1484, 33],
+    "size": [54, 54],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_exportar_relatorio_download.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1012, 147],
+    "size": [46, 46],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_sidebar_dashboard.png",
+    "category": "icons",
+    "source": "center",
+    "center": [30, 128],
+    "size": [46, 46],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_sidebar_onboarding.png",
+    "category": "icons",
+    "source": "center",
+    "center": [31, 193],
+    "size": [46, 46],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_sidebar_credito.png",
+    "category": "icons",
+    "source": "center",
+    "center": [31, 229],
+    "size": [46, 46],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_sidebar_formalizacao.png",
+    "category": "icons",
+    "source": "center",
+    "center": [31, 264],
+    "size": [46, 46],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_sidebar_cobranca.png",
+    "category": "icons",
+    "source": "center",
+    "center": [31, 296],
+    "size": [46, 46],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_sidebar_backoffice.png",
+    "category": "icons",
+    "source": "center",
+    "center": [31, 361],
+    "size": [46, 46],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_sidebar_pix.png",
+    "category": "icons",
+    "source": "center",
+    "center": [31, 439],
+    "size": [46, 46],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_sidebar_perfil.png",
+    "category": "icons",
+    "source": "center",
+    "center": [31, 579],
+    "size": [46, 46],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_sidebar_central_ajuda.png",
+    "category": "icons",
+    "source": "center",
+    "center": [43, 844],
+    "size": [50, 50],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_title_recebimentos_download.png",
+    "category": "icons",
+    "source": "center",
+    "center": [435, 129],
+    "size": [58, 58],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_tab_consultar_referencia.png",
+    "category": "icons",
+    "source": "center",
+    "center": [242, 199],
+    "size": [48, 48],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_tab_consultar_recebimento.png",
+    "category": "icons",
+    "source": "center",
+    "center": [510, 199],
+    "size": [48, 48],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_form_consultar_referencia.png",
+    "category": "icons",
+    "source": "center",
+    "center": [242, 258],
+    "size": [48, 48],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_form_consultar_recebimento.png",
+    "category": "icons",
+    "source": "center",
+    "center": [724, 257],
+    "size": [48, 48],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_button_search_consultar_ref.png",
+    "category": "icons",
+    "source": "center",
+    "center": [514, 324],
+    "size": [44, 44],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_button_limpar_ref.png",
+    "category": "icons",
+    "source": "center",
+    "center": [622, 324],
+    "size": [44, 44],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_button_search_consultar_rec.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1003, 324],
+    "size": [44, 44],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_button_limpar_rec.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1115, 324],
+    "size": [44, 44],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_resultado_consulta_title.png",
+    "category": "icons",
+    "source": "center",
+    "center": [242, 426],
+    "size": [48, 48],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "badge_status_conciliado.png",
+    "category": "badges",
+    "source": "box",
+    "box": [237, 446, 356, 477],
+    "transparent": false,
+    "note": "Badge completo status conciliado"
+  },
+  {
+    "name": "icon_copy_referencia.png",
+    "category": "icons",
+    "source": "center",
+    "center": [393, 519],
+    "size": [34, 34],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_copy_recebimento_id.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1338, 488],
+    "size": [34, 34],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_dados_parcela_vinculada_title.png",
+    "category": "icons",
+    "source": "center",
+    "center": [242, 562],
+    "size": [44, 44],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_timeline_pagamento_check.png",
+    "category": "icons",
+    "source": "center",
+    "center": [484, 606],
+    "size": [70, 70],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_timeline_processamento_check.png",
+    "category": "icons",
+    "source": "center",
+    "center": [613, 606],
+    "size": [70, 70],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_timeline_confirmacao_spi_check.png",
+    "category": "icons",
+    "source": "center",
+    "center": [741, 606],
+    "size": [70, 70],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_timeline_conciliacao_check.png",
+    "category": "icons",
+    "source": "center",
+    "center": [869, 606],
+    "size": [70, 70],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_timeline_liquidado_check.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1014, 606],
+    "size": [70, 70],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_chave_pix_copy.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1049, 712],
+    "size": [42, 42],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_card_conciliacao_title.png",
+    "category": "icons",
+    "source": "center",
+    "center": [242, 784],
+    "size": [46, 46],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "badge_conciliacao_conciliado.png",
+    "category": "badges",
+    "source": "box",
+    "box": [342, 777, 426, 801],
+    "transparent": false,
+    "note": ""
+  },
+  {
+    "name": "icon_card_informacoes_adicionais_title.png",
+    "category": "icons",
+    "source": "center",
+    "center": [542, 784],
+    "size": [46, 46],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_card_comprovante_title.png",
+    "category": "icons",
+    "source": "center",
+    "center": [856, 784],
+    "size": [46, 46],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "visual_comprovante_pix_preview.png",
+    "category": "visuals",
+    "source": "box",
+    "box": [854, 807, 927, 890],
+    "transparent": false,
+    "note": "Miniatura do comprovante Pix"
+  },
+  {
+    "name": "icon_button_visualizar_eye.png",
+    "category": "icons",
+    "source": "center",
+    "center": [894, 917],
+    "size": [42, 42],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_button_download_comprovante.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1059, 917],
+    "size": [42, 42],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_avatar_ana_martins.png",
+    "category": "icons",
+    "source": "center",
+    "center": [747, 873],
+    "size": [52, 52],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_provider_pix_shield.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1225, 128],
+    "size": [86, 86],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "visual_provider_pix_sparkline.png",
+    "category": "visuals",
+    "source": "box",
+    "box": [1370, 158, 1508, 180],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "visual_status_conciliacao_donut.png",
+    "category": "visuals",
+    "source": "center",
+    "center": [1248, 308],
+    "size": [150, 150],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_resumo_recebimento_title.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1137, 459],
+    "size": [46, 46],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_resumo_valor_original.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1238, 523],
+    "size": [42, 42],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_quick_ir_para_parcela_calendar.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1150, 743],
+    "size": [76, 76],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_quick_abrir_ocorrencia_alerta.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1264, 743],
+    "size": [76, 76],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_quick_reenviar_comprovante_plane.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1360, 743],
+    "size": [76, 76],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_quick_exportar_relatorio_documento.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1453, 743],
+    "size": [76, 76],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_ultimas_consultas_title.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1137, 822],
+    "size": [46, 46],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_footer_ambiente_regulado.png",
+    "category": "icons",
+    "source": "center",
+    "center": [249, 982],
+    "size": [62, 62],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_footer_segregacao_patrimonial.png",
+    "category": "icons",
+    "source": "center",
+    "center": [499, 982],
+    "size": [62, 62],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_footer_dados_criptografados.png",
+    "category": "icons",
+    "source": "center",
+    "center": [755, 982],
+    "size": [62, 62],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_footer_rastreabilidade_total.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1007, 982],
+    "size": [62, 62],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "icon_footer_operacoes_protegidas.png",
+    "category": "icons",
+    "source": "center",
+    "center": [1223, 982],
+    "size": [62, 62],
+    "transparent": true,
+    "note": ""
+  },
+  {
+    "name": "group_topbar.png",
+    "category": "ui-groups",
+    "source": "box",
+    "box": [0, 0, 1536, 69],
+    "transparent": false,
+    "note": ""
+  },
+  {
+    "name": "group_sidebar.png",
+    "category": "ui-groups",
+    "source": "box",
+    "box": [0, 70, 205, 1024],
+    "transparent": false,
+    "note": ""
+  },
+  {
+    "name": "group_query_tabs.png",
+    "category": "ui-groups",
+    "source": "box",
+    "box": [220, 175, 1157, 392],
+    "transparent": false,
+    "note": ""
+  },
+  {
+    "name": "group_resultado_consulta.png",
+    "category": "ui-groups",
+    "source": "box",
+    "box": [222, 403, 1093, 745],
+    "transparent": false,
+    "note": ""
+  },
+  {
+    "name": "group_timeline_recebimento.png",
+    "category": "ui-groups",
+    "source": "box",
+    "box": [443, 548, 1078, 679],
+    "transparent": false,
+    "note": ""
+  },
+  {
+    "name": "group_cards_inferiores.png",
+    "category": "ui-groups",
+    "source": "box",
+    "box": [220, 762, 1092, 937],
+    "transparent": false,
+    "note": ""
+  },
+  {
+    "name": "group_coluna_direita_provider_status.png",
+    "category": "ui-groups",
+    "source": "box",
+    "box": [1175, 86, 1524, 420],
+    "transparent": false,
+    "note": ""
+  },
+  {
+    "name": "group_coluna_direita_resumo.png",
+    "category": "ui-groups",
+    "source": "box",
+    "box": [1106, 435, 1524, 678],
+    "transparent": false,
+    "note": ""
+  },
+  {
+    "name": "group_coluna_direita_acoes_ultimas.png",
+    "category": "ui-groups",
+    "source": "box",
+    "box": [1106, 695, 1524, 936],
+    "transparent": false,
+    "note": ""
+  },
+  {
+    "name": "group_footer_regulatorio.png",
+    "category": "ui-groups",
+    "source": "box",
+    "box": [205, 940, 1535, 1024],
+    "transparent": false,
+    "note": ""
+  },
+  {
+    "name": "mockup_22_reference_full.png",
+    "category": "ui-groups",
+    "source": "box",
+    "box": [0, 0, 1536, 1024],
+    "transparent": false,
+    "note": ""
+  }
+]

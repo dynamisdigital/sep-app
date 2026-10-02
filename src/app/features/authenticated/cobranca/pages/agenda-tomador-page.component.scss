@@ -1,128 +1,1341 @@
-@use "../../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../../styles/sep-ds-components" as sepDs;
+// ============ MOCKUP 32 — AGENDA DO CONTRATO ============
 
-.sep-agenda {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-24);
-  max-width: 960px;
-  margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+@use "../../../../../styles/sep-responsivo" as resp;
+
+:host {
+  --linha: var(--sep-border);
+  --muted: var(--sep-text-muted);
+  --muted-forte: var(--sep-text-secondary);
+  --blue: var(--sep-accent);
+  --green: var(--sep-success);
+  --orange: var(--sep-warning);
+  --amber: var(--sep-warning);
+  --red-forte: var(--sep-danger);
+  --purple: var(--sep-purple);
+
+  display: block;
+  color: var(--sep-text);
+  font-size: 13.5px;
 }
 
-.sep-agenda-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-6);
+* {
+  box-sizing: border-box;
 }
 
-.sep-agenda-title {
-  @include sepType.sep-type-page-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
+button {
+  font: inherit;
 }
 
-.sep-agenda-subtitle {
-  @include sepType.sep-type-body;
+/* stylelint-disable selector-pseudo-element-no-unknown -- Angular ::ng-deep */
 
-  margin: 0;
-  color: hsl(var(--muted-foreground));
+:host ::ng-deep .op-content:has(> .px32-page) {
+  /* Container do contrato responsivo: e esta area que recebe o espaco restante depois da barra
+       lateral, entao e ela que a pagina mede. Declarar no `:host` do componente nao serve — o host
+       envolve o shell inteiro e tem a largura da janela. */
+  container: sep-conteudo / inline-size;
+  display: block;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
-.sep-agenda-state {
-  @include sepType.sep-type-body;
-
-  color: hsl(var(--muted-foreground));
+:host ::ng-deep .op-main:has(.px32-page) {
+  grid-template-rows: 70px minmax(0, 1fr) 80px;
 }
 
-.sep-agenda-error {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-  align-items: flex-start;
-  color: hsl(var(--warning));
+:host ::ng-deep .op-main:has(.px32-page) > .op-footer {
+  min-height: 80px;
 }
 
-.sep-agenda-retry {
-  @include sepDs.sep-button-outline;
+:host ::ng-deep .op-dashboard:has(.px32-page) > .op-sidebar {
+  grid-template-rows: 70px minmax(0, 1fr) 130px 80px;
 }
 
-.sep-agenda-empty {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-  align-items: flex-start;
+/* stylelint-enable selector-pseudo-element-no-unknown */
+
+[data-tone="blue"] {
+  --tone: var(--blue);
+  --tone-borda: rgb(var(--sep-c-blue) / 55%);
+  --tone-fundo: rgb(var(--sep-c-blue) / 12%);
 }
 
-.sep-agenda-resumo {
+[data-tone="green"] {
+  --tone: var(--green);
+  --tone-borda: rgb(var(--sep-c-green) / 55%);
+  --tone-fundo: rgb(var(--sep-c-green) / 12%);
+}
+
+[data-tone="orange"] {
+  --tone: var(--orange);
+  --tone-borda: rgb(var(--sep-c-amber) / 55%);
+  --tone-fundo: rgb(var(--sep-c-amber) / 12%);
+}
+
+[data-tone="amber"] {
+  --tone: var(--amber);
+  --tone-borda: rgb(var(--sep-c-amber) / 55%);
+  --tone-fundo: rgb(var(--sep-c-amber) / 12%);
+}
+
+[data-tone="red"] {
+  --tone: var(--red-forte);
+  --tone-borda: rgb(var(--sep-c-red) / 55%);
+  --tone-fundo: rgb(var(--sep-c-red) / 12%);
+}
+
+[data-tone="purple"] {
+  --tone: var(--purple);
+  --tone-borda: rgb(var(--sep-c-purple) / 55%);
+  --tone-fundo: rgb(var(--sep-c-purple) / 12%);
+}
+
+// ============ GRADE PRINCIPAL ============
+
+/* Cabeçalho, painel do contrato e faixa de métricas ocupam a largura toda; embaixo, a
+   agenda de parcelas à esquerda e a coluna de apoio à direita, como no desenho. */
+.px32-page {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: var(--sep-space-16);
-  margin: 0;
+  grid-template:
+    "heading heading" auto
+    "contrato contrato" min-content
+    "metricas metricas" min-content
+    "tabela side" minmax(0, 1fr) / minmax(0, 2.35fr) minmax(320px, 0.92fr);
+  gap: 11px 14px;
+  width: 100%;
+  height: 100%;
+  padding: 9px 22px 12px;
+  overflow: hidden auto;
+  background: radial-gradient(circle at 50% 12%, rgb(var(--sep-c-blue) / 5%), transparent 48%);
 }
 
-.sep-agenda-resumo-item {
+// ============ CARTÃO BASE ============
+
+.px32-card {
+  padding: 9px 15px;
+  border: 1px solid var(--linha);
+  border-radius: 10px;
+  background: linear-gradient(
+    145deg,
+    rgb(var(--sep-c-sunken) / 96%),
+    rgb(var(--sep-c-sunken) / 94%)
+  );
+  box-shadow: inset 0 1px 0 rgb(var(--sep-c-blue) / calc(4% * var(--sep-glow-alpha)));
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+
+  /* Widget principal: reforça borda e glow, sem alterar dimensões. */
+  &:hover,
+  &:focus-within {
+    border-color: rgb(var(--sep-c-blue) / 38%);
+    box-shadow:
+      0 0 16px rgb(var(--sep-c-blue) / calc(6% * var(--sep-glow-alpha))),
+      inset 0 1px 0 rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha)));
+  }
+}
+
+.px32-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 7px;
+  color: var(--sep-text);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+}
+
+// ============ ESTADOS ============
+
+.px32-estado {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-2);
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  grid-column: 1 / -1;
+  place-self: center;
+  color: var(--muted-forte);
+  text-align: center;
+}
+
+.px32-erro {
+  color: var(--red-forte);
+}
+
+.px32-vazio {
+  padding: 12px 0;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+// ============ CABEÇALHO ============
+
+.px32-heading {
+  grid-area: heading;
+}
+
+.px32-heading nav {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.px32-heading nav a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.18s;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sep-text);
+    text-decoration: underline;
+  }
+}
+
+.px32-heading nav span {
+  color: var(--sep-text-muted);
+}
+
+.px32-heading nav strong {
+  color: var(--sep-text);
+  font-weight: 600;
+}
+
+.px32-heading-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.px32-titulo-wrap h1 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  color: var(--sep-text);
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.px32-subtitulo {
+  margin: 5px 0 0;
+  color: var(--muted-forte);
+  font-size: 13.5px;
+}
+
+// ============ BOTÕES ============
+
+.px32-btn-primary {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  padding: 0 18px;
+  color: var(--sep-text);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid rgb(var(--sep-c-blue) / 55%);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgb(var(--sep-c-blue) / 26%), rgb(var(--sep-c-blue) / 15%));
+  box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(22% * var(--sep-glow-alpha)));
+  cursor: pointer;
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s,
+    border-color 0.18s;
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    border-color: var(--blue);
+    box-shadow: 0 0 18px rgb(var(--sep-c-blue) / calc(45% * var(--sep-glow-alpha)));
+    transform: translateY(-2px);
+  }
+}
+
+.px32-btn-sec {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  padding: 0 16px;
+  color: var(--sep-text);
+  font-size: 13.5px;
+  font-weight: 600;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 8px;
+  background: rgb(var(--sep-c-surf2) / 80%);
+  cursor: pointer;
+  transition:
+    border-color 0.18s,
+    background 0.18s,
+    box-shadow 0.18s,
+    transform 0.18s;
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    border-color: var(--blue);
+    background: rgb(var(--sep-c-hover) / 90%);
+    box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(22% * var(--sep-glow-alpha)));
+    transform: translateY(-2px);
+  }
+
+  &:disabled {
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+}
+
+.px32-btn-filtrar {
+  height: 33px;
+  padding: 0 13px;
+  font-size: 12.5px;
+}
+
+.px32-btn-icone {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  color: var(--blue);
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 7px;
+  background: rgb(var(--sep-c-surf) / 80%);
+  cursor: pointer;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s,
+    transform 0.18s;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--blue);
+    box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(28% * var(--sep-glow-alpha)));
+    transform: translateY(-1px);
+  }
+}
+
+.px32-btn-linha {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--blue);
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 7px;
+  background: rgb(var(--sep-c-surf) / 80%);
+  cursor: pointer;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s,
+    transform 0.18s;
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    border-color: var(--blue);
+    box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(28% * var(--sep-glow-alpha)));
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+}
+
+// ============ SELOS ============
+
+.px32-selo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 11px;
+  color: var(--tone, var(--blue));
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 55%));
+  border-radius: 999px;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s,
+    transform 0.18s;
+
+  &:hover {
+    border-color: var(--tone, var(--blue));
+    box-shadow: 0 0 12px
+      var(--tone-fundo, rgb(var(--sep-c-blue) / calc(30% * var(--sep-glow-alpha))));
+    transform: scale(1.04);
+  }
+}
+
+.px32-selo-mini {
+  height: 21px;
+  padding: 0 9px;
+  font-size: 11px;
+}
+
+// ============ PAINEL DO CONTRATO ============
+
+.px32-contrato {
+  grid-area: contrato;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.px32-contrato-linha {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
 
   dt {
-    @include sepType.sep-type-caption;
-
-    color: hsl(var(--muted-foreground));
+    color: var(--muted);
+    font-size: 12.5px;
   }
 
   dd {
-    @include sepType.sep-type-body;
-
+    display: flex;
+    gap: 8px;
+    align-items: center;
     margin: 0;
-    color: hsl(var(--foreground));
+    overflow: hidden;
+    color: var(--sep-text);
+    font-size: 15px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 12px;
   }
 }
 
-.sep-agenda-parcelas {
+.px32-contrato-linha-2 {
+  grid-template-columns: minmax(0, 1.5fr) repeat(5, minmax(0, 1fr));
+  padding-top: 10px;
+  border-top: 1px solid rgb(var(--sep-c-line) / 70%);
+
+  dd {
+    font-size: 14.5px;
+  }
+}
+
+.px32-destaque-laranja {
+  color: var(--orange) !important;
+}
+
+.px32-destaque-vermelho {
+  color: var(--red-forte) !important;
+}
+
+// ============ MÉTRICAS ============
+
+.px32-metricas {
+  grid-area: metricas;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(220px, 1.05fr);
+  gap: 11px;
+  min-width: 0;
+}
+
+.px32-metrica {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-8);
-  margin: 0;
+  gap: 4px;
+  min-width: 0;
+
+  header {
+    display: flex;
+    gap: 9px;
+    align-items: center;
+    min-width: 0;
+  }
+
+  small {
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 12.5px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  strong {
+    color: var(--sep-text);
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    white-space: nowrap;
+  }
+
+  em {
+    color: var(--tone, var(--blue));
+    font-style: normal;
+    font-size: 12px;
+  }
+}
+
+.px32-metrica-icone {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  color: var(--tone, var(--blue));
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+  border-radius: 8px;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+  transition:
+    box-shadow 0.18s,
+    transform 0.18s;
+}
+
+.px32-metrica:hover .px32-metrica-icone {
+  box-shadow: 0 0 12px var(--tone-fundo, rgb(var(--sep-c-blue) / calc(35% * var(--sep-glow-alpha))));
+  transform: scale(1.06);
+}
+
+/* Trilho de proporção sob cada métrica, na cor do próprio tom. */
+.px32-trilho {
+  display: block;
+  overflow: hidden;
+  height: 5px;
+  margin-top: 4px;
+  border-radius: 999px;
+  background: rgb(var(--sep-c-active) / 80%);
+
+  span {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--tone, var(--blue));
+    box-shadow: 0 0 10px
+      var(--tone-fundo, rgb(var(--sep-c-blue) / calc(40% * var(--sep-glow-alpha))));
+    transition: box-shadow 0.18s;
+  }
+}
+
+.px32-metrica:hover .px32-trilho span {
+  box-shadow: 0 0 16px var(--tone-borda, rgb(var(--sep-c-blue) / calc(60% * var(--sep-glow-alpha))));
+}
+
+// ============ LIQUIDEZ ============
+
+.px32-liquidez {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+
+  > small {
+    color: var(--muted);
+    font-size: 12.5px;
+  }
+
+  > div {
+    display: flex;
+    flex: 1 1 auto;
+    gap: 14px;
+    align-items: center;
+  }
+}
+
+.px32-liquidez-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong {
+    color: var(--sep-text);
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+  }
+
+  em {
+    color: var(--tone, var(--green));
+    font-style: normal;
+    font-size: 13px;
+    font-weight: 600;
+  }
+}
+
+/* Anel em conic-gradient começando em 12 horas, com miolo opaco por pseudo-elemento —
+   máscara apagaria o fundo do cartão atrás dele. */
+.px32-anel {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  box-shadow:
+    0 0 18px var(--tone-fundo, rgb(var(--sep-c-green) / calc(25% * var(--sep-glow-alpha)))),
+    inset 0 0 14px rgb(var(--sep-c-shadow) / 50%);
+  transition:
+    box-shadow 0.18s,
+    transform 0.18s;
+
+  &::before {
+    display: block;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--sep-surface-sunken);
+    content: "";
+  }
+}
+
+.px32-liquidez:hover .px32-anel {
+  box-shadow:
+    0 0 28px var(--tone-borda, rgb(var(--sep-c-green) / calc(45% * var(--sep-glow-alpha)))),
+    inset 0 0 14px rgb(var(--sep-c-shadow) / 50%);
+  transform: scale(1.04);
+}
+
+// ============ AGENDA DE PARCELAS ============
+
+.px32-tabela-card {
+  grid-area: tabela;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.px32-tabela-topo {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+
+  h2 {
+    margin-bottom: 0;
+  }
+}
+
+.px32-abas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 10px 0;
+
+  button {
+    height: 30px;
+    padding: 0 15px;
+    color: var(--muted-forte);
+    font-size: 12.5px;
+    font-weight: 600;
+    border: 1px solid var(--sep-border-strong);
+    border-radius: 999px;
+    background: rgb(var(--sep-c-surf) / 70%);
+    cursor: pointer;
+    transition:
+      color 0.18s,
+      border-color 0.18s,
+      background 0.18s,
+      box-shadow 0.18s;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--sep-text);
+      border-color: var(--blue);
+    }
+
+    &.ativa {
+      color: var(--sep-text);
+      border-color: rgb(var(--sep-c-blue) / 60%);
+      background: linear-gradient(
+        135deg,
+        rgb(var(--sep-c-blue) / 26%),
+        rgb(var(--sep-c-blue) / 14%)
+      );
+      box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(25% * var(--sep-glow-alpha)));
+    }
+  }
+}
+
+.px32-tabela-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+.px32-tabela-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+.px32-tabela-wrap th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 9px 6px;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--sep-border);
+  background: var(--sep-surface-sunken);
+}
+
+.px32-tabela-wrap td {
+  padding: 8px 6px;
+  vertical-align: middle;
+  white-space: nowrap;
+  border-bottom: 1px solid rgb(var(--sep-c-line) / 50%);
+  transition: background 0.18s;
+}
+
+/* Realce da linha por fundo e marcador lateral: nenhuma coluna muda de largura. */
+.px32-tabela-wrap tbody tr:hover td {
+  background: rgb(var(--sep-c-blue) / 6%);
+}
+
+.px32-tabela-wrap tbody tr:hover td:first-child {
+  box-shadow: inset 3px 0 0 var(--blue);
+}
+
+.px32-num {
+  text-align: right;
+}
+
+.px32-valor {
+  color: var(--sep-text);
+  font-weight: 700;
+}
+
+.px32-atraso {
+  color: var(--red-forte);
+  font-weight: 700;
+}
+
+.px32-prazo {
+  color: var(--muted-forte);
+}
+
+.px32-acoes-col {
+  text-align: center;
+}
+
+.px32-link {
+  color: var(--blue);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--sep-c-blue) / 40%);
+  text-underline-offset: 2px;
+  transition:
+    color 0.18s,
+    text-shadow 0.18s;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sep-accent);
+    text-shadow: 0 0 10px rgb(var(--sep-c-blue) / calc(45% * var(--sep-glow-alpha)));
+  }
+}
+
+.px32-tabela-rodape {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 11px;
+  color: var(--muted);
+  font-size: 12.5px;
+  border-top: 1px solid rgb(var(--sep-c-line) / 70%);
+}
+
+.px32-paginacao {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 29px;
+    height: 29px;
+    padding: 0 7px;
+    color: var(--muted-forte);
+    font-size: 12.5px;
+    font-weight: 600;
+    border: 1px solid var(--sep-border-strong);
+    border-radius: 7px;
+    background: rgb(var(--sep-c-surf) / 80%);
+    cursor: pointer;
+    transition:
+      color 0.18s,
+      border-color 0.18s,
+      background 0.18s;
+
+    &:hover:not(:disabled),
+    &:focus-visible {
+      color: var(--sep-text);
+      border-color: var(--blue);
+    }
+
+    &.ativa {
+      color: var(--sep-text);
+      border-color: rgb(var(--sep-c-blue) / 60%);
+      background: linear-gradient(
+        135deg,
+        rgb(var(--sep-c-blue) / 26%),
+        rgb(var(--sep-c-blue) / 14%)
+      );
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.px32-por-pagina {
+  white-space: nowrap;
+}
+
+// ============ COLUNA LATERAL ============
+
+/* `min-content` em vez de 0: numa janela mais baixa do que os degraus de compactação a
+   coluna empurra a página e o scroll aparece, em vez de o conteúdo escapar do cartão. */
+.px32-side {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-height: min-content;
+}
+
+.px32-lista,
+.px32-actions,
+.px32-documentos {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.px32-lista header,
+.px32-documentos header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+
+  h2 {
+    margin-bottom: 0;
+  }
+}
+
+.px32-lista ul,
+.px32-documentos ul {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 7px;
+  justify-content: center;
+  margin: 7px 0 0;
   padding: 0;
   list-style: none;
 }
 
-.sep-agenda-parcela-link {
-  @include sepDs.sep-card;
-
+.px32-lista li,
+.px32-documentos li {
   display: flex;
-  flex-wrap: wrap;
+  gap: 11px;
   align-items: center;
-  gap: var(--sep-space-12);
-  padding: var(--sep-space-24);
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
-  transition: border-color 120ms ease;
+  margin: -3px -8px;
+  padding: 3px 8px;
+  border-radius: 7px;
+  transition:
+    background 0.18s,
+    box-shadow 0.18s;
 
   &:hover {
-    border-color: hsl(var(--primary));
+    background: rgb(var(--sep-c-blue) / 6%);
+    box-shadow: inset 2px 0 0 var(--tone, var(--blue));
+  }
+
+  > div {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  strong {
+    overflow: hidden;
+    color: var(--sep-text);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.3;
   }
 }
 
-.sep-agenda-parcela-numero {
-  @include sepType.sep-type-card-title;
-
-  color: hsl(var(--foreground));
+.px32-lista-icone {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  color: var(--tone, var(--blue));
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+  border-radius: 8px;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+  transition:
+    box-shadow 0.18s,
+    transform 0.18s;
 }
 
-.sep-agenda-parcela-vencimento {
-  @include sepType.sep-type-body;
-
-  color: hsl(var(--muted-foreground));
+.px32-lista li:hover .px32-lista-icone {
+  box-shadow: 0 0 12px var(--tone-fundo, rgb(var(--sep-c-blue) / calc(35% * var(--sep-glow-alpha))));
+  transform: scale(1.06);
 }
 
-.sep-agenda-parcela-total {
-  @include sepType.sep-type-body;
+.px32-lista-valor {
+  flex: 0 0 auto !important;
+  align-items: flex-end !important;
+  text-align: right;
+}
 
-  margin-left: auto;
-  color: hsl(var(--foreground));
+.px32-doc-icone {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  color: var(--muted-forte);
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 8px;
+  background: rgb(var(--sep-c-surf) / 80%);
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s,
+    transform 0.18s;
+}
+
+.px32-documentos li:hover .px32-doc-icone {
+  color: var(--blue);
+  border-color: rgb(var(--sep-c-blue) / 45%);
+  box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(25% * var(--sep-glow-alpha)));
+  transform: scale(1.06);
+}
+
+.px32-link-todos {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  padding: 0;
+  color: var(--blue);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 0.18s,
+    text-shadow 0.18s;
+
+  lucide-icon {
+    transition: transform 0.18s;
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sep-accent);
+    text-shadow: 0 0 10px rgb(var(--sep-c-blue) / calc(45% * var(--sep-glow-alpha)));
+  }
+
+  &:hover lucide-icon,
+  &:focus-visible lucide-icon {
+    transform: translateX(3px);
+  }
+}
+
+// ============ AÇÕES RÁPIDAS ============
+
+.px32-actions-grid {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: 8px;
+  max-height: 76px;
+  margin: auto 0;
+}
+
+.px32-btn-acao {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  align-items: center;
+  justify-content: center;
+  min-height: 62px;
+  height: 100%;
+  padding: 8px 5px;
+  color: var(--sep-text);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 8px;
+  background: rgb(var(--sep-c-surf) / 80%);
+  cursor: pointer;
+  transition:
+    transform 0.18s,
+    border-color 0.18s,
+    box-shadow 0.18s;
+
+  lucide-icon {
+    flex-shrink: 0;
+    transition:
+      transform 0.18s,
+      filter 0.18s;
+  }
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    transform: translateY(-2px);
+    border-color: rgb(var(--sep-c-blue) / 55%);
+    box-shadow: 0 0 14px rgb(var(--sep-c-blue) / calc(28% * var(--sep-glow-alpha)));
+  }
+
+  /* Ícone acende na cor do próprio tom, não numa cor fixa. */
+  &:hover:not(:disabled) lucide-icon,
+  &:focus-visible lucide-icon {
+    transform: scale(1.06);
+    filter: brightness(1.15)
+      drop-shadow(
+        0 0 7px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+      );
+  }
+
+  &.green {
+    border-color: rgb(var(--sep-c-green) / 45%);
+    background: linear-gradient(
+      160deg,
+      rgb(var(--sep-c-green) / 14%),
+      rgb(var(--sep-c-surf) / 90%)
+    );
+
+    lucide-icon {
+      color: var(--green);
+    }
+  }
+
+  &.blue {
+    border-color: rgb(var(--sep-c-blue) / 50%);
+    background: linear-gradient(160deg, rgb(var(--sep-c-blue) / 16%), rgb(var(--sep-c-surf) / 90%));
+
+    lucide-icon {
+      color: var(--blue);
+    }
+  }
+
+  &.amber {
+    border-color: rgb(var(--sep-c-amber) / 45%);
+    background: linear-gradient(
+      160deg,
+      rgb(var(--sep-c-amber) / 14%),
+      rgb(var(--sep-c-surf) / 90%)
+    );
+
+    lucide-icon {
+      color: var(--orange);
+    }
+  }
+
+  &.purple {
+    border-color: rgb(var(--sep-c-purple) / 45%);
+    background: linear-gradient(
+      160deg,
+      rgb(var(--sep-c-purple) / 16%),
+      rgb(var(--sep-c-surf) / 90%)
+    );
+
+    lucide-icon {
+      color: var(--purple);
+    }
+  }
+
+  &:disabled {
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+
+  &:disabled lucide-icon {
+    color: var(--muted);
+  }
+}
+
+// ============ TELAS BAIXAS E ESTREITAS ============
+
+/* Degraus de compactação: a tela tem oito blocos e o desenho nasceu com 1122px de altura.
+   Abaixo disso a compactação mexe só em espaçamento e altura de linha, nunca no tamanho
+   do texto de leitura. */
+@include resp.altura-densa {
+  .px32-page {
+    gap: 7px 12px;
+    padding: 8px 20px 10px;
+  }
+
+  .px32-side {
+    gap: 7px;
+  }
+
+  .px32-metricas {
+    gap: 9px;
+  }
+
+  .px32-heading nav {
+    margin-bottom: 3px;
+  }
+
+  .px32-lista li > div,
+  .px32-documentos li > div {
+    gap: 1px;
+  }
+
+  .px32-card {
+    padding: 7px 14px;
+  }
+
+  .px32-card h2 {
+    margin-bottom: 5px;
+  }
+
+  .px32-subtitulo {
+    margin-top: 3px;
+  }
+
+  .px32-contrato {
+    gap: 6px;
+  }
+
+  .px32-contrato-linha > div {
+    gap: 3px;
+  }
+
+  .px32-contrato-linha dd {
+    font-size: 14px;
+  }
+
+  .px32-contrato-linha-2 {
+    padding-top: 6px;
+  }
+
+  .px32-metrica strong {
+    font-size: 17.5px;
+  }
+
+  .px32-trilho {
+    margin-top: 3px;
+  }
+
+  .px32-anel {
+    width: 52px;
+    height: 52px;
+
+    &::before {
+      width: 36px;
+      height: 36px;
+    }
+  }
+
+  .px32-abas {
+    margin: 7px 0;
+  }
+
+  .px32-lista ul,
+  .px32-documentos ul {
+    gap: 5px;
+    margin-top: 5px;
+  }
+
+  .px32-lista li,
+  .px32-documentos li {
+    margin: -2px -8px;
+    padding: 2px 8px;
+  }
+
+  .px32-lista li strong,
+  .px32-documentos li strong {
+    font-size: 12.5px;
+  }
+
+  .px32-lista li small,
+  .px32-documentos li small {
+    font-size: 11.5px;
+  }
+
+  .px32-actions-grid {
+    max-height: 60px;
+    gap: 6px;
+  }
+
+  .px32-btn-acao {
+    min-height: 52px;
+    gap: 4px;
+    padding: 6px 4px;
+  }
+
+  .px32-tabela-rodape {
+    padding-top: 8px;
+  }
+}
+
+@include resp.altura-baixa {
+  .px32-card {
+    padding: 6px 13px;
+  }
+
+  .px32-card h2 {
+    margin-bottom: 4px;
+    font-size: 15px;
+  }
+
+  .px32-contrato-linha dd {
+    font-size: 13.5px;
+  }
+
+  .px32-metrica strong {
+    font-size: 16.5px;
+  }
+
+  .px32-metrica-icone {
+    width: 27px;
+    height: 27px;
+  }
+
+  .px32-anel {
+    width: 46px;
+    height: 46px;
+
+    &::before {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  .px32-lista ul,
+  .px32-documentos ul {
+    gap: 3px;
+    margin-top: 4px;
+  }
+
+  .px32-lista li,
+  .px32-documentos li {
+    margin: -1px -8px;
+    padding: 1px 8px;
+  }
+
+  .px32-lista-icone,
+  .px32-doc-icone {
+    width: 27px;
+    height: 27px;
+  }
+
+  .px32-actions-grid {
+    max-height: 54px;
+  }
+
+  .px32-btn-acao {
+    min-height: 48px;
+  }
+
+  .px32-abas {
+    margin: 5px 0;
+  }
+}
+
+@include resp.ate-media {
+  .px32-metricas {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .px32-contrato-linha,
+  .px32-contrato-linha-2 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .px32-actions-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: 128px;
+  }
+}
+
+// ============ ACESSIBILIDADE ============
+
+:focus-visible {
+  outline: 2px solid rgb(var(--sep-c-blue) / 70%);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+
+  .px32-btn-primary:hover,
+  .px32-btn-sec:hover,
+  .px32-btn-icone:hover,
+  .px32-btn-linha:hover,
+  .px32-btn-acao:hover,
+  .px32-selo:hover,
+  .px32-metrica:hover .px32-metrica-icone,
+  .px32-liquidez:hover .px32-anel,
+  .px32-lista li:hover .px32-lista-icone,
+  .px32-documentos li:hover .px32-doc-icone,
+  .px32-link-todos:hover lucide-icon {
+    transform: none;
+  }
 }

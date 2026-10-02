@@ -1,132 +1,566 @@
-@use "../../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../../styles/sep-ds-components" as sepDs;
+// ============ MOCKUP 38 — ADMINISTRAÇÃO DE USUÁRIOS ============
 
-.sep-users-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-24);
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+@use "../../../../../styles/tela-operacional-tema" as tema;
+
+:host {
+  @include tema.tokens;
 }
 
-.sep-users-list-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-12);
+@include tema.base("px38");
+@include tema.tabela("px38");
 
-  @media (width >= 768px) {
-    flex-direction: row;
-    align-items: flex-end;
-    justify-content: space-between;
-  }
-}
-
-.sep-users-list-title {
-  @include sepType.sep-type-page-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
-}
-
-.sep-users-list-filter {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-4);
-  min-width: 280px;
-}
-
-.sep-users-list-filter-label {
-  @include sepType.sep-type-body;
-
+/* As demais colunas do cabeçalho acompanham a caixa alta do desenho. */
+.px38-tabela-wrap th {
   font-size: 12px;
-  color: hsl(var(--muted-foreground));
+  font-weight: 700;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
-.sep-users-list-filter input {
-  @include sepDs.sep-input;
-}
+// ============ GRADE PRINCIPAL ============
 
-.sep-users-list-state {
-  @include sepType.sep-type-body;
+.px38-page {
+  display: grid;
 
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-users-list-error {
-  @include sepDs.sep-card;
-
-  padding: var(--sep-space-24);
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-  border-color: hsl(var(--warning));
-
-  p {
-    margin: 0;
-    color: hsl(var(--warning));
-  }
-}
-
-.sep-users-list-retry {
-  @include sepDs.sep-button-outline;
-
-  align-self: flex-start;
-}
-
-.sep-users-list-table-wrapper {
-  overflow-x: auto;
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--sep-radius-lg);
-  background: hsl(var(--card));
-}
-
-.sep-users-list-table {
+  /* A faixa da tabela pode encolher até 190px: as linhas rolam dentro do próprio cartão, em vez
+     de empurrarem a página inteira em telas baixas. */
+  grid-template-rows: auto min-content minmax(190px, 1fr) min-content;
+  gap: 14px;
   width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
+  height: 100%;
+  padding: 14px 26px 16px;
+  overflow: hidden auto;
+  background: radial-gradient(circle at 48% 12%, rgb(var(--sep-c-blue) / 6%), transparent 46%);
+}
 
-  thead th {
-    @include sepType.sep-type-body;
+.px38-heading h1 {
+  font-size: 27px;
+}
 
-    padding: var(--sep-space-12) var(--sep-space-16);
-    background: hsl(var(--muted));
-    border-bottom: 1px solid hsl(var(--border));
-    text-align: left;
-    font-weight: 500;
-    color: hsl(var(--muted-foreground));
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+.px38-subtitulo {
+  font-size: 14.5px;
+}
+
+.px38-acoes-topo {
+  display: flex;
+  flex-shrink: 0;
+  gap: 10px;
+  align-items: center;
+}
+
+// ============ MÉTRICAS ============
+
+.px38-metricas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 272px), 1fr));
+  gap: 14px;
+  min-width: 0;
+}
+
+.px38-metrica {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr);
+  gap: 1px 14px;
+  align-items: center;
+  min-width: 0;
+  padding: 15px 18px;
+
+  small {
+    grid-row: 1;
+    grid-column: 2;
+    align-self: end;
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 14px;
+    text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  tbody td {
-    padding: var(--sep-space-12) var(--sep-space-16);
-    border-bottom: 1px solid hsl(var(--border));
-    color: hsl(var(--foreground));
-    vertical-align: middle;
+  strong {
+    grid-row: 2;
+    grid-column: 2;
+    color: var(--sep-text);
+    font-size: 25px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.4px;
   }
 
-  tbody tr:last-child td {
-    border-bottom: none;
+  em {
+    grid-row: 3;
+    grid-column: 2;
+    overflow: hidden;
+    color: var(--tone, var(--blue));
+    font-style: normal;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
-.sep-users-list-th-action {
-  width: 1%;
+.px38-metrica-icone {
+  display: grid;
+  grid-row: 1 / 4;
+  grid-column: 1;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  color: var(--tone, var(--blue));
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+  border-radius: 999px;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+  transition:
+    box-shadow 0.18s,
+    transform 0.18s;
+}
+
+.px38-metrica:hover .px38-metrica-icone {
+  box-shadow: 0 0 14px var(--tone-fundo, rgb(var(--sep-c-blue) / calc(40% * var(--sep-glow-alpha))));
+  transform: scale(1.06);
+}
+
+// ============ TABELA ============
+
+.px38-tabela-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.px38-tabela-topo {
+  display: flex;
+  gap: 18px;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 14px;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.px38-filtro {
+  display: flex;
+  flex-shrink: 0;
+  gap: 12px;
+  align-items: center;
+
+  label {
+    color: var(--muted-forte);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}
+
+.px38-filtro-campo {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  input {
+    width: 268px;
+    height: 40px;
+    padding: 0 38px 0 14px;
+    color: var(--sep-text);
+    font: inherit;
+    font-size: 13.5px;
+    border: 1px solid var(--sep-border-strong);
+    border-radius: 9px;
+    background: rgb(var(--sep-c-surf) / 85%);
+    transition:
+      border-color 0.18s,
+      box-shadow 0.18s;
+  }
+
+  input::placeholder {
+    color: var(--sep-text-muted);
+  }
+
+  input:focus {
+    border-color: var(--blue);
+    outline: none;
+    box-shadow: 0 0 14px rgb(var(--sep-c-blue) / calc(26% * var(--sep-glow-alpha)));
+  }
+
+  lucide-icon {
+    position: absolute;
+    right: 12px;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    pointer-events: none;
+  }
+}
+
+/* Cabeçalho ordenável em caixa alta, como no desenho; a seta indica a ação. */
+.px38-ordenar {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  transition: color 0.18s;
+
+  lucide-icon {
+    color: var(--sep-text-muted);
+    transition: color 0.18s;
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sep-text);
+  }
+
+  &:hover lucide-icon,
+  &:focus-visible lucide-icon {
+    color: var(--blue);
+  }
+}
+
+.px38-usuario {
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  min-width: 0;
+}
+
+.px38-usuario-texto {
+  display: grid;
+  min-width: 0;
+
+  strong {
+    overflow: hidden;
+    color: var(--sep-text);
+    font-size: 13px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+  }
+
+  small {
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 12px;
+    text-overflow: ellipsis;
+  }
+}
+
+.px38-avatar {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  color: var(--tone, var(--blue));
+  font-size: 14px;
+  font-weight: 700;
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+  border-radius: 50%;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+}
+
+/* LED semântico do status, com a borda na mesma cor do texto. */
+.px38-situacao {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  color: var(--tone, var(--green));
+  font-size: 12.5px;
+  font-weight: 600;
   white-space: nowrap;
+
+  i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tone, var(--green));
+    box-shadow: 0 0 9px var(--tone, var(--green));
+  }
 }
 
-.sep-users-list-detail-link {
-  color: hsl(var(--primary));
-  text-decoration: none;
-  font-size: 13px;
+.px38-acoes-col {
+  text-align: right;
+}
 
-  &:hover {
-    text-decoration: underline;
+.px38-acoes-linha {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.px38-link {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 12.5px;
+  text-decoration: none;
+}
+
+.px38-btn-linha {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: var(--muted);
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 8px;
+  background: rgb(var(--sep-c-surf) / 80%);
+  cursor: pointer;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    border-color: var(--blue);
+    box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(26% * var(--sep-glow-alpha)));
+  }
+}
+
+// ============ RODAPÉ DA TABELA ============
+
+.px38-tabela-rodape {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 13px;
+  border-top: 1px solid rgb(var(--sep-c-line) / 70%);
+}
+
+.px38-contagem {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.px38-paginacao {
+  display: flex;
+  flex-shrink: 0;
+  gap: 7px;
+  align-items: center;
+}
+
+.px38-por-pagina select {
+  height: 34px;
+  padding: 0 10px;
+  color: var(--sep-text);
+  font: inherit;
+  font-size: 12.5px;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 8px;
+  background: rgb(var(--sep-c-surf) / 85%);
+  cursor: pointer;
+
+  &:focus {
+    border-color: var(--blue);
+    outline: none;
+  }
+}
+
+.px38-pag-btn {
+  display: grid;
+  place-items: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 9px;
+  color: var(--muted-forte);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 8px;
+  background: rgb(var(--sep-c-surf) / 80%);
+  cursor: pointer;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s,
+    color 0.18s,
+    background 0.18s;
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    color: var(--sep-text);
+    border-color: var(--blue);
+    box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(24% * var(--sep-glow-alpha)));
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+}
+
+.px38-pag-btn-ativa {
+  color: var(--sep-on-solid);
+  border-color: rgb(var(--sep-c-blue) / 70%);
+  background: linear-gradient(135deg, var(--sep-accent), var(--sep-accent));
+  box-shadow: 0 0 14px rgb(var(--sep-c-blue) / calc(34% * var(--sep-glow-alpha)));
+}
+
+// ============ LISTA VAZIA ============
+
+/* Sem resultado o cartão continua cheio, em vez de virar caixa oca. */
+.px38-vazio {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 11px;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  text-align: center;
+
+  strong {
+    color: var(--sep-text);
+    font-size: 14.5px;
+    font-weight: 600;
+  }
+
+  p {
+    max-width: 420px;
+    margin: 0;
+    color: var(--muted-forte);
+    font-size: 13px;
+  }
+}
+
+.px38-vazio-icone {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  color: var(--blue);
+  border: 1px solid rgb(var(--sep-c-blue) / 45%);
+  border-radius: 14px;
+  background: rgb(var(--sep-c-blue) / 12%);
+}
+
+// ============ BOAS PRÁTICAS ============
+
+.px38-aviso {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  min-height: min-content;
+  border-color: rgb(var(--sep-c-blue) / 32%);
+  background: linear-gradient(
+    160deg,
+    rgb(var(--sep-c-surf2) / 96%),
+    rgb(var(--sep-c-sunken) / 94%)
+  );
+
+  div {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  strong {
+    display: block;
+    margin-bottom: 2px;
+    color: var(--sep-text);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+    color: var(--muted-forte);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+}
+
+.px38-aviso-icone {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  color: var(--blue);
+  border: 1px solid rgb(var(--sep-c-blue) / 45%);
+  border-radius: 999px;
+  background: rgb(var(--sep-c-blue) / 12%);
+}
+
+// ============ TELAS BAIXAS E ESTREITAS ============
+
+/* Degraus de compactação: reduzem vão e respiro, nunca o tamanho do texto. */
+@include tema.resp-altura-baixa {
+  .px38-page {
+    gap: 11px;
+    padding: 12px 24px 13px;
+  }
+
+  .px38-card {
+    padding: 14px 20px;
+  }
+
+  .px38-metrica {
+    padding: 12px 16px;
+  }
+
+  .px38-tabela-topo {
+    margin-bottom: 11px;
+  }
+
+  .px38-heading nav {
+    margin-bottom: 8px;
+  }
+}
+
+@include tema.resp-altura-curta {
+  .px38-page {
+    gap: 9px;
+    padding: 10px 22px 11px;
+  }
+
+  .px38-card {
+    padding: 11px 17px;
+  }
+
+  .px38-metrica {
+    padding: 10px 14px;
+  }
+
+  .px38-metrica-icone {
+    width: 40px;
+    height: 40px;
+  }
+
+  .px38-metricas {
+    gap: 11px;
+  }
+
+  .px38-tabela-rodape {
+    padding-top: 10px;
+  }
+
+  .px38-aviso-icone {
+    width: 38px;
+    height: 38px;
+  }
+
+  .px38-subtitulo {
+    margin-top: 4px;
+  }
+}
+
+@include tema.resp-ate-ampla {
+  .px38-filtro-campo input {
+    width: 210px;
   }
 }

@@ -1,3 +1,5 @@
+@use "../../../../styles/sep-responsivo" as resp;
+
 :host {
   display: block;
 
@@ -6,8 +8,14 @@
   --sep-enter-top: -20px;
   --sep-enter-bottom: 24px;
 
-  color: hsl(210deg 40% 98%);
-  background: hsl(223deg 65% 4%);
+  color: rgb(var(--lp-c-suave));
+  background: rgb(var(--lp-c-fundo));
+}
+
+// O globo e a atmosfera do tema escuro: e um bitmap desenhado sobre fundo escuro e, no claro,
+// aparece como um retangulo acinzentado sobre o branco.
+:host-context(html:not(.dark)) .hero-globe {
+  display: none;
 }
 
 @keyframes sep-shell-boot {
@@ -85,11 +93,11 @@
 @keyframes sep-edge-breathe {
   0%,
   100% {
-    filter: drop-shadow(0 0 0 hsl(183deg 100% 55% / 0%));
+    filter: drop-shadow(0 0 0 rgb(var(--lp-c-ciano) / 0%));
   }
 
   50% {
-    filter: drop-shadow(0 0 10px hsl(183deg 100% 55% / 20%));
+    filter: drop-shadow(0 0 10px rgb(var(--lp-c-ciano) / 20%));
   }
 }
 
@@ -302,9 +310,14 @@ a {
   padding: clamp(10px, 1vw, 18px);
   overflow-x: hidden;
   background:
-    radial-gradient(circle at 17% 25%, hsl(197deg 100% 50% / 18%), transparent 22rem),
-    radial-gradient(circle at 88% 82%, hsl(162deg 100% 45% / 12%), transparent 24rem),
-    linear-gradient(135deg, hsl(223deg 65% 5%) 0%, hsl(218deg 80% 3%) 52%, hsl(202deg 74% 6%) 100%);
+    radial-gradient(circle at 17% 25%, rgb(var(--lp-c-azul) / 18%), transparent 22rem),
+    radial-gradient(circle at 88% 82%, rgb(var(--lp-c-verde) / 12%), transparent 24rem),
+    linear-gradient(
+      135deg,
+      rgb(var(--lp-c-surf)) 0%,
+      rgb(var(--lp-c-fundo)) 52%,
+      rgb(var(--lp-c-surf)) 100%
+    );
 }
 
 .landing-shell {
@@ -314,20 +327,20 @@ a {
   margin: 0 auto;
   overflow: hidden;
   background:
-    linear-gradient(hsl(196deg 100% 50% / 5%) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(196deg 100% 50% / 5%) 1px, transparent 1px),
-    radial-gradient(circle at 52% 4%, hsl(181deg 100% 50% / 10%), transparent 13rem),
-    linear-gradient(180deg, hsl(222deg 72% 5% / 96%), hsl(220deg 75% 3% / 98%));
+    linear-gradient(rgb(var(--lp-c-azul) / 5%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--lp-c-azul) / 5%) 1px, transparent 1px),
+    radial-gradient(circle at 52% 4%, rgb(var(--lp-c-ciano) / 10%), transparent 13rem),
+    linear-gradient(180deg, rgb(var(--lp-c-surf) / 96%), rgb(var(--lp-c-fundo) / 98%));
   background-size:
     40px 40px,
     40px 40px,
     auto,
     auto;
-  border: 1px solid hsl(196deg 100% 45% / 55%);
+  border: 1px solid rgb(var(--lp-c-azul) / 55%);
   border-radius: 18px;
   box-shadow:
-    0 0 0 1px hsl(220deg 100% 4% / 80%),
-    0 28px 80px hsl(210deg 100% 2% / 75%);
+    0 0 0 1px rgb(var(--lp-c-fundo) / 80%),
+    0 28px 80px rgb(var(--lp-c-fundo) / 75%);
 }
 
 .landing-shell::before,
@@ -337,12 +350,12 @@ a {
   height: 1px;
   pointer-events: none;
   content: "";
-  background: linear-gradient(90deg, transparent, hsl(194deg 100% 50% / 45%), transparent);
+  background: linear-gradient(90deg, transparent, rgb(var(--lp-c-azul) / 45%), transparent);
 }
 
 .landing-shell::after {
   inset: auto 0 86px;
-  background: linear-gradient(90deg, transparent, hsl(162deg 100% 46% / 45%), transparent);
+  background: linear-gradient(90deg, transparent, rgb(var(--lp-c-verde) / 45%), transparent);
 }
 
 .landing-header {
@@ -354,7 +367,7 @@ a {
   align-items: center;
   min-height: 72px;
   padding: 18px clamp(24px, 3vw, 42px);
-  border-bottom: 1px solid hsl(196deg 100% 45% / 35%);
+  border-bottom: 1px solid rgb(var(--lp-c-azul) / 35%);
 }
 
 .landing-brand {
@@ -382,7 +395,7 @@ a {
   font-size: clamp(1.85rem, 2.4vw, 2.3rem);
   font-weight: 800;
   line-height: 1;
-  color: hsl(0deg 0% 100%);
+  color: rgb(var(--lp-c-texto));
 }
 
 .landing-brand-text span {
@@ -390,8 +403,8 @@ a {
   padding-left: 14px;
   font-size: 0.79rem;
   line-height: 1.2;
-  color: hsl(210deg 38% 91% / 92%);
-  border-left: 1px solid hsl(199deg 100% 56% / 55%);
+  color: rgb(var(--lp-c-suave) / 92%);
+  border-left: 1px solid rgb(var(--lp-c-azul) / 55%);
 }
 
 .landing-nav {
@@ -401,7 +414,7 @@ a {
   align-items: center;
   justify-content: center;
   font-size: 0.86rem;
-  color: hsl(210deg 36% 88% / 88%);
+  color: rgb(var(--lp-c-suave) / 88%);
 }
 
 .landing-nav a,
@@ -413,8 +426,41 @@ a {
 
 .landing-nav a:hover,
 .footer-links a:hover {
-  color: hsl(177deg 100% 58%);
-  text-shadow: 0 0 16px hsl(177deg 100% 58% / 45%);
+  color: rgb(var(--lp-c-rotulo));
+  text-shadow: 0 0 16px rgb(var(--lp-c-ciano) / 45%);
+  transform: translateY(-1px);
+}
+
+// O botao de tema e a entrada ficam juntos na ponta direita do cabecalho.
+.landing-header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-self: end;
+}
+
+.landing-theme {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  color: rgb(var(--lp-c-rotulo));
+  cursor: pointer;
+  border: 1px solid rgb(var(--lp-c-ciano) / 45%);
+  border-radius: 11px;
+  background: rgb(var(--lp-c-surf) / 72%);
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.landing-theme:hover,
+.landing-theme:focus-visible {
+  border-color: rgb(var(--lp-c-ciano));
+  background: rgb(var(--lp-c-ciano) / 14%);
+  outline: none;
   transform: translateY(-1px);
 }
 
@@ -426,13 +472,13 @@ a {
   min-height: 38px;
   padding: 0 24px;
   font-weight: 700;
-  color: hsl(0deg 0% 100%);
-  background: linear-gradient(135deg, hsl(219deg 78% 8% / 82%), hsl(167deg 89% 35% / 42%));
-  border: 1px solid hsl(190deg 100% 50%);
+  color: rgb(var(--lp-c-texto));
+  background: linear-gradient(135deg, rgb(var(--lp-c-surf) / 82%), rgb(var(--lp-c-verde) / 42%));
+  border: 1px solid rgb(var(--lp-c-ciano));
   border-radius: 13px;
   box-shadow:
-    inset 0 1px 0 hsl(0deg 0% 100% / 12%),
-    0 0 24px hsl(166deg 100% 46% / 18%);
+    inset 0 1px 0 rgb(var(--lp-c-texto) / 12%),
+    0 0 24px rgb(var(--lp-c-verde) / 18%);
 }
 
 .hero-section {
@@ -443,6 +489,15 @@ a {
   gap: clamp(30px, 3vw, 42px);
   align-items: center;
   padding: 30px clamp(44px, 4vw, 60px) 34px;
+}
+
+/* Largura natural deste layout: 1302px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 1298px) {
+  .hero-section {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .hero-globe {
@@ -465,7 +520,7 @@ a {
   margin: 0 0 12px;
   font-size: 0.72rem;
   font-weight: 800;
-  color: hsl(178deg 100% 54%);
+  color: rgb(var(--lp-c-rotulo));
   letter-spacing: 0;
   text-transform: uppercase;
 }
@@ -481,7 +536,7 @@ a {
 
 .hero-copy h1 span {
   display: block;
-  color: hsl(176deg 87% 50%);
+  color: rgb(var(--lp-c-rotulo));
 }
 
 .hero-lead {
@@ -489,7 +544,7 @@ a {
   margin: 16px 0 0;
   font-size: clamp(1rem, 1.15vw, 1.12rem);
   line-height: 1.62;
-  color: hsl(210deg 35% 89% / 88%);
+  color: rgb(var(--lp-c-suave) / 88%);
 }
 
 .hero-actions {
@@ -512,18 +567,21 @@ a {
 }
 
 .action-primary {
-  color: hsl(0deg 0% 100%);
-  background: linear-gradient(135deg, hsl(211deg 100% 50%), hsl(163deg 85% 48%));
-  border: 1px solid hsl(178deg 100% 57% / 75%);
+  color: rgb(var(--lp-c-branco));
+
+  /* A ponta verde escurece de 48% para 34% de luminosidade: o branco lia a 1,7:1 sobre ela, e o
+     AA para texto de botao pede 4,5:1. */
+  background: linear-gradient(135deg, rgb(var(--lp-c-azul)), rgb(var(--lp-c-verde)));
+  border: 1px solid rgb(var(--lp-c-ciano) / 75%);
   box-shadow:
-    0 0 28px hsl(206deg 100% 50% / 42%),
-    0 0 24px hsl(161deg 100% 47% / 28%);
+    0 0 28px rgb(var(--lp-c-azul) / 42%),
+    0 0 24px rgb(var(--lp-c-verde) / 28%);
 }
 
 .action-secondary {
-  color: hsl(0deg 0% 100%);
-  background: hsl(220deg 65% 6% / 70%);
-  border: 1px solid hsl(199deg 100% 47% / 62%);
+  color: rgb(var(--lp-c-texto));
+  background: rgb(var(--lp-c-surf) / 70%);
+  border: 1px solid rgb(var(--lp-c-azul) / 62%);
 }
 
 .trust-badges,
@@ -541,13 +599,13 @@ a {
   width: min(560px, calc(100vw - 250px));
   max-width: 560px;
   overflow: hidden;
-  background: linear-gradient(90deg, hsl(213deg 68% 6% / 54%), hsl(198deg 68% 7% / 64%));
-  border: 1px solid hsl(193deg 100% 45% / 14%);
+  background: linear-gradient(90deg, rgb(var(--lp-c-surf) / 54%), rgb(var(--lp-c-surf) / 64%));
+  border: 1px solid rgb(var(--lp-c-azul) / 14%);
   border-radius: 12px;
   box-shadow:
-    inset 0 1px 0 hsl(0deg 0% 100% / 5%),
-    -10px 0 28px hsl(197deg 100% 50% / 10%),
-    10px 0 28px hsl(164deg 100% 46% / 8%);
+    inset 0 1px 0 rgb(var(--lp-c-texto) / 5%),
+    -10px 0 28px rgb(var(--lp-c-azul) / 10%),
+    10px 0 28px rgb(var(--lp-c-verde) / 8%);
 }
 
 .trust-badges::after {
@@ -558,8 +616,8 @@ a {
   content: "";
   border-radius: inherit;
   background:
-    radial-gradient(circle at 0% 50%, hsl(194deg 100% 55% / 24%), transparent 9rem),
-    radial-gradient(circle at 100% 50%, hsl(163deg 100% 48% / 22%), transparent 9rem);
+    radial-gradient(circle at 0% 50%, rgb(var(--lp-c-azul) / 24%), transparent 9rem),
+    radial-gradient(circle at 100% 50%, rgb(var(--lp-c-verde) / 22%), transparent 9rem);
   opacity: 0.72;
   transition:
     opacity 0.22s ease,
@@ -577,7 +635,7 @@ a {
   align-items: center;
   min-height: 48px;
   padding: 7px 14px;
-  color: hsl(206deg 35% 86%);
+  color: rgb(var(--lp-c-suave));
   transition:
     background 0.22s ease,
     box-shadow 0.22s ease,
@@ -585,16 +643,16 @@ a {
 }
 
 .trust-badges li:hover {
-  background: hsl(190deg 100% 50% / 8%);
-  box-shadow: inset 0 0 18px hsl(180deg 100% 58% / 9%);
+  background: rgb(var(--lp-c-ciano) / 8%);
+  box-shadow: inset 0 0 18px rgb(var(--lp-c-ciano) / 9%);
   transform: translateY(-2px);
 }
 
 .trust-badges li + li {
-  border-left: 1px solid hsl(193deg 100% 45% / 18%);
+  border-left: 1px solid rgb(var(--lp-c-azul) / 18%);
 }
 
-.trust-badges img {
+.trust-badges lucide-icon {
   width: 32px;
   min-width: 32px;
   height: 31px;
@@ -611,7 +669,7 @@ a {
 .trust-badges strong,
 .platform-pills strong {
   font-size: 0.82rem;
-  color: hsl(0deg 0% 100%);
+  color: rgb(var(--lp-c-texto));
 }
 
 .platform-pills span {
@@ -628,19 +686,19 @@ a {
   padding: 38px 24px 20px;
   overflow: hidden;
   background:
-    linear-gradient(hsl(196deg 100% 50% / 8%) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(196deg 100% 50% / 7%) 1px, transparent 1px),
-    linear-gradient(135deg, hsl(199deg 91% 22% / 38%), hsl(219deg 79% 6% / 92%) 56%);
+    linear-gradient(rgb(var(--lp-c-azul) / 8%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--lp-c-azul) / 7%) 1px, transparent 1px),
+    linear-gradient(135deg, rgb(var(--lp-c-azul) / 38%), rgb(var(--lp-c-surf) / 92%) 56%);
   background-size:
     42px 42px,
     42px 42px,
     auto;
-  border: 1px solid hsl(196deg 100% 50% / 30%);
+  border: 1px solid rgb(var(--lp-c-azul) / 30%);
   border-radius: 16px;
   box-shadow:
-    inset 0 1px 0 hsl(0deg 0% 100% / 14%),
-    -12px -12px 34px hsl(197deg 100% 55% / 12%),
-    12px 12px 34px hsl(163deg 100% 46% / 10%);
+    inset 0 1px 0 rgb(var(--lp-c-texto) / 14%),
+    -12px -12px 34px rgb(var(--lp-c-azul) / 12%),
+    12px 12px 34px rgb(var(--lp-c-verde) / 10%);
   transition:
     border-color 0.22s ease,
     box-shadow 0.22s ease,
@@ -653,8 +711,8 @@ a {
   pointer-events: none;
   content: "";
   background:
-    linear-gradient(120deg, hsl(177deg 100% 58% / 24%), transparent 22%),
-    radial-gradient(circle at 72% 47%, hsl(164deg 100% 51% / 12%), transparent 16rem);
+    linear-gradient(120deg, rgb(var(--lp-c-ciano) / 24%), transparent 22%),
+    radial-gradient(circle at 72% 47%, rgb(var(--lp-c-verde) / 12%), transparent 16rem);
 }
 
 .platform-card::after,
@@ -670,8 +728,8 @@ a {
   inset: 0;
   border-radius: inherit;
   background:
-    radial-gradient(circle at 3% 3%, hsl(196deg 100% 57% / 28%), transparent 8rem),
-    radial-gradient(circle at 98% 97%, hsl(163deg 100% 48% / 22%), transparent 8rem);
+    radial-gradient(circle at 3% 3%, rgb(var(--lp-c-azul) / 28%), transparent 8rem),
+    radial-gradient(circle at 98% 97%, rgb(var(--lp-c-verde) / 22%), transparent 8rem);
   opacity: 0.74;
   transition:
     opacity 0.22s ease,
@@ -679,11 +737,11 @@ a {
 }
 
 .platform-card:hover {
-  border-color: hsl(190deg 100% 56% / 42%);
+  border-color: rgb(var(--lp-c-ciano) / 42%);
   box-shadow:
-    inset 0 1px 0 hsl(0deg 0% 100% / 16%),
-    -14px -14px 38px hsl(197deg 100% 55% / 16%),
-    14px 14px 38px hsl(163deg 100% 46% / 15%);
+    inset 0 1px 0 rgb(var(--lp-c-texto) / 16%),
+    -14px -14px 38px rgb(var(--lp-c-azul) / 16%),
+    14px 14px 38px rgb(var(--lp-c-verde) / 15%);
   transform: translateY(-3px);
 }
 
@@ -702,12 +760,12 @@ a {
   align-items: center;
   font-size: 0.72rem;
   font-weight: 800;
-  color: hsl(183deg 100% 58%);
+  color: rgb(var(--lp-c-rotulo));
   letter-spacing: 0;
   text-transform: uppercase;
 }
 
-.regulated-label img {
+.regulated-label lucide-icon {
   width: 28px;
   height: 24px;
 }
@@ -731,7 +789,7 @@ a {
   display: block;
   width: 92px;
   height: auto;
-  filter: drop-shadow(0 0 18px hsl(183deg 100% 55% / 36%));
+  filter: drop-shadow(0 0 18px rgb(var(--lp-c-ciano) / 36%));
 }
 
 .platform-logo-text {
@@ -743,21 +801,21 @@ a {
   font-size: clamp(3.2rem, 4.1vw, 4.12rem);
   font-weight: 800;
   line-height: 0.92;
-  color: hsl(0deg 0% 100%);
+  color: rgb(var(--lp-c-texto));
   letter-spacing: 0;
 }
 
 .platform-logo-text span {
   font-size: 1.04rem;
   line-height: 1.28;
-  color: hsl(210deg 38% 91% / 92%);
+  color: rgb(var(--lp-c-suave) / 92%);
 }
 
 .platform-identity p {
   margin: 0;
   font-size: 1.02rem;
   line-height: 1.45;
-  color: hsl(201deg 93% 73%);
+  color: rgb(var(--lp-c-azul));
 }
 
 .shield-hud {
@@ -777,8 +835,8 @@ a {
   z-index: 2;
   grid-template-columns: 0.92fr 0.98fr 0.86fr 1fr 1.24fr;
   overflow: hidden;
-  background: hsl(200deg 60% 9% / 74%);
-  border: 1px solid hsl(190deg 100% 50% / 25%);
+  background: rgb(var(--lp-c-surf2) / 74%);
+  border: 1px solid rgb(var(--lp-c-ciano) / 25%);
   border-radius: 10px;
 }
 
@@ -794,18 +852,18 @@ a {
 }
 
 .platform-pills li:hover {
-  background: hsl(184deg 100% 49% / 8%);
+  background: rgb(var(--lp-c-ciano) / 8%);
   transform: translateY(-2px);
 }
 
 .platform-pills li + li {
-  border-left: 1px solid hsl(190deg 100% 50% / 18%);
+  border-left: 1px solid rgb(var(--lp-c-ciano) / 18%);
 }
 
-.platform-pills img {
-  width: 36px;
-  min-width: 36px;
-  height: 36px;
+.platform-pills lucide-icon {
+  width: 21px;
+  min-width: 21px;
+  height: 21px;
 }
 
 .workflow-section {
@@ -830,16 +888,16 @@ a {
   width: min(300px, 24vw);
   height: 1px;
   content: "";
-  background: linear-gradient(90deg, transparent, hsl(181deg 100% 50% / 42%));
+  background: linear-gradient(90deg, transparent, rgb(var(--lp-c-ciano) / 42%));
 }
 
 .workflow-section h2::after {
-  background: linear-gradient(90deg, hsl(162deg 100% 47% / 42%), transparent);
+  background: linear-gradient(90deg, rgb(var(--lp-c-verde) / 42%), transparent);
 }
 
 .workflow-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 312px), 1fr));
   gap: 16px;
 }
 
@@ -851,13 +909,13 @@ a {
   align-items: center;
   min-height: 134px;
   padding: 22px 20px 20px;
-  background: linear-gradient(135deg, hsl(206deg 80% 11% / 82%), hsl(220deg 75% 5% / 84%));
-  border: 1px solid hsl(197deg 100% 50% / 26%);
+  background: linear-gradient(135deg, rgb(var(--lp-c-surf2) / 82%), rgb(var(--lp-c-surf) / 84%));
+  border: 1px solid rgb(var(--lp-c-azul) / 26%);
   border-radius: 10px;
   box-shadow:
-    inset 0 1px 0 hsl(0deg 0% 100% / 12%),
-    -8px -8px 22px hsl(199deg 100% 50% / 8%),
-    8px 8px 22px hsl(166deg 100% 50% / 6%);
+    inset 0 1px 0 rgb(var(--lp-c-texto) / 12%),
+    -8px -8px 22px rgb(var(--lp-c-azul) / 8%),
+    8px 8px 22px rgb(var(--lp-c-verde) / 6%);
   transition:
     background 0.22s ease,
     border-color 0.22s ease,
@@ -869,8 +927,8 @@ a {
   inset: 0;
   border-radius: inherit;
   background:
-    radial-gradient(circle at 0% 0%, hsl(198deg 100% 58% / 22%), transparent 5.5rem),
-    radial-gradient(circle at 100% 100%, hsl(162deg 100% 48% / 14%), transparent 5.5rem);
+    radial-gradient(circle at 0% 0%, rgb(var(--lp-c-azul) / 22%), transparent 5.5rem),
+    radial-gradient(circle at 100% 100%, rgb(var(--lp-c-verde) / 14%), transparent 5.5rem);
   opacity: 0.74;
   transition:
     opacity 0.22s ease,
@@ -878,12 +936,12 @@ a {
 }
 
 .workflow-card:hover {
-  background: linear-gradient(135deg, hsl(202deg 82% 13% / 88%), hsl(218deg 76% 6% / 88%));
-  border-color: hsl(190deg 100% 56% / 44%);
+  background: linear-gradient(135deg, rgb(var(--lp-c-surf2) / 88%), rgb(var(--lp-c-surf) / 88%));
+  border-color: rgb(var(--lp-c-ciano) / 44%);
   box-shadow:
-    inset 0 1px 0 hsl(0deg 0% 100% / 14%),
-    -10px -10px 26px hsl(199deg 100% 50% / 12%),
-    10px 10px 26px hsl(166deg 100% 50% / 10%);
+    inset 0 1px 0 rgb(var(--lp-c-texto) / 14%),
+    -10px -10px 26px rgb(var(--lp-c-azul) / 12%),
+    10px 10px 26px rgb(var(--lp-c-verde) / 10%);
   transform: translateY(-4px);
 }
 
@@ -899,8 +957,8 @@ a {
   width: 10px;
   height: 10px;
   content: "";
-  border-top: 2px solid hsl(185deg 100% 50% / 80%);
-  border-right: 2px solid hsl(185deg 100% 50% / 80%);
+  border-top: 2px solid rgb(var(--lp-c-ciano) / 80%);
+  border-right: 2px solid rgb(var(--lp-c-ciano) / 80%);
   transform: translateY(-50%) rotate(45deg);
 }
 
@@ -908,7 +966,7 @@ a {
   content: none;
 }
 
-.workflow-card img {
+.workflow-card lucide-icon {
   width: 80px;
   max-width: 100%;
   height: auto;
@@ -919,7 +977,7 @@ a {
   top: 20px;
   left: 20px;
   font-size: 0.63rem;
-  color: hsl(190deg 100% 58% / 70%);
+  color: rgb(var(--lp-c-rotulo));
 }
 
 .workflow-card h3 {
@@ -933,7 +991,7 @@ a {
 .footer-brand p,
 .legal-copy {
   margin: 0;
-  color: hsl(211deg 31% 77% / 86%);
+  color: rgb(var(--lp-c-suave) / 86%);
 }
 
 .workflow-card p {
@@ -944,26 +1002,26 @@ a {
 .indicators-section {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 258px), 1fr));
   gap: 0;
   margin: 0 clamp(44px, 4vw, 60px) 22px;
   overflow: hidden;
-  background: linear-gradient(90deg, hsl(198deg 82% 11% / 68%), hsl(187deg 78% 9% / 48%));
-  border: 1px solid hsl(166deg 100% 45% / 32%);
+  background: linear-gradient(90deg, rgb(var(--lp-c-surf2) / 68%), rgb(var(--lp-c-surf2) / 48%));
+  border: 1px solid rgb(var(--lp-c-verde) / 32%);
   border-radius: 10px;
   box-shadow:
-    inset 0 1px 0 hsl(0deg 0% 100% / 12%),
-    -12px 0 32px hsl(198deg 100% 50% / 9%),
-    12px 0 32px hsl(165deg 100% 47% / 12%);
+    inset 0 1px 0 rgb(var(--lp-c-texto) / 12%),
+    -12px 0 32px rgb(var(--lp-c-azul) / 9%),
+    12px 0 32px rgb(var(--lp-c-verde) / 12%);
 }
 
 .indicators-section::before {
   inset: 0;
   border-radius: inherit;
   background:
-    radial-gradient(circle at 0% 0%, hsl(198deg 100% 54% / 18%), transparent 7rem),
-    radial-gradient(circle at 100% 0%, hsl(164deg 100% 48% / 17%), transparent 7rem),
-    radial-gradient(circle at 100% 100%, hsl(164deg 100% 48% / 15%), transparent 7rem);
+    radial-gradient(circle at 0% 0%, rgb(var(--lp-c-azul) / 18%), transparent 7rem),
+    radial-gradient(circle at 100% 0%, rgb(var(--lp-c-verde) / 17%), transparent 7rem),
+    radial-gradient(circle at 100% 100%, rgb(var(--lp-c-verde) / 15%), transparent 7rem);
   opacity: 0.76;
   transition:
     opacity 0.22s ease,
@@ -984,12 +1042,12 @@ a {
 }
 
 .indicator-item:hover {
-  background: hsl(166deg 100% 47% / 6%);
+  background: rgb(var(--lp-c-verde) / 6%);
   transform: translateY(-3px);
 }
 
 .indicators-section:hover {
-  border-color: hsl(166deg 100% 48% / 46%);
+  border-color: rgb(var(--lp-c-verde) / 46%);
 }
 
 .indicators-section:hover::before {
@@ -998,10 +1056,10 @@ a {
 }
 
 .indicator-item + .indicator-item {
-  border-left: 1px solid hsl(195deg 100% 52% / 18%);
+  border-left: 1px solid rgb(var(--lp-c-azul) / 18%);
 }
 
-.indicator-item img {
+.indicator-item lucide-icon {
   width: 58px;
   max-width: 100%;
   height: auto;
@@ -1014,7 +1072,7 @@ a {
 }
 
 .indicator-item:first-child h3 {
-  color: hsl(177deg 100% 52%);
+  color: rgb(var(--lp-c-rotulo));
   font-size: 1.54rem;
 }
 
@@ -1032,7 +1090,16 @@ a {
   align-items: center;
   min-height: 88px;
   padding: 20px clamp(42px, 4vw, 60px) 24px;
-  border-top: 1px solid hsl(196deg 100% 45% / 22%);
+  border-top: 1px solid rgb(var(--lp-c-azul) / 22%);
+}
+
+/* Largura natural deste layout: 1279px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 1275px) {
+  .landing-footer {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .footer-brand {
@@ -1051,7 +1118,7 @@ a {
   margin-right: 14px;
   font-size: 1.45rem;
   line-height: 1;
-  color: hsl(0deg 0% 100%);
+  color: rgb(var(--lp-c-texto));
 }
 
 .footer-brand p,
@@ -1066,14 +1133,14 @@ a {
   flex-wrap: wrap;
   gap: 26px;
   justify-content: center;
-  color: hsl(213deg 34% 76%);
+  color: rgb(var(--lp-c-suave));
 }
 
 .legal-copy {
   max-width: 410px;
 }
 
-@media (width <= 1280px) {
+@include resp.ate-ampla {
   .hero-section {
     grid-template-columns: minmax(405px, 0.96fr) minmax(400px, 1.04fr);
     align-items: flex-start;
@@ -1155,10 +1222,10 @@ a {
     padding: 7px 6px;
   }
 
-  .platform-pills img {
-    width: 28px;
-    min-width: 28px;
-    height: 28px;
+  .platform-pills lucide-icon {
+    width: 19px;
+    min-width: 19px;
+    height: 19px;
   }
 
   .platform-pills span {
@@ -1187,7 +1254,7 @@ a {
   }
 }
 
-@media (width <= 1100px) {
+@include resp.ate-estreita {
   .landing-header {
     gap: 14px;
     padding-right: 26px;
@@ -1225,7 +1292,7 @@ a {
   }
 }
 
-@media (width <= 920px) {
+@include resp.ate-tablet {
   .hero-section {
     grid-template-columns: 1fr;
   }
@@ -1291,7 +1358,7 @@ a {
   }
 }
 
-@media (width <= 720px) {
+@include resp.ate-compacta {
   :host {
     --sep-enter-left: -14px;
     --sep-enter-right: 14px;
@@ -1387,7 +1454,7 @@ a {
   .trust-badges li + li,
   .platform-pills li + li,
   .indicator-item + .indicator-item {
-    border-top: 1px solid hsl(193deg 100% 45% / 18%);
+    border-top: 1px solid rgb(var(--lp-c-azul) / 18%);
     border-left: 0;
   }
 
@@ -1399,7 +1466,7 @@ a {
     content: none;
   }
 
-  .workflow-card img {
+  .workflow-card lucide-icon {
     width: 70px;
   }
 
@@ -1417,7 +1484,7 @@ a {
   }
 }
 
-@media (width <= 460px) {
+@include resp.ate-telefone {
   .landing-header {
     gap: 12px;
   }
@@ -1468,5 +1535,218 @@ a {
     animation: none !important;
     transform: none !important;
     will-change: auto;
+  }
+}
+
+// ============ JANELA MAXIMIZADA ============
+// Mesmo quadro do site institucional: o teto de 1510px deixava ate 520px vazios de cada lado. Ate
+// 1440 o quadro ja ocupa 100% da janela, entao soltar o teto aqui continua o desenho sem salto.
+@include resp.maximizada {
+  .landing-shell {
+    width: 100%;
+  }
+
+  // A 1440 as duas colunas do hero saem quase iguais (620 e 632px) e o texto ocupa a coluna
+  // inteira. Acima disso a primeira coluna ficava com toda a sobra enquanto texto (560), titulo
+  // (550) e cartao (690) paravam — um vao de ate 1000px no meio. As colunas mantem a proporcao de
+  // 1440 e o texto e os selos acompanham a propria coluna.
+  .hero-section {
+    grid-template-columns: minmax(620px, 1fr) minmax(560px, 1.02fr);
+  }
+
+  .hero-copy,
+  .hero-copy h1,
+  .hero-lead {
+    max-width: none;
+  }
+
+  // A faixa tem 560px a 1440 — mais larga que o texto (505) —, entao 560 e piso, e nao 100%: logo
+  // acima de 1440 ela encolheria, os selos quebrariam linha e a faixa ficaria mais alta.
+  .trust-badges {
+    width: max(560px, 100%);
+    max-width: none;
+  }
+
+  // O selo desenhado na base do globo envolve o icone "Regulado pela" a 1440. O globo e ancorado
+  // pelo topo, entao quando o titulo quebra em menos linhas a faixa sobe e o selo desgarra (ja
+  // acontecia a 1920 antes). Aqui a posicao sai do proprio icone: o texto vai para a base do hero
+  // (a 1440 ele ja e o item mais alto, entao nada muda), o icone fica a 59px do fundo (34 de
+  // respiro + 25 do centro na faixa) e a 31px da borda do texto, e o centro do selo esta a 90.19%
+  // da largura e 94.04% da altura da arte (227x420). As duas contas dao -4px e 33.6px a 1440 — os
+  // valores de hoje.
+  .hero-copy {
+    align-self: end;
+  }
+
+  .hero-globe {
+    // A mesma largura que o globo ja declara (`clamp(170px, 16vw, 235px)`).
+    --globo: clamp(170px, 16vw, 235px);
+
+    top: auto;
+    bottom: calc(59px - 0.1102 * var(--globo));
+    left: calc(clamp(44px, 4vw, 60px) + clamp(70px, 8vw, 128px) + 31px - 0.9019 * var(--globo));
+  }
+}
+
+// ============ JANELA PANORAMICA ============
+// A tela inteira cabe na janela, sem rolagem. No ultrawide a 100% (945px de altura) faltavam 110px:
+// cada respiro vertical passa a acompanhar a altura da janela, com o valor de hoje como teto — o
+// fator e o proprio valor dividido por 1260 (a altura do ultrawide a 75%), entao la nada muda e a
+// 945 todos cedem 25% juntos. So espacamento e altura minima de cartao; fonte nao muda.
+@include resp.panoramica {
+  // A sobra de altura vira respiro **entre** as faixas, em vez de uma faixa morta no rodape: o
+  // quadro tem a altura da janela e distribui o que sobra nos vaos.
+  .landing-shell {
+    display: grid;
+    grid-template-rows: auto auto auto auto auto;
+    align-content: space-between;
+    height: calc(100vh - clamp(20px, 2vw, 36px));
+  }
+
+  .landing-header {
+    padding-block: clamp(10px, 1.15vh, 18px);
+  }
+
+  .hero-section {
+    padding-top: clamp(16px, 1.7vh, 30px);
+    padding-bottom: clamp(18px, 2vh, 34px);
+  }
+
+  .hero-kicker {
+    margin-bottom: clamp(8px, 0.95vh, 12px);
+  }
+
+  .hero-lead {
+    margin-top: clamp(11px, 1.27vh, 16px);
+  }
+
+  .hero-actions {
+    margin-top: clamp(15px, 1.75vh, 22px);
+    margin-bottom: clamp(9px, 1.11vh, 14px);
+  }
+
+  // A fileira de selos era ancorada na base com `position: absolute`, entao o cartao precisava de
+  // altura minima grande para a linha de apoio da marca nao passar por baixo dela — e a 945 as duas
+  // se sobrepunham 28px. No panoramico a fileira entra no fluxo e a propria grade a prende na base:
+  // a sobreposicao deixa de ser possivel e a altura pode ceder com a janela.
+  // O respiro do topo tambem acompanha a altura, como o bloco da marca logo abaixo.
+  .platform-card {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    row-gap: clamp(8px, 1.4vh, 16px);
+    min-height: min(430px, 40vh);
+    padding-top: clamp(22px, 3vh, 38px);
+    padding-bottom: clamp(14px, 1.75vh, 22px);
+  }
+
+  .platform-pills {
+    position: static;
+  }
+
+  // O bloco da marca dentro do cartao: simbolo e respiros acompanham a altura da janela (o fator e
+  // o valor de hoje dividido por 1260), o que devolve ~45px em janela baixa. O tamanho do "SEP" e
+  // da assinatura nao muda.
+
+  .platform-logo {
+    gap: clamp(8px, 0.87vh, 11px);
+    margin-bottom: clamp(10px, 1.43vh, 18px);
+  }
+
+  .platform-logo-symbol {
+    width: clamp(64px, 7.3vh, 92px);
+  }
+
+  // O escudo tem altura igual a largura: com o cartao em 40vh ele passava 12px da base a 945. A
+  // largura passa a respeitar tambem a altura da janela (30vh = 333px a 1260, o valor de hoje).
+  .shield-hud {
+    top: clamp(38px, 4.6vh, 58px);
+    width: min(333px, 48%, 30vh);
+  }
+
+  .workflow-section {
+    padding-bottom: clamp(20px, 2.4vh, 36px);
+  }
+
+  .workflow-section h2 {
+    margin-bottom: clamp(11px, 1.27vh, 16px);
+  }
+
+  // Entre 2400 e 3000px as duas faixas continuam uma sobre a outra, mas com largura de leitura: sem
+  // teto, os quatro cartoes ficavam com 592 a 676px para uma linha de texto. Com 1900px a fileira
+  // da cartoes de ~465px e indicadores de ~380px, e o que sobra vira respiro nas laterais.
+  .workflow-grid,
+  .indicators-section {
+    width: min(100%, 1900px);
+    margin-inline: auto;
+  }
+
+  .workflow-grid {
+    gap: clamp(11px, 1.27vh, 16px);
+  }
+
+  .workflow-card {
+    min-height: min(134px, 10.6vh);
+    padding: clamp(15px, 1.75vh, 22px) 20px clamp(14px, 1.59vh, 20px);
+  }
+
+  // `grid-auto-rows: min-content` porque a linha da faixa passa a ser medida pelo conteudo: com a
+  // altura minima reduzida em janela baixa, o primeiro indicador (tres linhas) ficava 2px alem da
+  // propria caixa. Assim os cinco continuam com a mesma altura, agora a do texto mais o respiro.
+  .indicators-section {
+    grid-auto-rows: min-content;
+    margin-bottom: clamp(15px, 1.75vh, 22px);
+  }
+
+  .indicator-item {
+    min-height: min(110px, 8.7vh);
+    padding-block: clamp(14px, 1.59vh, 20px);
+  }
+
+  .landing-footer {
+    padding-top: clamp(12px, 1.3vh, 20px);
+    padding-bottom: clamp(14px, 1.5vh, 24px);
+  }
+}
+
+// ============ PANORAMICA LARGA (acima de 3000px) ============
+// Ate 3000px cada faixa sozinha ainda le bem (cartao de ~590px). Acima disso ela estica o cartao
+// para mais de 700px com uma linha de texto. Entao "Como funciona" e os indicadores passam a
+// dividir a mesma linha: os nove blocos ficam com ~350px, a largura de leitura que tem a 1440, e o
+// vao entre os grupos separa os assuntos. As bases dos dois coincidem, e cada grupo fica numa
+// linha so — quebrar em 3 + 1 desalinharia a composicao.
+@include resp.panoramica-larga {
+  .landing-shell {
+    grid-template-rows: auto auto auto auto;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+  }
+
+  .landing-header,
+  .hero-section,
+  .landing-footer {
+    grid-column: 1 / -1;
+  }
+
+  .workflow-section {
+    grid-row: 3;
+    grid-column: 1;
+    padding-right: clamp(14px, 1.2vw, 28px);
+    padding-bottom: 0;
+  }
+
+  // Aqui os grupos ja estao lado a lado, entao o teto de 1900px da faixa unica nao vale mais.
+  .workflow-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  // A margem direita continua sendo a do quadro; so a esquerda vira o vao entre os dois grupos.
+  // `width: auto` porque o bloco e item de grade: com 100% mais margens ele passava da moldura.
+  .indicators-section {
+    grid-row: 3;
+    grid-column: 2;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-self: end;
+    width: auto;
+    margin: 0 clamp(44px, 4vw, 60px) 0 clamp(14px, 1.2vw, 28px);
   }
 }

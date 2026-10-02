@@ -7,8 +7,9 @@ import {
   OnDestroy,
   signal,
 } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { LucideAngularModule } from 'lucide-angular';
 
 import {
   DashboardOperacionalResponse,
@@ -17,15 +18,7 @@ import {
 } from '../../../../core/api/api.models';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { BackofficeService } from '../../../../core/backoffice/backoffice.service';
-
-interface SidebarItem {
-  label: string;
-  route: string;
-  icon: string;
-  section: 'jornadas' | 'operacao' | 'conta' | 'primary';
-  badge?: string;
-  active?: boolean;
-}
+import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
 
 interface MetricCard {
   label: string;
@@ -36,7 +29,6 @@ interface MetricCard {
   trendContext: string;
   icon: string;
   tone: 'cyan' | 'green' | 'blue' | 'amber' | 'purple';
-  visual?: string;
 }
 
 interface JourneyCard {
@@ -83,15 +75,9 @@ interface HealthItem {
   icon: string;
 }
 
-interface FooterStatus {
-  label: string;
-  detail: string;
-  icon: string;
-}
-
 @Component({
   selector: 'sep-backoffice-dashboard-page',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [LucideAngularModule, OperationalShellComponent, RouterLink],
   templateUrl: './backoffice-dashboard-page.component.html',
   styleUrl: './backoffice-dashboard-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -100,7 +86,6 @@ export class BackofficeDashboardPageComponent implements OnDestroy {
   private readonly auth = inject(AuthService);
   private readonly backoffice = inject(BackofficeService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly sessionStartedAt = new Date();
   private readonly currentDateTime = signal(new Date());
   private readonly dashboard = signal<DashboardOperacionalResponse | null>(null);
   protected readonly dashboardLoading = signal(true);
@@ -109,16 +94,6 @@ export class BackofficeDashboardPageComponent implements OnDestroy {
     this.currentDateTime.set(new Date());
   }, 1000);
 
-  protected readonly assetBase = '/image/sep_mockup_03_assets';
-  protected readonly systemTime = computed(() =>
-    this.currentDateTime().toLocaleTimeString('pt-BR', { hour12: false }),
-  );
-  protected readonly systemDate = computed(() =>
-    this.currentDateTime().toLocaleDateString('pt-BR'),
-  );
-  protected readonly lastAccess = `${this.sessionStartedAt.toLocaleDateString(
-    'pt-BR',
-  )} ${this.sessionStartedAt.toLocaleTimeString('pt-BR', { hour12: false })}`;
   protected readonly greeting = computed(() => {
     const hour = this.currentDateTime().getHours();
     if (hour < 12) return 'Bom dia';
@@ -169,64 +144,6 @@ export class BackofficeDashboardPageComponent implements OnDestroy {
     window.clearInterval(this.clockInterval);
   }
 
-  protected readonly sidebarItems: SidebarItem[] = [
-    {
-      label: 'Dashboard',
-      route: '/app/backoffice/dashboard',
-      icon: 'icons/icon_sidebar_dashboard.png',
-      section: 'primary',
-      active: true,
-    },
-    {
-      label: 'Onboarding',
-      route: '/app/onboarding',
-      icon: 'icons/icon_sidebar_onboarding.png',
-      section: 'jornadas',
-      badge: '2',
-    },
-    {
-      label: 'Crédito',
-      route: '/app/credito',
-      icon: 'icons/icon_sidebar_credito.png',
-      section: 'jornadas',
-      badge: '3',
-    },
-    {
-      label: 'Formalização',
-      route: '/app/formalizacao',
-      icon: 'icons/icon_sidebar_formalizacao.png',
-      section: 'jornadas',
-      badge: '1',
-    },
-    {
-      label: 'Cobrança',
-      route: '/app/cobranca',
-      icon: 'icons/icon_sidebar_cobranca.png',
-      section: 'jornadas',
-      badge: '4',
-    },
-    {
-      label: 'Backoffice',
-      route: '/app/backoffice/fila',
-      icon: 'icons/icon_sidebar_backoffice.png',
-      section: 'operacao',
-      active: true,
-    },
-    {
-      label: 'Pix',
-      route: '/app/pix',
-      icon: 'icons/icon_sidebar_pix.png',
-      section: 'operacao',
-      badge: '1',
-    },
-    {
-      label: 'Meu perfil',
-      route: '/app/profile',
-      icon: 'icons/icon_sidebar_perfil.png',
-      section: 'conta',
-    },
-  ];
-
   protected readonly metrics = computed<MetricCard[]>(() => {
     const dashboard = this.dashboard();
     if (!dashboard) return [];
@@ -234,27 +151,27 @@ export class BackofficeDashboardPageComponent implements OnDestroy {
     const metadata: Record<DominioOperacional, Pick<MetricCard, 'label' | 'icon' | 'tone'>> = {
       ONBOARDING: {
         label: 'Onboarding',
-        icon: 'icons/icon_metric_onboarding.png',
+        icon: 'user-plus',
         tone: 'cyan',
       },
       CREDITO: {
         label: 'Crédito',
-        icon: 'icons/icon_metric_credito.png',
+        icon: 'credit-card',
         tone: 'green',
       },
       FORMALIZACAO: {
         label: 'Formalização',
-        icon: 'icons/icon_metric_formalizacao.png',
+        icon: 'file-check',
         tone: 'blue',
       },
       COBRANCA: {
         label: 'Cobrança',
-        icon: 'icons/icon_metric_cobranca.png',
+        icon: 'banknote',
         tone: 'amber',
       },
       PIX: {
         label: 'PIX',
-        icon: 'icons/icon_metric_pix.png',
+        icon: 'qr-code',
         tone: 'purple',
       },
     };
@@ -276,11 +193,25 @@ export class BackofficeDashboardPageComponent implements OnDestroy {
         subtitle: `Últimos ${dashboard.volume.periodoDias} dias`,
         trendValue: formatTrend(dashboard.volume.variacaoPercentual),
         trendContext: `vs ${dashboard.volume.periodoDias} dias anteriores`,
-        icon: 'icons/icon_metric_volume_operacional.png',
+        icon: 'activity',
         tone: 'cyan',
-        visual: 'visuals/visual_sparkline_volume_operacional.png',
       },
     ];
+  });
+
+  // Tendencia do volume: o unico dado de serie que a API entrega para este cartao e o proprio
+  // volume mais a variacao contra o periodo anterior, entao a linha liga esses dois pontos. O
+  // desenho que estava aqui era um PNG com "+18% vs 7 dias anteriores" gravado na imagem, que
+  // repetia o texto logo abaixo e nunca mudava, qualquer que fosse o numero real.
+  protected readonly volumeTendencia = computed(() => {
+    const volume = this.dashboard()?.volume;
+    if (!volume) return null;
+    const variacao = volume.variacaoPercentual ?? 0;
+    const anterior = variacao === -100 ? 0 : volume.valor / (1 + variacao / 100);
+    const maximo = Math.max(volume.valor, anterior, 1);
+    const minimo = Math.min(volume.valor, anterior, 0);
+    const y = (v: number) => (44 - ((v - minimo) / Math.max(maximo - minimo, 1)) * 36).toFixed(2);
+    return { pontos: `4,${y(anterior)} 216,${y(volume.valor)}`, subindo: variacao >= 0 };
   });
 
   protected readonly journeys = computed<JourneyCard[]>(() => {
@@ -296,28 +227,28 @@ export class BackofficeDashboardPageComponent implements OnDestroy {
         description: 'KYC/KYB e validações cadastrais.',
         statusTone: 'cyan',
         route: '/app/onboarding',
-        icon: 'icons/icon_jornada_onboarding.png',
+        icon: 'user-plus',
       },
       CREDITO: {
         title: 'Análise de crédito',
         description: 'Proposta, parecer e decisão.',
         statusTone: 'green',
         route: '/app/credito',
-        icon: 'icons/icon_jornada_analise_credito.png',
+        icon: 'credit-card',
       },
       FORMALIZACAO: {
         title: 'Formalização',
         description: 'Aceite e assinatura digital.',
         statusTone: 'cyan',
         route: '/app/formalizacao',
-        icon: 'icons/icon_jornada_formalizacao.png',
+        icon: 'file-check',
       },
       COBRANCA: {
         title: 'Cobrança',
         description: 'Parcelas e inadimplência.',
         statusTone: 'amber',
         route: '/app/cobranca',
-        icon: 'icons/icon_jornada_cobranca.png',
+        icon: 'banknote',
       },
     };
 
@@ -344,23 +275,23 @@ export class BackofficeDashboardPageComponent implements OnDestroy {
     > = {
       NOVOS_CADASTROS: {
         label: 'Novos cadastros',
-        icon: 'icons/icon_resumo_novos_cadastros.png',
+        icon: 'user-plus',
       },
       PROPOSTAS_RECEBIDAS: {
         label: 'Propostas recebidas',
-        icon: 'icons/icon_resumo_propostas_recebidas.png',
+        icon: 'inbox',
       },
       CONTRATOS_ASSINADOS: {
         label: 'Contratos assinados',
-        icon: 'icons/icon_resumo_contratos_assinados.png',
+        icon: 'file-check',
       },
       PAGAMENTOS_PIX: {
         label: 'Pagamentos via PIX',
-        icon: 'icons/icon_resumo_pagamentos_pix.png',
+        icon: 'qr-code',
       },
       ALERTAS_CRITICOS: {
         label: 'Alertas críticos',
-        icon: 'icons/icon_resumo_alertas_criticos.png',
+        icon: 'triangle-alert',
         severity: 'danger',
       },
     };
@@ -375,11 +306,11 @@ export class BackofficeDashboardPageComponent implements OnDestroy {
     const dashboard = this.dashboard();
     if (!dashboard) return [];
     const icons: Record<DashboardOperacionalResponse['atividades'][number]['tipo'], string> = {
-      CADASTRO_INICIADO: 'icons/icon_timeline_dot_info.png',
-      PROPOSTA_RECEBIDA: 'icons/icon_timeline_dot_success_01.png',
-      DOCUMENTO_ENVIADO: 'icons/icon_timeline_dot_success_02.png',
-      PAGAMENTO_PIX: 'icons/icon_timeline_dot_success_03.png',
-      ALERTA_INADIMPLENCIA: 'icons/icon_timeline_dot_danger.png',
+      CADASTRO_INICIADO: 'circle',
+      PROPOSTA_RECEBIDA: 'circle-check',
+      DOCUMENTO_ENVIADO: 'circle-check',
+      PAGAMENTO_PIX: 'circle-check',
+      ALERTA_INADIMPLENCIA: 'circle',
     };
     return dashboard.atividades.map((activity) => ({
       title: activity.titulo,
@@ -406,10 +337,10 @@ export class BackofficeDashboardPageComponent implements OnDestroy {
       DashboardOperacionalResponse['desempenho'][number]['id'],
       Pick<PerformanceItem, 'label' | 'color'>
     > = {
-      CONVERSAO_CREDITO: { label: 'Conversão crédito', color: '#2997ff' },
-      CONTRATOS_FINALIZADOS: { label: 'Contratos finalizados', color: '#37e0a6' },
-      DOCUMENTOS_VALIDOS: { label: 'Documentos válidos', color: '#b85cff' },
-      SLA_MEDIO: { label: 'SLA médio', color: '#ffb545' },
+      CONVERSAO_CREDITO: { label: 'Conversão crédito', color: 'var(--sep-accent)' },
+      CONTRATOS_FINALIZADOS: { label: 'Contratos finalizados', color: 'var(--sep-success)' },
+      DOCUMENTOS_VALIDOS: { label: 'Documentos válidos', color: 'var(--sep-purple)' },
+      SLA_MEDIO: { label: 'SLA médio', color: 'var(--sep-warning)' },
     };
     return dashboard.desempenho.map((item) => ({
       ...metadata[item.id],
@@ -423,45 +354,12 @@ export class BackofficeDashboardPageComponent implements OnDestroy {
   protected readonly health = computed<HealthItem[]>(() => {
     const dashboard = this.dashboard();
     if (!dashboard) return [];
-    return dashboard.saudeServicos.map((item, index) => ({
+    return dashboard.saudeServicos.map((item) => ({
       label: item.nome,
       status: item.status.toLocaleLowerCase('pt-BR'),
-      icon: `icons/icon_health_service_0${index + 1}.png`,
+      icon: 'activity',
     }));
   });
-
-  protected readonly footerStatus: FooterStatus[] = [
-    {
-      label: 'Ambiente regulado',
-      detail: 'Resolução CMN 4.656/2018',
-      icon: 'icons/icon_footer_ambiente_regulado.png',
-    },
-    {
-      label: 'Segregação patrimonial',
-      detail: 'Conta escrow ativa',
-      icon: 'icons/icon_footer_segregacao_patrimonial.png',
-    },
-    {
-      label: 'Segurança',
-      detail: 'Dados criptografados',
-      icon: 'icons/icon_footer_seguranca.png',
-    },
-    {
-      label: 'Rastreabilidade',
-      detail: 'Auditoria completa',
-      icon: 'icons/icon_footer_rastreabilidade.png',
-    },
-  ];
-
-  protected readonly sidebarSections = [
-    { id: 'jornadas', label: 'Jornadas' },
-    { id: 'operacao', label: 'Operação' },
-    { id: 'conta', label: 'Conta' },
-  ] as const;
-
-  protected itemsBySection(section: SidebarItem['section']): SidebarItem[] {
-    return this.sidebarItems.filter((item) => item.section === section);
-  }
 }
 
 function formatTrend(value: number): string {

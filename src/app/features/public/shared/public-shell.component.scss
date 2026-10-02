@@ -1,0 +1,368 @@
+// ============ SHELL DO SITE PÚBLICO ============
+// Cabeçalho e rodapé das sete páginas institucionais, na linguagem da landing (Mockup 01).
+// `ViewEncapsulation.None` porque o shell projeta conteúdo de outros componentes — o mesmo
+// arranjo do shell operacional.
+
+@use "../../../../styles/sep-responsivo" as resp;
+
+sep-public-shell {
+  display: block;
+  color: rgb(var(--lp-c-suave));
+  background: rgb(var(--lp-c-fundo));
+}
+
+.site-page {
+  min-height: 100vh;
+  padding: clamp(10px, 1vw, 18px);
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 17% 25%, rgb(var(--lp-c-azul) / 18%), transparent 22rem),
+    radial-gradient(circle at 88% 82%, rgb(var(--lp-c-verde) / 12%), transparent 24rem),
+    linear-gradient(
+      135deg,
+      rgb(var(--lp-c-surf)) 0%,
+      rgb(var(--lp-c-fundo)) 52%,
+      rgb(var(--lp-c-surf)) 100%
+    );
+}
+
+.site-shell {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(100%, 1510px);
+  min-height: calc(100vh - clamp(20px, 2vw, 36px));
+  margin: 0 auto;
+  overflow: hidden;
+  background:
+    linear-gradient(rgb(var(--lp-c-azul) / 5%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--lp-c-azul) / 5%) 1px, transparent 1px),
+    radial-gradient(circle at 52% 4%, rgb(var(--lp-c-ciano) / 10%), transparent 13rem),
+    linear-gradient(180deg, rgb(var(--lp-c-surf) / 96%), rgb(var(--lp-c-fundo) / 98%));
+  background-size:
+    40px 40px,
+    40px 40px,
+    auto,
+    auto;
+  border: 1px solid rgb(var(--lp-c-azul) / 55%);
+  border-radius: 18px;
+  box-shadow:
+    0 0 0 1px rgb(var(--lp-c-fundo) / 80%),
+    0 28px 80px rgb(var(--lp-c-fundo) / 75%);
+}
+
+// ============ CABEÇALHO ============
+
+.site-header {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: clamp(22px, 3vw, 56px);
+  align-items: center;
+  min-height: 72px;
+  padding: 18px clamp(24px, 3vw, 42px);
+  border-bottom: 1px solid rgb(var(--lp-c-azul) / 35%);
+}
+
+.site-brand {
+  display: inline-flex;
+  gap: 14px;
+  align-items: center;
+  min-width: 322px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.site-brand-symbol {
+  display: block;
+  width: 46px;
+  min-width: 46px;
+  height: auto;
+}
+
+.site-brand-text {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0 14px;
+  align-items: center;
+}
+
+.site-brand-text strong {
+  color: rgb(var(--lp-c-texto));
+  font-size: clamp(1.85rem, 2.4vw, 2.3rem);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.site-brand-text span {
+  max-width: 172px;
+  padding-left: 14px;
+  color: rgb(var(--lp-c-suave) / 92%);
+  font-size: 0.79rem;
+  line-height: 1.2;
+  border-left: 1px solid rgb(var(--lp-c-azul) / 55%);
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(18px, 2.6vw, 42px);
+  align-items: center;
+  justify-content: center;
+  color: rgb(var(--lp-c-suave) / 88%);
+  font-size: 0.86rem;
+}
+
+.site-nav a,
+.site-footer-links a {
+  position: relative;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    color 0.2s ease,
+    text-shadow 0.2s ease;
+}
+
+.site-nav a:hover,
+.site-footer-links a:hover {
+  color: rgb(var(--lp-c-rotulo));
+  text-shadow: 0 0 16px rgb(var(--lp-c-ciano) / 45%);
+}
+
+// A página aberta se mostra selecionada, e não só no hover.
+.site-nav a.site-nav-ativo {
+  color: rgb(var(--lp-c-rotulo));
+  font-weight: 700;
+}
+
+.site-nav a.site-nav-ativo::after {
+  position: absolute;
+  bottom: -7px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: rgb(var(--lp-c-ciano));
+  box-shadow: 0 0 10px rgb(var(--lp-c-ciano) / 70%);
+  content: "";
+}
+
+// O botao de tema e a entrada ficam juntos na ponta direita do cabecalho.
+.site-header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-self: end;
+}
+
+.site-theme {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  color: rgb(var(--lp-c-ciano));
+  cursor: pointer;
+  border: 1px solid rgb(var(--lp-c-ciano) / 45%);
+  border-radius: 11px;
+  background: rgb(var(--lp-c-surf) / 72%);
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.site-theme:hover,
+.site-theme:focus-visible {
+  border-color: rgb(var(--lp-c-ciano));
+  background: rgb(var(--lp-c-ciano) / 14%);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.site-login {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 108px;
+  min-height: 38px;
+  padding: 0 24px;
+  color: rgb(var(--lp-c-texto));
+  font-weight: 700;
+  text-decoration: none;
+  border: 1px solid rgb(var(--lp-c-ciano));
+  border-radius: 13px;
+  background: linear-gradient(135deg, rgb(var(--lp-c-surf) / 82%), rgb(var(--lp-c-verde) / 42%));
+  box-shadow:
+    inset 0 1px 0 rgb(var(--lp-c-texto) / 12%),
+    0 0 24px rgb(var(--lp-c-verde) / 18%);
+  transition:
+    box-shadow 220ms ease,
+    transform 220ms ease;
+}
+
+.site-login:hover {
+  box-shadow: 0 0 34px rgb(var(--lp-c-verde) / 38%);
+  transform: translateY(-1px);
+}
+
+.site-content {
+  position: relative;
+  z-index: 2;
+  min-height: 0;
+
+  /* Container do contrato responsivo do site institucional, espelhando o que `.op-content` faz
+     do lado operacional. */
+  container: sep-conteudo / inline-size;
+}
+
+// ============ RODAPÉ ============
+
+.site-footer {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px clamp(24px, 4vw, 60px);
+  align-items: center;
+  padding: 26px clamp(24px, 3vw, 42px);
+  border-top: 1px solid rgb(var(--lp-c-azul) / 35%);
+}
+
+.site-footer-brand {
+  display: grid;
+  grid-template-columns: 34px auto;
+  gap: 4px 12px;
+  align-items: center;
+}
+
+.site-footer-logo {
+  grid-row: span 2;
+  width: 34px;
+  height: auto;
+}
+
+.site-footer-brand strong {
+  font-size: 1.16rem;
+  font-weight: 800;
+}
+
+.site-footer-brand p {
+  grid-column: 2;
+  margin: 0;
+  color: rgb(var(--lp-c-suave) / 62%);
+  font-size: 0.8rem;
+}
+
+.site-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px clamp(14px, 2vw, 28px);
+  justify-content: flex-end;
+  color: rgb(var(--lp-c-suave) / 88%);
+  font-size: 0.84rem;
+}
+
+.site-legal {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: rgb(var(--lp-c-suave) / 55%);
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+// ============ RESPONSIVIDADE ============
+
+@include resp.ate-media {
+  .site-header {
+    grid-template-columns: auto auto;
+    row-gap: 16px;
+  }
+
+  .site-nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: flex-start;
+  }
+
+  .site-brand {
+    min-width: 0;
+  }
+}
+
+@include resp.ate-compacta {
+  .site-brand-text span {
+    display: none;
+  }
+
+  .site-footer {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .site-footer-links {
+    justify-content: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-login,
+  .site-nav a,
+  .site-footer-links a {
+    transition: none;
+  }
+}
+
+// ============ JANELA MAXIMIZADA ============
+// O quadro parava em 1510px e, maximizado, deixava 200px (1920) a 520px (2560) vazios de cada lado.
+// Ate 1440 ele ja ocupa 100% da janela — o teto so atuava a partir de ~1536 —, entao soltar o teto
+// daqui para cima continua o mesmo desenho, sem salto. Nada muda de 1440 para baixo.
+@include resp.maximizada {
+  .site-shell {
+    width: 100%;
+  }
+}
+
+// ============ JANELA PANORAMICA ============
+// Nas paginas de apresentacao o conteudo passa a ser diagramado lado a lado e tem de caber na
+// altura da tela. O quadro ocupa exatamente a janela, a area de conteudo vira a faixa elastica entre
+// cabecalho e rodape, e o rodape se recolhe numa linha so — marca, aviso regulatorio e links —, em
+// vez de duas, devolvendo altura ao conteudo.
+@include resp.panoramica {
+  // Altura exata, e nao minima: so assim a faixa do meio (`minmax(0, 1fr)`) tem limite e o
+  // conteudo pode ser diagramado para ela — com `min-height` a faixa crescia com o conteudo e o
+  // documento legal virava uma coluna de 3.500px. Se uma janela baixa nao comportar o conteudo, a
+  // faixa rola por dentro em vez de recortar.
+  .site-shell {
+    height: calc(100vh - clamp(20px, 2vw, 36px));
+  }
+
+  // A linha declarada e o que limita a pagina: a implicita e `auto` e crescia com o conteudo.
+  .site-content {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+    overflow-y: auto;
+
+    // Tamanho (e nao so largura): a altura da faixa vira `cqh` para as paginas se diagramarem
+    // dentro dela. A altura ja vem da linha do quadro, entao a contencao nao muda nada.
+    container-type: size;
+  }
+
+  .site-footer {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    padding-block: clamp(10px, 1.4vh, 18px);
+  }
+
+  .site-legal {
+    grid-row: 1;
+    grid-column: 2;
+    text-align: center;
+  }
+
+  .site-footer-links {
+    grid-row: 1;
+    grid-column: 3;
+  }
+}

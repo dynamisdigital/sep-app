@@ -1,3 +1,12 @@
+@use "../../../../styles/tela-operacional-tema" as tema;
+
+/* `.op-content` pertence ao shell operacional (ViewEncapsulation.None), por isso o ::ng-deep.
+   E esta area que recebe o espaco restante depois da barra lateral: e ela que a pagina mede. */
+/* stylelint-disable-next-line selector-pseudo-element-no-unknown -- ::ng-deep e do Angular */
+:host ::ng-deep .op-content:has(> .profile-page) {
+  container: sep-conteudo / inline-size;
+}
+
 :host {
   display: block;
   height: 100vh;
@@ -10,7 +19,7 @@
   gap: 12px;
   width: 100%;
   height: 100%;
-  color: #eaf7ff;
+  color: var(--sep-text-strong);
 }
 
 .profile-page,
@@ -24,7 +33,7 @@
   display: flex;
   gap: 8px;
   align-items: center;
-  color: #7f9bb4;
+  color: var(--sep-text-muted);
   font-size: 12px;
 }
 
@@ -34,7 +43,7 @@
 }
 
 .profile-breadcrumb strong {
-  color: #c9dbea;
+  color: var(--sep-text-secondary);
   font-weight: 500;
 }
 
@@ -72,7 +81,7 @@
 }
 
 .profile-heading p {
-  color: #9bb3c7;
+  color: var(--sep-text-secondary);
   font-size: 14px;
 }
 
@@ -82,14 +91,14 @@
   gap: 8px;
   align-items: center;
   justify-content: center;
-  color: #e8f8ff;
+  color: var(--sep-text-strong);
   cursor: pointer;
-  border: 1px solid rgb(0 178 255 / 65%);
+  border: 1px solid rgb(var(--sep-c-cyan) / 65%);
   border-radius: 7px;
-  background: rgb(2 19 35 / 75%);
+  background: rgb(var(--sep-c-surf) / 75%);
   box-shadow:
-    inset 0 0 10px rgb(0 178 255 / 7%),
-    0 0 10px rgb(0 178 255 / 10%);
+    inset 0 0 10px rgb(var(--sep-c-cyan) / calc(7% * var(--sep-glow-alpha))),
+    0 0 10px rgb(var(--sep-c-cyan) / calc(10% * var(--sep-glow-alpha)));
   transition:
     color 180ms ease,
     border-color 180ms ease,
@@ -101,12 +110,12 @@
 .profile-outline-button:focus-visible,
 .profile-export:hover,
 .profile-export:focus-visible {
-  color: #fff;
-  border-color: rgb(0 221 255 / 90%);
+  color: var(--sep-text-strong);
+  border-color: rgb(var(--sep-c-cyan) / 90%);
   outline: none;
   box-shadow:
-    inset 0 0 16px rgb(0 221 255 / 14%),
-    0 0 18px rgb(0 183 255 / 32%);
+    inset 0 0 16px rgb(var(--sep-c-cyan) / calc(14% * var(--sep-glow-alpha))),
+    0 0 18px rgb(var(--sep-c-blue) / calc(32% * var(--sep-glow-alpha)));
   transform: translateY(-2px);
 }
 
@@ -115,22 +124,23 @@
   height: 38px;
 }
 
-.profile-outline-button img,
-.profile-export img {
-  width: 22px;
-  height: 22px;
-  object-fit: contain;
+// A caixa acompanha o desenho: os 22px vinham do PNG, que carregava folga transparente em
+// volta do simbolo e virava espaco morto entre o icone e o rotulo do botao.
+.profile-outline-button lucide-icon,
+.profile-export lucide-icon {
+  width: 14px;
+  height: 14px;
 }
 
 .profile-panel {
-  border: 1px solid rgb(0 178 255 / 46%);
+  border: 1px solid rgb(var(--sep-c-cyan) / 46%);
   border-radius: 10px;
   background:
-    radial-gradient(circle at 90% 12%, rgb(0 178 255 / 8%), transparent 28%),
-    linear-gradient(135deg, rgb(4 24 42 / 90%), rgb(2 15 29 / 84%));
+    radial-gradient(circle at 90% 12%, rgb(var(--sep-c-cyan) / 8%), transparent 28%),
+    linear-gradient(135deg, rgb(var(--sep-c-surf2) / 90%), rgb(var(--sep-c-sunken) / 84%));
   box-shadow:
-    inset 0 0 24px rgb(0 178 255 / 3%),
-    0 0 16px rgb(0 178 255 / 5%);
+    inset 0 0 24px rgb(var(--sep-c-cyan) / calc(3% * var(--sep-glow-alpha))),
+    0 0 16px rgb(var(--sep-c-cyan) / calc(5% * var(--sep-glow-alpha)));
   transition:
     border-color 220ms ease,
     box-shadow 220ms ease,
@@ -138,10 +148,10 @@
 }
 
 .profile-panel:hover {
-  border-color: rgb(0 207 255 / 68%);
+  border-color: rgb(var(--sep-c-blue) / 68%);
   box-shadow:
-    inset 0 0 28px rgb(0 178 255 / 6%),
-    0 0 22px rgb(0 178 255 / 13%);
+    inset 0 0 28px rgb(var(--sep-c-cyan) / calc(6% * var(--sep-glow-alpha))),
+    0 0 22px rgb(var(--sep-c-cyan) / calc(13% * var(--sep-glow-alpha)));
 }
 
 .profile-hero {
@@ -153,8 +163,8 @@
   padding: 0 22px;
   overflow: hidden;
   background-image:
-    radial-gradient(circle at 90% 12%, rgb(0 178 255 / 8%), transparent 28%),
-    linear-gradient(135deg, rgb(4 24 42 / 90%), rgb(2 15 29 / 84%));
+    radial-gradient(circle at 90% 12%, rgb(var(--sep-c-cyan) / 8%), transparent 28%),
+    linear-gradient(135deg, rgb(var(--sep-c-surf2) / 90%), rgb(var(--sep-c-sunken) / 84%));
   background-repeat: no-repeat;
   background-position: center, center;
   background-size: auto, auto;
@@ -165,11 +175,20 @@
   height: 148px;
 }
 
-.profile-avatar img {
-  display: block;
+.profile-avatar span {
+  display: grid;
+  place-items: center;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  color: var(--sep-glow);
+  font-size: 64px;
+  font-weight: 800;
+  border: 2px solid rgb(var(--sep-c-cyan) / 62%);
+  border-radius: 50%;
+  background: rgb(var(--sep-c-blue) / 14%);
+  box-shadow:
+    inset 0 0 24px rgb(var(--sep-c-cyan) / calc(18% * var(--sep-glow-alpha))),
+    0 0 26px rgb(var(--sep-c-cyan) / calc(28% * var(--sep-glow-alpha)));
 }
 
 .profile-identity {
@@ -193,32 +212,32 @@
 
 .profile-identity em {
   padding: 4px 8px;
-  color: #28aefe;
-  font-size: 10px;
+  color: var(--sep-accent);
+  font-size: 11px;
   font-style: normal;
   text-transform: uppercase;
-  border: 1px solid rgb(0 178 255 / 30%);
+  border: 1px solid rgb(var(--sep-c-cyan) / 30%);
   border-radius: 5px;
-  background: rgb(0 103 180 / 15%);
+  background: rgb(var(--sep-c-blue) / 15%);
   transition:
     border-color 160ms ease,
     box-shadow 160ms ease;
 }
 
 .profile-identity em:hover {
-  border-color: rgb(0 178 255 / 62%);
-  box-shadow: 0 0 10px rgb(0 178 255 / 18%);
+  border-color: rgb(var(--sep-c-cyan) / 62%);
+  box-shadow: 0 0 10px rgb(var(--sep-c-cyan) / calc(18% * var(--sep-glow-alpha)));
 }
 
 .profile-identity > strong {
-  color: #5ec6ff;
+  color: var(--sep-accent);
   font-size: 15px;
   font-weight: 500;
 }
 
 .profile-identity small {
   margin-top: 5px;
-  color: #7894ad;
+  color: var(--sep-text-muted);
   font-size: 13px;
 }
 
@@ -227,7 +246,7 @@
   gap: 8px;
   align-items: center;
   overflow: hidden;
-  color: #a9bfd0;
+  color: var(--sep-text-secondary);
   font-size: 13px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -238,7 +257,7 @@
   flex: 0 0 auto;
   place-items: center;
   padding: 2px;
-  color: #78a9c7;
+  color: var(--sep-text-muted);
   cursor: pointer;
   border: 0;
   background: transparent;
@@ -250,7 +269,7 @@
 .profile-identity p button:hover,
 .profile-identity p button:focus-visible {
   outline: none;
-  filter: drop-shadow(0 0 6px rgb(0 183 255 / 75%));
+  filter: drop-shadow(0 0 6px rgb(var(--sep-c-blue) / calc(75% * var(--sep-glow-alpha))));
   transform: scale(1.12);
 }
 
@@ -266,7 +285,7 @@
   position: absolute;
   width: 9px;
   height: 10px;
-  border: 1.5px solid #62bdea;
+  border: 1.5px solid var(--sep-accent);
   border-radius: 2px;
   content: "";
 }
@@ -279,7 +298,7 @@
 .profile-copy-icon::after {
   top: 5px;
   left: 2px;
-  background: rgb(4 24 42 / 92%);
+  background: rgb(var(--sep-c-surf2) / 92%);
 }
 
 .profile-account-status {
@@ -289,13 +308,13 @@
   align-items: center;
   min-height: 92px;
   padding-inline: 24px;
-  border-inline: 1px solid rgb(0 178 255 / 15%);
+  border-inline: 1px solid rgb(var(--sep-c-cyan) / 15%);
 }
 
 .profile-account-status-icon {
-  width: 77px;
-  height: 77px;
-  object-fit: contain;
+  width: 47px;
+  height: 47px;
+  color: var(--sep-glow);
 }
 
 .profile-account-status div {
@@ -305,19 +324,19 @@
 
 .profile-account-status span,
 .profile-environment > span {
-  color: #a8c5d8;
+  color: var(--sep-text-secondary);
   font-size: 14px;
 }
 
 .profile-account-status strong {
-  color: #45e9a5;
+  color: var(--sep-success);
   font-size: 14px;
   font-weight: 500;
 }
 
 .profile-account-status small {
   max-width: 260px;
-  color: #819db4;
+  color: var(--sep-text-muted);
   font-size: 13px;
   line-height: 1.45;
 }
@@ -333,14 +352,14 @@
 .profile-environment > strong {
   min-width: 112px;
   padding: 7px 14px;
-  color: #24e8ae;
+  color: var(--sep-success);
   font-size: 13px;
   text-align: center;
   text-transform: uppercase;
-  border: 1px solid #21c98e;
+  border: 1px solid var(--sep-success);
   border-radius: 6px;
-  background: rgb(12 92 68 / 15%);
-  box-shadow: 0 0 12px rgb(22 242 173 / 10%);
+  background: rgb(var(--sep-c-active) / 15%);
+  box-shadow: 0 0 12px rgb(var(--sep-c-green) / calc(10% * var(--sep-glow-alpha)));
   transition:
     border-color 170ms ease,
     box-shadow 170ms ease,
@@ -348,13 +367,13 @@
 }
 
 .profile-environment > strong:hover {
-  border-color: #45f2b6;
-  box-shadow: 0 0 18px rgb(22 242 173 / 25%);
+  border-color: var(--sep-success);
+  box-shadow: 0 0 18px rgb(var(--sep-c-green) / calc(25% * var(--sep-glow-alpha)));
   transform: translateY(-1px);
 }
 
 .profile-environment small {
-  color: #7893aa;
+  color: var(--sep-text-muted);
   font-size: 12px;
 }
 
@@ -365,7 +384,7 @@
   height: 164px;
 }
 
-.profile-regulatory-art img {
+.profile-regulatory-art sep-arte {
   display: block;
   width: 190px;
   height: 164px;
@@ -380,6 +399,15 @@
   min-height: 0;
 }
 
+/* Largura natural deste layout: 1135px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 1131px) {
+  .profile-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .profile-grid > section {
   position: relative;
   box-sizing: border-box;
@@ -390,30 +418,29 @@
 
 .profile-audit {
   background-image:
-    radial-gradient(circle at 90% 12%, rgb(0 178 255 / 8%), transparent 28%),
-    linear-gradient(135deg, rgb(4 24 42 / 90%), rgb(2 15 29 / 84%));
+    radial-gradient(circle at 90% 12%, rgb(var(--sep-c-cyan) / 8%), transparent 28%),
+    linear-gradient(135deg, rgb(var(--sep-c-surf2) / 90%), rgb(var(--sep-c-sunken) / 84%));
   background-repeat: no-repeat;
   background-position: center, center;
   background-size: auto, auto;
 }
 
-.profile-audit::after {
+// O conteudo fica acima da arte; a arte e excluida da regra, senao o `position: relative` dela
+// (mesma especificidade, declarado depois) vencia o `absolute` e a prancheta virava um item do
+// fluxo, empurrando o cabecalho do cartao para baixo.
+.profile-audit > :not(.profile-audit-art) {
+  position: relative;
+  z-index: 1;
+}
+
+.profile-audit-art {
   position: absolute;
   z-index: 0;
   right: 22px;
   top: 50%;
   width: 190px;
-  height: 182px;
   pointer-events: none;
-  background: url("/image/sep_mockup_04_assets/visuals/visual_auditoria_clipboard_hud.png?v=20260717-2")
-    center / contain no-repeat;
-  content: "";
   transform: translateY(-50%);
-}
-
-.profile-audit > * {
-  position: relative;
-  z-index: 1;
 }
 
 .profile-panel h2 {
@@ -425,7 +452,7 @@
   display: grid;
   margin: 16px 0 0;
   overflow: hidden;
-  border: 1px solid rgb(0 178 255 / 18%);
+  border: 1px solid rgb(var(--sep-c-cyan) / 18%);
   border-radius: 7px;
 }
 
@@ -435,7 +462,7 @@
   align-items: center;
   min-height: 39px;
   padding: 0 14px;
-  border-bottom: 1px solid rgb(0 178 255 / 12%);
+  border-bottom: 1px solid rgb(var(--sep-c-cyan) / 12%);
   transition:
     background-color 160ms ease,
     box-shadow 160ms ease,
@@ -443,8 +470,8 @@
 }
 
 .profile-rows > div:hover {
-  background: rgb(0 153 214 / 7%);
-  box-shadow: inset 3px 0 0 rgb(0 201 255 / 55%);
+  background: rgb(var(--sep-c-blue) / 7%);
+  box-shadow: inset 3px 0 0 rgb(var(--sep-c-blue) / calc(55% * var(--sep-glow-alpha)));
   transform: translateX(2px);
 }
 
@@ -457,14 +484,14 @@
   grid-template-columns: 48px minmax(0, 1fr);
   gap: 0;
   align-items: center;
-  color: #8da6ba;
+  color: var(--sep-text-muted);
   font-size: 14px;
 }
 
-.profile-rows dt img {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
+.profile-rows dt lucide-icon {
+  width: 26px;
+  height: 26px;
+  color: var(--sep-accent);
 }
 
 .profile-rows dd {
@@ -475,7 +502,7 @@
   min-width: 0;
   margin: 0;
   overflow: hidden;
-  color: #c2d3df;
+  color: var(--sep-text-secondary);
   font-size: 14px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -483,12 +510,12 @@
 
 .profile-rows dd b,
 .profile-success {
-  color: #26e6a2 !important;
+  color: var(--sep-success) !important;
   font-weight: 500;
 }
 
 .profile-rows dd.profile-link {
-  color: #279ecb;
+  color: var(--sep-accent);
   font-weight: 500;
   transition:
     color 160ms ease,
@@ -496,19 +523,19 @@
 }
 
 .profile-rows > div:hover dd.profile-link {
-  color: #45c9f5;
-  text-shadow: 0 0 8px rgb(39 158 203 / 30%);
+  color: var(--sep-accent);
+  text-shadow: 0 0 8px rgb(var(--sep-c-blue) / calc(30% * var(--sep-glow-alpha)));
 }
 
 .profile-now-badge {
   padding: 4px 10px;
-  color: #3af0a9;
+  color: var(--sep-success);
   font-size: 12px;
   line-height: 1;
-  border: 1px solid rgb(58 240 169 / 40%);
+  border: 1px solid rgb(var(--sep-c-green) / 40%);
   border-radius: 999px;
-  background: rgb(20 139 96 / 15%);
-  box-shadow: 0 0 10px rgb(58 240 169 / 12%);
+  background: rgb(var(--sep-c-active) / 15%);
+  box-shadow: 0 0 10px rgb(var(--sep-c-green) / calc(12% * var(--sep-glow-alpha)));
   transition:
     border-color 160ms ease,
     box-shadow 160ms ease,
@@ -516,8 +543,8 @@
 }
 
 .profile-rows > div:hover .profile-now-badge {
-  border-color: rgb(58 240 169 / 75%);
-  box-shadow: 0 0 14px rgb(58 240 169 / 30%);
+  border-color: rgb(var(--sep-c-green) / 75%);
+  box-shadow: 0 0 14px rgb(var(--sep-c-green) / calc(30% * var(--sep-glow-alpha)));
   transform: translateY(-1px);
 }
 
@@ -525,38 +552,38 @@
   display: inline-flex;
   gap: 7px;
   align-items: center;
-  color: #d5e4ed;
+  color: var(--sep-text);
 }
 
 .profile-live-state i {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #54f59d;
+  background: var(--sep-success);
   box-shadow:
-    0 0 5px #54f59d,
-    0 0 10px rgb(84 245 157 / 65%);
+    0 0 5px var(--sep-success),
+    0 0 10px rgb(var(--sep-c-green) / calc(65% * var(--sep-glow-alpha)));
 }
 
 .profile-live-state-off i {
-  background: #8799a7;
+  background: var(--sep-surface-active);
   box-shadow: none;
 }
 
 .profile-chip {
   padding: 4px 10px;
-  color: #5bbfff;
-  border: 1px solid rgb(0 178 255 / 20%);
+  color: var(--sep-accent);
+  border: 1px solid rgb(var(--sep-c-cyan) / 20%);
   border-radius: 5px;
-  background: rgb(0 105 180 / 12%);
+  background: rgb(var(--sep-c-blue) / 12%);
   transition:
     border-color 160ms ease,
     box-shadow 160ms ease;
 }
 
 .profile-rows > div:hover .profile-chip {
-  border-color: rgb(0 178 255 / 58%);
-  box-shadow: 0 0 12px rgb(0 178 255 / 18%);
+  border-color: rgb(var(--sep-c-cyan) / 58%);
+  box-shadow: 0 0 12px rgb(var(--sep-c-cyan) / calc(18% * var(--sep-glow-alpha)));
 }
 
 .profile-audit header {
@@ -570,7 +597,7 @@
 .profile-export {
   min-width: 160px;
   height: 30px;
-  color: #39b8ff;
+  color: var(--sep-accent);
   font-size: 12px;
 }
 
@@ -589,9 +616,9 @@
   min-height: 150px;
   padding: 4px;
   text-align: center;
-  border: 1px solid rgb(22 242 173 / 25%);
+  border: 1px solid rgb(var(--sep-c-green) / 25%);
   border-radius: 7px;
-  background: rgb(5 45 47 / 16%);
+  background: rgb(var(--sep-c-hover) / 16%);
   transition:
     border-color 190ms ease,
     background-color 190ms ease,
@@ -600,47 +627,47 @@
 }
 
 .profile-security article:hover {
-  border-color: rgb(31 239 171 / 70%);
-  background: rgb(8 80 72 / 24%);
+  border-color: rgb(var(--sep-c-green) / 70%);
+  background: rgb(var(--sep-c-active) / 24%);
   box-shadow:
-    inset 0 0 18px rgb(31 239 171 / 7%),
-    0 0 16px rgb(31 239 171 / 16%);
+    inset 0 0 18px rgb(var(--sep-c-green) / calc(7% * var(--sep-glow-alpha))),
+    0 0 16px rgb(var(--sep-c-green) / calc(16% * var(--sep-glow-alpha)));
   transform: translateY(-4px);
 }
 
-.profile-security article img {
-  width: 72px;
-  height: 72px;
-  object-fit: contain;
+.profile-security article lucide-icon {
+  width: 54px;
+  height: 54px;
+  color: var(--sep-success);
   transition:
     filter 190ms ease,
     transform 190ms ease;
 }
 
-.profile-security article:hover img {
-  filter: drop-shadow(0 0 7px rgb(31 239 171 / 38%));
+.profile-security article:hover lucide-icon {
+  filter: drop-shadow(0 0 7px rgb(var(--sep-c-green) / calc(38% * var(--sep-glow-alpha))));
   transform: scale(1.06);
 }
 
 .profile-security article span {
-  color: #c2d4df;
+  color: var(--sep-text-secondary);
   font-size: 14px;
 }
 
 .profile-security article strong {
-  color: #1de7a1;
+  color: var(--sep-success);
   font-size: 14px;
   font-weight: 500;
 }
 
 .profile-complementary-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 184px), 1fr));
   grid-template-rows: repeat(2, 1fr);
   height: 158px;
   margin-top: 8px;
   overflow: hidden;
-  border: 1px solid rgb(0 178 255 / 16%);
+  border: 1px solid rgb(var(--sep-c-cyan) / 16%);
   border-radius: 7px;
 }
 
@@ -651,29 +678,31 @@
   align-items: center;
   min-height: 58px;
   padding: 0 8px;
-  border-right: 1px solid rgb(0 178 255 / 10%);
-  border-bottom: 1px solid rgb(0 178 255 / 10%);
+  border-right: 1px solid rgb(var(--sep-c-cyan) / 10%);
+  border-bottom: 1px solid rgb(var(--sep-c-cyan) / 10%);
   transition:
     background-color 170ms ease,
     box-shadow 170ms ease;
 }
 
 .profile-complementary-grid > div:hover {
-  background: rgb(0 153 214 / 7%);
-  box-shadow: inset 0 0 16px rgb(0 178 255 / 5%);
+  background: rgb(var(--sep-c-blue) / 7%);
+  box-shadow: inset 0 0 16px rgb(var(--sep-c-cyan) / calc(5% * var(--sep-glow-alpha)));
 }
 
-.profile-complementary-grid > div > img {
-  width: 56px;
-  height: 56px;
-  object-fit: contain;
+// Grupo de tom misto: a cor de cada icone vem da classe `.ic-*` no proprio elemento, por isso
+// esta regra so cuida da caixa. Declarar `color` aqui venceria a classe pela especificidade
+// que o encapsulamento do componente acrescenta.
+.profile-complementary-grid > div > lucide-icon {
+  width: 31px;
+  height: 31px;
   transition:
     filter 170ms ease,
     transform 170ms ease;
 }
 
-.profile-complementary-grid > div:hover > img {
-  filter: drop-shadow(0 0 6px rgb(0 213 255 / 35%));
+.profile-complementary-grid > div:hover > lucide-icon {
+  filter: drop-shadow(0 0 6px rgb(var(--sep-c-blue) / calc(35% * var(--sep-glow-alpha))));
   transform: scale(1.06);
 }
 
@@ -688,28 +717,28 @@
 .profile-complementary-grid span {
   display: grid;
   gap: 4px;
-  color: #c6d7e2;
+  color: var(--sep-text-secondary);
   font-size: 14px;
 }
 
 .profile-complementary-grid small {
-  color: #7894aa;
+  color: var(--sep-text-muted);
   font-size: 13px;
 }
 
 .profile-state,
 .profile-feedback {
   padding: 14px;
-  color: #9db5c8;
+  color: var(--sep-text-secondary);
   text-align: center;
-  border: 1px solid rgb(0 178 255 / 24%);
+  border: 1px solid rgb(var(--sep-c-cyan) / 24%);
   border-radius: 8px;
-  background: rgb(3 18 33 / 86%);
+  background: rgb(var(--sep-c-surf) / 86%);
 }
 
 .profile-state-error {
-  color: #ffc4cc;
-  border-color: rgb(255 95 114 / 45%);
+  color: var(--sep-text-secondary);
+  border-color: rgb(var(--sep-c-red) / 45%);
 }
 
 .profile-feedback {
@@ -718,7 +747,7 @@
   top: 75px;
   right: 150px;
   padding: 8px 12px;
-  color: #4af1ad;
+  color: var(--sep-success);
   font-size: 11px;
 }
 
@@ -728,17 +757,17 @@
   inset: 0;
   display: grid;
   place-items: center;
-  background: rgb(0 5 14 / 72%);
+  background: rgb(var(--sep-c-canvas) / 72%);
   backdrop-filter: blur(5px);
 }
 
 .profile-modal {
   width: min(470px, calc(100vw - 32px));
   padding: 22px;
-  border: 1px solid rgb(0 178 255 / 55%);
+  border: 1px solid rgb(var(--sep-c-cyan) / 55%);
   border-radius: 10px;
-  background: #061526;
-  box-shadow: 0 0 35px rgb(0 178 255 / 18%);
+  background: var(--sep-surface);
+  box-shadow: 0 0 35px rgb(var(--sep-c-cyan) / calc(18% * var(--sep-glow-alpha)));
 }
 
 .profile-modal h2 {
@@ -747,7 +776,7 @@
 }
 
 .profile-modal > p {
-  color: #8fa9bd;
+  color: var(--sep-text-muted);
   font-size: 12px;
 }
 
@@ -762,17 +791,17 @@
 }
 
 .profile-modal label {
-  color: #a7bece;
+  color: var(--sep-text-secondary);
   font-size: 12px;
 }
 
 .profile-modal select {
   height: 38px;
   padding: 0 10px;
-  color: #eaf8ff;
-  border: 1px solid rgb(0 178 255 / 35%);
+  color: var(--sep-text-strong);
+  border: 1px solid rgb(var(--sep-c-cyan) / 35%);
   border-radius: 6px;
-  background: #071a2c;
+  background: var(--sep-surface-2);
 }
 
 .profile-modal .profile-checkbox {
@@ -789,11 +818,11 @@
 .profile-modal footer button {
   min-width: 110px;
   height: 36px;
-  color: #eaf8ff;
+  color: var(--sep-text-strong);
   cursor: pointer;
-  border: 1px solid rgb(0 178 255 / 40%);
+  border: 1px solid rgb(var(--sep-c-cyan) / 40%);
   border-radius: 6px;
-  background: rgb(0 114 180 / 15%);
+  background: rgb(var(--sep-c-blue) / 15%);
   transition:
     border-color 180ms ease,
     box-shadow 180ms ease,
@@ -802,16 +831,16 @@
 
 .profile-modal footer button:hover,
 .profile-modal footer button:focus-visible {
-  border-color: rgb(0 203 255 / 75%);
+  border-color: rgb(var(--sep-c-blue) / 75%);
   outline: none;
-  box-shadow: 0 0 14px rgb(0 178 255 / 22%);
+  box-shadow: 0 0 14px rgb(var(--sep-c-cyan) / calc(22% * var(--sep-glow-alpha)));
   transform: translateY(-1px);
 }
 
 .profile-modal footer button[type="submit"] {
-  color: #03131d;
-  border-color: #19dca1;
-  background: #19dca1;
+  color: var(--sep-surface);
+  border-color: var(--sep-success);
+  background: var(--sep-success);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -823,25 +852,9 @@
   }
 }
 
-@media (width <= 1200px) {
-  .profile-hero {
-    grid-template-columns: 148px minmax(0, 1fr) minmax(0, 1fr) 160px;
-  }
-
-  .profile-regulatory-art {
-    display: none;
-  }
-
-  .profile-grid {
-    gap: 12px;
-  }
-
-  .profile-security-grid {
-    gap: 6px;
-  }
-}
-
-@media (width <= 900px) {
+/* Meia área: o herói perde a faixa decorativa e a folga cai um degrau. Era decisão de janela —
+   e por isso não valia quando só o espaço do componente encolhia. */
+@include tema.resp-half {
   :host {
     height: auto;
     min-height: 100vh;
@@ -855,12 +868,24 @@
 
   .profile-hero,
   .profile-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto;
   }
 
+  /* O herói tem `overflow: hidden`: sem empilhar, as cinco faixas fixas cortavam o e-mail e o
+     selo de papel em silêncio. */
   .profile-hero {
     justify-items: center;
+    min-height: 0;
+    padding: 18px 22px;
+  }
+
+  .profile-regulatory-art {
+    display: none;
+  }
+
+  .profile-grid {
+    gap: 12px;
   }
 
   .profile-account-status {
@@ -869,6 +894,39 @@
 
   .profile-security-grid,
   .profile-complementary-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@include tema.resp-third {
+  .profile-security-grid,
+  .profile-complementary-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .profile-grid > section {
+    padding: 12px 12px 10px;
+  }
+}
+
+/* Porta de entrada da habilitação do TOTP, exibida só quando o MFA está desativado. */
+.profile-mfa-link {
+  margin-top: 6px;
+  color: var(--sep-accent);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    color 0.18s,
+    text-shadow 0.18s;
+
+  span {
+    margin-left: 4px;
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sep-accent);
+    text-shadow: 0 0 10px rgb(var(--sep-c-blue) / calc(45% * var(--sep-glow-alpha)));
   }
 }

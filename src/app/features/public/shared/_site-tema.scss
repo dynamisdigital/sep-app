@@ -1,0 +1,590 @@
+// SEP — Frontend
+// Frontend Development: Daniel Möllmann
+// Angular • TypeScript • SCSS — 2026
+
+// ============ TEMA DO SITE PÚBLICO ============
+// A linguagem visual sai da landing (Mockup 01) e é compartilhada pelas sete páginas
+// institucionais, em vez de cada uma repetir a paleta e as primitivas. O shell público
+// (`sep-public-shell`) cuida do cabeçalho e do rodapé; aqui ficam o miolo e os blocos de
+// conteúdo que as páginas montam.
+// Desde 16/09/2026 o site acompanha o botão de tema: a paleta `--site-*` sai dos canais globais
+// (`styles/_publico-tokens.scss`), que trocam de valor no claro. O escuro continua sendo o padrão
+// e o desenho do Mockup 01 não muda nele.
+
+// Reexporta o contrato responsivo, para as paginas publicas usarem `site.half` e `site.third`.
+@forward "../../../../styles/sep-responsivo";
+@use "../../../../styles/sep-responsivo" as resp;
+
+// Os tokens `--site-*` agora sao globais (`styles/_publico-tokens.scss`), para acompanharem o
+// botao de tema: aqui fica so o que e do componente.
+@mixin tokens {
+  display: block;
+  color: var(--site-texto);
+}
+
+/// Cabeçalho da página: kicker, título e chamada.
+@mixin cabecalho($px) {
+  .#{$px}-heading {
+    display: grid;
+    gap: 14px;
+    max-width: 780px;
+    margin: 0 0 44px;
+  }
+
+  .#{$px}-kicker {
+    display: inline-flex;
+    gap: 9px;
+    align-items: center;
+    justify-self: start;
+    padding: 6px 15px;
+    color: var(--site-ciano);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    border: 1px solid var(--site-linha);
+    border-radius: 999px;
+    background: rgb(var(--lp-c-ciano) / 8%);
+  }
+
+  .#{$px}-heading h1 {
+    margin: 0;
+    font-size: clamp(2rem, 3.4vw, 2.85rem);
+    font-weight: 800;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+  }
+
+  .#{$px}-heading h1 em {
+    color: var(--site-verde);
+    font-style: normal;
+  }
+
+  .#{$px}-lead {
+    margin: 0;
+    color: var(--site-suave);
+    font-size: 1.06rem;
+    line-height: 1.62;
+  }
+}
+
+/// Cartão padrão do site, com o acender no hover que a landing usa.
+@mixin cartao($px) {
+  .#{$px}-card {
+    position: relative;
+    display: grid;
+    gap: 12px;
+    align-content: start;
+    padding: 26px;
+    border: 1px solid var(--site-linha);
+    border-radius: 16px;
+    background: var(--site-cartao);
+    transition:
+      border-color 240ms ease,
+      box-shadow 240ms ease,
+      transform 240ms ease;
+  }
+
+  .#{$px}-card:hover {
+    border-color: rgb(var(--lp-c-ciano) / 62%);
+    box-shadow: 0 18px 46px rgb(var(--lp-c-fundo) / 55%);
+    transform: translateY(-3px);
+  }
+
+  .#{$px}-card h3 {
+    margin: 0;
+    font-size: 1.06rem;
+    font-weight: 700;
+  }
+
+  .#{$px}-card p {
+    margin: 0;
+    color: var(--site-suave);
+    font-size: 0.93rem;
+    line-height: 1.6;
+  }
+
+  // O ícone acende no tom que o próprio cartão declara em `data-tone`.
+  .#{$px}-card-icone {
+    display: grid;
+    width: 46px;
+    height: 46px;
+    color: var(--tone, var(--site-ciano));
+    border: 1px solid color-mix(in srgb, var(--tone, rgb(var(--lp-c-ciano))) 42%, transparent);
+    border-radius: 13px;
+    background: color-mix(in srgb, var(--tone, rgb(var(--lp-c-ciano))) 12%, transparent);
+    place-items: center;
+    transition:
+      filter 240ms ease,
+      transform 240ms ease;
+  }
+
+  .#{$px}-card:hover .#{$px}-card-icone {
+    filter: drop-shadow(0 0 10px var(--tone, rgb(var(--lp-c-ciano))));
+    transform: scale(1.06);
+  }
+
+  .#{$px}-card[data-tone="green"] {
+    --tone: rgb(var(--lp-c-verde));
+  }
+
+  .#{$px}-card[data-tone="blue"] {
+    --tone: rgb(var(--lp-c-azul));
+  }
+
+  .#{$px}-card[data-tone="purple"] {
+    --tone: rgb(var(--lp-c-azul));
+  }
+
+  .#{$px}-card[data-tone="amber"] {
+    --tone: rgb(var(--lp-c-ambar));
+  }
+}
+
+/// Seção com título e subtítulo, usada entre blocos.
+@mixin secao($px) {
+  .#{$px}-secao {
+    display: grid;
+    gap: 26px;
+    margin: 0 0 54px;
+  }
+
+  .#{$px}-secao-topo {
+    display: grid;
+    gap: 8px;
+    max-width: 720px;
+  }
+
+  .#{$px}-secao-topo h2 {
+    margin: 0;
+    font-size: clamp(1.4rem, 2.2vw, 1.8rem);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .#{$px}-secao-topo p {
+    margin: 0;
+    color: var(--site-suave);
+    font-size: 0.98rem;
+    line-height: 1.6;
+  }
+
+  .#{$px}-grade {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(272px, 1fr));
+    gap: 18px;
+  }
+}
+
+/// Texto corrido dos documentos legais.
+@mixin prosa($px) {
+  .#{$px}-prosa h2 {
+    margin: 38px 0 12px;
+    font-size: 1.22rem;
+    font-weight: 800;
+    scroll-margin-top: 90px;
+  }
+
+  .#{$px}-prosa h2:first-child {
+    margin-top: 0;
+  }
+
+  .#{$px}-prosa h3 {
+    margin: 22px 0 8px;
+    font-size: 1.02rem;
+    font-weight: 700;
+  }
+
+  .#{$px}-prosa p,
+  .#{$px}-prosa li {
+    color: var(--site-suave);
+    font-size: 0.96rem;
+    line-height: 1.72;
+  }
+
+  .#{$px}-prosa p {
+    margin: 0 0 12px;
+  }
+
+  .#{$px}-prosa ul,
+  .#{$px}-prosa ol {
+    margin: 0 0 14px;
+    padding-left: 22px;
+  }
+
+  .#{$px}-prosa li {
+    margin-bottom: 7px;
+  }
+
+  .#{$px}-prosa li::marker {
+    color: var(--site-ciano);
+  }
+
+  .#{$px}-prosa strong {
+    color: var(--site-texto);
+  }
+
+  .#{$px}-prosa a {
+    color: var(--site-ciano);
+    text-decoration: none;
+    border-bottom: 1px solid rgb(var(--lp-c-ciano) / 40%);
+  }
+
+  .#{$px}-prosa a:hover {
+    color: rgb(var(--lp-c-ciano));
+  }
+}
+
+/// Botões do site.
+@mixin botoes($px) {
+  .#{$px}-btn-primary,
+  .#{$px}-btn-secondary {
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 0 26px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid transparent;
+    border-radius: 13px;
+    cursor: pointer;
+    transition:
+      box-shadow 220ms ease,
+      transform 220ms ease,
+      background 220ms ease;
+  }
+
+  .#{$px}-btn-primary {
+    color: rgb(var(--lp-c-surf));
+    background: linear-gradient(135deg, rgb(var(--lp-c-ciano)), rgb(var(--lp-c-verde)));
+    box-shadow: 0 0 28px rgb(var(--lp-c-verde) / 26%);
+  }
+
+  .#{$px}-btn-primary:hover:not(:disabled) {
+    box-shadow: 0 0 38px rgb(var(--lp-c-verde) / 42%);
+    transform: translateY(-2px);
+  }
+
+  .#{$px}-btn-primary:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  .#{$px}-btn-secondary {
+    color: var(--site-texto);
+    border-color: rgb(var(--lp-c-ciano) / 55%);
+    background: rgb(var(--lp-c-surf) / 72%);
+  }
+
+  .#{$px}-btn-secondary:hover {
+    box-shadow: 0 0 26px rgb(var(--lp-c-ciano) / 24%);
+    transform: translateY(-2px);
+  }
+}
+
+/// Faixa de fechamento com a chamada para a plataforma.
+@mixin chamada($px) {
+  .#{$px}-chamada {
+    display: grid;
+    gap: 16px;
+    justify-items: center;
+    margin: 8px 0 0;
+    padding: 38px 30px;
+    text-align: center;
+    border: 1px solid var(--site-linha);
+    border-radius: 18px;
+    background:
+      radial-gradient(circle at 50% 0%, rgb(var(--lp-c-verde) / 12%), transparent 62%),
+      var(--site-cartao);
+  }
+
+  .#{$px}-chamada h2 {
+    margin: 0;
+    font-size: clamp(1.3rem, 2vw, 1.65rem);
+    font-weight: 800;
+  }
+
+  .#{$px}-chamada p {
+    max-width: 560px;
+    margin: 0;
+    color: var(--site-suave);
+    font-size: 0.98rem;
+    line-height: 1.6;
+  }
+
+  .#{$px}-chamada-acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    margin-top: 6px;
+  }
+}
+
+/// Aviso institucional: o que a plataforma **não** promete.
+@mixin aviso($px) {
+  .#{$px}-aviso {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+    padding: 16px 20px;
+    color: var(--site-suave);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    border: 1px solid rgb(var(--lp-c-ambar) / 32%);
+    border-radius: 13px;
+    background: rgb(var(--lp-c-ambar) / 7%);
+  }
+
+  .#{$px}-aviso lucide-icon {
+    display: grid;
+    color: rgb(var(--lp-c-ambar));
+    place-items: center;
+  }
+
+  .#{$px}-aviso p {
+    margin: 0;
+  }
+}
+
+/// Diagramacao panoramica das paginas de apresentacao. Na tela ultrawide o empilhamento deixava
+/// cartoes de 800px para uma linha de texto e 1,2 a 1,65 tela de rolagem. Aqui a pagina vira
+/// zonas lado a lado: a abertura (titulo no alto, chamada ancorada na base) e uma coluna por secao,
+/// separadas por filetes. A composicao e centrada na altura: a sobra vira respiro igual em cima e
+/// embaixo, nunca faixa morta dentro de um cartao. Tamanho de letra nao muda — so distribuicao.
+@mixin painel($px) {
+  @include resp.panoramica {
+    .#{$px}-page {
+      grid-template-rows: auto auto;
+      grid-template-columns: minmax(0, 0.92fr);
+      grid-auto-columns: minmax(0, 1fr);
+      grid-auto-flow: column;
+      align-content: center;
+
+      // O vao entre zonas e metade do respiro: a outra metade e o recuo depois do filete. Somados
+      // eles ficavam em 132px por coluna a 2560 e empurravam as grades para uma coluna so.
+      column-gap: clamp(24px, 1.3vw, 48px);
+      height: 100%;
+      padding: clamp(24px, 3vh, 56px) clamp(40px, 2.4vw, 88px);
+    }
+
+    .#{$px}-heading {
+      grid-row: 1;
+      grid-column: 1;
+      align-self: start;
+      max-width: none;
+      margin: 0 0 clamp(28px, 3vh, 48px);
+    }
+
+    .#{$px}-chamada {
+      grid-row: 2;
+      grid-column: 1;
+      align-self: end;
+      justify-items: start;
+      margin: 0;
+      text-align: left;
+    }
+
+    .#{$px}-chamada-acoes {
+      justify-content: flex-start;
+    }
+
+    .#{$px}-secao {
+      grid-row: 1 / span 2;
+      align-content: start;
+      margin: 0;
+      padding-left: clamp(24px, 1.3vw, 48px);
+      border-left: 1px solid var(--site-linha);
+    }
+
+    .#{$px}-secao-topo {
+      max-width: none;
+    }
+
+    // Sempre dois cartoes por linha dentro da zona. Com `auto-fit` a zona de ~780px (ultrawide a
+    // 75%) abria tres colunas e quatro cartoes viravam 3 + 1, com orfaos; a de ~530px (a 100%)
+    // nao chegava aos 562px que o minimo de 272 pedia e caia para uma. Duas fixas dao 2 x 2 nos
+    // dois casos.
+    .#{$px}-grade {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(12px, 1.5vh, 18px);
+    }
+
+    // Numero impar de cartoes em duas colunas deixava uma vaga vazia no canto da zona: o ultimo
+    // ocupa a linha inteira e a grade fecha sem buraco.
+    .#{$px}-grade > :last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
+
+    // Respiros proporcionais a altura da janela, com a medida do empilhamento como teto: a 1260px
+    // de altura (ultrawide a 75%) sao os de sempre; a 945 (ultrawide a 100%) encolhem juntos, e a
+    // composicao cabe sem rolagem. So espacamento — fonte nao muda.
+    .#{$px}-secao {
+      gap: clamp(16px, 2.2vh, 26px);
+    }
+
+    .#{$px}-card {
+      padding: clamp(18px, 2.2vh, 26px);
+    }
+
+    .#{$px}-chamada {
+      padding: clamp(24px, 3vh, 38px) clamp(24px, 1.6vw, 30px);
+    }
+  }
+}
+
+/// Documento legal na janela panoramica. O texto (2,9 telas empilhado no ultrawide) passa a correr
+/// em colunas de leitura, lado a lado, na altura da tela — separadas por filetes, como as zonas das
+/// outras paginas. A esquerda fica a zona de abertura: titulo no alto, indice no meio (em duas
+/// colunas) e a chamada na base. Quando o texto ainda nao cabe (ultrawide a 100%), a caixa das
+/// colunas desliza na horizontal e o indice leva direto a cada clausula: a pagina nao rola.
+@mixin documento-panoramico($px) {
+  @include resp.panoramica {
+    // A faixa tem a altura das colunas equilibradas e e centrada na tela: a chamada fecha alinhada
+    // a base do texto e a sobra vira respiro igual em cima e embaixo.
+    .#{$px}-page {
+      grid-template-rows: auto auto auto;
+      grid-template-columns: minmax(460px, 0.55fr) minmax(0, 2.45fr);
+      align-content: center;
+      column-gap: clamp(32px, 2vw, 64px);
+      height: 100%;
+      padding: clamp(24px, 3vh, 56px) clamp(40px, 2.4vw, 88px);
+    }
+
+    .#{$px}-corpo {
+      display: contents;
+    }
+
+    .#{$px}-heading {
+      grid-row: 1;
+      grid-column: 1;
+      max-width: none;
+      margin: 0 0 clamp(20px, 2.4vh, 32px);
+    }
+
+    .#{$px}-indice {
+      position: static;
+      grid-row: 2;
+      grid-column: 1;
+      padding: clamp(16px, 2vh, 22px);
+    }
+
+    .#{$px}-indice ol {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 8px;
+    }
+
+    .#{$px}-chamada {
+      grid-row: 3;
+      grid-column: 1;
+      align-self: end;
+      justify-items: start;
+      margin: clamp(20px, 2.4vh, 32px) 0 0;
+      padding: clamp(20px, 2.6vh, 38px) clamp(22px, 1.6vw, 30px);
+      text-align: left;
+    }
+
+    .#{$px}-chamada-acoes {
+      justify-content: flex-start;
+    }
+
+    .#{$px}-prosa {
+      grid-row: 1 / -1;
+      grid-column: 2;
+      max-width: none;
+
+      // Teto da faixa (`cqh` da area de conteudo, menos o respiro da pagina): acima dele as
+      // colunas excedentes abrem na horizontal em vez de a pagina crescer.
+      max-height: calc(100cqh - 2 * clamp(24px, 3vh, 56px));
+      min-height: 0;
+      padding-left: clamp(32px, 2vw, 64px);
+      overflow: auto hidden;
+      border-left: 1px solid var(--site-linha);
+      column-width: 26rem;
+      column-gap: clamp(32px, 2vw, 56px);
+      column-rule: 1px solid var(--site-linha);
+
+      // Equilibrado, e nao `auto`: com `auto` o texto enchia as primeiras colunas ate a base e a
+      // ultima ficava pela metade, deixando uma faixa vazia a direita. Quando o texto nao cabe, o
+      // navegador abre as colunas excedentes na horizontal do mesmo jeito.
+      column-fill: balance;
+      scrollbar-color: rgb(var(--lp-c-azul) / 45%) transparent;
+      scrollbar-width: thin;
+    }
+
+    // Janela baixa (ultrawide a 100%, 945px): titulo, indice e chamada empilhados numa zona de 460px
+    // passavam da altura, com o indice e a chamada quebrando em muitas linhas. A zona alarga e as
+    // linhas quebram menos; o texto, que ja desliza na horizontal ai, perde so largura visivel.
+    // So espacamento abaixo disto — fonte nao muda: a margem da pagina, o passo entre os links do
+    // indice e o respiro interno da chamada devolvem os ~80px que faltavam.
+    @include resp.altura-baixa {
+      .#{$px}-page {
+        grid-template-columns: minmax(620px, 0.8fr) minmax(0, 2.2fr);
+        padding-block: 16px;
+      }
+
+      // O teto do texto acompanha a margem menor, para a base das colunas fechar com a da chamada.
+      .#{$px}-prosa {
+        max-height: calc(100cqh - 32px);
+      }
+
+      .#{$px}-heading {
+        margin-bottom: 16px;
+      }
+
+      .#{$px}-indice a {
+        padding-block: 4px;
+      }
+
+      .#{$px}-chamada {
+        gap: 10px;
+        margin-top: 16px;
+        padding: 18px 22px;
+      }
+    }
+
+    // Titulo de clausula nunca fica sozinho no pe de uma coluna, e paragrafo nao deixa linha orfa.
+    .#{$px}-prosa h2,
+    .#{$px}-prosa h3 {
+      break-after: avoid;
+    }
+
+    .#{$px}-prosa p,
+    .#{$px}-prosa li {
+      orphans: 3;
+      widows: 3;
+    }
+  }
+}
+
+@mixin base($px) {
+  * {
+    box-sizing: border-box;
+  }
+
+  @include cabecalho($px);
+  @include cartao($px);
+  @include secao($px);
+  @include botoes($px);
+  @include chamada($px);
+  @include aviso($px);
+
+  .#{$px}-page {
+    display: grid;
+    align-content: start;
+    padding: clamp(30px, 4vw, 56px) clamp(22px, 3.4vw, 52px) clamp(40px, 4vw, 62px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .#{$px}-card,
+    .#{$px}-card-icone,
+    .#{$px}-btn-primary,
+    .#{$px}-btn-secondary {
+      transition: none;
+    }
+  }
+}

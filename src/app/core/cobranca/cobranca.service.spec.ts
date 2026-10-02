@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { Observable } from 'rxjs';
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { resetCobrancaState } from '../../../mocks/handlers';
 import { CobrancaService } from './cobranca.service';
 import { RegistrarRecebimentoRequest } from '../api/api.models';
 
@@ -37,6 +38,9 @@ describe('CobrancaService', () => {
   let service: CobrancaService;
 
   beforeEach(() => {
+    // O aceite e a recusa mudam o status da renegociacao no mock, e a listagem enxerga isso:
+    // sem o reset, a contagem de um teste dependeria de qual outro rodou antes.
+    resetCobrancaState();
     TestBed.configureTestingModule({ providers: [provideHttpClient()] });
     service = TestBed.inject(CobrancaService);
   });
@@ -47,14 +51,24 @@ describe('CobrancaService', () => {
         service.consultarAgendaPorContrato(CONTRATO_COM_AGENDA_ID),
       );
 
+      // Contrato 5b771c05 da carteira: 10 parcelas de R$ 312,50, sete pagas, duas em
+      // atraso (uma delas ha mais de 15 dias, logo inadimplente) e uma ainda a vencer.
       expect(agenda.contratoId).toBe(CONTRATO_COM_AGENDA_ID);
+      expect(agenda.parcelas).toHaveLength(10);
       expect(agenda.parcelas.map((p) => p.status)).toEqual([
-        'PENDENTE',
-        'ATRASADA',
-        'PARCIALMENTE_PAGA',
         'PAGA',
+        'PAGA',
+        'PAGA',
+        'PAGA',
+        'PAGA',
+        'PAGA',
+        'PAGA',
+        'INADIMPLENTE',
+        'INADIMPLENTE',
+        'PENDENTE',
       ]);
-      expect(agenda.parcelas[0].total).toBe(1000);
+      expect(agenda.parcelas[0].total).toBe(312.5);
+      expect(agenda.valorContratado).toBe(3125);
     });
 
     it('rejeita com 403 quando a agenda e de outro tomador', async () => {
@@ -196,6 +210,25 @@ describe('CobrancaService', () => {
       const linhas = await awaitObservable(service.listarInadimplencia({ diasAtrasoMin: 100 }));
 
       expect(linhas.every((l) => l.diasAtraso >= 100)).toBe(true);
+    });
+  });
+
+  describe('listarRenegociacoes', () => {
+    it('retorna a carteira inteira, com os status que o mock semeia', async () => {
+      const lista = await awaitObservable(service.listarRenegociacoes());
+
+      // Duas propostas em aberto e uma ja aceita: e desta contagem que o painel da Cobranca
+      // tira o total e a legenda, em vez do numero que estava digitado no HTML.
+      expect(lista).toHaveLength(3);
+      expect(lista.filter((r) => r.status === 'PROPOSTA')).toHaveLength(2);
+      expect(lista.filter((r) => r.status === 'ACEITA')).toHaveLength(1);
+    });
+
+    it('filtra por status enviando o query param correto', async () => {
+      const lista = await awaitObservable(service.listarRenegociacoes('ACEITA'));
+
+      expect(lista).toHaveLength(1);
+      expect(lista.every((r) => r.status === 'ACEITA')).toBe(true);
     });
   });
 

@@ -248,7 +248,7 @@
   gap: var(--sep-space-4);
   align-items: center;
   padding: var(--sep-space-2) var(--sep-space-8);
-  border: 1px solid transparent;
+  border: 1px solid currentcolor;
   border-radius: var(--sep-radius-pill);
   white-space: nowrap;
 }
@@ -271,7 +271,7 @@
   @include sep-badge-base;
 
   color: hsl(var(--foreground));
-  border-color: hsl(var(--border));
+  border-color: currentcolor;
 }
 
 // Badge semantico suave: fundo translucido + texto na cor do tom.
@@ -281,7 +281,7 @@
 
   color: hsl(var(#{$tone}));
   background: hsl(var(#{$tone}) / 12%);
-  border-color: hsl(var(#{$tone}) / 20%);
+  border-color: currentcolor;
 }
 
 // ===== Navegacao (sidebar/menu) =====
@@ -383,7 +383,7 @@
 @mixin sep-overlay {
   position: fixed;
   inset: 0;
-  background: rgb(0 0 0 / 50%);
+  background: rgb(var(--sep-c-shadow) / 50%);
 }
 
 // ===== Loaders e skeletons =====

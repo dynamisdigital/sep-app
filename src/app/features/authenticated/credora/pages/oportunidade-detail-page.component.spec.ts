@@ -1,7 +1,9 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
+import { importProvidersFrom } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { Observable, of, throwError } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 
@@ -11,6 +13,7 @@ import {
   OportunidadeResponse,
 } from '../../../../core/api/api.models';
 import { CredoraService } from '../../../../core/credora/credora.service';
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { OportunidadeDetailPageComponent } from './oportunidade-detail-page.component';
 
 const OPORTUNIDADE_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78b001';
@@ -19,8 +22,8 @@ const DISPONIVEL: OportunidadeResponse = {
   id: OPORTUNIDADE_ID,
   propostaId: 'p-1',
   contratoId: 'c-1',
-  valor: 25000,
-  prazoMeses: 12,
+  valor: 6000,
+  prazoMeses: 10,
   taxaJurosMensal: 0.025,
   status: 'DISPONIVEL',
   dataCriacao: '2026-05-28T12:00:00-03:00',
@@ -73,6 +76,8 @@ function renderDetail(overrides: Partial<ServiceStub> = {}) {
   return render(OportunidadeDetailPageComponent, {
     providers: [
       provideRouter([]),
+      provideHttpClient(),
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
       { provide: CredoraService, useValue: service },
       {
         provide: ActivatedRoute,
@@ -87,9 +92,9 @@ describe('OportunidadeDetailPageComponent', () => {
     const { fixture } = await renderDetail();
     await estabilizar(fixture);
 
-    expect(screen.getByText('Disponivel')).toBeTruthy();
-    expect(screen.getByText(/25\.000,00/)).toBeTruthy();
-    expect(screen.getByText('2,50% a.m.')).toBeTruthy();
+    expect(screen.getAllByText('Disponível').length).toBeGreaterThan(0);
+    expect(screen.getByText(/6\.000,00/)).toBeTruthy();
+    expect(screen.getAllByText('2,50% a.m.').length).toBeGreaterThan(0);
   });
 
   it('credora elegivel ve a acao de manifestar interesse', async () => {
@@ -97,7 +102,7 @@ describe('OportunidadeDetailPageComponent', () => {
     await estabilizar(fixture);
 
     expect(screen.getByRole('button', { name: 'Manifestar interesse' })).toBeTruthy();
-    expect(screen.getByText(/nao gera aporte/)).toBeTruthy();
+    expect(screen.getByText(/não gera aporte/)).toBeTruthy();
   });
 
   it('credora inelegivel nao ve a acao de manifestar', async () => {
@@ -109,7 +114,7 @@ describe('OportunidadeDetailPageComponent', () => {
 
     expect(screen.queryByRole('button', { name: 'Manifestar interesse' })).toBeNull();
     expect(
-      screen.getByText('Sua credora precisa estar ativa e elegivel para manifestar interesse.'),
+      screen.getByText('Sua credora precisa estar ativa e elegível para manifestar interesse.'),
     ).toBeTruthy();
   });
 
@@ -179,7 +184,7 @@ describe('OportunidadeDetailPageComponent', () => {
     await estabilizar(fixture);
 
     expect(screen.getByRole('button', { name: 'Manifestar interesse' })).toBeTruthy();
-    expect(screen.queryByText('Nao foi possivel cancelar o interesse.')).toBeNull();
+    expect(screen.queryByText('Não foi possível cancelar o interesse.')).toBeNull();
   });
 
   it('ENCERRADA avisa que nao aceita interesse e nao mostra acao', async () => {
@@ -188,9 +193,9 @@ describe('OportunidadeDetailPageComponent', () => {
     });
     await estabilizar(fixture);
 
-    expect(screen.getByText('Encerrada')).toBeTruthy();
+    expect(screen.getAllByText('Encerrada').length).toBeGreaterThan(0);
     expect(
-      screen.getByText('Esta oportunidade esta encerrada e nao aceita manifestacao de interesse.'),
+      screen.getByText('Esta oportunidade está encerrada e não aceita manifestação de interesse.'),
     ).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Manifestar interesse' })).toBeNull();
   });
@@ -201,6 +206,6 @@ describe('OportunidadeDetailPageComponent', () => {
     });
     await estabilizar(fixture);
 
-    expect(screen.getByText('Oportunidade nao encontrada.')).toBeTruthy();
+    expect(screen.getByText('Oportunidade não encontrada.')).toBeTruthy();
   });
 });

@@ -1,0 +1,190 @@
+<sep-public-shell>
+  <section class="px55-page">
+    <header class="px55-heading">
+      <p class="px55-kicker"><lucide-icon name="shield" [size]="14" />Documento legal</p>
+      <h1>Política de <em>privacidade</em></h1>
+      <p class="px55-lead">
+        Como a SEP coleta, usa, compartilha e protege dados pessoais, e o que você pode exigir a
+        respeito. Escrito para ser lido, e não apenas aceito.
+      </p>
+      <p class="px55-vigencia">
+        <lucide-icon name="calendar-days" [size]="15" />
+        Vigente desde {{ vigencia }}
+      </p>
+    </header>
+
+    <div class="px55-corpo">
+      <nav class="px55-indice" aria-label="Índice do documento">
+        <p>Nesta página</p>
+        <ol>
+          @for (secao of secoes; track secao.id) {
+            <li>
+              <a [href]="'#' + secao.id">{{ secao.titulo }}</a>
+            </li>
+          }
+        </ol>
+      </nav>
+
+      <article class="px55-prosa">
+        <h2 id="quem">1. Quem trata seus dados</h2>
+        <p>
+          O controlador é a SEP — Sociedade de Empréstimo entre Pessoas, CNPJ {{ contato.cnpj }},
+          com sede em {{ contato.endereco }} — {{ contato.cep }}. O tratamento segue a Lei
+          13.709/2018 (LGPD) e a regulamentação aplicável às sociedades de empréstimo entre pessoas.
+        </p>
+
+        <h2 id="dados">2. Dados que tratamos</h2>
+        <p>Tratamos apenas o necessário para operar a plataforma com segurança:</p>
+        <ul>
+          <li><strong>Que você fornece:</strong> cadastro, documentos, mensagens ao suporte.</li>
+          <li>
+            <strong>Gerados pelo uso:</strong> registros de acesso, ações na trilha de auditoria,
+            histórico de operações.
+          </li>
+          <li>
+            <strong>Obtidos de terceiros:</strong> bureaus de crédito, listas de prevenção à lavagem
+            de dinheiro e, mediante autorização sua, instituições do Open Finance.
+          </li>
+        </ul>
+        <p>
+          Não tratamos dados de crianças e adolescentes: a plataforma é destinada a empresas e a
+          seus representantes maiores de idade.
+        </p>
+
+        <h2 id="bases">3. Finalidades e bases legais</h2>
+        <p>
+          Cada dado tem finalidade e base legal declaradas. Onde a base é o consentimento, você pode
+          revogá-lo a qualquer tempo, sem prejuízo do tratamento já realizado.
+        </p>
+
+        <div class="px55-tabela-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Dado</th>
+                <th>Para quê</th>
+                <th>Base legal</th>
+                <th>Por quanto tempo</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (linha of tratamentos; track linha.dado) {
+                <tr>
+                  <td>{{ linha.dado }}</td>
+                  <td>{{ linha.finalidade }}</td>
+                  <td>{{ linha.base }}</td>
+                  <td>{{ linha.prazo }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="compartilhamento">4. Com quem compartilhamos</h2>
+        <p>
+          <strong>Não vendemos dados pessoais.</strong> O compartilhamento acontece apenas nas
+          situações abaixo:
+        </p>
+        <ul>
+          <li>
+            <strong>A outra parte da operação:</strong> credora e tomadora recebem o mínimo
+            necessário para a operação; documentos de terceiros aparecem mascarados.
+          </li>
+          <li>
+            <strong>Prestadores de serviço:</strong> verificação de identidade, assinatura digital,
+            arranjo de pagamento e nuvem, todos contratualmente obrigados a proteger os dados.
+          </li>
+          <li><strong>Autoridades:</strong> quando houver obrigação legal ou ordem judicial.</li>
+        </ul>
+
+        <h2 id="open-finance">5. Open Finance</h2>
+        <p>
+          O compartilhamento de dados bancários é <strong>opcional</strong>. Se você autorizar, a
+          plataforma usa o extrato para avaliar capacidade de pagamento e, com isso, melhorar as
+          condições possíveis da proposta.
+        </p>
+        <p>
+          A autorização tem prazo, alcance definido e pode ser revogada a qualquer momento — na
+          plataforma ou na sua instituição financeira. A recusa não impede o uso da SEP; apenas
+          reduz a informação disponível para a análise.
+        </p>
+
+        <h2 id="retencao">6. Por quanto tempo guardamos</h2>
+        <p>
+          Os prazos estão na tabela acima. Terminado o prazo, os dados são eliminados ou
+          anonimizados, salvo quando a guarda for exigida por lei ou necessária para exercício de
+          direito em processo.
+        </p>
+
+        <h2 id="seguranca">7. Como protegemos</h2>
+        <p>
+          Criptografia em trânsito e em repouso, autenticação em duas etapas, confirmação adicional
+          para operações sensíveis, controle de acesso por papel e trilha de auditoria de tudo o que
+          é alterado. Os detalhes estão na página de
+          <a routerLink="/seguranca">segurança</a>.
+        </p>
+        <p>
+          Nenhum sistema é infalível. Em caso de incidente com risco relevante, comunicaremos os
+          titulares afetados e a Autoridade Nacional de Proteção de Dados, na forma da lei.
+        </p>
+
+        <h2 id="direitos">8. Seus direitos</h2>
+        <p>Como titular, você pode a qualquer momento:</p>
+        <ul>
+          <li>confirmar que tratamos seus dados e acessá-los;</li>
+          <li>corrigir dados incompletos, inexatos ou desatualizados;</li>
+          <li>
+            pedir anonimização, bloqueio ou eliminação de dados desnecessários ou tratados em
+            desconformidade;
+          </li>
+          <li>solicitar a portabilidade a outro fornecedor;</li>
+          <li>revogar consentimento e saber as consequências da recusa;</li>
+          <li>opor-se a tratamento fundado em legítimo interesse;</li>
+          <li>pedir revisão de decisão automatizada que afete seus interesses.</li>
+        </ul>
+        <p>
+          O pedido é feito por <a [href]="'mailto:' + contato.email">{{ contato.email }}</a> e
+          respondido em até 15 dias. Podemos pedir confirmação de identidade antes de atender — é
+          proteção sua, não obstáculo.
+        </p>
+
+        <h2 id="cookies">9. Cookies e armazenamento local</h2>
+        <p>
+          A plataforma usa armazenamento local do navegador para manter sua sessão, lembrar
+          preferências como o tema e o estado do menu, e proteger contra fraude. Não usamos cookies
+          de publicidade nem rastreamento entre sites.
+        </p>
+
+        <h2 id="alteracoes">10. Alterações desta política</h2>
+        <p>
+          Esta política pode mudar por exigência regulatória ou evolução do produto. A versão
+          vigente fica sempre nesta página, com a data no topo, e mudanças relevantes são
+          comunicadas com antecedência razoável.
+        </p>
+
+        <h2 id="encarregado">11. Canal de privacidade</h2>
+        <p>
+          Encarregado pelo tratamento de dados (DPO):
+          <a [href]="'mailto:' + contato.email">{{ contato.email }}</a
+          >, assunto <strong>Privacidade</strong>.<br />
+          {{ contato.endereco }} — {{ contato.cep }}.<br />
+          Telefone {{ contato.telefone }}, {{ contato.atendimento }}.
+        </p>
+      </article>
+    </div>
+
+    <div class="px55-chamada">
+      <h2>Quer exercer um direito?</h2>
+      <p>
+        Use o formulário de contato com o assunto "Privacidade". Respondemos em até 15 dias, na
+        forma da LGPD.
+      </p>
+      <div class="px55-chamada-acoes">
+        <a class="px55-btn-primary" routerLink="/contato">
+          <lucide-icon name="mail" [size]="18" />Abrir um pedido
+        </a>
+        <a class="px55-btn-secondary" routerLink="/termos-de-uso">Ler os termos de uso</a>
+      </div>
+    </div>
+  </section>
+</sep-public-shell>

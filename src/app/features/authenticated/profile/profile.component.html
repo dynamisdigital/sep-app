@@ -1,7 +1,7 @@
 <sep-operational-shell>
-  <div class="profile-page">
+  <div class="profile-page op-pagina-rolavel">
     <nav class="profile-breadcrumb" aria-label="Navegação estrutural">
-      <a href="/app/backoffice/dashboard">Início</a>
+      <a routerLink="/app/dashboard">Início</a>
       <span aria-hidden="true">›</span>
       <strong>Meu perfil</strong>
     </nav>
@@ -14,7 +14,7 @@
         </p>
       </div>
       <button type="button" class="profile-outline-button" (click)="startEditing()">
-        <img [src]="assetBase + '/icons/icon_action_edit_profile.png'" alt="" />
+        <lucide-icon name="user-pen" [size]="14" [strokeWidth]="2.25" />
         Editar perfil
       </button>
     </header>
@@ -34,7 +34,7 @@
 
         <section class="profile-hero profile-panel">
           <div class="profile-avatar">
-            <img [src]="assetBase + '/icons/icon_profile_avatar_b.png'" alt="Avatar da conta" />
+            <span aria-hidden="true">{{ inicial() }}</span>
           </div>
           <div class="profile-identity">
             <div>
@@ -51,10 +51,11 @@
             </p>
           </div>
           <div class="profile-account-status">
-            <img
+            <lucide-icon
               class="profile-account-status-icon"
-              [src]="assetBase + '/icons/icon_profile_status_conta_shield.png'"
-              alt=""
+              name="shield-check"
+              [size]="47"
+              [strokeWidth]="1"
             />
             <div>
               <span>Status da conta</span>
@@ -68,10 +69,7 @@
             <small>Resolução CMN 4.656/2018</small>
           </div>
           <div class="profile-regulatory-art" aria-hidden="true">
-            <img
-              [src]="assetBase + '/visuals/visual_hero_ambiente_hud_shield.png?v=20260717-clean'"
-              alt=""
-            />
+            <sep-arte nome="escudo-heroi" />
           </div>
         </section>
 
@@ -80,27 +78,23 @@
             <h2>Identificação e Acesso</h2>
             <dl class="profile-rows">
               <div>
-                <dt><img [src]="assetBase + '/icons/icon_id_email.png'" alt="" /> E-mail</dt>
+                <dt><lucide-icon name="mail" [size]="21" [strokeWidth]="2.25" /> E-mail</dt>
                 <dd>{{ user.username }}</dd>
               </div>
               <div>
-                <dt><img [src]="assetBase + '/icons/icon_id_perfil.png'" alt="" /> Perfil</dt>
+                <dt><lucide-icon name="user-round" [size]="23" [strokeWidth]="2" /> Perfil</dt>
                 <dd>{{ user.role }}</dd>
               </div>
               <div>
                 <dt>
-                  <img [src]="assetBase + '/icons/icon_id_nivel_acesso.png'" alt="" /> Nível de
-                  acesso
+                  <lucide-icon name="key-round" [size]="21" [strokeWidth]="2.25" /> Nível de acesso
                 </dt>
                 <dd>
                   <span class="profile-chip">{{ details.nivelAcesso }}</span>
                 </dd>
               </div>
               <div>
-                <dt>
-                  <img [src]="assetBase + '/icons/icon_id_ultimo_acesso.png'" alt="" /> Último
-                  acesso
-                </dt>
+                <dt><lucide-icon name="clock" [size]="24" [strokeWidth]="2" /> Último acesso</dt>
                 <dd>
                   {{ formatDate(details.ultimoAcesso) }}
                   <span class="profile-now-badge">Agora</span>
@@ -108,7 +102,7 @@
               </div>
               <div>
                 <dt>
-                  <img [src]="assetBase + '/icons/icon_id_mfa_lock.png'" alt="" /> MFA (Segundo
+                  <lucide-icon name="lock-keyhole" [size]="23" [strokeWidth]="2" /> MFA (Segundo
                   fator)
                 </dt>
                 <dd>
@@ -123,8 +117,7 @@
               </div>
               <div>
                 <dt>
-                  <img [src]="assetBase + '/icons/icon_id_status_sessao.png'" alt="" /> Status da
-                  sessão
+                  <lucide-icon name="monitor" [size]="26" [strokeWidth]="1.75" /> Status da sessão
                 </dt>
                 <dd>
                   <span class="profile-live-state">
@@ -135,7 +128,7 @@
               </div>
               <div>
                 <dt>
-                  <img [src]="assetBase + '/icons/icon_id_dispositivos_autorizados.png'" alt="" />
+                  <lucide-icon name="smartphone" [size]="24" [strokeWidth]="2" />
                   Dispositivos autorizados
                 </dt>
                 <dd>{{ details.dispositivosAutorizados }} dispositivos <span>›</span></dd>
@@ -144,63 +137,57 @@
           </section>
 
           <section class="profile-panel profile-audit">
+            <sep-arte class="profile-audit-art" nome="prancheta" />
             <header>
               <h2>Auditoria da Conta</h2>
               <button type="button" class="profile-export" (click)="exportReport()">
-                <img [src]="assetBase + '/icons/icon_action_export_report.png'" alt="" />
+                <lucide-icon name="file-down" [size]="14" [strokeWidth]="2.25" />
                 Exportar relatório
               </button>
             </header>
             <dl class="profile-rows">
               <div>
                 <dt>
-                  <img [src]="assetBase + '/icons/icon_audit_criado_em_calendar.png'" alt="" />
+                  <lucide-icon name="calendar" [size]="24" [strokeWidth]="2" />
                   Criado em
                 </dt>
                 <dd>{{ formatDate(user.dataCriacao) }}</dd>
               </div>
               <div>
                 <dt>
-                  <img [src]="assetBase + '/icons/icon_audit_modificado_em_edit.png'" alt="" />
+                  <lucide-icon name="calendar-clock" [size]="24" [strokeWidth]="2" />
                   Modificado em
                 </dt>
                 <dd>{{ formatDate(user.dataModificacao) }}</dd>
               </div>
               <div>
-                <dt>
-                  <img [src]="assetBase + '/icons/icon_audit_criado_por_user.png'" alt="" /> Criado
-                  por
-                </dt>
+                <dt><lucide-icon name="user" [size]="24" [strokeWidth]="2" /> Criado por</dt>
                 <dd>{{ user.criadoPor }}</dd>
               </div>
               <div>
                 <dt>
-                  <img [src]="assetBase + '/icons/icon_audit_modificado_por_user.png'" alt="" />
+                  <lucide-icon name="user-pen" [size]="21" [strokeWidth]="2.25" />
                   Modificado por
                 </dt>
                 <dd>{{ user.modificadoPor }}</dd>
               </div>
               <div>
                 <dt>
-                  <img
-                    [src]="assetBase + '/icons/icon_audit_ultima_autenticacao_fingerprint.png'"
-                    alt=""
-                  />
+                  <lucide-icon name="fingerprint" [size]="22" [strokeWidth]="2.25" />
                   Última autenticação
                 </dt>
                 <dd>{{ formatDate(details.ultimaAutenticacao) }}</dd>
               </div>
               <div>
                 <dt>
-                  <img [src]="assetBase + '/icons/icon_audit_tentativas_login_shield.png'" alt="" />
+                  <lucide-icon name="shield-alert" [size]="24" [strokeWidth]="2" />
                   Tentativas de login (24h)
                 </dt>
                 <dd class="profile-success">{{ details.tentativasLogin24h }} falhas</dd>
               </div>
               <div>
                 <dt>
-                  <img [src]="assetBase + '/icons/icon_audit_logs_document.png'" alt="" /> Logs de
-                  auditoria
+                  <lucide-icon name="scroll-text" [size]="23" [strokeWidth]="2" /> Logs de auditoria
                 </dt>
                 <dd class="profile-link">Ver histórico completo <span>›</span></dd>
               </div>
@@ -211,27 +198,34 @@
             <h2>Segurança da conta</h2>
             <div class="profile-security-grid">
               <article>
-                <img [src]="assetBase + '/icons/icon_security_senha_forte.png'" alt="" />
+                <lucide-icon name="key-round" [size]="54" [strokeWidth]="1" />
                 <span>Senha forte</span>
                 <strong>{{ details.senhaForte ? 'Protegida' : 'Revisar' }}</strong>
               </article>
               <article>
-                <img [src]="assetBase + '/icons/icon_security_mfa_lock.png'" alt="" />
+                <lucide-icon name="lock-keyhole" [size]="37" [strokeWidth]="1.25" />
                 <span>MFA</span>
                 <strong>{{ user.mfaHabilitado ? 'Ativado' : 'Desativado' }}</strong>
+                <!-- Sem este atalho a habilitação do TOTP não tinha porta de entrada: só o
+                     step-up levava até ela, e só depois de uma operação ser recusada. -->
+                @if (!user.mfaHabilitado) {
+                  <a class="profile-mfa-link" routerLink="/app/profile/setup-totp">
+                    Habilitar agora <span aria-hidden="true">›</span>
+                  </a>
+                }
               </article>
               <article>
-                <img [src]="assetBase + '/icons/icon_security_sessoes.png'" alt="" />
+                <lucide-icon name="monitor" [size]="31" [strokeWidth]="1.5" />
                 <span>Sessões</span>
                 <strong>{{ details.sessoesAtivas }} ativas</strong>
               </article>
               <article>
-                <img [src]="assetBase + '/icons/icon_security_dispositivos.png'" alt="" />
+                <lucide-icon name="smartphone" [size]="34" [strokeWidth]="1.5" />
                 <span>Dispositivos</span>
                 <strong>{{ details.dispositivosAutorizados }} autorizados</strong>
               </article>
               <article>
-                <img [src]="assetBase + '/icons/icon_security_auditoria.png'" alt="" />
+                <lucide-icon name="scroll-text" [size]="48" [strokeWidth]="1" />
                 <span>Auditoria</span>
                 <strong>{{ details.auditoriaAtiva ? 'Ativa' : 'Inativa' }}</strong>
               </article>
@@ -242,30 +236,30 @@
             <h2>Informações complementares</h2>
             <div class="profile-complementary-grid">
               <div>
-                <img [src]="assetBase + '/icons/icon_info_idioma_globe.png'" alt="" />
+                <lucide-icon class="ic-verde" name="globe" [size]="31" [strokeWidth]="1.5" />
                 <span><small>Idioma</small>{{ details.preferencias.idioma }}</span>
               </div>
               <div>
-                <img [src]="assetBase + '/icons/icon_info_fuso_horario_clock.png'" alt="" />
+                <lucide-icon class="ic-ambar" name="clock" [size]="25" [strokeWidth]="2" />
                 <span><small>Fuso horário</small>{{ details.preferencias.fusoHorario }}</span>
               </div>
               <div>
-                <img [src]="assetBase + '/icons/icon_info_preferencia_tema.png'" alt="" />
+                <lucide-icon class="ic-verde" name="palette" [size]="29" [strokeWidth]="1.75" />
                 <span><small>Preferência de tema</small>{{ details.preferencias.tema }}</span>
               </div>
               <div>
-                <img [src]="assetBase + '/icons/icon_info_notificacoes_bell.png'" alt="" />
+                <lucide-icon class="ic-verde" name="bell" [size]="28" [strokeWidth]="1.75" />
                 <span
                   ><small>Notificações</small
                   >{{ details.preferencias.notificacoesAtivas ? 'Ativadas' : 'Desativadas' }}</span
                 >
               </div>
               <div>
-                <img [src]="assetBase + '/icons/icon_info_comunicacoes_email.png'" alt="" />
+                <lucide-icon class="ic-ambar" name="mail" [size]="24" [strokeWidth]="2" />
                 <span><small>Comunicações</small>{{ details.preferencias.canalComunicacao }}</span>
               </div>
               <div>
-                <img [src]="assetBase + '/icons/icon_info_armazenamento_cloud.png'" alt="" />
+                <lucide-icon class="ic-azul" name="cloud" [size]="31" [strokeWidth]="1.5" />
                 <span
                   ><small>Armazenamento</small
                   >{{ details.armazenamentoSincronizado ? 'Sincronizado' : 'Pendente' }}</span

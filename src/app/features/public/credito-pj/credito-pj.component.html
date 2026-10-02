@@ -1,0 +1,100 @@
+<sep-public-shell>
+  <section class="px49-page">
+    <header class="px49-heading">
+      <p class="px49-kicker"><lucide-icon name="credit-card" [size]="14" />Crédito PJ</p>
+      <h1>Capital de giro para empresas, com <em>regra clara</em> e trilha auditável.</h1>
+      <p class="px49-lead">
+        O SEP conecta empresas que precisam de capital de giro a empresas que querem aportar
+        recursos. Toda proposta passa pela mesma esteira: cadastro verificado, análise registrada,
+        contrato assinado e desembolso rastreado.
+      </p>
+    </header>
+
+    <!-- ============ CONDIÇÕES ============ -->
+    <section class="px49-secao">
+      <div class="px49-secao-topo">
+        <h2>Condições da operação</h2>
+        <p>
+          Os limites abaixo são os parâmetros operacionais vigentes na plataforma, não uma
+          estimativa comercial. Quando um parâmetro muda, a alteração é versionada e auditada.
+        </p>
+      </div>
+
+      <dl class="px49-condicoes">
+        @for (linha of condicoes; track linha.rotulo) {
+          <div>
+            <dt>{{ linha.rotulo }}</dt>
+            <dd>{{ linha.valor }}</dd>
+            @if (linha.origem) {
+              <small>{{ linha.origem }}</small>
+            }
+          </div>
+        }
+      </dl>
+
+      <p class="px49-aviso">
+        <lucide-icon name="triangle-alert" [size]="18" />
+        <span>
+          O teto de {{ teto }} por proposta vem do regimento do SEP e não é negociável. A plataforma
+          não promete aprovação automática, taxa mínima nem prazo de resposta garantido.
+        </span>
+      </p>
+    </section>
+
+    <!-- ============ REQUISITOS ============ -->
+    <section class="px49-secao">
+      <div class="px49-secao-topo">
+        <h2>O que a empresa precisa ter</h2>
+        <p>
+          Nada é pedido duas vezes: o que a empresa envia no onboarding vale para todas as propostas
+          seguintes, enquanto a verificação estiver válida.
+        </p>
+      </div>
+
+      <div class="px49-grade">
+        @for (item of requisitos; track item.titulo) {
+          <article class="px49-card" [attr.data-tone]="item.tom">
+            <span class="px49-card-icone"><lucide-icon [name]="item.icone" [size]="22" /></span>
+            <h3>{{ item.titulo }}</h3>
+            <p>{{ item.descricao }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    <!-- ============ DECISÃO ============ -->
+    <section class="px49-secao">
+      <div class="px49-secao-topo">
+        <h2>Como a proposta é decidida</h2>
+        <p>
+          Estes são os quatro estados que uma proposta assume na plataforma. Cada transição fica
+          registrada com data, responsável e motivo.
+        </p>
+      </div>
+
+      <div class="px49-grade">
+        @for (item of decisao; track item.titulo) {
+          <article class="px49-card" [attr.data-tone]="item.tom">
+            <span class="px49-card-icone"><lucide-icon [name]="item.icone" [size]="22" /></span>
+            <h3>{{ item.titulo }}</h3>
+            <p>{{ item.descricao }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    <div class="px49-chamada">
+      <h2>Pronto para começar?</h2>
+      <p>
+        O cadastro leva poucos minutos e não gera compromisso. A proposta só existe depois que a
+        empresa é verificada.
+      </p>
+      <div class="px49-chamada-acoes">
+        <a class="px49-btn-primary" routerLink="/login">
+          <lucide-icon name="arrow-right" [size]="18" />Entrar na plataforma
+        </a>
+        <a class="px49-btn-secondary" routerLink="/como-funciona">Ver a jornada completa</a>
+      </div>
+    </div>
+  </section>
+</sep-public-shell>

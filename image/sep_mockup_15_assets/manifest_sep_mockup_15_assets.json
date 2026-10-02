@@ -1,0 +1,450 @@
+{
+  "mockup": "Mockup_15 — Dashboard operacional / Backoffice SEP",
+  "project_destination": "C:\\Pastas\\PROJETOS\\Projeto Dynamis SEP\\sep-app 16062026\\image\\sep_mockup_15_assets",
+  "public_path_suggestion": "/image/sep_mockup_15_assets/...",
+  "extraction_method": "recorte centro-para-fora com centro visual, canvas centralizado e margem segura. Nesta versão, os ícones preservam o HUD/fundo interno original para evitar corte por alpha e manter fidelidade visual.",
+  "source_image_size": [1448, 1086],
+  "assets": [
+    {
+      "file": "logos/logo_sep_header_completo.png",
+      "category": "logos",
+      "source": "transparent neon crop",
+      "box": [18, 14, 158, 58]
+    },
+    {
+      "file": "logos/logo_sep_footer_completo.png",
+      "category": "logos",
+      "source": "transparent neon crop",
+      "box": [18, 986, 165, 1048]
+    },
+    {
+      "file": "logos/logo_sep_simbolo_header.png",
+      "category": "logos",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [39, 37],
+      "canvas": [56, 56]
+    },
+    {
+      "file": "logos/logo_sep_wordmark_header.png",
+      "category": "logos",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [106, 38],
+      "canvas": [92, 48]
+    },
+    {
+      "file": "logos/logo_sep_texto_extenso_header.png",
+      "category": "logos",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [216, 36],
+      "canvas": [112, 42]
+    },
+    {
+      "file": "logos/logo_sep_simbolo_footer.png",
+      "category": "logos",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [38, 1019],
+      "canvas": [58, 58]
+    },
+    {
+      "file": "logos/logo_sep_wordmark_footer.png",
+      "category": "logos",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [102, 1022],
+      "canvas": [96, 48]
+    },
+    {
+      "file": "icons/icon_topbar_ambiente_regulado.png",
+      "category": "topbar",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [358, 38],
+      "canvas": [50, 50]
+    },
+    {
+      "file": "icons/icon_topbar_horario_sistema.png",
+      "category": "topbar",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [505, 38],
+      "canvas": [50, 50]
+    },
+    {
+      "file": "icons/icon_topbar_search.png",
+      "category": "topbar",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [1005, 38],
+      "canvas": [42, 42]
+    },
+    {
+      "file": "icons/icon_topbar_bell_notification.png",
+      "category": "topbar",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [1064, 38],
+      "canvas": [58, 58]
+    },
+    {
+      "file": "icons/icon_topbar_help.png",
+      "category": "topbar",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [1123, 38],
+      "canvas": [44, 44]
+    },
+    {
+      "file": "icons/icon_topbar_avatar_user_b.png",
+      "category": "topbar",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [1188, 38],
+      "canvas": [54, 54]
+    },
+    {
+      "file": "icons/icon_topbar_theme_sun.png",
+      "category": "topbar",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [1386, 37],
+      "canvas": [44, 44]
+    },
+    {
+      "file": "icons/icon_periodo_calendar.png",
+      "category": "topbar",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [1108, 139],
+      "canvas": [36, 36]
+    },
+    {
+      "file": "icons/icon_export_download.png",
+      "category": "topbar",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [1179, 139],
+      "canvas": [36, 36]
+    },
+    {
+      "file": "icons/icon_title_dashboard_shield.png",
+      "category": "page-title",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [516, 134],
+      "canvas": [42, 42]
+    },
+    {
+      "file": "icons/icon_sidebar_dashboard.png",
+      "category": "sidebar",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [34, 143],
+      "canvas": [30, 30]
+    },
+    {
+      "file": "icons/icon_sidebar_onboarding.png",
+      "category": "sidebar",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [34, 206],
+      "canvas": [30, 30]
+    },
+    {
+      "file": "icons/icon_sidebar_credito.png",
+      "category": "sidebar",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [34, 256],
+      "canvas": [30, 30]
+    },
+    {
+      "file": "icons/icon_sidebar_formalizacao.png",
+      "category": "sidebar",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [34, 306],
+      "canvas": [30, 30]
+    },
+    {
+      "file": "icons/icon_sidebar_cobranca.png",
+      "category": "sidebar",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [34, 357],
+      "canvas": [30, 30]
+    },
+    {
+      "file": "icons/icon_sidebar_backoffice.png",
+      "category": "sidebar",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [34, 421],
+      "canvas": [30, 30]
+    },
+    {
+      "file": "icons/icon_sidebar_pix.png",
+      "category": "sidebar",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [34, 467],
+      "canvas": [30, 30]
+    },
+    {
+      "file": "icons/icon_sidebar_perfil.png",
+      "category": "sidebar",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [34, 515],
+      "canvas": [30, 30]
+    },
+    {
+      "file": "icons/icon_sidebar_help_central.png",
+      "category": "sidebar",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [58, 906],
+      "canvas": [34, 34]
+    },
+    {
+      "file": "icons/icon_profile_avatar_b.png",
+      "category": "sidebar",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [42, 742],
+      "canvas": [52, 52]
+    },
+    {
+      "file": "icons/icon_metric_recebimentos_30d.png",
+      "category": "metric-cards",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [268, 212],
+      "canvas": [62, 62]
+    },
+    {
+      "file": "icons/icon_metric_inadimplencia_total.png",
+      "category": "metric-cards",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [523, 212],
+      "canvas": [62, 62]
+    },
+    {
+      "file": "icons/icon_metric_tempo_resolucao.png",
+      "category": "metric-cards",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [773, 212],
+      "canvas": [62, 62]
+    },
+    {
+      "file": "icons/icon_metric_criticos_abertos.png",
+      "category": "metric-cards",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [1004, 212],
+      "canvas": [62, 62]
+    },
+    {
+      "file": "icons/icon_metric_propostas_analise.png",
+      "category": "metric-cards",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [1230, 212],
+      "canvas": [62, 62]
+    },
+    {
+      "file": "visuals/visual_chart_itens_por_status_donut.png",
+      "category": "visuals",
+      "source": "raw crop/reference",
+      "box": [270, 348, 388, 468]
+    },
+    {
+      "file": "visuals/visual_chart_itens_por_prioridade_donut.png",
+      "category": "visuals",
+      "source": "raw crop/reference",
+      "box": [542, 348, 662, 468]
+    },
+    {
+      "file": "visuals/visual_chart_itens_por_tipo_donut.png",
+      "category": "visuals",
+      "source": "raw crop/reference",
+      "box": [820, 348, 940, 468]
+    },
+    {
+      "file": "visuals/visual_chart_evolucao_ocorrencias.png",
+      "category": "visuals",
+      "source": "raw crop/reference",
+      "box": [275, 550, 684, 724]
+    },
+    {
+      "file": "visuals/visual_chart_propostas_status_donut.png",
+      "category": "visuals",
+      "source": "raw crop/reference",
+      "box": [712, 586, 836, 714]
+    },
+    {
+      "file": "visuals/visual_chart_ranking_ocorrencias_bars.png",
+      "category": "visuals",
+      "source": "raw crop/reference",
+      "box": [1040, 602, 1320, 700]
+    },
+    {
+      "file": "visuals/visual_sparkline_recebimentos_30d.png",
+      "category": "visuals",
+      "source": "raw crop/reference",
+      "box": [270, 258, 455, 293]
+    },
+    {
+      "file": "visuals/visual_sparkline_inadimplencia_total.png",
+      "category": "visuals",
+      "source": "raw crop/reference",
+      "box": [502, 258, 690, 293]
+    },
+    {
+      "file": "visuals/visual_sparkline_tempo_resolucao.png",
+      "category": "visuals",
+      "source": "raw crop/reference",
+      "box": [740, 258, 948, 293]
+    },
+    {
+      "file": "visuals/visual_sparkline_criticos_abertos.png",
+      "category": "visuals",
+      "source": "raw crop/reference",
+      "box": [992, 258, 1172, 293]
+    },
+    {
+      "file": "visuals/visual_sparkline_propostas_analise.png",
+      "category": "visuals",
+      "source": "raw crop/reference",
+      "box": [1220, 258, 1410, 293]
+    },
+    {
+      "file": "visuals/visual_bar_sla_prazo.png",
+      "category": "visuals",
+      "source": "raw crop/reference",
+      "box": [1015, 835, 1328, 852]
+    },
+    {
+      "file": "visuals/visual_bar_reabertura.png",
+      "category": "visuals",
+      "source": "raw crop/reference",
+      "box": [1015, 886, 1328, 902]
+    },
+    {
+      "file": "visuals/visual_bar_aguardando.png",
+      "category": "visuals",
+      "source": "raw crop/reference",
+      "box": [1015, 936, 1328, 953]
+    },
+    {
+      "file": "icons/icon_indicador_sla_prazo.png",
+      "category": "operational-indicators",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [945, 833],
+      "canvas": [48, 48]
+    },
+    {
+      "file": "icons/icon_indicador_reabertura.png",
+      "category": "operational-indicators",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [945, 883],
+      "canvas": [48, 48]
+    },
+    {
+      "file": "icons/icon_indicador_aguardando_atendimento.png",
+      "category": "operational-indicators",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [945, 934],
+      "canvas": [48, 48]
+    },
+    {
+      "file": "icons/icon_footer_ambiente_regulado.png",
+      "category": "footer",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [273, 1014],
+      "canvas": [48, 48]
+    },
+    {
+      "file": "icons/icon_footer_segregacao_patrimonial.png",
+      "category": "footer",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [468, 1014],
+      "canvas": [48, 48]
+    },
+    {
+      "file": "icons/icon_footer_dados_criptografados.png",
+      "category": "footer",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [684, 1014],
+      "canvas": [48, 48]
+    },
+    {
+      "file": "icons/icon_footer_rastreabilidade_total.png",
+      "category": "footer",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [883, 1014],
+      "canvas": [48, 48]
+    },
+    {
+      "file": "icons/icon_footer_seguranca_prioridade_hud.png",
+      "category": "footer",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [1038, 1016],
+      "canvas": [86, 86]
+    },
+    {
+      "file": "icons/icon_footer_status_dot.png",
+      "category": "footer",
+      "source": "center-out raw crop; centered canvas with safe margin",
+      "center": [1408, 1027],
+      "canvas": [30, 30]
+    },
+    {
+      "file": "ui-groups/ui_topbar_authenticated.png",
+      "category": "ui-groups",
+      "source": "raw crop/reference",
+      "box": [0, 0, 1448, 70]
+    },
+    {
+      "file": "ui-groups/ui_sidebar_backoffice.png",
+      "category": "ui-groups",
+      "source": "raw crop/reference",
+      "box": [0, 70, 220, 1070]
+    },
+    {
+      "file": "ui-groups/ui_metric_cards_row.png",
+      "category": "ui-groups",
+      "source": "raw crop/reference",
+      "box": [235, 180, 1420, 305]
+    },
+    {
+      "file": "ui-groups/ui_status_priority_type_top5_section.png",
+      "category": "ui-groups",
+      "source": "raw crop/reference",
+      "box": [238, 315, 1418, 525]
+    },
+    {
+      "file": "ui-groups/ui_chart_evolucao_ocorrencias_card.png",
+      "category": "ui-groups",
+      "source": "raw crop/reference",
+      "box": [240, 545, 705, 765]
+    },
+    {
+      "file": "ui-groups/ui_propostas_status_card.png",
+      "category": "ui-groups",
+      "source": "raw crop/reference",
+      "box": [715, 545, 1005, 765]
+    },
+    {
+      "file": "ui-groups/ui_ranking_ocorrencias_card.png",
+      "category": "ui-groups",
+      "source": "raw crop/reference",
+      "box": [1015, 545, 1418, 765]
+    },
+    {
+      "file": "ui-groups/ui_ocorrencias_criticas_table.png",
+      "category": "ui-groups",
+      "source": "raw crop/reference",
+      "box": [240, 775, 918, 980]
+    },
+    {
+      "file": "ui-groups/ui_indicadores_operacionais_card.png",
+      "category": "ui-groups",
+      "source": "raw crop/reference",
+      "box": [930, 775, 1418, 980]
+    },
+    {
+      "file": "ui-groups/ui_footer_regulatorio.png",
+      "category": "ui-groups",
+      "source": "raw crop/reference",
+      "box": [220, 970, 1448, 1070]
+    },
+    {
+      "file": "ui-groups/ui_main_content_area.png",
+      "category": "ui-groups",
+      "source": "raw crop/reference",
+      "box": [220, 70, 1448, 1086]
+    },
+    {
+      "file": "ui-groups/ui_full_mockup_reference.png",
+      "category": "ui-groups",
+      "source": "raw crop/reference",
+      "box": [0, 0, 1448, 1086]
+    }
+  ]
+}

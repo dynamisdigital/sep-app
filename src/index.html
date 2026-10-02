@@ -6,6 +6,11 @@
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <!-- Instalado como aplicativo, o SEP roda em janela própria, com os botões de legenda do
+         Windows — e assim o Snap Layouts do sistema (maximizar, meia tela, um terço) age sobre
+         ela como sobre qualquer programa. É por esse caminho que o enquadramento acontece. -->
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#030d19" />
   </head>
   <body>
     <sep-root></sep-root>

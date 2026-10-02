@@ -1,9 +1,13 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { importProvidersFrom } from '@angular/core';
 import { ActivatedRoute, Router, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { LucideAngularModule } from 'lucide-angular';
+
 import { AuthService } from '../../../../core/auth/auth.service';
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
 import { stepUpInterceptor } from '../../../../core/interceptors/step-up.interceptor';
 import { resetGovernancaState } from '../../../../../mocks/handlers';
@@ -25,6 +29,7 @@ function activatedRouteMock(id: string) {
       paramMap: {
         get: (key: string) => (key === 'id' ? id : null),
       },
+      queryParamMap: { get: () => null },
     },
   };
 }
@@ -52,6 +57,7 @@ async function setup(id: string) {
     providers: [
       provideRouter([]),
       provideHttpClient(),
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
       { provide: ActivatedRoute, useValue: activatedRouteMock(id) },
     ],
   });
@@ -69,6 +75,7 @@ async function setupRoles(
     providers: [
       provideRouter([]),
       provideHttpClient(withInterceptors([stepUpInterceptor])),
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
       { provide: ActivatedRoute, useValue: activatedRouteMock(id) },
     ],
   });
@@ -85,9 +92,18 @@ async function setupRoles(
   return result;
 }
 
+function chip(role: string): HTMLButtonElement {
+  return screen.getByRole('button', { name: new RegExp(`^${role}`) }) as HTMLButtonElement;
+}
+
+function chipAtivo(role: string): boolean {
+  return chip(role).classList.contains('px39-chip-ativo');
+}
+
 describe('UserDetailComponent', () => {
   beforeEach(() => {
     window.localStorage.clear();
+    window.sessionStorage.clear();
     resetGovernancaState();
   });
 
@@ -95,7 +111,7 @@ describe('UserDetailComponent', () => {
     await setup(CLIENTE_ID);
 
     expect(screen.getByText('cliente@empresa.com')).toBeTruthy();
-    expect(screen.getByText('CLIENTE', { selector: 'dd' })).toBeTruthy();
+    expect(screen.getByText('CLIENTE', { selector: '.px39-selo' })).toBeTruthy();
     expect(screen.getByText(CLIENTE_ID)).toBeTruthy();
   });
 
@@ -117,7 +133,7 @@ describe('UserDetailComponent', () => {
   it('link voltar aponta para /app/admin/users', async () => {
     await setup(ADMIN_ID);
 
-    const back = screen.getByText(/voltar para lista/i).closest('a');
+    const back = screen.getByText(/^voltar$/i).closest('a');
     expect(back?.getAttribute('href')).toBe('/app/admin/users');
   });
 
@@ -125,16 +141,11 @@ describe('UserDetailComponent', () => {
     it('exibe o conjunto de roles e a role principal do usuario-alvo', async () => {
       await setupRoles(MULTIROLE_ID);
 
-      expect(
-        (screen.getByRole('checkbox', { name: 'FINANCEIRO' }) as HTMLInputElement).checked,
-      ).toBe(true);
-      expect(
-        (screen.getByRole('checkbox', { name: 'BACKOFFICE' }) as HTMLInputElement).checked,
-      ).toBe(true);
-      expect((screen.getByRole('checkbox', { name: 'ADMIN' }) as HTMLInputElement).checked).toBe(
-        false,
-      );
-      expect(screen.getByText('FINANCEIRO', { selector: 'strong' })).toBeTruthy();
+      expect(chipAtivo('FINANCEIRO')).toBe(true);
+      expect(chipAtivo('BACKOFFICE')).toBe(true);
+      expect(chipAtivo('ADMIN')).toBe(false);
+      // A role principal vem marcada pela legenda que o backend devolve.
+      expect(chip('FINANCEIRO').textContent).toContain('principal');
     });
 
     it('exibe a nota de auditoria de roles (trilha detalhada nao exibida na web)', async () => {
@@ -146,14 +157,11 @@ describe('UserDetailComponent', () => {
     it('aplica o toggle e salva o conjunto via PUT com step-up, mostrando sucesso', async () => {
       const result = await setupRoles(MULTIROLE_ID, { token: 'step-up-tok', operadorId: ADMIN_ID });
 
-      const adminCheckbox = screen.getByRole('checkbox', { name: 'ADMIN' }) as HTMLInputElement;
-      expect(adminCheckbox.checked).toBe(false);
+      expect(chipAtivo('ADMIN')).toBe(false);
 
-      fireEvent.click(adminCheckbox);
+      fireEvent.click(chip('ADMIN'));
       result.fixture.detectChanges();
-      expect((screen.getByRole('checkbox', { name: 'ADMIN' }) as HTMLInputElement).checked).toBe(
-        true,
-      );
+      expect(chipAtivo('ADMIN')).toBe(true);
 
       fireEvent.click(screen.getByText('Salvar roles'));
       await result.fixture.whenStable();
@@ -162,17 +170,40 @@ describe('UserDetailComponent', () => {
 
       expect(screen.getByText('Roles atualizadas.')).toBeTruthy();
       // O conjunto enviado inclui ADMIN: a principal retornada pelo backend passa a ser ADMIN.
-      expect(screen.getByText('ADMIN', { selector: 'strong' })).toBeTruthy();
+      expect(chip('ADMIN').textContent).toContain('principal');
     });
 
     it('bloqueia auto-edicao do proprio admin', async () => {
       await setupRoles(ADMIN_ID, { operadorId: ADMIN_ID });
 
-      expect(screen.getByText('Você não pode alterar as próprias roles.')).toBeTruthy();
-      expect((screen.getByText('Salvar roles') as HTMLButtonElement).disabled).toBe(true);
+      expect(screen.getByText(/não pode alterar as próprias roles/i)).toBeTruthy();
+      // Sem endpoint aplicável, o botão de salvar sequer é oferecido.
+      expect(screen.queryByText('Salvar roles')).toBeNull();
+      expect(chip('ADMIN').disabled).toBe(true);
     });
 
-    it('403 sem step-up redireciona para /app/step-up', async () => {
+    // Sem isto o operador confirma a identidade no step-up e volta para uma tela que esqueceu o
+    // que ele havia pedido.
+    it('retoma a alteracao autorizada ao voltar do step-up', async () => {
+      window.sessionStorage.setItem(
+        'SEP_ROLES_PENDENTES',
+        JSON.stringify({ usuarioId: MULTIROLE_ID, roles: ['FINANCEIRO', 'BACKOFFICE', 'ADMIN'] }),
+      );
+
+      const result = await setupRoles(MULTIROLE_ID, {
+        token: 'step-up-tok',
+        operadorId: ADMIN_ID,
+      });
+      await result.fixture.whenStable();
+      await flush();
+      result.fixture.detectChanges();
+
+      expect(screen.getByText('Roles atualizadas.')).toBeTruthy();
+      expect(chipAtivo('ADMIN')).toBe(true);
+      expect(window.sessionStorage.getItem('SEP_ROLES_PENDENTES')).toBeNull();
+    });
+
+    it('403 sem step-up redireciona para /app/step-up e guarda a intencao', async () => {
       const result = await setupRoles(MULTIROLE_ID, { operadorId: ADMIN_ID, mfaHabilitado: true });
       const router = result.fixture.debugElement.injector.get(Router);
       const navSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
@@ -183,6 +214,7 @@ describe('UserDetailComponent', () => {
       result.fixture.detectChanges();
 
       expect(navSpy).toHaveBeenCalledWith(`/app/step-up?next=/app/admin/users/${MULTIROLE_ID}`);
+      expect(window.sessionStorage.getItem('SEP_ROLES_PENDENTES')).toContain(MULTIROLE_ID);
     });
   });
 });

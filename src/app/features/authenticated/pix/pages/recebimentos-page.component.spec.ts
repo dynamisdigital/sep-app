@@ -1,58 +1,33 @@
 import { provideHttpClient } from '@angular/common/http';
-import { ComponentFixture } from '@angular/core/testing';
+import { importProvidersFrom } from '@angular/core';
 import { Router, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { UsuarioRole } from '../../../../core/api/api.models';
-import { AuthService } from '../../../../core/auth/auth.service';
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { resetPixState } from '../../../../../mocks/handlers';
 import { RecebimentosPageComponent } from './recebimentos-page.component';
 
-const PARCELA_NOVA_ID = 'a0000000-0000-4000-8000-0000000000c3';
-const PARCELA_INELEGIVEL_ID = 'a0000000-0000-4000-8000-0000000000c1';
-const PARCELA_INEXISTENTE_ID = 'a0000000-0000-4000-8000-0000000000c2';
-const REFERENCIA_CRIADA_ID = 'e1000000-0000-4000-8000-000000000101';
-const REFERENCIA_ATIVA_ID = 'e1000000-0000-4000-8000-000000000001';
 const RECEBIMENTO_ID = 'e2000000-0000-4000-8000-000000000001';
-
-async function flush(times = 6): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
+const RECEBIMENTO_NAO_IDENTIFICADO_ID = 'e2000000-0000-4000-8000-000000000002';
 
 function renderPage() {
   return render(RecebimentosPageComponent, {
-    providers: [provideHttpClient(), provideRouter([])],
+    providers: [
+      provideHttpClient(),
+      provideRouter([]),
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+    ],
   });
 }
 
-function autenticar(fixture: ComponentFixture<unknown>, role: UsuarioRole): void {
-  const auth = fixture.debugElement.injector.get(AuthService) as unknown as {
-    currentUserState: { set: (u: unknown) => void };
-  };
-  auth.currentUserState.set({
-    id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771003',
-    username: 'operador@empresa.com',
-    role,
-    mfaHabilitado: false,
-    dataCriacao: '2026-04-24T18:30:00-03:00',
-    dataModificacao: '2026-04-24T18:30:00-03:00',
-    criadoPor: 'system',
-    modificadoPor: 'system',
-  });
-}
-
-function preencherParcela(container: HTMLElement, parcelaId: string): void {
-  const el = container.querySelector('input[formControlName="parcelaId"]') as HTMLInputElement;
-  fireEvent.input(el, { target: { value: parcelaId } });
+async function estabilizarExemplo(fixture: {
+  whenStable: () => Promise<unknown>;
+  detectChanges: () => void;
+}) {
+  await fixture.whenStable();
+  fixture.detectChanges();
 }
 
 describe('RecebimentosPageComponent', () => {
@@ -61,102 +36,154 @@ describe('RecebimentosPageComponent', () => {
     resetPixState();
   });
 
-  it('FINANCEIRO ve o formulario de gerar referencia', async () => {
+  it('apresenta a composição principal do Mockup 22', async () => {
+    await renderPage();
+    expect(screen.getByRole('heading', { name: /Recebimentos Pix/ })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Resultado da consulta' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Status da conciliação' })).toBeTruthy();
+    expect(screen.getAllByText('R$ 1.250,00').length).toBeGreaterThan(1);
+  });
+
+  it('status da conciliacao conta a carteira devolvida pela API', async () => {
+    const { fixture, container } = await renderPage();
+    await estabilizarExemplo(fixture);
+
+    // A carteira do mock tem dois recebimentos: um CONCILIADO e um NAO_IDENTIFICADO. Nucleo,
+    // anel e legenda saem da mesma contagem — antes o painel anunciava 1.573 e 100%.
+    const painel = container.querySelector('.px22-conciliacao') as HTMLElement;
+    expect(painel.querySelector('.px22-donut strong')?.textContent).toBe('50,0%');
+    const linhas = [...painel.querySelectorAll('li')].map((li) =>
+      (li.textContent ?? '').replace(/\s+/g, ' ').trim(),
+    );
+    expect(linhas).toEqual(['Conciliados1 (50,0%)', 'Pendentes0 (0,0%)', 'Divergentes1 (50,0%)']);
+    expect(painel.querySelector('.px22-conciliacao-nota')?.textContent).toContain(
+      '2 recebimentos na carteira',
+    );
+  });
+
+  it('limpa separadamente os dois campos de consulta', async () => {
+    const { container } = await renderPage();
+    const referencia = container.querySelector('#px22-ref') as HTMLInputElement;
+    const recebimento = container.querySelector('#px22-rec') as HTMLInputElement;
+    fireEvent.click(screen.getAllByRole('button', { name: /Limpar/ })[0]);
+    expect(referencia.value).toBe('');
+    expect(recebimento.value).not.toBe('');
+  });
+
+  it('consulta um recebimento real e atualiza o resultado', async () => {
+    const { fixture, container } = await renderPage();
+    const recebimento = container.querySelector('#px22-rec') as HTMLInputElement;
+    fireEvent.input(recebimento, { target: { value: RECEBIMENTO_ID } });
+    fireEvent.click(screen.getAllByRole('button', { name: /^Consultar$/ })[1]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(screen.getAllByText(RECEBIMENTO_ID).length).toBeGreaterThan(0);
+  });
+
+  it('a consulta real substitui os dados do exemplo em todos os widgets', async () => {
+    const { fixture, container } = await renderPage();
+    expect(screen.getByText('João da Silva')).toBeTruthy();
+
+    const recebimento = container.querySelector('#px22-rec') as HTMLInputElement;
+    fireEvent.input(recebimento, { target: { value: RECEBIMENTO_NAO_IDENTIFICADO_ID } });
+    fireEvent.click(screen.getAllByRole('button', { name: /^Consultar$/ })[1]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    // O DTO manda status, valor e motivo; pagador, contrato e protocolo não existem nele e não
+    // podem sobrar da consulta anterior.
+    expect(screen.getAllByText(/Nao identificado/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText('R$ 250,00').length).toBeGreaterThan(0);
+    expect(screen.getByText('Referencia Pix nao localizada para o txid recebido')).toBeTruthy();
+    expect(screen.queryByText('João da Silva')).toBeNull();
+    expect(screen.queryByText('CONT-8d9991a11')).toBeNull();
+    expect(screen.queryByText('CONC-20250530-114715')).toBeNull();
+  });
+
+  // O resultado da consulta leva ao detalhe do recebimento (Mockup 25). O rótulo exibido não é
+  // o id da rota, então o link segue um id navegável próprio.
+  it('o ID do recebimento no resultado abre o detalhe', async () => {
+    const { fixture, container } = await renderPage();
+    await estabilizarExemplo(fixture);
+
+    const link = container.querySelector('.px22-link-detalhe') as HTMLAnchorElement | null;
+    expect(link).toBeTruthy();
+    expect(link?.getAttribute('href')).toBe(
+      '/app/pix/recebimentos/e2000000-0000-4000-8000-000000000001',
+    );
+  });
+
+  it('consulta real leva o link ao recebimento consultado', async () => {
+    const { fixture, container } = await renderPage();
+    const recebimento = container.querySelector('#px22-rec') as HTMLInputElement;
+    fireEvent.input(recebimento, { target: { value: RECEBIMENTO_NAO_IDENTIFICADO_ID } });
+    fireEvent.click(screen.getAllByRole('button', { name: /^Consultar$/ })[1]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const link = container.querySelector('.px22-link-detalhe') as HTMLAnchorElement | null;
+    expect(link?.getAttribute('href')).toBe(
+      `/app/pix/recebimentos/${RECEBIMENTO_NAO_IDENTIFICADO_ID}`,
+    );
+  });
+
+  it('a aba seleciona o cartão de consulta correspondente e foca o campo', async () => {
+    const { fixture, container } = await renderPage();
+    const [abaReferencia, abaRecebimento] = screen.getAllByRole('tab');
+    const painelReferencia = container.querySelector('#px22-painel-ref') as HTMLElement;
+    const painelRecebimento = container.querySelector('#px22-painel-rec') as HTMLElement;
+    expect(painelReferencia.classList.contains('ativa')).toBe(true);
+
+    fireEvent.click(abaRecebimento);
+    fixture.detectChanges();
+    expect(abaRecebimento.getAttribute('aria-selected')).toBe('true');
+    expect(abaReferencia.getAttribute('aria-selected')).toBe('false');
+    expect(painelRecebimento.classList.contains('ativa')).toBe(true);
+    expect(painelReferencia.classList.contains('ativa')).toBe(false);
+    expect(document.activeElement).toBe(container.querySelector('#px22-rec'));
+  });
+
+  it('a aba acompanha a consulta enviada e marca a origem do resultado', async () => {
+    const { fixture, container } = await renderPage();
+    // A origem só muda quando um resultado chega: trocar de aba não reescreve o que está na tela.
+    fireEvent.click(screen.getAllByRole('tab')[1]);
+    fixture.detectChanges();
+    expect(screen.getByText('Por referência')).toBeTruthy();
+
+    const recebimento = container.querySelector('#px22-rec') as HTMLInputElement;
+    fireEvent.input(recebimento, { target: { value: RECEBIMENTO_ID } });
+    fireEvent.click(screen.getAllByRole('button', { name: /^Consultar$/ })[1]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(screen.getByText('Por recebimento')).toBeTruthy();
+
+    // Enviar o formulário da outra consulta traz a aba junto.
+    fireEvent.click(screen.getAllByRole('button', { name: /^Consultar$/ })[0]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(screen.getAllByRole('tab')[0].getAttribute('aria-selected')).toBe('true');
+    expect(screen.getByText('Por referência')).toBeTruthy();
+  });
+
+  it('abre e fecha o comprovante legível', async () => {
+    await renderPage();
+    fireEvent.click(screen.getByRole('button', { name: 'Visualizar' }));
+    expect(screen.getByRole('dialog', { name: 'Comprovante Pix' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('ações rápidas navegam para parcela e divergências', async () => {
     const { fixture } = await renderPage();
-    autenticar(fixture, 'FINANCEIRO');
-    fixture.detectChanges();
-
-    expect(screen.getByRole('button', { name: /Gerar referencia/ })).toBeTruthy();
-  });
-
-  it('BACKOFFICE nao ve o formulario de gerar, mas pode consultar', async () => {
-    const { fixture } = await renderPage();
-    autenticar(fixture, 'BACKOFFICE');
-    fixture.detectChanges();
-
-    expect(screen.queryByRole('button', { name: /Gerar referencia/ })).toBeNull();
-    expect(screen.getByRole('button', { name: /Abrir referencia/ })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /Abrir recebimento/ })).toBeTruthy();
-  });
-
-  it('gera referencia e navega para o detalhe da referencia', async () => {
-    const { fixture, container } = await renderPage();
-    autenticar(fixture, 'FINANCEIRO');
-    fixture.detectChanges();
     const router = fixture.debugElement.injector.get(Router);
-    const navegar = vi.spyOn(router, 'navigate').mockResolvedValue(true);
-
-    preencherParcela(container, PARCELA_NOVA_ID);
-    fixture.detectChanges();
-    fireEvent.click(screen.getByRole('button', { name: /Gerar referencia/ }));
-    await estabilizar(fixture);
-
-    expect(navegar).toHaveBeenCalledWith([
-      '/app/pix/recebimentos/referencias',
-      REFERENCIA_CRIADA_ID,
+    const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    fireEvent.click(screen.getByRole('button', { name: /Ir para a parcela/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Abrir ocorrência/ }));
+    // O atalho segue a parcela vinculada ao resultado, e não um id fixo que não existe.
+    expect(navigate).toHaveBeenCalledWith([
+      '/app/cobranca/parcelas',
+      'a0000000-0000-4000-8000-000000000001',
     ]);
-  });
-
-  it('422 parcela inelegivel mostra o motivo do backend', async () => {
-    const { fixture, container } = await renderPage();
-    autenticar(fixture, 'FINANCEIRO');
-    fixture.detectChanges();
-
-    preencherParcela(container, PARCELA_INELEGIVEL_ID);
-    fixture.detectChanges();
-    fireEvent.click(screen.getByRole('button', { name: /Gerar referencia/ }));
-    await estabilizar(fixture);
-
-    expect(screen.getByRole('alert').textContent).toMatch(/recebivel|valor em aberto/i);
-  });
-
-  it('404 parcela inexistente mostra mensagem', async () => {
-    const { fixture, container } = await renderPage();
-    autenticar(fixture, 'FINANCEIRO');
-    fixture.detectChanges();
-
-    preencherParcela(container, PARCELA_INEXISTENTE_ID);
-    fixture.detectChanges();
-    fireEvent.click(screen.getByRole('button', { name: /Gerar referencia/ }));
-    await estabilizar(fixture);
-
-    expect(screen.getByText('Parcela nao encontrada.')).toBeTruthy();
-  });
-
-  it('consultar referencia por id navega para o detalhe', async () => {
-    const { fixture, container } = await renderPage();
-    autenticar(fixture, 'BACKOFFICE');
-    fixture.detectChanges();
-    const router = fixture.debugElement.injector.get(Router);
-    const navegar = vi.spyOn(router, 'navigate').mockResolvedValue(true);
-
-    const input = container.querySelector(
-      'input[formControlName="referenciaId"]',
-    ) as HTMLInputElement;
-    fireEvent.input(input, { target: { value: REFERENCIA_ATIVA_ID } });
-    fixture.detectChanges();
-    fireEvent.click(screen.getByRole('button', { name: /Abrir referencia/ }));
-
-    expect(navegar).toHaveBeenCalledWith([
-      '/app/pix/recebimentos/referencias',
-      REFERENCIA_ATIVA_ID,
-    ]);
-  });
-
-  it('consultar recebimento por id navega para o detalhe', async () => {
-    const { fixture, container } = await renderPage();
-    autenticar(fixture, 'BACKOFFICE');
-    fixture.detectChanges();
-    const router = fixture.debugElement.injector.get(Router);
-    const navegar = vi.spyOn(router, 'navigate').mockResolvedValue(true);
-
-    const input = container.querySelector(
-      'input[formControlName="recebimentoId"]',
-    ) as HTMLInputElement;
-    fireEvent.input(input, { target: { value: RECEBIMENTO_ID } });
-    fixture.detectChanges();
-    fireEvent.click(screen.getByRole('button', { name: /Abrir recebimento/ }));
-
-    expect(navegar).toHaveBeenCalledWith(['/app/pix/recebimentos', RECEBIMENTO_ID]);
+    expect(navigate).toHaveBeenCalledWith(['/app/pix/divergencias']);
   });
 });

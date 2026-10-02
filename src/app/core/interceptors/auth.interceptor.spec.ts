@@ -58,4 +58,16 @@ describe('authInterceptor', () => {
 
     expect(state.lastReq?.headers.has('Authorization')).toBe(false);
   });
+
+  it('nao anexa Authorization para requisicoes a hosts externos a API (SEC-03)', () => {
+    window.localStorage.setItem(ACCESS_TOKEN_KEY, 'abc-token');
+    const req = new HttpRequest('GET', 'https://api.externa.com/dados');
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      authInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.has('Authorization')).toBe(false);
+  });
 });

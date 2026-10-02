@@ -1,17 +1,161 @@
-<section class="sep-credito-home">
-  <header class="sep-credito-home-header">
-    <h1 class="sep-credito-home-title">Crédito</h1>
-    <p class="sep-credito-home-subtitle">
-      Solicite crédito e acompanhe a análise das suas propostas.
-    </p>
-  </header>
-
-  <div class="sep-credito-home-cards">
-    @for (atalho of atalhos; track atalho.route) {
-      <a [routerLink]="atalho.route" class="sep-credito-home-card">
-        <span class="sep-credito-home-card-title">{{ atalho.label }}</span>
-        <span class="sep-credito-home-card-body">{{ atalho.description }}</span>
+<sep-operational-shell>
+  <div class="credit-page op-pagina-rolavel">
+    <header class="credit-heading">
+      <div>
+        <nav aria-label="Navegação estrutural">
+          <a routerLink="/app/dashboard">Início</a><span>›</span><strong>Crédito</strong>
+        </nav>
+        <h1>Crédito <lucide-icon name="shield" [size]="14" [strokeWidth]="2.25" /></h1>
+        <p>Solicite crédito e acompanhe a análise das suas propostas.</p>
+      </div>
+      <a class="approval-card" routerLink="/app/profile">
+        <lucide-icon name="circle-check-big" [size]="54" [strokeWidth]="1" />
+        <span
+          ><strong>Onboarding aprovado</strong
+          ><small>Você está elegível para solicitar crédito.</small
+          ><b>Ver detalhes do perfil <i>→</i></b></span
+        >
       </a>
-    }
+    </header>
+
+    <section class="credit-metrics credit-card" aria-label="Resumo das propostas">
+      @for (metric of metrics(); track metric.label) {
+        <article [attr.data-tone]="metric.tone">
+          <lucide-icon [name]="metric.icon" [size]="54" [strokeWidth]="1" />
+          <span
+            ><small>{{ metric.label }}</small
+            ><strong>{{ metric.value }}</strong
+            ><em>{{ metric.detail }}</em></span
+          >
+        </article>
+      }
+    </section>
+
+    <div class="credit-primary-grid">
+      <section class="proposal-card credit-card">
+        <header class="card-heading">
+          <lucide-icon name="folder-open" [size]="30" [strokeWidth]="1.5" />
+          <span
+            ><h2>Minhas propostas</h2>
+            <p>Acompanhe o status das suas propostas de crédito.</p></span
+          >
+        </header>
+        <div class="proposal-content">
+          <div
+            class="proposal-donut"
+            [style.background]="gradiente(fatiasPropostas())"
+            [style.box-shadow]="halo(fatiasPropostas())"
+          >
+            <span
+              ><strong>{{ totalPropostas() }}</strong
+              ><small>Total</small></span
+            >
+          </div>
+          <dl>
+            @for (fatia of fatiasPropostas(); track fatia.rotulo) {
+              <div>
+                <dt><i [style.background]="corDoTom(fatia.tom)"></i>{{ fatia.rotulo }}</dt>
+                <dd>{{ fatia.valor }}</dd>
+              </div>
+            }
+          </dl>
+        </div>
+        <a class="credit-button" routerLink="/app/credito/propostas"
+          >Ver minhas propostas <span class="button-arrow" aria-hidden="true">→</span></a
+        >
+      </section>
+
+      <section class="new-proposal-card credit-card">
+        <header class="card-heading">
+          <lucide-icon class="ic-azul" name="plus" [size]="27" [strokeWidth]="1.75" />
+          <span
+            ><h2>Nova proposta</h2>
+            <p>Solicite crédito a partir de um onboarding aprovado.</p></span
+          >
+        </header>
+        <sep-arte class="new-proposal-visual" nome="documento-proposta" />
+        <a class="credit-button green" routerLink="/app/credito/propostas/nova"
+          >Solicitar nova proposta <span class="button-arrow" aria-hidden="true">→</span></a
+        >
+      </section>
+    </div>
+
+    <div class="credit-secondary-grid">
+      <section class="small-card simulate credit-card">
+        <header class="card-heading">
+          <lucide-icon class="ic-azul" name="calculator" [size]="30" [strokeWidth]="1.5" /><span
+            ><h2>Simule seu crédito</h2>
+            <p>Faça uma simulação e descubra<br />as melhores condições para você.</p></span
+          >
+        </header>
+        <sep-arte class="small-visual" nome="escudo-check" />
+        <a class="small-button" routerLink="/app/credito/propostas/nova"
+          >Simular agora <span>→</span></a
+        >
+      </section>
+      <section class="small-card how credit-card">
+        <header class="card-heading">
+          <lucide-icon
+            class="ic-ciano"
+            name="circle-question-mark"
+            [size]="35"
+            [strokeWidth]="1.25"
+          /><span><h2>Como funciona</h2></span>
+        </header>
+        <ul>
+          @for (item of howItWorks; track item) {
+            <li>{{ item }}</li>
+          }
+        </ul>
+        <a class="small-button" routerLink="/app/credito/propostas">Saiba mais <span>→</span></a>
+      </section>
+      <section class="small-card security credit-card">
+        <header class="card-heading">
+          <lucide-icon class="ic-verde" name="shield-check" [size]="35" [strokeWidth]="1.25" /><span
+            ><h2>Segurança e conformidade</h2></span
+          >
+        </header>
+        <ul>
+          @for (item of compliance; track item) {
+            <li>{{ item }}</li>
+          }
+        </ul>
+        <sep-arte class="security-visual" nome="cadeado" />
+        <a class="small-button green" routerLink="/app/profile">Ver certificações <span>→</span></a>
+      </section>
+    </div>
+
+    <section class="credit-summary credit-card">
+      <div class="summary-title">
+        <lucide-icon class="ic-verde" name="calculator" [size]="30" [strokeWidth]="1.5" /><span
+          ><strong>Resumo geral do crédito</strong><small>Valor total solicitado</small
+          ><b>{{ resumo().totalSolicitado }}</b></span
+        >
+      </div>
+      <dl>
+        <div>
+          <dt>Valor total aprovado</dt>
+          <dd class="green-value">{{ resumo().totalAprovado }}</dd>
+        </div>
+        <div>
+          <dt>Taxa média pré-aprovada</dt>
+          <dd>{{ resumo().taxaMedia }}</dd>
+        </div>
+        <div>
+          <dt>Prazo médio solicitado</dt>
+          <dd>{{ resumo().prazoMedio }}</dd>
+        </div>
+        <div>
+          <dt>Última atualização</dt>
+          <dd>{{ resumo().ultimaAtualizacao }} <i></i></dd>
+        </div>
+      </dl>
+      <lucide-icon
+        class="summary-calendar ic-ciano"
+        name="calendar"
+        [size]="26"
+        [strokeWidth]="1.75"
+      />
+    </section>
   </div>
-</section>
+</sep-operational-shell>

@@ -1,10 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
-import {
-  ApiErrorResponse,
-  StatusEnvelope,
-  StatusFormalizacao,
-} from '../../../../core/api/api.models';
+import { StatusEnvelope, StatusFormalizacao } from '../../../../core/api/api.models';
+import { extrairMensagemErroSegura } from '../../../../core/api/api-error-sanitizer';
 
 // Formatacao apenas visual da jornada de formalizacao. Valores chegam como number
 // BRL e datas como string ISO do backend; nada aqui interpreta regra de negocio.
@@ -15,6 +12,31 @@ export function formatarMoeda(valor: number, moeda: string): string {
 
 export function formatarData(iso: string): string {
   return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' }).format(new Date(iso));
+}
+
+export function formatarDataHora(iso: string): string {
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+    .format(new Date(iso))
+    .replace(',', '');
+}
+
+export function formatarDataHoraSegundos(iso: string): string {
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  })
+    .format(new Date(iso))
+    .replace(',', '');
 }
 
 // Sufixo do UUID para identificacao curta em listas (o id completo permanece no link).
@@ -45,10 +67,9 @@ export const STATUS_ENVELOPE_LABEL: Record<StatusEnvelope, string> = {
   EXPIRADO: 'Expirado',
 };
 
-// Extrai a mensagem amigavel do corpo de erro padronizado da API, com fallback.
+// Extrai a mensagem amigavel do corpo de erro padronizado da API, com fallback e sanitizacao.
 // 401/403/423 sao tratados pelo errorInterceptor global (redirecionamento); aqui
 // cobrimos 404/409/422/5xx e servem de fallback defensivo.
 export function mensagemFormalizacaoErro(err: HttpErrorResponse, padrao: string): string {
-  const apiErr = err.error as ApiErrorResponse | undefined;
-  return apiErr?.message ?? padrao;
+  return extrairMensagemErroSegura(err, padrao);
 }

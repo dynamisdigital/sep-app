@@ -1,66 +1,698 @@
-<section class="sep-recebimentos">
-  <header class="sep-recebimentos-header">
-    <h1 class="sep-recebimentos-title">Recebimentos Pix</h1>
-    <p class="sep-recebimentos-subtitle">
-      Referencias Pix de parcelas e acompanhamento de recebimentos conciliados ou divergentes.
-    </p>
-  </header>
+<sep-operational-shell>
+  <section class="px22-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px22-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span><a routerLink="/app/pix">Pix</a
+        ><span>›</span><strong>Recebimentos</strong>
+      </nav>
+      <div class="px22-heading-row">
+        <div>
+          <h1>
+            Recebimentos Pix
+            <lucide-icon name="download" [size]="26" class="px22-title-icon" />
+          </h1>
+          <p>Consulte referências Pix de parcelas e recebimentos conciliados.</p>
+        </div>
+        <button type="button" class="px22-btn-export" (click)="exportar()">
+          <lucide-icon name="download" [size]="18" />
+          Exportar relatório
+        </button>
+      </div>
+    </header>
 
-  @if (podeGerar()) {
-    <form class="sep-recebimentos-card" [formGroup]="form" (ngSubmit)="gerar()">
-      <h2 class="sep-recebimentos-subtitle">Gerar referencia de parcela</h2>
-      <p class="sep-recebimentos-aviso" role="note">
-        Gera (ou reaproveita) a referencia Pix com copia-cola para uma parcela elegivel. A
-        elegibilidade e a conciliacao ficam no backend.
+    <!-- ============ CONSULTAS ============ -->
+    <section class="px22-consultas" aria-label="Consultas Pix">
+      <div class="px22-tabs" role="tablist" aria-label="Modo de consulta">
+        <button
+          #abaReferencia
+          type="button"
+          role="tab"
+          id="px22-aba-ref"
+          aria-controls="px22-painel-ref"
+          [class.ativo]="aba() === 'referencia'"
+          [attr.aria-selected]="aba() === 'referencia'"
+          [attr.tabindex]="aba() === 'referencia' ? 0 : -1"
+          (click)="selecionarAba('referencia')"
+          (keydown.arrowright)="alternarAba()"
+          (keydown.arrowleft)="alternarAba()"
+        >
+          <lucide-icon name="shield-check" [size]="24" />
+          <span>Consultar referência<small>Buscar por ID da referência Pix</small></span>
+        </button>
+        <button
+          #abaRecebimento
+          type="button"
+          role="tab"
+          id="px22-aba-rec"
+          aria-controls="px22-painel-rec"
+          [class.ativo]="aba() === 'recebimento'"
+          [attr.aria-selected]="aba() === 'recebimento'"
+          [attr.tabindex]="aba() === 'recebimento' ? 0 : -1"
+          (click)="selecionarAba('recebimento')"
+          (keydown.arrowright)="alternarAba()"
+          (keydown.arrowleft)="alternarAba()"
+        >
+          <lucide-icon name="file-check" [size]="24" />
+          <span>Consultar recebimento<small>Buscar por ID do recebimento Pix</small></span>
+        </button>
+      </div>
+
+      <!-- Os dois cartões seguem visíveis (composição do mockup); a aba destaca o correspondente. -->
+      <div class="px22-query-grid">
+        <form
+          class="px22-card"
+          id="px22-painel-ref"
+          role="tabpanel"
+          aria-labelledby="px22-aba-ref"
+          [class.ativa]="aba() === 'referencia'"
+          [formGroup]="referenciaForm"
+          (ngSubmit)="consultarReferencia()"
+        >
+          <h2><lucide-icon name="file-text" [size]="20" />Consultar por referência</h2>
+          <label for="px22-ref">ID da referência <b>*</b></label>
+          <div class="px22-field">
+            <div class="px22-input">
+              <input
+                #campoReferencia
+                id="px22-ref"
+                formControlName="referenciaId"
+                placeholder="Ex.: REF-20250530-ABC123"
+              />
+              @if (referenciaForm.controls.referenciaId.value) {
+                <button
+                  type="button"
+                  class="px22-limpa-campo"
+                  aria-label="Limpar campo"
+                  (click)="limpar('referencia')"
+                >
+                  <lucide-icon name="x" [size]="13" />
+                </button>
+              }
+            </div>
+            <button type="submit" class="px22-btn-primary">
+              <lucide-icon name="search" [size]="17" />Consultar
+            </button>
+            <button type="button" class="px22-btn-sec" (click)="limpar('referencia')">
+              <lucide-icon name="refresh-cw" [size]="16" />Limpar
+            </button>
+          </div>
+          <small>Informe o ID da referência Pix gerada para a parcela.</small>
+        </form>
+
+        <form
+          class="px22-card"
+          id="px22-painel-rec"
+          role="tabpanel"
+          aria-labelledby="px22-aba-rec"
+          [class.ativa]="aba() === 'recebimento'"
+          [formGroup]="recebimentoForm"
+          (ngSubmit)="consultarRecebimento()"
+        >
+          <h2><lucide-icon name="file-text" [size]="20" />Consultar por recebimento</h2>
+          <label for="px22-rec">ID do recebimento <b>*</b></label>
+          <div class="px22-field">
+            <div class="px22-input">
+              <input
+                #campoRecebimento
+                id="px22-rec"
+                formControlName="recebimentoId"
+                placeholder="Ex.: E6074694820250530114258s1000uLZQ"
+              />
+              @if (recebimentoForm.controls.recebimentoId.value) {
+                <button
+                  type="button"
+                  class="px22-limpa-campo"
+                  aria-label="Limpar campo"
+                  (click)="limpar('recebimento')"
+                >
+                  <lucide-icon name="x" [size]="13" />
+                </button>
+              }
+            </div>
+            <button type="submit" class="px22-btn-primary">
+              <lucide-icon name="search" [size]="17" />Consultar
+            </button>
+            <button type="button" class="px22-btn-sec" (click)="limpar('recebimento')">
+              <lucide-icon name="refresh-cw" [size]="16" />Limpar
+            </button>
+          </div>
+          <small>Informe o ID do recebimento Pix para visualizar os detalhes.</small>
+        </form>
+      </div>
+    </section>
+
+    @if (erro(); as mensagem) {
+      <p class="px22-error" role="alert">
+        <lucide-icon name="circle-alert" [size]="16" />{{ mensagem }}
       </p>
+    }
 
-      <label class="sep-recebimentos-field" for="rec-parcela">
-        <span>Parcela</span>
-        <input
-          id="rec-parcela"
-          type="text"
-          formControlName="parcelaId"
-          placeholder="ID da parcela"
-        />
-      </label>
+    @if (resultado(); as r) {
+      <!-- ============ RESULTADO DA CONSULTA ============ -->
+      <section class="px22-resultado px22-card" [class.loading]="carregando()">
+        <h2><lucide-icon name="file-check" [size]="20" />Resultado da consulta</h2>
 
-      <button type="submit" class="sep-recebimentos-cta" [disabled]="submitting()">
-        @if (submitting()) {
-          Gerando...
-        } @else {
-          Gerar referencia
-        }
-      </button>
+        <div class="px22-status">
+          <span class="px22-selo" [attr.data-tone]="r.statusTom">
+            <lucide-icon name="circle-check" [size]="14" />{{ r.statusRotulo }}
+          </span>
+          <span>{{ r.statusResumo }}</span>
+          <!-- Fecha o laço com a aba: mostra qual consulta produziu o que está na tela. -->
+          <span class="px22-origem">
+            <lucide-icon
+              [name]="$any(origem() === 'referencia' ? 'shield-check' : 'file-check')"
+              [size]="13"
+            />
+            {{ origem() === 'referencia' ? 'Por referência' : 'Por recebimento' }}
+          </span>
+        </div>
 
-      @if (erro(); as msg) {
-        <p class="sep-recebimentos-error" role="alert">{{ msg }}</p>
-      }
-    </form>
+        <dl class="px22-summary">
+          <div>
+            <dt>ID da referência</dt>
+            <dd>
+              {{ texto(r.referenciaId) }}
+              @if (r.referenciaId) {
+                <button
+                  type="button"
+                  class="px22-copy"
+                  [attr.aria-label]="'Copiar ID da referência'"
+                  (click)="copiar(r.referenciaId, 'ref')"
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'ref' ? 'circle-check' : 'copy')"
+                    [size]="13"
+                  />
+                </button>
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>Valor recebido</dt>
+            <dd class="green">{{ moeda(r.valor) }}</dd>
+          </div>
+          <div>
+            <dt>Data/Hora do recebimento</dt>
+            <dd>{{ data(r.recebidoEm) }}</dd>
+          </div>
+          <div>
+            <dt>Pagador</dt>
+            <dd>{{ texto(r.pagador) }}</dd>
+          </div>
+          <div>
+            <dt>Instituição</dt>
+            <dd>{{ texto(r.instituicao) }}</dd>
+          </div>
+        </dl>
+
+        <!-- Parcela à esquerda, linha do tempo + chave Pix à direita (composição do mockup) -->
+        <div class="px22-middle">
+          <article class="px22-parcela">
+            <h3>Dados da parcela vinculada</h3>
+            <dl>
+              <div>
+                <dt>Contrato</dt>
+                <dd>
+                  {{ texto(r.contrato) }}
+                  @if (r.contrato) {
+                    <button
+                      type="button"
+                      class="px22-copy"
+                      aria-label="Copiar contrato"
+                      (click)="copiar(r.contrato, 'contrato')"
+                    >
+                      <lucide-icon
+                        [name]="$any(copiado() === 'contrato' ? 'circle-check' : 'copy')"
+                        [size]="13"
+                      />
+                    </button>
+                  }
+                </dd>
+              </div>
+              <div>
+                <dt>Parcela</dt>
+                <dd>{{ texto(r.parcela) }}</dd>
+              </div>
+              <div>
+                <dt>Valor da parcela</dt>
+                <dd>{{ moeda(r.valor) }}</dd>
+              </div>
+              <div>
+                <dt>Vencimento</dt>
+                <dd>{{ texto(r.vencimento) }}</dd>
+              </div>
+              <div>
+                <dt>Situação da parcela</dt>
+                <dd [class.green]="r.situacaoParcela">{{ texto(r.situacaoParcela) }}</dd>
+              </div>
+            </dl>
+          </article>
+
+          <div class="px22-middle-direita">
+            <article class="px22-timeline">
+              <h3><lucide-icon name="activity" [size]="17" />Linha do tempo do recebimento</h3>
+              <ol>
+                @for (etapa of r.etapas; track etapa.rotulo) {
+                  <li [class.pendente]="!etapa.concluida">
+                    <span class="px22-marco">
+                      <lucide-icon
+                        [name]="$any(etapa.concluida ? 'circle-check' : 'clock')"
+                        [size]="18"
+                      />
+                    </span>
+                    <strong>{{ etapa.rotulo }}</strong>
+                    <small>{{ texto(etapa.hora) }}</small>
+                  </li>
+                }
+              </ol>
+            </article>
+
+            <article class="px22-chave">
+              <strong>Chave Pix utilizada</strong>
+              <span>{{ texto(r.chavePix) }}</span>
+              @if (r.chavePix) {
+                <button
+                  type="button"
+                  class="px22-copy"
+                  aria-label="Copiar chave Pix"
+                  (click)="copiar(r.chavePix, 'chave')"
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'chave' ? 'circle-check' : 'copy')"
+                    [size]="15"
+                  />
+                </button>
+              }
+            </article>
+          </div>
+        </div>
+
+        <!-- Três cartões na base, como no mockup -->
+        <div class="px22-bottom">
+          <article>
+            <h3>
+              <lucide-icon name="circle-check" [size]="19" />Conciliação
+              <span class="px22-selo" [attr.data-tone]="r.statusTom">{{ r.statusRotulo }}</span>
+            </h3>
+            <dl>
+              <div>
+                <dt>Data da conciliação</dt>
+                <dd>{{ texto(r.conciliadoEm) }}</dd>
+              </div>
+              <div>
+                <dt>Responsável</dt>
+                <dd>
+                  @if (r.responsavel) {
+                    <i class="px22-avatar">{{ iniciais(r.responsavel) }}</i>
+                  }
+                  {{ texto(r.responsavel) }}
+                </dd>
+              </div>
+              <div>
+                <dt>Método</dt>
+                <dd>{{ texto(r.metodo) }}</dd>
+              </div>
+              <div>
+                <dt>Protocolo de conciliação</dt>
+                <dd>
+                  {{ texto(r.protocolo) }}
+                  @if (r.protocolo) {
+                    <button
+                      type="button"
+                      class="px22-copy"
+                      aria-label="Copiar protocolo"
+                      (click)="copiar(r.protocolo, 'protocolo')"
+                    >
+                      <lucide-icon
+                        [name]="$any(copiado() === 'protocolo' ? 'circle-check' : 'copy')"
+                        [size]="13"
+                      />
+                    </button>
+                  }
+                </dd>
+              </div>
+            </dl>
+          </article>
+
+          <article>
+            <h3><lucide-icon name="file-text" [size]="19" />Informações adicionais</h3>
+            <dl>
+              <div>
+                <dt>ID do pagador (PSP)</dt>
+                <dd>
+                  {{ texto(r.pspId) }}
+                  @if (r.pspId) {
+                    <button
+                      type="button"
+                      class="px22-copy"
+                      aria-label="Copiar ID do pagador"
+                      (click)="copiar(r.pspId, 'psp')"
+                    >
+                      <lucide-icon
+                        [name]="$any(copiado() === 'psp' ? 'circle-check' : 'copy')"
+                        [size]="13"
+                      />
+                    </button>
+                  }
+                </dd>
+              </div>
+              <div>
+                <dt>End-to-end ID</dt>
+                <dd class="px22-e2e">
+                  {{ texto(r.endToEndId) }}
+                  @if (r.endToEndId) {
+                    <button
+                      type="button"
+                      class="px22-copy"
+                      aria-label="Copiar end-to-end ID"
+                      (click)="copiar(r.endToEndId, 'e2e')"
+                    >
+                      <lucide-icon
+                        [name]="$any(copiado() === 'e2e' ? 'circle-check' : 'copy')"
+                        [size]="13"
+                      />
+                    </button>
+                  }
+                </dd>
+              </div>
+              <div>
+                <dt>Situação SPI</dt>
+                <dd>
+                  @if (r.situacaoSpi) {
+                    <span class="px22-selo" data-tone="green">{{ r.situacaoSpi }}</span>
+                  } @else {
+                    <span class="px22-vazio">—</span>
+                  }
+                </dd>
+              </div>
+              <div>
+                <dt>Código de erro</dt>
+                <dd [class.px22-vazio]="!r.codigoErro">{{ texto(r.codigoErro) }}</dd>
+              </div>
+            </dl>
+          </article>
+
+          <article class="px22-comprovante">
+            <h3><lucide-icon name="clipboard-check" [size]="19" />Comprovante</h3>
+            <div class="px22-comprovante-corpo">
+              <img
+                [src]="assetBase + '/visuals/visual_comprovante_pix_preview.png'"
+                alt="Prévia do comprovante Pix"
+              />
+              <p>
+                <strong>Comprovante Pix</strong>
+                <span>{{ texto(r.comprovanteArquivo) }}</span>
+                <small>{{ texto(r.comprovanteGeradoEm) }}</small>
+              </p>
+            </div>
+            <footer>
+              <button type="button" class="px22-btn-sec" (click)="documentoAberto.set(true)">
+                <lucide-icon name="eye" [size]="16" />Visualizar
+              </button>
+              <button type="button" class="px22-btn-sec" (click)="baixarComprovante()">
+                <lucide-icon name="download" [size]="16" />Download
+              </button>
+            </footer>
+          </article>
+        </div>
+      </section>
+
+      <!-- ============ COLUNA LATERAL ============ -->
+      <aside class="px22-side">
+        <section class="px22-card px22-provider">
+          <lucide-icon name="shield-check" [size]="46" class="px22-provider-escudo" />
+          <div class="px22-provider-texto">
+            <strong>Provider Pix</strong>
+            <em><i class="px22-led"></i>ONLINE</em>
+          </div>
+          <div class="px22-provider-tempo">
+            <span>Tempo de resposta</span>
+            <b>186ms</b>
+            <!-- Sparkline desenhada: o PNG do pacote traz o fundo do mockup no recorte. -->
+            <svg viewBox="0 0 120 24" preserveAspectRatio="none" aria-hidden="true">
+              <polyline [attr.points]="sparklinePontos()" />
+            </svg>
+          </div>
+        </section>
+
+        <section class="px22-card px22-conciliacao">
+          <h2>Status da conciliação</h2>
+          <div class="px22-conciliacao-corpo">
+            <!-- Anel desenhado: o PNG do pacote traz "100% / Conciliações PIX" embutido no recorte
+                 e duplicava o texto do HTML. -->
+            <div
+              class="px22-donut"
+              [style.background]="donut()"
+              role="img"
+              [attr.aria-label]="
+                conciliados() + ' das ' + carteiraTotal() + ' conciliações Pix concluídas'
+              "
+            >
+              <span
+                ><strong>{{ conciliados() }}</strong
+                ><small>Conciliações<br />PIX</small></span
+              >
+            </div>
+            <ul>
+              @for (faixa of conciliacao(); track faixa.rotulo) {
+                <li [style.--legenda]="corDoTom(faixa.tom)">
+                  <i></i><span>{{ faixa.rotulo }}</span
+                  ><strong>{{ faixa.valor }} ({{ faixa.percentual }})</strong>
+                </li>
+              }
+            </ul>
+          </div>
+          @if (carteiraIndisponivel()) {
+            <small class="px22-conciliacao-nota">Carteira de recebimentos indisponível.</small>
+          } @else {
+            <small class="px22-conciliacao-nota"
+              >{{ carteiraTotal() }} recebimento{{ carteiraTotal() === 1 ? '' : 's' }} na
+              carteira.</small
+            >
+          }
+          <a routerLink="/app/pix">Ver conciliações →</a>
+        </section>
+
+        <section class="px22-card px22-resumo">
+          <h2><lucide-icon name="file-text" [size]="18" />Resumo do recebimento</h2>
+          <dl>
+            <div>
+              <dt>ID do recebimento</dt>
+              <dd>
+                @if (r.detalheId) {
+                  <a
+                    class="px22-link-detalhe"
+                    [routerLink]="['/app/pix/recebimentos', r.detalheId]"
+                    title="Abrir o detalhe do recebimento"
+                    ><span>{{ texto(r.recebimentoId) }}</span
+                    ><lucide-icon name="external-link" [size]="12"
+                  /></a>
+                } @else {
+                  {{ texto(r.recebimentoId) }}
+                }
+                @if (r.recebimentoId) {
+                  <button
+                    type="button"
+                    class="px22-copy"
+                    aria-label="Copiar ID do recebimento"
+                    (click)="copiar(r.recebimentoId, 'rec')"
+                  >
+                    <lucide-icon
+                      [name]="$any(copiado() === 'rec' ? 'circle-check' : 'copy')"
+                      [size]="13"
+                    />
+                  </button>
+                }
+              </dd>
+            </div>
+            <div>
+              <dt>Valor original</dt>
+              <dd>{{ moeda(r.valor) }}</dd>
+            </div>
+            <div>
+              <dt>Taxa Pix</dt>
+              <dd>{{ moeda(r.taxa) }}</dd>
+            </div>
+            <div>
+              <dt>Valor líquido</dt>
+              <dd [class.green]="valorLiquido() !== null">{{ moeda(valorLiquido()) }}</dd>
+            </div>
+            <div>
+              <dt>Canal</dt>
+              <dd>{{ texto(r.canal) }}</dd>
+            </div>
+            <div>
+              <dt>Tipo de operação</dt>
+              <dd>{{ texto(r.tipoOperacao) }}</dd>
+            </div>
+            <div>
+              <dt>Descrição</dt>
+              <dd>{{ texto(r.descricao) }}</dd>
+            </div>
+            <div>
+              <dt>Autenticação</dt>
+              <dd>{{ texto(r.autenticacao) }}</dd>
+            </div>
+            <div>
+              <dt>Autorização</dt>
+              <dd>{{ texto(r.autorizacao) }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="px22-card px22-actions">
+          <h2>Ações rápidas</h2>
+          <div>
+            <button
+              type="button"
+              data-tone="blue"
+              [disabled]="!r.parcelaId"
+              [title]="
+                r.parcelaId ? 'Abrir a parcela vinculada' : 'Recebimento sem parcela vinculada'
+              "
+              (click)="abrirParcela()"
+            >
+              <lucide-icon name="calendar" [size]="20" />
+              <span>Ir para<br />a parcela</span>
+            </button>
+            <button type="button" data-tone="orange" (click)="abrirOcorrencia()">
+              <lucide-icon name="triangle-alert" [size]="20" />
+              <span>Abrir<br />ocorrência</span>
+            </button>
+            <button type="button" data-tone="blue" (click)="baixarComprovante()">
+              <lucide-icon name="send" [size]="20" />
+              <span>Reenviar<br />comprovante</span>
+            </button>
+            <button type="button" data-tone="purple" (click)="exportar()">
+              <lucide-icon name="file-text" [size]="20" />
+              <span>Exportar<br />relatório</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="px22-card px22-recentes">
+          <h2>
+            Últimas consultas
+            <button type="button" aria-haspopup="dialog" (click)="historicoAberto.set(true)">
+              Ver todas →
+            </button>
+          </h2>
+          <ul>
+            @for (item of consultasRecentes(); track item.id) {
+              <li>
+                <button
+                  type="button"
+                  [attr.aria-label]="'Consultar de novo ' + item.id"
+                  (click)="repetirConsulta(item)"
+                >
+                  <span
+                    >{{ item.id }}<small>{{ item.data }}</small></span
+                  >
+                  <strong class="px22-selo" data-tone="green">Concluído</strong>
+                </button>
+              </li>
+            }
+          </ul>
+        </section>
+      </aside>
+    }
+  </section>
+
+  @if (historicoAberto()) {
+    <div
+      class="px22-overlay"
+      role="presentation"
+      (click)="fecharHistorico($event)"
+      (keydown.escape)="historicoAberto.set(false)"
+    >
+      <article
+        class="px22-historico"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="px22-historico-titulo"
+      >
+        <button
+          class="close"
+          type="button"
+          aria-label="Fechar"
+          (click)="historicoAberto.set(false)"
+        >
+          <lucide-icon name="x" [size]="18" />
+        </button>
+        <header>
+          <b>SEP</b><strong id="px22-historico-titulo">Consultas desta sessão</strong>
+        </header>
+        <p>
+          As {{ consultas().length }} últimas consultas feitas nesta tela. Selecione uma para
+          refazê-la.
+        </p>
+        <ul>
+          @for (item of consultas(); track item.id) {
+            <li>
+              <button type="button" (click)="repetirConsulta(item)">
+                <span
+                  >{{ item.id
+                  }}<small
+                    >{{ item.tipo === 'referencia' ? 'Referência' : 'Recebimento' }} ·
+                    {{ item.data }}</small
+                  ></span
+                >
+                <lucide-icon name="arrow-right" [size]="16" />
+              </button>
+            </li>
+          }
+        </ul>
+      </article>
+    </div>
   }
 
-  <form
-    class="sep-recebimentos-card"
-    [formGroup]="consultaReferenciaForm"
-    (ngSubmit)="consultarReferencia()"
-  >
-    <h2 class="sep-recebimentos-subtitle">Consultar referencia</h2>
-    <label class="sep-recebimentos-field" for="rec-ref-id">
-      <span>ID da referencia</span>
-      <input id="rec-ref-id" type="text" formControlName="referenciaId" />
-    </label>
-    <button type="submit" class="sep-recebimentos-cta">Abrir referencia</button>
-  </form>
-
-  <form
-    class="sep-recebimentos-card"
-    [formGroup]="consultaRecebimentoForm"
-    (ngSubmit)="consultarRecebimento()"
-  >
-    <h2 class="sep-recebimentos-subtitle">Consultar recebimento</h2>
-    <label class="sep-recebimentos-field" for="rec-rec-id">
-      <span>ID do recebimento</span>
-      <input id="rec-rec-id" type="text" formControlName="recebimentoId" />
-    </label>
-    <button type="submit" class="sep-recebimentos-cta">Abrir recebimento</button>
-  </form>
-</section>
+  @if (documentoAberto() && resultado(); as r) {
+    <div
+      class="px22-overlay"
+      role="presentation"
+      (click)="fecharComprovante($event)"
+      (keydown.escape)="documentoAberto.set(false)"
+    >
+      <article role="dialog" aria-modal="true" aria-label="Comprovante Pix">
+        <button
+          class="close"
+          type="button"
+          aria-label="Fechar"
+          (click)="documentoAberto.set(false)"
+        >
+          <lucide-icon name="x" [size]="18" />
+        </button>
+        <header><b>SEP</b><strong>Comprovante de recebimento Pix</strong></header>
+        <h2>{{ r.statusResumo }}</h2>
+        <span class="px22-selo" [attr.data-tone]="r.statusTom">{{ r.statusRotulo }}</span>
+        <h1>{{ moeda(r.valor) }}</h1>
+        <dl>
+          <div>
+            <dt>Data e hora</dt>
+            <dd>{{ data(r.recebidoEm) }}</dd>
+          </div>
+          <div>
+            <dt>Referência</dt>
+            <dd>{{ texto(r.referenciaId) }}</dd>
+          </div>
+          <div>
+            <dt>Recebimento</dt>
+            <dd>{{ texto(r.recebimentoId) }}</dd>
+          </div>
+          <div>
+            <dt>Pagador</dt>
+            <dd>{{ texto(r.pagador) }}</dd>
+          </div>
+          <div>
+            <dt>Instituição</dt>
+            <dd>{{ texto(r.instituicao) }}</dd>
+          </div>
+        </dl>
+        <button type="button" class="px22-btn-primary" (click)="baixarComprovante()">
+          <lucide-icon name="download" [size]="16" />Baixar comprovante
+        </button>
+      </article>
+    </div>
+  }
+</sep-operational-shell>

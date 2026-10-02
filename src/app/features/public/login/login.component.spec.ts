@@ -1,13 +1,20 @@
+import { importProvidersFrom } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { describe, expect, it } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/angular';
 import { provideRouter, Router } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { LoginComponent } from './login.component';
 import { AuthService } from '../../../core/auth/auth.service';
+import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
 
 async function setup() {
   return render(LoginComponent, {
-    providers: [provideRouter([]), provideHttpClient()],
+    providers: [
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      provideRouter([]),
+      provideHttpClient(),
+    ],
   });
 }
 
@@ -26,6 +33,21 @@ describe('LoginComponent', () => {
     expect(homeLink.getAttribute('href')).toBe('/');
   });
 
+  // No dev-offline os dois campos nascem preenchidos com o usuario ficticio de
+  // desenvolvimento (ADMIN, sem MFA). A validacao continua valendo quando sao limpos.
+  it('dev-offline preenche o acesso rapido de desenvolvimento', async () => {
+    const result = await setup();
+    const email = result.container.querySelector(
+      'input[formControlName="username"]',
+    ) as HTMLInputElement;
+    const senha = result.container.querySelector(
+      'input[formControlName="password"]',
+    ) as HTMLInputElement;
+
+    expect(email.value).toBe('dev@sep.local');
+    expect(senha.value).toBe('123456');
+  });
+
   it('campos vazios: submit nao chama login', async () => {
     const result = await setup();
     const auth = result.fixture.debugElement.injector.get(AuthService);
@@ -34,6 +56,16 @@ describe('LoginComponent', () => {
       called = true;
       throw new Error('nao deveria ser chamado');
     }) as never;
+
+    const email = result.container.querySelector(
+      'input[formControlName="username"]',
+    ) as HTMLInputElement;
+    const senha = result.container.querySelector(
+      'input[formControlName="password"]',
+    ) as HTMLInputElement;
+    fireEvent.input(email, { target: { value: '' } });
+    fireEvent.input(senha, { target: { value: '' } });
+    result.fixture.detectChanges();
 
     fireEvent.click(screen.getByRole('button', { name: /entrar/i }));
 

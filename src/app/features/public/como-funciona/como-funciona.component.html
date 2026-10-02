@@ -1,0 +1,65 @@
+<sep-public-shell>
+  <section class="px51-page">
+    <header class="px51-heading">
+      <p class="px51-kicker"><lucide-icon name="activity" [size]="14" />Como funciona</p>
+      <h1>Do cadastro à quitação, <em>seis etapas</em> e nenhuma caixa-preta.</h1>
+      <p class="px51-lead">
+        Esta é a jornada real da plataforma, na ordem em que acontece. Cada etapa deixa registro
+        próprio, e em qualquer uma delas é possível ver em que ponto a operação está e por quê.
+      </p>
+    </header>
+
+    <!-- ============ ETAPAS ============ -->
+    <section class="px51-secao">
+      <ol class="px51-trilha">
+        @for (etapa of etapas; track etapa.passo) {
+          <li class="px51-card" [attr.data-tone]="etapa.tom">
+            <span class="px51-passo">{{ etapa.passo }}</span>
+            <span class="px51-card-icone"><lucide-icon [name]="etapa.icone" [size]="22" /></span>
+            <h3>{{ etapa.titulo }}</h3>
+            <p>{{ etapa.descricao }}</p>
+          </li>
+        }
+      </ol>
+    </section>
+
+    <!-- ============ PAPÉIS ============ -->
+    <section class="px51-secao">
+      <div class="px51-secao-topo">
+        <h2>Quem participa</h2>
+        <p>
+          Três lados, com telas próprias e permissões próprias. Ninguém enxerga a área do outro.
+        </p>
+      </div>
+
+      <div class="px51-grade">
+        @for (papel of papeis; track papel.titulo) {
+          <article class="px51-card" [attr.data-tone]="papel.tom">
+            <span class="px51-card-icone"><lucide-icon [name]="papel.icone" [size]="22" /></span>
+            <h3>{{ papel.titulo }}</h3>
+            <p>{{ papel.descricao }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    <p class="px51-aviso">
+      <lucide-icon name="triangle-alert" [size]="18" />
+      <span>
+        Passar por uma etapa não garante a seguinte. Cadastro aprovado não é crédito aprovado, e
+        proposta pré-aprovada ainda depende de conferência antes de virar contrato.
+      </span>
+    </p>
+
+    <div class="px51-chamada">
+      <h2>Quer ver de perto?</h2>
+      <p>Entre na plataforma para acompanhar sua operação, ou fale com a equipe se ficou dúvida.</p>
+      <div class="px51-chamada-acoes">
+        <a class="px51-btn-primary" routerLink="/login">
+          <lucide-icon name="arrow-right" [size]="18" />Entrar na plataforma
+        </a>
+        <a class="px51-btn-secondary" routerLink="/credito-pj">Ver as condições do crédito</a>
+      </div>
+    </div>
+  </section>
+</sep-public-shell>

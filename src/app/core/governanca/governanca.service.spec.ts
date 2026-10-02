@@ -174,22 +174,24 @@ describe('GovernancaService', () => {
       anexarStepUp = true;
     });
 
+    // O teto do regimento do SEP e R$ 15.000,00: nem o seed nem o valor de teste podem passar
+    // disso, entao a alteracao aqui e para baixo.
     it('altera o valor, incrementa a versao e registra no historico', async () => {
       const atualizado = await awaitObservable(
         service.alterarParametro('credito.valor.maximo.pf', {
-          novoValor: '60000.00',
-          justificativa: 'Reajuste do teto PF apos revisao de politica.',
+          novoValor: '12000.00',
+          justificativa: 'Reducao do teto PF apos revisao de politica.',
         }),
       );
 
-      expect(atualizado.valor).toBe('60000.00');
+      expect(atualizado.valor).toBe('12000.00');
       expect(atualizado.versao).toBe(2);
 
       const detalhe = await awaitObservable(service.consultarParametro('credito.valor.maximo.pf'));
       expect(detalhe.historico[0]).toMatchObject({
         versao: 2,
-        valorAnterior: '50000.00',
-        valorNovo: '60000.00',
+        valorAnterior: '15000.00',
+        valorNovo: '12000.00',
       });
     });
 

@@ -1,0 +1,57 @@
+// SEP — Frontend
+// Frontend Development: Daniel Möllmann
+// Angular • TypeScript • SCSS — 2026
+
+// ============ ARTE BITMAP NO TEMA CLARO ============
+// As artes HUD dos pacotes de mockup (`visuals/visual_*.png`) foram desenhadas sobre a superficie
+// escura, com o fundo pintado no arquivo. Em 14/09/2026 o fundo foi removido dos 16 arquivos que o
+// app autenticado usa (chroma key contra a cor do fundo, mais esmaecimento por luminancia e por
+// saturacao): sobrou so o traco, que le nos dois temas. Os originais estao em `visuals/_originais/`
+// de cada pacote, e o script e `transparenta.py` no historico da sessao.
+
+// O que fica aqui e o que nao e ilustracao: ondas, circuitos e cidade neon sao atmosfera do tema
+// escuro, e no claro simplesmente somem.
+
+:root:not(.dark) img[src*="visual_ondas_neon"],
+:root:not(.dark) img[src*="visual_circuitos_fundo"],
+:root:not(.dark) img[src*="visual_cidade_neon"],
+:root:not(.dark) img[src*="visual_fundo_"],
+:root:not(.dark) img[src*="visual_background_"] {
+  display: none;
+}
+
+// ============ NITIDEZ DO VETOR NO TEMA CLARO ============
+// Qualquer `filter` obriga o navegador a rasterizar o elemento numa camada propria; num icone de
+// traco fino, deslocado meio pixel pelo layout, isso vira o "serrilhado" e o borrao que o usuario
+// viu. No escuro o brilho vale a pena; no claro o brilho e zero por token, mas o `filter` seguia
+// declarado (varios com a cor cheia do modulo) e a camada continuava sendo criada. Aqui o vetor
+// volta a ser desenhado direto na pagina. `!important` de proposito: e o interruptor do tema, e
+// existem dezenas de regras de tela (hover inclusive) que declaram o filtro.
+// Vale para tudo dentro da moldura operacional, e nao so para os icones: cartao com
+// `brightness()` no hover, donut com `drop-shadow()` a zero, botao com `grayscale()` — cada um
+// rasteriza o texto que carrega. Ficam de fora `<img>` e o icone nativo do seletor de data, que
+// dependem de `filter` para a propria cor.
+:root:not(.dark) .op-dashboard *:not(img, input),
+:root:not(.dark) .op-dashboard *::before,
+:root:not(.dark) .op-dashboard *::after,
+:root:not(.dark) lucide-icon,
+:root:not(.dark) lucide-icon svg,
+:root:not(.dark) sep-arte,
+:root:not(.dark) sep-arte svg,
+:root:not(.dark) sep-logo,
+:root:not(.dark) sep-logo svg,
+:root:not(.dark) sep-logo g {
+  filter: none !important;
+}
+
+// O halo desfocado sob o donut da Cobranca e `blur()` num pseudo-elemento: sem o filtro viraria um
+// anel duro. No claro ele simplesmente nao existe — e o "neon sob o donut" que o usuario apontou.
+:root:not(.dark) .op-dashboard .donut::before {
+  display: none;
+}
+
+// Numero e rotulo com halo (`text-shadow`) tambem leem como borrados sobre o branco.
+:root:not(.dark) .op-dashboard,
+:root:not(.dark) .op-dashboard * {
+  text-shadow: none !important;
+}

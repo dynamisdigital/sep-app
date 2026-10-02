@@ -9,12 +9,15 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 
 import { StatusOnboardingResponse, TipoDocumento } from '../../../../core/api/api.models';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
+import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
 import { OnboardingDocumentUploadComponent } from '../shared/onboarding-document-upload.component';
 import { mensagemOnboardingErro } from '../shared/onboarding-error';
 import { OnboardingStatusComponent } from '../shared/onboarding-status.component';
+import { SepMaskDirective } from '../../../../shared/forms/sep-mask.directive';
 
 // Tipos aceitos para PF. CPF nao e tipo de documento no backend; PJ tem os seus.
 const TIPOS_DOCUMENTO_PF: TipoDocumento[] = [
@@ -31,10 +34,13 @@ const TIPOS_DOCUMENTO_PF: TipoDocumento[] = [
 @Component({
   selector: 'sep-onboarding-pessoa-page',
   imports: [
+    LucideAngularModule,
+    OnboardingDocumentUploadComponent,
+    OnboardingStatusComponent,
+    OperationalShellComponent,
     ReactiveFormsModule,
     RouterLink,
-    OnboardingStatusComponent,
-    OnboardingDocumentUploadComponent,
+    SepMaskDirective,
   ],
   templateUrl: './onboarding-pessoa-page.component.html',
   styleUrl: './onboarding-pessoa-page.component.scss',
@@ -47,6 +53,35 @@ export class OnboardingPessoaPageComponent implements OnInit {
   private readonly onboarding = inject(OnboardingService);
 
   protected readonly tiposDocumento = TIPOS_DOCUMENTO_PF;
+  protected readonly assetBase = '/image/sep_mockup_07_assets';
+  protected readonly journeySteps = [
+    { number: 1, title: 'Identificação', detail: 'Dados pessoais', active: true },
+    { number: 2, title: 'Documentos', detail: 'Envio e validação', active: false },
+    { number: 3, title: 'Verificação', detail: 'Análise e checagens', active: false },
+    { number: 4, title: 'Revisão', detail: 'Confirmação final', active: false },
+  ];
+  protected readonly benefits = [
+    {
+      title: 'Proteção de dados',
+      detail: 'Criptografia de ponta a ponta e LGPD.',
+      icon: 'lock-keyhole',
+    },
+    {
+      title: 'Ambiente regulado',
+      detail: 'Atendemos à Resolução CMN 4.656/2018.',
+      icon: 'landmark',
+    },
+    {
+      title: 'Processo seguro',
+      detail: 'Verificações automáticas e auditoria completa.',
+      icon: 'shield-check',
+    },
+    {
+      title: '100% digital',
+      detail: 'Rápido, simples e sem burocracia.',
+      icon: 'smartphone',
+    },
+  ];
 
   protected readonly id = signal<string | null>(null);
   protected readonly submitting = signal(false);

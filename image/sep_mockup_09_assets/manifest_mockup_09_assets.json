@@ -1,0 +1,540 @@
+{
+  "mockup": "Mockup_09 — Crédito",
+  "source_file": "Mockup_09(1).png",
+  "target_project_path": "C:\\Pastas\\PROJETOS\\Projeto Dynamis SEP\\sep-app 16062026\\image\\sep_mockup_09_assets",
+  "public_base_path": "/image/sep_mockup_09_assets/",
+  "extraction_notes": "Extração corrigida com margem transparente segura aproximada de 2 mm digitais após extremidades/circunferências. Ícones centralizados no canvas e revalidados para evitar linhas de widget e cortes.",
+  "assets": [
+    {
+      "name": "logo_sep_header_completo.png",
+      "category": "logos",
+      "bbox": [67, 15, 184, 58],
+      "size": [139, 67],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/logos/logo_sep_header_completo.png"
+    },
+    {
+      "name": "logo_sep_simbolo_header.png",
+      "category": "logos",
+      "bbox": [67, 15, 109, 58],
+      "size": [75, 75],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/logos/logo_sep_simbolo_header.png"
+    },
+    {
+      "name": "logo_sep_wordmark_header.png",
+      "category": "logos",
+      "bbox": [108, 18, 184, 58],
+      "size": [100, 57],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/logos/logo_sep_wordmark_header.png"
+    },
+    {
+      "name": "logo_sep_footer_completo.png",
+      "category": "logos",
+      "bbox": [25, 1003, 160, 1038],
+      "size": [159, 59],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/logos/logo_sep_footer_completo.png"
+    },
+    {
+      "name": "logo_sep_simbolo_footer.png",
+      "category": "logos",
+      "bbox": [24, 1001, 75, 1042],
+      "size": [83, 83],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/logos/logo_sep_simbolo_footer.png"
+    },
+    {
+      "name": "icon_menu_hamburger.png",
+      "category": "icons",
+      "bbox": [16, 22, 48, 55],
+      "size": [58, 58],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_menu_hamburger.png"
+    },
+    {
+      "name": "icon_topbar_ambiente_regulado.png",
+      "category": "icons",
+      "bbox": [255, 17, 293, 58],
+      "size": [77, 77],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_topbar_ambiente_regulado.png"
+    },
+    {
+      "name": "icon_topbar_horario_sistema.png",
+      "category": "icons",
+      "bbox": [437, 18, 474, 59],
+      "size": [76, 76],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_topbar_horario_sistema.png"
+    },
+    {
+      "name": "icon_topbar_search.png",
+      "category": "icons",
+      "bbox": [864, 21, 906, 59],
+      "size": [78, 78],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_topbar_search.png"
+    },
+    {
+      "name": "icon_topbar_bell_notification.png",
+      "category": "icons",
+      "bbox": [926, 12, 974, 61],
+      "size": [89, 89],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_topbar_bell_notification.png"
+    },
+    {
+      "name": "icon_topbar_help.png",
+      "category": "icons",
+      "bbox": [994, 20, 1037, 60],
+      "size": [79, 79],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_topbar_help.png"
+    },
+    {
+      "name": "icon_topbar_avatar_user_d.png",
+      "category": "icons",
+      "bbox": [1078, 16, 1122, 62],
+      "size": [81, 81],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_topbar_avatar_user_d.png"
+    },
+    {
+      "name": "icon_topbar_theme_sun.png",
+      "category": "icons",
+      "bbox": [1358, 15, 1400, 60],
+      "size": [72, 72],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_topbar_theme_sun.png"
+    },
+    {
+      "name": "icon_sidebar_dashboard.png",
+      "category": "icons",
+      "bbox": [18, 127, 43, 154],
+      "size": [57, 57],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_sidebar_dashboard.png"
+    },
+    {
+      "name": "icon_sidebar_onboarding.png",
+      "category": "icons",
+      "bbox": [19, 199, 45, 231],
+      "size": [58, 58],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_sidebar_onboarding.png"
+    },
+    {
+      "name": "icon_sidebar_credito.png",
+      "category": "icons",
+      "bbox": [22, 252, 43, 274],
+      "size": [54, 54],
+      "source": "Mockup_09(1).png",
+      "notes": "| corrigido pós-validação de margem/centralização",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_sidebar_credito.png"
+    },
+    {
+      "name": "icon_sidebar_formalizacao.png",
+      "category": "icons",
+      "bbox": [19, 297, 47, 326],
+      "size": [61, 61],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_sidebar_formalizacao.png"
+    },
+    {
+      "name": "icon_sidebar_cobranca.png",
+      "category": "icons",
+      "bbox": [19, 346, 48, 375],
+      "size": [61, 61],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_sidebar_cobranca.png"
+    },
+    {
+      "name": "icon_sidebar_backoffice.png",
+      "category": "icons",
+      "bbox": [18, 423, 48, 456],
+      "size": [62, 62],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_sidebar_backoffice.png"
+    },
+    {
+      "name": "icon_sidebar_pix.png",
+      "category": "icons",
+      "bbox": [18, 474, 48, 505],
+      "size": [62, 62],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_sidebar_pix.png"
+    },
+    {
+      "name": "icon_sidebar_perfil.png",
+      "category": "icons",
+      "bbox": [19, 552, 47, 581],
+      "size": [60, 60],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_sidebar_perfil.png"
+    },
+    {
+      "name": "icon_profile_avatar_b.png",
+      "category": "icons",
+      "bbox": [21, 813, 63, 856],
+      "size": [79, 79],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_profile_avatar_b.png"
+    },
+    {
+      "name": "icon_title_credito_shield.png",
+      "category": "icons",
+      "bbox": [352, 128, 386, 160],
+      "size": [66, 66],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_title_credito_shield.png"
+    },
+    {
+      "name": "icon_approval_check_hud.png",
+      "category": "icons",
+      "bbox": [1050, 112, 1111, 174],
+      "size": [106, 106],
+      "source": "Mockup_09(1).png",
+      "notes": "| corrigido pós-validação de margem/centralização",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_approval_check_hud.png"
+    },
+    {
+      "name": "icon_metric_limite_pre_aprovado.png",
+      "category": "icons",
+      "bbox": [270, 238, 348, 326],
+      "size": [132, 132],
+      "source": "Mockup_09(1).png",
+      "notes": "| corrigido pós-validação de margem/centralização",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_metric_limite_pre_aprovado.png"
+    },
+    {
+      "name": "icon_metric_propostas_analise.png",
+      "category": "icons",
+      "bbox": [566, 235, 648, 326],
+      "size": [135, 135],
+      "source": "Mockup_09(1).png",
+      "notes": "| corrigido pós-validação de margem/centralização",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_metric_propostas_analise.png"
+    },
+    {
+      "name": "icon_metric_propostas_aprovadas.png",
+      "category": "icons",
+      "bbox": [844, 235, 935, 327],
+      "size": [136, 136],
+      "source": "Mockup_09(1).png",
+      "notes": "| corrigido pós-validação de margem/centralização",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_metric_propostas_aprovadas.png"
+    },
+    {
+      "name": "icon_metric_propostas_pendentes.png",
+      "category": "icons",
+      "bbox": [1126, 234, 1218, 327],
+      "size": [137, 137],
+      "source": "Mockup_09(1).png",
+      "notes": "| corrigido pós-validação de margem/centralização",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_metric_propostas_pendentes.png"
+    },
+    {
+      "name": "icon_minhas_propostas.png",
+      "category": "icons",
+      "bbox": [260, 390, 315, 443],
+      "size": [91, 91],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_minhas_propostas.png"
+    },
+    {
+      "name": "visual_minhas_propostas_donut.png",
+      "category": "visuals",
+      "bbox": [284, 466, 446, 628],
+      "size": [202, 202],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/visuals/visual_minhas_propostas_donut.png"
+    },
+    {
+      "name": "icon_nova_proposta_plus.png",
+      "category": "icons",
+      "bbox": [832, 388, 882, 438],
+      "size": [86, 86],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_nova_proposta_plus.png"
+    },
+    {
+      "name": "visual_nova_proposta_documento_hud.png",
+      "category": "visuals",
+      "bbox": [930, 444, 1245, 650],
+      "size": [359, 250],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/visuals/visual_nova_proposta_documento_hud.png"
+    },
+    {
+      "name": "icon_simule_credito_calculadora.png",
+      "category": "icons",
+      "bbox": [260, 733, 316, 787],
+      "size": [92, 92],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_simule_credito_calculadora.png"
+    },
+    {
+      "name": "visual_simule_credito_escudo_hud.png",
+      "category": "visuals",
+      "bbox": [442, 814, 562, 926],
+      "size": [164, 164],
+      "source": "Mockup_09(1).png",
+      "notes": "| corrigido pós-validação de margem/centralização",
+      "path_public": "/image/sep_mockup_09_assets/visuals/visual_simule_credito_escudo_hud.png"
+    },
+    {
+      "name": "icon_como_funciona_interrogacao.png",
+      "category": "icons",
+      "bbox": [626, 724, 690, 790],
+      "size": [106, 106],
+      "source": "Mockup_09(1).png",
+      "notes": "| corrigido pós-validação de margem/centralização | reprocessado com threshold baixo para preservar arcos/glow",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_como_funciona_interrogacao.png"
+    },
+    {
+      "name": "icon_seguranca_conformidade_shield.png",
+      "category": "icons",
+      "bbox": [994, 724, 1058, 790],
+      "size": [106, 106],
+      "source": "Mockup_09(1).png",
+      "notes": "| corrigido pós-validação de margem/centralização | reprocessado com threshold baixo para preservar arcos/glow",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_seguranca_conformidade_shield.png"
+    },
+    {
+      "name": "visual_seguranca_conformidade_lock_hud.png",
+      "category": "visuals",
+      "bbox": [1288, 786, 1392, 924],
+      "size": [182, 182],
+      "source": "Mockup_09(1).png",
+      "notes": "| corrigido pós-validação de margem/centralização | reprocessado com threshold baixo para preservar arcos/glow",
+      "path_public": "/image/sep_mockup_09_assets/visuals/visual_seguranca_conformidade_lock_hud.png"
+    },
+    {
+      "name": "icon_resumo_credito_calculadora.png",
+      "category": "icons",
+      "bbox": [260, 973, 318, 1035],
+      "size": [102, 102],
+      "source": "Mockup_09(1).png",
+      "notes": "| corrigido pós-validação de margem/centralização | reprocessado com threshold baixo para preservar arcos/glow",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_resumo_credito_calculadora.png"
+    },
+    {
+      "name": "icon_resumo_credito_calendario.png",
+      "category": "icons",
+      "bbox": [1288, 974, 1347, 1035],
+      "size": [101, 101],
+      "source": "Mockup_09(1).png",
+      "notes": "| corrigido pós-validação de margem/centralização | reprocessado com threshold baixo para preservar arcos/glow",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_resumo_credito_calendario.png"
+    },
+    {
+      "name": "icon_legend_em_analise_dot.png",
+      "category": "icons",
+      "bbox": [480, 478, 496, 494],
+      "size": [36, 36],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_legend_em_analise_dot.png"
+    },
+    {
+      "name": "icon_legend_pre_aprovadas_dot.png",
+      "category": "icons",
+      "bbox": [480, 508, 496, 524],
+      "size": [36, 36],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_legend_pre_aprovadas_dot.png"
+    },
+    {
+      "name": "icon_legend_aprovadas_dot.png",
+      "category": "icons",
+      "bbox": [480, 538, 496, 555],
+      "size": [37, 37],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_legend_aprovadas_dot.png"
+    },
+    {
+      "name": "icon_legend_pendentes_dot.png",
+      "category": "icons",
+      "bbox": [480, 569, 496, 586],
+      "size": [37, 37],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_legend_pendentes_dot.png"
+    },
+    {
+      "name": "icon_legend_reprovadas_dot.png",
+      "category": "icons",
+      "bbox": [480, 600, 496, 616],
+      "size": [36, 36],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_legend_reprovadas_dot.png"
+    },
+    {
+      "name": "icon_check_list_green.png",
+      "category": "icons",
+      "bbox": [696, 762, 716, 850],
+      "size": [44, 112],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_check_list_green.png"
+    },
+    {
+      "name": "icon_button_arrow_right.png",
+      "category": "icons",
+      "bbox": [572, 649, 596, 671],
+      "size": [48, 48],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_button_arrow_right.png"
+    },
+    {
+      "name": "icon_button_arrow_right_green.png",
+      "category": "icons",
+      "bbox": [1160, 649, 1185, 671],
+      "size": [49, 49],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_button_arrow_right_green.png"
+    },
+    {
+      "name": "icon_approval_arrow_right.png",
+      "category": "icons",
+      "bbox": [1282, 164, 1310, 186],
+      "size": [52, 52],
+      "source": "Mockup_09(1).png",
+      "notes": "",
+      "path_public": "/image/sep_mockup_09_assets/icons/icon_approval_arrow_right.png"
+    },
+    {
+      "name": "ui_topbar_completa.png",
+      "category": "ui-groups",
+      "bbox": [0, 0, 1436, 73],
+      "size": [1436, 73],
+      "source": "Mockup_09(1).png",
+      "notes": "Topbar completa para referência visual",
+      "path_public": "/image/sep_mockup_09_assets/ui-groups/ui_topbar_completa.png"
+    },
+    {
+      "name": "ui_sidebar_completa.png",
+      "category": "ui-groups",
+      "bbox": [0, 0, 221, 1096],
+      "size": [221, 1096],
+      "source": "Mockup_09(1).png",
+      "notes": "Sidebar completa para referência visual",
+      "path_public": "/image/sep_mockup_09_assets/ui-groups/ui_sidebar_completa.png"
+    },
+    {
+      "name": "ui_card_onboarding_aprovado.png",
+      "category": "ui-groups",
+      "bbox": [1026, 95, 1402, 205],
+      "size": [376, 110],
+      "source": "Mockup_09(1).png",
+      "notes": "Card de status superior",
+      "path_public": "/image/sep_mockup_09_assets/ui-groups/ui_card_onboarding_aprovado.png"
+    },
+    {
+      "name": "ui_metricas_credito_linha.png",
+      "category": "ui-groups",
+      "bbox": [252, 222, 1395, 359],
+      "size": [1143, 137],
+      "source": "Mockup_09(1).png",
+      "notes": "Linha de métricas de crédito",
+      "path_public": "/image/sep_mockup_09_assets/ui-groups/ui_metricas_credito_linha.png"
+    },
+    {
+      "name": "ui_card_minhas_propostas.png",
+      "category": "ui-groups",
+      "bbox": [251, 373, 797, 700],
+      "size": [546, 327],
+      "source": "Mockup_09(1).png",
+      "notes": "Card Minhas propostas",
+      "path_public": "/image/sep_mockup_09_assets/ui-groups/ui_card_minhas_propostas.png"
+    },
+    {
+      "name": "ui_card_nova_proposta.png",
+      "category": "ui-groups",
+      "bbox": [821, 373, 1396, 700],
+      "size": [575, 327],
+      "source": "Mockup_09(1).png",
+      "notes": "Card Nova proposta",
+      "path_public": "/image/sep_mockup_09_assets/ui-groups/ui_card_nova_proposta.png"
+    },
+    {
+      "name": "ui_card_simule_credito.png",
+      "category": "ui-groups",
+      "bbox": [251, 717, 600, 932],
+      "size": [349, 215],
+      "source": "Mockup_09(1).png",
+      "notes": "Card Simule seu crédito",
+      "path_public": "/image/sep_mockup_09_assets/ui-groups/ui_card_simule_credito.png"
+    },
+    {
+      "name": "ui_card_como_funciona.png",
+      "category": "ui-groups",
+      "bbox": [619, 717, 965, 932],
+      "size": [346, 215],
+      "source": "Mockup_09(1).png",
+      "notes": "Card Como funciona",
+      "path_public": "/image/sep_mockup_09_assets/ui-groups/ui_card_como_funciona.png"
+    },
+    {
+      "name": "ui_card_seguranca_conformidade.png",
+      "category": "ui-groups",
+      "bbox": [983, 717, 1396, 932],
+      "size": [413, 215],
+      "source": "Mockup_09(1).png",
+      "notes": "Card Segurança e conformidade",
+      "path_public": "/image/sep_mockup_09_assets/ui-groups/ui_card_seguranca_conformidade.png"
+    },
+    {
+      "name": "ui_resumo_geral_credito.png",
+      "category": "ui-groups",
+      "bbox": [251, 951, 1396, 1071],
+      "size": [1145, 120],
+      "source": "Mockup_09(1).png",
+      "notes": "Resumo geral do crédito",
+      "path_public": "/image/sep_mockup_09_assets/ui-groups/ui_resumo_geral_credito.png"
+    },
+    {
+      "name": "ui_area_principal_credito.png",
+      "category": "ui-groups",
+      "bbox": [222, 73, 1436, 1096],
+      "size": [1214, 1023],
+      "source": "Mockup_09(1).png",
+      "notes": "Área principal de Crédito",
+      "path_public": "/image/sep_mockup_09_assets/ui-groups/ui_area_principal_credito.png"
+    }
+  ]
+}

@@ -1,11 +1,24 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
+
+import { ThemeService } from '../../../core/theme/theme.service';
 
 @Component({
   selector: 'sep-account-locked',
-  imports: [RouterLink],
+  imports: [RouterLink, LucideAngularModule],
   template: `
     <section class="sep-account-locked">
+      <button
+        type="button"
+        class="sep-tema-publico"
+        [attr.aria-label]="temaEscuro() ? 'Mudar para o tema claro' : 'Mudar para o tema escuro'"
+        [attr.aria-pressed]="!temaEscuro()"
+        (click)="alternarTema()"
+      >
+        <lucide-icon [name]="temaEscuro() ? 'sun' : 'moon'" [size]="20" [strokeWidth]="2" />
+      </button>
+
       <div class="sep-account-locked-card">
         <span class="sep-account-locked-badge">423</span>
         <h1>Conta bloqueada temporariamente</h1>
@@ -27,7 +40,24 @@ import { RouterLink } from '@angular/router';
         display: block;
         background: hsl(var(--background));
       }
+      /* O botao de tema fica no canto, como no login: estas telas nao usam cabecalho. */
+      .sep-tema-publico {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        display: grid;
+        place-items: center;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        color: hsl(var(--foreground));
+        cursor: pointer;
+        border: 1px solid hsl(var(--border));
+        border-radius: 11px;
+        background: hsl(var(--card));
+      }
       .sep-account-locked {
+        position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -72,4 +102,13 @@ import { RouterLink } from '@angular/router';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AccountLockedComponent {}
+export class AccountLockedComponent {
+  private readonly tema = inject(ThemeService);
+
+  /** Mesma troca de tema das demais telas publicas; o escuro e o padrao. */
+  protected readonly temaEscuro = this.tema.isDark;
+
+  protected alternarTema(): void {
+    this.tema.toggle();
+  }
+}

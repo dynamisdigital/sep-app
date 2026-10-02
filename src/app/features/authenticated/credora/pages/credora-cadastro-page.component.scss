@@ -1,89 +1,815 @@
-@use "../../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../../styles/sep-ds-components" as sepDs;
+// ============ MOCKUP 36 — CADASTRAR CREDORA ============
 
-.sep-credora-cadastro {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-24);
-  max-width: 640px;
-  margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+@use "../../../../../styles/tela-operacional-tema" as tema;
+
+:host {
+  --linha: var(--sep-border);
+  --muted: var(--sep-text-muted);
+  --muted-forte: var(--sep-text-secondary);
+  --blue: var(--sep-accent);
+  --green: var(--sep-success);
+  --amber: var(--sep-warning);
+  --red-forte: var(--sep-danger);
+
+  display: block;
+  color: var(--sep-text);
+  font-size: 13.5px;
 }
 
-.sep-credora-cadastro-header {
+* {
+  box-sizing: border-box;
+}
+
+button {
+  font: inherit;
+}
+
+/* stylelint-disable selector-pseudo-element-no-unknown -- Angular ::ng-deep */
+
+:host ::ng-deep .op-content:has(> .px36-page) {
+  /* Container do contrato responsivo: e esta area que recebe o espaco restante depois da barra
+       lateral, entao e ela que a pagina mede. Declarar no `:host` do componente nao serve — o host
+       envolve o shell inteiro e tem a largura da janela. */
+  container: sep-conteudo / inline-size;
+  display: block;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+:host ::ng-deep .op-main:has(.px36-page) {
+  grid-template-rows: 70px minmax(0, 1fr) 80px;
+}
+
+:host ::ng-deep .op-main:has(.px36-page) > .op-footer {
+  min-height: 80px;
+}
+
+:host ::ng-deep .op-dashboard:has(.px36-page) > .op-sidebar {
+  grid-template-rows: 70px minmax(0, 1fr) 130px 80px;
+}
+
+/* stylelint-enable selector-pseudo-element-no-unknown */
+
+[data-tone="blue"] {
+  --tone: var(--blue);
+  --tone-borda: rgb(var(--sep-c-blue) / 55%);
+  --tone-fundo: rgb(var(--sep-c-blue) / 12%);
+}
+
+[data-tone="green"] {
+  --tone: var(--green);
+  --tone-borda: rgb(var(--sep-c-green) / 55%);
+  --tone-fundo: rgb(var(--sep-c-green) / 12%);
+}
+
+[data-tone="amber"] {
+  --tone: var(--amber);
+  --tone-borda: rgb(var(--sep-c-amber) / 55%);
+  --tone-fundo: rgb(var(--sep-c-amber) / 12%);
+}
+
+[data-tone="red"] {
+  --tone: var(--red-forte);
+  --tone-borda: rgb(var(--sep-c-red) / 55%);
+  --tone-fundo: rgb(var(--sep-c-red) / 12%);
+}
+
+// ============ GRADE PRINCIPAL ============
+
+/* Cabeçalho na largura toda e, abaixo, o formulário à esquerda com a coluna de apoio à
+   direita, como no desenho. */
+.px36-page {
+  display: grid;
+  grid-template:
+    "heading heading" auto
+    "form side" min-content
+    / minmax(0, 2fr) minmax(300px, 0.86fr);
+  gap: 22px 26px;
+  align-content: start;
+  width: 100%;
+  height: 100%;
+  padding: 16px 26px 18px;
+  overflow: hidden auto;
+  background: radial-gradient(circle at 40% 14%, rgb(var(--sep-c-blue) / 6%), transparent 48%);
+}
+
+/* Largura natural deste layout: 1113px. Abaixo disso a coluna lateral desce para baixo do
+   conteudo principal, em vez de ser cortada. O numero e a medida do proprio widget. */
+@container (max-width: 1109px) {
+  .px36-page {
+    grid-template:
+      "heading"
+      "form"
+      "side"
+      / minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    height: auto;
+  }
+}
+
+// ============ CARTÃO BASE ============
+
+.px36-card {
+  padding: 20px 24px;
+  border: 1px solid var(--linha);
+  border-radius: 12px;
+  background: linear-gradient(
+    160deg,
+    rgb(var(--sep-c-sunken) / 96%),
+    rgb(var(--sep-c-sunken) / 94%)
+  );
+  box-shadow: inset 0 1px 0 rgb(var(--sep-c-blue) / calc(4% * var(--sep-glow-alpha)));
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+
+  /* Widget principal: reforça borda e glow, sem alterar dimensões. */
+  &:hover,
+  &:focus-within {
+    border-color: rgb(var(--sep-c-blue) / 38%);
+    box-shadow:
+      0 0 18px rgb(var(--sep-c-blue) / calc(7% * var(--sep-glow-alpha))),
+      inset 0 1px 0 rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha)));
+  }
+}
+
+.px36-card h2 {
+  margin: 0 0 16px;
+  color: var(--sep-text);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+}
+
+// ============ CABEÇALHO ============
+
+.px36-heading {
+  grid-area: heading;
+}
+
+.px36-heading nav {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--sep-space-16);
+  gap: 8px;
+  margin-bottom: 12px;
+  color: var(--muted);
+  font-size: 12.5px;
 }
 
-.sep-credora-cadastro-title {
-  @include sepType.sep-type-page-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
-}
-
-.sep-credora-cadastro-back {
-  @include sepType.sep-type-body;
-
-  color: hsl(var(--primary));
+.px36-heading nav a {
+  color: var(--muted);
   text-decoration: none;
+  transition: color 0.18s;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sep-text);
+    text-decoration: underline;
+  }
 }
 
-.sep-credora-cadastro-intro {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
+.px36-heading nav span {
+  color: var(--sep-text-muted);
 }
 
-.sep-credora-cadastro-form {
+.px36-heading nav strong {
+  color: var(--sep-text);
+  font-weight: 600;
+}
+
+.px36-heading-row {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.px36-titulo-wrap {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+
+  h1 {
+    margin: 0;
+    color: var(--sep-text);
+    font-size: 25px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+}
+
+.px36-titulo-icone {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  color: var(--blue);
+  border: 1px solid rgb(var(--sep-c-blue) / 45%);
+  border-radius: 13px;
+  background: rgb(var(--sep-c-blue) / 12%);
+  box-shadow: 0 0 16px rgb(var(--sep-c-blue) / calc(16% * var(--sep-glow-alpha)));
+}
+
+.px36-subtitulo {
+  margin: 7px 0 0;
+  color: var(--muted-forte);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+// ============ AVISOS ============
+
+.px36-aviso {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  padding: 13px 15px;
+  color: var(--muted-forte);
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 35%));
+  border-left: 3px solid var(--tone, var(--blue));
+  border-radius: 9px;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 9%));
+
+  lucide-icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--tone, var(--blue));
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+}
+
+// ============ FORMULÁRIO ============
+
+.px36-form {
+  grid-area: form;
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-16);
+  gap: 15px;
+
+  hr {
+    width: 100%;
+    height: 1px;
+    margin: 4px 0;
+    border: 0;
+    background: rgb(var(--sep-c-active) / 80%);
+  }
 }
 
-.sep-credora-cadastro-field {
+.px36-h2-secundario {
+  margin: 0 !important;
+}
+
+.px36-campo {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-6);
+  gap: 8px;
+  min-width: 0;
 
-  label {
-    @include sepType.sep-type-caption;
+  > span {
+    color: var(--muted-forte);
+    font-size: 13px;
+    font-weight: 600;
 
-    color: hsl(var(--muted-foreground));
+    em {
+      color: var(--red-forte);
+      font-style: normal;
+    }
   }
 
   input,
   select {
-    @include sepDs.sep-input;
+    width: 100%;
+    height: 46px;
+    padding: 0 14px;
+    color: var(--sep-text);
+    font: inherit;
+    font-size: 13.5px;
+    border: 1px solid var(--sep-border-strong);
+    border-radius: 9px;
+    background: rgb(var(--sep-c-sunken) / 90%);
+    transition:
+      border-color 0.18s,
+      box-shadow 0.18s;
+
+    &::placeholder {
+      color: var(--sep-text-muted);
+    }
+
+    &:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 14px rgb(var(--sep-c-blue) / calc(25% * var(--sep-glow-alpha)));
+      outline: none;
+    }
+
+    /* Campo derivado do onboarding: visível, mas não editável, como o desenho pede. */
+    &:disabled {
+      color: var(--muted-forte);
+      background: rgb(var(--sep-c-surf) / 70%);
+      cursor: not-allowed;
+    }
   }
 }
 
-.sep-credora-cadastro-error {
-  @include sepType.sep-type-caption;
+.px36-ajuda,
+.px36-erro-campo {
+  color: var(--muted);
+  font-size: 12.5px;
 
-  margin: 0;
-  color: hsl(var(--warning));
+  a {
+    color: var(--blue);
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+      text-decoration: underline;
+    }
+  }
 }
 
-.sep-credora-cadastro-feedback {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--destructive));
+.px36-erro-campo {
+  color: var(--red-forte);
 }
 
-.sep-credora-cadastro-actions {
+/* Linha do onboarding: identificador à esquerda, situação e data à direita. */
+.px36-onboarding {
   display: flex;
+  gap: 12px;
+  align-items: center;
+
+  input {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  small {
+    flex-shrink: 0;
+    color: var(--muted);
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
 }
 
-.sep-credora-cadastro-submit {
-  @include sepDs.sep-button-primary;
+.px36-chip {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  padding: 0 12px;
+  color: var(--tone, var(--green));
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-green) / 55%));
+  border-radius: 999px;
+  background: var(--tone-fundo, rgb(var(--sep-c-green) / 12%));
+}
+
+.px36-linha-dupla {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 16px;
+}
+
+/* Largura natural deste layout: 728px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 724px) {
+  .px36-linha-dupla {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Campo monetário com o prefixo "R$" colado, como no desenho. */
+.px36-campo-moeda {
+  display: flex;
+  align-items: stretch;
+
+  input {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}
+
+.px36-prefixo {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  color: var(--muted-forte);
+  font-size: 13.5px;
+  font-weight: 600;
+  border: 1px solid var(--sep-border-strong);
+  border-right: 0;
+  border-radius: 9px 0 0 9px;
+  background: rgb(var(--sep-c-surf2) / 90%);
+}
+
+// ============ BOTÕES ============
+
+.px36-btn-primary {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 52px;
+  margin-top: 4px;
+  color: var(--sep-on-solid);
+  font-size: 15.5px;
+  font-weight: 600;
+  border: 1px solid rgb(var(--sep-c-blue) / 60%);
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--sep-accent), var(--sep-accent));
+  box-shadow: 0 0 18px rgb(var(--sep-c-blue) / calc(28% * var(--sep-glow-alpha)));
+  cursor: pointer;
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s,
+    border-color 0.18s;
+
+  lucide-icon {
+    flex-shrink: 0;
+    transition: transform 0.18s;
+  }
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    border-color: var(--blue);
+    box-shadow: 0 0 26px rgb(var(--sep-c-blue) / calc(48% * var(--sep-glow-alpha)));
+    transform: translateY(-2px);
+  }
+
+  &:hover:not(:disabled) lucide-icon,
+  &:focus-visible lucide-icon {
+    transform: scale(1.08);
+  }
 
   &:disabled {
-    opacity: 0.6;
+    color: var(--muted);
+    border-color: var(--sep-border-strong);
+    background: rgb(var(--sep-c-surf2) / 85%);
+    box-shadow: none;
     cursor: not-allowed;
+  }
+}
+
+.px36-btn-sec {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 9px;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  padding: 0 18px;
+  color: var(--sep-text);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 9px;
+  background: rgb(var(--sep-c-surf2) / 80%);
+  transition:
+    border-color 0.18s,
+    background 0.18s,
+    box-shadow 0.18s,
+    transform 0.18s;
+
+  lucide-icon {
+    transition: transform 0.18s;
+  }
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--blue);
+    background: rgb(var(--sep-c-hover) / 90%);
+    box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(22% * var(--sep-glow-alpha)));
+    transform: translateY(-2px);
+  }
+
+  &:hover lucide-icon,
+  &:focus-visible lucide-icon {
+    transform: translateX(-3px);
+  }
+}
+
+.px36-termos {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+
+  lucide-icon {
+    flex-shrink: 0;
+  }
+
+  a {
+    color: var(--blue);
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+      text-decoration: underline;
+    }
+  }
+}
+
+// ============ COLUNA LATERAL ============
+
+.px36-side {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-height: min-content;
+}
+
+.px36-sobre {
+  display: flex;
+  flex-direction: column;
+
+  > p {
+    margin: 0;
+    color: var(--muted-forte);
+    font-size: 13.5px;
+    line-height: 1.55;
+  }
+
+  hr {
+    width: 100%;
+    height: 1px;
+    margin: 18px 0;
+    border: 0;
+    background: rgb(var(--sep-c-active) / 80%);
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    gap: 13px;
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+  }
+
+  strong {
+    color: var(--sep-text);
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+}
+
+.px36-sobre-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  width: 60px;
+  height: 60px;
+  margin-bottom: 16px;
+  color: var(--blue);
+  border: 1px solid rgb(var(--sep-c-blue) / 40%);
+  border-radius: 14px;
+  background: rgb(var(--sep-c-blue) / 10%);
+  transition:
+    box-shadow 0.18s,
+    transform 0.18s;
+}
+
+.px36-sobre:hover .px36-sobre-icone {
+  box-shadow: 0 0 16px rgb(var(--sep-c-blue) / calc(30% * var(--sep-glow-alpha)));
+  transform: scale(1.04);
+}
+
+.px36-sobre-item-icone {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  color: var(--blue);
+  border: 1px solid rgb(var(--sep-c-blue) / 40%);
+  border-radius: 9px;
+  background: rgb(var(--sep-c-blue) / 10%);
+  transition:
+    box-shadow 0.18s,
+    transform 0.18s;
+}
+
+.px36-sobre li:hover .px36-sobre-item-icone {
+  box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(30% * var(--sep-glow-alpha)));
+  transform: scale(1.06);
+}
+
+.px36-requisitos ul {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.px36-requisitos li {
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  color: var(--muted-forte);
+  font-size: 13.5px;
+
+  lucide-icon {
+    flex-shrink: 0;
+    color: var(--green);
+    transition: filter 0.18s;
+  }
+
+  &:hover lucide-icon {
+    filter: drop-shadow(
+      0 0 7px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+    );
+  }
+}
+
+// ============ TELAS BAIXAS E ESTREITAS ============
+
+/* Degraus de compactação: reduzem vão e respiro, nunca o tamanho do texto. */
+@include tema.resp-altura-densa {
+  .px36-page {
+    gap: 16px 22px;
+    padding: 13px 24px 15px;
+  }
+
+  .px36-card {
+    padding: 16px 20px;
+  }
+
+  .px36-card h2 {
+    margin-bottom: 13px;
+  }
+
+  .px36-form {
+    gap: 12px;
+  }
+
+  .px36-side {
+    gap: 16px;
+  }
+
+  .px36-sobre hr {
+    margin: 14px 0;
+  }
+
+  .px36-sobre ul {
+    gap: 14px;
+  }
+
+  .px36-sobre-icone {
+    width: 54px;
+    height: 54px;
+    margin-bottom: 12px;
+  }
+
+  .px36-requisitos ul {
+    gap: 11px;
+  }
+
+  .px36-heading nav {
+    margin-bottom: 9px;
+  }
+}
+
+@include tema.resp-altura-baixa {
+  .px36-page {
+    gap: 10px 20px;
+    padding: 11px 22px 13px;
+  }
+
+  .px36-card {
+    padding: 12px 17px;
+  }
+
+  .px36-heading nav {
+    margin-bottom: 7px;
+  }
+
+  .px36-subtitulo {
+    margin-top: 5px;
+  }
+
+  .px36-card h2 {
+    margin-bottom: 10px;
+  }
+
+  .px36-form {
+    gap: 10px;
+  }
+
+  .px36-campo {
+    gap: 6px;
+  }
+
+  .px36-campo input,
+  .px36-campo select,
+  .px36-prefixo {
+    height: 42px;
+  }
+
+  .px36-btn-primary {
+    height: 48px;
+  }
+
+  .px36-titulo-icone {
+    width: 46px;
+    height: 46px;
+  }
+
+  .px36-sobre-icone {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 10px;
+  }
+
+  .px36-sobre ul,
+  .px36-requisitos ul {
+    gap: 9px;
+  }
+
+  .px36-sobre hr {
+    margin: 9px 0;
+  }
+
+  .px36-form hr {
+    margin: 2px 0;
+  }
+}
+
+@include tema.resp-half {
+  .px36-page {
+    grid-template:
+      "heading" auto
+      "form" min-content
+      "side" min-content
+      / minmax(0, 1fr);
+  }
+
+  .px36-linha-dupla {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// ============ ACESSIBILIDADE ============
+
+:focus-visible {
+  outline: 2px solid rgb(var(--sep-c-blue) / 70%);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+
+  .px36-btn-primary:hover,
+  .px36-btn-sec:hover,
+  .px36-btn-sec:hover lucide-icon,
+  .px36-sobre:hover .px36-sobre-icone,
+  .px36-sobre li:hover .px36-sobre-item-icone {
+    transform: none;
   }
 }

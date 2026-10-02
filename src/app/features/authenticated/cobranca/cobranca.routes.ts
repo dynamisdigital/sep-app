@@ -10,23 +10,24 @@ export const COBRANCA_ROUTES: Routes = [
   {
     path: '',
     loadComponent: () => import('./cobranca-shell.component').then((m) => m.CobrancaShellComponent),
+    data: { immersive: true },
   },
   {
     path: 'contratos/:contratoId/agenda',
     loadComponent: () =>
       import('./pages/agenda-tomador-page.component').then((m) => m.AgendaTomadorPageComponent),
-    data: { breadcrumb: 'Agenda' },
+    data: { breadcrumb: 'Agenda', immersive: true },
   },
   {
     path: 'parcelas/:id',
     loadComponent: () =>
       import('./pages/parcela-detail-page.component').then((m) => m.ParcelaDetailPageComponent),
-    data: { breadcrumb: 'Parcela' },
+    data: { breadcrumb: 'Parcela', immersive: true },
   },
   {
     path: 'financeiro/agenda',
     canActivate: [roleGuard],
-    data: { roles: ['FINANCEIRO', 'ADMIN'], breadcrumb: 'Agenda financeira' },
+    data: { roles: ['FINANCEIRO', 'ADMIN'], breadcrumb: 'Agenda financeira', immersive: true },
     loadComponent: () =>
       import('./pages/agenda-financeira-page.component').then(
         (m) => m.AgendaFinanceiraPageComponent,
@@ -35,7 +36,7 @@ export const COBRANCA_ROUTES: Routes = [
   {
     path: 'financeiro/parcelas/:id',
     canActivate: [roleGuard],
-    data: { roles: ['FINANCEIRO', 'ADMIN'], breadcrumb: 'Parcela' },
+    data: { roles: ['FINANCEIRO', 'ADMIN'], breadcrumb: 'Parcela', immersive: true },
     loadComponent: () =>
       import('./pages/parcela-financeira-page.component').then(
         (m) => m.ParcelaFinanceiraPageComponent,
@@ -44,7 +45,7 @@ export const COBRANCA_ROUTES: Routes = [
   {
     path: 'financeiro/inadimplencia',
     canActivate: [roleGuard],
-    data: { roles: ['FINANCEIRO', 'ADMIN'], breadcrumb: 'Inadimplencia' },
+    data: { roles: ['FINANCEIRO', 'ADMIN'], breadcrumb: 'Inadimplência', immersive: true },
     loadComponent: () =>
       import('./pages/inadimplencia-page.component').then((m) => m.InadimplenciaPageComponent),
   },

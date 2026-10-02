@@ -3,9 +3,20 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 
+import { environment } from '../../../environments/environment';
 import { AuthService } from '../auth/auth.service';
 
+/**
+ * Intercepta erros HTTP globais da API do SEP.
+ *
+ * Hardening (SEC-03 / SEC-07): Aplica redirecionamentos de sessao apenas para
+ * respostas vindas do backend institucional (`apiBaseUrl`).
+ */
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
+  if (!req.url.startsWith(environment.apiBaseUrl)) {
+    return next(req);
+  }
+
   const auth = inject(AuthService);
   const router = inject(Router);
 

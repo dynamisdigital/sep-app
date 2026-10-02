@@ -1,0 +1,96 @@
+# MANIFESTO ASSETS MOCKUP 32
+
+Tela: Mockup_32 — Agenda do contrato 5b771c05 / Cobrança.
+
+Padrão aplicado: recorte pelo centro visual do ícone para fora, canvas transparente centralizado, margem segura aproximada de 2 mm digitais, preservação de circunferências/HUDs/glows/bordas neon.
+
+Total de PNGs: 88
+
+- badges/badge_status_a_vencer.png
+- badges/badge_status_atrasada.png
+- badges/badge_status_em_aberto.png
+- badges/badge_status_em_andamento.png
+- badges/badge_status_paga.png
+- badges/button_exportar_relatorio.png
+- badges/button_filtrar.png
+- icons/icon_contract_copy_summary.png
+- icons/icon_contract_copy_title.png
+- icons/icon_document_cedula_credito.png
+- icons/icon_document_contrato_assinado.png
+- icons/icon_document_plano_pagamento.png
+- icons/icon_download_document_01.png
+- icons/icon_download_document_02.png
+- icons/icon_download_document_03.png
+- icons/icon_export_report.png
+- icons/icon_filter.png
+- icons/icon_footer_conta_escrow.png
+- icons/icon_footer_monitoramento.png
+- icons/icon_footer_provider_pix.png
+- icons/icon_footer_sla_conciliacao.png
+- icons/icon_footer_ultima_verificacao.png
+- icons/icon_footer_uptime_integracao.png
+- icons/icon_metric_a_vencer_calendar.png
+- icons/icon_metric_atrasado_warning.png
+- icons/icon_metric_em_aberto_bag.png
+- icons/icon_metric_total_recebido_money.png
+- icons/icon_pagination_first.png
+- icons/icon_pagination_last.png
+- icons/icon_pagination_next.png
+- icons/icon_pagination_prev.png
+- icons/icon_parcela_atraso_calendar_01.png
+- icons/icon_parcela_atraso_calendar_02.png
+- icons/icon_proxima_parcela_calendar_01.png
+- icons/icon_proxima_parcela_calendar_02.png
+- icons/icon_quick_enviar_lembrete.png
+- icons/icon_quick_gerar_relatorio.png
+- icons/icon_quick_negociar_parcela.png
+- icons/icon_quick_registrar_recebimento.png
+- icons/icon_sidebar_administracao.png
+- icons/icon_sidebar_backoffice.png
+- icons/icon_sidebar_cobranca.png
+- icons/icon_sidebar_credito.png
+- icons/icon_sidebar_dashboard.png
+- icons/icon_sidebar_formalizacao.png
+- icons/icon_sidebar_help.png
+- icons/icon_sidebar_meu_perfil.png
+- icons/icon_sidebar_onboarding.png
+- icons/icon_sidebar_pix.png
+- icons/icon_submenu_agenda_financeira.png
+- icons/icon_submenu_inadimplencia.png
+- icons/icon_submenu_parcelas.png
+- icons/icon_submenu_relatorios.png
+- icons/icon_submenu_renegociacoes.png
+- icons/icon_table_eye_action.png
+- icons/icon_table_eye_action_02.png
+- icons/icon_table_eye_action_03.png
+- icons/icon_title_copy_contract.png
+- icons/icon_topbar_ambiente_regulado.png
+- icons/icon_topbar_bell_notification.png
+- icons/icon_topbar_help.png
+- icons/icon_topbar_horario_sistema.png
+- icons/icon_topbar_search.png
+- icons/icon_topbar_theme_sun.png
+- icons/icon_topbar_user_admin.png
+- logos/sep_footer_complete.png
+- logos/sep_header_complete.png
+- logos/sep_institutional_text.png
+- logos/sep_symbol_footer.png
+- logos/sep_symbol_header.png
+- logos/sep_wordmark_footer.png
+- logos/sep_wordmark_header.png
+- ui_groups/mockup_32_reference_full.png
+- ui_groups/ui_agenda_parcelas_table.png
+- ui_groups/ui_contract_documents_card.png
+- ui_groups/ui_contract_summary_header.png
+- ui_groups/ui_footer_operational.png
+- ui_groups/ui_metric_cards_row.png
+- ui_groups/ui_next_installments_card.png
+- ui_groups/ui_overdue_installments_card.png
+- ui_groups/ui_quick_actions_card.png
+- ui_groups/ui_right_column_complete.png
+- ui_groups/ui_sidebar_complete.png
+- ui_groups/ui_topbar_complete.png
+- visuals/visual_agenda_parcelas_table.png
+- visuals/visual_liquidez_contrato_donut_card.png
+- visuals/visual_metric_liquidez_donut.png
+- visuals/visual_resumo_contrato_header.png

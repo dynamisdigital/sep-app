@@ -1,70 +1,607 @@
-<section class="sep-recebimento-detail">
-  @if (loading()) {
-    <p class="sep-recebimento-detail-state" role="status">Carregando recebimento...</p>
-  } @else if (errorMessage()) {
-    <div class="sep-recebimento-detail-state sep-recebimento-detail-error" role="alert">
-      <p>{{ errorMessage() }}</p>
-      <button type="button" class="sep-recebimento-detail-retry" (click)="carregar()">
-        Tentar novamente
-      </button>
-    </div>
-  } @else if (naoEncontrado()) {
-    <div class="sep-recebimento-detail-state">
-      <p>Recebimento nao encontrado.</p>
-    </div>
-  } @else if (recebimento(); as r) {
-    <header class="sep-recebimento-detail-header">
-      <h1 class="sep-recebimento-detail-title">Recebimento {{ idCurto(r.recebimentoId) }}</h1>
-      <sep-pix-recebimento-status [status]="r.status" />
-    </header>
-
-    @if (r.motivoDivergencia; as motivo) {
-      <p class="sep-recebimento-detail-alerta" role="alert">{{ motivo }}</p>
-    }
-
-    <dl class="sep-recebimento-detail-grid">
-      <div class="sep-recebimento-detail-row">
-        <dt>Valor</dt>
-        <dd>{{ formatarMoeda(r.valor) }}</dd>
+<sep-operational-shell>
+  <section class="px25-page">
+    @if (loading()) {
+      <p class="px25-estado" role="status">Carregando recebimento...</p>
+    } @else if (errorMessage(); as mensagem) {
+      <div class="px25-estado px25-erro" role="alert">
+        <lucide-icon name="circle-alert" [size]="18" />
+        <p>{{ mensagem }}</p>
+        <button type="button" class="px25-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
       </div>
-      <div class="sep-recebimento-detail-row">
-        <dt>Recebido em</dt>
-        <dd>{{ formatarDataHora(r.recebidoEm) }}</dd>
+    } @else if (naoEncontrado()) {
+      <div class="px25-estado px25-vazio-tela">
+        <lucide-icon name="inbox" [size]="26" />
+        <p>Recebimento não encontrado.</p>
+        <a class="px25-btn-sec" routerLink="/app/pix/recebimentos">Voltar para Recebimentos</a>
       </div>
-      @if (r.endToEndId; as e2e) {
-        <div class="sep-recebimento-detail-row">
-          <dt>End-to-end id</dt>
-          <dd>{{ e2e }}</dd>
-        </div>
-      }
-      @if (r.referenciaId; as referenciaId) {
-        <div class="sep-recebimento-detail-row">
-          <dt>Referencia</dt>
-          <dd>
-            <a [routerLink]="['/app/pix/recebimentos/referencias', referenciaId]">
-              {{ referenciaId }}
-            </a>
-          </dd>
-        </div>
-      }
-      @if (r.parcelaId; as parcelaId) {
-        <div class="sep-recebimento-detail-row">
-          <dt>Parcela</dt>
-          <dd>
-            @if (podeVerParcela()) {
-              <a [routerLink]="['/app/cobranca/financeiro/parcelas', parcelaId]">{{ parcelaId }}</a>
-            } @else {
-              {{ parcelaId }}
+    } @else if (recebimento(); as r) {
+      <!-- ============ CABEÇALHO ============ -->
+      <header class="px25-heading">
+        <nav aria-label="Navegação estrutural">
+          <a routerLink="/app/dashboard">Início</a><span>›</span><a routerLink="/app/pix">Pix</a
+          ><span>›</span><a routerLink="/app/pix/recebimentos">Recebimentos</a><span>›</span
+          ><strong>{{ r.recebimentoId }}</strong>
+        </nav>
+        <div class="px25-heading-row">
+          <h1>
+            Recebimento {{ idCurto(r.recebimentoId) }}
+            <span class="px25-selo" [attr.data-tone]="statusTom()">
+              <lucide-icon name="circle-check" [size]="14" />{{ statusRotulo() }}
+            </span>
+          </h1>
+          <div class="px25-heading-acoes px25-menu-wrap">
+            <button type="button" class="px25-btn-primary" (click)="baixarComprovante()">
+              <lucide-icon name="download" [size]="18" />Download comprovante
+            </button>
+            <button
+              type="button"
+              class="px25-btn-sec"
+              [attr.aria-expanded]="menuAberto()"
+              (click)="alternarMenu()"
+              (keydown.escape)="menuAberto.set(false)"
+            >
+              <lucide-icon name="ellipsis-vertical" [size]="18" />Mais ações
+            </button>
+            @if (menuAberto()) {
+              <!-- O Esc vive nos próprios itens: são eles que recebem o foco no menu aberto. -->
+              <div class="px25-menu" role="menu">
+                <button
+                  type="button"
+                  role="menuitem"
+                  (click)="copiar(r.recebimentoId, 'menu-id'); alternarMenu()"
+                  (keydown.escape)="menuAberto.set(false)"
+                >
+                  <lucide-icon name="copy" [size]="16" />Copiar ID do recebimento
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  (click)="irPara('/app/pix/divergencias')"
+                  (keydown.escape)="menuAberto.set(false)"
+                >
+                  <lucide-icon name="triangle-alert" [size]="16" />Ver divergências Pix
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  (click)="irPara('/app/pix/recebimentos')"
+                  (keydown.escape)="menuAberto.set(false)"
+                >
+                  <lucide-icon name="search" [size]="16" />Nova consulta
+                </button>
+              </div>
             }
-          </dd>
+          </div>
         </div>
-      }
-    </dl>
+      </header>
 
-    @if (!r.parcelaId) {
-      <p class="sep-recebimento-detail-nota" role="note">
-        Recebimento sem parcela vinculada. Tratamento operacional segue pelo backoffice.
-      </p>
+      <!-- ============ DADOS DO RECEBIMENTO ============ -->
+      <article class="px25-card px25-dados">
+        <h2>Dados do recebimento</h2>
+        <dl>
+          <div>
+            <dt>Valor recebido</dt>
+            <dd class="px25-valor">{{ moeda(r.valor) }}</dd>
+          </div>
+          <div>
+            <dt>End-to-end ID</dt>
+            <dd class="px25-quebra">
+              <span>{{ texto(r.endToEndId) }}</span>
+              @if (r.endToEndId; as e2e) {
+                <button
+                  type="button"
+                  class="px25-copy"
+                  aria-label="Copiar end-to-end ID"
+                  (click)="copiar(e2e, 'e2e')"
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'e2e' ? 'circle-check' : 'copy')"
+                    [size]="14"
+                  />
+                </button>
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>Tipo de recebimento</dt>
+            <dd [class.px25-vazio]="!r.tipoRecebimento">{{ texto(r.tipoRecebimento) }}</dd>
+          </div>
+
+          <div>
+            <dt>Recebido em</dt>
+            <dd>{{ dataHora(r.recebidoEm) }}</dd>
+          </div>
+          <div>
+            <dt>Chave Pix</dt>
+            <dd [class.px25-vazio]="!r.chavePix">{{ texto(r.chavePix) }}</dd>
+          </div>
+          <div>
+            <dt>Forma de pagamento</dt>
+            <dd [class.px25-vazio]="!r.formaPagamento">{{ texto(r.formaPagamento) }}</dd>
+          </div>
+
+          <div>
+            <dt>Referência</dt>
+            <dd class="px25-quebra">
+              @if (r.referenciaId; as referenciaId) {
+                <a [routerLink]="['/app/pix/recebimentos/referencias', referenciaId]">{{
+                  referenciaId
+                }}</a>
+                <button
+                  type="button"
+                  class="px25-copy"
+                  aria-label="Copiar referência"
+                  (click)="copiar(referenciaId, 'ref')"
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'ref' ? 'circle-check' : 'copy')"
+                    [size]="14"
+                  />
+                </button>
+              } @else {
+                <span class="px25-vazio">—</span>
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>Instituição recebedora</dt>
+            <dd [class.px25-vazio]="!r.instituicaoRecebedora">
+              {{ texto(r.instituicaoRecebedora) }}
+            </dd>
+          </div>
+          <div>
+            <dt>ID interno</dt>
+            <dd class="px25-quebra">
+              <span>{{ r.recebimentoId }}</span>
+              <button
+                type="button"
+                class="px25-copy"
+                aria-label="Copiar ID interno"
+                (click)="copiar(r.recebimentoId, 'interno')"
+              >
+                <lucide-icon
+                  [name]="$any(copiado() === 'interno' ? 'circle-check' : 'copy')"
+                  [size]="14"
+                />
+              </button>
+            </dd>
+          </div>
+
+          <div>
+            <dt>Parcela vinculada</dt>
+            <dd class="px25-quebra">
+              @if (r.parcelaId; as parcelaId) {
+                @if (podeVerParcela()) {
+                  <a [routerLink]="['/app/cobranca/parcelas', parcelaId]">{{ parcelaId }}</a>
+                } @else {
+                  <span>{{ parcelaId }}</span>
+                }
+                <button
+                  type="button"
+                  class="px25-copy"
+                  aria-label="Copiar parcela vinculada"
+                  (click)="copiar(parcelaId, 'parcela')"
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'parcela' ? 'circle-check' : 'copy')"
+                    [size]="14"
+                  />
+                </button>
+              } @else {
+                <span class="px25-vazio">—</span>
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>Canal</dt>
+            <dd [class.px25-vazio]="!r.canal">{{ texto(r.canal) }}</dd>
+          </div>
+          <div>
+            <dt>NSU</dt>
+            <dd class="px25-quebra">
+              <span [class.px25-vazio]="!r.nsu">{{ texto(r.nsu) }}</span>
+              @if (r.nsu; as nsu) {
+                <button
+                  type="button"
+                  class="px25-copy"
+                  aria-label="Copiar NSU"
+                  (click)="copiar(nsu, 'nsu')"
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'nsu' ? 'circle-check' : 'copy')"
+                    [size]="14"
+                  />
+                </button>
+              }
+            </dd>
+          </div>
+        </dl>
+
+        @if (r.motivoDivergencia; as motivo) {
+          <p class="px25-divergencia" role="alert">
+            <lucide-icon name="triangle-alert" [size]="16" />{{ motivo }}
+          </p>
+        }
+      </article>
+
+      <!-- ============ RESUMO DA CONCILIAÇÃO ============ -->
+      <article class="px25-card px25-conciliacao">
+        <h2>Resumo da conciliação</h2>
+        <div class="px25-conciliacao-topo">
+          <span class="px25-hud" [attr.data-tone]="statusTom()">
+            <lucide-icon [name]="$any(conciliado() ? 'circle-check' : 'clock')" [size]="34" />
+          </span>
+          <div>
+            <strong [attr.data-tone]="statusTom()">{{ statusRotulo() }}</strong>
+            <span>{{ statusResumo() }}</span>
+          </div>
+        </div>
+        <dl>
+          <div>
+            <dt>Data da conciliação</dt>
+            <dd [class.px25-vazio]="!r.conciliacao">{{ dataHora(r.conciliacao?.dataHora) }}</dd>
+          </div>
+          <div>
+            <dt>Método</dt>
+            <dd [class.px25-vazio]="!r.conciliacao">{{ texto(r.conciliacao?.metodo) }}</dd>
+          </div>
+          <div>
+            <dt>Responsável</dt>
+            <dd [class.px25-vazio]="!r.conciliacao">{{ texto(r.conciliacao?.responsavel) }}</dd>
+          </div>
+          <div>
+            <dt>Protocolo de conciliação</dt>
+            <dd class="px25-quebra">
+              <span [class.px25-vazio]="!r.conciliacao">{{ texto(r.conciliacao?.protocolo) }}</span>
+              @if (r.conciliacao; as c) {
+                <button
+                  type="button"
+                  class="px25-copy"
+                  aria-label="Copiar protocolo"
+                  (click)="copiar(c.protocolo, 'protocolo')"
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'protocolo' ? 'circle-check' : 'copy')"
+                    [size]="14"
+                  />
+                </button>
+              }
+            </dd>
+          </div>
+        </dl>
+        <a routerLink="/app/pix/divergencias" class="px25-link">Ver histórico completo →</a>
+      </article>
+
+      <!-- ============ LINHA DO TEMPO ============ -->
+      <article class="px25-card px25-timeline">
+        <h2>Linha do tempo do recebimento</h2>
+        <ol>
+          @for (marco of marcos(); track marco.rotulo) {
+            <li [class.pendente]="!marco.concluido">
+              <span class="px25-marco" aria-hidden="true">
+                <lucide-icon
+                  [name]="$any($index === 0 ? 'send' : marco.concluido ? 'circle-check' : 'clock')"
+                  [size]="21"
+                />
+              </span>
+              <strong>{{ marco.rotulo }}</strong>
+              <small>{{ texto(marco.data) }}</small>
+              <small>{{ texto(marco.hora) }}</small>
+              <em>{{ texto(marco.origem) }}</em>
+            </li>
+          }
+        </ol>
+      </article>
+
+      <!-- ============ PARCELA VINCULADA ============ -->
+      <article class="px25-card px25-parcela">
+        <h2>Informações da parcela vinculada</h2>
+        <dl>
+          <div>
+            <dt>Contrato</dt>
+            <dd class="px25-quebra">
+              <span [class.px25-vazio]="!r.parcela">{{ texto(r.parcela?.contrato) }}</span>
+              @if (r.parcela; as p) {
+                <button
+                  type="button"
+                  class="px25-copy"
+                  aria-label="Copiar contrato"
+                  (click)="copiar(p.contrato, 'contrato')"
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'contrato' ? 'circle-check' : 'copy')"
+                    [size]="14"
+                  />
+                </button>
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>Proposta</dt>
+            <dd class="px25-quebra">
+              <span [class.px25-vazio]="!r.parcela">{{ texto(r.parcela?.proposta) }}</span>
+              @if (r.parcela; as p) {
+                <button
+                  type="button"
+                  class="px25-copy"
+                  aria-label="Copiar proposta"
+                  (click)="copiar(p.proposta, 'proposta')"
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'proposta' ? 'circle-check' : 'copy')"
+                    [size]="14"
+                  />
+                </button>
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>Número da parcela</dt>
+            <dd [class.px25-vazio]="!r.parcela">{{ texto(r.parcela?.numero) }}</dd>
+          </div>
+          <div>
+            <dt>Vencimento</dt>
+            <dd [class.px25-vazio]="!r.parcela">{{ dataCurta(r.parcela?.vencimento) }}</dd>
+          </div>
+          <div>
+            <dt>Valor original da parcela</dt>
+            <dd [class.px25-vazio]="!r.parcela">{{ moeda(r.parcela?.valorOriginal) }}</dd>
+          </div>
+          <div>
+            <dt>Valor pago</dt>
+            <dd [class.px25-vazio]="!r.parcela" [class.px25-valor]="r.parcela">
+              {{ moeda(r.parcela?.valorPago) }}
+            </dd>
+          </div>
+        </dl>
+        <button
+          type="button"
+          class="px25-link"
+          [disabled]="!r.parcelaId"
+          [title]="r.parcelaId ? 'Abrir a parcela vinculada' : 'Recebimento sem parcela vinculada'"
+          (click)="abrirParcela()"
+        >
+          Abrir detalhes da parcela →
+        </button>
+      </article>
+
+      <!-- ============ FAIXA INFERIOR ============ -->
+      <div class="px25-base">
+        <article class="px25-card px25-complementares">
+          <h2>Informações complementares</h2>
+          <dl>
+            <div>
+              <dt>Categoria</dt>
+              <dd [class.px25-vazio]="!r.complementares">
+                {{ texto(r.complementares?.categoria) }}
+              </dd>
+            </div>
+            <div>
+              <dt>Finalidade</dt>
+              <dd [class.px25-vazio]="!r.complementares">
+                {{ texto(r.complementares?.finalidade) }}
+              </dd>
+            </div>
+            <div>
+              <dt>Centro de custo</dt>
+              <dd [class.px25-vazio]="!r.complementares">
+                {{ texto(r.complementares?.centroCusto) }}
+              </dd>
+            </div>
+            <div>
+              <dt>Observações</dt>
+              <dd class="px25-vazio">{{ texto(r.complementares?.observacoes) }}</dd>
+            </div>
+            <div class="px25-tags-linha">
+              <dt>Tags</dt>
+              <dd class="px25-tags">
+                @for (tag of r.complementares?.tags ?? []; track tag) {
+                  <span class="px25-tag">{{ tag }}</span>
+                } @empty {
+                  <span class="px25-vazio">—</span>
+                }
+              </dd>
+            </div>
+          </dl>
+        </article>
+
+        <article class="px25-card px25-adicionais">
+          <h2>Dados adicionais do Pix</h2>
+          <dl>
+            <div>
+              <dt>Versão do Pix</dt>
+              <dd [class.px25-vazio]="!r.adicionais">{{ texto(r.adicionais?.versaoPix) }}</dd>
+            </div>
+            <div>
+              <dt>Tipo de chave</dt>
+              <dd [class.px25-vazio]="!r.adicionais">{{ texto(r.adicionais?.tipoChave) }}</dd>
+            </div>
+            <div>
+              <dt>Valor tarifa</dt>
+              <dd [class.px25-vazio]="!r.adicionais">{{ moeda(r.adicionais?.valorTarifa) }}</dd>
+            </div>
+            <div>
+              <dt>Iniciador do pagamento</dt>
+              <dd [class.px25-vazio]="!r.adicionais">
+                {{ texto(r.adicionais?.iniciadorPagamento) }}
+              </dd>
+            </div>
+            <div>
+              <dt>Localização</dt>
+              <dd [class.px25-vazio]="!r.adicionais">{{ texto(r.adicionais?.localizacao) }}</dd>
+            </div>
+            <div>
+              <dt>IP de origem</dt>
+              <dd [class.px25-vazio]="!r.adicionais">{{ texto(r.adicionais?.ipOrigem) }}</dd>
+            </div>
+          </dl>
+        </article>
+
+        <article class="px25-card px25-comprovante">
+          <h2>Comprovante do recebimento</h2>
+          <div class="px25-comprovante-corpo">
+            <img
+              [src]="assetBase + '/visuals/visual_card_comprovante_recebimento_preview.png'"
+              alt="Prévia do comprovante Pix"
+            />
+            <div>
+              <strong>COMPROVANTE PIX</strong>
+              @if (r.comprovante; as c) {
+                <span>{{ c.arquivo }} • {{ c.tamanho }}</span>
+                <small>Gerado em {{ dataHora(c.geradoEm) }}</small>
+                <small class="px25-doc">ID do documento<br />{{ c.documentoId }}</small>
+              } @else {
+                <span class="px25-vazio">—</span>
+                <small class="px25-vazio">Comprovante disponível após a conciliação</small>
+              }
+            </div>
+          </div>
+          <footer>
+            <button type="button" class="px25-btn-sec" (click)="documentoAberto.set(true)">
+              <lucide-icon name="eye" [size]="16" />Visualizar
+            </button>
+            <button type="button" class="px25-btn-sec" (click)="baixarComprovante()">
+              <lucide-icon name="download" [size]="16" />Download
+            </button>
+          </footer>
+        </article>
+
+        <article class="px25-card px25-acoes">
+          <h2>Ações rápidas</h2>
+          <div>
+            <button
+              type="button"
+              data-tone="green"
+              disabled
+              title="A reconciliação é disparada pelo backoffice"
+            >
+              <lucide-icon name="refresh-cw" [size]="20" />
+              <span>Reconciliar<br />novamente</span>
+            </button>
+            <button type="button" data-tone="blue" (click)="abrirFilaOperacional()">
+              <lucide-icon name="inbox" [size]="20" />
+              <span>Abrir na fila<br />operacional</span>
+            </button>
+            <button
+              type="button"
+              data-tone="purple"
+              [disabled]="!r.parcelaId"
+              [title]="
+                r.parcelaId ? 'Abrir a parcela vinculada' : 'Recebimento sem parcela vinculada'
+              "
+              (click)="abrirParcela()"
+            >
+              <lucide-icon name="file-text" [size]="20" />
+              <span>Ver contrato<br />vinculado</span>
+            </button>
+            <button type="button" data-tone="blue" (click)="exportarDados()">
+              <lucide-icon name="download" [size]="20" />
+              <span>Exportar<br />dados</span>
+            </button>
+          </div>
+        </article>
+      </div>
+
+      <!-- ============ SEGURANÇA E AÇÕES (COLUNA DIREITA) ============ -->
+      <article class="px25-card px25-seguranca">
+        <h2>Segurança e conformidade</h2>
+        <dl>
+          <div>
+            <dt>Ambiente</dt>
+            <dd class="px25-ok">{{ ambiente() }}<i class="px25-led"></i></dd>
+          </div>
+          <div>
+            <dt>Auditoria</dt>
+            <dd class="px25-ok">Habilitada<i class="px25-led"></i></dd>
+          </div>
+          <div>
+            <dt>Dados protegidos</dt>
+            <dd class="px25-ok">LGPD<i class="px25-led"></i></dd>
+          </div>
+          <div>
+            <dt>Integridade do dado</dt>
+            <dd [class.px25-ok]="r.hashIntegridade" [class.px25-vazio]="!r.hashIntegridade">
+              {{ r.hashIntegridade ? 'Verificada' : '—' }}
+              @if (r.hashIntegridade) {
+                <i class="px25-led"></i>
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>Hash SHA-256</dt>
+            <dd class="px25-quebra">
+              <span [class.px25-vazio]="!r.hashIntegridade">{{ texto(r.hashIntegridade) }}</span>
+              @if (r.hashIntegridade; as hash) {
+                <button
+                  type="button"
+                  class="px25-copy"
+                  aria-label="Copiar hash"
+                  (click)="copiar(hash, 'hash')"
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'hash' ? 'circle-check' : 'copy')"
+                    [size]="14"
+                  />
+                </button>
+              }
+            </dd>
+          </div>
+        </dl>
+      </article>
     }
+  </section>
+
+  @if (documentoAberto() && recebimento(); as r) {
+    <div
+      class="px25-overlay"
+      role="presentation"
+      (click)="fecharComprovante($event)"
+      (keydown.escape)="documentoAberto.set(false)"
+    >
+      <article role="dialog" aria-modal="true" aria-label="Comprovante do recebimento Pix">
+        <button
+          class="close"
+          type="button"
+          aria-label="Fechar"
+          (click)="documentoAberto.set(false)"
+        >
+          <lucide-icon name="x" [size]="18" />
+        </button>
+        <header><b>SEP</b><strong>Comprovante de recebimento Pix</strong></header>
+        <span class="px25-selo" [attr.data-tone]="statusTom()">{{ statusRotulo() }}</span>
+        <h1>{{ moeda(r.valor) }}</h1>
+        <dl>
+          <div>
+            <dt>Data e hora</dt>
+            <dd>{{ dataHora(r.recebidoEm) }}</dd>
+          </div>
+          <div>
+            <dt>Recebimento</dt>
+            <dd>{{ r.recebimentoId }}</dd>
+          </div>
+          <div>
+            <dt>Referência</dt>
+            <dd>{{ texto(r.referenciaId) }}</dd>
+          </div>
+          <div>
+            <dt>End-to-end ID</dt>
+            <dd>{{ texto(r.endToEndId) }}</dd>
+          </div>
+          <div>
+            <dt>Instituição</dt>
+            <dd>{{ texto(r.instituicaoRecebedora) }}</dd>
+          </div>
+          <div>
+            <dt>NSU</dt>
+            <dd>{{ texto(r.nsu) }}</dd>
+          </div>
+        </dl>
+        <button type="button" class="px25-btn-primary" (click)="baixarComprovante()">
+          <lucide-icon name="download" [size]="16" />Baixar comprovante
+        </button>
+      </article>
+    </div>
   }
-</section>
+</sep-operational-shell>

@@ -1,15 +1,15 @@
 <sep-operational-shell>
-  <div class="onboarding-page">
+  <div class="onboarding-page op-pagina-rolavel">
     <header class="onboarding-heading">
       <nav aria-label="Navegação estrutural">
-        <a routerLink="/app/backoffice/dashboard">Início</a>
+        <a routerLink="/app/dashboard">Início</a>
         <span aria-hidden="true">›</span>
         <strong>Onboarding</strong>
       </nav>
       <h1>Onboarding</h1>
       <p>Escolha o tipo de cadastro para iniciar sua jornada na SEP.</p>
       <aside class="journey-toast">
-        <img [src]="assetBase + '/icons/icon_toast_jornada_digital.png'" alt="" />
+        <lucide-icon class="ic-ciano" name="sparkles" [size]="36" [strokeWidth]="1.25" />
         <span>Sua jornada é <strong>100% digital</strong>,<br />segura e auditável.</span>
       </aside>
     </header>
@@ -18,7 +18,7 @@
       @for (path of paths; track path.route) {
         <article class="onboarding-choice-card" [class]="'onboarding-choice-card ' + path.tone">
           <div class="choice-main">
-            <img class="choice-visual" [src]="assetBase + '/' + path.visual" alt="" />
+            <sep-arte class="choice-visual" [nome]="path.visual" />
             <div class="choice-copy">
               <span class="choice-badge">{{ path.badge }}</span>
               <h2>{{ path.label }}</h2>
@@ -26,7 +26,7 @@
               <ul>
                 @for (step of path.steps; track step.label) {
                   <li>
-                    <img [src]="assetBase + '/' + step.icon" alt="" />
+                    <lucide-icon [name]="step.icon" [size]="22" [strokeWidth]="2.25" />
                     <span>{{ step.label }}</span>
                   </li>
                 }
@@ -37,7 +37,7 @@
           <div class="choice-benefits">
             @for (benefit of path.benefits; track benefit.title) {
               <div>
-                <img [src]="assetBase + '/' + benefit.icon" alt="" />
+                <lucide-icon [name]="benefit.icon" [size]="54" [strokeWidth]="1" />
                 <span>
                   <strong>{{ benefit.title }}</strong>
                   <small>{{ benefit.description }}</small>
@@ -59,7 +59,7 @@
       <div>
         @for (reason of reasons; track reason.title) {
           <article>
-            <img [src]="assetBase + '/' + reason.icon" alt="" />
+            <lucide-icon [name]="reason.icon" [size]="53" [strokeWidth]="1" />
             <span>
               <strong>{{ reason.title }}</strong>
               <small>{{ reason.description }}</small>
@@ -70,11 +70,7 @@
     </section>
 
     <section class="onboarding-trust">
-      <img
-        class="trust-hud"
-        [src]="assetBase + '/visuals/visual_escudo_regulado_auditavel_hud.png'"
-        alt=""
-      />
+      <sep-arte class="trust-hud" nome="escudo-regulado" />
       <div class="trust-copy">
         <h2>Ambiente seguro, regulado e auditável.</h2>
         <p>
@@ -85,7 +81,7 @@
       <div class="trust-badges">
         @for (badge of complianceBadges; track badge.title) {
           <article>
-            <img [src]="assetBase + '/' + badge.icon" alt="" />
+            <lucide-icon [name]="badge.icon" [size]="42" [strokeWidth]="1.25" />
             <span>
               <strong>{{ badge.title }}</strong>
               <small>{{ badge.description }}</small>

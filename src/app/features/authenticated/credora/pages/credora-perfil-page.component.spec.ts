@@ -1,7 +1,9 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
+import { importProvidersFrom } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { Observable, of, throwError } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 
@@ -10,6 +12,7 @@ import {
   EmpresaCredoraResponse,
 } from '../../../../core/api/api.models';
 import { CredoraService } from '../../../../core/credora/credora.service';
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { CredoraPerfilPageComponent } from './credora-perfil-page.component';
 
 async function flush(times = 5): Promise<void> {
@@ -45,20 +48,26 @@ async function renderPagina(
   routes: Parameters<typeof provideRouter>[0] = [],
 ) {
   return render(CredoraPerfilPageComponent, {
-    providers: [provideRouter(routes), { provide: CredoraService, useValue: stubs }],
+    providers: [
+      provideHttpClient(),
+      provideRouter(routes),
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      { provide: CredoraService, useValue: stubs },
+    ],
   });
 }
 
-describe('CredoraPerfilPageComponent', () => {
+describe('CredoraPerfilPageComponent — tela derivada do Mockup 36', () => {
   it('ATIVA/ELEGIVEL: apresenta perfil e oferece oportunidades', async () => {
     await renderPagina({
       consultarMinhaCredora: () => of(EMPRESA),
       consultarElegibilidade: () => of(elegivel()),
     });
 
-    expect(screen.getByText('Aurora Capital Investimentos LTDA')).toBeTruthy();
-    expect(screen.getByText('Ativa')).toBeTruthy();
-    expect(screen.getByText('Elegível')).toBeTruthy();
+    // A razão social aparece no título e também na lista de dados cadastrais.
+    expect(screen.getByRole('heading', { name: 'Aurora Capital Investimentos LTDA' })).toBeTruthy();
+    expect(screen.getByText('ATIVA')).toBeTruthy();
+    expect(screen.getByText('ELEGIVEL')).toBeTruthy();
     expect(screen.getByText('Ver oportunidades').closest('a')?.getAttribute('href')).toBe(
       '/app/credora/oportunidades',
     );
@@ -81,7 +90,10 @@ describe('CredoraPerfilPageComponent', () => {
         }),
     });
 
-    expect(screen.getByText('Motivo: Onboarding PJ reprovado na verificacao PLD')).toBeTruthy();
+    expect(screen.getByText('Credora inelegível')).toBeTruthy();
+    expect(
+      screen.getByText(/Motivo informado pelo backend: Onboarding PJ reprovado na verificacao PLD/),
+    ).toBeTruthy();
     expect(screen.queryByText('Ver oportunidades')).toBeNull();
   });
 

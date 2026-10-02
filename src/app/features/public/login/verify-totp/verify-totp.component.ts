@@ -1,13 +1,15 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { MfaService } from '../../../../core/auth/mfa.service';
+import { ThemeService } from '../../../../core/theme/theme.service';
 
 @Component({
   selector: 'sep-verify-totp',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, LucideAngularModule],
   templateUrl: './verify-totp.component.html',
   styleUrl: './verify-totp.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,6 +19,10 @@ export class VerifyTotpComponent {
   private readonly authService = inject(AuthService);
   private readonly mfaService = inject(MfaService);
   private readonly router = inject(Router);
+  private readonly tema = inject(ThemeService);
+
+  /** Mesma troca de tema das demais telas publicas; o escuro e o padrao. */
+  protected readonly temaEscuro = this.tema.isDark;
 
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
@@ -55,5 +61,9 @@ export class VerifyTotpComponent {
           this.errorMessage.set('Codigo TOTP invalido ou expirado.');
         },
       });
+  }
+
+  protected alternarTema(): void {
+    this.tema.toggle();
   }
 }

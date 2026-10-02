@@ -1,60 +1,399 @@
-<section class="sep-inad">
-  <header class="sep-inad-header">
-    <h1 class="sep-inad-title">Inadimplencia</h1>
-    <p class="sep-inad-subtitle">Parcelas atrasadas e inadimplentes para triagem.</p>
-  </header>
+<sep-operational-shell>
+  <section class="px30-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px30-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/cobranca">Cobrança</a><span>›</span><strong>Inadimplência</strong>
+      </nav>
+      <div class="px30-heading-row">
+        <div class="px30-titulo-wrap">
+          <h1>
+            Inadimplência
+            <lucide-icon name="circle-alert" [size]="18" />
+          </h1>
+          <p class="px30-subtitulo">
+            Parcelas atrasadas e inadimplentes para triagem e acompanhamento.
+          </p>
+        </div>
+        <button type="button" class="px30-btn-sec" (click)="exportar()">
+          <lucide-icon name="download" [size]="16" />Exportar relatório
+        </button>
+      </div>
+    </header>
 
-  <form class="sep-inad-filtros" [formGroup]="filtros" (ngSubmit)="carregar()">
-    <label class="sep-inad-filtro">
-      <span>Dias de atraso (min)</span>
-      <input type="number" min="0" formControlName="diasAtrasoMin" />
-    </label>
-    <label class="sep-inad-filtro">
-      <span>Dias de atraso (max)</span>
-      <input type="number" min="0" formControlName="diasAtrasoMax" />
-    </label>
-    <label class="sep-inad-filtro">
-      <span>Status</span>
-      <select formControlName="status">
-        <option value="">Todos</option>
-        @for (status of statusFiltraveis; track status) {
-          <option [value]="status">{{ status }}</option>
+    <!-- ============ FILTROS ============ -->
+    <form class="px30-card px30-filtros" [formGroup]="filtros" (ngSubmit)="carregar()">
+      <label>
+        <span>Dias de atraso (min)</span>
+        <input type="number" min="0" formControlName="diasAtrasoMin" placeholder="Ex.: 1" />
+      </label>
+      <label>
+        <span>Dias de atraso (max)</span>
+        <input type="number" min="0" formControlName="diasAtrasoMax" placeholder="Ex.: 999" />
+      </label>
+      <label>
+        <span>Status</span>
+        <select formControlName="status">
+          <option value="">Todos</option>
+          @for (status of statusFiltraveis; track status) {
+            <option [value]="status">{{ statusRotulo(status) }}</option>
+          }
+        </select>
+      </label>
+      <button type="submit" class="px30-btn-primary">
+        <lucide-icon name="settings" [size]="16" />Aplicar filtros
+      </button>
+      <button type="button" class="px30-btn-limpar" (click)="limparFiltros()">Limpar</button>
+    </form>
+
+    @if (loading()) {
+      <p class="px30-estado" role="status">Carregando inadimplência...</p>
+    } @else if (errorMessage(); as mensagem) {
+      <div class="px30-estado px30-erro" role="alert">
+        <lucide-icon name="circle-alert" [size]="18" />
+        <p>{{ mensagem }}</p>
+        <button type="button" class="px30-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
+      </div>
+    } @else {
+      <!-- ============ MÉTRICAS ============ -->
+      <div class="px30-metricas">
+        <article class="px30-card px30-metrica" data-tone="red">
+          <div class="px30-metrica-topo">
+            <small>Total em atraso</small>
+            <span class="px30-metrica-icone"
+              ><lucide-icon name="triangle-alert" [size]="20"
+            /></span>
+          </div>
+          <strong>{{ moeda(totalEmAtraso()) }}</strong>
+          <em>{{ linhas().length }} parcelas</em>
+        </article>
+        @for (f of faixas(); track f.chave) {
+          <article class="px30-card px30-metrica" [attr.data-tone]="f.tom">
+            <div class="px30-metrica-topo">
+              <small>{{ f.rotulo }}</small>
+              <span class="px30-metrica-icone"><lucide-icon name="clock" [size]="20" /></span>
+            </div>
+            <strong>{{ moeda(f.valor) }}</strong>
+            <em>{{ f.quantidade }} {{ f.quantidade === 1 ? 'parcela' : 'parcelas' }}</em>
+          </article>
         }
-      </select>
-    </label>
-    <button type="submit" class="sep-inad-aplicar">Aplicar</button>
-  </form>
+      </div>
 
-  @if (loading()) {
-    <p class="sep-inad-state" role="status">Carregando inadimplencia...</p>
-  } @else if (errorMessage()) {
-    <div class="sep-inad-state sep-inad-error" role="alert">
-      <p>{{ errorMessage() }}</p>
-      <button type="button" class="sep-inad-retry" (click)="carregar()">Tentar novamente</button>
-    </div>
-  } @else if (linhas().length === 0) {
-    <div class="sep-inad-state sep-inad-empty">
-      <p>Nenhuma parcela em atraso para os filtros aplicados.</p>
-    </div>
-  } @else {
-    <ul class="sep-inad-lista">
-      @for (linha of linhas(); track linha.parcelaId) {
-        <li class="sep-inad-linha">
-          <a
-            [routerLink]="['/app/cobranca/financeiro/parcelas', linha.parcelaId]"
-            class="sep-inad-linha-link"
-          >
-            <span class="sep-inad-linha-parcela">Parcela {{ linha.numeroParcela }}</span>
-            <sep-parcela-status [status]="linha.status" />
-            <span class="sep-inad-linha-atraso">{{ linha.diasAtraso }} dias</span>
-            <span class="sep-inad-linha-vencimento">
-              Venceu {{ formatarDataLocal(linha.dataVencimento) }}
-            </span>
-            <span class="sep-inad-linha-contrato">Contrato {{ idCurto(linha.contratoId) }}</span>
-            <span class="sep-inad-linha-valor">{{ formatarMoeda(linha.valorOriginal) }}</span>
-          </a>
-        </li>
-      }
-    </ul>
-  }
-</section>
+      <!-- ============ PARCELAS INADIMPLENTES ============ -->
+      <article class="px30-card px30-tabela-card">
+        <h2>Parcelas inadimplentes</h2>
+        <div class="px30-tabela-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Parcela</th>
+                <th>Contrato</th>
+                <th>Tomador</th>
+                <th>Vencimento</th>
+                <th class="px30-num">Dias de atraso</th>
+                <th class="px30-num">Valor (R$)</th>
+                <th>Status</th>
+                <th class="px30-acoes-col">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (l of linhasVisiveis(); track l.parcelaId) {
+                <tr>
+                  <td>
+                    <a
+                      class="px30-link"
+                      [routerLink]="['/app/cobranca/financeiro/parcelas', l.parcelaId]"
+                      title="Abrir detalhe da parcela"
+                    >
+                      {{ parcelaRotulo(l) }}
+                    </a>
+                    <small>{{ texto(l.codigoParcela) }}</small>
+                  </td>
+                  <td>
+                    <strong>{{ texto(l.contratoCurto) }}</strong>
+                    <small>{{ texto(l.contratoTipo) }}</small>
+                  </td>
+                  <td>
+                    <strong>{{ texto(l.tomadorNome) }}</strong>
+                    <small>{{ texto(l.tomadorDocumento) }}</small>
+                  </td>
+                  <td>{{ formatarDataLocal(l.dataVencimento) }}</td>
+                  <td class="px30-num px30-atraso">{{ l.diasAtraso }} dias</td>
+                  <td class="px30-num px30-valor">{{ moeda(l.valorOriginal) }}</td>
+                  <td>
+                    <span class="px30-selo" [attr.data-tone]="statusTom(l.status)">
+                      {{ statusRotulo(l.status) }}
+                    </span>
+                  </td>
+                  <td class="px30-acoes-col">
+                    <div class="px30-acoes">
+                      <button
+                        type="button"
+                        class="px30-btn-linha"
+                        title="Abrir detalhe da parcela"
+                        (click)="abrirParcela(l.parcelaId)"
+                      >
+                        <lucide-icon name="eye" [size]="15" />
+                      </button>
+                      <button
+                        type="button"
+                        class="px30-btn-linha"
+                        title="Não há endpoint de registro de contato nesta tela"
+                        disabled
+                      >
+                        <lucide-icon name="mail" [size]="15" />
+                      </button>
+                      <div class="px30-menu-wrap">
+                        <button
+                          type="button"
+                          class="px30-btn-linha"
+                          [attr.aria-expanded]="menuLinha() === l.parcelaId"
+                          [attr.aria-label]="'Mais ações da parcela ' + l.numeroParcela"
+                          (click)="alternarMenuLinha(l.parcelaId)"
+                          (keydown.escape)="menuLinha.set(null)"
+                        >
+                          <lucide-icon name="ellipsis-vertical" [size]="15" />
+                        </button>
+                        @if (menuLinha() === l.parcelaId) {
+                          <div class="px30-menu" role="menu">
+                            <button
+                              type="button"
+                              role="menuitem"
+                              (click)="abrirParcela(l.parcelaId); menuLinha.set(null)"
+                            >
+                              <lucide-icon name="eye" [size]="14" />Abrir parcela
+                            </button>
+                            <button
+                              type="button"
+                              role="menuitem"
+                              (click)="copiar(l.parcelaId, l.parcelaId); menuLinha.set(null)"
+                            >
+                              <lucide-icon
+                                [name]="$any(copiado() === l.parcelaId ? 'circle-check' : 'copy')"
+                                [size]="14"
+                              />Copiar ID da parcela
+                            </button>
+                            <button
+                              type="button"
+                              role="menuitem"
+                              (click)="menuLinha.set(null)"
+                              [routerLink]="['/app/cobranca/financeiro/agenda']"
+                            >
+                              <lucide-icon name="list" [size]="14" />Ver na agenda financeira
+                            </button>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="8" class="px30-vazio-linha">
+                    Nenhuma parcela em atraso para os filtros aplicados.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <footer class="px30-tabela-rodape">
+          <span>
+            Exibindo {{ pagina1Base() }} a {{ ultimaVisivel() }} de {{ linhas().length }} parcelas
+          </span>
+          <div class="px30-paginacao">
+            <button
+              type="button"
+              aria-label="Primeira página"
+              [disabled]="paginaAtual() === 1"
+              (click)="irParaPagina(1)"
+            >
+              «
+            </button>
+            <button
+              type="button"
+              aria-label="Página anterior"
+              [disabled]="paginaAtual() === 1"
+              (click)="irParaPagina(paginaAtual() - 1)"
+            >
+              ‹
+            </button>
+            @for (n of paginas(); track n) {
+              <button
+                type="button"
+                [attr.aria-label]="'Página ' + n"
+                [class.ativa]="n === paginaAtual()"
+                (click)="irParaPagina(n)"
+              >
+                {{ n }}
+              </button>
+            }
+            <button
+              type="button"
+              aria-label="Próxima página"
+              [disabled]="paginaAtual() === totalPaginas()"
+              (click)="irParaPagina(paginaAtual() + 1)"
+            >
+              ›
+            </button>
+            <button
+              type="button"
+              aria-label="Última página"
+              [disabled]="paginaAtual() === totalPaginas()"
+              (click)="irParaPagina(totalPaginas())"
+            >
+              »
+            </button>
+            <span class="px30-por-pagina">{{ porPagina }} por página</span>
+          </div>
+        </footer>
+      </article>
+
+      <!-- ============ COLUNA LATERAL ============ -->
+      <aside class="px30-side">
+        <section class="px30-card px30-resumo">
+          <h2>Resumo da inadimplência</h2>
+          <div class="px30-resumo-corpo">
+            <div
+              class="px30-rosca"
+              role="img"
+              [style.background]="anelGradiente()"
+              [attr.aria-label]="'Total em atraso ' + moeda(totalEmAtraso())"
+            >
+              <span>
+                <small>Total em atraso</small>
+                <strong>{{ moeda(totalEmAtraso()) }}</strong>
+              </span>
+            </div>
+            <ul class="px30-legenda">
+              @for (f of faixas(); track f.chave) {
+                <li [attr.data-tone]="f.tom">
+                  <em [style.background]="f.cor" [style.box-shadow]="'0 0 8px ' + f.cor"></em>
+                  <div>
+                    <strong>{{ f.rotulo }}</strong>
+                    <small>{{ moeda(f.valor) }} ({{ f.percentual }}%)</small>
+                  </div>
+                </li>
+              }
+            </ul>
+          </div>
+        </section>
+
+        <section class="px30-card px30-exposicao">
+          <h2>Exposição por contrato (top 5)</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Contrato</th>
+                <th class="px30-num">Valor em atraso</th>
+                <th class="px30-num">Parcelas</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (e of exposicao(); track e.contrato) {
+                <tr>
+                  <td>
+                    <strong>{{ e.contrato }}</strong>
+                    <small>{{ e.tipo }}</small>
+                  </td>
+                  <td class="px30-num">
+                    <strong>{{ moeda(e.valor) }}</strong>
+                    <span class="px30-barra-trilha">
+                      <span class="px30-barra" [style.width.%]="e.proporcao"></span>
+                    </span>
+                  </td>
+                  <td class="px30-num px30-parcelas">{{ e.parcelas }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="3" class="px30-vazio-linha">Nenhum contrato em atraso.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          <a class="px30-link-todos" routerLink="/app/cobranca">Ver todos os contratos →</a>
+        </section>
+
+        <section class="px30-card px30-actions">
+          <h2>Ações rápidas</h2>
+          <div class="px30-actions-grid">
+            <button
+              type="button"
+              class="px30-btn-acao amber"
+              title="Não há endpoint de disparo de notificações nesta fase"
+              disabled
+            >
+              <lucide-icon name="bell" [size]="19" />
+              <span>Gerar notificações</span>
+            </button>
+            <button
+              type="button"
+              class="px30-btn-acao blue"
+              title="Não há endpoint de envio de cobrança nesta fase"
+              disabled
+            >
+              <lucide-icon name="send" [size]="19" />
+              <span>Enviar cobrança</span>
+            </button>
+            <button
+              type="button"
+              class="px30-btn-acao green"
+              title="Renegociação em lote não é exposta pelo backend nesta fase"
+              disabled
+            >
+              <lucide-icon name="banknote" [size]="19" />
+              <span>Negociar em lote</span>
+            </button>
+            <button type="button" class="px30-btn-acao purple" (click)="exportar()">
+              <lucide-icon name="download" [size]="19" />
+              <span>Exportar inadimplentes</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="px30-card px30-seguranca">
+          <h2>Segurança e conformidade</h2>
+          <dl>
+            <div>
+              <dt>Ambiente</dt>
+              <dd>
+                <span class="px30-chip"
+                  >REGULADO<lucide-icon name="circle-check" [size]="14"
+                /></span>
+              </dd>
+            </div>
+            <div>
+              <dt>Auditoria</dt>
+              <dd>
+                <span class="px30-chip"
+                  >Habilitada<lucide-icon name="circle-check" [size]="14"
+                /></span>
+              </dd>
+            </div>
+            <div>
+              <dt>Dados protegidos</dt>
+              <dd>
+                <span class="px30-chip">LGPD<lucide-icon name="circle-check" [size]="14" /></span>
+              </dd>
+            </div>
+            <div>
+              <dt>Integridade do dado</dt>
+              <dd>
+                <span class="px30-chip"
+                  >Verificada<lucide-icon name="circle-check" [size]="14"
+                /></span>
+              </dd>
+            </div>
+            <div>
+              <dt>Total conferido</dt>
+              <dd class="px30-bold-white">{{ moeda(totalEmAtraso()) }}</dd>
+            </div>
+          </dl>
+        </section>
+      </aside>
+    }
+  </section>
+</sep-operational-shell>

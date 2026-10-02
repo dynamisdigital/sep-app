@@ -1,67 +1,257 @@
-<section class="sep-users-list">
-  <header class="sep-users-list-header">
-    <h1 class="sep-users-list-title">Administração de usuários</h1>
-    <div class="sep-users-list-filter">
-      <label for="filtro-email" class="sep-users-list-filter-label">Filtrar por e-mail</label>
-      <input
-        id="filtro-email"
-        type="search"
-        [formControl]="filtroControl"
-        placeholder="exemplo@empresa.com"
-        autocomplete="off"
-      />
-    </div>
-  </header>
-
-  @if (loading()) {
-    <p class="sep-users-list-state" role="status">Carregando usuários...</p>
-  }
-
-  @if (errorMessage(); as msg) {
-    <div class="sep-users-list-error" role="alert">
-      <p>{{ msg }}</p>
-      <button type="button" (click)="carregar()" class="sep-users-list-retry">
-        Tentar novamente
-      </button>
-    </div>
-  }
-
-  @if (!loading() && !errorMessage()) {
-    @if (usuariosFiltrados().length === 0) {
-      <p class="sep-users-list-state">Nenhum usuário encontrado.</p>
-    } @else {
-      <div class="sep-users-list-table-wrapper">
-        <table class="sep-users-list-table">
-          <thead>
-            <tr>
-              <th scope="col">E-mail</th>
-              <th scope="col">Perfil</th>
-              <th scope="col">Criado em</th>
-              <th scope="col">Modificado em</th>
-              <th scope="col" class="sep-users-list-th-action">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (usuario of usuariosFiltrados(); track usuario.id) {
-              <tr>
-                <td>{{ usuario.username }}</td>
-                <td>{{ usuario.role }}</td>
-                <td>{{ usuario.dataCriacao }}</td>
-                <td>{{ usuario.dataModificacao }}</td>
-                <td>
-                  <a
-                    [routerLink]="['/app/admin/users', usuario.id]"
-                    class="sep-users-list-detail-link"
-                    [attr.aria-label]="'Ver detalhe de ' + usuario.username"
-                  >
-                    Ver detalhe
-                  </a>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+<sep-operational-shell>
+  <section class="px38-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px38-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/admin">Administração</a><span>›</span><strong>Usuários</strong>
+      </nav>
+      <div class="px38-heading-row">
+        <div class="px38-titulo-wrap">
+          <div>
+            <h1>Administração de usuários</h1>
+            <p class="px38-subtitulo">
+              Gerencie usuários, perfis, papéis e permissões de acesso ao sistema.
+            </p>
+          </div>
+        </div>
+        <div class="px38-acoes-topo">
+          <a class="px38-btn-primary" routerLink="/app/admin/users/novo">
+            <lucide-icon name="plus" [size]="17" />Novo usuário
+          </a>
+          <button
+            type="button"
+            class="px38-btn-sec"
+            disabled
+            title="Sem endpoint de exportação da lista de usuários"
+          >
+            <lucide-icon name="download" [size]="16" />Exportar
+          </button>
+        </div>
       </div>
+    </header>
+
+    @if (errorMessage(); as msg) {
+      <div class="px38-estado px38-erro" role="alert">
+        <lucide-icon name="triangle-alert" [size]="18" />
+        <p>{{ msg }}</p>
+        <button type="button" class="px38-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
+      </div>
+    } @else {
+      <!-- ============ MÉTRICAS ============ -->
+      <div class="px38-metricas">
+        <article class="px38-card px38-metrica" data-tone="blue">
+          <span class="px38-metrica-icone"><lucide-icon name="users" [size]="20" /></span>
+          <small>Usuários ativos</small>
+          <strong>{{ totalUsuarios() }}</strong>
+          <em>{{ papeisEmUso() }} papéis em uso</em>
+        </article>
+        <article class="px38-card px38-metrica" data-tone="green">
+          <span class="px38-metrica-icone"><lucide-icon name="shield-check" [size]="20" /></span>
+          <small>Perfis</small>
+          <strong>{{ totalPapeis }}</strong>
+          <em>fechados pelo contrato</em>
+        </article>
+        <article class="px38-card px38-metrica" data-tone="purple">
+          <span class="px38-metrica-icone"><lucide-icon name="lock" [size]="20" /></span>
+          <small>Permissões</small>
+          <strong>—</strong>
+          <em>sem endpoint de catálogo</em>
+        </article>
+        <article class="px38-card px38-metrica" data-tone="amber">
+          <span class="px38-metrica-icone"><lucide-icon name="key-round" [size]="20" /></span>
+          <small>Com MFA ativo</small>
+          <strong>{{ comMfa() }}</strong>
+          <em>
+            {{
+              senhaPendente() === 0
+                ? 'nenhuma senha pendente'
+                : senhaPendente() + ' com senha pendente'
+            }}
+          </em>
+        </article>
+      </div>
+
+      <!-- ============ TABELA ============ -->
+      <article class="px38-card px38-tabela-card">
+        <header class="px38-tabela-topo">
+          <h2>Usuários cadastrados</h2>
+          <div class="px38-filtro">
+            <label for="filtro-email">Filtrar por e-mail</label>
+            <div class="px38-filtro-campo">
+              <input
+                id="filtro-email"
+                type="search"
+                [formControl]="filtroControl"
+                placeholder="Digite o e-mail do usuário..."
+                autocomplete="off"
+              />
+              <lucide-icon name="search" [size]="16" />
+            </div>
+          </div>
+        </header>
+
+        @if (loading()) {
+          <p class="px38-estado" role="status">Carregando usuários...</p>
+        } @else if (usuariosOrdenados().length === 0) {
+          <div class="px38-vazio" role="status">
+            <span class="px38-vazio-icone"><lucide-icon name="search" [size]="24" /></span>
+            <strong>Nenhum usuário encontrado.</strong>
+            <p>Ajuste o filtro por e-mail para ver outros usuários da base.</p>
+          </div>
+        } @else {
+          <div class="px38-tabela-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>
+                    <button type="button" class="px38-ordenar" (click)="ordenarPor('username')">
+                      E-mail<lucide-icon name="chevrons-up-down" [size]="13" />
+                    </button>
+                  </th>
+                  <th>
+                    <button type="button" class="px38-ordenar" (click)="ordenarPor('role')">
+                      Perfil<lucide-icon name="chevrons-up-down" [size]="13" />
+                    </button>
+                  </th>
+                  <th>
+                    <button type="button" class="px38-ordenar" (click)="ordenarPor('dataCriacao')">
+                      Criado em<lucide-icon name="chevrons-up-down" [size]="13" />
+                    </button>
+                  </th>
+                  <th>
+                    <button
+                      type="button"
+                      class="px38-ordenar"
+                      (click)="ordenarPor('dataModificacao')"
+                    >
+                      Modificado em<lucide-icon name="chevrons-up-down" [size]="13" />
+                    </button>
+                  </th>
+                  <th>Status</th>
+                  <th class="px38-acoes-col">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (usuario of usuariosNaPagina(); track usuario.id) {
+                  <tr>
+                    <td>
+                      <div class="px38-usuario">
+                        <span class="px38-avatar" [attr.data-tone]="tomDoPapel(usuario.role)">
+                          {{ inicial(usuario.username) }}
+                        </span>
+                        <span class="px38-usuario-texto">
+                          <strong>{{ usuario.username }}</strong>
+                          <small>{{ descricaoDoPapel(usuario.role) }}</small>
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="px38-selo" [attr.data-tone]="tomDoPapel(usuario.role)">
+                        {{ usuario.role }}
+                      </span>
+                    </td>
+                    <td>{{ formatarDataHora(usuario.dataCriacao) }}</td>
+                    <td>{{ formatarDataHora(usuario.dataModificacao) }}</td>
+                    <td>
+                      <span class="px38-situacao" [attr.data-tone]="situacao(usuario).tom">
+                        <i aria-hidden="true"></i>{{ situacao(usuario).rotulo }}
+                      </span>
+                    </td>
+                    <td class="px38-acoes-col">
+                      <div class="px38-acoes-linha">
+                        <a
+                          class="px38-link"
+                          [routerLink]="['/app/admin/users', usuario.id]"
+                          [attr.aria-label]="'Ver detalhe de ' + usuario.username"
+                        >
+                          <lucide-icon name="eye" [size]="15" />Ver detalhe
+                        </a>
+                        <button
+                          type="button"
+                          class="px38-btn-linha"
+                          disabled
+                          title="Sem endpoints de desativação, reenvio de convite ou exclusão de usuário"
+                          [attr.aria-label]="'Mais ações de ' + usuario.username"
+                        >
+                          <lucide-icon name="ellipsis-vertical" [size]="15" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <footer class="px38-tabela-rodape">
+            <span class="px38-contagem">
+              Mostrando {{ primeiroDaPagina() }} a {{ ultimoDaPagina() }} de
+              {{ usuariosOrdenados().length }}
+              {{ usuariosOrdenados().length === 1 ? 'usuário' : 'usuários' }}
+            </span>
+            <div class="px38-paginacao">
+              <label class="px38-por-pagina">
+                <select
+                  [value]="porPagina()"
+                  (change)="mudarPorPagina($any($event.target).value)"
+                  aria-label="Usuários por página"
+                >
+                  <option value="5">5 por página</option>
+                  <option value="10">10 por página</option>
+                  <option value="20">20 por página</option>
+                </select>
+              </label>
+              <button
+                type="button"
+                class="px38-pag-btn"
+                [disabled]="paginaAtual() === 1"
+                aria-label="Página anterior"
+                (click)="irParaPagina(paginaAtual() - 1)"
+              >
+                «
+              </button>
+              @for (numero of paginas(); track numero) {
+                <button
+                  type="button"
+                  class="px38-pag-btn"
+                  [class.px38-pag-btn-ativa]="numero === paginaAtual()"
+                  [attr.aria-current]="numero === paginaAtual() ? 'page' : null"
+                  (click)="irParaPagina(numero)"
+                >
+                  {{ numero }}
+                </button>
+              }
+              <button
+                type="button"
+                class="px38-pag-btn"
+                [disabled]="paginaAtual() === totalPaginas()"
+                aria-label="Próxima página"
+                (click)="irParaPagina(paginaAtual() + 1)"
+              >
+                »
+              </button>
+            </div>
+          </footer>
+        }
+      </article>
+
+      <!-- ============ BOAS PRÁTICAS ============ -->
+      <aside class="px38-card px38-aviso">
+        <span class="px38-aviso-icone"><lucide-icon name="info" [size]="20" /></span>
+        <div>
+          <strong>Boas práticas de gestão de acessos</strong>
+          <p>
+            Revise periodicamente as permissões e perfis dos usuários para garantir a segurança dos
+            dados e conformidade da sua operação.
+          </p>
+        </div>
+        <a class="px38-btn-sec" routerLink="/app/admin/parametros">
+          <lucide-icon name="settings" [size]="16" />Parâmetros
+        </a>
+      </aside>
     }
-  }
-</section>
+  </section>
+</sep-operational-shell>

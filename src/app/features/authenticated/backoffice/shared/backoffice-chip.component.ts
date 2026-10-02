@@ -5,10 +5,11 @@ import { PRIORIDADE_ITEM_LABEL, STATUS_ITEM_FILA_LABEL } from './backoffice-form
 
 // Chip visual de prioridade OU status de item da fila. Recebe exatamente um dos dois; a cor
 // vem do data-attribute. Componente puramente apresentacional, reusado em lista, detalhe e
-// acoes; nao interpreta regra de negocio.
+// acoes; nao interpreta regra de negocio. O ng-content e opcional: telas que precisam do
+// icone semantico (Mockup 16) projetam um <lucide-icon>; as demais seguem so com o rotulo.
 @Component({
   selector: 'sep-backoffice-chip',
-  template: `{{ label() }}`,
+  template: `<ng-content />{{ label() }}`,
   styleUrl: './backoffice-chip.component.scss',
   host: {
     class: 'sep-bo-chip',

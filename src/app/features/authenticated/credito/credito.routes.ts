@@ -6,12 +6,13 @@ export const CREDITO_ROUTES: Routes = [
   {
     path: '',
     loadComponent: () => import('./credito-home.component').then((m) => m.CreditoHomeComponent),
+    data: { immersive: true },
   },
   {
     path: 'propostas',
     loadComponent: () =>
       import('./propostas/propostas-list-page.component').then((m) => m.PropostasListPageComponent),
-    data: { breadcrumb: 'Propostas' },
+    data: { breadcrumb: 'Propostas', immersive: true },
   },
   {
     path: 'propostas/nova',
@@ -19,7 +20,7 @@ export const CREDITO_ROUTES: Routes = [
       import('./propostas/proposta-create-page.component').then(
         (m) => m.PropostaCreatePageComponent,
       ),
-    data: { breadcrumb: 'Nova proposta' },
+    data: { breadcrumb: 'Nova proposta', immersive: true },
   },
   {
     path: 'propostas/:id',
@@ -27,18 +28,18 @@ export const CREDITO_ROUTES: Routes = [
       import('./propostas/proposta-detail-page.component').then(
         (m) => m.PropostaDetailPageComponent,
       ),
-    data: { breadcrumb: 'Detalhe da proposta' },
+    data: { breadcrumb: 'Detalhe da proposta', immersive: true },
   },
   {
     path: 'propostas/:id/open-finance',
     loadComponent: () =>
       import('./open-finance/open-finance-page.component').then((m) => m.OpenFinancePageComponent),
-    data: { breadcrumb: 'Open Finance' },
+    data: { breadcrumb: 'Open Finance', immersive: true },
   },
   {
     path: 'propostas/:id/open-finance/retorno',
     loadComponent: () =>
       import('./open-finance/open-finance-page.component').then((m) => m.OpenFinancePageComponent),
-    data: { breadcrumb: 'Open Finance', retorno: true },
+    data: { breadcrumb: 'Open Finance', retorno: true, immersive: true },
   },
 ];

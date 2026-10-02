@@ -1,100 +1,214 @@
-<section class="sep-setup-totp">
-  <header class="sep-setup-totp-header">
-    <a routerLink="/app/profile" class="sep-setup-totp-back">← Perfil</a>
-    <h1>Habilitar autenticação em duas etapas (TOTP)</h1>
-    <p>
-      Você vai escanear um QR code com um aplicativo autenticador (Google Authenticator, Authy,
-      1Password, etc.) e digitar o primeiro código gerado para concluir o setup. Salve os backup
-      codes em local seguro.
-    </p>
-  </header>
+<sep-operational-shell>
+  <section class="px34-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px34-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/profile">Meu perfil</a><span>›</span
+        ><strong>Habilitar MFA (TOTP)</strong>
+      </nav>
+      <h1>
+        <span class="px34-titulo-icone"><lucide-icon name="shield-check" [size]="21" /></span>
+        Habilitar autenticação em duas etapas (TOTP)
+      </h1>
+      <p class="px34-subtitulo">
+        Você vai escanear um QR code com um aplicativo autenticador (Google Authenticator, Authy,
+        1Password, etc.) e digitar o primeiro código gerado para concluir o setup.
+      </p>
+    </header>
 
-  @if (!setup() && !confirmado()) {
-    <div class="sep-setup-totp-intro">
-      <button
-        type="button"
-        class="sep-setup-totp-cta"
-        (click)="iniciar()"
-        [disabled]="loading()"
-        data-testid="sep-setup-totp-start"
-      >
-        @if (loading()) {
-          Gerando dados...
-        } @else {
-          Iniciar setup
+    @if (confirmado()) {
+      <!-- ============ SUCESSO: MFA ATIVO + CÓDIGOS DE BACKUP ============ -->
+      <article class="px34-card px34-sucesso" role="status">
+        <span class="px34-sucesso-icone"><lucide-icon name="circle-check" [size]="40" /></span>
+        <h2>Autenticação em duas etapas ativada</h2>
+        <p>A partir do próximo acesso, o SEP vai pedir o código do aplicativo além da sua senha.</p>
+
+        @if (setup()?.backupCodes?.length) {
+          <div class="px34-backup">
+            <h3><lucide-icon name="history" [size]="16" />Guarde seus códigos de backup</h3>
+            <p>
+              Cada código vale uma única vez, caso você perca o acesso ao aplicativo. Eles não serão
+              exibidos novamente.
+            </p>
+            <ul>
+              @for (codigo of setup()?.backupCodes ?? []; track codigo) {
+                <li>{{ codigo }}</li>
+              }
+            </ul>
+          </div>
         }
-      </button>
-      @if (errorMessage(); as msg) {
-        <p role="alert" class="sep-setup-totp-error">{{ msg }}</p>
-      }
-    </div>
-  }
 
-  @if (setup(); as dados) {
-    @if (!confirmado()) {
-      <div class="sep-setup-totp-panel">
-        <h2>1. Escaneie o QR code</h2>
-        <img
-          [src]="dados.qrCodeDataUrl"
-          alt="QR code para configurar TOTP"
-          class="sep-setup-totp-qr"
-          data-testid="sep-setup-totp-qr"
+        <button type="button" class="px34-btn-primary" (click)="voltarAoPerfil()">
+          <lucide-icon name="shield-check" [size]="17" />Voltar ao perfil
+        </button>
+      </article>
+    } @else {
+      <!-- ============ AVISO ============ -->
+      <div
+        class="px34-aviso"
+        [attr.data-tone]="errorMessage() ? (jaHabilitado() ? 'green' : 'red') : 'blue'"
+        [attr.role]="errorMessage() ? 'alert' : 'note'"
+      >
+        <lucide-icon
+          [name]="
+            $any(errorMessage() ? (jaHabilitado() ? 'circle-check' : 'triangle-alert') : 'info')
+          "
+          [size]="17"
         />
-        <p>Caso o app não consiga escanear, use a chave manual:</p>
-        <code class="sep-setup-totp-secret" data-testid="sep-setup-totp-secret">{{
-          dados.secretBase32
-        }}</code>
-
-        <h2>2. Guarde seus backup codes</h2>
         <p>
-          Cada código abaixo pode ser usado uma única vez caso você perca acesso ao app
-          autenticador. Imprima ou anote em local seguro — eles não serão exibidos de novo.
-        </p>
-        <ul class="sep-setup-totp-codes" data-testid="sep-setup-totp-backup-codes">
-          @for (codigo of dados.backupCodes; track codigo) {
-            <li>{{ codigo }}</li>
-          }
-        </ul>
-
-        <h2>3. Confirme com o primeiro código gerado</h2>
-        <form [formGroup]="form" (ngSubmit)="confirmar()">
-          <label>
-            <span>Código TOTP</span>
-            <input
-              type="text"
-              inputmode="numeric"
-              maxlength="6"
-              formControlName="codigo"
-              data-testid="sep-setup-totp-confirm-input"
-            />
-          </label>
           @if (errorMessage(); as msg) {
-            <p role="alert" class="sep-setup-totp-error">{{ msg }}</p>
+            {{ msg }}
+          } @else {
+            A autenticação em duas etapas aumenta significativamente a segurança da sua conta.
           }
-          <button
-            type="submit"
-            [disabled]="confirmando()"
-            class="sep-setup-totp-cta"
-            data-testid="sep-setup-totp-confirm"
-          >
-            @if (confirmando()) {
-              Confirmando...
-            } @else {
-              Confirmar e ativar MFA
-            }
-          </button>
-        </form>
+        </p>
       </div>
-    }
-  }
 
-  @if (confirmado()) {
-    <div class="sep-setup-totp-success" role="status" data-testid="sep-setup-totp-success">
-      <h2>MFA ativado</h2>
-      <p>Você já poderá usar o código TOTP no próximo login.</p>
-      <button type="button" class="sep-setup-totp-cta" (click)="voltarAoPerfil()">
-        Voltar ao perfil
-      </button>
-    </div>
-  }
-</section>
+      @if (jaHabilitado()) {
+        <article class="px34-card px34-encerrado">
+          <p>Nenhuma ação é necessária. Você já usa o código do aplicativo a cada acesso.</p>
+          <a class="px34-btn-primary" routerLink="/app/profile">
+            <lucide-icon name="shield-check" [size]="17" />Voltar ao perfil
+          </a>
+        </article>
+      } @else {
+        <!-- ============ COMO FUNCIONA ============ -->
+        <article class="px34-card px34-passos">
+          <h2>Como funciona</h2>
+          <ol>
+            @for (passo of passos; track passo.numero) {
+              <li>
+                <span class="px34-passo-numero">{{ passo.numero }}</span>
+                <div>
+                  <strong>{{ passo.titulo }}</strong>
+                  <small>{{ passo.descricao }}</small>
+                </div>
+              </li>
+            }
+          </ol>
+        </article>
+
+        <!-- ============ QR + CÓDIGO ============ -->
+        <article class="px34-card px34-setup">
+          <div class="px34-qr-lado">
+            <h2>1. Escaneie o QR code</h2>
+            @if (loading()) {
+              <p class="px34-carregando" role="status">Preparando o QR code...</p>
+            } @else if (setup(); as dados) {
+              <div class="px34-qr-moldura">
+                <img
+                  [src]="dados.qrCodeDataUrl"
+                  alt="QR code para configurar a autenticação em duas etapas"
+                  data-testid="sep-setup-totp-qr"
+                />
+              </div>
+
+              <div class="px34-ou"><span>ou</span></div>
+
+              <h2>2. Copie a chave secreta (manual)</h2>
+              <div class="px34-chave">
+                <code data-testid="sep-setup-totp-secret">{{ dados.secretBase32 }}</code>
+                <button
+                  type="button"
+                  class="px34-btn-icone"
+                  title="Copiar chave secreta"
+                  aria-label="Copiar chave secreta"
+                  (click)="copiarChave()"
+                >
+                  <lucide-icon [name]="$any(copiado() ? 'circle-check' : 'copy')" [size]="15" />
+                </button>
+              </div>
+              <small class="px34-chave-nota">Guarde esta chave em um local seguro.</small>
+            } @else {
+              <p class="px34-carregando">
+                Não foi possível carregar o QR code.
+                <button type="button" class="px34-btn-texto" (click)="iniciar()">
+                  <lucide-icon name="refresh-cw" [size]="14" />Tentar novamente
+                </button>
+              </p>
+            }
+          </div>
+
+          <div class="px34-codigo-lado">
+            <h2>3. Digite o código de 6 dígitos</h2>
+            <p class="px34-codigo-ajuda">
+              Abra o aplicativo autenticador e digite o código atual gerado.
+            </p>
+
+            <form [formGroup]="form" (ngSubmit)="confirmar()">
+              <label for="totp-codigo">
+                <span>Código de verificação</span>
+                <div class="px34-campo">
+                  <input
+                    #campoCodigo
+                    id="totp-codigo"
+                    type="text"
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                    maxlength="6"
+                    placeholder="Ex.: 123456"
+                    formControlName="codigo"
+                    [disabled]="!setup()"
+                    data-testid="sep-setup-totp-confirm-input"
+                  />
+                  <lucide-icon name="shield-check" [size]="17" />
+                </div>
+              </label>
+              <small class="px34-prazo">
+                <lucide-icon name="clock" [size]="14" />O código é atualizado a cada 30 segundos.
+              </small>
+
+              <button
+                type="submit"
+                class="px34-btn-primary"
+                [disabled]="confirmando() || !setup()"
+                data-testid="sep-setup-totp-confirm"
+              >
+                <lucide-icon name="lock" [size]="17" />
+                {{ confirmando() ? 'Ativando...' : 'Ativar autenticação' }}
+              </button>
+              <a class="px34-btn-sec" routerLink="/app/profile">
+                <lucide-icon name="x" [size]="17" />Cancelar
+              </a>
+            </form>
+          </div>
+        </article>
+
+        <!-- ============ DICAS ============ -->
+        <article class="px34-card px34-dicas">
+          <h2>Dicas e recomendações</h2>
+          <div class="px34-dicas-grid">
+            <section>
+              <span class="px34-dica-icone" data-tone="blue">
+                <lucide-icon name="lock" [size]="18" />
+              </span>
+              <div>
+                <strong>Mantenha seu dispositivo seguro</strong>
+                <small>Proteja seu celular com senha, biometria ou bloqueio de tela.</small>
+              </div>
+            </section>
+            <section>
+              <span class="px34-dica-icone" data-tone="green">
+                <lucide-icon name="history" [size]="18" />
+              </span>
+              <div>
+                <strong>Guarde códigos de backup</strong>
+                <small>Após ativar, salve os códigos de backup em um local seguro.</small>
+              </div>
+            </section>
+            <section>
+              <span class="px34-dica-icone" data-tone="purple">
+                <lucide-icon name="shield-check" [size]="18" />
+              </span>
+              <div>
+                <strong>Perdeu o acesso ao seu app?</strong>
+                <small>Use os códigos de backup ou entre em contato com o suporte.</small>
+              </div>
+            </section>
+          </div>
+        </article>
+      }
+    }
+  </section>
+</sep-operational-shell>

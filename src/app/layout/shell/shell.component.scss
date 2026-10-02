@@ -1,3 +1,5 @@
+@use "../../../styles/sep-responsivo" as resp;
+
 .sep-shell {
   display: flex;
   flex-direction: column;
@@ -26,7 +28,7 @@
 }
 
 .sep-shell-immersive {
-  background: #020814;
+  background: var(--sep-canvas);
 
   .sep-shell-body,
   .sep-shell-main,
@@ -37,11 +39,11 @@
   .sep-shell-content {
     padding: 0;
     overflow: hidden;
-    background: #020814;
+    background: var(--sep-canvas);
   }
 }
 
-@media (width <= 833px) {
+@include resp.ate-tablet {
   .sep-shell-body {
     flex-direction: column;
   }

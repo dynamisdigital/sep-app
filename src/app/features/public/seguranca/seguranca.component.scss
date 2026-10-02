@@ -1,0 +1,60 @@
+// ============ SEGURANÇA ============
+
+@use "../shared/site-tema" as site;
+
+:host {
+  @include site.tokens;
+}
+
+@include site.base("px50");
+
+.px50-conta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.px50-conta li {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 3px 10px;
+  align-items: center;
+  padding: 15px 18px;
+  border: 1px solid var(--site-linha);
+  border-radius: 13px;
+  background: var(--site-cartao);
+}
+
+.px50-conta lucide-icon {
+  display: grid;
+  grid-row: span 2;
+  color: var(--site-verde);
+  place-items: center;
+}
+
+.px50-conta strong {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.px50-conta span {
+  color: var(--site-suave);
+  font-size: 0.86rem;
+}
+
+// Janela panoramica: secoes lado a lado, cabendo na altura da tela (ver `site.painel`).
+@include site.painel("px50");
+
+// Os itens da conta sempre em duas colunas dentro da zona, como as grades (ver `site.painel`).
+@include site.panoramica {
+  .px50-conta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .px50-conta > :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}

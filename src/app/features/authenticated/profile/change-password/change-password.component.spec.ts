@@ -1,10 +1,14 @@
+import { importProvidersFrom } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { resetSenhasDev } from '../../../../../mocks/handlers';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { ChangePasswordComponent } from './change-password.component';
+import { LucideAngularModule } from 'lucide-angular';
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 
 async function flush(times = 5): Promise<void> {
   for (let i = 0; i < times; i += 1) {
@@ -19,7 +23,11 @@ async function waitForHttp(): Promise<void> {
 
 async function setup() {
   return render(ChangePasswordComponent, {
-    providers: [provideRouter([]), provideHttpClient()],
+    providers: [
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      provideRouter([]),
+      provideHttpClient(),
+    ],
   });
 }
 
@@ -36,6 +44,9 @@ async function logarAdmin(result: Awaited<ReturnType<typeof setup>>) {
 describe('ChangePasswordComponent', () => {
   beforeEach(() => {
     window.localStorage.clear();
+    // O mock passou a guardar a senha trocada: sem devolver a senha unica, o login do teste
+    // seguinte cai em 401 com a senha que o teste anterior definiu.
+    resetSenhasDev();
   });
 
   it('inicia com form invalido', async () => {

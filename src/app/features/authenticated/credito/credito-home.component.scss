@@ -1,68 +1,772 @@
-@use "../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../styles/sep-ds-components" as sepDs;
+@use "../../../../styles/sep-responsivo" as resp;
 
-.sep-credito-home {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-32);
-  max-width: 1200px;
+.credit-page {
+  /* Largura **preferida**, e nao piso: a area util tem 1191px em tela cheia, e exigir 1205
+     transbordava 126px justamente onde havia mais espaco. */
+
+  /* Sem teto de largura: a tela acompanha a area util, como as demais do sistema. O valor
+     de projeto era 1205px, e num monitor largo isso deixava o resto do espaco vazio. */
+  width: 100%;
+  min-width: 0;
   margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+  padding: 22px 0 24px;
+  color: var(--sep-text);
+  font-family: Inter, "Segoe UI", sans-serif;
+  box-sizing: border-box;
+
+  // O shell operacional é desenhado em uma base de 1600 px e reduzido pelo
+  // viewport de homologação. Esta compensação mantém o conteúdo do mockup 09
+  // nas proporções visuais originais sem alterar o shell compartilhado.
+  // 1.07 é o limite proporcional que mantém o resumo acima da trilha fixa
+  // de 97 px do rodapé operacional na resolução de homologação.
+  zoom: 1.07;
 }
 
-.sep-credito-home-header {
+.credit-page *,
+.credit-page *::before,
+.credit-page *::after {
+  box-sizing: border-box;
+}
+
+.credit-heading {
+  min-height: 128px;
   display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
-.sep-credito-home-title {
-  @include sepType.sep-type-page-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
-}
-
-.sep-credito-home-subtitle {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-credito-home-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--sep-space-16);
-}
-
-.sep-credito-home-card {
-  @include sepDs.sep-card;
-
+.credit-heading nav {
   display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-6);
-  padding: var(--sep-space-24);
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 13px;
+  font-size: 12px;
+  color: var(--sep-text-muted);
+}
+
+.credit-heading nav a {
+  color: var(--sep-text-muted);
   text-decoration: none;
-  color: inherit;
-  cursor: pointer;
-  transition: border-color 120ms ease;
+}
 
-  &:hover {
-    border-color: hsl(var(--primary));
+.credit-heading nav strong {
+  color: var(--sep-text);
+  font-weight: 500;
+}
+
+.credit-heading h1 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  font-size: 28px;
+  line-height: 36px;
+  letter-spacing: -0.6px;
+}
+
+.credit-heading h1 lucide-icon {
+  color: var(--sep-accent);
+  width: 26px;
+  height: 26px;
+}
+
+.credit-heading p {
+  margin: 6px 0 0;
+  color: var(--sep-text-muted);
+  font-size: 14px;
+}
+
+.approval-card {
+  min-width: 0;
+  width: 376px;
+  height: 110px;
+  display: grid;
+  grid-template-columns: 102px 1fr;
+  align-items: center;
+  padding: 0 18px 0 8px;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid var(--sep-accent);
+  border-radius: 11px;
+  background: linear-gradient(105deg, rgb(var(--sep-c-blue) / 22%), rgb(var(--sep-c-surf2) / 64%));
+  box-shadow:
+    inset 0 0 22px rgb(var(--sep-c-blue) / calc(12% * var(--sep-glow-alpha))),
+    0 0 18px rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha)));
+  overflow: hidden;
+}
+
+.approval-card > lucide-icon {
+  color: var(--sep-glow);
+  width: 60px;
+  height: 60px;
+}
+
+.approval-card span {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.approval-card strong {
+  color: var(--sep-success);
+  font-size: 14px;
+}
+
+.approval-card small {
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+}
+
+.approval-card b {
+  display: flex;
+  justify-content: space-between;
+  color: var(--sep-accent);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.approval-card i {
+  font-size: 20px;
+  font-style: normal;
+  line-height: 10px;
+}
+
+.credit-card {
+  border: 1px solid rgb(var(--sep-c-blue) / 85%);
+  border-radius: 10px;
+  background: linear-gradient(
+    135deg,
+    rgb(var(--sep-c-surf3) / 62%),
+    rgb(var(--sep-c-sunken) / 82%)
+  );
+  box-shadow:
+    inset 0 0 32px rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha))),
+    0 0 16px rgb(var(--sep-c-blue) / calc(7% * var(--sep-glow-alpha)));
+  overflow: hidden;
+  transition:
+    border-color 190ms ease,
+    box-shadow 190ms ease;
+}
+
+.credit-card:hover {
+  border-color: var(--sep-accent);
+  box-shadow:
+    inset 0 0 32px rgb(var(--sep-c-blue) / calc(13% * var(--sep-glow-alpha))),
+    0 0 21px rgb(var(--sep-c-blue) / calc(12% * var(--sep-glow-alpha)));
+}
+
+// Altura minima, e nao fixa: quando os indicadores quebram em duas linhas o cartao cresce com eles
+// em vez de recortar a segunda linha.
+.credit-metrics {
+  min-height: 137px;
+  display: grid;
+  grid-template-columns: 1.16fr 0.93fr 0.94fr 0.94fr;
+  padding: 15px 12px;
+}
+
+/* Largura natural desta fileira: 1083px depois que a coluna do simbolo passou a ter o tamanho
+   do desenho. Ate ai as colunas mantem a proporcao do mockup; abaixo disso passam a caber
+   quantas couberem. O piso de 210px (era 270) mantem os quatro numa linha ate ~900px: a 1280 a
+   area util e ~990px, e com 270 o quarto descia para uma segunda linha. */
+@container (max-width: 1079px) {
+  .credit-metrics {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
   }
 }
 
-.sep-credito-home-card-title {
-  @include sepType.sep-type-card-title;
+.credit-metrics article {
+  display: grid;
 
-  margin: 0;
-  color: hsl(var(--foreground));
+  // A coluna do simbolo acompanha o desenho (64px). Com os 94px herdados do PNG a fileira
+  // media 1203px e, num cartao de 1126px, o quarto indicador descia para uma segunda linha
+  // que a altura fixa do cartao nao comporta.
+  grid-template-columns: 64px 1fr;
+  align-items: center;
+  min-width: 0;
+  padding: 0 12px;
+  border-right: 1px solid rgb(var(--sep-c-edge) / 18%);
 }
 
-.sep-credito-home-card-body {
-  @include sepType.sep-type-body;
+.credit-metrics article:last-child {
+  border-right: 0;
+}
 
+.credit-metrics lucide-icon {
+  width: 64px;
+  height: 64px;
+  transition: transform 180ms ease;
+}
+
+.credit-metrics article:hover img {
+  transform: scale(1.05);
+}
+
+.credit-metrics span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.credit-metrics small {
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.credit-metrics strong {
+  margin: 7px 0 6px;
+  font-size: 26px;
+  line-height: 28px;
+  color: var(--sep-accent);
+}
+
+.credit-metrics em {
+  color: var(--sep-text-muted);
+  font-size: 11px;
+  font-style: normal;
+  white-space: nowrap;
+}
+
+// O icone acompanha o mesmo tom que o cartao ja aplicava ao numero.
+.credit-metrics [data-tone="green"] lucide-icon {
+  color: var(--sep-success);
+}
+
+.credit-metrics [data-tone="blue"] lucide-icon {
+  color: var(--sep-accent);
+}
+
+.credit-metrics [data-tone="amber"] lucide-icon {
+  color: var(--sep-warning);
+}
+
+.credit-metrics [data-tone="green"] strong {
+  color: var(--sep-success);
+}
+
+.credit-metrics [data-tone="amber"] strong {
+  color: var(--sep-warning);
+}
+
+.credit-primary-grid {
+  display: grid;
+
+  /* Proporcao do mockup (576:605) como fracao: cresce e encolhe com a area util. */
+  grid-template-columns: minmax(0, 576fr) minmax(0, 605fr);
+  gap: 24px;
+  margin-top: 12px;
+}
+
+/* Largura natural deste layout: 1205px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 1201px) {
+  .credit-primary-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.proposal-card,
+.new-proposal-card {
+  height: 327px;
+  padding: 20px 16px 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+// O icone acompanha o bloco de texto inteiro (titulo mais linha de apoio), e nao so a primeira
+// linha: com `flex-start` a caixa de 58px comecava no topo e o simbolo ficava acima do texto.
+.card-heading {
+  display: flex;
+  align-items: center;
   margin: 0;
-  color: hsl(var(--muted-foreground));
+}
+
+.card-heading > lucide-icon {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 58px;
+  margin-right: 10px;
+}
+
+.card-heading h2 {
+  margin: 3px 0 5px;
+  font-size: 16px;
+  line-height: 20px;
+}
+
+.card-heading p {
+  margin: 0;
+  color: var(--sep-text-muted);
+  font-size: 12px;
+  line-height: 19px;
+}
+
+.proposal-content {
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  align-items: center;
+  flex: 1;
+  min-height: 0;
+  padding: 2px 54px 3px 24px;
+}
+
+/* Largura natural deste layout: 464px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 460px) {
+  .proposal-content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// O donut era uma imagem: um PNG do desenho, que nao sabia dizer quantas propostas existem.
+// Agora o anel e o `conic-gradient` calculado no componente, e o furo do meio traz o total.
+.proposal-donut {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 168px;
+  height: 168px;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 8px rgb(var(--sep-c-blue) / calc(25% * var(--sep-glow-alpha))));
+  transition:
+    transform 180ms ease,
+    filter 180ms ease;
+}
+
+.proposal-donut::after {
+  position: absolute;
+  inset: 17%;
+  content: "";
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--sep-surface) 64%, var(--sep-surface-2) 100%);
+  box-shadow: inset 0 0 15px rgb(var(--sep-c-shadow) / 22%);
+}
+
+.proposal-donut span {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.proposal-donut strong {
+  color: var(--sep-text-strong);
+  font-size: 30px;
+  line-height: 1;
+}
+
+.proposal-donut small {
+  margin-top: 5px;
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+}
+
+.proposal-card:hover .proposal-donut {
+  transform: scale(1.04);
+  filter: drop-shadow(0 0 12px rgb(var(--sep-c-blue) / calc(52% * var(--sep-glow-alpha))));
+}
+
+.proposal-content dl {
+  margin: 0;
+  padding-left: 18px;
+  border-left: 1px solid rgb(var(--sep-c-edge) / 14%);
+}
+
+.proposal-content dl div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 31px;
+  border-bottom: 1px solid rgb(var(--sep-c-edge) / 12%);
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+}
+
+.proposal-content dl div:last-child {
+  border: 0;
+}
+
+.proposal-content dt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.proposal-content dt i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px
+    color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent);
+}
+
+.proposal-content dd {
+  margin: 0;
+  color: var(--sep-text);
+}
+
+.credit-button {
+  height: 46px;
+  flex: 0 0 46px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  border: 1px solid var(--sep-accent);
+  border-radius: 9px;
+  color: var(--sep-text);
+  text-decoration: none;
+  font-size: 14px;
+  background: rgb(var(--sep-c-blue) / 14%);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.credit-button .button-arrow {
+  position: absolute;
+  right: 24px;
+  font-size: 23px;
+  line-height: 1;
+}
+
+.credit-button.green {
+  border-color: var(--sep-success);
+  color: var(--sep-text);
+  background: linear-gradient(
+    90deg,
+    rgb(var(--sep-c-active) / 40%),
+    rgb(var(--sep-c-active) / 38%)
+  );
+}
+
+.credit-button:hover,
+.credit-button:focus-visible,
+.small-button:hover,
+.small-button:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 0 17px rgb(var(--sep-c-blue) / calc(30% * var(--sep-glow-alpha)));
+  outline: none;
+}
+
+.new-proposal-card {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.new-proposal-visual {
+  width: 359px;
+  height: 202px;
+  object-fit: contain;
+  align-self: center;
+}
+
+.credit-secondary-grid {
+  display: grid;
+
+  /* Proporcao do mockup (369:366:434) como fracao. */
+  grid-template-columns: minmax(0, 369fr) minmax(0, 366fr) minmax(0, 434fr);
+  gap: 18px;
+  margin-top: 12px;
+}
+
+/* Largura natural deste layout: 1202px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 1198px) {
+  .credit-secondary-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.small-card {
+  position: relative;
+  height: 215px;
+  padding: 14px 16px;
+}
+
+.small-card .card-heading > lucide-icon {
+  width: 58px;
+  height: 58px;
+  flex-basis: 58px;
+}
+
+.small-card .card-heading h2 {
+  margin-top: 5px;
+  font-size: 15px;
+}
+
+.how .card-heading span {
+  margin-left: 20px;
+}
+
+.small-card ul {
+  position: absolute;
+  left: 84px;
+  top: 50px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.how ul {
+  left: 104px;
+}
+
+.small-card li {
+  position: relative;
+  margin-bottom: 8px;
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+}
+
+.small-card li::before {
+  content: "✓";
+  position: absolute;
+  left: -23px;
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--sep-success);
+  background: rgb(var(--sep-c-active) / 25%);
+}
+
+.small-visual {
+  position: absolute;
+  right: 12px;
+  bottom: 8px;
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+}
+
+.security-visual {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 170px;
+  height: 170px;
+  object-fit: contain;
+}
+
+.small-button {
+  position: absolute;
+  left: 16px;
+  bottom: 14px;
+  min-width: 151px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 13px;
+  border: 1px solid var(--sep-accent);
+  border-radius: 8px;
+  color: var(--sep-accent);
+  font-size: 12px;
+  text-decoration: none;
+  background: rgb(var(--sep-c-blue) / 24%);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.small-button span {
+  font-size: 20px;
+}
+
+.small-button.green {
+  border-color: var(--sep-success);
+  color: var(--sep-success);
+  background: rgb(var(--sep-c-active) / 32%);
+}
+
+.security ul {
+  left: 111px;
+  top: 50px;
+}
+
+.security .small-button {
+  min-width: 168px;
+}
+
+.credit-summary {
+  height: 120px;
+  display: grid;
+  grid-template-columns: 284px 1fr 100px;
+  align-items: center;
+  margin-top: 12px;
+  padding: 12px 10px 12px 14px;
+}
+
+.summary-title {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  align-items: center;
+}
+
+.summary-title lucide-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.summary-title span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-title strong {
+  font-size: 15px;
+}
+
+.summary-title small,
+.credit-summary dt {
+  color: var(--sep-text-muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.summary-title b {
+  color: var(--sep-success);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.credit-summary dl {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: center;
+  margin: 0;
+  height: 60px;
+}
+
+.credit-summary dl div {
+  height: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  padding-left: 27px;
+  border-left: 1px solid rgb(var(--sep-c-edge) / 17%);
+}
+
+.credit-summary dd {
+  margin: 0;
+  color: var(--sep-text-secondary);
+  font-size: 13px;
+}
+
+.credit-summary .green-value {
+  color: var(--sep-success);
+}
+
+.credit-summary dd i {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: var(--sep-success);
+  box-shadow: 0 0 9px var(--sep-success);
+}
+
+.summary-calendar {
+  width: 82px;
+  height: 82px;
+  justify-self: center;
+  object-fit: contain;
+}
+
+@include resp.ate-ampla {
+  .credit-page {
+    transform-origin: top left;
+  }
+}
+
+@include resp.ate-tablet {
+  .credit-page {
+    width: 100%;
+    min-width: 0;
+    padding: 18px;
+    zoom: 1;
+  }
+
+  .credit-heading {
+    gap: 18px;
+  }
+
+  .approval-card {
+    width: 340px;
+  }
+
+  .credit-metrics {
+    height: auto;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .credit-metrics article:nth-child(2) {
+    border-right: 0;
+  }
+
+  .credit-primary-grid,
+  .credit-secondary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .proposal-card,
+  .new-proposal-card,
+  .small-card {
+    width: 100%;
+  }
+
+  .credit-summary {
+    height: auto;
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .summary-calendar {
+    display: none;
+  }
+}
+
+@include resp.ate-minima {
+  .credit-heading {
+    flex-direction: column;
+  }
+
+  .approval-card {
+    width: 100%;
+  }
+
+  .credit-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .credit-metrics article {
+    border-right: 0;
+    border-bottom: 1px solid rgb(var(--sep-c-edge) / 18%);
+  }
+
+  .proposal-content {
+    padding: 0;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .credit-summary dl {
+    grid-template-columns: repeat(2, 1fr);
+    height: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .credit-page * {
+    transition: none !important;
+  }
 }

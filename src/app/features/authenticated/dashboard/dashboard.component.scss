@@ -1,155 +1,653 @@
-@use "../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../styles/sep-ds-components" as sepDs;
+// ============ DASHBOARD — PORTA DE ENTRADA DA ÁREA AUTENTICADA ============
+// Sem arte de designer: construída na linguagem da tela de entrada homologada (Mockup 03) —
+// hexágonos, tons semânticos e neon controlado. Os acessos entram de cada lado e convergem para o
+// núcleo central, que é a imagem única da composição.
 
-.sep-dashboard {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-32);
-  max-width: 1200px;
-  margin: 0 auto;
-  padding-bottom: var(--sep-space-16);
+@use "../../../../styles/tela-operacional-tema" as tema;
+
+:host {
+  @include tema.tokens;
 }
 
-// ===== Header sticky translucido =====
+@include tema.base("px48");
 
-.sep-dashboard-header {
-  position: sticky;
-  top: var(--header-height);
-  z-index: 5;
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-4);
-  padding: var(--sep-space-16) 0 var(--sep-space-12);
-  background: color-mix(in srgb, hsl(var(--background)) 92%, transparent);
-  backdrop-filter: blur(6px);
+// ============ GRADE PRINCIPAL ============
+
+.px48-page {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(min-content, 1fr) min-content;
+  gap: 14px;
+  width: 100%;
+  height: 100%;
+  padding: 14px 26px 16px;
+  overflow: hidden auto;
+  background:
+    radial-gradient(circle at 50% 46%, rgb(var(--sep-c-blue) / 10%), transparent 42%),
+    radial-gradient(circle at 8% 84%, rgb(var(--sep-c-green) / 7%), transparent 34%),
+    radial-gradient(circle at 92% 18%, rgb(var(--sep-c-purple) / 7%), transparent 32%);
 }
 
-.sep-dashboard-heading {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sep-space-12);
+/* Malha de fundo, como na tela de entrada. */
+.px48-page::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  content: "";
+  background-image:
+    linear-gradient(rgb(var(--sep-c-cyan) / 5%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--sep-c-cyan) / 5%) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(circle at 50% 45%, var(--sep-canvas) 0%, transparent 72%);
+  pointer-events: none;
+}
+
+.px48-page > * {
+  position: relative;
+  z-index: 1;
+}
+
+// ============ CABEÇALHO ============
+
+.px48-boas-vindas {
+  display: block;
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.px48-heading {
+  animation: px48-entra-cima 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.px48-heading h1 {
+  margin-top: 2px;
+  font-size: 28px;
+  text-shadow: 0 0 26px rgb(var(--sep-c-cyan) / calc(30% * var(--sep-glow-alpha)));
+}
+
+.px48-subtitulo {
+  font-size: 14px;
+}
+
+// ============ CONSTELAÇÃO ============
+
+.px48-constelacao {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 372px) minmax(0, 1fr);
+  gap: 18px;
   align-items: center;
+  min-height: min-content;
 }
 
-.sep-dashboard-title {
-  @include sepType.sep-type-page-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
+/* Largura natural deste layout: 1140px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 1136px) {
+  .px48-constelacao {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
-.sep-dashboard-badge {
-  @include sepDs.sep-badge-soft(--primary);
-}
-
-.sep-dashboard-subtitle {
-  @include sepType.sep-type-caption;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-// ===== Secoes =====
-
-.sep-dashboard-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-12);
-}
-
-.sep-dashboard-section-title {
-  @include sepType.sep-type-menu-label;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-// ===== Acesso rapido (tiles coloridos) =====
-
-.sep-quick-grid {
+/* Os acessos se distribuem pela altura toda, com respiro igual acima, entre e abaixo, para a
+   coluna ocupar a área útil em vez de virar um bloco no meio. */
+.px48-lado {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: var(--sep-space-16);
+  align-content: space-evenly;
+  gap: 16px;
+  min-width: 0;
+  height: 100%;
+  padding: 4px 0;
 }
 
-.sep-quick-tile--primary {
-  @include sepDs.sep-quick-tile(--primary);
+.px48-lado-titulo {
+  margin: 0 0 2px;
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  animation: px48-surge 460ms ease 120ms both;
 }
 
-.sep-quick-tile--warning {
-  @include sepDs.sep-quick-tile(--warning);
+.px48-lado-dir .px48-lado-titulo:not(:first-child) {
+  margin-top: 10px;
 }
 
-.sep-quick-tile--devolutiva {
-  @include sepDs.sep-quick-tile(--devolutiva);
-}
+// ============ NÓ DE ACESSO ============
 
-.sep-quick-tile-label {
-  @include sepType.sep-type-button;
-}
-
-.sep-quick-tile-desc {
-  @include sepType.sep-type-micro;
-
-  color: hsl(var(--muted-foreground));
-}
-
-// ===== Proximas jornadas (cards com chip de icone) =====
-
-.sep-journey-grid {
+.px48-no {
+  position: relative;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: var(--sep-space-16);
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 2px 14px;
+  align-items: center;
+  min-width: 0;
+  padding: 13px 16px;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid rgb(var(--sep-c-active) / 90%);
+  border-radius: 13px;
+  background: linear-gradient(
+    135deg,
+    rgb(var(--sep-c-surf2) / 92%),
+    rgb(var(--sep-c-sunken) / 88%)
+  );
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s,
+    background 0.2s;
+
+  strong {
+    grid-row: 1;
+    grid-column: 2;
+    align-self: end;
+    overflow: hidden;
+    color: var(--sep-text);
+    font-size: 14.5px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  small {
+    display: -webkit-box;
+    grid-row: 2;
+    grid-column: 2;
+    overflow: hidden;
+    color: var(--muted-forte);
+    font-size: 12.5px;
+    line-height: 1.35;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
 }
 
-.sep-journey-card {
-  @include sepDs.sep-card;
+/* Hexágono com o ícone, o mesmo vocabulário das métricas da tela de entrada. */
+.px48-no-hex {
+  display: grid;
+  grid-row: 1 / 3;
+  grid-column: 1;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  color: var(--tone, var(--blue));
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 14%));
+  clip-path: polygon(25% 4%, 75% 4%, 100% 50%, 75% 96%, 25% 96%, 0 50%);
+  filter: drop-shadow(
+    0 0 10px
+      color-mix(
+        in srgb,
+        var(--tone-fundo, rgb(var(--sep-c-blue) / 30%)) calc(100% * var(--sep-glow-alpha)),
+        transparent
+      )
+  );
+  transition:
+    filter 0.2s,
+    transform 0.2s;
+}
 
+// No claro o hexagono nao ganha `filter`: com ele o navegador rasteriza o recorte e o icone
+// dentro numa camada, e o traco do Lucide saia serrilhado.
+:host-context(html:not(.dark)) .px48-no-hex,
+:host-context(html:not(.dark)) .px48-no:hover .px48-no-hex,
+:host-context(html:not(.dark)) .px48-no:focus-visible .px48-no-hex {
+  filter: none;
+}
+
+/* Haste que aponta para o núcleo e acende no foco. */
+.px48-no-haste {
+  position: absolute;
+  top: 50%;
+  width: 26px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--tone, var(--blue)), transparent);
+  box-shadow: 0 0 8px var(--tone-fundo, rgb(var(--sep-c-blue) / calc(40% * var(--sep-glow-alpha))));
+  opacity: 0.5;
+  transition:
+    opacity 0.2s,
+    width 0.2s;
+}
+
+.px48-lado-esq .px48-no-haste {
+  right: -26px;
+}
+
+.px48-lado-dir .px48-no-haste {
+  left: -26px;
+  background: linear-gradient(270deg, var(--tone, var(--blue)), transparent);
+}
+
+.px48-no:hover,
+.px48-no:focus-visible {
+  border-color: var(--tone-borda, rgb(var(--sep-c-blue) / 62%));
+  background: linear-gradient(135deg, rgb(var(--sep-c-surf3) / 96%), rgb(var(--sep-c-surf) / 92%));
+  box-shadow:
+    0 0 26px var(--tone-fundo, rgb(var(--sep-c-blue) / calc(30% * var(--sep-glow-alpha)))),
+    inset 0 0 22px var(--tone-fundo, rgb(var(--sep-c-blue) / calc(12% * var(--sep-glow-alpha))));
+}
+
+.px48-lado-esq .px48-no:hover,
+.px48-lado-esq .px48-no:focus-visible {
+  transform: translateX(6px);
+}
+
+.px48-lado-dir .px48-no:hover,
+.px48-lado-dir .px48-no:focus-visible {
+  transform: translateX(-6px);
+}
+
+.px48-no:hover .px48-no-hex,
+.px48-no:focus-visible .px48-no-hex {
+  filter: drop-shadow(0 0 18px var(--tone, var(--blue)));
+  transform: scale(1.08);
+}
+
+.px48-no:hover .px48-no-haste,
+.px48-no:focus-visible .px48-no-haste {
+  width: 40px;
+  opacity: 1;
+}
+
+// ============ NÚCLEO ============
+
+.px48-nucleo {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  place-items: center;
+  min-width: 0;
+  padding: 22px 18px 18px;
+  animation: px48-entra-nucleo 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.px48-nucleo-aneis {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.px48-anel {
+  position: absolute;
+  border: 1px solid rgb(var(--sep-c-cyan) / 22%);
+  border-radius: 50%;
+}
+
+.px48-anel-1 {
+  width: 208px;
+  height: 208px;
+  border-color: rgb(var(--sep-c-cyan) / 30%);
+  box-shadow:
+    0 0 30px rgb(var(--sep-c-cyan) / calc(18% * var(--sep-glow-alpha))),
+    inset 0 0 30px rgb(var(--sep-c-cyan) / calc(10% * var(--sep-glow-alpha)));
+  animation: px48-gira 26s linear infinite;
+}
+
+.px48-anel-2 {
+  width: 268px;
+  height: 268px;
+  border-style: dashed;
+  animation: px48-gira 42s linear infinite reverse;
+}
+
+.px48-anel-3 {
+  width: 328px;
+  height: 328px;
+  border-color: rgb(var(--sep-c-cyan) / 12%);
+  animation: px48-pulsa 5.5s ease-in-out infinite;
+}
+
+/* Largura explícita: sem isso a coluna do grid vira o max-content da própria imagem e o `100%` da
+   logo passa a se resolver contra ela mesma, travando no tamanho natural do arquivo. */
+.px48-nucleo-centro {
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  width: 100%;
+  text-align: center;
+
+  span {
+    max-width: 260px;
+    color: var(--muted-forte);
+    font-size: 12.5px;
+    line-height: 1.4;
+  }
+}
+
+/* O arquivo da marca tem 113x48 e é o único completo com fundo transparente. Exibido no tamanho
+   nativo (com o dobro reservado no atributo width para telas densas), fica nítido; ampliar para
+   preencher o núcleo era o que serrilhava. */
+.px48-nucleo-logo {
+  width: 128px;
+  height: auto;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 18px rgb(var(--sep-c-cyan) / calc(55% * var(--sep-glow-alpha))));
+  animation: px48-flutua 6s ease-in-out infinite;
+}
+
+.px48-nucleo-rodape {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+  margin-top: 14px;
+
+  span {
+    display: grid;
+    place-items: center;
+    gap: 1px;
+    padding: 9px 8px;
+    border: 1px solid rgb(var(--sep-c-active) / 90%);
+    border-radius: 11px;
+    background: rgb(var(--sep-c-surf) / 72%);
+  }
+
+  strong {
+    color: var(--blue);
+    font-size: 19px;
+    font-weight: 800;
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 11.5px;
+    text-align: center;
+  }
+}
+
+// ============ AVISO ============
+
+.px48-aviso {
   display: flex;
-  gap: var(--sep-space-12);
-  align-items: flex-start;
-  padding: var(--sep-space-24);
-  opacity: 0.85;
+  gap: 14px;
+  align-items: center;
+  min-height: min-content;
+  border-color: rgb(var(--sep-c-blue) / 32%);
+  background: linear-gradient(
+    160deg,
+    rgb(var(--sep-c-surf2) / 96%),
+    rgb(var(--sep-c-sunken) / 94%)
+  );
+  animation: px48-entra-baixo 560ms cubic-bezier(0.22, 1, 0.36, 1) 160ms both;
+
+  p {
+    margin: 0;
+    color: var(--muted-forte);
+    font-size: 13.5px;
+    line-height: 1.55;
+  }
 }
 
-.sep-journey-icon--primary {
-  @include sepDs.sep-icon-chip(--primary);
+.px48-aviso-icone {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  color: var(--blue);
+  border: 1px solid rgb(var(--sep-c-blue) / 45%);
+  border-radius: 999px;
+  background: rgb(var(--sep-c-blue) / 12%);
+  box-shadow: 0 0 18px rgb(var(--sep-c-blue) / calc(24% * var(--sep-glow-alpha)));
 }
 
-.sep-journey-icon--secondary {
-  @include sepDs.sep-icon-chip(--secondary);
+// ============ ENTRADA DOS WIDGETS ============
+// Cada nó entra do próprio lado, escalonado pela ordem, e a composição se fecha no núcleo.
+
+.px48-lado-esq .px48-no {
+  animation: px48-entra-esq 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(140ms + var(--ordem, 0) * 70ms);
 }
 
-.sep-journey-icon--devolutiva {
-  @include sepDs.sep-icon-chip(--devolutiva);
+.px48-lado-dir .px48-no {
+  animation: px48-entra-dir 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(140ms + var(--ordem, 0) * 70ms);
 }
 
-.sep-journey-icon--warning {
-  @include sepDs.sep-icon-chip(--warning);
+@keyframes px48-entra-esq {
+  from {
+    opacity: 0;
+    transform: translateX(-62px) scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
-.sep-journey-body {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: var(--sep-space-4);
+@keyframes px48-entra-dir {
+  from {
+    opacity: 0;
+    transform: translateX(62px) scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
-.sep-journey-title {
-  @include sepType.sep-type-card-title;
+@keyframes px48-entra-cima {
+  from {
+    opacity: 0;
+    transform: translateY(-26px);
+  }
 
-  color: hsl(var(--foreground));
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
-.sep-journey-desc {
-  @include sepType.sep-type-caption;
+@keyframes px48-entra-baixo {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
 
-  color: hsl(var(--muted-foreground));
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
-.sep-journey-tag {
-  @include sepDs.sep-badge-soft(--muted-foreground);
+@keyframes px48-entra-nucleo {
+  from {
+    opacity: 0;
+    transform: scale(0.82);
+  }
 
-  align-self: flex-start;
-  margin-top: var(--sep-space-4);
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes px48-surge {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes px48-gira {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes px48-pulsa {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.035);
+  }
+}
+
+@keyframes px48-flutua {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+// ============ TELAS BAIXAS E ESTREITAS ============
+
+/* Degraus de compactação: reduzem vão e respiro, nunca o tamanho do texto. */
+@include tema.resp-altura-densa {
+  .px48-page {
+    gap: 11px;
+    padding: 12px 24px 13px;
+  }
+
+  .px48-constelacao {
+    gap: 14px;
+  }
+
+  .px48-no {
+    padding: 11px 14px;
+  }
+
+  .px48-nucleo {
+    padding: 14px 14px 12px;
+  }
+
+  .px48-nucleo-logo {
+    margin-bottom: 8px;
+  }
+
+  .px48-lado {
+    gap: 13px;
+  }
+
+  .px48-anel-1 {
+    width: 188px;
+    height: 188px;
+  }
+
+  .px48-anel-2 {
+    width: 242px;
+    height: 242px;
+  }
+
+  .px48-anel-3 {
+    width: 296px;
+    height: 296px;
+  }
+}
+
+@include tema.resp-altura-baixa {
+  .px48-page {
+    gap: 9px;
+    padding: 10px 22px 11px;
+  }
+
+  .px48-lado {
+    gap: 8px;
+  }
+
+  .px48-no {
+    padding: 8px 13px;
+  }
+
+  .px48-heading h1 {
+    font-size: 25px;
+  }
+
+  .px48-nucleo {
+    padding: 10px 12px;
+  }
+
+  .px48-nucleo-centro strong {
+    font-size: 23px;
+  }
+
+  .px48-aviso p {
+    line-height: 1.45;
+  }
+
+  .px48-no-hex {
+    width: 46px;
+    height: 46px;
+  }
+
+  .px48-nucleo-logo {
+    margin-bottom: 6px;
+  }
+
+  .px48-nucleo-rodape {
+    margin-top: 10px;
+  }
+
+  .px48-anel-1 {
+    width: 168px;
+    height: 168px;
+  }
+
+  .px48-anel-2 {
+    width: 216px;
+    height: 216px;
+  }
+
+  .px48-anel-3 {
+    width: 264px;
+    height: 264px;
+  }
+
+  .px48-aviso-icone {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* Sem espaço para três colunas, o núcleo sai e os acessos ocupam a largura toda. */
+@include tema.resp-half {
+  .px48-constelacao {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .px48-nucleo,
+  .px48-no-haste {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .px48-heading,
+  .px48-aviso,
+  .px48-nucleo,
+  .px48-lado-titulo,
+  .px48-lado-esq .px48-no,
+  .px48-lado-dir .px48-no,
+  .px48-anel,
+  .px48-nucleo-logo {
+    animation: none;
+  }
+
+  .px48-no:hover,
+  .px48-no:focus-visible {
+    transform: none;
+  }
 }

@@ -1,274 +1,1341 @@
-@use "../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../styles/sep-ds-components" as sepDs;
+@use "../../../../styles/sep-responsivo" as resp;
 
-.sep-contrato-detail {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-24);
-  max-width: 720px;
+:host {
+  display: block;
+  min-width: 0;
+  color: var(--sep-text-strong);
+}
+
+/* stylelint-disable selector-pseudo-element-no-unknown -- Angular ::ng-deep */
+:host ::ng-deep .op-content:has(> .contract-page) {
+  display: block;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+a {
+  font: inherit;
+}
+
+.contract-page {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 14px 26px 8px;
+  overflow: hidden;
+  background: radial-gradient(circle at 82% 12%, rgb(var(--sep-c-blue) / 9%), transparent 32%);
+}
+
+.contract-layout {
+  width: min(1420px, 100%);
   margin: 0 auto;
-  padding: var(--sep-space-16) 0;
-}
-
-.sep-contrato-detail-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sep-space-16);
-}
-
-.sep-contrato-detail-title {
-  @include sepType.sep-type-page-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
-}
-
-.sep-contrato-detail-status {
-  @include sepType.sep-type-badge;
-
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-contrato-detail-state {
-  @include sepType.sep-type-body;
-
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-contrato-detail-error {
-  color: hsl(var(--warning));
-}
-
-.sep-contrato-detail-meta {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--sep-space-16);
+  grid-template-columns: minmax(0, 2.42fr) minmax(300px, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.contract-main,
+.contract-aside {
+  min-width: 0;
+}
+
+.contract-main {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.contract-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 0;
+}
+
+.panel,
+.purple-panel {
+  border: 1px solid rgb(var(--sep-c-blue) / 65%);
+  border-radius: 9px;
+  background: linear-gradient(
+    135deg,
+    rgb(var(--sep-c-surf2) / 97%),
+    rgb(var(--sep-c-sunken) / 96%)
+  );
+  box-shadow: inset 0 0 28px rgb(var(--sep-c-blue) / calc(3.5% * var(--sep-glow-alpha)));
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.purple-panel {
+  border-color: rgb(var(--sep-c-purple) / 62%);
+  background: linear-gradient(
+    145deg,
+    rgb(var(--sep-c-surf) / 97%),
+    rgb(var(--sep-c-surf) / 98%) 62%
+  );
+}
+
+.panel:hover {
+  border-color: rgb(var(--sep-c-blue) / 90%);
+  box-shadow:
+    inset 0 0 30px rgb(var(--sep-c-blue) / calc(7% * var(--sep-glow-alpha))),
+    0 0 18px rgb(var(--sep-c-blue) / calc(10% * var(--sep-glow-alpha)));
+}
+
+.purple-panel:hover {
+  border-color: rgb(var(--sep-c-purple) / 88%);
+  background: linear-gradient(
+    145deg,
+    rgb(var(--sep-c-surf2) / 98%),
+    rgb(var(--sep-c-surf) / 98%) 62%
+  );
+  box-shadow:
+    inset 0 0 30px rgb(var(--sep-c-blue) / calc(9% * var(--sep-glow-alpha))),
+    0 0 20px rgb(var(--sep-c-blue) / calc(12% * var(--sep-glow-alpha)));
+}
+
+.contract-state {
+  padding: 28px;
+  border: 1px solid var(--sep-accent);
+  border-radius: 9px;
+  background: var(--sep-surface-2);
+  font-size: 15px;
+}
+
+.contract-state.error,
+.accept-error,
+.document-error {
+  color: var(--sep-danger);
+}
+
+.contract-heading nav {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+  color: var(--sep-text-muted);
+  font-size: 11px;
+}
+
+.contract-heading a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.contract-heading strong {
+  color: var(--sep-text);
+}
+
+.contract-title-line {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.contract-heading h1 {
   margin: 0;
+  font-size: 28px;
+  line-height: 1.15;
+  letter-spacing: -0.3px;
 }
 
-.sep-contrato-detail-meta-item {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-4);
-
-  dt {
-    @include sepType.sep-type-caption;
-
-    margin: 0;
-    color: hsl(var(--muted-foreground));
-  }
-
-  dd {
-    @include sepType.sep-type-body;
-
-    margin: 0;
-    color: hsl(var(--foreground));
-  }
+.contract-heading p {
+  margin: 7px 0 0;
+  color: var(--sep-text-secondary);
+  font-size: 14px;
 }
 
-.sep-contrato-detail-aceite {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-  align-items: flex-start;
-}
-
-.sep-contrato-detail-aceite-cta {
-  @include sepDs.sep-button-primary;
-}
-
-.sep-contrato-detail-aceite-error {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--warning));
-}
-
-.sep-contrato-detail-aceite-info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-4);
-
-  p {
-    @include sepType.sep-type-body;
-
-    margin: 0;
-    color: hsl(var(--foreground));
-  }
-}
-
-.sep-contrato-detail-aceite-info .sep-contrato-detail-aceite-versao {
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-contrato-detail-assinatura {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-12);
-}
-
-.sep-contrato-detail-assinatura-title {
-  @include sepType.sep-type-card-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
-}
-
-.sep-contrato-detail-assinatura-aviso {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--warning));
-}
-
-.sep-contrato-detail-documento {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-  align-items: flex-start;
-}
-
-.sep-contrato-detail-documento-cta {
-  @include sepDs.sep-button-outline;
-}
-
-.sep-contrato-detail-versoes {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-}
-
-.sep-contrato-detail-versoes-label {
-  @include sepType.sep-type-caption;
-
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-contrato-detail-versoes-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sep-space-8);
-}
-
-.sep-contrato-detail-versao-tab {
-  @include sepType.sep-type-body;
-
+.contract-status,
+.status-small {
   display: inline-flex;
   align-items: center;
-  gap: var(--sep-space-6);
-  padding: var(--sep-space-4) var(--sep-space-12);
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--sep-radius-sm);
-  background: transparent;
-  color: hsl(var(--foreground));
+  min-height: 22px;
+  padding: 3px 10px;
+  border: 1px solid var(--sep-purple);
+  border-radius: 999px;
+  background: rgb(var(--sep-c-blue) / 15%);
+  color: var(--sep-purple);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 0 9px rgb(var(--sep-c-purple) / calc(13% * var(--sep-glow-alpha)));
+  transition:
+    filter 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.contract-status:hover,
+.status-small:hover {
+  filter: brightness(1.18);
+  box-shadow:
+    inset 0 0 7px rgb(var(--sep-c-purple) / calc(12% * var(--sep-glow-alpha))),
+    0 0 12px rgb(var(--sep-c-purple) / calc(32% * var(--sep-glow-alpha)));
+}
+
+.contract-summary {
+  min-height: 76px;
+  padding: 19px 20px;
+}
+
+.contract-summary dl {
+  display: grid;
+  grid-template-columns: 0.8fr 1.25fr 1.18fr 0.7fr 1.15fr 1fr;
+  margin: 0;
+}
+
+.contract-summary dl > div {
+  min-width: 0;
+  padding: 0 13px;
+  border-right: 1px solid rgb(var(--sep-c-edge) / 18%);
+}
+
+.contract-summary dl > div:first-child {
+  padding-left: 0;
+}
+
+.contract-summary dl > div:last-child {
+  padding-right: 0;
+  border: 0;
+}
+
+dt {
+  color: var(--sep-text-muted);
+  font-size: 12px;
+}
+
+dd {
+  margin: 5px 0 0;
+  color: var(--sep-text);
+  font-size: 14px;
+  font-weight: 650;
+}
+
+dd.cyan {
+  color: var(--sep-accent);
+}
+
+.version-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.version-tabs button {
+  padding: 7px 12px;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 6px;
+  background: var(--sep-surface);
+  color: var(--sep-text-muted);
   cursor: pointer;
-
-  &.is-active {
-    border-color: hsl(var(--primary));
-    color: hsl(var(--primary));
-  }
 }
 
-.sep-contrato-detail-versao {
+.version-tabs button.active {
+  border-color: var(--sep-accent);
+  color: var(--sep-accent);
+}
+
+.version-tabs small {
+  margin-left: 4px;
+  color: var(--sep-success);
+}
+
+.contract-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(292px, 1fr);
+  gap: 16px;
+}
+
+.document-card {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.document-card-expanded {
+  position: fixed;
+  z-index: 1000;
+  inset: 10px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: auto;
+  height: auto;
+  border-color: rgb(var(--sep-c-blue) / 90%);
+  box-shadow:
+    0 18px 70px rgb(var(--sep-c-shadow) / 78%),
+    0 0 35px rgb(var(--sep-c-blue) / calc(20% * var(--sep-glow-alpha)));
+}
+
+.document-card-expanded .document-viewer {
+  height: auto;
+  min-height: 0;
+}
+
+.document-card-expanded .document-sheet {
+  width: min(720px, calc(100% - 24px));
+}
+
+.document-card > header,
+.details-card > header {
+  min-height: 68px;
+  padding: 14px 17px;
   display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-16);
-}
-
-.sep-contrato-detail-versao-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--sep-space-16);
-}
-
-.sep-contrato-detail-versao-title {
-  @include sepType.sep-type-card-title;
-
-  display: inline-flex;
   align-items: center;
-  gap: var(--sep-space-8);
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid rgb(var(--sep-c-edge) / 18%);
+}
+
+.document-card h2,
+.details-card h2,
+.contract-aside h2 {
   margin: 0;
-  color: hsl(var(--foreground));
+  font-size: 18px;
 }
 
-.sep-contrato-detail-versao-vigente {
-  @include sepType.sep-type-caption;
-
-  color: hsl(var(--primary));
+.document-card h2 {
+  font-size: 21px;
+  color: var(--sep-text-strong);
+  letter-spacing: -0.15px;
 }
 
-.sep-contrato-detail-versao-data {
-  @include sepType.sep-type-caption;
-
-  color: hsl(var(--muted-foreground));
+.document-card header p {
+  margin: 4px 0 0;
+  color: var(--sep-text-secondary);
+  font-size: 12px;
 }
 
-.sep-contrato-detail-conteudo {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--foreground));
-  white-space: pre-wrap;
-}
-
-.sep-contrato-detail-clausulas {
+.document-tools {
   display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-16);
+  align-items: center;
+  gap: 7px;
+}
+
+.document-tools button {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 3px;
+  border: 1px solid rgb(var(--sep-c-edge) / 24%);
+  border-radius: 5px;
+  background: var(--sep-surface);
+  color: var(--sep-text-strong);
+  font-size: 25px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.document-tools lucide-icon {
+  display: block;
+  width: 31px;
+  height: 31px;
+  object-position: center;
+  filter: brightness(0) invert(1);
+  opacity: 0.96;
+}
+
+.document-tools button:nth-of-type(n + 3) lucide-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 38px;
+  height: 38px;
+  transform-origin: center;
+}
+
+.document-tools button:nth-of-type(3) img {
+  top: 50%;
+  transform: translate(-50%, -50%) translateY(9px) scale(1.12);
+}
+
+.document-tools button:nth-of-type(4) img {
+  top: 50%;
+  transform: translate(-50%, -50%) translateY(6px) scale(1.12);
+}
+
+.document-tools button:nth-of-type(5) img {
+  top: 50%;
+  transform: translate(-50%, -50%) translateY(7px) scale(1.12);
+}
+
+.document-tools button:nth-of-type(n + 3) {
+  position: relative;
+  overflow: hidden;
+}
+
+.document-tools button:nth-of-type(1),
+.document-tools button:nth-of-type(2) {
+  position: relative;
+  color: transparent;
+}
+
+.document-tools button:nth-of-type(1)::before,
+.document-tools button:nth-of-type(2)::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  color: var(--sep-text-strong);
+  font-size: 25px;
+  line-height: 1;
+  transform: translate(-50%, calc(-50% - 3px));
+}
+
+.document-tools button:nth-of-type(1)::before {
+  content: "−";
+}
+
+.document-tools button:nth-of-type(2)::before {
+  content: "+";
+}
+
+.document-tools strong {
+  display: grid;
+  place-items: center;
+  min-width: 40px;
+  height: 46px;
+  color: var(--sep-text-strong);
+  text-align: center;
+  font-size: 14px;
+}
+
+.document-viewer {
+  height: clamp(490px, 52vh, 570px);
+  padding: 12px;
+  overflow: auto;
+  background:
+    radial-gradient(circle at 48% 28%, rgb(var(--sep-c-muted) / 58%), transparent 54%),
+    linear-gradient(145deg, rgb(var(--sep-c-surf3) / 98%), rgb(var(--sep-c-canvas) / 99%) 72%);
+}
+
+.document-viewer {
+  scrollbar-width: thin;
+}
+
+.document-viewer::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+.document-viewer::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: hsl(var(--sep-scroll-track) / 70%);
+}
+
+.document-viewer::-webkit-scrollbar-thumb {
+  border: 1px solid rgb(var(--sep-c-canvas) / 90%);
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--sep-accent), var(--sep-accent));
+  box-shadow: 0 0 8px rgb(var(--sep-c-blue) / calc(45% * var(--sep-glow-alpha)));
+}
+
+.document-sheet {
+  width: min(520px, calc(100% - 10px));
+  min-height: 720px;
+  margin: 0 auto;
+  padding: 29px 33px;
+  background:
+    radial-gradient(circle at 22% 10%, rgb(var(--sep-c-muted) / 38%), transparent 38%),
+    linear-gradient(
+      145deg,
+      var(--sep-surface-hover) 0%,
+      var(--sep-surface-2) 46%,
+      var(--sep-surface) 100%
+    );
+  color: var(--sep-text);
+  box-shadow: 0 8px 34px rgb(var(--sep-c-shadow) / 60%);
+  transform-origin: top center;
+}
+
+.document-sheet > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--sep-border-strong);
+  padding-bottom: 9px;
+}
+
+.document-sheet > header img {
+  width: 126px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.document-sheet > header span {
+  font-size: 12px;
+  color: var(--sep-text-secondary);
+}
+
+.document-sheet h3 {
+  margin: 25px 0 19px;
+  text-align: center;
+  color: var(--sep-text-strong);
+  font-size: 21px;
+}
+
+.document-sheet p {
   margin: 0;
+  color: var(--sep-text);
+  font-size: 13px;
+  line-height: 1.7;
+  text-align: justify;
+}
+
+.document-sheet ol {
+  margin: 20px 0 0;
   padding: 0;
   list-style: none;
-  counter-reset: clausula;
 }
 
-.sep-contrato-detail-clausula {
+.document-sheet h4 {
+  margin: 20px 0 7px;
+  color: var(--sep-text-strong);
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.contract-introduction {
+  margin-top: 26px !important;
+}
+
+.document-card > footer {
   display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-4);
-}
-
-.sep-contrato-detail-clausula-titulo {
-  @include sepType.sep-type-body-semibold;
-
-  margin: 0;
-  color: hsl(var(--foreground));
-}
-
-.sep-contrato-detail-clausula-texto {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-  white-space: pre-wrap;
-}
-
-.sep-contrato-detail-hash {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-4);
-  margin: 0;
-}
-
-.sep-contrato-detail-hash-label {
-  @include sepType.sep-type-caption;
-
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-contrato-detail-hash-value {
-  font-family: monospace;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 7px;
+  min-height: 35px;
+  padding: 10px 15px;
+  color: var(--sep-text-secondary);
   font-size: 12px;
-  color: hsl(var(--muted-foreground));
+}
+
+.secure-icon {
+  display: grid;
+  place-items: center;
+  width: 21px;
+  height: 23px;
+  flex: 0 0 21px;
+  color: var(--sep-success);
+  font-size: 12px;
+  font-weight: 900;
+  border: 2px solid var(--sep-success);
+  border-radius: 7px 7px 10px 10px;
+  background: rgb(var(--sep-c-green) / 8%);
+  box-shadow: 0 0 10px rgb(var(--sep-c-green) / calc(20% * var(--sep-glow-alpha)));
+}
+
+.details-card {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 13px;
+}
+
+.details-card > header {
+  padding-inline: 14px;
+}
+
+.details-card header button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 28px;
+  padding: 5px 9px;
+  border: 1px solid rgb(var(--sep-c-blue) / 72%);
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgb(var(--sep-c-surf3) / 96%), rgb(var(--sep-c-blue) / 92%));
+  color: var(--sep-accent);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: inset 0 0 10px rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha)));
+  transition:
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease,
+    filter 180ms ease;
+}
+
+.details-card header button:hover,
+.details-card header button:focus-visible {
+  border-color: var(--sep-accent);
+  color: var(--sep-glow);
+  filter: brightness(1.12);
+  box-shadow:
+    inset 0 0 14px rgb(var(--sep-c-blue) / calc(15% * var(--sep-glow-alpha))),
+    0 0 15px rgb(var(--sep-c-blue) / calc(25% * var(--sep-glow-alpha)));
+  outline: none;
+}
+
+.details-card header button .details-download-icon {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--sep-text-strong);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.details-card > dl {
+  margin: 0;
+  padding: 16px 18px;
+}
+
+.details-card > dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgb(var(--sep-c-edge) / 18%);
+}
+
+.details-card > dl dt {
+  color: var(--sep-text-secondary);
+  font-size: 14px;
+}
+
+.details-card > dl dd {
+  margin: 0;
+  color: var(--sep-text-strong);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.details-card > label,
+.details-card > .hash-rotulo,
+.details-card > h3 {
+  display: block;
+  margin: 2px 14px 7px;
+  color: var(--sep-text-secondary);
+  font-size: 13px;
+}
+
+.hash-box {
+  display: flex;
+  align-items: center;
+  margin: 0 16px 15px;
+  min-height: 51px;
+  padding: 10px;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 5px;
+  background: var(--sep-surface);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.hash-box:hover,
+.hash-box:focus-within {
+  border-color: rgb(var(--sep-c-blue) / 70%);
+  box-shadow:
+    inset 0 0 12px rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha))),
+    0 0 13px rgb(var(--sep-c-blue) / calc(14% * var(--sep-glow-alpha)));
+}
+
+.hash-box code {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+  max-width: calc(100% - 50px);
+  color: var(--sep-text-muted);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.35;
+  letter-spacing: -0.85px;
+  overflow-wrap: anywhere;
+}
+
+.hash-box button {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: var(--sep-accent);
+}
+
+.integrity {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 16px 18px;
+  min-height: 61px;
+  padding: 11px;
+  border: 1px solid rgb(var(--sep-c-green) / 28%);
+  border-radius: 6px;
+  background: rgb(var(--sep-c-green) / 7%);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.integrity:hover {
+  border-color: rgb(var(--sep-c-green) / 72%);
+  background: rgb(var(--sep-c-green) / 10%);
+  box-shadow:
+    inset 0 0 15px rgb(var(--sep-c-green) / calc(8% * var(--sep-glow-alpha))),
+    0 0 15px rgb(var(--sep-c-green) / calc(14% * var(--sep-glow-alpha)));
+}
+
+.integrity .integrity-icon {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  fill: none;
+  stroke: var(--sep-success);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.integrity span,
+.party {
+  display: flex;
+  flex-direction: column;
+}
+
+.integrity strong,
+.party strong {
+  color: var(--sep-text-strong);
+  font-size: 13px;
+}
+
+.integrity strong {
+  color: var(--sep-success);
+}
+
+.integrity small,
+.party small {
+  margin-top: 3px;
+  color: var(--sep-text-muted);
+  font-size: 12px;
+}
+
+.party {
+  position: relative;
+  justify-content: center;
+  margin: 0 16px 11px;
+  height: 82px;
+  min-height: 82px;
+  padding: 11px 12px;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 5px;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.party:hover {
+  border-color: rgb(var(--sep-c-blue) / 62%);
+  background: rgb(var(--sep-c-surf3) / 88%);
+  box-shadow:
+    inset 0 0 13px rgb(var(--sep-c-blue) / calc(7% * var(--sep-glow-alpha))),
+    0 0 13px rgb(var(--sep-c-blue) / calc(11% * var(--sep-glow-alpha)));
+}
+
+.party em {
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  padding: 3px 7px;
+  border: 1px solid currentcolor;
+  border-radius: 999px;
+  background: rgb(var(--sep-c-blue) / 10%);
+  color: var(--sep-accent);
+  font-size: 11px;
+  font-weight: 700;
+  font-style: normal;
+  transform: translateY(-50%);
+  box-shadow: 0 0 9px rgb(var(--sep-c-blue) / calc(20% * var(--sep-glow-alpha)));
+  transition:
+    filter 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.party:hover em {
+  filter: brightness(1.18);
+  box-shadow:
+    inset 0 0 7px rgb(var(--sep-c-blue) / calc(12% * var(--sep-glow-alpha))),
+    0 0 12px rgb(var(--sep-c-blue) / calc(38% * var(--sep-glow-alpha)));
+}
+
+.party em.green {
+  background: rgb(var(--sep-c-green) / 9%);
+  color: var(--sep-success);
+  box-shadow: 0 0 9px rgb(var(--sep-c-green) / calc(20% * var(--sep-glow-alpha)));
+}
+
+.party:hover em.green {
+  box-shadow:
+    inset 0 0 7px rgb(var(--sep-c-green) / calc(12% * var(--sep-glow-alpha))),
+    0 0 12px rgb(var(--sep-c-green) / calc(40% * var(--sep-glow-alpha)));
+}
+
+.details-card > h3 + .party strong {
+  width: 160px;
+  max-width: calc(100% - 76px);
+  line-height: 1.35;
+}
+
+.details-card > h3 {
+  color: var(--sep-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.signature-state,
+.document-error,
+.document-hash {
+  margin: 8px 14px 0;
+  font-size: 11px;
+}
+
+.document-hash {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--sep-success);
+}
+
+.document-hash code {
+  color: var(--sep-text-muted);
   word-break: break-all;
 }
 
-.sep-contrato-detail-cobranca {
-  display: flex;
+.benefits {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  min-height: 110px;
+  padding: 18px;
 }
 
-.sep-contrato-detail-cobranca-link {
-  color: hsl(var(--primary));
-  text-decoration: none;
+.benefits article {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 13px;
+  border-right: 1px solid rgb(var(--sep-c-edge) / 20%);
+}
+
+.benefits article:first-child {
+  padding-left: 0;
+}
+
+.benefits article:last-child {
+  border: 0;
+  padding-right: 0;
+}
+
+.benefits lucide-icon {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+}
+
+.benefits span {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.benefits strong {
+  font-size: 12px;
+}
+
+.benefits small {
+  color: var(--sep-text-muted);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.billing-link {
+  align-self: flex-start;
+  color: var(--sep-accent);
+  font-size: 12px;
+}
+
+.contract-aside section {
+  padding: 22px;
+}
+
+.contract-aside header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.contract-aside header img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.accept-card header {
+  gap: 14px;
+}
+
+.accept-card {
+  padding-block: 28px !important;
+}
+
+.accept-card header lucide-icon {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 58px;
+}
+
+.accept-card header h2 {
+  color: var(--sep-text-strong);
+}
+
+.accept-card > p {
+  margin: 14px 0 14px 72px;
+  color: var(--sep-text-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.accept-card > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 34px;
+  padding: 11px 0;
+  border-block: 1px solid rgb(var(--sep-c-purple) / 22%);
+  color: var(--sep-text);
+  font-size: 12px;
+}
+
+.accept-card > div strong {
+  padding: 5px 10px;
+  border: 1px solid var(--sep-purple);
+  border-radius: 999px;
+  background: rgb(var(--sep-c-blue) / 15%);
+  color: var(--sep-purple);
+  box-shadow: 0 0 9px rgb(var(--sep-c-purple) / calc(15% * var(--sep-glow-alpha)));
+}
+
+.accept-card > button {
+  width: 100%;
+  min-height: 47px;
+  margin-top: 15px;
+  border: 1px solid var(--sep-accent);
+  border-radius: 10px;
+  background: linear-gradient(
+    90deg,
+    var(--sep-accent) 0%,
+    var(--sep-text-muted) 10%,
+    var(--sep-surface-hover) 32%,
+    var(--sep-surface-2) 50%,
+    var(--sep-surface-hover) 68%,
+    var(--sep-text-muted) 90%,
+    var(--sep-accent) 100%
+  );
+  color: var(--sep-on-solid);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 rgb(var(--sep-c-strong) / 20%),
+    0 0 22px rgb(var(--sep-c-purple) / calc(32% * var(--sep-glow-alpha)));
+  transition:
+    border-color 180ms ease,
+    filter 180ms ease,
+    box-shadow 180ms ease;
+}
+
+// No tema claro o acento e escuro e as superficies sao brancas: o degrade que passa por superficie
+// deixa o texto branco sem fundo. Aqui o botao vira preenchimento de acento cheio.
+:host-context(html:not(.dark)) .accept-card > button {
+  background: linear-gradient(
+    180deg,
+    var(--sep-accent),
+    color-mix(in srgb, var(--sep-accent) 82%, #000)
+  );
+}
+
+.accept-card > button:hover,
+.accept-card > button:focus-visible {
+  border-color: var(--sep-accent);
+  filter: brightness(1.14);
+  box-shadow:
+    inset 0 1px 0 rgb(var(--sep-c-strong) / 25%),
+    inset 0 0 16px rgb(var(--sep-c-blue) / calc(13% * var(--sep-glow-alpha))),
+    0 0 22px rgb(var(--sep-c-blue) / calc(38% * var(--sep-glow-alpha)));
+  outline: none;
+}
+
+.accept-card > button .accept-button-icon {
+  width: 25px;
+  height: 25px;
+  margin-right: 10px;
+  fill: none;
+  stroke: var(--sep-text-strong);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  background: transparent;
+  vertical-align: middle;
+}
+
+.accept-card > footer {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-top: 14px;
+  color: var(--sep-text-muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.accept-card > footer .accept-legal-icon {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  fill: none;
+  stroke: var(--sep-success);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.accepted {
+  color: var(--sep-success) !important;
+}
+
+.contract-timeline h2,
+.audit-card h2 {
+  margin-bottom: 19px;
+}
+
+.audit-card {
+  padding: 28px 20px !important;
+}
+
+.audit-card h2 {
+  margin-bottom: 11px;
+}
+
+.contract-timeline h2 {
+  font-size: 19px;
+}
+
+.contract-timeline ol {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.contract-timeline ol::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 12px;
+  bottom: 20px;
+  border-left: 1px dashed var(--sep-border-strong);
+}
+
+.contract-timeline li {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  min-height: 70px;
+}
+
+.contract-timeline b {
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 50%;
+  background: var(--sep-surface);
+  color: var(--sep-text-muted);
+  font-size: 11px;
+}
+
+.contract-timeline b lucide-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.contract-timeline .done b {
+  border-color: var(--sep-purple);
+  color: var(--sep-text-secondary);
+}
+
+.contract-timeline span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.contract-timeline strong {
+  font-size: 14px;
+}
+
+.contract-timeline small {
+  color: var(--sep-text-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.audit-card dl {
+  margin: 0;
+}
+
+.audit-card dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  position: relative;
+  padding: 7px 0 7px 32px;
+  border-bottom: 1px solid rgb(var(--sep-c-edge) / 18%);
+}
+
+.audit-card dd {
+  margin: 0;
+  font-size: 13px;
+}
+
+.audit-card dt {
+  color: var(--sep-text-muted);
+  font-size: 14px;
+}
+
+.audit-card dl div::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 25px;
+  height: 25px;
+
+  // Pseudo-elemento nao aceita componente, entao o vetor entra como mascara: a forma vem do
+  // SVG do Lucide e a cor, do token — que e o que devolve o comportamento de `currentColor`
+  // perdido quando o icone virava `background-image`.
+  background-color: var(--sep-accent);
+
+  // A URL vai por variavel: propriedade customizada atravessa qualquer pipeline de CSS sem
+  // reescrita, e foi o que fez a mascara sobreviver tambem ao servidor de desenvolvimento.
+  mask: var(--icone-auditoria) center/contain no-repeat;
+  transform: translateY(-50%);
+}
+
+.audit-card .audit-created::before {
+  // lucide: file-plus
+  --icone-auditoria: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z' /%3E %3Cpath d='M14 2v4a2 2 0 0 0 2 2h4' /%3E %3Cpath d='M9 15h6' /%3E %3Cpath d='M12 18v-6' /%3E%3C/svg%3E");
+}
+
+.audit-card .audit-sent::before {
+  // lucide: send
+  --icone-auditoria: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z' /%3E %3Cpath d='m21.854 2.147-10.94 10.939' /%3E%3C/svg%3E");
+}
+
+.audit-card .audit-viewed::before {
+  // lucide: eye
+  --icone-auditoria: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0' /%3E %3Ccircle cx='12' cy='12' r='3' /%3E%3C/svg%3E");
+}
+
+.audit-card .audit-ip::before {
+  // lucide: globe
+  --icone-auditoria: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10' /%3E %3Cpath d='M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20' /%3E %3Cpath d='M2 12h20' /%3E%3C/svg%3E");
+}
+
+.audit-card .audit-toggle {
+  display: block;
+  margin-top: 10px;
+  padding: 0;
+  border: 0;
+  color: var(--sep-accent);
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.audit-card .audit-toggle:hover,
+.audit-card .audit-toggle:focus-visible {
+  text-decoration: underline;
+  outline: none;
+}
+
+// Linhas do detalhe: sem o icone do resumo, e o hash quebra em vez de alargar a coluna.
+.audit-card .audit-extra div {
+  padding-left: 0;
+}
+
+.audit-card .audit-extra div::before {
+  content: none;
+}
+
+.audit-card .audit-extra dt {
+  flex: none;
+  font-size: 13px;
+}
+
+.audit-card .audit-extra dd {
+  min-width: 0;
+  text-align: right;
+}
+
+.audit-card .audit-hash dd {
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+}
+
+.accept-error {
+  font-size: 9px !important;
+}
+
+@include resp.ate-media {
+  .contract-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .contract-aside {
+    padding-top: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .contract-summary dl {
+    grid-template-columns: repeat(3, 1fr);
+    row-gap: 14px;
+  }
+
+  .contract-summary dl > div:nth-child(3) {
+    border: 0;
+  }
+}
+
+@include resp.ate-compacta {
+  .contract-page {
+    padding: 16px 12px;
+  }
+
+  .contract-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .benefits {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .contract-aside {
+    grid-template-columns: 1fr;
+  }
+
+  .contract-summary dl {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .contract-summary dl > div {
+    border: 0;
+  }
+
+  .contract-heading h1 {
+    font-size: 22px;
+  }
+}
+
+@media print {
+  @page {
+    size: a4 portrait;
+    margin: 14mm;
+  }
+
+  :host ::ng-deep .op-sidebar,
+  :host ::ng-deep .op-topbar,
+  :host ::ng-deep .op-footer,
+  :host ::ng-deep .op-back-link {
+    display: none !important;
+  }
+
+  :host ::ng-deep .op-dashboard,
+  :host ::ng-deep .op-main,
+  :host ::ng-deep .op-content {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    border: 0 !important;
+    background: var(--sep-surface-active) !important;
+  }
+
+  .contract-heading,
+  .contract-summary,
+  .version-tabs,
+  .details-card,
+  .benefits,
+  .billing-link,
+  .contract-aside,
+  .document-card > header,
+  .document-card > footer {
+    display: none !important;
+  }
+
+  .contract-page,
+  .contract-layout,
+  .contract-main,
+  .contract-workspace,
+  .document-card,
+  .document-viewer {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    border: 0 !important;
+    background: var(--sep-surface-active) !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  .document-sheet {
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: var(--sep-surface-2) !important;
+    background: var(--sep-surface-active) !important;
+    box-shadow: none !important;
+    zoom: 1 !important;
+  }
+
+  .document-sheet h3,
+  .document-sheet h4 {
+    color: var(--sep-surface-2) !important;
+  }
+
+  .document-sheet p,
+  .document-sheet > header span {
+    color: var(--sep-text-muted) !important;
+  }
+
+  .document-sheet > header img {
+    filter: none !important;
+  }
 }

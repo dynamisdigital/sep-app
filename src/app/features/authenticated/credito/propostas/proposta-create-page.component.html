@@ -1,88 +1,292 @@
-<section class="sep-proposta-create">
-  <header class="sep-proposta-create-header">
-    <h1 class="sep-proposta-create-title">Nova proposta</h1>
-    <a routerLink="/app/credito/propostas" class="sep-proposta-create-back"
-      >Voltar para propostas</a
-    >
-  </header>
+<sep-operational-shell>
+  <div class="proposal-create-page op-pagina-rolavel">
+    <main>
+      <header class="page-heading">
+        <nav aria-label="Navegação estrutural">
+          <a routerLink="/app/dashboard">Início</a><span>›</span
+          ><a routerLink="/app/credito">Crédito</a><span>›</span><strong>Nova proposta</strong>
+        </nav>
+        <h1>
+          Nova proposta de crédito
+          <lucide-icon name="shield-plus" [size]="28" [strokeWidth]="1.75" />
+        </h1>
+        <p>Solicite crédito a partir de um onboarding aprovado.</p>
+      </header>
 
-  <form
-    class="sep-proposta-create-form"
-    [formGroup]="form"
-    (ngSubmit)="solicitar()"
-    novalidate
-    autocomplete="off"
-  >
-    <div class="sep-proposta-create-field">
-      <label for="solicitacaoOnboardingId">Onboarding aprovado</label>
-      <input id="solicitacaoOnboardingId" type="text" formControlName="solicitacaoOnboardingId" />
-      @if (
-        form.controls.solicitacaoOnboardingId.touched &&
-        form.controls.solicitacaoOnboardingId.errors?.['required']
-      ) {
-        <p class="sep-proposta-create-error">Informe o onboarding aprovado.</p>
-      }
-    </div>
-
-    <div class="sep-proposta-create-field">
-      <label for="tipoOperacao">Tipo de operacao</label>
-      <select id="tipoOperacao" formControlName="tipoOperacao">
-        @for (tipo of tiposOperacao; track tipo) {
-          <option [value]="tipo">{{ tipo }}</option>
-        }
-      </select>
-    </div>
-
-    <div class="sep-proposta-create-field">
-      <label for="valorSolicitado">Valor solicitado (BRL)</label>
-      <input
-        id="valorSolicitado"
-        type="number"
-        inputmode="decimal"
-        min="0.01"
-        step="0.01"
-        formControlName="valorSolicitado"
-      />
-      @if (form.controls.valorSolicitado.touched && form.controls.valorSolicitado.invalid) {
-        <p class="sep-proposta-create-error">Informe um valor maior que zero.</p>
-      }
-    </div>
-
-    <div class="sep-proposta-create-field">
-      <label for="prazoMeses">Prazo (meses)</label>
-      <input
-        id="prazoMeses"
-        type="number"
-        inputmode="numeric"
-        min="1"
-        step="1"
-        formControlName="prazoMeses"
-      />
-      @if (form.controls.prazoMeses.touched && form.controls.prazoMeses.invalid) {
-        <p class="sep-proposta-create-error">Informe um prazo de pelo menos 1 mes.</p>
-      }
-    </div>
-
-    @if (onboardingPendente()) {
-      <div class="sep-proposta-create-feedback sep-proposta-create-feedback-error" role="alert">
-        <p>O onboarding informado ainda nao esta aprovado.</p>
-        <a routerLink="/app/onboarding">Acompanhar o onboarding</a>
+      <div class="analysis-alert">
+        <lucide-icon name="info" [size]="22" [strokeWidth]="2.25" />
+        <span
+          >A análise será realizada com base nas informações do seu perfil e nas políticas de
+          crédito da SEP.</span
+        >
       </div>
-    }
-    @if (errorMessage(); as msg) {
-      <p class="sep-proposta-create-feedback sep-proposta-create-feedback-error" role="alert">
-        {{ msg }}
-      </p>
-    }
 
-    <div class="sep-proposta-create-actions">
-      <button
-        type="submit"
-        class="sep-proposta-create-submit"
-        [disabled]="submitting() || form.invalid"
-      >
-        {{ submitting() ? 'Enviando...' : 'Solicitar credito' }}
-      </button>
-    </div>
-  </form>
-</section>
+      <form [formGroup]="form" (ngSubmit)="solicitar()" novalidate autocomplete="off">
+        <section class="form-section origin-section">
+          <h2>1. Origem da proposta</h2>
+          <div class="two-columns origin-fields">
+            <label>
+              <span>Onboarding aprovado <i title="Onboarding com análise concluída">i</i></span>
+              <span class="control with-icon onboarding-control">
+                <lucide-icon class="ic-azul" name="badge-check" [size]="20" [strokeWidth]="2.25" />
+                <select aria-label="Onboarding aprovado" formControlName="solicitacaoOnboardingId">
+                  <option value="">Selecione o onboarding</option>
+                  @for (onboarding of onboardingsAprovados; track onboarding.id) {
+                    <option [value]="onboarding.id">{{ onboarding.label }}</option>
+                  }
+                </select>
+                @if (onboardingSelecionado()) {
+                  <b>Aprovado</b>
+                }
+                <span class="select-arrow" aria-hidden="true"></span>
+              </span>
+              @if (
+                form.controls.solicitacaoOnboardingId.touched &&
+                form.controls.solicitacaoOnboardingId.errors?.['required']
+              ) {
+                <em class="field-error">Informe o onboarding aprovado.</em>
+              }
+            </label>
+            <label>
+              <span>Data de aprovação</span>
+              <span class="control with-icon readonly">
+                <lucide-icon
+                  class="ic-ciano"
+                  name="calendar-check"
+                  [size]="14"
+                  [strokeWidth]="2.25"
+                />
+                <output>{{
+                  onboardingSelecionado()?.dataAprovacao ?? 'Selecione um onboarding'
+                }}</output>
+              </span>
+            </label>
+          </div>
+        </section>
+
+        <section class="form-section details-section">
+          <h2>2. Detalhes da operação</h2>
+          <div class="two-columns operation-row">
+            <label>
+              <span>Tipo de operação <i title="Modalidade do crédito">i</i></span>
+              <span class="control with-icon">
+                <lucide-icon class="ic-roxo" name="trending-up" [size]="17" [strokeWidth]="2.25" />
+                <select aria-label="Tipo de operacao" formControlName="tipoOperacao">
+                  @for (tipo of tiposOperacao; track tipo) {
+                    <option [value]="tipo">{{ tipo }}</option>
+                  }
+                </select>
+              </span>
+            </label>
+            <label>
+              <span>Finalidade da operação <i title="Uso pretendido para o recurso">i</i></span>
+              <select formControlName="finalidade">
+                <option value="">Selecione a finalidade</option>
+                @for (finalidade of finalidades; track finalidade) {
+                  <option [value]="finalidade">{{ finalidade }}</option>
+                }
+              </select>
+            </label>
+          </div>
+
+          <div class="three-columns financial-row">
+            <label>
+              <span>Valor solicitado (BRL) <i title="Limite máximo de R$ 15.000,00">i</i></span>
+              <span class="money-control"
+                ><b>R$</b
+                ><input
+                  aria-label="Valor solicitado (BRL)"
+                  type="text"
+                  inputmode="numeric"
+                  [value]="valorSolicitadoTexto()"
+                  (input)="atualizarValorSolicitado($event)"
+                  (blur)="marcarValorComoTocado()"
+                  placeholder="0,00"
+              /></span>
+              @if (form.controls.valorSolicitado.touched && form.controls.valorSolicitado.invalid) {
+                <em class="field-error">{{
+                  form.controls.valorSolicitado.errors?.['max']
+                    ? 'O valor máximo de crédito é R$ 15.000,00.'
+                    : 'Informe um valor maior que zero.'
+                }}</em>
+              }
+            </label>
+            <label>
+              <span>Prazo (meses) <i title="Prazo para pagamento">i</i></span>
+              <select aria-label="Prazo (meses)" formControlName="prazoMeses">
+                <option [ngValue]="null">Selecione</option>
+                @for (prazo of prazos; track prazo) {
+                  <option [ngValue]="prazo">{{ prazo }}</option>
+                }
+              </select>
+              @if (form.controls.prazoMeses.touched && form.controls.prazoMeses.invalid) {
+                <em class="field-error">Informe um prazo de pelo menos 1 mes.</em>
+              }
+            </label>
+            <label>
+              <span>Carência (meses) <i title="Período antes da primeira parcela">i</i></span>
+              <select formControlName="carenciaMeses">
+                @for (carencia of carencias; track carencia) {
+                  <option [ngValue]="carencia">{{ carencia }}</option>
+                }
+              </select>
+            </label>
+          </div>
+
+          <label class="description-field">
+            <span
+              >Descrição / Observações (opcional) <i title="Informações complementares">i</i></span
+            >
+            <textarea
+              formControlName="descricao"
+              maxlength="500"
+              placeholder="Informe detalhes da sua necessidade de crédito..."
+            ></textarea>
+            <small>{{ form.controls.descricao.value.length }}/500</small>
+          </label>
+        </section>
+
+        <section class="simulation-section">
+          <h2>3. Simulação e condições</h2>
+          <div class="simulation-grid">
+            <article>
+              <lucide-icon class="ic-ciano" name="banknote" [size]="24" [strokeWidth]="2" /><span
+                ><small>Valor solicitado</small><strong>{{ moeda(valorAtual()) }}</strong></span
+              >
+            </article>
+            <article>
+              <lucide-icon class="ic-ciano" name="calendar" [size]="24" [strokeWidth]="2" /><span
+                ><small>Prazo</small><strong>{{ prazoAtual() }} meses</strong></span
+              >
+            </article>
+            <article>
+              <lucide-icon class="ic-verde" name="percent" [size]="20" [strokeWidth]="2.25" /><span
+                ><small>Taxa estimada (a.m.)</small
+                ><strong>{{ taxaEstimada().toFixed(2).replace('.', ',') }}%</strong></span
+              >
+            </article>
+            <article>
+              <lucide-icon class="ic-ciano" name="receipt" [size]="24" [strokeWidth]="2" /><span
+                ><small>Parcela estimada</small
+                ><strong>{{ moeda(parcelaEstimada()) }}</strong></span
+              >
+            </article>
+          </div>
+          <div class="conditions-note">
+            <lucide-icon name="shield" [size]="37" [strokeWidth]="1.25" />
+            <span
+              >As condições finais serão apresentadas após análise de crédito.<strong
+                >Valores acima são apenas uma simulação preliminar.</strong
+              ></span
+            >
+          </div>
+        </section>
+
+        @if (onboardingPendente()) {
+          <div class="form-feedback error" role="alert">
+            <span>O onboarding informado ainda nao esta aprovado.</span
+            ><a routerLink="/app/onboarding">Acompanhar o onboarding</a>
+          </div>
+        }
+        @if (errorMessage(); as msg) {
+          <p class="form-feedback error" role="alert">{{ msg }}</p>
+        }
+
+        <footer class="form-actions">
+          <button type="button" class="clear-button" (click)="limpar()">
+            <span>↻</span> Limpar campos
+          </button>
+          <button type="submit" class="submit-button" [disabled]="submitting() || form.invalid">
+            {{ submitting() ? 'Enviando...' : 'Enviar proposta' }}
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m3 11 17-7-7 17-2.5-7.5L3 11Z" />
+              <path d="m10.5 13.5 4-4" />
+            </svg>
+          </button>
+        </footer>
+      </form>
+    </main>
+
+    <aside class="proposal-sidebar">
+      <section class="summary-card side-card">
+        <h2>
+          <lucide-icon class="ic-ciano" name="calculator" [size]="31" [strokeWidth]="1.5" />Resumo
+          da proposta
+        </h2>
+        <dl>
+          <div>
+            <dt>Tipo de operação</dt>
+            <dd>{{ form.controls.tipoOperacao.value || '-' }}</dd>
+          </div>
+          <div>
+            <dt>Valor solicitado</dt>
+            <dd>{{ moeda(valorAtual()) }}</dd>
+          </div>
+          <div>
+            <dt>Prazo</dt>
+            <dd>{{ prazoAtual() }} meses</dd>
+          </div>
+          <div>
+            <dt>Carência</dt>
+            <dd>{{ form.controls.carenciaMeses.value }} meses</dd>
+          </div>
+          <div>
+            <dt>Taxa estimada (a.m.)</dt>
+            <dd>{{ taxaEstimada().toFixed(2).replace('.', ',') }}%</dd>
+          </div>
+          <div>
+            <dt>Parcela estimada</dt>
+            <dd>{{ moeda(parcelaEstimada()) }}</dd>
+          </div>
+          <hr />
+          <div>
+            <dt>IOF estimado</dt>
+            <dd>{{ moeda(iofEstimado()) }}</dd>
+          </div>
+          <div>
+            <dt>Custo total estimado</dt>
+            <dd>{{ moeda(custoTotal()) }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="side-card rules-card">
+        <h2>
+          <lucide-icon
+            class="ic-ciano"
+            name="shield-check"
+            [size]="20"
+            [strokeWidth]="2.25"
+          />Regras de crédito
+        </h2>
+        <ul>
+          <li>Análise automatizada e segura</li>
+          <li>Políticas baseadas em risco</li>
+          <li>Conformidade CMN 4.656/2018</li>
+          <li>Ambiente 100% regulado</li>
+        </ul>
+      </section>
+
+      <section class="side-card security-card">
+        <h2>
+          <lucide-icon class="ic-verde" name="lock" [size]="21" [strokeWidth]="2.25" />Segurança e
+          conformidade
+        </h2>
+        <p>Seus dados estão protegidos com criptografia de ponta a ponta.</p>
+        <strong>LGPD • ISO 27001 • CMN 4.656/2018</strong>
+      </section>
+
+      <section class="side-card help-card">
+        <h2>
+          <lucide-icon class="ic-ciano" name="headset" [size]="39" [strokeWidth]="1.25" />Precisa de
+          ajuda?
+        </h2>
+        <p>Nossa equipe está à disposição para ajudar em todas as etapas.</p>
+        <!-- Nao ha chat no SEP: o canal de atendimento e o formulario de contato. -->
+        <a class="help-link" href="/contato?assunto=Suporte" target="_blank" rel="noopener"
+          >Falar com o suporte <span>→</span></a
+        >
+      </section>
+    </aside>
+  </div>
+</sep-operational-shell>

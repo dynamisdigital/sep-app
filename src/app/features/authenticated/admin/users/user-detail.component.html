@@ -1,109 +1,279 @@
-<section class="sep-user-detail">
-  <header class="sep-user-detail-header">
-    <h1 class="sep-user-detail-title">Detalhe de usuário</h1>
-    <a routerLink="/app/admin/users" class="sep-user-detail-back">Voltar para lista</a>
-  </header>
-
-  @if (loading()) {
-    <p class="sep-user-detail-state" role="status">Carregando usuário...</p>
-  }
-
-  @if (errorMessage(); as msg) {
-    <p class="sep-user-detail-error" role="alert">{{ msg }}</p>
-  }
-
-  @if (usuario(); as u) {
-    <div class="sep-user-detail-grid">
-      <article class="sep-user-detail-card">
-        <h2 class="sep-user-detail-card-title">Identificação</h2>
-        <dl class="sep-user-detail-list">
-          <div class="sep-user-detail-row">
-            <dt>ID</dt>
-            <dd class="sep-user-detail-mono">{{ u.id }}</dd>
+<sep-operational-shell>
+  <section class="px39-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px39-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/admin">Administração</a><span>›</span
+        ><a routerLink="/app/admin/users">Usuários</a><span>›</span><strong>Detalhe</strong>
+      </nav>
+      <div class="px39-heading-row">
+        <div class="px39-titulo-wrap">
+          <span
+            class="px39-titulo-icone"
+            [attr.data-tone]="usuario() ? tomDoPapel(usuario()!.role) : 'blue'"
+          >
+            @if (usuario(); as u) {
+              {{ inicial(u.username) }}
+            } @else {
+              <lucide-icon name="user-check" [size]="24" />
+            }
+          </span>
+          <div>
+            <h1>Detalhe de usuário</h1>
+            <p class="px39-subtitulo">
+              Visualize as informações, permissões e histórico do usuário.
+            </p>
           </div>
-          <div class="sep-user-detail-row">
-            <dt>E-mail</dt>
-            <dd>{{ u.username }}</dd>
-          </div>
-          <div class="sep-user-detail-row">
-            <dt>Perfil</dt>
-            <dd>{{ u.role }}</dd>
-          </div>
-        </dl>
-      </article>
-
-      <article class="sep-user-detail-card">
-        <h2 class="sep-user-detail-card-title">Auditoria</h2>
-        <dl class="sep-user-detail-list">
-          <div class="sep-user-detail-row">
-            <dt>Criado em</dt>
-            <dd>{{ u.dataCriacao }}</dd>
-          </div>
-          <div class="sep-user-detail-row">
-            <dt>Modificado em</dt>
-            <dd>{{ u.dataModificacao }}</dd>
-          </div>
-          <div class="sep-user-detail-row">
-            <dt>Criado por</dt>
-            <dd class="sep-user-detail-mono">{{ u.criadoPor }}</dd>
-          </div>
-          <div class="sep-user-detail-row">
-            <dt>Modificado por</dt>
-            <dd class="sep-user-detail-mono">{{ u.modificadoPor }}</dd>
-          </div>
-        </dl>
-      </article>
-    </div>
-
-    <article class="sep-user-detail-card sep-user-detail-roles">
-      <h2 class="sep-user-detail-card-title">Roles cumulativas</h2>
-
-      @if (rolesCarregando()) {
-        <p class="sep-user-detail-state" role="status">Carregando roles...</p>
-      } @else if (rolesErro(); as msg) {
-        <p class="sep-user-detail-error" role="alert">{{ msg }}</p>
-      } @else {
-        <p class="sep-user-detail-principal">
-          Role principal: <strong>{{ rolePrincipal() }}</strong>
-        </p>
-
-        @if (ehProprioUsuario()) {
-          <p class="sep-user-detail-state">Você não pode alterar as próprias roles.</p>
-        }
-
-        <fieldset class="sep-user-detail-roles-set" [disabled]="ehProprioUsuario() || salvando()">
-          @for (role of rolesDisponiveis; track role) {
-            <label class="sep-user-detail-role">
-              <input type="checkbox" [checked]="selecao()[role]" (change)="alternarRole(role)" />
-              <span>{{ role }}</span>
-            </label>
-          }
-        </fieldset>
-
-        <div class="sep-user-detail-roles-actions">
+        </div>
+        <div class="px39-acoes-topo">
+          <a class="px39-btn-sec" routerLink="/app/admin/users">
+            <lucide-icon name="arrow-left" [size]="16" />Voltar
+          </a>
           <button
             type="button"
-            class="sep-user-detail-roles-save"
-            [disabled]="ehProprioUsuario() || selecaoVazia() || salvando()"
-            (click)="salvarRoles()"
+            class="px39-btn-primary"
+            disabled
+            title="Sem endpoint de edição de dados do usuário. As roles são editadas no cartão abaixo."
           >
-            {{ salvando() ? 'Salvando...' : 'Salvar roles' }}
+            <lucide-icon name="pencil" [size]="16" />Editar usuário
           </button>
-          @if (selecaoVazia()) {
-            <span class="sep-user-detail-state">Selecione ao menos uma role.</span>
-          }
-          @if (rolesSucesso(); as ok) {
-            <span class="sep-user-detail-success" role="status">{{ ok }}</span>
-          }
+          <button
+            type="button"
+            class="px39-btn-perigo"
+            disabled
+            title="Sem endpoint de suspensão de usuário"
+          >
+            <lucide-icon name="circle-x" [size]="16" />Suspender
+          </button>
         </div>
+      </div>
+    </header>
 
-        <p class="sep-user-detail-roles-audit">
-          Alterações de roles são auditadas no backend. A trilha detalhada de roles não é exibida na
-          web nesta versão.
+    @if (loading()) {
+      <p class="px39-estado" role="status">Carregando usuário...</p>
+    } @else if (errorMessage(); as msg) {
+      <div class="px39-estado px39-erro" role="alert">
+        <lucide-icon name="triangle-alert" [size]="18" />
+        <p>{{ msg }}</p>
+        <a class="px39-btn-sec" routerLink="/app/admin/users">
+          <lucide-icon name="arrow-left" [size]="16" />Voltar para a lista
+        </a>
+      </div>
+    } @else if (usuario(); as u) {
+      @if (criadoAgora()) {
+        <p class="px39-nota px39-nota-ok px39-nota-criado" role="status">
+          <lucide-icon name="circle-check" [size]="15" />
+          Usuário criado. A conta nasce como CLIENTE; os demais papéis escolhidos no cadastro são
+          aplicados no cartão de roles, com confirmação adicional.
         </p>
       }
-    </article>
-  } @else if (!loading() && !errorMessage()) {
-    <p class="sep-user-detail-state">Nenhum usuário carregado.</p>
-  }
-</section>
+      <!-- ============ DADOS E AUDITORIA ============ -->
+      <div class="px39-duplo">
+        <article class="px39-card px39-dados">
+          <h2>Dados do usuário</h2>
+          <dl>
+            <div>
+              <dt><lucide-icon name="fingerprint" [size]="16" />ID</dt>
+              <dd class="px39-mono">{{ u.id }}</dd>
+            </div>
+            <div>
+              <dt><lucide-icon name="mail" [size]="16" />E-mail</dt>
+              <dd>{{ u.username }}</dd>
+            </div>
+            <div>
+              <dt><lucide-icon name="building-2" [size]="16" />Perfil</dt>
+              <dd>
+                <span class="px39-selo" [attr.data-tone]="tomDoPapel(u.role)">{{ u.role }}</span>
+              </dd>
+            </div>
+            <div>
+              <dt><lucide-icon name="activity" [size]="16" />Situação</dt>
+              <dd>
+                <span class="px39-situacao" [attr.data-tone]="situacao().tom">
+                  <i aria-hidden="true"></i>{{ situacao().rotulo }}
+                </span>
+              </dd>
+            </div>
+          </dl>
+        </article>
+
+        <article class="px39-card px39-dados">
+          <h2>Status e auditoria</h2>
+          <dl>
+            <div>
+              <dt><lucide-icon name="calendar-days" [size]="16" />Criado em</dt>
+              <dd>{{ formatarDataHora(u.dataCriacao) }}</dd>
+            </div>
+            <div>
+              <dt><lucide-icon name="calendar-clock" [size]="16" />Modificado em</dt>
+              <dd>{{ formatarDataHora(u.dataModificacao) }}</dd>
+            </div>
+            <div>
+              <dt><lucide-icon name="monitor" [size]="16" />Criado por</dt>
+              <dd class="px39-mono">{{ u.criadoPor }}</dd>
+            </div>
+            <div>
+              <dt><lucide-icon name="user-check" [size]="16" />Modificado por</dt>
+              <dd class="px39-mono">{{ u.modificadoPor }}</dd>
+            </div>
+            <div>
+              <dt><lucide-icon name="key-round" [size]="16" />MFA</dt>
+              <dd>{{ u.mfaHabilitado ? 'Habilitado' : 'Não habilitado' }}</dd>
+            </div>
+          </dl>
+        </article>
+      </div>
+
+      <!-- ============ ROLES E PERMISSÕES ============ -->
+      <article class="px39-card px39-roles">
+        <header class="px39-secao-topo">
+          <span class="px39-secao-icone" data-tone="blue">
+            <lucide-icon name="lock" [size]="20" />
+          </span>
+          <div>
+            <h2>Roles e permissões</h2>
+            <p>
+              Perfil do usuário na plataforma e permissões associadas. Alterações de roles são
+              auditadas no backend e exigem confirmação adicional por TOTP.
+            </p>
+          </div>
+          @if (!ehProprioUsuario()) {
+            <button
+              type="button"
+              class="px39-btn-primary"
+              [disabled]="salvando() || selecaoVazia()"
+              (click)="salvarRoles()"
+            >
+              <lucide-icon name="check" [size]="16" />
+              {{ salvando() ? 'Salvando...' : 'Salvar roles' }}
+            </button>
+          }
+        </header>
+
+        @if (rolesCarregando()) {
+          <p class="px39-estado" role="status">Carregando roles...</p>
+        } @else {
+          <div class="px39-chips" role="group" aria-label="Roles do usuário">
+            @for (role of rolesDisponiveis; track role) {
+              <button
+                type="button"
+                class="px39-chip"
+                [class.px39-chip-ativo]="selecao()[role]"
+                [attr.data-tone]="tomDoPapel(role)"
+                [attr.aria-pressed]="selecao()[role]"
+                [disabled]="ehProprioUsuario() || salvando()"
+                [title]="
+                  ehProprioUsuario()
+                    ? 'O backend recusa a alteração das próprias roles'
+                    : 'Alternar a role ' + role
+                "
+                (click)="alternarRole(role)"
+              >
+                {{ role }}
+                @if (role === rolePrincipal()) {
+                  <small>principal</small>
+                }
+              </button>
+            }
+          </div>
+
+          @if (ehProprioUsuario()) {
+            <p class="px39-nota px39-nota-bloqueio" role="status">
+              <lucide-icon name="lock" [size]="15" />
+              Você não pode alterar as próprias roles: a decisão é do backend, que recusa a
+              auto-edição.
+            </p>
+          }
+          @if (rolesErro(); as msg) {
+            <p class="px39-nota px39-nota-erro" role="alert">
+              <lucide-icon name="triangle-alert" [size]="15" />{{ msg }}
+            </p>
+          }
+          @if (rolesSucesso(); as msg) {
+            <p class="px39-nota px39-nota-ok" role="status">
+              <lucide-icon name="circle-check" [size]="15" />{{ msg }}
+            </p>
+          }
+          @if (selecaoVazia() && !ehProprioUsuario()) {
+            <p class="px39-nota px39-nota-bloqueio" role="status">
+              <lucide-icon name="triangle-alert" [size]="15" />
+              Selecione ao menos uma role para salvar.
+            </p>
+          }
+
+          <div class="px39-permissoes">
+            <div>
+              <p class="px39-permissoes-titulo">Permissões principais:</p>
+              <ul>
+                @for (permissao of permissoes(); track permissao) {
+                  <li><lucide-icon name="circle-check" [size]="16" />{{ permissao }}</li>
+                }
+              </ul>
+            </div>
+            @if (vetorDeAcesso(); as vetor) {
+              <div class="px39-vetor">
+                <p class="px39-permissoes-titulo">Vetor de acesso:</p>
+                <span class="px39-selo" [attr.data-tone]="vetor.tom">{{ vetor.rotulo }}</span>
+                <p class="px39-vetor-descricao">{{ vetor.descricao }}</p>
+                <p class="px39-vetor-fonte">
+                  Leitura derivada da role principal. O backend não expõe catálogo de permissões.
+                </p>
+              </div>
+            }
+          </div>
+        }
+      </article>
+
+      <!-- ============ HISTÓRICO ============ -->
+      <article class="px39-card px39-historico">
+        <header class="px39-secao-topo">
+          <span class="px39-secao-icone" data-tone="purple">
+            <lucide-icon name="history" [size]="20" />
+          </span>
+          <div>
+            <h2>Histórico e atividades</h2>
+            <p>Eventos carimbados no cadastro do usuário.</p>
+          </div>
+          <button
+            type="button"
+            class="px39-btn-sec"
+            disabled
+            title="Sem endpoint de histórico de atividades do usuário"
+          >
+            <lucide-icon name="clock" [size]="16" />Ver histórico completo
+          </button>
+        </header>
+
+        <div class="px39-tabela-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Data/hora</th>
+                <th>Ação</th>
+                <th>Detalhes</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (evento of eventos(); track evento.quando + evento.acao) {
+                <tr>
+                  <td>{{ formatarDataHora(evento.quando) }}</td>
+                  <td>
+                    <span class="px39-selo" [attr.data-tone]="evento.tom">{{ evento.acao }}</span>
+                  </td>
+                  <td>{{ evento.detalhe }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <p class="px39-nota">
+          <lucide-icon name="info" [size]="15" />
+          A trilha traz apenas os eventos que o cadastro carimba com data e ator. Login e demais
+          atividades dependem de um endpoint de histórico.
+        </p>
+      </article>
+    }
+  </section>
+</sep-operational-shell>

@@ -1,3 +1,5 @@
+@use "../../../../styles/sep-responsivo" as resp;
+
 :host {
   display: block;
   height: 100vh;
@@ -18,7 +20,7 @@
   min-width: 0;
   min-height: 100%;
   height: auto;
-  color: #eef9ff;
+  color: var(--sep-text-strong);
 }
 
 .onboarding-heading {
@@ -31,7 +33,7 @@
   align-items: center;
   height: 18px;
   margin-bottom: 11px;
-  color: #7e96aa;
+  color: var(--sep-text-muted);
   font-size: 11px;
 }
 
@@ -41,7 +43,7 @@
 }
 
 .onboarding-heading nav strong {
-  color: #c6d8e5;
+  color: var(--sep-text-secondary);
   font-weight: 500;
 }
 
@@ -63,7 +65,7 @@
 
 .onboarding-heading > p {
   margin-top: 8px;
-  color: #a4b7c7;
+  color: var(--sep-text-secondary);
   font-size: 14px;
 }
 
@@ -78,35 +80,34 @@
   width: 249px;
   height: 66px;
   padding: 6px 14px 6px 8px;
-  border: 1px solid rgb(0 178 255 / 46%);
+  border: 1px solid rgb(var(--sep-c-cyan) / 46%);
   border-radius: 8px;
-  background: linear-gradient(120deg, rgb(2 25 42 / 92%), rgb(2 20 35 / 78%));
-  color: #dcebf4;
+  background: linear-gradient(120deg, rgb(var(--sep-c-surf2) / 92%), rgb(var(--sep-c-surf) / 78%));
+  color: var(--sep-text);
   font-size: 12px;
   line-height: 1.5;
 }
 
-.journey-toast img {
-  width: 52px;
-  height: 52px;
-  object-fit: contain;
+.journey-toast lucide-icon {
+  width: 36px;
+  height: 36px;
 }
 
 .journey-toast strong {
-  color: #08c9ff;
+  color: var(--sep-accent);
 }
 
 .onboarding-choice-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 551px), 1fr));
   gap: 30px;
   min-height: 0;
 }
 
 .onboarding-choice-card {
-  --card-accent: #24e4a5;
-  --card-border: rgb(36 228 165 / 68%);
-  --card-glow: rgb(13 207 145 / 14%);
+  --card-accent: var(--sep-success);
+  --card-border: rgb(var(--sep-c-green) / 68%);
+  --card-glow: rgb(var(--sep-c-green) / 14%);
 
   display: grid;
   grid-template-rows: 404px 108px 50px;
@@ -118,8 +119,8 @@
   border-radius: 12px;
   background:
     radial-gradient(circle at 78% 18%, var(--card-glow), transparent 40%),
-    linear-gradient(90deg, rgb(1 13 25 / 97%), rgb(3 31 47 / 94%));
-  box-shadow: inset 0 0 28px rgb(0 153 255 / 4%);
+    linear-gradient(90deg, rgb(var(--sep-c-sunken) / 97%), rgb(var(--sep-c-surf3) / 94%));
+  box-shadow: inset 0 0 28px rgb(var(--sep-c-blue) / calc(4% * var(--sep-glow-alpha)));
   transition:
     border-color 190ms ease,
     box-shadow 190ms ease,
@@ -127,9 +128,9 @@
 }
 
 .onboarding-choice-card.company {
-  --card-accent: #168dff;
-  --card-border: rgb(22 141 255 / 72%);
-  --card-glow: rgb(22 141 255 / 15%);
+  --card-accent: var(--sep-accent);
+  --card-border: rgb(var(--sep-c-blue) / 72%);
+  --card-glow: rgb(var(--sep-c-blue) / 15%);
 }
 
 .onboarding-choice-card:hover,
@@ -147,6 +148,15 @@
   gap: 20px;
   align-items: center;
   min-height: 0;
+}
+
+/* Largura natural deste layout: 511px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 507px) {
+  .choice-main {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .choice-visual {
@@ -182,7 +192,7 @@
 .choice-copy > p {
   max-width: 290px;
   margin-top: 12px;
-  color: #c6d6e1;
+  color: var(--sep-text-secondary);
   font-size: 15px;
   line-height: 1.55;
 }
@@ -201,21 +211,20 @@
   gap: 9px;
   align-items: center;
   min-height: 38px;
-  color: #b6c8d5;
+  color: var(--sep-text-secondary);
   font-size: 14px;
 }
 
-.choice-copy li img {
-  width: 39px;
-  height: 39px;
-  object-fit: contain;
+.choice-copy li lucide-icon {
+  width: 22px;
+  height: 22px;
 }
 
 .choice-benefits {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 253px), 1fr));
   align-items: center;
-  border-top: 1px solid rgb(72 158 190 / 26%);
+  border-top: 1px solid rgb(var(--sep-c-cyan) / 26%);
 }
 
 .choice-benefits > div {
@@ -228,13 +237,12 @@
 
 .choice-benefits > div + div {
   padding-left: 17px;
-  border-left: 1px solid rgb(72 158 190 / 22%);
+  border-left: 1px solid rgb(var(--sep-c-cyan) / 22%);
 }
 
-.choice-benefits img {
-  width: 82px;
-  height: 82px;
-  object-fit: contain;
+.choice-benefits lucide-icon {
+  width: 54px;
+  height: 54px;
   transition: transform 180ms ease;
 }
 
@@ -255,7 +263,7 @@
 
 .choice-benefits small {
   max-width: 175px;
-  color: #9eb2c1;
+  color: var(--sep-text-secondary);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -266,15 +274,15 @@
   align-items: center;
   height: 50px;
   padding: 0 28px;
-  border: 1px solid rgb(0 179 255 / 68%);
+  border: 1px solid rgb(var(--sep-c-blue) / 68%);
   border-radius: 11px;
-  background: linear-gradient(100deg, #076cc4, #17bd8a);
-  color: #fff;
+  background: linear-gradient(100deg, var(--sep-accent), var(--sep-success));
+  color: var(--sep-on-solid);
   font-size: 14px;
   font-weight: 600;
   text-align: center;
   text-decoration: none;
-  box-shadow: 0 0 13px rgb(0 174 255 / 18%);
+  box-shadow: 0 0 13px rgb(var(--sep-c-blue) / calc(18% * var(--sep-glow-alpha)));
   transition:
     filter 180ms ease,
     box-shadow 180ms ease,
@@ -282,7 +290,7 @@
 }
 
 .company .choice-action {
-  background: linear-gradient(100deg, #0939c3, #0753b8);
+  background: linear-gradient(100deg, var(--sep-accent), var(--sep-accent));
 }
 
 .choice-action i {
@@ -300,7 +308,7 @@
   height: 2px;
   border-radius: 2px;
   background: currentcolor;
-  box-shadow: 0 0 5px rgb(255 255 255 / 45%);
+  box-shadow: 0 0 5px rgb(var(--sep-c-shadow) / 45%);
   content: "";
 }
 
@@ -326,9 +334,13 @@
 
 .onboarding-reasons,
 .onboarding-trust {
-  border: 1px solid rgb(0 174 255 / 52%);
+  border: 1px solid rgb(var(--sep-c-blue) / 52%);
   border-radius: 11px;
-  background: linear-gradient(120deg, rgb(3 25 41 / 95%), rgb(2 18 32 / 88%));
+  background: linear-gradient(
+    120deg,
+    rgb(var(--sep-c-surf2) / 95%),
+    rgb(var(--sep-c-sunken) / 88%)
+  );
 }
 
 .onboarding-reasons {
@@ -338,7 +350,7 @@
 }
 
 .onboarding-reasons h2 {
-  color: #22d9ff;
+  color: var(--sep-accent);
   font-size: 14px;
   font-weight: 600;
 }
@@ -360,13 +372,12 @@
 
 .onboarding-reasons article + article {
   padding-left: 8px;
-  border-left: 1px solid rgb(72 158 190 / 23%);
+  border-left: 1px solid rgb(var(--sep-c-cyan) / 23%);
 }
 
-.onboarding-reasons article img {
-  width: 76px;
-  height: 76px;
-  object-fit: contain;
+.onboarding-reasons article lucide-icon {
+  width: 53px;
+  height: 53px;
 }
 
 .onboarding-reasons article span,
@@ -381,13 +392,13 @@
 }
 
 .onboarding-reasons article strong {
-  color: #dceaf3;
+  color: var(--sep-text);
   font-size: 14px;
 }
 
 .onboarding-reasons article small {
   max-width: 150px;
-  color: #8fa8ba;
+  color: var(--sep-text-muted);
   font-size: 13px;
   line-height: 1.5;
 }
@@ -399,6 +410,15 @@
   align-items: center;
   min-height: 0;
   padding: 8px 12px;
+}
+
+/* Largura natural deste layout: 1038px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 1034px) {
+  .onboarding-trust {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .trust-hud {
@@ -414,14 +434,14 @@
 .trust-copy p {
   max-width: 430px;
   margin-top: 10px;
-  color: #8ea5b7;
+  color: var(--sep-text-muted);
   font-size: 13px;
   line-height: 1.55;
 }
 
 .trust-badges {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
   gap: 12px;
 }
 
@@ -433,9 +453,9 @@
   min-width: 0;
   height: 66px;
   padding: 4px 6px;
-  border: 1px solid rgb(0 174 255 / 38%);
+  border: 1px solid rgb(var(--sep-c-blue) / 38%);
   border-radius: 9px;
-  background: rgb(2 27 44 / 55%);
+  background: rgb(var(--sep-c-surf2) / 55%);
   transition:
     border-color 180ms ease,
     box-shadow 180ms ease;
@@ -458,14 +478,13 @@
 }
 
 .trust-badges article:hover {
-  border-color: rgb(16 209 255 / 72%);
-  box-shadow: 0 0 15px rgb(0 174 255 / 12%);
+  border-color: rgb(var(--sep-c-blue) / 72%);
+  box-shadow: 0 0 15px rgb(var(--sep-c-blue) / calc(12% * var(--sep-glow-alpha)));
 }
 
-.trust-badges img {
-  width: 60px;
-  height: 60px;
-  object-fit: contain;
+.trust-badges lucide-icon {
+  width: 42px;
+  height: 42px;
 }
 
 .trust-badges article span {
@@ -487,13 +506,13 @@
 }
 
 .trust-badges small {
-  color: #9ab0bf;
-  font-size: 10px;
+  color: var(--sep-text-secondary);
+  font-size: 11px;
   line-height: 1.1;
   white-space: nowrap;
 }
 
-@media (width <= 1350px) {
+@include resp.ate-ampla {
   .onboarding-page {
     grid-template-rows: 86px 595px 180px 160px;
     gap: 12px;
@@ -529,7 +548,7 @@
   }
 }
 
-@media (width <= 1050px) {
+@include resp.ate-estreita {
   :host {
     height: auto;
     min-height: 100vh;
@@ -564,5 +583,28 @@
   .onboarding-page *::before,
   .onboarding-page *::after {
     transition-duration: 0.01ms !important;
+  }
+}
+
+// ============ JANELA MAXIMIZADA ============
+// Acima de 1440 as medidas homologadas viram piso e o layout acompanha o espaco. Nada aqui vale de
+// 1440 para baixo: a forma original fica intacta.
+@include resp.maximizada {
+  // Os motivos tinham teto de 150px e o par simbolo + texto ficava ilhado numa faixa de 312px.
+  // 68.8% da faixa de 218px (1440) ficam abaixo de 150, entao o crescimento comeca daqui.
+  .onboarding-reasons article {
+    grid-template-columns: 76px minmax(0, max(150px, 68.8%));
+  }
+
+  .onboarding-reasons article small {
+    max-width: max(150px, 100%);
+  }
+
+  // 610px viram piso dos selos: 54.85% da faixa de 1112px (1440) dao o mesmo, e os quatro selos
+  // crescem juntos em vez de ficarem travados em 195px cada.
+  @container (min-width: 1035px) {
+    .onboarding-trust {
+      grid-template-columns: 200px minmax(170px, 1fr) max(610px, 54.85%);
+    }
   }
 }

@@ -2,12 +2,7 @@
   <div class="landing-shell">
     <header class="landing-header">
       <a routerLink="/" class="landing-brand" aria-label="SEP - Página inicial">
-        <img
-          [src]="assetBase + '/logos/logo_sep_simbolo_header.png'"
-          alt=""
-          class="landing-brand-symbol"
-          aria-hidden="true"
-        />
+        <sep-logo variante="simbolo" class="landing-brand-symbol" rotulo="" />
         <span class="landing-brand-text">
           <strong>SEP</strong>
           <span>Sociedade de Empréstimo<br />entre Pessoas</span>
@@ -15,14 +10,25 @@
       </a>
 
       <nav class="landing-nav" aria-label="Navegação principal">
-        <a routerLink="/" fragment="credito-pj">Crédito PJ</a>
-        <a routerLink="/" fragment="seguranca">Segurança</a>
-        <a routerLink="/" fragment="como-funciona">Como funciona</a>
-        <a routerLink="/" fragment="sobre-sep">Sobre o SEP</a>
-        <a routerLink="/" fragment="contato">Contato</a>
+        <a routerLink="/credito-pj">Crédito PJ</a>
+        <a routerLink="/seguranca">Segurança</a>
+        <a routerLink="/como-funciona">Como funciona</a>
+        <a routerLink="/sobre-o-sep">Sobre o SEP</a>
+        <a routerLink="/contato">Contato</a>
       </nav>
 
-      <a routerLink="/login" class="landing-login">Entrar</a>
+      <div class="landing-header-actions">
+        <button
+          type="button"
+          class="landing-theme"
+          [attr.aria-label]="temaEscuro() ? 'Mudar para o tema claro' : 'Mudar para o tema escuro'"
+          [attr.aria-pressed]="!temaEscuro()"
+          (click)="alternarTema()"
+        >
+          <lucide-icon [name]="temaEscuro() ? 'sun' : 'moon'" [size]="20" [strokeWidth]="2" />
+        </button>
+        <a routerLink="/login" class="landing-login">Entrar</a>
+      </div>
     </header>
 
     <section class="hero-section" id="credito-pj" aria-labelledby="hero-title">
@@ -51,7 +57,7 @@
         <ul class="trust-badges" aria-label="Garantias institucionais">
           @for (badge of trustBadges; track badge.title) {
             <li>
-              <img [src]="badge.icon" [alt]="badge.title" />
+              <lucide-icon [name]="badge.icon" [size]="24" aria-hidden="true" [strokeWidth]="2" />
               <span>
                 <strong>{{ badge.title }}</strong>
                 {{ badge.description }}
@@ -64,21 +70,12 @@
       <aside class="platform-card" id="seguranca" aria-label="Plataforma SEP regulada">
         <div class="regulated-label">
           <span>Plataforma regulada</span>
-          <img
-            [src]="assetBase + '/icons/icon_plataforma_regulada_escudo_pequeno.png'"
-            alt=""
-            aria-hidden="true"
-          />
+          <lucide-icon class="ic-ciano" name="shield-check" [size]="19" [strokeWidth]="2.25" />
         </div>
 
         <div class="platform-identity">
           <div class="platform-logo" aria-label="SEP - Sociedade de Empréstimo entre Pessoas">
-            <img
-              [src]="assetBase + '/logos/logo_sep_simbolo_header.png'"
-              alt=""
-              class="platform-logo-symbol"
-              aria-hidden="true"
-            />
+            <sep-logo variante="simbolo" class="platform-logo-symbol" rotulo="" />
             <span class="platform-logo-text">
               <strong>SEP</strong>
               <span>Sociedade de Empréstimo<br />entre Pessoas</span>
@@ -90,17 +87,12 @@
           </div>
         </div>
 
-        <img
-          [src]="assetBase + '/visuals/visual_escudo_seguro_hud.png'"
-          alt=""
-          class="shield-hud"
-          aria-hidden="true"
-        />
+        <sep-arte nome="escudo-check" tom="ciano" class="shield-hud" />
 
         <ul class="platform-pills" aria-label="Controles da plataforma">
           @for (pill of platformPills; track pill.title) {
             <li>
-              <img [src]="pill.icon" [alt]="pill.title" />
+              <lucide-icon [name]="pill.icon" [size]="21" aria-hidden="true" [strokeWidth]="2.25" />
               <span>
                 <strong>{{ pill.title }}</strong>
                 {{ pill.description }}
@@ -117,7 +109,7 @@
         @for (step of workflowSteps; track step.title; let index = $index) {
           <article class="workflow-card">
             <span class="step-number">0{{ index + 1 }}</span>
-            <img [src]="step.icon" [alt]="step.title" />
+            <lucide-icon [name]="step.icon" [size]="54" aria-hidden="true" [strokeWidth]="1" />
             <div>
               <h3>{{ step.title }}</h3>
               <p>{{ step.description }}</p>
@@ -130,7 +122,7 @@
     <section class="indicators-section" id="sobre-sep" aria-label="Indicadores SEP">
       @for (indicator of indicators; track indicator.title) {
         <article class="indicator-item">
-          <img [src]="indicator.icon" [alt]="indicator.title" />
+          <lucide-icon [name]="indicator.icon" [size]="52" aria-hidden="true" [strokeWidth]="1" />
           <div>
             <h3>{{ indicator.title }}</h3>
             <p>{{ indicator.description }}</p>
@@ -141,22 +133,17 @@
 
     <footer class="landing-footer" id="contato">
       <div class="footer-brand">
-        <img
-          [src]="assetBase + '/logos/logo_sep_simbolo_footer.png'"
-          alt=""
-          class="footer-logo"
-          aria-hidden="true"
-        />
+        <sep-logo variante="simbolo" class="footer-logo" rotulo="" />
         <strong>SEP</strong>
         <p>SEP — Sociedade de Empréstimo entre Pessoas. Capital de giro PJ.</p>
       </div>
 
       <nav class="footer-links" aria-label="Links institucionais">
-        <a routerLink="/" fragment="sobre-sep">Sobre o SEP</a>
-        <a routerLink="/" fragment="seguranca">Segurança</a>
-        <a routerLink="/">Privacidade</a>
-        <a routerLink="/">Termos de uso</a>
-        <a routerLink="/" fragment="contato">Contato</a>
+        <a routerLink="/sobre-o-sep">Sobre o SEP</a>
+        <a routerLink="/seguranca">Segurança</a>
+        <a routerLink="/politica-de-privacidade">Privacidade</a>
+        <a routerLink="/termos-de-uso">Termos de uso</a>
+        <a routerLink="/contato">Contato</a>
       </nav>
 
       <p class="legal-copy">

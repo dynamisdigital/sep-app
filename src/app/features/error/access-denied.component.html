@@ -1,0 +1,47 @@
+<sep-operational-shell>
+  <section class="px42-page">
+    <!-- ============ COMPOSIÇÃO CENTRAL ============ -->
+    <div class="px42-centro">
+      <!-- Decoração do desenho: o cadeado fantasma à esquerda e a malha de pontos à direita. -->
+      <span class="px42-fantasma" aria-hidden="true">
+        <lucide-icon name="lock-keyhole" [size]="210" />
+      </span>
+      <span class="px42-malha" aria-hidden="true"></span>
+
+      <div class="px42-bloco">
+        <span class="px42-emblema" aria-hidden="true">
+          <lucide-icon name="lock" [size]="34" />
+        </span>
+
+        <article class="px42-card" aria-labelledby="px42-titulo">
+          <p class="px42-codigo">403</p>
+          <h1 id="px42-titulo">Acesso negado</h1>
+          <p class="px42-mensagem">Seu perfil não possui permissão para acessar esta área.</p>
+
+          @if (papel(); as role) {
+            <p class="px42-papel">
+              <lucide-icon name="shield" [size]="15" />
+              <span
+                >Você está autenticado como <strong>{{ role }}</strong
+                >.</span
+              >
+            </p>
+          }
+
+          <hr />
+
+          <a class="px42-btn-primary" routerLink="/app/dashboard">
+            <lucide-icon name="layout-dashboard" [size]="18" />Voltar ao dashboard
+          </a>
+        </article>
+      </div>
+
+      <p class="px42-ajuda">
+        <lucide-icon name="info" [size]="16" /><span
+          >Se você acredita que isso é um erro, entre em contato com o
+          <a routerLink="/app/profile">administrador</a>.</span
+        >
+      </p>
+    </div>
+  </section>
+</sep-operational-shell>

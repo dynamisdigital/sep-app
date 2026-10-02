@@ -33,13 +33,30 @@ describe('CreditoService', () => {
         service.criarProposta({
           solicitacaoOnboardingId: ONBOARDING_APROVADO,
           tipoOperacao: 'CAPITAL_GIRO',
-          valorSolicitado: 10000,
+          valorSolicitado: 1250,
           prazoMeses: 12,
         }),
       );
 
       expect(proposta.id).toBeTruthy();
       expect(proposta.status).toBe('EM_ANALISE');
+      expect(proposta.valorSolicitado).toBe(1250);
+      expect(proposta.prazoMeses).toBe(12);
+
+      const propostaRegistrada = await awaitObservable(service.consultarProposta(proposta.id));
+      expect(propostaRegistrada).toMatchObject({
+        solicitacaoOnboardingId: ONBOARDING_APROVADO,
+        tipoOperacao: 'CAPITAL_GIRO',
+        valorSolicitado: 1250,
+        prazoMeses: 12,
+      });
+
+      const minhasPropostas = await awaitObservable(service.listarPropostas());
+      expect(minhasPropostas.content[0]).toMatchObject({
+        id: proposta.id,
+        valorSolicitado: 1250,
+        prazoMeses: 12,
+      });
     });
 
     it('criarProposta() rejeita com 422 quando onboarding nao esta APROVADO_FINAL', async () => {
@@ -48,7 +65,7 @@ describe('CreditoService', () => {
           service.criarProposta({
             solicitacaoOnboardingId: ONBOARDING_NAO_APROVADO,
             tipoOperacao: 'CAPITAL_GIRO',
-            valorSolicitado: 10000,
+            valorSolicitado: 1250,
             prazoMeses: 12,
           }),
         ),
@@ -58,7 +75,7 @@ describe('CreditoService', () => {
     it('listarPropostas() retorna pagina com os status do tomador', async () => {
       const page = await awaitObservable(service.listarPropostas());
 
-      expect(page.content.length).toBe(4);
+      expect(page.content.length).toBe(8);
       expect(page.content.map((p) => p.status)).toContain('PRE_APROVADA');
       expect(page.empty).toBe(false);
     });

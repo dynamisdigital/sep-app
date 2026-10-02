@@ -1,67 +1,193 @@
-<section class="sep-credora-cadastro">
-  <header class="sep-credora-cadastro-header">
-    <h1 class="sep-credora-cadastro-title">Cadastrar credora</h1>
-    <a routerLink="/app/credora" class="sep-credora-cadastro-back">Voltar para a jornada credora</a>
-  </header>
+<sep-operational-shell>
+  <section class="px36-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px36-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/credora">Credora</a><span>›</span><strong>Cadastro</strong>
+      </nav>
+      <div class="px36-heading-row">
+        <div class="px36-titulo-wrap">
+          <span class="px36-titulo-icone"><lucide-icon name="building-2" [size]="24" /></span>
+          <div>
+            <h1>Cadastrar credora</h1>
+            <p class="px36-subtitulo">
+              O cadastro parte de um onboarding PJ aprovado do seu usuário.<br />
+              Razão social, CNPJ e elegibilidade são derivados do onboarding pelo backend.
+            </p>
+          </div>
+        </div>
+        <a class="px36-btn-sec" routerLink="/app/credora">
+          <lucide-icon name="arrow-left" [size]="16" />Voltar para a jornada credora
+        </a>
+      </div>
+    </header>
 
-  <p class="sep-credora-cadastro-intro">
-    O cadastro parte de um onboarding PJ aprovado do seu usuario. Razao social, CNPJ e elegibilidade
-    sao derivados do onboarding pelo backend.
-  </p>
+    <!-- ============ FORMULÁRIO ============ -->
+    <form class="px36-card px36-form" [formGroup]="form" (ngSubmit)="cadastrar()" novalidate>
+      <h2>Informações da credora</h2>
 
-  <form
-    class="sep-credora-cadastro-form"
-    [formGroup]="form"
-    (ngSubmit)="cadastrar()"
-    novalidate
-    autocomplete="off"
-  >
-    <div class="sep-credora-cadastro-field">
-      <label for="onboardingId">Onboarding PJ aprovado</label>
-      <input id="onboardingId" type="text" formControlName="onboardingId" />
-      @if (form.controls.onboardingId.touched && form.controls.onboardingId.errors?.['required']) {
-        <p class="sep-credora-cadastro-error">Informe o onboarding PJ aprovado.</p>
-      }
-    </div>
+      <div class="px36-aviso" role="note">
+        <lucide-icon name="info" [size]="17" />
+        <p>Os dados de identificação são obtidos do seu onboarding PJ e não podem ser alterados.</p>
+      </div>
 
-    <div class="sep-credora-cadastro-field">
-      <label for="tipoCredora">Tipo de credora</label>
-      <select id="tipoCredora" formControlName="tipoCredora">
-        @for (tipo of tiposCredora; track tipo) {
-          <option [value]="tipo">{{ tipoLabel[tipo] }}</option>
+      <label class="px36-campo" for="razaoSocial">
+        <span>Razão social</span>
+        <input
+          id="razaoSocial"
+          type="text"
+          disabled
+          placeholder="Empresa Exemplo Ltda."
+          [value]="razaoSocial() ?? ''"
+        />
+      </label>
+
+      <label class="px36-campo" for="cnpj">
+        <span>CNPJ</span>
+        <input
+          id="cnpj"
+          type="text"
+          disabled
+          placeholder="12.345.678/0001-90"
+          [value]="cnpj() ?? ''"
+        />
+      </label>
+
+      <label class="px36-campo" for="onboardingId">
+        <span>Onboarding PJ</span>
+        <div class="px36-onboarding">
+          <input
+            id="onboardingId"
+            type="text"
+            formControlName="onboardingId"
+            placeholder="Identificador do onboarding PJ aprovado"
+            autocomplete="off"
+            (blur)="consultarOnboarding()"
+          />
+          @if (consultando()) {
+            <span class="px36-chip" data-tone="blue">Consultando...</span>
+          } @else if (situacaoOnboarding(); as situacao) {
+            <span class="px36-chip" [attr.data-tone]="aprovado() ? 'green' : 'amber'">
+              <lucide-icon
+                [name]="$any(aprovado() ? 'circle-check' : 'triangle-alert')"
+                [size]="13"
+              />{{ situacao }}
+            </span>
+            @if (aprovadoEm(); as quando) {
+              <small>Aprovado em {{ quando }}</small>
+            }
+          }
+        </div>
+        @if (form.controls.onboardingId.touched && form.controls.onboardingId.invalid) {
+          <small class="px36-erro-campo">
+            Informe o identificador do onboarding PJ aprovado.
+          </small>
+        } @else if (onboardingErro(); as msg) {
+          <small class="px36-erro-campo">{{ msg }}</small>
+        } @else {
+          <small class="px36-ajuda">
+            Não sabe o identificador?
+            <a routerLink="/app/onboarding">Ver meus onboardings</a>
+          </small>
         }
-      </select>
-    </div>
+      </label>
 
-    <div class="sep-credora-cadastro-field">
-      <label for="capacidadeAporte">Capacidade de aporte (BRL, opcional)</label>
-      <input
-        id="capacidadeAporte"
-        type="number"
-        inputmode="decimal"
-        min="0.01"
-        step="0.01"
-        formControlName="capacidadeAporte"
-      />
-      @if (form.controls.capacidadeAporte.touched && form.controls.capacidadeAporte.invalid) {
-        <p class="sep-credora-cadastro-error">
-          Informe um valor maior que zero ou deixe em branco.
-        </p>
+      <hr />
+
+      <h2 class="px36-h2-secundario">Dados complementares</h2>
+
+      <div class="px36-linha-dupla">
+        <label class="px36-campo" for="tipoCredora">
+          <span>Tipo de credora <em>*</em></span>
+          <select id="tipoCredora" formControlName="tipoCredora">
+            @for (tipo of tiposCredora; track tipo) {
+              <option [value]="tipo">{{ tipoLabel[tipo] }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="px36-campo" for="capacidadeAporte">
+          <span>Capacidade de aporte (BRL, opcional)</span>
+          <div class="px36-campo-moeda">
+            <span class="px36-prefixo">R$</span>
+            <input
+              id="capacidadeAporte"
+              type="text"
+              sepMask="moeda"
+              placeholder="Ex.: 500.000,00"
+              formControlName="capacidadeAporte"
+            />
+          </div>
+          @if (form.controls.capacidadeAporte.touched && form.controls.capacidadeAporte.invalid) {
+            <small class="px36-erro-campo">
+              Informe um valor maior que zero ou deixe em branco.
+            </small>
+          }
+        </label>
+      </div>
+
+      @if (errorMessage(); as msg) {
+        <div class="px36-aviso" data-tone="red" role="alert">
+          <lucide-icon name="triangle-alert" [size]="17" />
+          <p>{{ msg }}</p>
+        </div>
       }
-    </div>
 
-    @if (errorMessage(); as msg) {
-      <p class="sep-credora-cadastro-feedback" role="alert">{{ msg }}</p>
-    }
-
-    <div class="sep-credora-cadastro-actions">
       <button
         type="submit"
-        class="sep-credora-cadastro-submit"
+        class="px36-btn-primary"
         [disabled]="submitting() || form.invalid"
+        [title]="form.invalid ? 'Informe o onboarding PJ aprovado para continuar' : ''"
       >
+        <lucide-icon name="lock" [size]="18" />
         {{ submitting() ? 'Cadastrando...' : 'Cadastrar credora' }}
       </button>
-    </div>
-  </form>
-</section>
+
+      <p class="px36-termos">
+        <lucide-icon name="lock" [size]="15" />
+        Ao cadastrar, você concorda com os
+        <a routerLink="/app/credora">termos de uso</a> e
+        <a routerLink="/app/credora">política de privacidade</a>.
+      </p>
+    </form>
+
+    <!-- ============ COLUNA LATERAL ============ -->
+    <aside class="px36-side">
+      <section class="px36-card px36-sobre">
+        <h2>Sobre a credora</h2>
+        <span class="px36-sobre-icone"><lucide-icon name="building-2" [size]="30" /></span>
+        <p>
+          A credora é a pessoa jurídica que disponibiliza recursos na plataforma para realização de
+          operações de crédito.
+        </p>
+        <hr />
+        <ul>
+          @for (item of sobre; track item.titulo) {
+            <li>
+              <span class="px36-sobre-item-icone">
+                <lucide-icon [name]="$any(item.icone)" [size]="17" />
+              </span>
+              <div>
+                <strong>{{ item.titulo }}</strong>
+                <small>{{ item.descricao }}</small>
+              </div>
+            </li>
+          }
+        </ul>
+      </section>
+
+      <section class="px36-card px36-requisitos">
+        <h2>Requisitos</h2>
+        <ul>
+          @for (requisito of requisitos; track requisito) {
+            <li>
+              <lucide-icon name="circle-check" [size]="16" />
+              <span>{{ requisito }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+    </aside>
+  </section>
+</sep-operational-shell>

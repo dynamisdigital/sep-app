@@ -1,70 +1,376 @@
-<section class="sep-desembolsos">
-  <header class="sep-desembolsos-header">
-    <h1 class="sep-desembolsos-title">Desembolsos Pix</h1>
-    <p class="sep-desembolsos-subtitle">
-      Desembolso assistido para contratos elegiveis e consulta de status de transferencia.
-    </p>
-  </header>
-
-  @if (podeSolicitar()) {
-    <form class="sep-desembolsos-card" [formGroup]="form" (ngSubmit)="solicitar()">
-      <h2 class="sep-desembolsos-subtitle">Novo desembolso</h2>
-      <p class="sep-desembolsos-aviso" role="note">
-        Operacao assistida e sensivel: exige confirmacao adicional (step-up) antes de enviar ao
-        provedor. A chave Pix do destinatario nao e armazenada nem reexibida.
+<sep-operational-shell>
+  <main class="px21-page">
+    <header class="px21-heading">
+      <p>
+        <a routerLink="/app/dashboard">Início</a><i>›</i><a routerLink="/app/pix">Pix</a><i>›</i
+        ><strong>Desembolsos</strong>
       </p>
-
-      <label class="sep-desembolsos-field" for="des-contrato">
-        <span>Contrato</span>
-        <input
-          id="des-contrato"
-          type="text"
-          formControlName="contratoId"
-          placeholder="ID do contrato assinado"
-        />
-      </label>
-
-      <label class="sep-desembolsos-field" for="des-valor">
-        <span>Valor</span>
-        <input id="des-valor" type="number" step="0.01" min="0.01" formControlName="valor" />
-      </label>
-
-      <label class="sep-desembolsos-field" for="des-chave">
-        <span>Chave Pix do destinatario</span>
-        <input
-          id="des-chave"
-          type="text"
-          formControlName="chavePixDestino"
-          autocomplete="off"
-          inputmode="text"
-        />
-      </label>
-
-      <button type="submit" class="sep-desembolsos-cta" [disabled]="submitting()">
-        @if (submitting()) {
-          Enviando...
-        } @else {
+      <h1>
+        Desembolsos Pix
+        <lucide-icon name="send" [size]="21" [strokeWidth]="2.25" />
+      </h1>
+      <span>Consulte o status dos desembolsos assistidos via Pix.</span>
+      @if (podeSolicitar()) {
+        <button type="button" class="px21-novo-cta" (click)="solicitarAberto.set(true)">
           Solicitar desembolso
-        }
-      </button>
-
-      @if (erro(); as msg) {
-        <p class="sep-desembolsos-error" role="alert">{{ msg }}</p>
+        </button>
       }
-    </form>
-  }
+    </header>
 
-  <form class="sep-desembolsos-card" [formGroup]="consultaForm" (ngSubmit)="consultar()">
-    <h2 class="sep-desembolsos-subtitle">Consultar desembolso</h2>
-    <p class="sep-desembolsos-aviso" role="note">
-      Informe o identificador da transferencia para abrir o status e a conciliacao.
-    </p>
+    <section class="px21-card px21-consulta">
+      <h2>Consultar desembolso</h2>
+      <form [formGroup]="consultaForm" (ngSubmit)="consultar()">
+        <label for="px21-id">ID da transferência <b>*</b></label>
+        <input
+          id="px21-id"
+          formControlName="transferenciaId"
+          placeholder="Ex.: 5b771e05-e89b-12d3-a456-426614174000"
+        />
+        <small>Informe o identificador da transferência Pix.</small>
+        <button class="primary" type="submit" [disabled]="consultando()">
+          <lucide-icon name="search" [size]="20" [strokeWidth]="2.25" />{{
+            consultando() ? 'Consultando...' : 'Consultar'
+          }}
+        </button>
+        <button type="button" (click)="limpar()">
+          <lucide-icon name="rotate-ccw" [size]="20" [strokeWidth]="2.25" />Limpar
+        </button>
+      </form>
+      @if (erro(); as mensagem) {
+        <p class="px21-error" role="alert">{{ mensagem }}</p>
+      }
+    </section>
 
-    <label class="sep-desembolsos-field" for="des-consulta-id">
-      <span>ID da transferencia</span>
-      <input id="des-consulta-id" type="text" formControlName="transferenciaId" />
-    </label>
+    @if (resultado(); as d) {
+      <section class="px21-card px21-resultado" [class.resumido]="!detalhado()">
+        <header>
+          <h2>
+            <lucide-icon name="circle-check" [size]="16" [strokeWidth]="2.25" />Desembolso
+            encontrado
+          </h2>
+          <div class="px21-resultado-acoes">
+            <!-- Entrada para o detalhe do desembolso (Mockup 27), que a trilha daquela tela
+                 pressupõe: Início › Pix › Desembolsos › ID da transferência. -->
+            <a
+              class="px21-abrir-detalhe"
+              [routerLink]="['/app/pix/desembolsos', d.transferenciaId]"
+            >
+              Abrir detalhe do desembolso →
+            </a>
+            <button
+              type="button"
+              [attr.aria-expanded]="detalhado()"
+              (click)="detalhado.set(!detalhado())"
+            >
+              {{ detalhado() ? 'Detalhado⌄' : 'Resumido⌃' }}
+            </button>
+          </div>
+        </header>
+        <div class="px21-resumo">
+          <article class="px21-status">
+            <small>Status do desembolso</small><strong>{{ d.status }}　✓</strong
+            ><span>Transferência realizada com sucesso</span>
+          </article>
+          <dl>
+            <div>
+              <dt>ID da transferência</dt>
+              <dd>
+                {{ d.transferenciaId }}
+                <button
+                  type="button"
+                  aria-label="Copiar ID da transferência"
+                  (click)="copiar(d.transferenciaId, 'ID da transferência')"
+                >
+                  ▣
+                </button>
+              </dd>
+            </div>
+            <div>
+              <dt>Data/Hora do desembolso</dt>
+              <dd>{{ d.dataHora }}</dd>
+            </div>
+            <div>
+              <dt>Tipo de chave</dt>
+              <dd>{{ d.tipoChave }}</dd>
+            </div>
+            <div>
+              <dt>Valor</dt>
+              <dd class="green">{{ moeda(d.valor) }}</dd>
+            </div>
+            <div>
+              <dt>Canal</dt>
+              <dd>{{ d.canal }}</dd>
+            </div>
+            <div>
+              <dt>Chave destinatário</dt>
+              <dd>{{ d.chaveDestino }}</dd>
+            </div>
+          </dl>
+        </div>
 
-    <button type="submit" class="sep-desembolsos-cta">Abrir desembolso</button>
-  </form>
-</section>
+        <section class="px21-timeline">
+          <h3>Linha do tempo da transferência</h3>
+          <div>
+            @for (etapa of etapas; track etapa.titulo; let ultima = $last) {
+              <article [class.final]="ultima">
+                <lucide-icon [name]="etapa.icone" [size]="54" [strokeWidth]="1" /><strong>{{
+                  etapa.titulo
+                }}</strong
+                ><small>{{ etapa.data }}</small>
+              </article>
+            }
+          </div>
+        </section>
+
+        <div class="px21-detalhes">
+          <article>
+            <h3>Dados da transferência</h3>
+            <dl>
+              <div>
+                <dt>Instituição recebedora</dt>
+                <dd>Banco ABCD S.A.</dd>
+              </div>
+              <div>
+                <dt>Código de autenticação</dt>
+                <dd>
+                  E904...7A2B
+                  <button type="button" (click)="copiar('E9047A2B', 'Código')">▣</button>
+                </dd>
+              </div>
+              <div>
+                <dt>ID do pagamento PIX</dt>
+                <dd>
+                  E18236120260530114112
+                  <button type="button" (click)="copiar('E18236120260530114112', 'ID Pix')">
+                    ▣
+                  </button>
+                </dd>
+              </div>
+              <div>
+                <dt>TTL (tempo de vida)</dt>
+                <dd>30 minutos</dd>
+              </div>
+              <div>
+                <dt>Tarifa</dt>
+                <dd>R$ 0,00</dd>
+              </div>
+            </dl>
+          </article>
+          <article>
+            <h3>Conciliação <b>CONCILIADO</b></h3>
+            <dl>
+              <div>
+                <dt>Parcela vinculada</dt>
+                <dd>Parcela 4/24</dd>
+              </div>
+              <div>
+                <dt>Contrato</dt>
+                <dd>{{ d.contratoId }}</dd>
+              </div>
+              <div>
+                <dt>Data do vínculo</dt>
+                <dd>30/05/2026 11:43:01</dd>
+              </div>
+              <div>
+                <dt>Responsável</dt>
+                <dd><i>AM</i> Ana Martins</dd>
+              </div>
+            </dl>
+          </article>
+          <article class="px21-comprovante">
+            <h3>Comprovante</h3>
+            <div>
+              <img
+                [src]="assetBase + '/visuals/visual_comprovante_pix_thumbnail.png'"
+                alt="Miniatura do comprovante Pix"
+              />
+              <p>
+                <strong>Comprovante Pix</strong><span>PDF • 124 KB</span
+                ><small>Gerado em 30/05/2026 11:42:18</small>
+              </p>
+            </div>
+            <footer>
+              <button type="button" (click)="comprovanteAberto.set(true)">
+                <lucide-icon name="eye" [size]="18" [strokeWidth]="2.25" />Visualizar</button
+              ><button type="button" (click)="baixarComprovante()">
+                <lucide-icon name="download" [size]="15" [strokeWidth]="2.25" />Download
+              </button>
+            </footer>
+          </article>
+        </div>
+      </section>
+    }
+
+    <aside class="px21-lateral">
+      <section class="px21-card px21-seguranca">
+        <h2>Segurança Pix</h2>
+        <div>
+          <sep-arte nome="escudo-pix" />
+          <dl>
+            <div>
+              <dt>Criptografia TLS</dt>
+              <dd>Ativo</dd>
+            </div>
+            <div>
+              <dt>Assinatura digital</dt>
+              <dd>Válida</dd>
+            </div>
+            <div>
+              <dt>Verificação antifraude</dt>
+              <dd>Aprovada</dd>
+            </div>
+            <div>
+              <dt>Registro de auditoria</dt>
+              <dd>Ativo</dd>
+            </div>
+          </dl>
+        </div>
+        <strong>Operação 100% segura</strong>
+      </section>
+      <section class="px21-card px21-op">
+        <h2>Resumo da operação</h2>
+        <dl>
+          <div>
+            <dt><lucide-icon name="banknote" [size]="14" [strokeWidth]="2.25" />Valor original</dt>
+            <dd>R$ 1.250,00</dd>
+          </div>
+          <div>
+            <dt><lucide-icon name="percent" [size]="14" [strokeWidth]="2.25" />Taxa</dt>
+            <dd>R$ 0,00</dd>
+          </div>
+          <div>
+            <dt>
+              <lucide-icon name="circle-dollar-sign" [size]="14" [strokeWidth]="2.25" />Valor final
+            </dt>
+            <dd>R$ 1.250,00</dd>
+          </div>
+          <hr />
+          <div>
+            <dt><lucide-icon name="clock" [size]="14" [strokeWidth]="2.25" />Tempo total</dt>
+            <dd>1m 13s</dd>
+          </div>
+          <div>
+            <dt><lucide-icon name="timer" [size]="14" [strokeWidth]="2.25" />SLA</dt>
+            <dd class="green">Dentro do prazo</dd>
+          </div>
+        </dl>
+      </section>
+      <section class="px21-card px21-info">
+        <h2>Informações adicionais</h2>
+        <dl>
+          <div>
+            <dt>Origem</dt>
+            <dd>Sistema (Automático)</dd>
+          </div>
+          <div>
+            <dt>Tipo de operação</dt>
+            <dd>Desembolso</dd>
+          </div>
+          <div>
+            <dt>Prioridade</dt>
+            <dd>Normal</dd>
+          </div>
+          <div>
+            <dt>IP origem</dt>
+            <dd>177.12.45.98</dd>
+          </div>
+          <div>
+            <dt>Dispositivo</dt>
+            <dd>Aplicação Web</dd>
+          </div>
+        </dl>
+      </section>
+      <section class="px21-card px21-acoes">
+        <h2>Ações rápidas</h2>
+        <button type="button" (click)="baixarComprovante()">
+          <lucide-icon class="ic-azul" name="send" [size]="19" [strokeWidth]="2.25" />Reenviar
+          comprovante</button
+        ><a routerLink="/app/backoffice/fila"
+          ><lucide-icon class="ic-azul" name="list" [size]="19" [strokeWidth]="2.25" />Abrir na fila
+          operacional</a
+        ><a routerLink="/app/pix/divergencias"
+          ><lucide-icon name="triangle-alert" [size]="22" [strokeWidth]="2.25" />Registrar
+          ocorrência</a
+        >
+      </section>
+    </aside>
+
+    @if (aviso(); as mensagem) {
+      <p class="px21-toast" role="status">{{ mensagem }}</p>
+    }
+    @if (comprovanteAberto()) {
+      @if (resultado(); as d) {
+        <div class="px21-modal" role="dialog" aria-modal="true" aria-label="Comprovante Pix">
+          <button
+            type="button"
+            aria-label="Fechar comprovante"
+            (click)="comprovanteAberto.set(false)"
+          >
+            ×
+          </button>
+          <article class="px21-documento">
+            <header><strong>SEP</strong><span>Comprovante de transferência</span></header>
+            <div class="px21-documento-status">
+              <b>Pix realizado</b><span>{{ d.status }}</span>
+            </div>
+            <p class="px21-documento-valor">{{ moeda(d.valor) }}</p>
+            <dl>
+              <div>
+                <dt>Data e hora</dt>
+                <dd>{{ d.dataHora }}</dd>
+              </div>
+              <div>
+                <dt>ID da transferência</dt>
+                <dd>{{ d.transferenciaId }}</dd>
+              </div>
+              <div>
+                <dt>Canal</dt>
+                <dd>{{ d.canal }}</dd>
+              </div>
+              <div>
+                <dt>Instituição recebedora</dt>
+                <dd>Banco ABCD S.A.</dd>
+              </div>
+              <div>
+                <dt>Chave do destinatário</dt>
+                <dd>{{ d.chaveDestino }}</dd>
+              </div>
+              <div>
+                <dt>Código de autenticação</dt>
+                <dd>E9047A2B</dd>
+              </div>
+              <div>
+                <dt>Tarifa</dt>
+                <dd>R$ 0,00</dd>
+              </div>
+            </dl>
+            <footer>
+              <p>Operação processada com segurança pelo Pix SPI.</p>
+              <button type="button" (click)="baixarComprovante()">Baixar comprovante</button>
+            </footer>
+          </article>
+        </div>
+      }
+    }
+    @if (solicitarAberto() && podeSolicitar()) {
+      <div class="px21-modal" role="dialog" aria-modal="true" aria-label="Novo desembolso">
+        <form class="px21-novo" [formGroup]="form" (ngSubmit)="solicitar()">
+          <button
+            type="button"
+            aria-label="Fechar novo desembolso"
+            (click)="solicitarAberto.set(false)"
+          >
+            ×
+          </button>
+          <h2>Novo desembolso Pix</h2>
+          <label>Contrato<input formControlName="contratoId" /></label
+          ><label>Valor<input sepMask="moeda" formControlName="valor" placeholder="0,00" /></label
+          ><label>Chave Pix<input formControlName="chavePixDestino" autocomplete="off" /></label
+          ><button class="primary" type="submit" [disabled]="submitting()">
+            {{ submitting() ? 'Enviando...' : 'Solicitar desembolso' }}
+          </button>
+        </form>
+      </div>
+    }
+  </main>
+</sep-operational-shell>

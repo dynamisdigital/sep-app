@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 
 import { OperationalShellComponent } from '../../../layout/operational-shell/operational-shell.component';
+import { type NomeArte, SepArteComponent } from '../../../shared/arte/sep-arte.component';
 
 interface OnboardingPath {
   label: string;
@@ -9,7 +11,7 @@ interface OnboardingPath {
   description: string;
   route: string;
   tone: 'person' | 'company';
-  visual: string;
+  visual: NomeArte;
   action: string;
   steps: { label: string; icon: string }[];
   benefits: { title: string; description: string; icon: string }[];
@@ -17,7 +19,7 @@ interface OnboardingPath {
 
 @Component({
   selector: 'sep-onboarding-home',
-  imports: [OperationalShellComponent, RouterLink],
+  imports: [SepArteComponent, LucideAngularModule, OperationalShellComponent, RouterLink],
   templateUrl: './onboarding-home.component.html',
   styleUrl: './onboarding-home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,27 +33,27 @@ export class OnboardingHomeComponent {
       description: 'Cadastro individual com validação e verificação de identidade.',
       route: '/app/onboarding/pessoa',
       tone: 'person',
-      visual: 'visuals/visual_kyc_pessoa_fisica_hud.png',
+      visual: 'pessoa',
       action: 'Iniciar como pessoa física',
       steps: [
-        { label: 'Dados pessoais e contato', icon: 'icons/icon_pf_dados_pessoais.png' },
-        { label: 'Validação de documentos', icon: 'icons/icon_pf_validacao_documentos.png' },
-        { label: 'Verificação de identidade', icon: 'icons/icon_pf_verificacao_identidade.png' },
+        { label: 'Dados pessoais e contato', icon: 'id-card' },
+        { label: 'Validação de documentos', icon: 'file-check' },
+        { label: 'Verificação de identidade', icon: 'scan-face' },
         {
           label: 'Auditoria e rastreabilidade',
-          icon: 'icons/icon_pf_auditoria_rastreabilidade.png',
+          icon: 'history',
         },
       ],
       benefits: [
         {
           title: 'Rápido e seguro',
           description: 'Processo otimizado para pessoa física',
-          icon: 'icons/icon_card_pf_rapido_seguro.png',
+          icon: 'zap',
         },
         {
           title: 'Privacidade',
           description: 'Seus dados protegidos com criptografia',
-          icon: 'icons/icon_card_pf_privacidade.png',
+          icon: 'lock-keyhole',
         },
       ],
     },
@@ -61,33 +63,33 @@ export class OnboardingHomeComponent {
       description: 'Cadastro empresarial com validação de empresa e representantes.',
       route: '/app/onboarding/empresa',
       tone: 'company',
-      visual: 'visuals/visual_kyb_empresa_hud.png',
+      visual: 'empresa',
       action: 'Iniciar como empresa',
       steps: [
-        { label: 'Dados da empresa', icon: 'icons/icon_empresa_dados_empresa.png' },
+        { label: 'Dados da empresa', icon: 'building-2' },
         {
           label: 'Representantes e sócios',
-          icon: 'icons/icon_empresa_representantes_socios.png',
+          icon: 'users',
         },
         {
           label: 'Documentos societários',
-          icon: 'icons/icon_empresa_documentos_societarios.png',
+          icon: 'file-text',
         },
         {
           label: 'Verificação e compliance',
-          icon: 'icons/icon_empresa_verificacao_compliance.png',
+          icon: 'badge-check',
         },
       ],
       benefits: [
         {
           title: 'Compliance total',
           description: 'Atende às normas KYC/KYB e requisitos regulatórios',
-          icon: 'icons/icon_card_empresa_compliance_total.png',
+          icon: 'clipboard-check',
         },
         {
           title: 'Segurança jurídica',
           description: 'Informações validadas e auditadas',
-          icon: 'icons/icon_card_empresa_seguranca_juridica.png',
+          icon: 'scale',
         },
       ],
     },
@@ -97,34 +99,34 @@ export class OnboardingHomeComponent {
     {
       title: 'Plataforma regulada',
       description: 'Atendimento à Resolução CMN 4.656/2018',
-      icon: 'icons/icon_motivo_plataforma_regulada.png',
+      icon: 'landmark',
     },
     {
       title: 'Segregação patrimonial',
       description: 'Recursos ativos em conta escrow segregada',
-      icon: 'icons/icon_motivo_segregacao_patrimonial.png',
+      icon: 'split',
     },
     {
       title: 'Rastreabilidade total',
       description: 'Todas as etapas registradas e auditáveis',
-      icon: 'icons/icon_motivo_rastreabilidade_total.png',
+      icon: 'history',
     },
     {
       title: 'Segurança de ponta',
       description: 'Criptografia, monitoramento e prevenção a fraudes',
-      icon: 'icons/icon_motivo_seguranca_ponta.png',
+      icon: 'shield-check',
     },
     {
       title: 'Processo digital',
       description: '100% online, rápido e sem burocracia',
-      icon: 'icons/icon_motivo_processo_digital.png',
+      icon: 'smartphone',
     },
   ];
 
   protected readonly complianceBadges = [
-    { title: 'CMN', description: '4.656/2018', icon: 'icons/icon_badge_cmn.png' },
-    { title: 'PLD / FT', description: 'Prevenção', icon: 'icons/icon_badge_pld_ft.png' },
-    { title: 'KYC / KYB', description: 'Verificado', icon: 'icons/icon_badge_kyc_kyb.png' },
-    { title: 'Auditoria', description: 'Contínua', icon: 'icons/icon_badge_auditoria.png' },
+    { title: 'CMN', description: '4.656/2018', icon: 'landmark' },
+    { title: 'PLD / FT', description: 'Prevenção', icon: 'shield-check' },
+    { title: 'KYC / KYB', description: 'Verificado', icon: 'badge-check' },
+    { title: 'Auditoria', description: 'Contínua', icon: 'scroll-text' },
   ];
 }

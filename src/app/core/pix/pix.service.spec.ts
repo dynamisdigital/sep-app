@@ -247,6 +247,17 @@ describe('PixService (comportamento via MSW)', () => {
     });
   });
 
+  describe('listarRecebimentos', () => {
+    it('retorna a carteira: um conciliado e um nao identificado', async () => {
+      const lista = await awaitObservable(service.listarRecebimentos());
+
+      // E desta contagem que o painel "Status da conciliacao" tira o anel e o percentual; antes
+      // o agregado (1.573 / 100%) estava escrito na tela.
+      expect(lista).toHaveLength(2);
+      expect(lista.map((r) => r.status).sort()).toEqual(['CONCILIADO', 'NAO_IDENTIFICADO']);
+    });
+  });
+
   describe('consultarRecebimento', () => {
     it('retorna recebimento CONCILIADO vinculado a parcela', async () => {
       const resposta = await awaitObservable(
@@ -347,6 +358,15 @@ describe('PixService (contrato HTTP)', () => {
     const req = httpMock.expectOne(`${base}/pix/recebimentos/referencias/${REFERENCIA_ATIVA_ID}`);
     expect(req.request.method).toBe('GET');
     req.flush({});
+  });
+
+  it('listarRecebimentos: GET na colecao, sem query param', () => {
+    service.listarRecebimentos().subscribe();
+
+    const req = httpMock.expectOne(`${base}/pix/recebimentos`);
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.keys()).toHaveLength(0);
+    req.flush([]);
   });
 
   it('consultarRecebimento: GET no recebimento', () => {

@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 
 import {
   IniciarOnboardingEmpresaRequest,
@@ -18,9 +19,11 @@ import {
   TipoSocietario,
 } from '../../../../core/api/api.models';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
+import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
 import { OnboardingDocumentUploadComponent } from '../shared/onboarding-document-upload.component';
 import { mensagemOnboardingErro } from '../shared/onboarding-error';
 import { OnboardingStatusComponent } from '../shared/onboarding-status.component';
+import { SepMaskDirective } from '../../../../shared/forms/sep-mask.directive';
 
 // Tipos aceitos para PJ. PF tem os seus; nao oferecer tipos PF nesta tela.
 const TIPOS_DOCUMENTO_PJ: TipoDocumento[] = ['CONTRATO_SOCIAL', 'CCMEI', 'COMPROVANTE_ENDERECO'];
@@ -35,10 +38,13 @@ const PORTES_EMPRESA: PorteEmpresa[] = ['MEI', 'ME', 'EPP', 'MEDIO', 'GRANDE'];
 @Component({
   selector: 'sep-onboarding-empresa-page',
   imports: [
+    LucideAngularModule,
+    OnboardingDocumentUploadComponent,
+    OnboardingStatusComponent,
+    OperationalShellComponent,
     ReactiveFormsModule,
     RouterLink,
-    OnboardingStatusComponent,
-    OnboardingDocumentUploadComponent,
+    SepMaskDirective,
   ],
   templateUrl: './onboarding-empresa-page.component.html',
   styleUrl: './onboarding-empresa-page.component.scss',
@@ -53,6 +59,40 @@ export class OnboardingEmpresaPageComponent implements OnInit {
   protected readonly tiposDocumento = TIPOS_DOCUMENTO_PJ;
   protected readonly tiposSocietarios = TIPOS_SOCIETARIOS;
   protected readonly portes = PORTES_EMPRESA;
+  protected readonly assetBase = '/image/sep_mockup_08_assets';
+  protected readonly journeySteps = [
+    { number: 1, title: 'Empresa', detail: 'Identificação da empresa', active: true },
+    { number: 2, title: 'Sócios', detail: 'Composição societária', active: false },
+    { number: 3, title: 'Representantes', detail: 'Poderes e contatos', active: false },
+    { number: 4, title: 'Documentos', detail: 'Societários e fiscais', active: false },
+    { number: 5, title: 'Revisão', detail: 'Confirmação final', active: false },
+  ];
+  protected readonly benefits = [
+    {
+      title: 'Conformidade total',
+      detail: 'Atende às normas KYC/KYB e requisitos regulatórios.',
+      icon: 'clipboard-check',
+      tom: 'ic-neutro',
+    },
+    {
+      title: 'Segregação patrimonial',
+      detail: 'Recursos e ativos em conta escrow segregada.',
+      icon: 'landmark',
+      tom: 'ic-verde',
+    },
+    {
+      title: 'Rastreabilidade',
+      detail: 'Todas as etapas registradas e auditáveis.',
+      icon: 'history',
+      tom: 'ic-roxo',
+    },
+    {
+      title: 'Segurança jurídica',
+      detail: 'Informações validadas e auditadas.',
+      icon: 'scale',
+      tom: 'ic-ambar',
+    },
+  ];
 
   protected readonly id = signal<string | null>(null);
   protected readonly submitting = signal(false);

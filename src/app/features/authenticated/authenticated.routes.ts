@@ -18,7 +18,7 @@ export const AUTHENTICATED_ROUTES: Routes = [
         path: 'dashboard',
         loadComponent: () =>
           import('./dashboard/dashboard.component').then((m) => m.DashboardComponent),
-        data: { breadcrumb: 'Dashboard' },
+        data: { breadcrumb: 'Dashboard', immersive: true },
       },
       {
         path: 'profile',
@@ -37,34 +37,41 @@ export const AUTHENTICATED_ROUTES: Routes = [
         path: 'profile/setup-totp',
         loadComponent: () =>
           import('./profile/setup-totp/setup-totp.component').then((m) => m.SetupTotpComponent),
-        data: { breadcrumb: 'Habilitar MFA' },
+        data: { breadcrumb: 'Habilitar MFA (TOTP)', immersive: true },
       },
       {
         path: 'step-up',
         loadComponent: () => import('./step-up/step-up.component').then((m) => m.StepUpComponent),
-        data: { breadcrumb: 'Confirmação adicional' },
+        data: { breadcrumb: 'Confirmação adicional', immersive: true },
       },
       {
+        // As quatro jornadas abaixo sao trabalho de operacao: o onboarding e de tomadores, a
+        // esteira de credito, a formalizacao e a cobranca tambem. A credora (CLIENTE) tem a
+        // propria jornada em /app/credora e nao passa por aqui.
         path: 'onboarding',
+        canActivate: [roleGuard],
+        data: { roles: ['BACKOFFICE', 'FINANCEIRO', 'ADMIN'], breadcrumb: 'Onboarding' },
         loadChildren: () =>
           import('./onboarding/onboarding.routes').then((m) => m.ONBOARDING_ROUTES),
-        data: { breadcrumb: 'Onboarding' },
       },
       {
         path: 'credito',
+        canActivate: [roleGuard],
+        data: { roles: ['BACKOFFICE', 'FINANCEIRO', 'ADMIN'], breadcrumb: 'Crédito' },
         loadChildren: () => import('./credito/credito.routes').then((m) => m.CREDITO_ROUTES),
-        data: { breadcrumb: 'Crédito' },
       },
       {
         path: 'formalizacao',
+        canActivate: [roleGuard],
+        data: { roles: ['BACKOFFICE', 'FINANCEIRO', 'ADMIN'], breadcrumb: 'Formalização' },
         loadChildren: () =>
           import('./formalizacao/formalizacao.routes').then((m) => m.FORMALIZACAO_ROUTES),
-        data: { breadcrumb: 'Formalização' },
       },
       {
         path: 'cobranca',
+        canActivate: [roleGuard],
+        data: { roles: ['BACKOFFICE', 'FINANCEIRO', 'ADMIN'], breadcrumb: 'Cobrança' },
         loadChildren: () => import('./cobranca/cobranca.routes').then((m) => m.COBRANCA_ROUTES),
-        data: { breadcrumb: 'Cobrança' },
       },
       {
         path: 'credora',
@@ -94,18 +101,26 @@ export const AUTHENTICATED_ROUTES: Routes = [
             pathMatch: 'full',
             loadComponent: () =>
               import('./admin/admin-home.component').then((m) => m.AdminHomeComponent),
+            data: { immersive: true },
           },
           {
             path: 'users',
             loadComponent: () =>
               import('./admin/users/users-list.component').then((m) => m.UsersListComponent),
-            data: { breadcrumb: 'Usuários' },
+            data: { breadcrumb: 'Usuários', immersive: true },
+          },
+          {
+            // Antes de 'users/:id': senao "novo" seria lido como id.
+            path: 'users/novo',
+            loadComponent: () =>
+              import('./admin/users/user-create.component').then((m) => m.UserCreateComponent),
+            data: { breadcrumb: 'Novo usuário', immersive: true },
           },
           {
             path: 'users/:id',
             loadComponent: () =>
               import('./admin/users/user-detail.component').then((m) => m.UserDetailComponent),
-            data: { breadcrumb: 'Detalhe de usuário' },
+            data: { breadcrumb: 'Detalhe de usuário', immersive: true },
           },
           {
             path: 'parametros',
@@ -113,7 +128,7 @@ export const AUTHENTICATED_ROUTES: Routes = [
               import('./admin/parametros/parametros-page.component').then(
                 (m) => m.ParametrosPageComponent,
               ),
-            data: { breadcrumb: 'Parâmetros' },
+            data: { breadcrumb: 'Parâmetros', immersive: true },
           },
           {
             path: 'parametros/:chave',
@@ -121,7 +136,7 @@ export const AUTHENTICATED_ROUTES: Routes = [
               import('./admin/parametros/parametro-detail-page.component').then(
                 (m) => m.ParametroDetailPageComponent,
               ),
-            data: { breadcrumb: 'Detalhe do parâmetro' },
+            data: { breadcrumb: 'Detalhe do parâmetro', immersive: true },
           },
         ],
       },

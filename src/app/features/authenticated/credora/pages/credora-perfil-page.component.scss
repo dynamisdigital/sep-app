@@ -1,133 +1,649 @@
-@use "../../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../../styles/sep-ds-components" as sepDs;
+// ============ PERFIL DA CREDORA — TELA DERIVADA DO MOCKUP 36 ============
+// Não há arte de designer para esta tela: ela nasce do resultado do cadastro. Construída no
+// padrão visual do tema, seguindo a mesma linguagem dos Mockups 35 e 36.
 
-.sep-credora-perfil {
+@use "../../../../../styles/tela-operacional-tema" as tema;
+
+:host {
+  --linha: var(--sep-border);
+  --muted: var(--sep-text-muted);
+  --muted-forte: var(--sep-text-secondary);
+  --blue: var(--sep-accent);
+  --green: var(--sep-success);
+  --purple: var(--sep-purple);
+  --amber: var(--sep-warning);
+  --red-forte: var(--sep-danger);
+
+  display: block;
+  color: var(--sep-text);
+  font-size: 13.5px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button {
+  font: inherit;
+}
+
+/* Esta tela nasceu com o ajuste de shell copiado à mão e por isso ficou de fora das correções
+   posteriores (min-width, coluna e linha do shell). Agora usa o mesmo mixin das demais. */
+@include tema.shell("px43");
+
+[data-tone="blue"] {
+  --tone: var(--blue);
+  --tone-borda: rgb(var(--sep-c-blue) / 55%);
+  --tone-fundo: rgb(var(--sep-c-blue) / 12%);
+}
+
+[data-tone="green"] {
+  --tone: var(--green);
+  --tone-borda: rgb(var(--sep-c-green) / 55%);
+  --tone-fundo: rgb(var(--sep-c-green) / 12%);
+}
+
+[data-tone="purple"] {
+  --tone: var(--purple);
+  --tone-borda: rgb(var(--sep-c-purple) / 55%);
+  --tone-fundo: rgb(var(--sep-c-purple) / 12%);
+}
+
+[data-tone="amber"] {
+  --tone: var(--amber);
+  --tone-borda: rgb(var(--sep-c-amber) / 55%);
+  --tone-fundo: rgb(var(--sep-c-amber) / 12%);
+}
+
+[data-tone="red"] {
+  --tone: var(--red-forte);
+  --tone-borda: rgb(var(--sep-c-red) / 55%);
+  --tone-fundo: rgb(var(--sep-c-red) / 12%);
+}
+
+// ============ GRADE PRINCIPAL ============
+
+.px43-page {
+  display: grid;
+  grid-template:
+    "heading heading" auto
+    "situacao side" min-content
+    "dados side" min-content
+    / minmax(0, 2fr) minmax(300px, 0.86fr);
+  gap: 22px 26px;
+  align-content: start;
+  width: 100%;
+  height: 100%;
+  padding: 16px 26px 18px;
+  overflow: hidden auto;
+  background: radial-gradient(circle at 40% 14%, rgb(var(--sep-c-blue) / 6%), transparent 48%);
+}
+
+// ============ CARTÃO BASE ============
+
+.px43-card {
+  padding: 20px 24px;
+  border: 1px solid var(--linha);
+  border-radius: 12px;
+  background: linear-gradient(
+    160deg,
+    rgb(var(--sep-c-sunken) / 96%),
+    rgb(var(--sep-c-sunken) / 94%)
+  );
+  box-shadow: inset 0 1px 0 rgb(var(--sep-c-blue) / calc(4% * var(--sep-glow-alpha)));
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+
+  /* Widget principal: reforça borda e glow, sem alterar dimensões. */
+  &:hover,
+  &:focus-within {
+    border-color: rgb(var(--sep-c-blue) / 38%);
+    box-shadow:
+      0 0 18px rgb(var(--sep-c-blue) / calc(7% * var(--sep-glow-alpha))),
+      inset 0 1px 0 rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha)));
+  }
+}
+
+.px43-card h2 {
+  margin: 0 0 16px;
+  color: var(--sep-text);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+}
+
+// ============ ESTADOS ============
+
+.px43-estado {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-16);
-  max-width: 720px;
-  margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  grid-column: 1 / -1;
+  margin: auto;
+  color: var(--muted-forte);
+  text-align: center;
 }
 
-.sep-credora-perfil-header {
+.px43-erro {
+  color: var(--red-forte);
+}
+
+// ============ CABEÇALHO ============
+
+.px43-heading {
+  grid-area: heading;
+}
+
+.px43-heading nav {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--sep-space-16);
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: var(--muted);
+  font-size: 12.5px;
 }
 
-.sep-credora-perfil-heading {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-3);
-}
-
-.sep-credora-perfil-title {
-  @include sepType.sep-type-page-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
-}
-
-.sep-credora-perfil-cnpj {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-credora-perfil-badges {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-6);
-  align-items: flex-end;
-}
-
-.sep-credora-perfil-aviso {
-  @include sepType.sep-type-body;
-
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-  align-items: flex-start;
-  margin: 0;
-  padding: var(--sep-space-12) var(--sep-space-16);
-  color: hsl(var(--muted-foreground));
-  background: hsl(var(--muted) / 40%);
-  border-radius: var(--sep-radius-md);
-}
-
-.sep-credora-perfil-aviso-ok {
-  color: hsl(var(--success));
-  background: hsl(var(--success) / 10%);
-}
-
-.sep-credora-perfil-aviso-bloqueio {
-  color: hsl(var(--destructive));
-  background: hsl(var(--destructive) / 10%);
-}
-
-.sep-credora-perfil-motivo {
-  margin: 0;
-}
-
-.sep-credora-perfil-cta {
-  @include sepType.sep-type-body;
-
-  color: hsl(var(--primary));
+.px43-heading nav a {
+  color: var(--muted);
   text-decoration: none;
-}
+  transition: color 0.18s;
 
-.sep-credora-perfil-grid {
-  @include sepDs.sep-card;
-
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-12);
-  margin: 0;
-  padding: var(--sep-space-24);
-}
-
-.sep-credora-perfil-row {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-3);
-
-  dt {
-    @include sepType.sep-type-caption;
-
-    color: hsl(var(--muted-foreground));
+  &:hover,
+  &:focus-visible {
+    color: var(--sep-text);
+    text-decoration: underline;
   }
+}
 
-  dd {
-    @include sepType.sep-type-body;
+.px43-heading nav span {
+  color: var(--sep-text-muted);
+}
 
+.px43-heading nav strong {
+  color: var(--sep-text);
+  font-weight: 600;
+}
+
+.px43-heading-row {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.px43-titulo-wrap {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  min-width: 0;
+
+  h1 {
     margin: 0;
-    color: hsl(var(--foreground));
+    overflow: hidden;
+    color: var(--sep-text);
+    font-size: 25px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    text-overflow: ellipsis;
   }
 }
 
-.sep-credora-perfil-state {
-  @include sepType.sep-type-body;
-
-  color: hsl(var(--muted-foreground));
+.px43-titulo-icone {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  color: var(--blue);
+  border: 1px solid rgb(var(--sep-c-blue) / 45%);
+  border-radius: 13px;
+  background: rgb(var(--sep-c-blue) / 12%);
+  box-shadow: 0 0 16px rgb(var(--sep-c-blue) / calc(16% * var(--sep-glow-alpha)));
 }
 
-.sep-credora-perfil-error {
+.px43-subtitulo {
+  margin: 6px 0 0;
+  color: var(--muted-forte);
+  font-size: 13.5px;
+}
+
+.px43-selos {
+  display: flex;
+  flex-shrink: 0;
+  gap: 10px;
+  align-items: center;
+}
+
+.px43-selo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 14px;
+  color: var(--tone, var(--green));
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-green) / 55%));
+  border-radius: 999px;
+  background: var(--tone-fundo, rgb(var(--sep-c-green) / 12%));
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s,
+    transform 0.18s;
+
+  &:hover {
+    border-color: var(--tone, var(--green));
+    box-shadow: 0 0 12px
+      var(--tone-fundo, rgb(var(--sep-c-green) / calc(30% * var(--sep-glow-alpha))));
+    transform: scale(1.04);
+  }
+}
+
+// ============ SITUAÇÃO ============
+
+.px43-situacao {
+  grid-area: situacao;
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  border-color: var(--tone-borda, rgb(var(--sep-c-green) / 40%));
+  border-left: 3px solid var(--tone, var(--green));
+
+  > div {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+  }
+
+  strong {
+    color: var(--tone, var(--green));
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0;
+    color: var(--muted-forte);
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 12.5px;
+  }
+}
+
+.px43-situacao-icone {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  color: var(--tone, var(--green));
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    var(--tone-fundo, rgb(var(--sep-c-green) / 20%)),
+    transparent 72%
+  );
+
+  lucide-icon {
+    filter: drop-shadow(
+      0 0 10px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+    );
+  }
+}
+
+// ============ DADOS CADASTRAIS ============
+
+/* O cartão acompanha a altura da coluna lateral: em vez de sobrar uma faixa vazia embaixo,
+   as linhas se distribuem no espaço disponível. */
+.px43-dados {
+  grid-area: dados;
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-8);
-  align-items: flex-start;
-  color: hsl(var(--destructive));
 }
 
-.sep-credora-perfil-retry {
-  align-self: flex-start;
-  padding: var(--sep-space-8) var(--sep-space-16);
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--sep-radius-sm);
-  background: transparent;
-  color: hsl(var(--foreground));
+.px43-dados dl {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 26px;
+  align-content: space-between;
+  margin: 0;
+  max-height: 260px;
+}
+
+.px43-dados dl > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  margin: -4px -8px;
+  padding: 4px 8px;
+  border-radius: 7px;
+  transition:
+    background 0.18s,
+    box-shadow 0.18s;
+
+  &:hover {
+    background: rgb(var(--sep-c-blue) / 6%);
+    box-shadow: inset 2px 0 0 rgb(var(--sep-c-blue) / calc(75% * var(--sep-glow-alpha)));
+  }
+}
+
+.px43-dados dt {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.px43-dados dd {
+  margin: 0;
+  overflow: hidden;
+  color: var(--sep-text);
+  font-size: 14.5px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ============ BOTÕES ============
+
+.px43-btn-primary {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 9px;
+  align-items: center;
+  justify-content: center;
+  height: 46px;
+  padding: 0 22px;
+  color: var(--sep-on-solid);
+  font-size: 14.5px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid rgb(var(--sep-c-blue) / 60%);
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--sep-accent), var(--sep-accent));
+  box-shadow: 0 0 16px rgb(var(--sep-c-blue) / calc(28% * var(--sep-glow-alpha)));
   cursor: pointer;
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s,
+    border-color 0.18s;
+
+  lucide-icon {
+    flex-shrink: 0;
+    transition: transform 0.18s;
+  }
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--blue);
+    box-shadow: 0 0 24px rgb(var(--sep-c-blue) / calc(48% * var(--sep-glow-alpha)));
+    transform: translateY(-2px);
+  }
+
+  &:hover lucide-icon,
+  &:focus-visible lucide-icon {
+    transform: scale(1.08);
+  }
+}
+
+// ============ COLUNA LATERAL ============
+
+.px43-side {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-height: min-content;
+}
+
+.px43-atalhos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.px43-atalho {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  min-width: 0;
+  padding: 14px 15px;
+  text-decoration: none;
+  border: 1px solid var(--linha);
+  border-radius: 10px;
+  background: rgb(var(--sep-c-surf) / 70%);
+  transition:
+    transform 0.18s,
+    border-color 0.18s,
+    box-shadow 0.18s;
+
+  div {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  strong {
+    color: var(--sep-text);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.4;
+  }
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--tone-borda, rgb(var(--sep-c-blue) / 55%));
+    box-shadow: 0 0 14px
+      var(--tone-fundo, rgb(var(--sep-c-blue) / calc(30% * var(--sep-glow-alpha))));
+    transform: translateY(-2px);
+  }
+}
+
+/* Atalho que o backend ainda não libera: visível, mas sem convite ao clique. */
+.px43-atalho-bloqueado {
+  opacity: 0.55;
+}
+
+.px43-atalho-icone {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  color: var(--tone, var(--blue));
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+  border-radius: 11px;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+  transition:
+    box-shadow 0.18s,
+    transform 0.18s;
+}
+
+.px43-atalho:hover .px43-atalho-icone {
+  box-shadow: 0 0 12px var(--tone-fundo, rgb(var(--sep-c-blue) / calc(40% * var(--sep-glow-alpha))));
+  transform: scale(1.06);
+}
+
+.px43-atalho-seta {
+  flex-shrink: 0;
+  color: var(--muted);
+  transition:
+    color 0.18s,
+    transform 0.18s;
+}
+
+.px43-atalho:hover .px43-atalho-seta {
+  color: var(--tone, var(--blue));
+  transform: translateX(3px);
+}
+
+// ============ EXPLICAÇÃO ============
+
+.px43-explicacao ul {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.px43-explicacao li {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  color: var(--muted-forte);
+  font-size: 13.5px;
+  line-height: 1.45;
+
+  lucide-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--green);
+    transition: filter 0.18s;
+  }
+
+  &:hover lucide-icon {
+    filter: drop-shadow(
+      0 0 7px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+    );
+  }
+}
+
+.px43-explicacao-nota {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  margin: 16px 0 0;
+  padding-top: 14px;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.45;
+  border-top: 1px solid rgb(var(--sep-c-line) / 80%);
+
+  lucide-icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--blue);
+  }
+}
+
+// ============ TELAS BAIXAS E ESTREITAS ============
+
+/* Degraus de compactação: reduzem vão e respiro, nunca o tamanho do texto. */
+@include tema.resp-altura-baixa {
+  .px43-page {
+    gap: 16px 22px;
+    padding: 13px 24px 15px;
+  }
+
+  .px43-card {
+    padding: 16px 20px;
+  }
+
+  .px43-card h2 {
+    margin-bottom: 13px;
+  }
+
+  .px43-side {
+    gap: 16px;
+  }
+
+  .px43-heading nav {
+    margin-bottom: 9px;
+  }
+
+  .px43-dados dl {
+    gap: 13px 22px;
+  }
+
+  .px43-explicacao ul {
+    gap: 11px;
+  }
+}
+
+@include tema.resp-altura-curta {
+  .px43-page {
+    gap: 12px 20px;
+  }
+
+  .px43-card {
+    padding: 13px 18px;
+  }
+
+  .px43-titulo-icone {
+    width: 46px;
+    height: 46px;
+  }
+
+  .px43-situacao-icone {
+    width: 46px;
+    height: 46px;
+  }
+
+  .px43-atalho {
+    padding: 11px 13px;
+  }
+
+  .px43-explicacao-nota {
+    margin-top: 12px;
+    padding-top: 11px;
+  }
+}
+
+@include tema.resp-half {
+  .px43-page {
+    grid-template:
+      "heading" auto
+      "situacao" min-content
+      "dados" min-content
+      "side" min-content
+      / minmax(0, 1fr);
+  }
+
+  .px43-dados dl {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// ============ ACESSIBILIDADE ============
+
+:focus-visible {
+  outline: 2px solid rgb(var(--sep-c-blue) / 70%);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+
+  .px43-btn-primary:hover,
+  .px43-selo:hover,
+  .px43-atalho:hover,
+  .px43-atalho:hover .px43-atalho-icone,
+  .px43-atalho:hover .px43-atalho-seta {
+    transform: none;
+  }
 }

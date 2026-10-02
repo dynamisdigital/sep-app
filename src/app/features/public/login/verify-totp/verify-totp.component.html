@@ -1,4 +1,13 @@
 <section class="sep-verify-totp">
+  <button
+    type="button"
+    class="sep-tema-publico"
+    [attr.aria-label]="temaEscuro() ? 'Mudar para o tema claro' : 'Mudar para o tema escuro'"
+    [attr.aria-pressed]="!temaEscuro()"
+    (click)="alternarTema()"
+  >
+    <lucide-icon [name]="temaEscuro() ? 'sun' : 'moon'" [size]="20" [strokeWidth]="2" />
+  </button>
   <div class="sep-verify-totp-card">
     <h1 class="sep-verify-totp-title">Verificacao em duas etapas</h1>
     <p class="sep-verify-totp-lead">

@@ -1,132 +1,1427 @@
-@use "../../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../../styles/sep-ds-components" as sepDs;
+// ============ MOCKUP 30 — INADIMPLÊNCIA ============
 
-.sep-inad {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-16);
-  max-width: 960px;
-  margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+@use "../../../../../styles/sep-responsivo" as resp;
+
+:host {
+  --linha: var(--sep-border);
+  --muted: var(--sep-text-muted);
+  --muted-forte: var(--sep-text-secondary);
+  --blue: var(--sep-accent);
+  --green: var(--sep-success);
+  --orange: var(--sep-warning);
+  --amber: var(--sep-warning);
+  --red: var(--sep-danger);
+  --red-forte: var(--sep-danger);
+  --purple: var(--sep-purple);
+
+  display: block;
+  color: var(--sep-text);
+  font-size: 13.5px;
 }
 
-.sep-inad-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-6);
+* {
+  box-sizing: border-box;
 }
 
-.sep-inad-title {
-  @include sepType.sep-type-page-title;
+button {
+  font: inherit;
+}
 
+/* stylelint-disable selector-pseudo-element-no-unknown -- Angular ::ng-deep */
+
+:host ::ng-deep .op-content:has(> .px30-page) {
+  /* Container do contrato responsivo: e esta area que recebe o espaco restante depois da barra
+       lateral, entao e ela que a pagina mede. Declarar no `:host` do componente nao serve — o host
+       envolve o shell inteiro e tem a largura da janela. */
+  container: sep-conteudo / inline-size;
+  display: block;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+:host ::ng-deep .op-main:has(.px30-page) {
+  grid-template-rows: 70px minmax(0, 1fr) 80px;
+}
+
+:host ::ng-deep .op-main:has(.px30-page) > .op-footer {
+  min-height: 80px;
+}
+
+:host ::ng-deep .op-dashboard:has(.px30-page) > .op-sidebar {
+  grid-template-rows: 70px minmax(0, 1fr) 130px 80px;
+}
+
+/* stylelint-enable selector-pseudo-element-no-unknown */
+
+[data-tone="orange"] {
+  --tone: var(--orange);
+  --tone-borda: rgb(var(--sep-c-amber) / 55%);
+  --tone-fundo: rgb(var(--sep-c-amber) / 12%);
+}
+
+[data-tone="amber"] {
+  --tone: var(--amber);
+  --tone-borda: rgb(var(--sep-c-amber) / 55%);
+  --tone-fundo: rgb(var(--sep-c-amber) / 12%);
+}
+
+[data-tone="red"] {
+  --tone: var(--red);
+  --tone-borda: rgb(var(--sep-c-red) / 55%);
+  --tone-fundo: rgb(var(--sep-c-red) / 12%);
+}
+
+[data-tone="vermelho-forte"] {
+  --tone: var(--red-forte);
+  --tone-borda: rgb(var(--sep-c-red) / 55%);
+  --tone-fundo: rgb(var(--sep-c-red) / 12%);
+}
+
+// ============ GRADE PRINCIPAL ============
+
+.px30-page {
+  display: grid;
+  grid-template:
+    "heading side" auto
+    "filtros side" min-content
+    "metricas side" min-content
+    "tabela side" minmax(0, 1fr) / minmax(0, 2.5fr) minmax(320px, 0.95fr);
+  gap: 11px 18px;
+  width: 100%;
+  height: 100%;
+  padding: 9px 22px 11px;
+  overflow: hidden auto;
+  background: radial-gradient(circle at 45% 18%, rgb(var(--sep-c-red) / 4%), transparent 45%);
+}
+
+/* Largura natural deste layout: 1129px. Abaixo disso a coluna lateral desce para baixo do
+   conteudo principal, em vez de ser cortada. O numero e a medida do proprio widget. */
+@container (max-width: 1125px) {
+  .px30-page {
+    grid-template:
+      "heading"
+      "filtros"
+      "metricas"
+      "tabela"
+      "side"
+      / minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto auto;
+    height: auto;
+  }
+}
+
+// ============ CARTÃO BASE ============
+
+.px30-card {
+  padding: 11px 16px;
+  border: 1px solid var(--linha);
+  border-radius: 10px;
+  background: linear-gradient(
+    145deg,
+    rgb(var(--sep-c-sunken) / 96%),
+    rgb(var(--sep-c-sunken) / 94%)
+  );
+  box-shadow: inset 0 1px 0 rgb(var(--sep-c-blue) / calc(4% * var(--sep-glow-alpha)));
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+
+  /* Widget principal: reforça borda e glow, sem alterar dimensões. */
+  &:hover,
+  &:focus-within {
+    border-color: rgb(var(--sep-c-blue) / 38%);
+    box-shadow:
+      0 0 16px rgb(var(--sep-c-blue) / calc(6% * var(--sep-glow-alpha))),
+      inset 0 1px 0 rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha)));
+  }
+}
+
+.px30-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 9px;
+  color: var(--sep-text);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+}
+
+// ============ ESTADOS ============
+
+.px30-estado {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  grid-column: 1 / -1;
+  grid-row: 3 / -1;
+  place-self: center;
+  color: var(--muted-forte);
+  text-align: center;
+}
+
+.px30-erro {
+  color: var(--red-forte);
+}
+
+.px30-vazio-linha {
+  padding: 14px 0;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+// ============ CABEÇALHO ============
+
+.px30-heading {
+  grid-area: heading;
+}
+
+.px30-heading nav {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.px30-heading nav a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.18s;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sep-text);
+    text-decoration: underline;
+  }
+}
+
+.px30-heading nav span {
+  color: var(--sep-text-muted);
+}
+
+.px30-heading nav strong {
+  color: var(--sep-text);
+  font-weight: 600;
+}
+
+.px30-heading-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.px30-titulo-wrap h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 0;
-  color: hsl(var(--foreground));
+  color: var(--sep-text);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+
+  lucide-icon {
+    color: var(--blue);
+  }
 }
 
-.sep-inad-subtitle {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
+.px30-subtitulo {
+  margin: 4px 0 0;
+  color: var(--muted-forte);
+  font-size: 13.5px;
 }
 
-.sep-inad-filtros {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: var(--sep-space-12);
+.px30-btn-primary {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 18px;
+  color: var(--sep-text);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid rgb(var(--sep-c-blue) / 55%);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgb(var(--sep-c-blue) / 24%), rgb(var(--sep-c-blue) / 14%));
+  box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(22% * var(--sep-glow-alpha)));
+  cursor: pointer;
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s,
+    border-color 0.18s;
+
+  lucide-icon {
+    flex-shrink: 0;
+    transition: transform 0.18s;
+  }
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    border-color: var(--blue);
+    box-shadow: 0 0 18px rgb(var(--sep-c-blue) / calc(45% * var(--sep-glow-alpha)));
+    transform: translateY(-2px);
+  }
+
+  &:hover:not(:disabled) lucide-icon,
+  &:focus-visible lucide-icon {
+    transform: scale(1.06);
+  }
 }
 
-.sep-inad-filtro {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-4);
+.px30-btn-sec {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 17px;
+  color: var(--sep-text);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 8px;
+  background: rgb(var(--sep-c-surf2) / 80%);
+  cursor: pointer;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s,
+    transform 0.18s;
 
-  span {
-    @include sepType.sep-type-caption;
+  &:hover,
+  &:focus-visible {
+    border-color: var(--sep-accent);
+    background: rgb(var(--sep-c-hover) / 90%);
+    box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(22% * var(--sep-glow-alpha)));
+    transform: translateY(-2px);
+  }
+}
 
-    color: hsl(var(--muted-foreground));
+// ============ FILTROS ============
+
+.px30-filtros {
+  grid-area: filtros;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) auto auto;
+  gap: 12px;
+  align-items: end;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+
+    span {
+      color: var(--muted-forte);
+      font-size: 12.5px;
+      font-weight: 600;
+    }
   }
 
   input,
   select {
-    @include sepDs.sep-input;
+    width: 100%;
+    height: 38px;
+    padding: 0 12px;
+    color: var(--sep-text);
+    font: inherit;
+    font-size: 13.5px;
+    border: 1px solid var(--sep-border-strong);
+    border-radius: 8px;
+    background: rgb(var(--sep-c-sunken) / 90%);
+    transition:
+      border-color 0.18s,
+      box-shadow 0.18s;
+
+    &::placeholder {
+      color: var(--sep-text-muted);
+    }
+
+    &:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(22% * var(--sep-glow-alpha)));
+      outline: none;
+    }
   }
 }
 
-.sep-inad-aplicar {
-  @include sepDs.sep-button-outline;
+.px30-btn-limpar {
+  height: 38px;
+  padding: 0 14px;
+  color: var(--muted-forte);
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 0.18s,
+    border-color 0.18s;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sep-text);
+    border-color: var(--blue);
+  }
 }
 
-.sep-inad-state {
-  @include sepType.sep-type-body;
+// ============ MÉTRICAS ============
 
-  color: hsl(var(--muted-foreground));
+.px30-metricas {
+  grid-area: metricas;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 152px), 1fr));
+  gap: 10px;
+  min-width: 0;
 }
 
-.sep-inad-error {
+/* Como no mockup: rótulo e ícone dividem a primeira linha, e o valor ocupa a largura
+   inteira do cartão logo abaixo — é o que permite o número grande sem reticências. */
+.px30-metrica {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-8);
-  align-items: flex-start;
-  color: hsl(var(--warning));
+  gap: 3px;
+  justify-content: center;
+  min-width: 0;
+  padding-inline: 10px;
+
+  small {
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 11.5px;
+    letter-spacing: -0.1px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  strong {
+    color: var(--sep-text);
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    white-space: nowrap;
+  }
+
+  em {
+    color: var(--tone, var(--orange));
+    font-style: normal;
+    font-size: 12px;
+  }
 }
 
-.sep-inad-retry {
-  @include sepDs.sep-button-outline;
+.px30-metrica-topo {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
 }
 
-.sep-inad-empty {
+/* 28px: com o rótulo na mesma linha, é o maior diâmetro que deixa "Acima de 60 dias"
+   caber inteiro na largura do cartão. */
+.px30-metrica-icone {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--tone, var(--orange));
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-amber) / 45%));
+  border-radius: 50%;
+  background: var(--tone-fundo, rgb(var(--sep-c-amber) / 12%));
+  transition:
+    box-shadow 0.18s,
+    transform 0.18s;
+}
+
+.px30-metrica:hover .px30-metrica-icone {
+  box-shadow: 0 0 16px
+    var(--tone-fundo, rgb(var(--sep-c-amber) / calc(35% * var(--sep-glow-alpha))));
+  transform: scale(1.06);
+}
+
+// ============ TABELA ============
+
+.px30-tabela-card {
+  grid-area: tabela;
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-8);
-  align-items: flex-start;
+  min-height: 0;
 }
 
-.sep-inad-lista {
+.px30-tabela-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+.px30-tabela-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+.px30-tabela-wrap th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 10px 5px;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--sep-border);
+  background: var(--sep-surface-sunken);
+}
+
+.px30-tabela-wrap td {
+  padding: 9px 5px;
+  vertical-align: middle;
+  border-bottom: 1px solid rgb(var(--sep-c-line) / 50%);
+  transition:
+    background 0.18s,
+    box-shadow 0.18s;
+
+  strong {
+    display: block;
+    color: var(--sep-text);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  small {
+    display: block;
+    color: var(--muted);
+    font-size: 11.5px;
+  }
+}
+
+/* Documento do tomador e tipo do contrato numa linha só: sem isso a célula chegava a
+   quatro linhas e dobrava a altura da linha da tabela. */
+.px30-tabela-wrap td:nth-child(2) small,
+.px30-tabela-wrap td:nth-child(3) small {
+  white-space: nowrap;
+}
+
+/* Realce da linha por fundo e marcador lateral: nenhuma coluna muda de largura. */
+.px30-tabela-wrap tbody tr:hover td {
+  background: rgb(var(--sep-c-blue) / 6%);
+}
+
+.px30-tabela-wrap tbody tr:hover td:first-child {
+  box-shadow: inset 3px 0 0 var(--blue);
+}
+
+.px30-num {
+  text-align: right;
+}
+
+.px30-atraso {
+  color: var(--red-forte);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.px30-valor {
+  color: var(--sep-text);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.px30-link {
+  color: var(--blue);
+  font-size: 13px;
+  white-space: nowrap;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--sep-c-blue) / 40%);
+  text-underline-offset: 2px;
+  transition: color 0.18s;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sep-accent);
+  }
+}
+
+/* Selo: reforça borda e glow e cresce 4% por transform, sem deslocar a linha. */
+.px30-selo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 11px;
+  color: var(--tone, var(--orange));
+  font-size: 11.5px;
+  line-height: 1;
+  font-weight: 700;
+  white-space: nowrap;
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-amber) / 55%));
+  border-radius: 999px;
+  background: var(--tone-fundo, rgb(var(--sep-c-amber) / 12%));
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s,
+    transform 0.18s;
+}
+
+.px30-tabela-wrap tbody tr:hover .px30-selo,
+.px30-selo:hover {
+  border-color: var(--tone, var(--orange));
+  box-shadow: 0 0 12px
+    var(--tone-fundo, rgb(var(--sep-c-amber) / calc(30% * var(--sep-glow-alpha))));
+  transform: scale(1.04);
+}
+
+.px30-acoes-col {
+  text-align: center;
+}
+
+.px30-acoes {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+}
+
+.px30-btn-linha {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 27px;
+  height: 27px;
+  color: var(--blue);
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 6px;
+  background: rgb(var(--sep-c-surf2) / 70%);
+  cursor: pointer;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+
+  lucide-icon {
+    transition:
+      transform 0.18s,
+      filter 0.18s;
+  }
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    border-color: var(--blue);
+    box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(25% * var(--sep-glow-alpha)));
+  }
+
+  &:hover:not(:disabled) lucide-icon,
+  &:focus-visible lucide-icon {
+    transform: scale(1.06);
+    filter: drop-shadow(
+      0 0 5px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+    );
+  }
+
+  &:disabled {
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+}
+
+.px30-menu-wrap {
+  position: relative;
+}
+
+.px30-menu {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  z-index: 40;
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-8);
+  min-width: 216px;
+  padding: 5px;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 8px;
+  background: var(--sep-surface-2);
+  box-shadow: 0 8px 24px rgb(var(--sep-c-shadow) / 60%);
+}
+
+.px30-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 11px;
+  color: var(--sep-text);
+  font-size: 12.5px;
+  text-align: left;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 0.18s,
+    background 0.18s;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sep-accent);
+    background: rgb(var(--sep-c-blue) / 12%);
+  }
+}
+
+.px30-tabela-rodape {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 11px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.px30-paginacao {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.px30-paginacao button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 27px;
+  height: 27px;
+  padding: 0 5px;
+  color: var(--muted);
+  font-size: 12.5px;
+  border: 1px solid var(--sep-border);
+  border-radius: 5px;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 0.18s,
+    border-color 0.18s,
+    box-shadow 0.18s;
+
+  &:not(:disabled):hover,
+  &:focus-visible {
+    color: var(--sep-text);
+    border-color: var(--blue);
+    box-shadow: 0 0 10px rgb(var(--sep-c-blue) / calc(22% * var(--sep-glow-alpha)));
+  }
+
+  &.ativa {
+    color: var(--sep-surface);
+    font-weight: 700;
+    border-color: var(--blue);
+    background: var(--blue);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+}
+
+.px30-por-pagina {
+  margin-left: 8px;
+}
+
+// ============ COLUNA LATERAL ============
+
+/* `min-content` em vez de 0: em telas mais baixas do que qualquer degrau de compactação
+   a coluna empurra a página e o scroll aparece, em vez de o conteúdo escapar do cartão e
+   cair por cima do widget seguinte. */
+.px30-side {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  min-height: min-content;
+}
+
+.px30-resumo,
+.px30-exposicao,
+.px30-actions,
+.px30-seguranca {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+// ============ ROSCA ============
+
+/* Rosca em conic-gradient: cada faixa vem do próprio percentual, começando em 12 horas.
+   Núcleo opaco por pseudo-elemento — máscara apagaria o total no centro. */
+.px30-rosca {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+
+  // O bloco de texto interno mede 71x37: num circulo, um retangulo w x h so cabe se
+  // w2 + h2 <= D2, ou seja, furo de pelo menos 80px — que era exatamente o valor anterior, e por
+  // isso o valor encostava no anel. Com 92px o texto fica dentro, com folga, nos dois temas.
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  box-shadow:
+    0 0 22px rgb(var(--sep-c-red) / calc(18% * var(--sep-glow-alpha))),
+    inset 0 0 16px rgb(var(--sep-c-shadow) / 55%);
+  filter: drop-shadow(0 0 6px rgb(var(--sep-c-red) / calc(20% * var(--sep-glow-alpha))));
+  transition:
+    box-shadow 0.18s,
+    filter 0.18s;
+
+  &::before {
+    display: block;
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    background: var(--sep-surface-sunken);
+    content: "";
+  }
+
+  span {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: center;
+    text-align: center;
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 10.5px;
+  }
+
+  strong {
+    color: var(--sep-text);
+    font-size: 13px;
+    font-weight: 700;
+  }
+}
+
+.px30-resumo:hover .px30-rosca {
+  box-shadow:
+    0 0 32px rgb(var(--sep-c-red) / calc(32% * var(--sep-glow-alpha))),
+    inset 0 0 16px rgb(var(--sep-c-shadow) / 55%);
+  filter: drop-shadow(0 0 12px rgb(var(--sep-c-red) / calc(32% * var(--sep-glow-alpha))));
+}
+
+.px30-resumo-corpo {
+  display: flex;
+  flex: 1 1 auto;
+
+  // Vao maior entre o anel e a legenda: com 14px os rotulos comecavam colados no anel.
+  gap: 22px;
+  align-items: center;
+}
+
+.px30-legenda {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  min-width: 0;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.sep-inad-linha-link {
-  @include sepDs.sep-card;
-
+.px30-legenda li {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: var(--sep-space-12);
-  padding: var(--sep-space-24);
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
-  transition: border-color 120ms ease;
+  gap: 9px;
+  margin: -3px -8px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  transition:
+    background 0.18s,
+    box-shadow 0.18s;
+
+  em {
+    flex-shrink: 0;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    transition:
+      box-shadow 0.18s,
+      transform 0.18s;
+  }
+
+  div {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  strong {
+    color: var(--sep-text);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 12.5px;
+  }
 
   &:hover {
-    border-color: hsl(var(--primary));
+    background: rgb(var(--sep-c-blue) / 7%);
+    box-shadow: inset 2px 0 0 var(--tone, var(--orange));
+  }
+
+  &:hover em {
+    transform: scale(1.1);
   }
 }
 
-.sep-inad-linha-parcela {
-  @include sepType.sep-type-card-title;
+// ============ EXPOSIÇÃO POR CONTRATO ============
 
-  color: hsl(var(--foreground));
+.px30-exposicao table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  text-align: left;
 }
 
-.sep-inad-linha-atraso,
-.sep-inad-linha-vencimento,
-.sep-inad-linha-contrato {
-  @include sepType.sep-type-body;
-
-  color: hsl(var(--muted-foreground));
+.px30-exposicao th {
+  padding: 0 6px 7px;
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  border-bottom: 1px solid rgb(var(--sep-c-line) / 60%);
 }
 
-.sep-inad-linha-valor {
-  @include sepType.sep-type-body;
+.px30-exposicao td {
+  padding: 7px 6px;
+  vertical-align: middle;
 
-  margin-left: auto;
-  color: hsl(var(--foreground));
+  strong {
+    display: block;
+    color: var(--sep-text);
+    font-size: 12.5px;
+    font-weight: 700;
+  }
+
+  small {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+  }
+}
+
+.px30-exposicao tbody tr {
+  transition: background 0.18s;
+
+  &:hover {
+    background: rgb(var(--sep-c-blue) / 6%);
+  }
+}
+
+.px30-barra-trilha {
+  display: block;
+  overflow: hidden;
+  height: 6px;
+  margin-top: 4px;
+  border-radius: 999px;
+  background: rgb(var(--sep-c-active) / 80%);
+}
+
+.px30-barra {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--sep-warning), var(--sep-danger));
+  box-shadow: 0 0 10px rgb(var(--sep-c-red) / calc(40% * var(--sep-glow-alpha)));
+  transition: box-shadow 0.18s;
+}
+
+.px30-exposicao tbody tr:hover .px30-barra {
+  box-shadow: 0 0 16px rgb(var(--sep-c-red) / calc(60% * var(--sep-glow-alpha)));
+}
+
+.px30-parcelas {
+  color: var(--muted-forte);
+  font-weight: 700;
+}
+
+.px30-link-todos {
+  display: block;
+  margin-top: 9px;
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  transition:
+    color 0.18s,
+    text-shadow 0.18s;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sep-accent);
+    text-shadow: 0 0 10px rgb(var(--sep-c-blue) / calc(45% * var(--sep-glow-alpha)));
+  }
+}
+
+// ============ AÇÕES RÁPIDAS ============
+
+/* Uma linha de quatro atalhos, como no mockup; abaixo de 1180px a lateral aperta e eles
+   passam a duas linhas de dois, sem que o texto ultrapasse duas linhas. */
+.px30-actions-grid {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: 8px;
+  max-height: 96px;
+  margin: auto 0;
+}
+
+@include resp.ate-media {
+  .px30-actions-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: 172px;
+  }
+}
+
+.px30-btn-acao {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  align-items: center;
+  justify-content: center;
+  min-height: 76px;
+  height: 100%;
+  padding: 10px 8px;
+  color: var(--sep-text);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: none;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 8px;
+  background: rgb(var(--sep-c-surf) / 80%);
+  cursor: pointer;
+  transition:
+    transform 0.18s,
+    border-color 0.18s,
+    box-shadow 0.18s;
+
+  lucide-icon {
+    flex-shrink: 0;
+    transition:
+      transform 0.18s,
+      filter 0.18s;
+  }
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    transform: translateY(-2px);
+    border-color: rgb(var(--sep-c-blue) / 55%);
+    box-shadow: 0 0 14px rgb(var(--sep-c-blue) / calc(28% * var(--sep-glow-alpha)));
+  }
+
+  /* Ícone acende na cor do próprio tom, não numa cor fixa. */
+  &:hover:not(:disabled) lucide-icon,
+  &:focus-visible lucide-icon {
+    transform: scale(1.06);
+    filter: brightness(1.15)
+      drop-shadow(
+        0 0 7px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+      );
+  }
+
+  &.amber {
+    border-color: rgb(var(--sep-c-amber) / 45%);
+    background: linear-gradient(
+      160deg,
+      rgb(var(--sep-c-amber) / 14%),
+      rgb(var(--sep-c-surf) / 90%)
+    );
+
+    lucide-icon {
+      color: var(--orange);
+    }
+  }
+
+  &.blue {
+    border-color: rgb(var(--sep-c-blue) / 50%);
+    background: linear-gradient(160deg, rgb(var(--sep-c-blue) / 16%), rgb(var(--sep-c-surf) / 90%));
+
+    lucide-icon {
+      color: var(--blue);
+    }
+  }
+
+  &.green {
+    border-color: rgb(var(--sep-c-green) / 45%);
+    background: linear-gradient(
+      160deg,
+      rgb(var(--sep-c-green) / 14%),
+      rgb(var(--sep-c-surf) / 90%)
+    );
+
+    lucide-icon {
+      color: var(--green);
+    }
+  }
+
+  &.purple {
+    border-color: rgb(var(--sep-c-purple) / 45%);
+    background: linear-gradient(
+      160deg,
+      rgb(var(--sep-c-purple) / 16%),
+      rgb(var(--sep-c-surf) / 90%)
+    );
+
+    lucide-icon {
+      color: var(--purple);
+    }
+  }
+
+  &:disabled {
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+
+  &:disabled lucide-icon {
+    color: var(--muted);
+  }
+}
+
+// ============ SEGURANÇA E CONFORMIDADE ============
+
+.px30-seguranca dl {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  max-height: 190px;
+  margin: auto 0;
+}
+
+.px30-seguranca dl > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: -3px -8px;
+  padding: 3px 8px;
+  font-size: 13px;
+  border-radius: 6px;
+  transition:
+    background 0.18s,
+    box-shadow 0.18s;
+
+  &:hover {
+    background: rgb(var(--sep-c-blue) / 7%);
+    box-shadow: inset 2px 0 0 rgb(var(--sep-c-blue) / calc(75% * var(--sep-glow-alpha)));
+  }
+}
+
+.px30-seguranca dt {
+  color: var(--muted);
+}
+
+.px30-seguranca dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Selo de conformidade do Mockup 30: texto verde com o visto ao lado, sem pílula. */
+.px30-chip {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  color: var(--green);
+  font-size: 12.5px;
+  font-weight: 700;
+  transition:
+    text-shadow 0.18s,
+    transform 0.18s;
+
+  lucide-icon {
+    display: flex;
+    align-items: center;
+    transition: filter 0.18s;
+  }
+}
+
+.px30-seguranca dl > div:hover .px30-chip {
+  text-shadow: 0 0 10px rgb(var(--sep-c-green) / calc(45% * var(--sep-glow-alpha)));
+  transform: scale(1.04);
+}
+
+.px30-seguranca dl > div:hover .px30-chip lucide-icon {
+  filter: drop-shadow(
+    0 0 7px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+  );
+}
+
+.px30-bold-white {
+  color: var(--sep-text);
+}
+
+// ============ TELAS BAIXAS ============
+
+@include resp.altura-densa {
+  .px30-rosca {
+    width: 76px;
+    height: 76px;
+
+    &::before {
+      width: 50px;
+      height: 50px;
+    }
+
+    strong {
+      font-size: 12px;
+    }
+  }
+
+  .px30-legenda {
+    gap: 3px;
+  }
+
+  .px30-legenda small,
+  .px30-legenda strong {
+    font-size: 11.5px;
+    line-height: 1.3;
+  }
+
+  .px30-exposicao th {
+    padding-bottom: 4px;
+  }
+
+  .px30-link-todos {
+    margin-top: 5px;
+  }
+
+  .px30-legenda li div {
+    gap: 1px;
+  }
+
+  .px30-exposicao td {
+    padding: 4px 6px;
+  }
+
+  .px30-barra-trilha {
+    margin-top: 3px;
+  }
+
+  .px30-actions-grid {
+    max-height: 90px;
+    gap: 7px;
+  }
+
+  .px30-btn-acao {
+    min-height: 76px;
+    gap: 5px;
+    padding: 7px 5px;
+    font-size: 11px;
+  }
+
+  .px30-seguranca dl {
+    gap: 4px;
+  }
+
+  .px30-card h2 {
+    margin-bottom: 6px;
+  }
+
+  .px30-card {
+    padding: 9px 15px;
+  }
+}
+
+/* Segundo degrau: a 900px de viewport a coluna lateral precisa de ~90px a menos do que o
+   primeiro degrau entrega. Sem ele o rodapé de "Exposição por contrato" escapava do cartão
+   e caía sobre "Ações rápidas". A compactação é de espaçamento, não de fonte. */
+@include resp.altura-baixa {
+  .px30-card {
+    padding: 7px 15px;
+  }
+
+  .px30-card h2 {
+    margin-bottom: 5px;
+  }
+
+  .px30-legenda {
+    gap: 2px;
+  }
+
+  .px30-legenda li {
+    margin: -1px -8px;
+    padding: 1px 8px;
+  }
+
+  /* A altura do cartão é ditada pela legenda, não pela rosca: ela pode continuar grande
+     o bastante para o total caber dentro do miolo. */
+  .px30-rosca {
+    width: 134px;
+    height: 134px;
+
+    &::before {
+      width: 96px;
+      height: 80px;
+    }
+
+    strong {
+      font-size: 13px;
+    }
+  }
+
+  .px30-exposicao th {
+    padding-bottom: 3px;
+  }
+
+  .px30-exposicao td {
+    padding: 2px 6px;
+  }
+
+  .px30-exposicao td strong,
+  .px30-exposicao td small {
+    line-height: 1.3;
+  }
+
+  .px30-barra-trilha {
+    height: 5px;
+    margin-top: 2px;
+  }
+
+  .px30-link-todos {
+    margin-top: 3px;
+  }
+
+  .px30-actions-grid {
+    max-height: 84px;
+    gap: 6px;
+  }
+
+  .px30-btn-acao {
+    min-height: 72px;
+  }
+
+  .px30-seguranca dl {
+    gap: 2px;
+  }
+
+  .px30-seguranca dl > div {
+    margin: -2px -8px;
+    padding: 2px 8px;
+  }
+}
+
+/* Terceiro degrau, para viewports de ~800px: mesma lógica, só espaçamento. */
+@include resp.altura-curta {
+  .px30-page {
+    gap: 10px 18px;
+  }
+
+  .px30-card {
+    padding: 6px 14px;
+  }
+
+  .px30-card h2 {
+    margin-bottom: 4px;
+    font-size: 15px;
+  }
+
+  .px30-legenda li {
+    margin: 0 -8px;
+    padding: 0 8px;
+  }
+
+  .px30-exposicao td {
+    padding: 1px 6px;
+  }
+
+  .px30-seguranca dl > div {
+    margin: -1px -8px;
+    padding: 1px 8px;
+  }
+
+  .px30-barra-trilha {
+    margin-top: 1px;
+  }
+
+  .px30-legenda {
+    gap: 1px;
+  }
+
+  .px30-exposicao th {
+    padding-bottom: 2px;
+  }
+
+  .px30-link-todos {
+    margin-top: 2px;
+  }
+
+  .px30-actions-grid {
+    max-height: 76px;
+  }
+
+  .px30-btn-acao {
+    min-height: 66px;
+  }
+}
+
+// ============ ACESSIBILIDADE ============
+
+:focus-visible {
+  outline: 2px solid rgb(var(--sep-c-blue) / 70%);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+
+  .px30-btn-primary:hover,
+  .px30-btn-primary:focus-visible,
+  .px30-btn-sec:hover,
+  .px30-btn-sec:focus-visible,
+  .px30-btn-acao:hover,
+  .px30-btn-acao:focus-visible,
+  .px30-selo:hover,
+  .px30-tabela-wrap tbody tr:hover .px30-selo,
+  .px30-metrica:hover .px30-metrica-icone,
+  .px30-legenda li:hover em,
+  .px30-seguranca dl > div:hover .px30-chip,
+  .px30-btn-acao:hover lucide-icon,
+  .px30-btn-acao:focus-visible lucide-icon,
+  .px30-btn-linha:hover lucide-icon,
+  .px30-btn-primary:hover lucide-icon,
+  .px30-btn-primary:focus-visible lucide-icon {
+    transform: none;
+  }
 }

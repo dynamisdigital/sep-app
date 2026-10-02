@@ -1,106 +1,260 @@
-<section class="sep-operacao-detail">
-  <a routerLink="/app/credora/carteira" class="sep-operacao-detail-back">Voltar para a carteira</a>
-
-  @if (loading()) {
-    <p class="sep-operacao-detail-state" role="status">Carregando operacao...</p>
-  } @else if (errorMessage(); as msg) {
-    <div class="sep-operacao-detail-state sep-operacao-detail-error" role="alert">
-      <p>{{ msg }}</p>
-      <button type="button" class="sep-operacao-detail-retry" (click)="carregar()">
-        Tentar novamente
-      </button>
-    </div>
-  } @else if (naoEncontrada()) {
-    <div class="sep-operacao-detail-state">
-      <p>Operacao nao encontrada.</p>
-    </div>
-  } @else if (operacao(); as op) {
-    <header class="sep-operacao-detail-header">
-      <h1 class="sep-operacao-detail-title">Operacao {{ idCurto(op.id) }}</h1>
-      <sep-operacao-status [status]="op.status" />
+<sep-operational-shell>
+  <section class="px47-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px47-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/credora">Credora</a><span>›</span
+        ><a routerLink="/app/credora/carteira">Carteira</a><span>›</span><strong>Operação</strong>
+      </nav>
+      <div class="px47-heading-row">
+        <div class="px47-titulo-wrap">
+          <span class="px47-titulo-icone" [attr.data-tone]="tomDoTitulo()">
+            <lucide-icon name="briefcase" [size]="24" />
+          </span>
+          <div>
+            <h1>{{ operacao() ? 'Operação ' + idCurto(operacao()!.id) : 'Operação' }}</h1>
+            <p class="px47-subtitulo">
+              Snapshot da operação financiada e o resumo agregado de cobrança, sem dado do tomador.
+            </p>
+          </div>
+          @if (operacao(); as op) {
+            <span class="px47-selo" [attr.data-tone]="statusTom(op.status)">
+              {{ statusRotulo(op.status) }}
+            </span>
+          }
+        </div>
+        <a class="px47-btn-sec" routerLink="/app/credora/carteira">
+          <lucide-icon name="arrow-left" [size]="16" />Voltar para a carteira
+        </a>
+      </div>
     </header>
 
-    <dl class="sep-operacao-detail-grid">
-      <div class="sep-operacao-detail-row">
-        <dt>Valor</dt>
-        <dd>
-          @if (op.valor !== null) {
-            {{ formatarMoeda(op.valor) }}
-          } @else {
-            &mdash;
-          }
-        </dd>
+    @if (loading()) {
+      <p class="px47-estado" role="status">Carregando operação...</p>
+    } @else if (errorMessage(); as msg) {
+      <div class="px47-estado px47-erro" role="alert">
+        <lucide-icon name="triangle-alert" [size]="18" />
+        <p>{{ msg }}</p>
+        <button type="button" class="px47-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
       </div>
-      <div class="sep-operacao-detail-row">
-        <dt>Prazo</dt>
-        <dd>
-          @if (op.prazoMeses !== null) {
-            {{ op.prazoMeses }} meses
-          } @else {
-            &mdash;
-          }
-        </dd>
+    } @else if (naoEncontrada()) {
+      <div class="px47-estado" role="status">
+        <lucide-icon name="circle-x" [size]="22" />
+        <p>Operação não encontrada.</p>
+        <a class="px47-btn-sec" routerLink="/app/credora/carteira">
+          <lucide-icon name="arrow-left" [size]="16" />Voltar para a carteira
+        </a>
       </div>
-      <div class="sep-operacao-detail-row">
-        <dt>Taxa de juros</dt>
-        <dd>
-          @if (op.taxaJurosMensal !== null) {
-            {{ formatarTaxaMensal(op.taxaJurosMensal) }}
-          } @else {
-            &mdash;
-          }
-        </dd>
-      </div>
-      <div class="sep-operacao-detail-row">
-        <dt>Status do contrato</dt>
-        <dd>{{ op.contratoStatus ?? '—' }}</dd>
-      </div>
-      <div class="sep-operacao-detail-row">
-        <dt>Justificativa</dt>
-        <dd>{{ op.justificativa }}</dd>
-      </div>
-      <div class="sep-operacao-detail-row">
-        <dt>Associada em</dt>
-        <dd>{{ formatarData(op.dataCriacao) }}</dd>
-      </div>
-    </dl>
+    } @else if (operacao(); as op) {
+      <div class="px47-corpo">
+        <!-- ============ CONDIÇÕES ============ -->
+        <div class="px47-metricas">
+          <article class="px47-card px47-metrica" data-tone="blue">
+            <header>
+              <span class="px47-metrica-icone"><lucide-icon name="wallet" [size]="18" /></span>
+              <small>Valor financiado</small>
+            </header>
+            <strong>{{ op.valor !== null ? formatarMoeda(op.valor) : '—' }}</strong>
+            <em>{{
+              op.prazoMeses !== null ? op.prazoMeses + ' meses de prazo' : 'prazo não informado'
+            }}</em>
+          </article>
+          <article class="px47-card px47-metrica" data-tone="green">
+            <header>
+              <span class="px47-metrica-icone"><lucide-icon name="banknote" [size]="18" /></span>
+              <small>Total recebido</small>
+            </header>
+            <strong>{{ op.cobranca ? formatarMoeda(op.cobranca.totalRecebido) : '—' }}</strong>
+            <em>
+              {{
+                op.cobranca
+                  ? op.cobranca.parcelasPagas + ' de ' + op.cobranca.numeroParcelas + ' parcelas'
+                  : 'sem cobrança agregada'
+              }}
+            </em>
+          </article>
+          <article class="px47-card px47-metrica" data-tone="purple">
+            <header>
+              <span class="px47-metrica-icone"><lucide-icon name="clock" [size]="18" /></span>
+              <small>Em aberto</small>
+            </header>
+            <strong>{{ op.cobranca ? formatarMoeda(emAberto()) : '—' }}</strong>
+            <em>
+              {{
+                op.cobranca ? parcelasRestantes() + ' parcelas restantes' : 'sem cobrança agregada'
+              }}
+            </em>
+          </article>
+          <article
+            class="px47-card px47-metrica"
+            [attr.data-tone]="(op.cobranca?.parcelasAtrasadas ?? 0) > 0 ? 'red' : 'amber'"
+          >
+            <header>
+              <span class="px47-metrica-icone">
+                <lucide-icon name="triangle-alert" [size]="18" />
+              </span>
+              <small>Parcelas em atraso</small>
+            </header>
+            <strong>{{ op.cobranca ? op.cobranca.parcelasAtrasadas : '—' }}</strong>
+            <em>
+              {{
+                (op.cobranca?.parcelasAtrasadas ?? 0) > 0
+                  ? 'exigem acompanhamento'
+                  : 'nenhuma pendência'
+              }}
+            </em>
+          </article>
+        </div>
 
-    @if (op.cobranca; as cobranca) {
-      <section class="sep-operacao-detail-cobranca">
-        <h2 class="sep-operacao-detail-subtitle">Resumo de cobranca</h2>
-        <dl class="sep-operacao-detail-grid">
-          <div class="sep-operacao-detail-row">
-            <dt>Parcelas</dt>
-            <dd>{{ cobranca.parcelasPagas }} pagas de {{ cobranca.numeroParcelas }}</dd>
-          </div>
-          <div class="sep-operacao-detail-row">
-            <dt>Parcelas em atraso</dt>
-            <dd>{{ cobranca.parcelasAtrasadas }}</dd>
-          </div>
-          <div class="sep-operacao-detail-row">
-            <dt>Valor total</dt>
-            <dd>{{ formatarMoeda(cobranca.valorTotal) }}</dd>
-          </div>
-          <div class="sep-operacao-detail-row">
-            <dt>Total recebido</dt>
-            <dd>{{ formatarMoeda(cobranca.totalRecebido) }}</dd>
-          </div>
-          <div class="sep-operacao-detail-row">
-            <dt>Proximo vencimento</dt>
-            <dd>
-              @if (cobranca.proximoVencimento; as vencimento) {
-                {{ formatarData(vencimento) }}
-              } @else {
-                &mdash;
-              }
-            </dd>
-          </div>
-        </dl>
-      </section>
-    } @else {
-      <p class="sep-operacao-detail-sem-cobranca" role="status">
-        Sem resumo de cobranca disponivel para esta operacao.
-      </p>
+        <div class="px47-colunas">
+          <!-- ============ DADOS DA OPERAÇÃO ============ -->
+          <article class="px47-card px47-dados">
+            <h2>Dados da operação</h2>
+            <dl>
+              <div>
+                <dt>Operação</dt>
+                <dd>{{ idCurto(op.id) }}</dd>
+              </div>
+              <div>
+                <dt>Contrato</dt>
+                <dd>{{ idCurto(op.contratoId) }}</dd>
+              </div>
+              <div>
+                <dt>Oportunidade de origem</dt>
+                <dd>
+                  @if (op.oportunidadeId; as oid) {
+                    <a class="px47-link" [routerLink]="['/app/credora/oportunidades', oid]">
+                      {{ idCurto(oid) }}
+                    </a>
+                  } @else {
+                    —
+                  }
+                </dd>
+              </div>
+              <div>
+                <dt>Status do contrato</dt>
+                <dd>{{ op.contratoStatus ?? '—' }}</dd>
+              </div>
+              <div>
+                <dt>Taxa de juros</dt>
+                <dd>
+                  {{ op.taxaJurosMensal !== null ? formatarTaxaMensal(op.taxaJurosMensal) : '—' }}
+                </dd>
+              </div>
+              <div>
+                <dt>Associada em</dt>
+                <dd>{{ formatarData(op.dataCriacao) }}</dd>
+              </div>
+            </dl>
+            <p class="px47-justificativa">
+              <span>Justificativa da associação</span>
+              {{ op.justificativa }}
+            </p>
+          </article>
+
+          <!-- ============ COBRANÇA ============ -->
+          <article class="px47-card px47-cobranca">
+            <h2>Resumo de cobrança</h2>
+            @if (op.cobranca; as c) {
+              <div class="px47-progresso">
+                <div class="px47-progresso-topo">
+                  <strong>{{ progresso() }}% liquidado</strong>
+                  <small>{{ c.parcelasPagas }} de {{ c.numeroParcelas }} parcelas</small>
+                </div>
+                <span class="px47-progresso-trilho">
+                  <span class="px47-progresso-barra" [style.width.%]="progresso()"></span>
+                </span>
+              </div>
+              <dl>
+                <div>
+                  <dt>Valor total</dt>
+                  <dd>{{ formatarMoeda(c.valorTotal) }}</dd>
+                </div>
+                <div>
+                  <dt>Total recebido</dt>
+                  <dd>{{ formatarMoeda(c.totalRecebido) }}</dd>
+                </div>
+                <div>
+                  <dt>Em aberto</dt>
+                  <dd>{{ formatarMoeda(emAberto()) }}</dd>
+                </div>
+                <div>
+                  <dt>Próximo vencimento</dt>
+                  <dd>
+                    {{ c.proximoVencimento ? formatarData(c.proximoVencimento) : '—' }}
+                  </dd>
+                </div>
+              </dl>
+              <p class="px47-nota">
+                <lucide-icon name="info" [size]="14" />
+                Resumo agregado pela cobrança. A carteira não expõe parcelas individuais nem dado do
+                tomador.
+              </p>
+            } @else {
+              <div class="px47-vazio" role="status">
+                <span class="px47-vazio-icone"><lucide-icon name="inbox" [size]="26" /></span>
+                <strong>Sem resumo de cobrança para esta operação.</strong>
+                <p>
+                  O backend não devolveu o agregado de cobrança. Os dados da operação continuam
+                  disponíveis ao lado.
+                </p>
+              </div>
+            }
+          </article>
+        </div>
+
+        <!-- ============ TRILHA DA OPERAÇÃO ============ -->
+        <article class="px47-card px47-trilha">
+          <h2>Trilha da operação</h2>
+          <ol class="px47-marcos">
+            <li data-tone="blue">
+              <span class="px47-marco-icone"><lucide-icon name="chart-column" [size]="20" /></span>
+              <strong>Oportunidade de origem</strong>
+              <small>
+                @if (op.oportunidadeId; as oid) {
+                  <a class="px47-link" [routerLink]="['/app/credora/oportunidades', oid]">
+                    {{ idCurto(oid) }}
+                  </a>
+                } @else {
+                  Operação sem oportunidade vinculada
+                }
+              </small>
+            </li>
+            <li data-tone="purple">
+              <span class="px47-marco-icone"><lucide-icon name="user-check" [size]="20" /></span>
+              <strong>Associação assistida</strong>
+              <small>{{ formatarData(op.dataCriacao) }} · {{ op.contratoStatus ?? '—' }}</small>
+            </li>
+            <li data-tone="green">
+              <span class="px47-marco-icone"><lucide-icon name="banknote" [size]="20" /></span>
+              <strong>Cobrança em curso</strong>
+              <small>
+                {{
+                  op.cobranca
+                    ? op.cobranca.parcelasPagas +
+                      ' de ' +
+                      op.cobranca.numeroParcelas +
+                      ' parcelas liquidadas'
+                    : 'sem cobrança agregada'
+                }}
+              </small>
+            </li>
+            <li data-tone="amber">
+              <span class="px47-marco-icone"><lucide-icon name="calendar-days" [size]="20" /></span>
+              <strong>Próximo vencimento</strong>
+              <small>
+                {{
+                  op.cobranca?.proximoVencimento
+                    ? formatarData(op.cobranca!.proximoVencimento!)
+                    : 'sem parcela em aberto'
+                }}
+              </small>
+            </li>
+          </ol>
+        </article>
+      </div>
     }
-  }
-</section>
+  </section>
+</sep-operational-shell>

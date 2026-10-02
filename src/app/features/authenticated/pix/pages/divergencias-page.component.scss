@@ -1,120 +1,1184 @@
-@use "../../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../../styles/sep-ds-components" as sepDs;
+@use "../../../../../styles/sep-responsivo" as resp;
 
-.sep-divergencias {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-24);
-  max-width: 860px;
-  margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+:host {
+  --blue: var(--sep-accent);
+  --green: var(--sep-success);
+  --red: var(--sep-danger);
+  --orange: var(--sep-warning);
+  --purple: var(--sep-purple);
+  --muted: var(--sep-text-secondary);
+  --muted-forte: var(--sep-text-secondary);
+
+  display: block;
+  color: var(--sep-text-strong);
 }
 
-.sep-divergencias-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
+* {
+  box-sizing: border-box;
 }
 
-.sep-divergencias-title {
-  @include sepType.sep-type-page-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
+button,
+input {
+  font: inherit;
 }
 
-.sep-divergencias-subtitle {
-  @include sepType.sep-type-body;
+/* stylelint-disable selector-pseudo-element-no-unknown -- Angular ::ng-deep */
 
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-divergencias-grupo {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-12);
-}
-
-.sep-divergencias-grupo .sep-divergencias-subtitle {
-  @include sepType.sep-type-section-title;
-
-  color: hsl(var(--foreground));
-}
-
-.sep-divergencias-vazio {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-divergencias-lista {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-12);
-  margin: 0;
+:host ::ng-deep .op-content:has(> .px23-page) {
+  /* Container do contrato responsivo: e esta area que recebe o espaco restante depois da barra
+       lateral, entao e ela que a pagina mede. Declarar no `:host` do componente nao serve — o host
+       envolve o shell inteiro e tem a largura da janela. */
+  container: sep-conteudo / inline-size;
+  display: block;
+  height: 100%;
+  min-height: 0;
   padding: 0;
-  list-style: none;
+  overflow: hidden;
 }
 
-.sep-divergencias-item {
-  @include sepDs.sep-card;
-
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-  padding: var(--sep-space-16);
+:host ::ng-deep .op-main:has(.px23-page) {
+  grid-template-rows: 70px minmax(0, 1fr) 80px;
 }
 
-.sep-divergencias-item-topo {
-  display: flex;
+:host ::ng-deep .op-main:has(.px23-page) > .op-footer {
+  min-height: 80px;
+}
+
+:host ::ng-deep .op-main:has(.px23-page) > .op-footer .op-footer-status,
+:host ::ng-deep .op-main:has(.px23-page) > .op-footer .op-access {
+  transform: translateY(-2px);
+}
+
+:host ::ng-deep .op-main:has(.px23-page) > .op-footer .op-footer-hud {
+  width: 116px;
+  height: 70px;
+  object-fit: contain;
+}
+
+:host ::ng-deep .op-dashboard:has(.px23-page) > .op-sidebar {
+  grid-template-rows: 70px minmax(0, 1fr) 130px 80px;
+}
+
+/* stylelint-enable selector-pseudo-element-no-unknown */
+
+// ============ GRADE PRINCIPAL ============
+
+// No mockup a coluna lateral começa na mesma altura do breadcrumb e ocupa toda a página; só o
+// cartão "Sobre divergências" divide a faixa do título com a coluna principal.
+.px23-page {
+  display: grid;
+  grid-template:
+    "heading side" auto
+    "main side" 1fr / minmax(0, 2.6fr) minmax(344px, 1.14fr);
+  gap: 16px 20px;
+  width: 100%;
+  height: 100%;
+  padding: 10px 18px 14px;
+  background: radial-gradient(circle at 48% 28%, rgb(var(--sep-c-blue) / 6%), transparent 40%);
+}
+
+// ============ TONS ============
+// Mesmo vocabulário de cor das demais telas operacionais (Mockups 20 a 22).
+
+[data-tone="red"] {
+  --tone: var(--red);
+  --tone-borda: rgb(var(--sep-c-red) / 55%);
+  --tone-fundo: rgb(var(--sep-c-red) / 12%);
+}
+
+[data-tone="orange"] {
+  --tone: var(--orange);
+  --tone-borda: rgb(var(--sep-c-amber) / 55%);
+  --tone-fundo: rgb(var(--sep-c-amber) / 12%);
+}
+
+[data-tone="blue"] {
+  --tone: var(--blue);
+  --tone-borda: rgb(var(--sep-c-blue) / 55%);
+  --tone-fundo: rgb(var(--sep-c-blue) / 12%);
+}
+
+[data-tone="purple"] {
+  --tone: var(--purple);
+  --tone-borda: rgb(var(--sep-c-purple) / 55%);
+  --tone-fundo: rgb(var(--sep-c-purple) / 12%);
+}
+
+[data-tone="green"] {
+  --tone: var(--green);
+  --tone-borda: rgb(var(--sep-c-green) / 55%);
+  --tone-fundo: rgb(var(--sep-c-green) / 12%);
+}
+
+// ============ ÍCONES DO PACOTE DO MOCKUP ============
+// Os PNGs do Mockup 23 vêm com o fundo escuro do mockup embutido (sem alfa). Sem o blend eles
+// aparecem como quadrados pretos sobre o gradiente dos cartões — mesmo tratamento dos Mockups
+// 15 e 21. `lighten` (e não `screen`) porque os ícones também aparecem sobre botões, onde o
+// `screen` clareia o fundo embutido e devolve o quadrado.
+
+// O modo de mistura escondia o fundo escuro gravado no arquivo, e so faz sentido no tema escuro:
+// no claro `screen`/`lighten` sobre a superficie clara apaga o proprio desenho.
+:host-context(.dark) .px23-page img {
+  mix-blend-mode: lighten;
+}
+
+// Ícones desenhados aqui, em SVG: os PNGs correspondentes do pacote (relógio, refresh do botão
+// e sparkline) são recortes errados — trazem texto do mockup ou só um pedaço do glifo.
+.px23-icone {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+// ============ SELOS ============
+
+.px23-selo {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--sep-space-12);
+  height: 23px;
+  padding: 0 11px;
+  color: var(--tone, var(--blue));
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 55%));
+  border-radius: 7px;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+  transition:
+    filter 0.16s,
+    transform 0.16s;
 }
 
-.sep-divergencias-item-titulo {
-  @include sepType.sep-type-body-medium;
-
-  color: hsl(var(--foreground));
+.px23-selo-status {
+  color: var(--muted-forte);
+  border-color: rgb(var(--sep-c-edge) / 55%);
+  background: rgb(var(--sep-c-active) / 10%);
 }
 
-.sep-divergencias-chips {
+// Efeito associativo dos selos (Mockup 20): o selo acende junto com o bloco que o contém, e não
+// só quando o ponteiro cai exatamente sobre ele.
+.px23-item-list li:hover .px23-selo,
+.px23-tentativa:hover .px23-selo,
+.px23-error-detalhe:hover .px23-selo,
+.px23-selo:hover {
+  filter: brightness(1.22)
+    drop-shadow(
+      0 0 5px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+    );
+  transform: scale(1.04);
+}
+
+.px23-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--tone, var(--blue));
+  box-shadow: 0 0 8px var(--tone, var(--blue));
+  flex-shrink: 0;
+  transition:
+    box-shadow 0.16s,
+    transform 0.16s;
+}
+
+// O ponto do título do grupo pulsa quando qualquer item daquele grupo está sob o ponteiro.
+.px23-grupo:has(li:hover) .px23-dot,
+.px23-grupo h2:hover .px23-dot {
+  box-shadow: 0 0 13px var(--tone, var(--blue));
+  transform: scale(1.22);
+}
+
+// ============ CARTÃO REUTILIZÁVEL ============
+
+.px23-card {
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 9px;
+  background: linear-gradient(
+    145deg,
+    rgb(var(--sep-c-sunken) / 96%),
+    rgb(var(--sep-c-sunken) / 94%)
+  );
+  box-shadow: inset 0 1px rgb(var(--sep-c-blue) / calc(4% * var(--sep-glow-alpha)));
+  transition:
+    border-color 0.22s,
+    box-shadow 0.22s;
+}
+
+.px23-card:hover {
+  border-color: rgb(var(--sep-c-blue) / 40%);
+  box-shadow:
+    0 0 18px rgb(var(--sep-c-blue) / calc(6% * var(--sep-glow-alpha))),
+    inset 0 1px rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha)));
+}
+
+// ============ CABEÇALHO ============
+
+.px23-heading {
+  grid-area: heading;
+  padding: 2px 2px 0;
+}
+
+.px23-heading nav {
   display: flex;
-  gap: var(--sep-space-6);
+  gap: 11px;
+  color: var(--muted);
+  font-size: 12px;
 }
 
-.sep-divergencias-item-data {
-  @include sepType.sep-type-caption;
+.px23-heading nav a {
+  color: inherit;
+  text-decoration: none;
 
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-divergencias-item-acoes {
-  display: flex;
-  gap: var(--sep-space-16);
-
-  a {
-    @include sepType.sep-type-body;
-
-    color: hsl(var(--primary));
+  &:hover {
+    color: var(--blue);
   }
 }
 
-.sep-divergencias-state {
-  @include sepType.sep-type-body;
-
-  color: hsl(var(--muted-foreground));
+.px23-heading nav strong {
+  color: var(--sep-text-strong);
 }
 
-.sep-divergencias-retry {
-  align-self: flex-start;
-  margin-top: var(--sep-space-8);
-  padding: var(--sep-space-8) var(--sep-space-16);
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--sep-radius-sm);
-  background: transparent;
-  color: hsl(var(--foreground));
+.px23-heading-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 6px;
+}
+
+.px23-heading h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 5px;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.px23-heading h1 lucide-icon {
+  width: 20px;
+  height: 20px;
+  filter: drop-shadow(0 0 10px rgb(var(--sep-c-red) / calc(35% * var(--sep-glow-alpha))));
+}
+
+.px23-heading p {
+  margin: 0;
+  color: var(--sep-text-secondary);
+  font-size: 13.5px;
+}
+
+// ============ CARTÃO "SOBRE DIVERGÊNCIAS" ============
+
+.px23-about {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  max-width: 392px;
+  padding: 14px 18px;
+  flex-shrink: 0;
+}
+
+.px23-about > lucide-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: filter 0.16s;
+}
+
+.px23-about:hover > lucide-icon {
+  filter: brightness(1.16)
+    drop-shadow(0 0 7px rgb(var(--sep-c-blue) / calc(55% * var(--sep-glow-alpha))));
+}
+
+.px23-about strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.px23-about p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.px23-link {
+  display: inline-block;
+  margin-top: 9px;
+  color: var(--blue);
+  font-size: 12.5px;
+  font-weight: 500;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+    filter: brightness(1.2);
+  }
+}
+
+// ============ COLUNA PRINCIPAL ============
+
+.px23-main {
+  grid-area: main;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  min-height: 0;
+  overflow: hidden auto;
+}
+
+// ============ PAINEL DE ERRO CENTRAL ============
+
+.px23-error-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  // `safe` evita que, em telas baixas, a centralização empurre o topo do painel para fora da
+  // área rolável (o visual do erro ficava cortado e inalcançável).
+  justify-content: safe center;
+  text-align: center;
+  padding: 15px 30px 13px;
+
+  // `min-content` impede que o item flex encolha abaixo do próprio conteúdo: sem isso a faixa de
+  // suporte era pintada fora do cartão e ficava cortada, sem rolagem para alcançá-la.
+  flex: 1 1 auto;
+  min-height: min-content;
+  background:
+    radial-gradient(ellipse 420px 240px at 50% 30%, rgb(var(--sep-c-red) / 5%), transparent),
+    linear-gradient(145deg, rgb(var(--sep-c-sunken) / 96%), rgb(var(--sep-c-sunken) / 94%));
+}
+
+// Proporção do recorte preservada. 150x128 é o máximo medido: acima disso o painel cresce, empurra
+// a Dica de operação e a coluna principal passa por baixo do rodapé em 1536x1024.
+.px23-error-visual {
+  width: 150px;
+  height: 128px;
+  object-fit: contain;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 0 22px rgb(var(--sep-c-red) / calc(22% * var(--sep-glow-alpha))));
+}
+
+.px23-error-panel h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.px23-error-desc {
+  margin: 7px 0 10px;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+// Mensagem real devolvida pela API: no mockup só existe o texto genérico, mas a operação
+// precisa do motivo da falha para abrir chamado.
+.px23-error-detalhe {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 560px;
+  margin: 0 0 11px;
+  padding: 7px 12px;
+  color: var(--sep-text-secondary);
+  font-size: 12.5px;
+  text-align: left;
+  border: 1px solid rgb(var(--sep-c-red) / 34%);
+  border-radius: 8px;
+  background: rgb(var(--sep-c-red) / 8%);
+}
+
+.px23-retry {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-width: 210px;
+  height: 40px;
+  padding: 0 28px;
+  color: var(--sep-text-strong);
+  font-size: 14.5px;
+  font-weight: 600;
+  border: 1px solid var(--red);
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgb(var(--sep-c-red) / 70%), rgb(var(--sep-c-red) / 40%));
+  box-shadow: 0 0 18px rgb(var(--sep-c-red) / calc(14% * var(--sep-glow-alpha)));
   cursor: pointer;
+  transition: 0.2s;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--sep-danger);
+    box-shadow: 0 0 24px rgb(var(--sep-c-red) / calc(32% * var(--sep-glow-alpha)));
+    filter: brightness(1.1);
+  }
+
+  img {
+    width: 19px;
+    height: 19px;
+    object-fit: contain;
+  }
+}
+
+.px23-loading {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+// ============ CAUSAS DO ERRO ============
+
+.px23-causes-box {
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px 14px;
+  border: 1px solid rgb(var(--sep-c-edge) / 60%);
+  border-radius: 9px;
+  background: rgb(var(--sep-c-sunken) / 60%);
+}
+
+.px23-causes-box h3 {
+  margin: 0 0 10px;
+  color: var(--muted-forte);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.px23-causes-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+// No mockup os quatro blocos são horizontais (ícone à esquerda, rótulo em duas linhas).
+.px23-cause-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 11px;
+  text-align: left;
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-edge) / 60%));
+  border-radius: 8px;
+  background: linear-gradient(
+    120deg,
+    var(--tone-fundo, rgb(var(--sep-c-surf) / 70%)),
+    rgb(var(--sep-c-sunken) / 82%)
+  );
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
+
+  &:hover {
+    border-color: var(--tone, var(--blue));
+    box-shadow:
+      inset 0 0 18px var(--tone-fundo, rgb(var(--sep-c-blue) / calc(10% * var(--sep-glow-alpha)))),
+      0 0 16px var(--tone-fundo, rgb(var(--sep-c-blue) / calc(10% * var(--sep-glow-alpha))));
+    transform: translateY(-2px);
+  }
+
+  &:hover lucide-icon {
+    filter: brightness(1.16) drop-shadow(0 0 7px var(--tone, var(--blue)));
+  }
+
+  &:hover strong {
+    color: var(--sep-text-strong);
+  }
+
+  lucide-icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    flex-shrink: 0;
+    border-radius: 9px;
+    transition: filter 0.2s;
+  }
+
+  strong {
+    display: block;
+    color: var(--sep-text);
+    font-size: 12.5px;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  span {
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.3;
+  }
+}
+
+// ============ FAIXA DE SUPORTE ============
+
+.px23-support-text {
+  margin: 11px 0 9px;
+  color: var(--muted);
+  font-size: 13.5px;
+}
+
+.px23-support-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.px23-btn-support {
+  display: flex;
+  text-decoration: none;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 38px;
+  padding: 0 22px;
+  color: var(--blue);
+  font-size: 13.5px;
+  font-weight: 500;
+  border: 1px solid rgb(var(--sep-c-blue) / 70%);
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--sep-surface-2), var(--sep-surface-hover));
+  cursor: pointer;
+  transition: 0.2s;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--blue);
+    box-shadow: 0 0 18px rgb(var(--sep-c-blue) / calc(18% * var(--sep-glow-alpha)));
+    filter: brightness(1.08);
+  }
+
+  &:hover lucide-icon {
+    filter: brightness(1.15)
+      drop-shadow(0 0 7px rgb(var(--sep-c-blue) / calc(60% * var(--sep-glow-alpha))));
+  }
+
+  lucide-icon {
+    width: 22px;
+    height: 22px;
+    transition: filter 0.18s;
+  }
+}
+
+// ============ DICA DE OPERAÇÃO ============
+
+.px23-tip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 11px 20px;
+  flex-shrink: 0;
+}
+
+// A lâmpada e o botão de reprocessos acendem juntos com o cartão inteiro.
+.px23-tip:hover .px23-tip-left lucide-icon {
+  filter: brightness(1.14)
+    drop-shadow(0 0 12px rgb(var(--sep-c-amber) / calc(55% * var(--sep-glow-alpha))));
+}
+
+.px23-tip:hover .px23-btn-reprocess {
+  border-color: var(--blue);
+  box-shadow: 0 0 16px rgb(var(--sep-c-blue) / calc(18% * var(--sep-glow-alpha)));
+}
+
+.px23-tip-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  lucide-icon {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 10px rgb(var(--sep-c-amber) / calc(28% * var(--sep-glow-alpha))));
+    transition: filter 0.18s;
+  }
+
+  strong {
+    display: block;
+    font-size: 13.5px;
+    margin-bottom: 3px;
+  }
+
+  span {
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.4;
+  }
+}
+
+.px23-btn-reprocess {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  height: 38px;
+  padding: 0 18px;
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  border: 1px solid rgb(var(--sep-c-blue) / 70%);
+  border-radius: 7px;
+  background: linear-gradient(90deg, var(--sep-surface-2), var(--sep-surface-hover));
+  transition: 0.2s;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--blue);
+    box-shadow: 0 0 16px rgb(var(--sep-c-blue) / calc(18% * var(--sep-glow-alpha)));
+  }
+}
+
+// ============ ESTADO DE DADOS (SUCESSO) ============
+
+.px23-data-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 20px 22px;
+  overflow: hidden auto;
+  flex: 1 1 auto;
+}
+
+.px23-grupo h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  font-size: 15.5px;
+  font-weight: 600;
+}
+
+.px23-contador {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 22px;
+  padding: 0 8px;
+  color: var(--muted-forte);
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid rgb(var(--sep-c-edge) / 90%);
+  border-radius: 7px;
+  background: rgb(var(--sep-c-surf) / 90%);
+  transition:
+    border-color 0.16s,
+    color 0.16s;
+}
+
+.px23-grupo:has(li:hover) .px23-contador {
+  color: var(--sep-text-strong);
+  border-color: var(--tone-borda, rgb(var(--sep-c-blue) / 55%));
+}
+
+.px23-empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13.5px;
+}
+
+.px23-item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 13px 16px;
+    border: 1px solid rgb(var(--sep-c-edge) / 60%);
+    border-left: 3px solid var(--tone, var(--blue));
+    border-radius: 7px;
+    background: rgb(var(--sep-c-surf) / 70%);
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s,
+      transform 0.2s;
+
+    &:hover {
+      border-color: var(--tone-borda, rgb(var(--sep-c-blue) / 40%));
+      box-shadow:
+        inset 3px 0 0 var(--tone, var(--blue)),
+        inset 0 0 20px rgb(var(--sep-c-blue) / calc(7% * var(--sep-glow-alpha)));
+      transform: translateY(-1px);
+    }
+
+    &:hover .px23-item-titulo {
+      color: var(--sep-text-strong);
+    }
+  }
+}
+
+.px23-item-titulo {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.px23-item-data {
+  color: var(--muted);
+  font-size: 12.5px;
+  flex-shrink: 0;
+}
+
+.px23-item-acoes {
+  display: flex;
+  gap: 14px;
+  flex-shrink: 0;
+
+  a {
+    color: var(--blue);
+    font-size: 12.5px;
+    font-weight: 500;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+      filter: brightness(1.15);
+    }
+  }
+}
+
+// ============ COLUNA LATERAL ============
+
+// Os quatro cartões têm altura própria e não encolhem: a soma deles mais os vãos precisa caber nos
+// 854px da coluna em 1536x1024, senão o último passa por baixo do rodapé. Medido: 852px.
+.px23-side {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-height: 0;
+  overflow: hidden auto;
+}
+
+// ============ STATUS DO PROVIDER PIX ============
+
+.px23-provider {
+  padding: 12px 18px 10px;
+  flex-shrink: 0;
+}
+
+// O widget do provider responde como um bloco: escudo, rótulo ONLINE, sparkline e LED acendem
+// juntos, como nos cartões dos Mockups 20 e 21.
+.px23-provider:hover lucide-icon {
+  filter: brightness(1.12)
+    drop-shadow(0 0 13px rgb(var(--sep-c-green) / calc(55% * var(--sep-glow-alpha))));
+}
+
+.px23-provider:hover .px23-online {
+  text-shadow: 0 0 14px rgb(var(--sep-c-green) / calc(70% * var(--sep-glow-alpha)));
+}
+
+.px23-provider:hover .px23-sparkline polyline {
+  stroke-width: 1.4;
+  filter: drop-shadow(0 0 6px rgb(var(--sep-c-blue) / calc(85% * var(--sep-glow-alpha))));
+}
+
+.px23-provider:hover .px23-led {
+  box-shadow: 0 0 11px var(--green);
+  transform: scale(1.25);
+}
+
+.px23-provider-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+
+  > strong {
+    font-size: 15px;
+  }
+}
+
+.px23-provider-body {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.px23-provider-status {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+
+  lucide-icon {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 10px rgb(var(--sep-c-green) / calc(30% * var(--sep-glow-alpha))));
+    transition: filter 0.18s;
+  }
+
+  span {
+    display: block;
+    color: var(--muted);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}
+
+.px23-online {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--green);
+  font-style: normal;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-shadow: 0 0 10px rgb(var(--sep-c-green) / calc(45% * var(--sep-glow-alpha)));
+  transition: text-shadow 0.18s;
+}
+
+.px23-provider-tempo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+
+  > span {
+    color: var(--muted);
+    font-size: 12.5px;
+  }
+
+  > strong {
+    margin-top: 2px;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+}
+
+// Sparkline própria em SVG: a do pacote de assets traz o fundo do mockup e um pedaço do texto
+// "186 ms" no recorte, que cobria o valor do widget.
+.px23-sparkline {
+  display: block;
+  width: 118px;
+  height: 22px;
+  margin-top: 4px;
+
+  polyline {
+    fill: none;
+    stroke: var(--blue);
+    stroke-width: 1.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 3px rgb(var(--sep-c-blue) / calc(65% * var(--sep-glow-alpha))));
+    transition:
+      stroke-width 0.18s,
+      filter 0.18s;
+  }
+}
+
+.px23-provider-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px solid rgb(var(--sep-c-edge) / 50%);
+
+  > span:last-child {
+    color: var(--muted);
+    font-size: 12.5px;
+  }
+}
+
+.px23-led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  flex-shrink: 0;
+  transition:
+    box-shadow 0.18s,
+    transform 0.18s;
+}
+
+// ============ POSSÍVEIS CAUSAS ============
+
+.px23-causas {
+  padding: 12px 18px;
+  flex-shrink: 0;
+
+  > strong {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 3px 6px;
+    margin: 0 -6px;
+    border-radius: 8px;
+    transition:
+      background 0.18s,
+      transform 0.18s;
+  }
+
+  li:hover {
+    background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+    transform: translateX(3px);
+  }
+
+  li:hover strong {
+    color: var(--sep-text-strong);
+  }
+
+  li:hover span {
+    color: var(--muted-forte);
+  }
+
+  li lucide-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    transition: filter 0.2s;
+  }
+
+  li:hover lucide-icon {
+    filter: brightness(1.15) drop-shadow(0 0 7px var(--tone, var(--blue)));
+  }
+
+  li strong {
+    display: block;
+    margin-bottom: 1px;
+    font-size: 13.5px;
+    font-weight: 500;
+    transition: color 0.18s;
+  }
+
+  li span {
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.35;
+    transition: color 0.18s;
+  }
+
+  .px23-link {
+    margin-top: 11px;
+  }
+}
+
+// ============ ÚLTIMA TENTATIVA ============
+
+.px23-tentativa {
+  padding: 12px 18px;
+  flex-shrink: 0;
+
+  > strong {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 10px;
+  }
+}
+
+.px23-tentativa-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.px23-tentativa-data {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+
+  span {
+    font-size: 14.5px;
+    font-weight: 600;
+  }
+}
+
+.px23-clock {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: var(--sep-text);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: filter 0.18s;
+}
+
+.px23-tentativa:hover .px23-clock {
+  filter: drop-shadow(0 0 6px rgb(var(--sep-c-fg) / 65%));
+}
+
+.px23-icone-verde {
+  stroke: var(--green);
+  filter: drop-shadow(0 0 5px rgb(var(--sep-c-green) / calc(45% * var(--sep-glow-alpha))));
+  transition: filter 0.18s;
+}
+
+.px23-btn-support:hover .px23-icone-verde {
+  filter: drop-shadow(0 0 9px rgb(var(--sep-c-green) / calc(80% * var(--sep-glow-alpha))));
+}
+
+.px23-tentativa-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.px23-label {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.px23-tentativa-detail span:not(.px23-label) {
+  font-size: 12.5px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+// Só o protocolo pode ser quebrado no meio da palavra; a mensagem quebra por palavra.
+.px23-protocolo {
+  word-break: break-all;
+}
+
+.px23-error-msg {
+  color: var(--red);
+}
+
+// ============ ATALHOS ÚTEIS ============
+
+.px23-atalhos {
+  padding: 10px 18px 11px;
+  flex: 0 0 auto;
+
+  > strong {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 10px;
+  }
+}
+
+.px23-atalhos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.px23-atalho {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 11px;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid rgb(var(--sep-c-edge) / 60%);
+  border-radius: 7px;
+  background: rgb(var(--sep-c-surf) / 70%);
+  transition: 0.2s;
+
+  &:hover,
+  &:focus-visible {
+    border-color: rgb(var(--sep-c-blue) / 50%);
+    box-shadow: 0 0 16px rgb(var(--sep-c-blue) / calc(14% * var(--sep-glow-alpha)));
+    transform: translateY(-2px);
+  }
+
+  &:hover lucide-icon {
+    filter: brightness(1.15)
+      drop-shadow(0 0 7px rgb(var(--sep-c-blue) / calc(55% * var(--sep-glow-alpha))));
+  }
+
+  &:hover strong {
+    color: var(--sep-text-strong);
+  }
+
+  lucide-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    transition: filter 0.2s;
+  }
+
+  strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 2px;
+    line-height: 1.25;
+    transition: color 0.18s;
+  }
+
+  span {
+    color: var(--muted);
+    font-size: 12px;
+  }
+}
+
+// ============ ACESSIBILIDADE ============
+
+:focus-visible {
+  outline: 2px solid rgb(var(--sep-c-blue) / 70%);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+
+  .px23-item-list li:hover,
+  .px23-cause-item:hover,
+  .px23-atalho:hover,
+  .px23-causas li:hover {
+    transform: none;
+  }
+
+  .px23-selo,
+  .px23-dot,
+  .px23-led {
+    transform: none !important;
+  }
+}
+
+// ============ JANELA MAXIMIZADA ============
+// Acima de 1440 as medidas homologadas viram piso e o layout acompanha o espaco. Nada aqui vale de
+// 1440 para baixo: a forma original fica intacta.
+@include resp.maximizada {
+  // O teto de 392px vira piso: 50.38% da fileira de 778px (1440) dao o mesmo, e o texto se
+  // espalha em vez de ficar numa coluna estreita ao lado de um titulo com sobra.
+  .px23-about {
+    max-width: max(392px, 50.38%);
+  }
 }

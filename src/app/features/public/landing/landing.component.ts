@@ -1,5 +1,10 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
+
+import { SepArteComponent } from '../../../shared/arte/sep-arte.component';
+import { SepLogoComponent } from '../../../shared/arte/sep-logo.component';
+import { ThemeService } from '../../../core/theme/theme.service';
 
 interface AssetItem {
   icon: string;
@@ -9,7 +14,7 @@ interface AssetItem {
 
 @Component({
   selector: 'sep-landing',
-  imports: [RouterLink],
+  imports: [LucideAngularModule, RouterLink, SepArteComponent, SepLogoComponent],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,19 +22,28 @@ interface AssetItem {
 export class LandingComponent {
   protected readonly assetBase = '/image/sep_mockup_01_assets';
 
+  private readonly tema = inject(ThemeService);
+
+  /** O botao do topo troca o tema da tela publica; o escuro e o padrao do projeto. */
+  protected readonly temaEscuro = this.tema.isDark;
+
+  protected alternarTema(): void {
+    this.tema.toggle();
+  }
+
   protected readonly trustBadges: AssetItem[] = [
     {
-      icon: `${this.assetBase}/icons/icon_regulacao_cmn.png`,
+      icon: 'landmark',
       title: 'Regulado pela',
       description: 'CMN 4.656/2018',
     },
     {
-      icon: `${this.assetBase}/icons/icon_segregacao_patrimonial.png`,
+      icon: 'split',
       title: 'Segregação',
       description: 'Patrimonial escrow',
     },
     {
-      icon: `${this.assetBase}/icons/icon_kyc_pld_prevencao.png`,
+      icon: 'shield-alert',
       title: 'KYC e PLD',
       description: 'Prevenção',
     },
@@ -37,27 +51,27 @@ export class LandingComponent {
 
   protected readonly platformPills: AssetItem[] = [
     {
-      icon: `${this.assetBase}/icons/icon_escrow_seguro.png`,
+      icon: 'landmark',
       title: 'Escrow',
       description: 'Seguro',
     },
     {
-      icon: `${this.assetBase}/icons/icon_kyc_kyb_verificado.png`,
+      icon: 'badge-check',
       title: 'KYC/KYB',
       description: 'Verificado',
     },
     {
-      icon: `${this.assetBase}/icons/icon_pld_prevencao.png`,
+      icon: 'shield-alert',
       title: 'PLD',
       description: 'Prevenção',
     },
     {
-      icon: `${this.assetBase}/icons/icon_auditoria_completa.png`,
+      icon: 'scroll-text',
       title: 'Auditoria',
       description: 'Completa',
     },
     {
-      icon: `${this.assetBase}/icons/icon_rastreabilidade_total.png`,
+      icon: 'history',
       title: 'Rastreabilidade',
       description: 'Total',
     },
@@ -65,25 +79,25 @@ export class LandingComponent {
 
   protected readonly workflowSteps: AssetItem[] = [
     {
-      icon: `${this.assetBase}/icons/icon_fluxo_01_cadastro_verificacao.png`,
+      icon: 'user-plus',
       title: 'Cadastro e Verificação',
       description:
         'Empresas e investidores se cadastram na plataforma e passam por validações KYC/KYB e checagens regulatórias.',
     },
     {
-      icon: `${this.assetBase}/icons/icon_fluxo_02_proposta_analise.png`,
+      icon: 'file-search',
       title: 'Proposta e Análise',
       description:
         'A empresa solicita o crédito e a proposta é analisada com base em dados, regras e parecer técnico.',
     },
     {
-      icon: `${this.assetBase}/icons/icon_fluxo_03_formalizacao_escrow.png`,
+      icon: 'file-check',
       title: 'Formalização e Escrow',
       description:
         'Com aprovação, o contrato é formalizado e o recurso fica em conta escrow segregada e auditável.',
     },
     {
-      icon: `${this.assetBase}/icons/icon_fluxo_04_liberacao_acompanhamento.png`,
+      icon: 'send',
       title: 'Liberação e Acompanhamento',
       description:
         'Após condições cumpridas, o crédito é liberado e toda operação é acompanhada com rastreabilidade total.',
@@ -92,27 +106,27 @@ export class LandingComponent {
 
   protected readonly indicators: AssetItem[] = [
     {
-      icon: `${this.assetBase}/icons/icon_indicador_ambiente_regulado.png`,
+      icon: 'landmark',
       title: '100%',
       description: 'Ambiente regulado Resolução CMN 4.656/2018',
     },
     {
-      icon: `${this.assetBase}/icons/icon_indicador_seguranca.png`,
+      icon: 'shield-check',
       title: 'Segurança',
       description: 'Dados protegidos com criptografia de ponta',
     },
     {
-      icon: `${this.assetBase}/icons/icon_indicador_rastreabilidade.png`,
+      icon: 'history',
       title: 'Rastreabilidade',
       description: 'Do cadastro à liquidação com auditoria completa',
     },
     {
-      icon: `${this.assetBase}/icons/icon_indicador_conexao_segura.png`,
+      icon: 'lock',
       title: 'Conexão segura',
       description: 'Empresas que precisam e investidores que confiam',
     },
     {
-      icon: `${this.assetBase}/icons/icon_indicador_conformidade.png`,
+      icon: 'clipboard-check',
       title: 'Conformidade',
       description: 'KYC, KYB, PLD e governança em todas as etapas',
     },

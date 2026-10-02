@@ -1,63 +1,95 @@
-@use "../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../styles/sep-ds-components" as sepDs;
+// ============ FORMALIZAÇÃO POR PROPOSTA ============
+// Tela de passagem, trazida para o tema operacional em 21/08/2026. Antes vivia no shell claro e
+// resolvia os desfechos sem saída com uma linha de texto solta.
 
-.sep-proposta-entry {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-24);
-  max-width: 720px;
-  margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+@use "../../../../styles/tela-operacional-tema" as tema;
+
+:host {
+  @include tema.tokens;
 }
 
-.sep-proposta-entry-title {
-  @include sepType.sep-type-page-title;
+@include tema.base("px59");
 
+.px59-page {
+  display: grid;
+  grid-template-rows: min-content minmax(min-content, 1fr);
+  gap: 18px;
+  height: 100%;
+  min-height: 0;
+  padding: 20px 26px;
+  overflow: hidden;
+}
+
+.px59-centro {
+  display: grid;
+  min-height: 0;
+  place-items: center;
+}
+
+.px59-estado-card {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  width: min(560px, 100%);
+  padding: 38px 40px;
+  text-align: center;
+}
+
+.px59-estado-icone {
+  display: grid;
+  width: 74px;
+  height: 74px;
+  margin-bottom: 4px;
+  color: var(--tone, var(--blue));
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 55%));
+  border-radius: 50%;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+  box-shadow: 0 0 30px color-mix(in srgb, var(--tone, var(--sep-accent)) 22%, transparent);
+  place-items: center;
+}
+
+// O ícone de carregamento gira; os demais ficam parados.
+.px59-estado-icone[data-tone="blue"] lucide-icon {
+  animation: px59-gira 1.1s linear infinite;
+}
+
+@keyframes px59-gira {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.px59-estado-card h2 {
   margin: 0;
-  color: hsl(var(--foreground));
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }
 
-.sep-proposta-entry-state {
-  @include sepType.sep-type-body;
-
-  color: hsl(var(--muted-foreground));
+.px59-estado-card p {
+  max-width: 430px;
+  margin: 0;
+  color: var(--muted-forte);
+  font-size: 13.5px;
+  line-height: 1.6;
 }
 
-.sep-proposta-entry-error {
-  color: hsl(var(--warning));
+.px59-mono {
+  color: var(--muted);
+  font-family: "JetBrains Mono", "Cascadia Code", ui-monospace, monospace;
+  font-size: 11.5px;
 }
 
-.sep-proposta-entry-empty {
+.px59-acoes {
   display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 8px;
 }
 
-.sep-proposta-entry-card {
-  @include sepDs.sep-card;
-
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-  padding: var(--sep-space-24);
-  align-items: flex-start;
-}
-
-.sep-proposta-entry-card-status {
-  @include sepType.sep-type-badge;
-
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-proposta-entry-card-id {
-  @include sepType.sep-type-card-title;
-
-  color: hsl(var(--foreground));
-}
-
-.sep-proposta-entry-card-cta {
-  @include sepDs.sep-button-primary;
-
-  text-decoration: none;
+@media (prefers-reduced-motion: reduce) {
+  .px59-estado-icone[data-tone="blue"] lucide-icon {
+    animation: none;
+  }
 }

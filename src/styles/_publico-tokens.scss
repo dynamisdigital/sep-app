@@ -1,0 +1,67 @@
+// SEP — Frontend
+// Frontend Development: Daniel Möllmann
+// Angular • TypeScript • SCSS — 2026
+
+// ============ CANAIS DE COR DO SITE PÚBLICO ============
+// A landing, o login e as seis telas institucionais foram desenhadas sobre fundo escuro, com a cor
+// escrita direto em cada regra. Aqui elas viram canais no formato `R G B`, para que o alfa de cada
+// uso continue no próprio lugar (`rgb(var(--lp-c-azul) / 18%)`).
+// No escuro os canais valem as cores do desenho homologado — a tela não muda. No claro valem a
+// paleta clara do aplicativo autenticado, que já passou por auditoria de contraste. O tema escuro
+// é o padrão do projeto; o claro é a alternativa do botão no topo de cada tela.
+
+:root {
+  --lp-c-fundo: 5 8 20;
+  --lp-c-surf: 3 21 30;
+  --lp-c-surf2: 6 40 58;
+  --lp-c-azul: 0 178 255;
+  --lp-c-ciano: 26 240 255;
+  --lp-c-verde: 0 240 176;
+  --lp-c-texto: 245 250 255;
+  --lp-c-suave: 205 220 235;
+
+  // Rótulo curto em cor de acento (kicker, selo, número do passo): no claro o ciano lê 3,7:1 sobre
+  // o branco, abaixo do AA.
+  --lp-c-rotulo: 26 240 255;
+
+  // Branco fixo: texto sobre preenchimento cheio de cor, que é escuro nos dois temas.
+  --lp-c-branco: 255 255 255;
+
+  // Alerta (aviso de formulário, selo de atenção).
+  --lp-c-ambar: 250 178 60;
+  --lp-c-vermelho: 255 90 110;
+
+  // ===== Tokens nomeados das telas institucionais =====
+  // Mantidos porque as sete páginas já os usam pelo nome; agora saem dos canais acima.
+  --site-fundo: rgb(var(--lp-c-fundo));
+  --site-texto: rgb(var(--lp-c-texto));
+  --site-suave: rgb(var(--lp-c-suave) / 82%);
+  --site-fraco: rgb(var(--lp-c-suave) / 62%);
+  --site-ciano: rgb(var(--lp-c-ciano));
+  --site-verde: rgb(var(--lp-c-verde));
+  --site-linha: rgb(var(--lp-c-azul) / 30%);
+  --site-cartao: linear-gradient(160deg, rgb(var(--lp-c-surf2) / 78%), rgb(var(--lp-c-surf) / 82%));
+}
+
+:root:not(.dark) {
+  --lp-c-fundo: 244 248 253;
+  --lp-c-surf: 255 255 255;
+  --lp-c-surf2: 232 240 250;
+  --lp-c-azul: 10 95 159;
+  --lp-c-ciano: 10 134 201;
+  --lp-c-verde: 0 104 68;
+  --lp-c-texto: 10 28 46;
+  --lp-c-suave: 76 100 128;
+  --lp-c-rotulo: 10 95 159;
+  --lp-c-ambar: 133 78 0;
+  --lp-c-vermelho: 176 32 48;
+
+  // O cartão do site é vidro escuro no tema imersivo; no claro vira superfície branca sobre a
+  // página levemente azulada, como os cartões do aplicativo.
+  // O ciano e cor de texto em link, kicker e item ativo do menu: sobre o branco ele lia 3,7:1,
+  // abaixo do AA. No claro ele acompanha o rotulo (azul escuro); no escuro segue neon.
+  --site-ciano: rgb(var(--lp-c-rotulo));
+  --site-suave: rgb(var(--lp-c-suave));
+  --site-fraco: rgb(var(--lp-c-suave) / 88%);
+  --site-cartao: linear-gradient(160deg, rgb(var(--lp-c-surf)), rgb(var(--lp-c-surf2) / 70%));
+}

@@ -1,0 +1,69 @@
+# Manifesto de Assets — Mockup_26
+
+Pasta alvo sugerida: `C:\Pastas\PROJETOS\Projeto Dynamis SEP\sep-app 16062026\image\sep_mockup_26_assets`
+
+Padrão aplicado: recorte pelo centro visual para fora, canvas centralizado, margem segura aproximada de 2 mm digitais e preservação de HUDs/glows/circunferências.
+
+- `logos/sep_header_complete.png` — recorte de referência
+- `logos/sep_symbol_header.png` — recorte de referência
+- `logos/sep_wordmark_header.png` — recorte de referência
+- `logos/sep_institutional_text_header.png` — recorte de referência
+- `logos/sep_sidebar_footer_complete.png` — recorte de referência
+- `logos/sep_symbol_footer.png` — recorte de referência
+- `icons/icon_topbar_ambiente_regulado_shield.png` — recorte centro-para-fora com margem segura
+- `icons/icon_topbar_horario_sistema_clock.png` — recorte centro-para-fora com margem segura
+- `icons/icon_topbar_search.png` — recorte centro-para-fora com margem segura
+- `icons/icon_topbar_bell_notification.png` — recorte centro-para-fora com margem segura
+- `icons/icon_topbar_help.png` — recorte centro-para-fora com margem segura
+- `icons/icon_topbar_avatar_admin.png` — recorte centro-para-fora com margem segura
+- `icons/icon_topbar_theme_sun.png` — recorte centro-para-fora com margem segura
+- `icons/icon_sidebar_dashboard.png` — recorte centro-para-fora com margem segura
+- `icons/icon_sidebar_onboarding.png` — recorte centro-para-fora com margem segura
+- `icons/icon_sidebar_credito.png` — recorte centro-para-fora com margem segura
+- `icons/icon_sidebar_formalizacao.png` — recorte centro-para-fora com margem segura
+- `icons/icon_sidebar_cobranca.png` — recorte centro-para-fora com margem segura
+- `icons/icon_sidebar_backoffice.png` — recorte centro-para-fora com margem segura
+- `icons/icon_sidebar_pix.png` — recorte centro-para-fora com margem segura
+- `icons/icon_sidebar_perfil.png` — recorte centro-para-fora com margem segura
+- `icons/icon_sidebar_administracao.png` — recorte centro-para-fora com margem segura
+- `icons/icon_sidebar_central_ajuda.png` — recorte centro-para-fora com margem segura
+- `icons/icon_sidebar_avatar_admin.png` — recorte centro-para-fora com margem segura
+- `icons/icon_title_status_ativa_badge.png` — recorte centro-para-fora com margem segura
+- `icons/icon_resumo_referencia_check_hud.png` — recorte centro-para-fora com margem segura
+- `icons/icon_button_search_recebimentos.png` — recorte centro-para-fora com margem segura
+- `icons/icon_card_recebimentos_vinculados_eye.png` — recorte centro-para-fora com margem segura
+- `icons/icon_timeline_referencia_criada.png` — recorte centro-para-fora com margem segura
+- `icons/icon_timeline_disponibilizada_pagamento.png` — recorte centro-para-fora com margem segura
+- `icons/icon_timeline_recebimento_vinculado.png` — recorte centro-para-fora com margem segura
+- `icons/icon_timeline_conciliacao_automatica.png` — recorte centro-para-fora com margem segura
+- `icons/icon_timeline_referencia_ativa.png` — recorte centro-para-fora com margem segura
+- `icons/icon_quick_copiar_codigo.png` — recorte centro-para-fora com margem segura
+- `icons/icon_quick_compartilhar_referencia.png` — recorte centro-para-fora com margem segura
+- `icons/icon_quick_ver_pix_copia_cola.png` — recorte centro-para-fora com margem segura
+- `icons/icon_quick_ver_recebimentos_vinculados.png` — recorte centro-para-fora com margem segura
+- `icons/icon_quick_mais_acoes.png` — recorte centro-para-fora com margem segura
+- `icons/icon_suporte_headset.png` — recorte centro-para-fora com margem segura
+- `icons/icon_footer_provider_pix.png` — recorte centro-para-fora com margem segura
+- `icons/icon_footer_sla_conciliacao.png` — recorte centro-para-fora com margem segura
+- `icons/icon_footer_tempo_medio_conciliacao.png` — recorte centro-para-fora com margem segura
+- `icons/icon_footer_ultima_verificacao.png` — recorte centro-para-fora com margem segura
+- `icons/icon_footer_integracao_ativa.png` — recorte centro-para-fora com margem segura
+- `badges/badge_status_ativa.png` — recorte de referência
+- `badges/badge_recebimento_conciliado.png` — recorte de referência
+- `badges/button_buscar_recebimentos.png` — recorte de referência
+- `badges/button_mais_acoes.png` — recorte de referência
+- `badges/button_abrir_chamado.png` — recorte de referência
+- `ui-groups/group_topbar.png` — recorte de referência
+- `ui-groups/group_sidebar.png` — recorte de referência
+- `ui-groups/group_dados_referencia.png` — recorte de referência
+- `ui-groups/group_recebimentos_vinculados.png` — recorte de referência
+- `ui-groups/group_timeline_referencia.png` — recorte de referência
+- `ui-groups/group_acoes_rapidas.png` — recorte de referência
+- `ui-groups/group_resumo_referencia.png` — recorte de referência
+- `ui-groups/group_informacoes_adicionais.png` — recorte de referência
+- `ui-groups/group_seguranca_conformidade.png` — recorte de referência
+- `ui-groups/group_suporte.png` — recorte de referência
+- `ui-groups/group_footer_operacional.png` — recorte de referência
+- `visuals/visual_main_content_reference.png` — recorte de referência
+- `visuals/visual_right_column_reference.png` — recorte de referência
+- `visuals/visual_comprovante_timeline_reference.png` — recorte de referência

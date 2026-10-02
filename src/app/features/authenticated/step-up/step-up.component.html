@@ -1,0 +1,141 @@
+<sep-operational-shell>
+  <section class="px33-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px33-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><strong>Confirmação adicional</strong>
+      </nav>
+    </header>
+
+    <!-- ============ CARTÃO DA CONFIRMAÇÃO ============ -->
+    <article class="px33-card px33-confirmacao">
+      <span class="px33-escudo" aria-hidden="true">
+        <lucide-icon name="shield-check" [size]="54" />
+      </span>
+      <h1>Confirmação adicional</h1>
+      <p class="px33-subtitulo">
+        Esta operação exige uma confirmação por TOTP (segunda etapa) além da sua sessão atual.
+      </p>
+
+      <hr />
+
+      @if (!challengeId()) {
+        <!-- Estado inicial: explica o porquê e abre o desafio. -->
+        <div class="px33-aviso" [attr.data-tone]="bloqueado() ? 'red' : 'blue'" role="note">
+          <lucide-icon [name]="$any(bloqueado() ? 'triangle-alert' : 'info')" [size]="17" />
+          <p>
+            @if (errorMessage(); as msg) {
+              {{ msg }}
+            } @else {
+              Por questão de segurança, precisamos validar sua identidade antes de continuar.
+            }
+          </p>
+        </div>
+
+        @if (bloqueado()) {
+          <a class="px33-btn-primary" routerLink="/app/profile/setup-totp">
+            <lucide-icon name="shield" [size]="17" />Habilitar segunda etapa
+          </a>
+        } @else {
+          <button
+            type="button"
+            class="px33-btn-primary"
+            [disabled]="iniciando()"
+            (click)="iniciar()"
+          >
+            <lucide-icon name="lock-keyhole" [size]="17" />
+            {{ iniciando() ? 'Abrindo confirmação...' : 'Iniciar confirmação' }}
+          </button>
+        }
+      } @else {
+        <!-- Estado de código: mesmo cartão, agora com o campo do TOTP. -->
+        <form [formGroup]="form" (ngSubmit)="completar()">
+          <label for="step-up-codigo">
+            <span>Código do aplicativo autenticador</span>
+            <input
+              #campoCodigo
+              id="step-up-codigo"
+              type="text"
+              inputmode="text"
+              autocomplete="one-time-code"
+              maxlength="20"
+              placeholder="000000"
+              formControlName="codigo"
+              data-testid="sep-step-up-input"
+            />
+            <small>Também aceita um código de backup, caso não tenha o aplicativo em mãos.</small>
+          </label>
+
+          @if (errorMessage(); as msg) {
+            <div class="px33-aviso" data-tone="red" role="alert">
+              <lucide-icon name="triangle-alert" [size]="17" />
+              <p>{{ msg }}</p>
+            </div>
+          }
+
+          <button type="submit" class="px33-btn-primary" [disabled]="completando()">
+            <lucide-icon name="shield-check" [size]="17" />
+            {{ completando() ? 'Validando...' : 'Confirmar' }}
+          </button>
+
+          <button
+            type="button"
+            class="px33-btn-texto"
+            [disabled]="completando()"
+            (click)="recomecar()"
+          >
+            <lucide-icon name="refresh-cw" [size]="15" />Gerar nova confirmação
+          </button>
+        </form>
+      }
+
+      <a class="px33-btn-sec" [routerLink]="fallbackUrl()">
+        <lucide-icon name="x" [size]="17" />Cancelar
+        @if (origem(); as onde) {
+          <em>e voltar para {{ onde }}</em>
+        }
+      </a>
+    </article>
+
+    <!-- ============ DÚVIDAS ============ -->
+    <article class="px33-card px33-duvidas">
+      <h2>Dúvidas sobre a confirmação?</h2>
+      <div class="px33-duvidas-grid">
+        <section>
+          <span class="px33-duvida-icone" data-tone="blue">
+            <lucide-icon name="shield-check" [size]="18" />
+          </span>
+          <div>
+            <strong>O que é TOTP?</strong>
+            <small>
+              Código de uso único gerado por um aplicativo autenticador no seu celular.
+            </small>
+          </div>
+        </section>
+        <section>
+          <span class="px33-duvida-icone" data-tone="green">
+            <lucide-icon name="smartphone" [size]="18" />
+          </span>
+          <div>
+            <strong>Como obter o código?</strong>
+            <small>
+              Abra seu app autenticador (ex.: Google Authenticator, Authy) e insira o código.
+            </small>
+          </div>
+        </section>
+        <section>
+          <span class="px33-duvida-icone" data-tone="purple">
+            <lucide-icon name="key-round" [size]="18" />
+          </span>
+          <div>
+            <strong>Problemas?</strong>
+            <small>
+              Acesse a Central de ajuda ou fale com o suporte para recuperar o acesso.
+            </small>
+          </div>
+        </section>
+      </div>
+    </article>
+  </section>
+</sep-operational-shell>

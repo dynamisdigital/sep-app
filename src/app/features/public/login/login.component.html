@@ -3,6 +3,16 @@
     <span aria-hidden="true">&larr;</span>
   </a>
 
+  <button
+    type="button"
+    class="login-theme"
+    [attr.aria-label]="temaEscuro() ? 'Mudar para o tema claro' : 'Mudar para o tema escuro'"
+    [attr.aria-pressed]="!temaEscuro()"
+    (click)="alternarTema()"
+  >
+    <lucide-icon [name]="temaEscuro() ? 'sun' : 'moon'" [size]="20" [strokeWidth]="2" />
+  </button>
+
   <section class="login-institutional" aria-labelledby="login-hero-title">
     <img
       [src]="assetBase + '/visuals/visual_circuitos_fundo_central.png'"
@@ -30,12 +40,7 @@
     />
 
     <a routerLink="/" class="login-logo" aria-label="SEP - Página inicial">
-      <img
-        [src]="assetBase + '/logos/logo_sep_simbolo_header.png'"
-        alt=""
-        class="login-logo-symbol"
-        aria-hidden="true"
-      />
+      <sep-logo variante="simbolo" class="login-logo-symbol" rotulo="" />
       <span class="login-logo-copy">
         <strong>SEP</strong>
         <span>Sociedade de Empréstimo<br />entre Pessoas</span>
@@ -56,7 +61,7 @@
     <ul class="login-hero-badges" aria-label="Garantias da plataforma">
       @for (badge of heroBadges; track badge.title) {
         <li>
-          <img [src]="badge.icon" [alt]="badge.title" />
+          <lucide-icon [name]="badge.icon" [size]="31" aria-hidden="true" [strokeWidth]="1.5" />
           <span>
             <strong>{{ badge.title }}</strong>
             {{ badge.description }}
@@ -73,7 +78,7 @@
       <ul>
         @for (item of auditItems; track item.title) {
           <li>
-            <img [src]="item.icon" [alt]="item.title" />
+            <lucide-icon [name]="item.icon" [size]="16" aria-hidden="true" [strokeWidth]="2.25" />
             <span>{{ item.title }}</span>
           </li>
         }
@@ -83,7 +88,7 @@
     <section class="login-bottom-indicators" aria-label="Indicadores institucionais">
       @for (indicator of bottomIndicators; track indicator.title) {
         <article>
-          <img [src]="indicator.icon" [alt]="indicator.title" />
+          <lucide-icon [name]="indicator.icon" [size]="30" aria-hidden="true" [strokeWidth]="1.5" />
           <div>
             @if (indicator.metric) {
               <strong class="login-indicator-metric">{{ indicator.metric }}</strong>
@@ -98,7 +103,7 @@
 
   <section class="login-access" aria-labelledby="login-title">
     <div class="safe-status" aria-label="Ambiente seguro, verificado e protegido">
-      <img [src]="assetBase + '/icons/icon_top_ambiente_seguro.png'" alt="" aria-hidden="true" />
+      <lucide-icon class="ic-verde" name="shield-check" [size]="26" [strokeWidth]="1.75" />
       <span>
         <strong>Ambiente seguro</strong>
         Verificado e protegido
@@ -107,12 +112,7 @@
     </div>
 
     <div class="login-card">
-      <img
-        [src]="assetBase + '/visuals/visual_login_lock_hud.png'"
-        alt=""
-        class="login-lock-hud"
-        aria-hidden="true"
-      />
+      <sep-arte nome="cadeado" tom="ciano" class="login-lock-hud" />
 
       <header class="login-card-header">
         <h2 id="login-title">Acesso à plataforma SEP</h2>
@@ -123,7 +123,7 @@
         <div class="login-field">
           <label for="login-username">E-mail</label>
           <div class="login-control">
-            <img [src]="assetBase + '/icons/icon_login_email.png'" alt="" aria-hidden="true" />
+            <lucide-icon class="ic-azul" name="mail" [size]="14" [strokeWidth]="2.25" />
             <input
               id="login-username"
               type="email"
@@ -144,7 +144,7 @@
         <div class="login-field">
           <label for="login-password">Senha</label>
           <div class="login-control">
-            <img [src]="assetBase + '/icons/icon_login_senha_lock.png'" alt="" aria-hidden="true" />
+            <lucide-icon class="ic-azul" name="lock" [size]="14" [strokeWidth]="2.25" />
             <input
               id="login-password"
               [type]="showPassword() ? 'text' : 'password'"
@@ -162,7 +162,7 @@
               "
               [attr.aria-pressed]="showPassword()"
             >
-              <img [src]="assetBase + '/icons/icon_login_eye.png'" alt="" aria-hidden="true" />
+              <lucide-icon class="ic-azul" name="eye" [size]="14" [strokeWidth]="2.25" />
             </button>
           </div>
           @if (form.controls.password.touched && form.controls.password.errors?.['required']) {
@@ -179,11 +179,13 @@
               (change)="updateRememberMe($any($event.target).checked)"
             />
             <span aria-hidden="true">
-              <img [src]="assetBase + '/icons/icon_login_check_lembrar.png'" alt="" />
+              <lucide-icon class="ic-verde" name="check" [size]="14" [strokeWidth]="2.25" />
             </span>
             Lembrar de mim
           </label>
-          <a routerLink="/login" fragment="recuperar-senha">Esqueceu sua senha?</a>
+          <!-- Nao ha redefinicao por conta propria: o administrador redefine a senha e o proximo login
+               obriga a troca. A ancora #recuperar-senha nao tinha alvo. -->
+          <a routerLink="/contato" [queryParams]="{ assunto: 'Suporte' }">Esqueceu sua senha?</a>
         </div>
 
         @if (errorMessage()) {
@@ -193,7 +195,7 @@
         }
 
         <button type="submit" class="login-submit" [disabled]="loading()">
-          <img [src]="assetBase + '/icons/icon_login_entrar.png'" alt="" aria-hidden="true" />
+          <lucide-icon name="log-in" [size]="16" [strokeWidth]="2.25" />
           @if (loading()) {
             <span>Acessando...</span>
           } @else {
@@ -211,7 +213,7 @@
         [attr.aria-describedby]="!biometrySupported ? 'biometry-availability' : null"
         (click)="startBiometricLogin()"
       >
-        <img [src]="assetBase + '/icons/icon_login_biometria.png'" alt="" aria-hidden="true" />
+        <lucide-icon class="ic-ciano" name="fingerprint" [size]="14" [strokeWidth]="2.25" />
         Acesso com biometria
       </button>
       @if (!biometrySupported) {
@@ -221,11 +223,7 @@
       }
 
       <aside class="protected-card" aria-label="Acesso protegido e monitorado">
-        <img
-          [src]="assetBase + '/icons/icon_login_acesso_monitorado.png'"
-          alt=""
-          aria-hidden="true"
-        />
+        <lucide-icon class="ic-verde" name="shield-check" [size]="22" [strokeWidth]="2.25" />
         <span>
           <strong>Acesso protegido e monitorado</strong>
           Todas as operações são registradas e auditadas.

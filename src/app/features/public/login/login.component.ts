@@ -1,17 +1,42 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 
 import { AuthService } from '../../../core/auth/auth.service';
+import { ehAmbienteDemo } from '../../../core/env/ambiente';
+import { ThemeService } from '../../../core/theme/theme.service';
+import { SepArteComponent } from '../../../shared/arte/sep-arte.component';
+import { SepLogoComponent } from '../../../shared/arte/sep-logo.component';
+
+// Acesso rápido do dev-offline: usuário fictício com papel ADMIN, que alcança todas as
+// telas (Pix, Cobrança financeira, Governança e Administração) e não tem MFA. E-mail e
+// senha já vêm preenchidos para entrar em um clique. Fora do dev-offline os dois campos
+// nascem vazios — nenhuma credencial é sugerida em build real, nem com o override do
+// localStorage (ver ehAmbienteDemo).
+const DEV_USUARIO = 'dev@sep.local';
+const DEV_SENHA = '123456';
+const ehDevOffline = ehAmbienteDemo;
 
 @Component({
   selector: 'sep-login',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [
+    LucideAngularModule,
+    ReactiveFormsModule,
+    RouterLink,
+    SepArteComponent,
+    SepLogoComponent,
+  ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent {
+  private readonly tema = inject(ThemeService);
+
+  /** O botao do canto troca o tema da tela publica; o escuro e o padrao do projeto. */
+  protected readonly temaEscuro = this.tema.isDark;
+
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
@@ -26,17 +51,17 @@ export class LoginComponent {
 
   protected readonly heroBadges = [
     {
-      icon: `${this.assetBase}/icons/icon_badge_ambiente_regulado.png`,
+      icon: 'landmark',
       title: 'Ambiente regulado',
       description: 'Resolução CMN 4.656/2018',
     },
     {
-      icon: `${this.assetBase}/icons/icon_badge_segregacao_patrimonial.png`,
+      icon: 'split',
       title: 'Segregação patrimonial',
       description: 'via conta escrow e auditoria',
     },
     {
-      icon: `${this.assetBase}/icons/icon_badge_kyc_kyb_pld.png`,
+      icon: 'badge-check',
       title: 'KYC/KYB e PLD',
       description: 'Prevenção à lavagem de dinheiro',
     },
@@ -44,37 +69,37 @@ export class LoginComponent {
 
   protected readonly auditItems = [
     {
-      icon: `${this.assetBase}/icons/icon_panel_escrow_contratos.png`,
+      icon: 'landmark',
       title: 'Escrow e contratos automatizados',
     },
     {
-      icon: `${this.assetBase}/icons/icon_panel_auditoria_rastreabilidade.png`,
+      icon: 'scroll-text',
       title: 'Auditoria completa e rastreabilidade',
     },
     {
-      icon: `${this.assetBase}/icons/icon_panel_criptografia_ponta.png`,
+      icon: 'lock-keyhole',
       title: 'Criptografia de ponta a ponta',
     },
     {
-      icon: `${this.assetBase}/icons/icon_panel_monitoramento_continuo.png`,
+      icon: 'activity',
       title: 'Monitoramento contínuo',
     },
   ];
 
   protected readonly bottomIndicators = [
     {
-      icon: `${this.assetBase}/icons/icon_bottom_seguranca_primeiro_lugar.png`,
+      icon: 'shield-check',
       title: 'Segurança em primeiro lugar',
       description: 'Seus dados estão protegidos com criptografia de ponta e infraestrutura segura.',
     },
     {
-      icon: `${this.assetBase}/icons/icon_bottom_disponibilidade_99_9.png`,
+      icon: 'activity',
       title: 'Disponibilidade',
       metric: '99.9%',
       description: 'Plataforma projetada para alta disponibilidade e performance.',
     },
     {
-      icon: `${this.assetBase}/icons/icon_bottom_suporte_especializado.png`,
+      icon: 'headset',
       title: 'Suporte especializado',
       description: 'Equipe dedicada para atender você e sua empresa.',
     },
@@ -83,8 +108,8 @@ export class LoginComponent {
   protected readonly form = this.fb.nonNullable.group({
     // Sprint 5: politica server-side (12+ chars ou passphrase). Bean Validation
     // bloqueia senha vazia; aqui exigimos apenas obrigatorio para UX previa.
-    username: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required]],
+    username: [ehDevOffline() ? DEV_USUARIO : '', [Validators.required, Validators.email]],
+    password: [ehDevOffline() ? DEV_SENHA : '', [Validators.required]],
   });
 
   togglePasswordVisibility(): void {
@@ -130,5 +155,9 @@ export class LoginComponent {
         );
       },
     });
+  }
+
+  protected alternarTema(): void {
+    this.tema.toggle();
   }
 }

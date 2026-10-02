@@ -1,0 +1,2472 @@
+// SEP — Frontend
+// Frontend Development: Daniel Möllmann
+// Angular • TypeScript • SCSS — 2026
+
+// ============ MOLDURA OPERACIONAL ============
+// Estilos do shell operacional: container, barra lateral, navegação em três níveis, cabeçalho,
+// painéis de alertas e ajuda, área de conteúdo e rodapé institucional.
+// Vive como folha global porque tem **dois** consumidores: o componente `sep-operational-shell`,
+// que desenha a moldura das telas atuais, e a página do Mockup 03
+// (`backoffice-dashboard-page`), que ainda replica essa marcação em template próprio. Enquanto os
+// dois existirem, manter as regras num arquivo de componente obrigaria a carregá-las duas vezes —
+// foi o que estourou o orçamento de estilo de produção.
+// Agregado por `styles/index.scss` **depois** de `backoffice-dashboard-icons`, para preservar a
+// ordem de cascata que valia quando estas regras eram estilo de componente.
+
+@use "sep-responsivo" as resp;
+
+@mixin barra-icones($sel) {
+  #{$sel} .op-brand,
+  #{$sel} .op-nav-section p,
+  #{$sel} .op-nav-link span,
+  #{$sel} .op-nav-link small,
+  #{$sel} .op-nav-caret,
+  #{$sel} .op-subnav,
+  #{$sel} .op-side-user div,
+  #{$sel} .op-side-user b,
+  #{$sel} .op-side-footer span {
+    display: none;
+  }
+
+  #{$sel} .op-sidebar-head {
+    justify-content: center;
+    gap: 0;
+    padding: 0;
+  }
+
+  #{$sel} .op-nav {
+    padding: 16px 12px 10px;
+  }
+
+  #{$sel} .op-nav-section {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgb(var(--sep-c-cyan) / 18%);
+  }
+
+  #{$sel} .op-nav-link,
+  #{$sel} .op-nav-group:has(> .op-nav-caret) > .op-nav-link {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    min-height: 44px;
+    padding: 9px 0;
+  }
+
+  #{$sel} .op-nav-link-primary {
+    margin-bottom: 10px;
+  }
+
+  #{$sel} .op-side-user {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    margin: 0 12px 10px;
+    padding: 10px 0;
+  }
+
+  #{$sel} .op-side-footer {
+    justify-content: center;
+    padding: 0;
+  }
+
+  #{$sel} .op-side-footer sep-logo {
+    width: 46px;
+  }
+}
+
+.op-dashboard {
+  // A tela imersiva reescreve os tokens de rolagem no proprio escopo: toda area rolavel aqui
+  // dentro sai no neon, sem cada pagina declarar a sua barra. `color-scheme: dark` e o que faz
+  // o painel do `<select>` e o calendario do `<input type="date">` abrirem escuros.
+  --sep-scroll-track: 205deg 100% 12%;
+  --sep-scroll-thumb: 197deg 100% 50%;
+  --sep-scroll-thumb-hover: 187deg 100% 58%;
+
+  position: relative;
+  display: grid;
+
+  // `color-scheme` acompanha o tema, nao e fixo em `dark`: fixo, todo controle nativo do shell
+  // (botao, select, calendario) tomava os padroes escuros do navegador — e o texto padrao de
+  // `<button>` no esquema escuro e branco. Era isso que deixava os icones da barra superior (tema,
+  // busca, ajuda, menu) brancos sobre o tema claro. Sem regra propria de `color`, o botao herda
+  // `buttontext`, que segue o esquema.
+  color-scheme: light;
+  accent-color: var(--sep-accent-strong);
+  grid-template-columns: 248px minmax(0, 1fr);
+
+  /* A moldura e o container do enquadramento, e e declarada **sempre**: o usuario redimensiona a
+     janela do navegador por fora tanto quanto usa o widget, e nesses casos nao existe atributo de
+     enquadramento para criar o container. Aqui ela existe nos dois caminhos. Como `.op-dashboard`
+     ja tem altura propria e recorta o proprio conteudo, a contencao nao muda nada. */
+  container: sep-app / inline-size;
+
+  /* A linha unica precisa ser limitada, e nao `auto`: com o menu completo aberto a barra crescia
+     ate 1648px, empurrava o cartao do usuario para fora da tela e a rolagem interna do menu nunca
+     entrava em acao. Limitada, a barra fica na altura da janela e o menu rola por dentro. */
+  grid-template-rows: minmax(0, 1fr);
+  width: calc(100% - 8px);
+  height: calc(100vh - 8px);
+  min-height: 0;
+  margin: 4px;
+  overflow: hidden;
+  font-family: Inter, "Segoe UI", system-ui, sans-serif;
+  border: 1px solid rgb(var(--sep-c-cyan) / 42%);
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 82% 17%, rgb(var(--sep-c-blue) / 13%), transparent 28%),
+    radial-gradient(circle at 5% 52%, rgb(var(--sep-c-cyan) / 11%), transparent 32%),
+    linear-gradient(rgb(var(--sep-c-blue) / 12%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--sep-c-blue) / 12%) 1px, transparent 1px), var(--sep-canvas);
+  background-size:
+    auto,
+    auto,
+    58px 58px,
+    58px 58px,
+    auto;
+}
+
+.dark .op-dashboard {
+  color-scheme: dark;
+}
+
+.op-dashboard::before,
+.op-dashboard::after {
+  position: absolute;
+  pointer-events: none;
+  content: "";
+}
+
+.op-dashboard::before {
+  inset: 67px 0 97px 248px;
+  background:
+    radial-gradient(circle at 76% 18%, rgb(var(--sep-c-cyan) / 12%), transparent 28%),
+    radial-gradient(circle at 88% 45%, rgb(var(--sep-c-cyan) / 7%), transparent 24%);
+}
+
+.op-dashboard::after {
+  right: 0;
+  bottom: 0;
+  left: 248px;
+  height: 118px;
+  background: linear-gradient(180deg, transparent, rgb(var(--sep-c-sunken) / 92%));
+}
+
+.op-back-link {
+  position: absolute;
+  z-index: 4;
+  top: 20px;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  color: rgb(var(--sep-c-cyan) / 78%);
+  text-decoration: none;
+  border: 1px solid rgb(var(--sep-c-cyan) / 28%);
+  border-radius: 50%;
+  background: rgb(var(--sep-c-sunken) / 58%);
+  box-shadow:
+    inset 0 0 12px rgb(var(--sep-c-cyan) / calc(7% * var(--sep-glow-alpha))),
+    0 0 18px rgb(var(--sep-c-cyan) / calc(10% * var(--sep-glow-alpha)));
+  transform: translateX(-50%);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.op-back-link span {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.op-back-link:hover {
+  opacity: 1;
+  border-color: rgb(var(--sep-c-cyan) / 62%);
+  box-shadow:
+    inset 0 0 16px rgb(var(--sep-c-cyan) / calc(12% * var(--sep-glow-alpha))),
+    0 0 26px rgb(var(--sep-c-cyan) / calc(22% * var(--sep-glow-alpha)));
+  transform: translate(-50%, -2px);
+}
+
+.op-sidebar,
+.op-main {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.op-sidebar {
+  display: grid;
+  grid-template-rows: 74px minmax(0, 1fr) 130px 97px;
+  min-height: 0;
+  border-right: 1px solid rgb(var(--sep-c-cyan) / 28%);
+  background: linear-gradient(
+    180deg,
+    rgb(var(--sep-c-sunken) / 96%),
+    rgb(var(--sep-c-sunken) / 82%)
+  );
+}
+
+.op-sidebar-head,
+.op-topbar {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgb(var(--sep-c-cyan) / 20%);
+}
+
+.op-sidebar-head {
+  gap: 18px;
+  padding: 0 22px;
+}
+
+.op-menu-button,
+.op-icon-button {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  cursor: pointer;
+  border: 1px solid rgb(var(--sep-c-cyan) / 22%);
+  border-radius: 8px;
+  background: rgb(var(--sep-c-sunken) / 70%);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+// Os simbolos da barra superior eram PNG; esta e a espessura que o traco deles tinha.
+.op-regulated lucide-icon {
+  filter: drop-shadow(0 0 9px rgb(var(--sep-c-green) / calc(38% * var(--sep-glow-alpha))));
+}
+
+.op-icon-button lucide-icon svg,
+.op-menu-button lucide-icon svg,
+.op-clock lucide-icon svg {
+  stroke-width: 2;
+}
+
+.op-menu-button {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  background: transparent;
+}
+
+// Tamanho nativo do arquivo (113x48): ampliado para 132 ele perdia definicao na palavra.
+.op-brand sep-logo {
+  width: 113px;
+  height: auto;
+  filter: drop-shadow(0 0 12px rgb(var(--sep-c-cyan) / calc(28% * var(--sep-glow-alpha))));
+}
+
+.op-nav {
+  min-height: 0;
+  padding: 22px 16px 10px;
+
+  /* O menu completo pode passar da altura da barra; a rolagem fica dentro dele. */
+  overflow: hidden auto;
+  scrollbar-width: thin;
+}
+
+/* `_backoffice-dashboard-icons.scss` deixa o menu com `align-self: start`, o que o fazia crescer
+   além da própria linha e cobrir o cartão do usuário quando a lista ficou completa. Esticado, ele
+   respeita a linha e rola por dentro. */
+.op-dashboard .op-sidebar .op-nav {
+  align-self: stretch;
+}
+
+.op-nav-section {
+  margin-top: 22px;
+}
+
+.op-nav-section p {
+  margin: 0 0 10px 10px;
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.op-nav-link {
+  position: relative;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  min-height: 46px;
+  padding: 9px 12px;
+  color: var(--sep-text);
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.op-nav-link span {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.op-nav-link small {
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  color: var(--op-green);
+  font-size: 12px;
+  font-weight: 900;
+  border-radius: 8px;
+  background: rgb(var(--sep-c-cyan) / 12%);
+  border: 1px solid rgb(var(--sep-c-cyan) / 22%);
+}
+
+.op-nav-link-primary {
+  margin-bottom: 18px;
+}
+
+.op-nav-link:hover,
+.op-nav-link-active {
+  border-color: rgb(var(--sep-c-blue) / 64%);
+  background:
+    radial-gradient(circle at 92% 50%, rgb(var(--sep-c-cyan) / 18%), transparent 28%),
+    linear-gradient(90deg, rgb(var(--sep-c-blue) / 24%), rgb(var(--sep-c-blue) / 6%));
+  box-shadow:
+    inset 0 0 18px rgb(var(--sep-c-blue) / calc(20% * var(--sep-glow-alpha))),
+    0 0 20px rgb(var(--sep-c-blue) / calc(18% * var(--sep-glow-alpha)));
+  transform: translateX(3px);
+}
+
+.op-side-user {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  margin: 0 16px 10px;
+  padding: 14px;
+  color: var(--sep-text-strong);
+  text-decoration: none;
+}
+
+.op-side-user > span,
+.op-user > span {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  color: var(--sep-glow);
+  font-size: 18px;
+  font-weight: 800;
+  border: 1px solid rgb(var(--sep-c-cyan) / 62%);
+  border-radius: 50%;
+  background: rgb(var(--sep-c-blue) / 14%);
+  box-shadow:
+    inset 0 0 14px rgb(var(--sep-c-cyan) / calc(14% * var(--sep-glow-alpha))),
+    0 0 14px rgb(var(--sep-c-cyan) / calc(18% * var(--sep-glow-alpha)));
+}
+
+.op-side-user strong,
+.op-side-user small,
+.op-user strong,
+.op-user small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.op-side-user strong,
+.op-user strong {
+  font-size: 13px;
+}
+
+.op-side-user em {
+  display: block;
+  margin: 4px 0 10px;
+  color: var(--op-green);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.op-side-user small,
+.op-user small {
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.op-side-user b {
+  color: var(--sep-text-secondary);
+  font-size: 24px;
+  font-weight: 300;
+}
+
+.op-side-footer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 0 28px;
+  border-top: 1px solid rgb(var(--sep-c-cyan) / 18%);
+}
+
+.op-side-footer sep-logo {
+  width: 88px;
+  height: auto;
+}
+
+.op-side-footer span {
+  color: var(--sep-text-muted);
+  font-size: 11px;
+}
+
+.op-main {
+  display: grid;
+  grid-template-rows: 74px auto 97px;
+
+  /* A coluna implicita nasce `auto` e se dimensiona pelo **maior** filho: uma pagina larga
+     esticava a barra superior junto, e o controle de tema ia parar fora da area recortada. Com
+     `minmax(0, 1fr)` a coluna nao passa da faixa que a moldura deu. As telas montadas sobre
+     `tema.base()` ja tinham esta regra pelo mixin; as demais nao, e era exatamente nelas que o
+     botao sumia. */
+  grid-template-columns: minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+
+  /* Container proprio da barra superior. A largura que o cabecalho tem nao e a da moldura: e a que
+     sobra depois da barra lateral. Medir a moldura fazia a compactacao so acontecer abaixo de
+     1080px, e num monitor largo um terco da tela cai **acima** disso — a barra continuava com o
+     selo de ambiente e o relogio, precisava de 1065px, tinha 929, e o controle de tema ia parar
+     fora da janela. */
+  container: sep-topo / inline-size;
+}
+
+.op-topbar {
+  justify-content: space-between;
+  padding: 0 28px;
+  background: linear-gradient(90deg, rgb(var(--sep-c-sunken) / 88%), rgb(var(--sep-c-surf) / 78%));
+}
+
+.op-topbar-left,
+.op-topbar-actions,
+.op-user {
+  display: flex;
+  align-items: center;
+}
+
+.op-topbar-left,
+.op-topbar-actions {
+  gap: 14px;
+}
+
+.op-regulated,
+.op-clock {
+  display: grid;
+  align-items: center;
+  align-content: center;
+  align-self: center;
+  height: 50px;
+  min-height: 50px;
+  padding: 0 14px;
+  gap: 12px;
+}
+
+.op-regulated > div,
+.op-clock > div {
+  display: grid;
+  align-content: center;
+  gap: 2px;
+}
+
+.op-clock {
+  grid-template-columns: 42px auto auto;
+}
+
+.op-regulated b,
+.op-user b {
+  color: var(--sep-text-muted);
+  font-size: 28px;
+}
+
+.op-regulated span,
+.op-clock span {
+  display: block;
+  color: var(--sep-text-muted);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.op-regulated strong,
+.op-clock strong {
+  display: block;
+  color: var(--sep-text-strong);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.op-clock strong {
+  font-size: 14px;
+}
+
+.op-regulated strong {
+  color: var(--op-green);
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.op-clock small {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: 12px;
+  color: var(--sep-text-secondary);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.op-clock small::before {
+  width: 6px;
+  height: 6px;
+  content: "";
+  border-radius: 50%;
+  background: var(--op-green);
+}
+
+.op-notification {
+  position: relative;
+}
+
+.op-user {
+  gap: 12px;
+  width: 338px;
+  min-width: 338px;
+  height: 50px;
+  padding: 0 12px;
+  color: var(--sep-text-strong);
+  text-decoration: none;
+}
+
+.op-user > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.op-content {
+  display: grid;
+  min-width: 0;
+  grid-template-rows: 68px 247px auto;
+
+  /* Mesma razao de `.op-main`: a coluna implicita nasce `auto` e se dimensiona pelo maior filho,
+     entao uma fileira larga esticava a area util inteira para fora da moldura. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+  min-height: 0;
+  padding: 22px 28px 12px;
+  overflow: visible;
+}
+
+/* Tela que passa da altura util rola por dentro da area de conteudo. Sem isto o `.op-main` recorta o
+   excesso e o que fica abaixo do rodape nao tem por onde ser alcancado (a 1440x900, o formulario de
+   proposta perdia 1338px). A tela marca a propria raiz com `op-pagina-rolavel`; onde o conteudo cabe,
+   nao ha barra e nada muda. */
+.op-content:has(> .op-pagina-rolavel) {
+  overflow: hidden auto;
+}
+
+.op-content:has(> .bo15-content) {
+  display: block;
+  padding: 0;
+  overflow: hidden;
+}
+
+.op-panel,
+.op-glow-card {
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  border: 1px solid rgb(var(--sep-c-cyan) / 20%);
+  border-radius: 12px;
+  background:
+    linear-gradient(135deg, rgb(var(--sep-c-cyan) / 5%), transparent 42%),
+    linear-gradient(180deg, var(--op-panel), var(--op-panel-dark));
+  box-shadow: 0 14px 36px rgb(var(--sep-c-shadow) / 24%);
+  animation: op-open 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.op-panel::before,
+.op-glow-card::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  border-radius: inherit;
+  background:
+    linear-gradient(
+        90deg,
+        rgb(var(--sep-c-cyan) / 70%),
+        transparent 18%,
+        transparent 80%,
+        rgb(var(--sep-c-blue) / 58%)
+      )
+      top / 100% 1px no-repeat,
+    linear-gradient(
+        180deg,
+        rgb(var(--sep-c-cyan) / 58%),
+        transparent 28%,
+        transparent 72%,
+        rgb(var(--sep-c-cyan) / 24%)
+      )
+      left / 1px 100% no-repeat,
+    linear-gradient(
+        180deg,
+        rgb(var(--sep-c-blue) / 48%),
+        transparent 30%,
+        transparent 70%,
+        rgb(var(--sep-c-green) / 36%)
+      )
+      right / 1px 100% no-repeat;
+  opacity: 0.5;
+}
+
+.op-glow-card:hover,
+.op-panel:hover,
+.op-nav-link:hover,
+.op-customize:hover,
+.op-panel-title button:hover,
+.op-journey a:hover,
+.op-icon-button:hover {
+  border-color: rgb(var(--sep-c-cyan) / 72%);
+  box-shadow:
+    0 0 0 1px rgb(var(--sep-c-cyan) / calc(10% * var(--sep-glow-alpha))),
+    0 0 28px rgb(var(--sep-c-cyan) / calc(20% * var(--sep-glow-alpha)));
+  transform: translateY(-2px);
+}
+
+.op-panel {
+  display: grid;
+
+  // A coluna precisa ser declarada: sem ela a coluna implicita e `auto`, que mede o `max-content`
+  // dos filhos. Quando a faixa da grade de fora e mais estreita que isso, os filhos esticam ate o
+  // max-content e escapam do painel — era o que fazia "Proximas jornadas" transbordar 276px a
+  // 1440 e 433px a 1120. `minmax(0, 1fr)` e o par horizontal do `min-height: 0` abaixo.
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+  padding: 15px 16px;
+}
+
+// Declarar a coluna do painel nao basta: um item de grade tem tamanho minimo automatico
+// (`min-width: auto`), entao ele estica ate o proprio `min-content` e escapa da faixa mesmo com a
+// faixa correta. E a mesma armadilha do `min-height: 0`, no outro eixo.
+.op-panel > * {
+  min-width: 0;
+}
+
+.op-footer {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px 104px;
+  gap: 16px;
+
+  // Linha definida: o `max-height: calc(100% - 16px)` da arte do rodape resolve contra a area da
+  // grade, e com a linha `auto` o percentual virava `none` — a arte (88px) passava dos 80px da
+  // faixa nas telas imersivas.
+  grid-template-rows: minmax(0, 1fr);
+  align-items: center;
+  min-height: 96px;
+  padding: 0 28px;
+  border-top: 1px solid rgb(var(--sep-c-cyan) / 22%);
+
+  // Opaco: a pagina que passa da propria faixa corre por baixo do rodape. Com 76% o conteudo
+  // aparecia atras dos selos no tema claro, e o texto dos dois se misturava.
+  background: rgb(var(--sep-c-sunken));
+}
+
+.op-footer-status {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.op-footer-item {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 2px 10px;
+  align-items: center;
+}
+
+// Os quatro selos do rodape sairam de PNG; a espessura abaixo e a medida do traco que eles
+// tinham. O menu nao entra aqui: ele ja vinha em vetor homologado, na espessura padrao.
+.op-footer-item lucide-icon {
+  color: var(--sep-glow);
+
+  svg {
+    stroke-width: 1.5;
+  }
+}
+
+.op-footer-item span,
+.op-footer-item small,
+.op-access span,
+.op-access small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+}
+
+.op-footer-item span {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.op-footer-item small,
+.op-access span,
+.op-access small {
+  color: var(--sep-text-muted);
+  font-size: 11px;
+}
+
+.op-access {
+  display: grid;
+  gap: 4px;
+}
+
+@keyframes op-open {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@include resp.ate-ampla {
+  .op-dashboard {
+    grid-template-columns: 208px minmax(0, 1fr);
+  }
+
+  .op-dashboard::before,
+  .op-dashboard::after {
+    left: 208px;
+  }
+
+  .op-sidebar {
+    grid-template-rows: 74px minmax(0, 1fr) 104px 72px;
+  }
+
+  .op-sidebar-head,
+  .op-topbar {
+    min-height: 74px;
+  }
+
+  .op-brand sep-logo {
+    width: 116px;
+  }
+
+  .op-nav {
+    padding: 14px 8px 8px;
+  }
+
+  .op-nav-section {
+    margin-top: 12px;
+  }
+
+  .op-nav-link {
+    grid-template-columns: 26px minmax(0, 1fr) auto;
+    gap: 7px;
+    min-height: 38px;
+    padding-inline: 9px;
+  }
+
+  /* Com a barra em 208px o rotulo e a primeira coisa a faltar espaco: "Agenda financeira" e
+     "Administração" saiam reticenciados. Aqui so a folga encolhe — o corpo de texto continua
+     em 13px, como nas larguras maiores. */
+  .op-nav-link small {
+    min-width: 20px;
+    height: 20px;
+  }
+
+  .op-subnav {
+    margin-left: 14px;
+    padding-left: 8px;
+  }
+
+  .op-subnav-link {
+    grid-template-columns: 18px minmax(0, 1fr);
+    gap: 7px;
+    padding-inline: 8px;
+  }
+
+  .op-subnav-neto {
+    margin-left: 10px;
+    padding-left: 7px;
+  }
+
+  .op-side-user {
+    margin-inline: 12px;
+    padding: 10px;
+  }
+
+  .op-side-footer {
+    padding-inline: 18px;
+  }
+
+  .op-main {
+    grid-template-rows: 74px auto 78px;
+  }
+
+  .op-content {
+    grid-template-rows: 72px 247px auto;
+    gap: 16px;
+    padding: 16px 22px 10px;
+  }
+
+  .op-panel {
+    padding: 12px;
+  }
+
+  .op-footer {
+    min-height: 78px;
+    grid-template-columns: minmax(0, 1fr) 210px 92px;
+  }
+
+  .op-footer-item small {
+    white-space: normal;
+  }
+}
+
+@include resp.larga-e-baixa(resp.$altura-muito-curta) {
+  .op-back-link {
+    top: 15px;
+  }
+
+  .op-sidebar {
+    grid-template-rows: 64px minmax(0, 1fr) 88px 56px;
+  }
+
+  .op-sidebar-head,
+  .op-topbar {
+    min-height: 64px;
+  }
+
+  .op-topbar {
+    padding-inline: 22px;
+  }
+
+  .op-regulated,
+  .op-clock,
+  .op-icon-button {
+    height: 48px;
+  }
+
+  .op-regulated,
+  .op-clock {
+    min-height: 48px;
+  }
+
+  .op-user {
+    height: 42px;
+  }
+
+  .op-nav-section {
+    margin-top: 9px;
+  }
+
+  .op-nav-section p {
+    margin-bottom: 5px;
+    font-size: 11px;
+  }
+
+  .op-nav-link {
+    min-height: 34px;
+    padding-block: 6px;
+  }
+
+  .op-side-user {
+    min-height: 78px;
+    padding: 8px 10px;
+  }
+
+  .op-side-user small {
+    display: none;
+  }
+
+  .op-main {
+    grid-template-rows: 64px minmax(0, 1fr) 58px;
+  }
+
+  .op-content {
+    grid-template-rows: 54px 247px minmax(0, 1fr);
+    gap: 12px;
+    padding: 10px 22px 7px;
+  }
+
+  .op-panel {
+    padding: 9px;
+  }
+
+  .op-footer {
+    min-height: 58px;
+    padding-inline: 22px;
+  }
+
+  .op-footer-item span {
+    font-size: 11px;
+  }
+
+  .op-footer-item small,
+  .op-access span,
+  .op-access small {
+    font-size: 11px;
+  }
+}
+
+// Os quatro selos do rodape nao cabem em quatro colunas antes de 1200px: a medicao mostrou
+// "Rastreabilidade" recortada em 14px a 1200 e em 34px a 1120, em toda rota do app. O recolhimento
+// para duas colunas ja existia — so comecava tarde demais, no degrau da barra lateral.
+@include resp.ate-media {
+  .op-footer-status {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+// Janela baixa, qualquer largura: a faixa do rodape cai para 58-63px e selo com subtitulo (duas
+// linhas de texto ao lado de um icone de 34px) passava por cima do conteudo, acima da faixa. Fica
+// o titulo de cada selo, com icone de 22px, e a linha de sessao do bloco de acesso nao quebra.
+@include resp.altura-curta {
+  .op-footer-status {
+    gap: 4px 10px;
+  }
+
+  .op-footer-status .op-footer-item {
+    grid-template-columns: 22px minmax(0, 1fr);
+    grid-template-rows: auto;
+    align-items: center;
+  }
+
+  .op-footer-item small {
+    display: none;
+  }
+
+  .op-footer-status .op-footer-item lucide-icon,
+  .op-footer-status .op-footer-item lucide-icon svg {
+    grid-row: 1;
+    width: 22px;
+    height: 22px;
+  }
+
+  .op-footer-status .op-footer-item span {
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .op-access small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@include resp.ate-estreita {
+  .op-dashboard {
+    display: grid;
+    grid-template-columns: 68px minmax(0, 1fr);
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .op-dashboard::before,
+  .op-dashboard::after {
+    left: 68px;
+  }
+
+  /* Antes a barra inteira sumia aqui e a tela ficava sem navegação; agora vira coluna de ícones. */
+  .op-sidebar {
+    display: grid;
+    grid-template-rows: 74px minmax(0, 1fr) 76px 58px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    min-height: 0;
+  }
+
+  .op-main {
+    display: block;
+    height: auto;
+  }
+
+  /* `_backoffice-dashboard-icons.scss` inteiro vive dentro de `.op-dashboard`, então as regras de
+     lá valem (0,3,1); o mesmo prefixo aqui é o que faz o modo ícone vencer. */
+  @include barra-icones(".op-dashboard .op-sidebar");
+
+  .op-dashboard .op-sidebar .op-nav-link,
+  .op-dashboard .op-sidebar .op-nav-group:has(> .op-nav-caret) > .op-nav-link {
+    width: auto;
+  }
+
+  .op-topbar,
+  .op-content,
+  .op-footer {
+    padding-inline: 16px;
+  }
+
+  .op-topbar,
+  .op-topbar-left,
+  .op-topbar-actions {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 74px;
+  }
+
+  .op-topbar-actions > .op-icon-button:last-child {
+    margin-right: 0;
+  }
+
+  .op-content,
+  .op-lower-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    overflow: visible;
+  }
+
+  .op-metrics,
+  .op-journeys,
+  .op-performance-grid,
+  .op-footer-status {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ============ MOLDURA MEDIDA PELA APLICAÇÃO, E NÃO PELA JANELA ============
+   Enquanto o SEP ocupa a tela inteira, a janela **é** a aplicação e as media queries acima bastam.
+   Com o enquadramento ativo (widget do cabeçalho), deixam de ser a mesma coisa: a janela continua
+   larga e a aplicação passa a ocupar um terço. Sem estas regras a barra lateral guardaria os
+   248px cheios e sobraria uma faixa inútil de conteúdo.
+
+   O container `sep-app` só existe quando há enquadramento ativo — `_sep-enquadramento.scss` o
+   declara em `sep-root`. Sem enquadramento nada aqui casa, e a moldura continua exatamente como
+   foi homologada. */
+
+@container sep-app (width <= 1320px) {
+  .op-dashboard {
+    grid-template-columns: 208px minmax(0, 1fr);
+  }
+
+  .op-dashboard::before,
+  .op-dashboard::after {
+    left: 208px;
+  }
+
+  .op-nav-link {
+    grid-template-columns: 26px minmax(0, 1fr) auto;
+    gap: 7px;
+    min-height: 38px;
+    padding-inline: 9px;
+  }
+
+  .op-subnav-link {
+    grid-template-columns: 18px minmax(0, 1fr);
+    gap: 7px;
+    padding-inline: 8px;
+  }
+
+  .op-content {
+    padding: 16px 22px 10px;
+  }
+}
+
+@container sep-app (width <= 1080px) {
+  .op-dashboard {
+    grid-template-columns: 68px minmax(0, 1fr);
+  }
+
+  .op-dashboard::before,
+  .op-dashboard::after {
+    left: 68px;
+  }
+
+  @include barra-icones(".op-dashboard .op-sidebar");
+
+  .op-dashboard .op-sidebar .op-nav-link,
+  .op-dashboard .op-sidebar .op-nav-group:has(> .op-nav-caret) > .op-nav-link {
+    width: auto;
+  }
+
+  .op-topbar,
+  .op-content,
+  .op-footer {
+    padding-inline: 16px;
+  }
+
+  /* O topbar **compacta**, e não quebra em várias linhas: com a aplicação em um terço, deixá-lo
+     quebrar empilhava cinco faixas e a barra invadia o conteúdo. Some o que é informativo — selo
+     de ambiente e relógio — e ficam a navegação e as ações, que é o que se opera daqui. */
+  .op-regulated,
+  .op-clock {
+    display: none;
+  }
+
+  .op-topbar {
+    gap: 8px;
+    padding-inline: 12px;
+  }
+
+  .op-topbar-left,
+  .op-topbar-actions {
+    gap: 8px;
+    min-width: 0;
+  }
+
+  /* O bloco de conta cede espaço primeiro: o avatar e o cursor bastam para abrir o menu. */
+  .op-user {
+    width: auto;
+    min-width: 0;
+  }
+
+  .op-user div,
+  .op-user b {
+    display: none;
+  }
+
+  /* A faixa do meio precisa ser limitada, e não `auto`: crescendo com o conteúdo, ela empurrava o
+     rodapé para baixo e as duas faixas se sobrepunham. */
+  .op-main {
+    grid-template-rows: minmax(74px, auto) minmax(0, 1fr) auto;
+
+    /* `clip` e nao `hidden`: `hidden` continua sendo um container de rolagem, e o navegador o
+       rolava sozinho para trazer o foco a vista — a barra superior saia da tela depois de clicar
+       no widget. `clip` nao cria container de rolagem, entao nao ha o que rolar. Quem rola aqui
+       dentro e a area de conteudo. */
+    overflow: clip;
+  }
+
+  /* Rolagem, e não recorte. Telas ainda não migradas ao contrato responsivo continuam pedindo mais
+     largura do que um terço oferece; deixá-las rolar mantém tudo alcançável, enquanto `hidden`
+     sumia com coluna e botão sem nenhum aviso. */
+  .op-content {
+    overflow: auto;
+  }
+
+  /* Os quatro selos regulatórios do rodapé viram quatro linhas empilhadas num terço de tela, e o
+     rodapé empurra a área de trabalho para fora. Em espaço estreito fica só o que é operacional —
+     último acesso e estado da sessão. */
+  .op-footer {
+    min-height: 0;
+    padding-block: 10px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .op-footer-status {
+    display: none;
+  }
+}
+
+/* ============ BARRA SUPERIOR: COMPACTAR E, NO LIMITE, QUEBRAR EM DUAS LINHAS ============
+   Largura natural da barra completa: 1065px. Abaixo disso saem o selo de ambiente e o relogio —
+   informacao de contexto, nao operacao — e o bloco de conta cede o texto. Mais estreito ainda, as
+   acoes ganham uma linha propria: e melhor o cabecalho ocupar duas linhas do que um controle
+   sumir. */
+
+@container sep-topo (width <= 1060px) {
+  .op-regulated,
+  .op-clock {
+    display: none;
+  }
+
+  .op-topbar {
+    gap: 8px;
+    padding-inline: 12px;
+  }
+
+  .op-topbar-left,
+  .op-topbar-actions {
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .op-user {
+    width: auto;
+    min-width: 0;
+  }
+
+  /* O bloco de conta cede largura antes de sumir: o e-mail e util, mas nao a ponto de empurrar o
+     controle de tema para fora da janela. */
+  .op-user > div {
+    max-width: 110px;
+    min-width: 0;
+  }
+
+  .op-user strong,
+  .op-user small {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+@container sep-topo (width <= 720px) {
+  .op-user div,
+  .op-user b {
+    display: none;
+  }
+}
+
+@container sep-topo (width <= 560px) {
+  .op-topbar {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 74px;
+    padding-block: 8px;
+  }
+
+  /* Duas linhas: navegacao em cima, acoes embaixo, encostadas a direita como na barra larga. */
+  .op-topbar-left,
+  .op-topbar-actions {
+    flex: 1 0 100%;
+  }
+
+  .op-topbar-actions {
+    justify-content: flex-end;
+  }
+}
+
+/* ============ AUTO-AJUSTE DOS WIDGETS EM MOLDURA ESTREITA ============
+   Nada aqui faz elemento crescer: tudo so **permite encolher e quebrar**. `min-width: auto` e o
+   padrao de item de flex e de grid, e e ele que faz um cartao recusar encolher e ser cortado pelo
+   proprio `overflow: hidden`. `white-space: normal` devolve a quebra a rotulos que foram escritos
+   numa linha so quando havia largura de sobra. Celulas de tabela ficam de fora: tabela larga rola
+   no proprio eixo, e quebrar celula ali so deixaria a linha alta sem resolver nada. */
+
+@container sep-app (width <= 1080px) {
+  .op-dashboard
+    .op-main
+    .op-content
+    :is(article, section, div, header, footer, aside, ul, ol, li, form, label) {
+    min-width: 0;
+  }
+
+  /* `:is` e o prefixo longo sao o desempate: `:where` nao soma especificidade, e as folhas das
+     telas declaram `white-space: nowrap` com uma classe — venciam, e o rotulo continuava numa
+     linha so, cortado pelo `overflow` do proprio cartao. */
+  .op-dashboard
+    .op-main
+    .op-content
+    :is(h1, h2, h3, h4, p, span, small, strong, b, em, i, dt, dd, a, button, label):not(
+      th,
+      td,
+      th *,
+      td *
+    ) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  /* Grafico, medidor e ilustracao nao quebram linha: o que resta a eles e acompanhar a largura.
+     Sem isto um SVG desenhado para 500px continuava com 500px dentro de um cartao de 300 e era o
+     cartao que era cortado. */
+  .op-content :where(svg, canvas, img, video) {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Fileiras do painel do Mockup 03. O prefixo longo e o desempate: a folha daquela tela declara
+     estas classes como estilo de componente, que carrega o atributo de encapsulamento e vence uma
+     classe solta. Com faixas fixas de 225px elas nunca quebravam. */
+  .op-dashboard .op-content .op-metrics,
+  .op-dashboard .op-content .op-journeys,
+  .op-dashboard .op-content .op-journeys-panel .op-journeys {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  }
+
+  /* `.op-lower-grid` e montado com **areas** nomeadas: so trocar as colunas nao reorganiza nada,
+     porque as areas continuam pedindo tres faixas. Aqui os cinco paineis viram uma pilha. */
+  .op-dashboard .op-content .op-lower-grid {
+    grid-template:
+      "journeys"
+      "summary"
+      "performance"
+      "health"
+      "activity"
+      / minmax(0, 1fr);
+    grid-template-rows: repeat(5, auto);
+  }
+
+  /* O painel de jornadas tem duas linhas de area no layout largo; empilhado, uma basta. */
+  .op-dashboard .op-content .op-journeys-panel {
+    grid-row: auto;
+  }
+}
+
+@include resp.ate-compacta {
+  .op-metrics,
+  .op-journeys,
+  .op-performance-grid,
+  .op-footer-status {
+    grid-template-columns: 1fr;
+  }
+
+  .op-user {
+    width: auto;
+    min-width: 0;
+  }
+
+  .op-footer {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ============ MENU COMPLETO, SUBMENUS E CONTA (shell operacional) ============
+// Acrescentado quando o shell operacional passou a substituir o menu anterior: papéis, submenus,
+// recolhimento em barra de ícones e troca de usuário pelo cabeçalho.
+.op-nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.op-nav-lucide {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  color: var(--sep-accent);
+}
+
+/* O item com submenu vira grupo: o link continua navegando e a seta só abre e fecha. */
+.op-nav-group {
+  position: relative;
+}
+
+.op-nav-group + .op-nav-group {
+  margin-top: 2px;
+}
+
+.op-nav-group:has(> .op-nav-caret) > .op-nav-link {
+  padding-right: 38px;
+}
+
+.op-nav-caret {
+  position: absolute;
+  top: 11px;
+  right: 9px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: var(--sep-accent);
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.op-nav-caret:hover,
+.op-nav-caret:focus-visible {
+  border-color: rgb(var(--sep-c-cyan) / 55%);
+  background: rgb(var(--sep-c-blue) / 18%);
+  transform: scale(1.08);
+}
+
+.op-subnav {
+  display: grid;
+  gap: 2px;
+  margin: 4px 0 8px 25px;
+  padding-left: 11px;
+  border-left: 1px solid rgb(var(--sep-c-cyan) / 26%);
+  animation: op-subnav-abre 180ms ease;
+}
+
+@keyframes op-subnav-abre {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.op-subnav-link {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 9px;
+  align-items: center;
+  min-height: 34px;
+  padding: 6px 10px;
+  color: var(--sep-text-secondary);
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.op-subnav-link span {
+  overflow: hidden;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.op-subnav-link lucide-icon {
+  display: grid;
+  place-items: center;
+  color: var(--sep-accent);
+  transition: color 180ms ease;
+}
+
+.op-subnav-link:hover,
+.op-subnav-link-active {
+  color: var(--sep-text-strong);
+  border-color: rgb(var(--sep-c-blue) / 42%);
+  background: linear-gradient(90deg, rgb(var(--sep-c-blue) / 18%), rgb(var(--sep-c-blue) / 4%));
+  transform: translateX(3px);
+}
+
+.op-subnav-link:hover lucide-icon,
+.op-subnav-link-active lucide-icon {
+  color: var(--sep-glow);
+}
+
+// ============ GLOW POR COR DO ÍCONE ============
+// Cada item carrega o próprio tom em `--glow` (definido no componente, junto do ícone). O hover
+// acende esse tom em vez do azul único: o brilho passa a identificar o módulo, e não só o estado.
+// O `color-mix` deixa uma só declaração servir a todas as cores, sem uma regra por módulo.
+.op-nav-link,
+.op-subnav-link {
+  --glow: var(--sep-accent);
+
+  position: relative;
+}
+
+.op-nav-link:hover,
+.op-nav-link:focus-visible,
+.op-subnav-link:hover,
+.op-subnav-link:focus-visible {
+  border-color: color-mix(in srgb, var(--glow) 62%, transparent);
+  box-shadow:
+    inset 0 0 18px color-mix(in srgb, var(--glow) calc(18% * var(--sep-glow-alpha)), transparent),
+    0 0 22px color-mix(in srgb, var(--glow) calc(30% * var(--sep-glow-alpha)), transparent);
+}
+
+// O ícone é o que mais acende: o brilho sai dele, seja PNG do pacote ou traço do Lucide.
+.op-nav-link:hover sep-arte,
+.op-nav-link:focus-visible sep-arte,
+.op-nav-link:hover .op-nav-lucide,
+.op-nav-link:focus-visible .op-nav-lucide,
+.op-subnav-link:hover lucide-icon,
+.op-subnav-link:focus-visible lucide-icon {
+  color: var(--glow);
+  filter: drop-shadow(
+      0 0 7px color-mix(in srgb, var(--glow) calc(100% * var(--sep-glow-alpha)), transparent)
+    )
+    drop-shadow(
+      0 0 14px color-mix(in srgb, var(--glow) calc(55% * var(--sep-glow-alpha)), transparent)
+    );
+  transform: scale(1.08);
+}
+
+.op-nav-link sep-arte,
+.op-nav-link .op-nav-lucide,
+.op-subnav-link lucide-icon {
+  transition:
+    color 180ms ease,
+    filter 200ms ease,
+    transform 200ms ease;
+}
+
+// ============ ITEM SELECIONADO ============
+// Antes o item ativo tinha exatamente o visual do hover, e o operador não sabia onde estava
+// depois de tirar o mouse. O selecionado ganha barra lateral no tom do módulo, fundo mais forte
+// e o ícone permanentemente aceso; o hover continua sendo só uma resposta ao ponteiro.
+.op-nav-link-active,
+.op-subnav-link-active {
+  color: var(--sep-text-strong);
+  border-color: color-mix(in srgb, var(--glow) 72%, transparent);
+  background:
+    radial-gradient(
+      circle at 94% 50%,
+      color-mix(in srgb, var(--glow) 24%, transparent),
+      transparent 34%
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--glow) 30%, transparent),
+      rgb(var(--sep-c-blue) / 6%)
+    );
+  box-shadow:
+    inset 0 0 20px color-mix(in srgb, var(--glow) calc(22% * var(--sep-glow-alpha)), transparent),
+    0 0 24px color-mix(in srgb, var(--glow) calc(32% * var(--sep-glow-alpha)), transparent);
+}
+
+.op-nav-link-active::before,
+.op-subnav-link-active::before {
+  position: absolute;
+  top: 50%;
+  left: -1px;
+  width: 3px;
+  height: 62%;
+  border-radius: 0 3px 3px 0;
+  background: var(--glow);
+  box-shadow: 0 0 10px
+    color-mix(in srgb, var(--glow) calc(100% * var(--sep-glow-alpha)), transparent);
+  transform: translateY(-50%);
+  content: "";
+}
+
+.op-nav-link-active img,
+.op-nav-link-active .op-nav-lucide,
+.op-subnav-link-active lucide-icon {
+  color: var(--glow);
+  filter: drop-shadow(0 0 6px var(--glow));
+}
+
+// O pai de um ramo selecionado fica marcado sem competir com a folha ativa: só a borda no tom.
+.op-nav-link-ramo,
+.op-subnav-link-ramo {
+  color: var(--sep-text);
+  border-color: color-mix(in srgb, var(--glow) 34%, transparent);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--glow) 12%, transparent), transparent);
+}
+
+.op-nav-link-ramo img,
+.op-nav-link-ramo .op-nav-lucide,
+.op-subnav-link-ramo lucide-icon {
+  color: color-mix(in srgb, var(--glow) 82%, var(--sep-text-strong));
+}
+
+.op-nav-group-ativo > .op-nav-caret {
+  color: color-mix(in srgb, var(--glow, var(--sep-accent)) 88%, var(--sep-text-strong));
+}
+
+// ============ TERCEIRO NÍVEL ============
+// Netos como `Reprocessos → Reprocessar provider`: sem eles a rota só existia por link interno.
+.op-subnav-group {
+  position: relative;
+}
+
+.op-subnav-group:has(> .op-subnav-caret) > .op-subnav-link {
+  padding-right: 34px;
+}
+
+.op-subnav-caret {
+  top: 5px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+}
+
+.op-subnav-neto {
+  margin: 3px 0 6px 18px;
+  padding-left: 9px;
+  border-left: 1px dashed color-mix(in srgb, var(--glow, var(--sep-accent)) 40%, transparent);
+}
+
+.op-subnav-link-neto {
+  min-height: 30px;
+  padding: 4px 9px;
+}
+
+.op-subnav-link-neto span {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+// ============ BARRA RECOLHIDA (só ícones) ============
+// O mesmo desenho serve a dois casos: o recolhimento manual pelo hambúrguer e a largura estreita,
+// onde a barra inteira antes desaparecia e a tela ficava sem navegação nenhuma.
+.op-dashboard:has(> .op-sidebar-colapsada) {
+  grid-template-columns: 78px minmax(0, 1fr);
+}
+
+.op-dashboard:has(> .op-sidebar-colapsada)::before,
+.op-dashboard:has(> .op-sidebar-colapsada)::after {
+  left: 78px;
+}
+
+/* A classe repetida vence `.op-sidebar .op-nav-link span` do tema global, sem !important. */
+.op-sidebar.op-sidebar-colapsada {
+  grid-template-rows: 74px minmax(0, 1fr) 76px 58px;
+}
+
+@include barra-icones(".op-sidebar.op-sidebar-colapsada");
+
+// ============ MENU DA CONTA NO CABEÇALHO ============
+
+.op-conta {
+  position: relative;
+}
+
+.op-user-caret {
+  display: grid;
+  place-items: center;
+  color: var(--sep-accent);
+  transition: transform 180ms ease;
+}
+
+.op-user-aberto {
+  border-color: rgb(var(--sep-c-cyan) / 62%);
+  box-shadow: 0 0 22px rgb(var(--sep-c-cyan) / calc(26% * var(--sep-glow-alpha)));
+}
+
+.op-conta-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+
+.op-conta-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 50;
+  display: grid;
+  gap: 3px;
+  width: 292px;
+  padding: 10px;
+  border: 1px solid rgb(var(--sep-c-cyan) / 38%);
+  border-radius: 12px;
+  background: linear-gradient(
+    160deg,
+    rgb(var(--sep-c-surf2) / 98%),
+    rgb(var(--sep-c-sunken) / 98%)
+  );
+  box-shadow: 0 18px 40px rgb(var(--sep-c-shadow) / 45%);
+  animation: op-conta-abre 160ms ease;
+}
+
+@keyframes op-conta-abre {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.op-conta-menu header {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 6px 8px 12px;
+  border-bottom: 1px solid rgb(var(--sep-c-cyan) / 20%);
+}
+
+.op-conta-menu header span {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  color: var(--sep-glow);
+  font-size: 17px;
+  font-weight: 800;
+  border: 1px solid rgb(var(--sep-c-cyan) / 62%);
+  border-radius: 50%;
+  background: rgb(var(--sep-c-blue) / 14%);
+}
+
+.op-conta-menu header strong,
+.op-conta-menu header small {
+  display: block;
+  overflow: hidden;
+  color: var(--sep-text-strong);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.op-conta-menu header small {
+  color: var(--sep-text-secondary);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.op-conta-secao {
+  margin: 8px 0 2px;
+  padding: 0 8px;
+  color: var(--sep-text-muted);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.op-conta-item {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  padding: 9px 10px;
+  color: var(--sep-text);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.op-conta-item lucide-icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  color: var(--sep-accent);
+}
+
+.op-conta-item:hover:not(:disabled),
+.op-conta-item:focus-visible {
+  border-color: rgb(var(--sep-c-blue) / 45%);
+  background: linear-gradient(90deg, rgb(var(--sep-c-blue) / 20%), rgb(var(--sep-c-blue) / 5%));
+  transform: translateX(2px);
+}
+
+.op-conta-item:disabled {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+.op-conta-troca {
+  gap: 10px;
+}
+
+.op-conta-avatar {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  color: var(--sep-glow);
+  font-size: 12px;
+  font-weight: 800;
+  border: 1px solid rgb(var(--sep-c-cyan) / 45%);
+  border-radius: 50%;
+  background: rgb(var(--sep-c-blue) / 12%);
+}
+
+.op-conta-troca-texto {
+  display: grid;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.op-conta-troca-texto strong {
+  overflow: hidden;
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.op-conta-troca-texto small {
+  overflow: hidden;
+  color: var(--sep-text-muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.op-conta-troca em {
+  flex-shrink: 0;
+  color: var(--sep-text-muted);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.op-conta-item-ativo {
+  border-color: rgb(var(--sep-c-cyan) / 35%);
+  background: rgb(var(--sep-c-cyan) / 8%);
+}
+
+.op-conta-sair {
+  margin-top: 6px;
+  padding-top: 12px;
+  color: var(--sep-danger);
+  border-top: 1px solid rgb(var(--sep-c-cyan) / 20%);
+  border-radius: 0 0 8px 8px;
+}
+
+.op-conta-sair lucide-icon {
+  color: var(--sep-danger);
+}
+
+.op-conta-sair:hover {
+  border-color: transparent;
+  border-top-color: rgb(var(--sep-c-red) / 35%);
+  background: rgb(var(--sep-c-red) / 12%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .op-subnav,
+  .op-conta-menu {
+    animation: none;
+  }
+
+  .op-subnav-link:hover,
+  .op-conta-item:hover:not(:disabled),
+  .op-nav-caret:hover {
+    transform: none;
+  }
+}
+
+/* ============ PAINÉIS DO CABEÇALHO (ALERTAS E AJUDA) ============ */
+
+/* Os dois botões do cabeçalho eram decorativos: o sino trazia o número "6" desenhado dentro do
+   PNG, e a ajuda não abria nada. Agora ambos abrem painel, e o contador do sino é real. */
+
+.op-painel-ancora {
+  position: relative;
+}
+
+.op-icon-button-aberto {
+  border-color: rgb(var(--sep-c-cyan) / 72%);
+  background: rgb(var(--sep-c-blue) / 22%);
+  box-shadow: 0 0 20px rgb(var(--sep-c-cyan) / calc(30% * var(--sep-glow-alpha)));
+}
+
+/* O contador substitui o "6" impresso no ícone; o PNG segue como moldura. */
+.op-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 2;
+  display: grid;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  color: var(--sep-text-inverse);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  border-radius: 999px;
+  background: var(--sep-glow);
+  box-shadow: 0 0 12px rgb(var(--sep-c-cyan) / calc(70% * var(--sep-glow-alpha)));
+  place-items: center;
+}
+
+.op-painel {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 60;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: 384px;
+  max-height: min(660px, 78vh);
+  overflow: hidden;
+  border: 1px solid rgb(var(--sep-c-cyan) / 46%);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgb(var(--sep-c-surf) / 98%), rgb(var(--sep-c-sunken) / 98%));
+  box-shadow: 0 26px 60px rgb(var(--sep-c-shadow) / 72%);
+  animation: op-painel-abre 180ms ease;
+}
+
+@keyframes op-painel-abre {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.op-painel > header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 15px 18px;
+  border-bottom: 1px solid rgb(var(--sep-c-cyan) / 24%);
+}
+
+.op-painel > header strong {
+  display: block;
+  color: var(--sep-text-strong);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.op-painel > header small {
+  display: block;
+  margin-top: 2px;
+  color: var(--sep-text-muted);
+  font-size: 11.5px;
+}
+
+.op-painel-acao {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  color: var(--sep-accent);
+  border: 1px solid rgb(var(--sep-c-cyan) / 34%);
+  border-radius: 9px;
+  background: transparent;
+  cursor: pointer;
+  place-items: center;
+  transition:
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.op-painel-acao:hover:not(:disabled) {
+  background: rgb(var(--sep-c-blue) / 20%);
+  transform: rotate(60deg);
+}
+
+.op-painel-acao:disabled {
+  cursor: progress;
+  opacity: 0.5;
+}
+
+.op-painel-corpo {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+/* Um alerta: ícone, título, detalhe e a origem do número. */
+.op-alerta {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 2px 11px;
+  padding: 12px 13px;
+  color: var(--sep-text);
+  text-decoration: none;
+  border: 1px solid rgb(var(--sep-c-cyan) / 20%);
+  border-radius: 11px;
+  background: rgb(var(--sep-c-surf2) / 72%);
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+a.op-alerta:hover {
+  border-color: var(--alerta-tom, var(--sep-accent));
+  background: rgb(var(--sep-c-surf3) / 88%);
+  transform: translateX(3px);
+}
+
+.op-alerta[data-tone="red"] {
+  --alerta-tom: var(--sep-danger);
+}
+
+.op-alerta[data-tone="amber"] {
+  --alerta-tom: var(--sep-warning);
+}
+
+.op-alerta[data-tone="blue"] {
+  --alerta-tom: var(--sep-accent);
+}
+
+.op-alerta[data-tone="green"] {
+  --alerta-tom: var(--sep-success);
+}
+
+.op-alerta-icone {
+  display: grid;
+  grid-row: span 3;
+  width: 32px;
+  height: 32px;
+  color: var(--alerta-tom, var(--sep-accent));
+  border: 1px solid color-mix(in srgb, var(--alerta-tom, var(--sep-accent)) 40%, transparent);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--alerta-tom, var(--sep-accent)) 13%, transparent);
+  place-items: center;
+}
+
+.op-alerta strong {
+  font-size: 12.8px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.op-alerta > span {
+  color: var(--sep-text-secondary);
+  font-size: 11.8px;
+  line-height: 1.45;
+}
+
+.op-alerta small {
+  margin-top: 3px;
+  color: var(--sep-field-placeholder);
+  font-family: "JetBrains Mono", "Cascadia Code", ui-monospace, monospace;
+  font-size: 11px;
+}
+
+.op-painel-vazio {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  margin: 0;
+  padding: 26px 20px;
+  color: var(--sep-text-secondary);
+  font-size: 12.2px;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.op-painel-vazio lucide-icon {
+  display: grid;
+  color: var(--sep-success);
+  place-items: center;
+}
+
+.op-painel-erro {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0;
+  padding: 10px 12px;
+  color: var(--sep-danger);
+  font-size: 11.8px;
+  border: 1px solid rgb(var(--sep-c-red) / 34%);
+  border-radius: 10px;
+  background: rgb(var(--sep-c-red) / 10%);
+}
+
+.op-painel-erro lucide-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+}
+
+/* ============ AJUDA ============ */
+.op-painel-ajuda {
+  width: 400px;
+}
+
+.op-ajuda-contexto {
+  padding: 14px 15px;
+  border: 1px solid rgb(var(--sep-c-cyan) / 24%);
+  border-radius: 11px;
+  background: rgb(var(--sep-c-surf2) / 72%);
+}
+
+.op-ajuda-contexto h3 {
+  margin: 0 0 5px;
+  color: var(--sep-text-strong);
+  font-size: 13.5px;
+  font-weight: 800;
+}
+
+.op-ajuda-contexto p {
+  margin: 0 0 10px;
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.op-ajuda-contexto ul {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.op-ajuda-contexto li {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+  color: var(--sep-text-secondary);
+  font-size: 11.8px;
+  line-height: 1.5;
+}
+
+.op-ajuda-contexto li lucide-icon {
+  display: grid;
+  margin-top: 1px;
+  color: var(--sep-success);
+  place-items: center;
+}
+
+.op-ajuda-links {
+  display: grid;
+  gap: 3px;
+}
+
+.op-ajuda-titulo {
+  margin: 6px 0 4px;
+  padding-left: 4px;
+  color: var(--sep-field-placeholder);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.op-ajuda-links a {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 9px 11px;
+  color: var(--sep-text);
+  font-size: 12.2px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.op-ajuda-links a lucide-icon {
+  display: grid;
+  color: var(--sep-glow);
+  place-items: center;
+}
+
+.op-ajuda-links a:hover {
+  border-color: rgb(var(--sep-c-cyan) / 40%);
+  background: rgb(var(--sep-c-surf3) / 78%);
+  transform: translateX(3px);
+}
+
+/* ============ TOURS ASSISTIDOS ============ */
+.op-ajuda-testes {
+  display: grid;
+  gap: 6px;
+}
+
+.op-ajuda-testes-intro {
+  margin: 0 4px 4px;
+  color: var(--sep-text-secondary);
+  font-size: 11.8px;
+  line-height: 1.5;
+}
+
+/* Cada modulo traz a propria cor (`--tom`, a mesma do modulo no menu lateral) e o proprio icone; o
+   icone de cada roteiro herda a cor do modulo e muda de desenho, para o item ser reconhecido antes
+   de ser lido. */
+.op-ajuda-grupo {
+  --tom: var(--sep-glow);
+
+  border: 1px solid color-mix(in srgb, var(--tom) 34%, transparent);
+  border-radius: 11px;
+  background: rgb(var(--sep-c-surf2) / 72%);
+
+  .op-ajuda-icone {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    color: var(--tom);
+    border: 1px solid color-mix(in srgb, var(--tom) 45%, transparent);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--tom) 14%, transparent);
+  }
+
+  .op-ajuda-icone-grupo {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+  }
+
+  summary {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 10px 12px;
+    color: var(--sep-text-strong);
+    font-size: 12.8px;
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    small {
+      margin-left: auto;
+      color: var(--sep-text-muted);
+      font-size: 11px;
+    }
+
+    lucide-icon {
+      display: grid;
+      place-items: center;
+    }
+
+    .op-ajuda-seta {
+      display: grid;
+      place-items: center;
+      color: var(--sep-text-muted);
+      transition: transform 180ms ease;
+    }
+  }
+
+  &[open] summary .op-ajuda-seta {
+    transform: rotate(90deg);
+  }
+}
+
+.op-ajuda-roteiro {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  width: calc(100% - 12px);
+  margin: 0 6px 6px;
+  padding: 9px 10px;
+  color: var(--sep-text);
+  font: inherit;
+  text-align: left;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: none;
+  cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+
+  lucide-icon {
+    display: grid;
+    place-items: center;
+  }
+
+  span {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  /* Vem depois de `span`: o icone e um span tambem, e mantem a caixa quadrada do modulo. */
+  .op-ajuda-icone {
+    gap: 0;
+  }
+
+  strong {
+    font-size: 12.4px;
+  }
+
+  small {
+    color: var(--sep-text-muted);
+    font-size: 11.2px;
+    line-height: 1.4;
+  }
+
+  em {
+    color: var(--sep-field-placeholder);
+    font-size: 10.8px;
+    font-style: normal;
+    white-space: nowrap;
+  }
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    border-color: color-mix(in srgb, var(--tom, var(--sep-glow)) 50%, transparent);
+    outline: none;
+    background: rgb(var(--sep-c-surf3) / 78%);
+    transform: translateX(3px);
+  }
+
+  &:hover:not(:disabled) .op-ajuda-icone,
+  &:focus-visible .op-ajuda-icone {
+    box-shadow: 0 0 12px color-mix(in srgb, var(--tom, var(--sep-glow)) 45%, transparent);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+
+    small {
+      color: var(--sep-warning);
+    }
+  }
+}
+
+/* ============ PESQUISA ============ */
+.op-painel-pesquisa > header {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.op-pesquisa {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  height: 40px;
+  padding: 0 12px;
+  color: var(--sep-glow);
+  border: 1px solid rgb(var(--sep-c-cyan) / 40%);
+  border-radius: 10px;
+  background: rgb(var(--sep-c-sunken) / 80%);
+}
+
+.op-pesquisa:focus-within {
+  border-color: rgb(var(--sep-c-cyan) / 80%);
+  box-shadow: 0 0 14px rgb(var(--sep-c-cyan) / calc(22% * var(--sep-glow-alpha)));
+}
+
+.op-pesquisa lucide-icon {
+  display: grid;
+  place-items: center;
+}
+
+.op-pesquisa-campo {
+  min-width: 0;
+  padding: 0;
+  color: var(--sep-text);
+  font: inherit;
+  font-size: 13px;
+  border: 0;
+  outline: none;
+  background: transparent;
+}
+
+.op-pesquisa-campo::placeholder {
+  color: var(--sep-field-placeholder);
+}
+
+.op-pesquisa-item {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.op-pesquisa-item small {
+  overflow: hidden;
+  color: var(--sep-text-muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* O cartao "Ambiente Regulado" virou link: sem sublinhado, com o mesmo realce dos demais. */
+a.op-regulated {
+  color: inherit;
+  text-decoration: none;
+}
+
+a.op-regulated:hover b,
+a.op-regulated:focus-visible b {
+  color: var(--sep-glow);
+}
+
+/* Fundo que fecha o painel ao clicar fora, sem depender de listener global. */
+.op-painel-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+
+@include resp.ate-tablet {
+  .op-painel,
+  .op-painel-ajuda {
+    width: min(92vw, 384px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .op-painel {
+    animation: none;
+  }
+
+  .op-alerta,
+  .op-ajuda-links a,
+  .op-painel-acao {
+    transition: none;
+  }
+}
+
+/* Créditos do painel de Ajuda: identificação técnica discreta, fora do caminho da operação. */
+.op-ajuda-creditos {
+  display: grid;
+  gap: 3px;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid rgb(var(--sep-c-cyan) / 18%);
+}
+
+.op-ajuda-versao {
+  margin: 0 0 6px;
+  padding-left: 4px;
+  color: var(--sep-text-muted);
+  font-family: "JetBrains Mono", "Cascadia Code", ui-monospace, monospace;
+  font-size: 11px;
+}
+
+.op-ajuda-credito {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: baseline;
+  margin: 0;
+  padding: 5px 4px;
+  font-size: 11.5px;
+}
+
+.op-ajuda-credito span {
+  color: var(--sep-field-placeholder);
+}
+
+.op-ajuda-credito strong {
+  color: var(--sep-text-secondary);
+  font-weight: 700;
+  white-space: nowrap;
+}

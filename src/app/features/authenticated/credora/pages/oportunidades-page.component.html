@@ -1,54 +1,189 @@
-<section class="sep-oportunidades">
-  <header class="sep-oportunidades-header">
-    <h1 class="sep-oportunidades-title">Oportunidades</h1>
-    <a routerLink="/app/credora" class="sep-oportunidades-back">Voltar para a jornada credora</a>
-  </header>
+<sep-operational-shell>
+  <section class="px44-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px44-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/credora">Credora</a><span>›</span><strong>Oportunidades</strong>
+      </nav>
+      <div class="px44-heading-row">
+        <div class="px44-titulo-wrap">
+          <span class="px44-titulo-icone" data-tone="green">
+            <lucide-icon name="chart-column" [size]="24" />
+          </span>
+          <div>
+            <h1>Oportunidades</h1>
+            <p class="px44-subtitulo">
+              Operações disponíveis para investimento, publicadas pelo backend.
+            </p>
+          </div>
+        </div>
+        <a class="px44-btn-sec" routerLink="/app/credora">
+          <lucide-icon name="arrow-left" [size]="16" />Voltar para a jornada credora
+        </a>
+      </div>
+    </header>
 
-  @if (loading()) {
-    <p class="sep-oportunidades-state" role="status">Carregando oportunidades...</p>
-  } @else if (errorMessage(); as msg) {
-    <div class="sep-oportunidades-state sep-oportunidades-error" role="alert">
-      <p>{{ msg }}</p>
-      <button type="button" class="sep-oportunidades-retry" (click)="carregar()">
-        Tentar novamente
-      </button>
-    </div>
-  } @else if (oportunidades().length === 0) {
-    <div class="sep-oportunidades-state sep-oportunidades-empty">
-      <p>Nao ha oportunidades disponiveis no momento.</p>
-    </div>
-  } @else {
-    <table class="sep-oportunidades-table">
-      <thead>
-        <tr>
-          <th scope="col">Oportunidade</th>
-          <th scope="col">Valor</th>
-          <th scope="col">Prazo</th>
-          <th scope="col">Taxa</th>
-          <th scope="col">Status</th>
-          <th scope="col">Criada em</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (oportunidade of oportunidades(); track oportunidade.id) {
-          <tr>
-            <td>
-              @if (oportunidade.status === 'DISPONIVEL') {
-                <a [routerLink]="['/app/credora/oportunidades', oportunidade.id]">
-                  {{ idCurto(oportunidade.id) }}
-                </a>
-              } @else {
-                {{ idCurto(oportunidade.id) }}
+    @if (loading()) {
+      <p class="px44-estado" role="status">Carregando oportunidades...</p>
+    } @else if (errorMessage(); as msg) {
+      <div class="px44-estado px44-erro" role="alert">
+        <lucide-icon name="triangle-alert" [size]="18" />
+        <p>{{ msg }}</p>
+        <button type="button" class="px44-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
+      </div>
+    } @else {
+      <!-- ============ MÉTRICAS ============ -->
+      <div class="px44-metricas">
+        <article class="px44-card px44-metrica" data-tone="green">
+          <header>
+            <span class="px44-metrica-icone"><lucide-icon name="chart-column" [size]="18" /></span>
+            <small>Disponíveis</small>
+          </header>
+          <strong>{{ disponiveis().length }}</strong>
+          <em>{{ disponiveis().length === 1 ? 'oportunidade' : 'oportunidades' }}</em>
+        </article>
+        <article class="px44-card px44-metrica" data-tone="blue">
+          <header>
+            <span class="px44-metrica-icone"><lucide-icon name="wallet" [size]="18" /></span>
+            <small>Valor disponível</small>
+          </header>
+          <strong>{{ formatarMoeda(valorDisponivel()) }}</strong>
+          <em>somado das operações abertas</em>
+        </article>
+        <article class="px44-card px44-metrica" data-tone="purple">
+          <header>
+            <span class="px44-metrica-icone"><lucide-icon name="calendar-days" [size]="18" /></span>
+            <small>Prazo médio</small>
+          </header>
+          <strong>{{ prazoMedio() }} meses</strong>
+          <em>entre as disponíveis</em>
+        </article>
+        <article class="px44-card px44-metrica" data-tone="amber">
+          <header>
+            <span class="px44-metrica-icone"
+              ><lucide-icon name="circle-dollar-sign" [size]="18"
+            /></span>
+            <small>Taxa média</small>
+          </header>
+          <strong>{{ formatarTaxaMensal(taxaMedia()) }}</strong>
+          <em>ao mês</em>
+        </article>
+      </div>
+
+      <!-- ============ LISTA ============ -->
+      <article class="px44-card px44-tabela-card">
+        <h2>Operações publicadas</h2>
+        <div class="px44-tabela-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Oportunidade</th>
+                <th class="px44-num">Valor</th>
+                <th class="px44-num">Prazo</th>
+                <th class="px44-num">Taxa</th>
+                <th>Status</th>
+                <th>Publicada em</th>
+                <th class="px44-acoes-col">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (o of oportunidades(); track o.id) {
+                <tr>
+                  <td>
+                    @if (o.status === 'DISPONIVEL') {
+                      <a class="px44-link" [routerLink]="['/app/credora/oportunidades', o.id]">
+                        {{ idCurto(o.id) }}
+                      </a>
+                    } @else {
+                      <span class="px44-id-inerte">{{ idCurto(o.id) }}</span>
+                    }
+                  </td>
+                  <td class="px44-num px44-valor">{{ formatarMoeda(o.valor) }}</td>
+                  <td class="px44-num">{{ o.prazoMeses }} meses</td>
+                  <td class="px44-num">{{ formatarTaxaMensal(o.taxaJurosMensal) }}</td>
+                  <td>
+                    <span class="px44-selo" [attr.data-tone]="statusTom(o.status)">
+                      {{ statusRotulo(o.status) }}
+                    </span>
+                  </td>
+                  <td>{{ formatarData(o.dataCriacao) }}</td>
+                  <td class="px44-acoes-col">
+                    @if (o.status === 'DISPONIVEL') {
+                      <a
+                        class="px44-btn-linha"
+                        [routerLink]="['/app/credora/oportunidades', o.id]"
+                        [attr.aria-label]="'Abrir oportunidade ' + idCurto(o.id)"
+                        title="Abrir detalhe da oportunidade"
+                      >
+                        <lucide-icon name="eye" [size]="15" />
+                      </a>
+                    } @else {
+                      <span
+                        class="px44-btn-linha px44-btn-linha-inerte"
+                        title="Oportunidade encerrada"
+                        aria-hidden="true"
+                      >
+                        <lucide-icon name="eye" [size]="15" />
+                      </span>
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="px44-vazio-linha">
+                    Não há oportunidades disponíveis no momento.
+                  </td>
+                </tr>
               }
-            </td>
-            <td>{{ formatarMoeda(oportunidade.valor) }}</td>
-            <td>{{ oportunidade.prazoMeses }} meses</td>
-            <td>{{ formatarTaxaMensal(oportunidade.taxaJurosMensal) }}</td>
-            <td><sep-oportunidade-status [status]="oportunidade.status" /></td>
-            <td>{{ formatarData(oportunidade.dataCriacao) }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  }
-</section>
+            </tbody>
+          </table>
+        </div>
+        <footer class="px44-tabela-rodape">
+          <span>
+            {{ oportunidades().length }}
+            {{
+              oportunidades().length === 1 ? 'oportunidade publicada' : 'oportunidades publicadas'
+            }}
+          </span>
+          <span class="px44-nota">
+            <lucide-icon name="info" [size]="14" />
+            Manifestar interesse não gera aporte nem operação de carteira.
+          </span>
+        </footer>
+      </article>
+
+      <!-- ============ COMO A OPORTUNIDADE VIRA CARTEIRA ============ -->
+      <article class="px44-card px44-fluxo">
+        <h2>Como uma oportunidade vira operação de carteira</h2>
+        <ol class="px44-etapas">
+          <li data-tone="green">
+            <span class="px44-etapa-icone"><lucide-icon name="chart-column" [size]="22" /></span>
+            <strong>1. Publicação</strong>
+            <p>O backend publica a operação com valor, prazo e taxa já definidos.</p>
+          </li>
+          <li data-tone="blue">
+            <span class="px44-etapa-icone"><lucide-icon name="handshake" [size]="22" /></span>
+            <strong>2. Interesse</strong>
+            <p>Você abre o detalhe e manifesta interesse. Nada é alocado nesse passo.</p>
+          </li>
+          <li data-tone="purple">
+            <span class="px44-etapa-icone"><lucide-icon name="user-check" [size]="22" /></span>
+            <strong>3. Associação assistida</strong>
+            <p>O backoffice associa a operação à credora após a formalização.</p>
+          </li>
+          <li data-tone="amber">
+            <span class="px44-etapa-icone"><lucide-icon name="wallet" [size]="22" /></span>
+            <strong>4. Carteira</strong>
+            <p>Só então a operação aparece na carteira, com a cobrança agregada.</p>
+          </li>
+        </ol>
+        <a class="px44-btn-sec px44-fluxo-link" routerLink="/app/credora/carteira">
+          <lucide-icon name="wallet" [size]="16" />Ver minha carteira
+        </a>
+      </article>
+    }
+  </section>
+</sep-operational-shell>

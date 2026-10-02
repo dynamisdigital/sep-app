@@ -1,0 +1,19 @@
+{
+  "name": "SEP — Sociedade de Empréstimo entre Pessoas",
+  "short_name": "SEP",
+  "description": "Ambiente regulado de crédito, formalização, cobrança e Pix.",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#030d19",
+  "theme_color": "#030d19",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}

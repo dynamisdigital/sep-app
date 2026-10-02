@@ -1,5 +1,6 @@
 @use "../../../styles/sep-ds-typography" as sepType;
 @use "../../../styles/sep-ds-components" as sepDs;
+@use "../../../styles/sep-responsivo" as resp;
 
 .sep-sidenav {
   position: sticky;
@@ -148,7 +149,7 @@
   }
 }
 
-@media (width <= 833px) {
+@include resp.ate-tablet {
   .sep-sidenav {
     position: static;
     width: 100%;

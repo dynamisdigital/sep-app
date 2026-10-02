@@ -1,0 +1,305 @@
+﻿<sep-operational-shell>
+  <main class="bo15-content">
+    <header class="bo15-heading">
+      <div>
+        <p>
+          <a routerLink="/app/dashboard">Início</a>　›　<span>Backoffice</span>　›　<strong
+            >Dashboard</strong
+          >
+        </p>
+        <h1 id="bo15-title">
+          Dashboard operacional
+          <lucide-icon name="shield" [size]="28" aria-hidden="true" />
+        </h1>
+        <span>Visão geral da operação e desempenho da plataforma.</span>
+      </div>
+      <div class="bo15-actions">
+        <label
+          ><small>Período</small
+          ><select aria-label="Período do relatório" (change)="onPeriodChange($event)">
+            <option>Últimos 30 dias</option>
+            <option>Últimos 7 dias</option></select
+          ><lucide-icon name="calendar" [size]="18" aria-hidden="true" /></label
+        ><button type="button" (click)="exportReport()">
+          <lucide-icon name="download" [size]="19" aria-hidden="true" />Exportar relatório　⌄
+        </button>
+      </div>
+    </header>
+    <section class="bo15-metrics">
+      @for (m of operationalMetrics(); track m[0]) {
+        <article class="bo15-card bo15-metric" [attr.data-tone]="m[3]">
+          <span class="metric-icon"><lucide-icon [name]="$any(m[4])" [size]="21" /></span>
+          <div>
+            <small>{{ m[0] }}</small
+            ><strong>{{ m[1] }}</strong>
+            <p>
+              <b>{{ m[2] }}</b> vs. 30 dias anteriores
+            </p>
+          </div>
+          <svg class="spark" viewBox="0 0 190 35" preserveAspectRatio="none" aria-hidden="true">
+            <polygon [attr.points]="'0,35 ' + m[5] + ' 190,35'" />
+            <polyline [attr.points]="m[5]" />
+          </svg>
+        </article>
+      }
+    </section>
+    <section class="bo15-overview">
+      <article class="bo15-card donut-card status-card">
+        <h2>Itens por status</h2>
+        <div>
+          <div
+            class="css-donut"
+            [style.background]="gradiente(fatiasStatus())"
+            [style.box-shadow]="halo(fatiasStatus())"
+          >
+            <span
+              ><b>{{ totalFila() }}</b
+              ><small>Total</small></span
+            >
+          </div>
+          <ul>
+            @for (fatia of fatiasStatus(); track fatia.rotulo) {
+              <li [style.--legenda]="corDoTom(fatia.tom)" [attr.data-status]="fatia.chave">
+                <i></i><span>{{ fatia.rotulo }}</span
+                ><b>{{ fatia.valor }}</b
+                ><em>{{ fatia.percentual }}</em>
+              </li>
+            }
+          </ul>
+        </div>
+        <a routerLink="/app/backoffice/fila">Ver todos os itens　→</a>
+      </article>
+      <article class="bo15-card donut-card">
+        <h2>Itens por prioridade</h2>
+        <div>
+          <div
+            class="css-donut"
+            [style.background]="gradiente(fatiasPrioridade())"
+            [style.box-shadow]="halo(fatiasPrioridade())"
+          >
+            <span
+              ><b>{{ totalFila() }}</b
+              ><small>Total</small></span
+            >
+          </div>
+          <ul>
+            @for (fatia of fatiasPrioridade(); track fatia.rotulo) {
+              <li [style.--legenda]="corDoTom(fatia.tom)">
+                <i></i><span>{{ fatia.rotulo }}</span
+                ><b>{{ fatia.valor }}</b
+                ><em>{{ fatia.percentual }}</em>
+              </li>
+            }
+          </ul>
+        </div>
+        <a routerLink="/app/backoffice/fila">Ver todos　→</a>
+      </article>
+      <article class="bo15-card donut-card">
+        <h2>Itens por tipo</h2>
+        <div>
+          <div
+            class="css-donut"
+            [style.background]="gradiente(fatiasTipo())"
+            [style.box-shadow]="halo(fatiasTipo())"
+          >
+            <span
+              ><b>{{ totalFila() }}</b
+              ><small>Total</small></span
+            >
+          </div>
+          <ul>
+            @for (fatia of fatiasTipo(); track fatia.rotulo) {
+              <li [style.--legenda]="corDoTom(fatia.tom)" [attr.data-type-key]="fatia.chave">
+                <i></i><span>{{ fatia.rotulo }}</span
+                ><b>{{ fatia.valor }}</b
+                ><em>{{ fatia.percentual }}</em>
+              </li>
+            }
+          </ul>
+        </div>
+        <a routerLink="/app/backoffice/fila">Ver todos　→</a>
+      </article>
+      <article class="bo15-card top-card">
+        <h2>Top 5 tipos mais frequentes</h2>
+        <ol>
+          @for (fatia of topTiposFila(); track fatia.rotulo; let i = $index) {
+            <li>
+              <i>{{ i + 1 }}</i
+              ><span>{{ fatia.rotulo }}</span
+              ><b>{{ fatia.valor }}</b>
+            </li>
+          }
+        </ol>
+        <a routerLink="/app/backoffice/fila">Ver todos　→</a>
+      </article>
+    </section>
+    <section class="bo15-middle">
+      <article class="bo15-card evolution">
+        <h2>Evolução de ocorrências</h2>
+        <div class="evolution-chart">
+          <div class="chart-legend"><i></i>Abertos <i></i>Resolvidos</div>
+          <span class="chart-y"><b>20</b><b>15</b><b>10</b><b>5</b><b>0</b></span>
+          <svg
+            class="evolution-svg"
+            viewBox="0 0 420 140"
+            preserveAspectRatio="none"
+            role="img"
+            aria-label="Evolução de ocorrências abertas e resolvidas"
+          >
+            <defs>
+              <linearGradient id="bo15-blue-area" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" style="stop-color: var(--sep-accent)" stop-opacity=".28" />
+                <stop offset="1" style="stop-color: var(--sep-accent)" stop-opacity="0" />
+              </linearGradient>
+              <linearGradient id="bo15-green-area" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" style="stop-color: var(--sep-success)" stop-opacity=".32" />
+                <stop offset="1" style="stop-color: var(--sep-success)" stop-opacity="0" />
+              </linearGradient>
+              <filter id="bo15-blue-glow">
+                <feGaussianBlur stdDeviation="1.7" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+              <filter id="bo15-green-glow">
+                <feGaussianBlur stdDeviation="1.5" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            <g class="chart-grid">
+              <line x1="0" y1="12" x2="420" y2="12" />
+              <line x1="0" y1="41" x2="420" y2="41" />
+              <line x1="0" y1="70" x2="420" y2="70" />
+              <line x1="0" y1="99" x2="420" y2="99" />
+              <line x1="0" y1="128" x2="420" y2="128" />
+              <line x1="0" y1="12" x2="0" y2="128" />
+              <line x1="70" y1="12" x2="70" y2="128" />
+              <line x1="140" y1="12" x2="140" y2="128" />
+              <line x1="210" y1="12" x2="210" y2="128" />
+              <line x1="280" y1="12" x2="280" y2="128" />
+              <line x1="350" y1="12" x2="350" y2="128" />
+              <line x1="420" y1="12" x2="420" y2="128" />
+            </g>
+            <path
+              class="blue-area"
+              d="M0 99 L18 82 L36 88 L54 69 L72 52 L90 44 L108 48 L126 56 L144 61 L162 50 L180 56 L198 42 L216 31 L234 43 L252 53 L270 58 L288 48 L306 29 L324 40 L342 55 L360 59 L378 49 L396 30 L420 12 L420 128 L0 128 Z"
+            />
+            <path
+              class="green-area"
+              d="M0 116 L18 102 L36 111 L54 95 L72 105 L90 91 L108 96 L126 101 L144 99 L162 106 L180 99 L198 82 L216 75 L234 87 L252 92 L270 87 L288 76 L306 83 L324 96 L342 102 L360 95 L378 87 L396 82 L420 70 L420 128 L0 128 Z"
+            />
+            <polyline
+              class="blue-line"
+              points="0,99 18,82 36,88 54,69 72,52 90,44 108,48 126,56 144,61 162,50 180,56 198,42 216,31 234,43 252,53 270,58 288,48 306,29 324,40 342,55 360,59 378,49 396,30 420,12"
+            />
+            <polyline
+              class="green-line"
+              points="0,116 18,102 36,111 54,95 72,105 90,91 108,96 126,101 144,99 162,106 180,99 198,82 216,75 234,87 252,92 270,87 288,76 306,83 324,96 342,102 360,95 378,87 396,82 420,70"
+            />
+            <g class="blue-points">
+              @for (p of evolutionBluePoints; track p[0]) {
+                <circle [attr.cx]="p[0]" [attr.cy]="p[1]" r="1.8" />
+              }
+            </g>
+            <g class="green-points">
+              @for (p of evolutionGreenPoints; track p[0]) {
+                <circle [attr.cx]="p[0]" [attr.cy]="p[1]" r="1.7" />
+              }
+            </g>
+          </svg>
+          <div class="chart-dates">
+            <span>30/04</span><span>05/05</span><span>10/05</span><span>15/05</span
+            ><span>20/05</span><span>25/05</span><span>30/05</span>
+          </div>
+        </div>
+      </article>
+      <article class="bo15-card proposal">
+        <h2>Propostas por status</h2>
+        <div>
+          <div
+            class="css-donut"
+            [style.background]="gradiente(fatiasPropostas())"
+            [style.box-shadow]="halo(fatiasPropostas())"
+          >
+            <span
+              ><b>{{ totalPropostas() }}</b
+              ><small>Total</small></span
+            >
+          </div>
+          <ul>
+            @for (fatia of fatiasPropostas(); track fatia.rotulo) {
+              <li [style.--legenda]="corDoTom(fatia.tom)">
+                <i></i><span>{{ fatia.rotulo }}</span
+                ><b>{{ fatia.valor }}</b
+                ><em>{{ fatia.percentual }}</em>
+              </li>
+            }
+          </ul>
+        </div>
+        <a routerLink="/app/credito/propostas">Ver todas as propostas　→</a>
+      </article>
+      <article class="bo15-card ranking">
+        <h2>Ranking de ocorrências (30d)</h2>
+        <small><span>Operador / Time</span><span>Ocorrências</span></small>
+        @for (r of ranking; track r[1]) {
+          <div>
+            <i>{{ r[0] }}</i
+            ><span>{{ r[1] }}</span
+            ><b><u [style.width.%]="r[3]"></u></b><em>{{ r[2] }}</em>
+          </div>
+        }
+        <a routerLink="/app/backoffice/fila">Ver ranking completo　→</a>
+      </article>
+    </section>
+    <section class="bo15-bottom">
+      <article class="bo15-card critical">
+        <h2>Ocorrências críticas recentes</h2>
+        <header>
+          <span>ID do item</span><span>Tipo</span><span>Descrição</span><span>Aberto em</span
+          ><span>Atribuído a</span><span>Status</span>
+        </header>
+        @for (r of critical; track r[0]) {
+          <a [routerLink]="['/app/backoffice/fila', r[6]]"
+            ><strong>{{ r[0] }}</strong
+            ><i
+              [attr.data-type]="r[1]"
+              [attr.data-type-key]="
+                r[1] === 'Webhook' ? 'webhook' : r[1] === 'Cobrança' ? 'cobranca' : 'pix'
+              "
+              [class.badge-cobranca]="r[1] === 'Cobrança'"
+              [class.badge-webhook]="r[1] === 'Webhook'"
+              [class.badge-pix]="r[1] === 'Pix'"
+              >{{ r[1] }}</i
+            ><span>{{ r[2] }}</span
+            ><span>{{ r[3] }}</span
+            ><span>{{ r[4] }}</span
+            ><b
+              [attr.data-status]="r[5]"
+              [class.badge-treatment]="r[5] === 'Em tratamento'"
+              [class.badge-open]="r[5] === 'Aberto'"
+              >{{ r[5] }}</b
+            ></a
+          >
+        }
+        <a class="all-critical" routerLink="/app/backoffice/fila">Ver todos os críticos　→</a>
+      </article>
+      <article class="bo15-card indicators">
+        <h2>Indicadores operacionais</h2>
+        @for (r of operationalIndicators; track r[0]) {
+          <div [attr.data-tone]="r[3]">
+            <lucide-icon [name]="$any(r[4])" [size]="24" aria-hidden="true" /><span
+              ><small>{{ r[0] }}</small
+              ><strong>{{ r[1] }}</strong></span
+            ><em>{{ r[2] }}</em
+            ><b><i [style.width.%]="r[5]"></i></b>
+          </div>
+        }
+        <a routerLink="/app/backoffice/fila">Ver todos os indicadores　→</a>
+      </article>
+    </section>
+  </main>
+</sep-operational-shell>

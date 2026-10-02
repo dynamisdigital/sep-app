@@ -1,0 +1,97 @@
+<sep-public-shell>
+  <section class="px50-page">
+    <header class="px50-heading">
+      <p class="px50-kicker"><lucide-icon name="shield" [size]="14" />Segurança</p>
+      <h1>Controles que existem no produto, <em>não em promessa</em>.</h1>
+      <p class="px50-lead">
+        Crédito entre empresas move dinheiro e dados sensíveis. Abaixo está o que a plataforma faz
+        para proteger os dois — cada item corresponde a um mecanismo em uso, e não a uma intenção de
+        roadmap.
+      </p>
+    </header>
+
+    <!-- ============ ACESSO ============ -->
+    <section class="px50-secao">
+      <div class="px50-secao-topo">
+        <h2>Quem entra, e até onde vai</h2>
+        <p>
+          Identidade confirmada na entrada e reconfirmada nas operações que mudam regra ou poder.
+        </p>
+      </div>
+
+      <div class="px50-grade">
+        @for (item of acesso; track item.titulo) {
+          <article class="px50-card" [attr.data-tone]="item.tom">
+            <span class="px50-card-icone"><lucide-icon [name]="item.icone" [size]="22" /></span>
+            <h3>{{ item.titulo }}</h3>
+            <p>{{ item.descricao }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    <!-- ============ DADOS E DINHEIRO ============ -->
+    <section class="px50-secao">
+      <div class="px50-secao-topo">
+        <h2>Dados e dinheiro</h2>
+        <p>
+          Rastreabilidade não é um relatório emitido no fim: é o registro que nasce junto com cada
+          operação.
+        </p>
+      </div>
+
+      <div class="px50-grade">
+        @for (item of dados; track item.titulo) {
+          <article class="px50-card" [attr.data-tone]="item.tom">
+            <span class="px50-card-icone"><lucide-icon [name]="item.icone" [size]="22" /></span>
+            <h3>{{ item.titulo }}</h3>
+            <p>{{ item.descricao }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    <!-- ============ NA SUA CONTA ============ -->
+    <section class="px50-secao">
+      <div class="px50-secao-topo">
+        <h2>O que está na sua mão</h2>
+        <p>Onde ajustar a segurança da própria conta, dentro da plataforma.</p>
+      </div>
+
+      <ul class="px50-conta">
+        @for (linha of conta; track linha.rotulo) {
+          <li>
+            <lucide-icon name="check" [size]="16" />
+            <strong>{{ linha.rotulo }}</strong>
+            <span>{{ linha.valor }}</span>
+          </li>
+        }
+      </ul>
+
+      <p class="px50-aviso">
+        <lucide-icon name="triangle-alert" [size]="18" />
+        <span>
+          A SEP nunca pede sua senha, o código do autenticador ou dados de cartão por telefone,
+          e-mail ou mensagem. Se receber um pedido assim, não responda e avise pelo canal de
+          contato.
+        </span>
+      </p>
+    </section>
+
+    <div class="px50-chamada">
+      <h2>Encontrou uma vulnerabilidade?</h2>
+      <p>
+        Relate pelo canal de contato com o máximo de detalhe que puder. Reportes de boa-fé são
+        bem-vindos e não geram represália.
+      </p>
+      <div class="px50-chamada-acoes">
+        <a class="px50-btn-primary" routerLink="/contato">
+          <lucide-icon name="mail" [size]="18" />Falar com a equipe
+        </a>
+        <a class="px50-btn-secondary" routerLink="/politica-de-privacidade">
+          Ler a política de privacidade
+        </a>
+      </div>
+    </div>
+  </section>
+</sep-public-shell>

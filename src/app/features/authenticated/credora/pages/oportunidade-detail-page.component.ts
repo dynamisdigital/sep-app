@@ -8,14 +8,16 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 import { forkJoin } from 'rxjs';
 
 import {
   ElegibilidadeCredoraResponse,
   OportunidadeResponse,
+  StatusOportunidade,
 } from '../../../../core/api/api.models';
 import { CredoraService } from '../../../../core/credora/credora.service';
-import { OportunidadeStatusComponent } from '../shared/oportunidade-status.component';
+import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
 import {
   formatarData,
   formatarMoeda,
@@ -30,9 +32,12 @@ import {
 // real (elegivel + disponivel + unicidade) e do backend. O backend NAO expoe estado de interesse por
 // item, entao o estado de interesse e local: comeca sem interesse e e corrigido pelos retornos do
 // backend (201/409 marcam ativo; 204/404 marcam inativo). Manifestar interesse NAO gera carteira.
+//
+// Tela sem arte de designer: construida no padrao visual do tema, na mesma linguagem dos
+// Mockups 35 e 36. A referencia em `image/mockups` e captura da implementacao.
 @Component({
   selector: 'sep-oportunidade-detail-page',
-  imports: [RouterLink, OportunidadeStatusComponent],
+  imports: [RouterLink, LucideAngularModule, OperationalShellComponent],
   templateUrl: './oportunidade-detail-page.component.html',
   styleUrl: './oportunidade-detail-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -66,6 +71,12 @@ export class OportunidadeDetailPageComponent implements OnInit {
     return o?.status === 'DISPONIVEL' && e?.status === 'ATIVA' && e?.elegibilidade === 'ELEGIVEL';
   });
 
+  // Tom do cabecalho acompanha a disponibilidade: verde quando aberta, ambar quando encerrada.
+  protected readonly tomDoTitulo = computed(() => {
+    const o = this.oportunidade();
+    return o ? this.statusTom(o.status) : 'blue';
+  });
+
   ngOnInit(): void {
     // O parametro :id e garantido pela rota; carrega incondicionalmente para nunca deixar o
     // estado de loading preso caso o id venha vazio.
@@ -93,7 +104,7 @@ export class OportunidadeDetailPageComponent implements OnInit {
           return;
         }
         this.errorMessage.set(
-          mensagemCredoraErro(err, 'Nao foi possivel carregar a oportunidade.'),
+          mensagemCredoraErro(err, 'Não foi possível carregar a oportunidade.'),
         );
       },
     });
@@ -121,7 +132,7 @@ export class OportunidadeDetailPageComponent implements OnInit {
           return;
         }
         // 422 (inelegivel) e demais: mensagem clara, sem marcar interesse.
-        this.acaoErro.set(mensagemCredoraErro(err, 'Nao foi possivel manifestar interesse.'));
+        this.acaoErro.set(mensagemCredoraErro(err, 'Não foi possível manifestar interesse.'));
       },
     });
   }
@@ -141,8 +152,16 @@ export class OportunidadeDetailPageComponent implements OnInit {
           this.interesseAtivo.set(false);
           return;
         }
-        this.acaoErro.set(mensagemCredoraErro(err, 'Nao foi possivel cancelar o interesse.'));
+        this.acaoErro.set(mensagemCredoraErro(err, 'Não foi possível cancelar o interesse.'));
       },
     });
+  }
+
+  statusTom(status: StatusOportunidade): 'green' | 'amber' {
+    return status === 'DISPONIVEL' ? 'green' : 'amber';
+  }
+
+  statusRotulo(status: StatusOportunidade): string {
+    return status === 'DISPONIVEL' ? 'Disponível' : 'Encerrada';
   }
 }

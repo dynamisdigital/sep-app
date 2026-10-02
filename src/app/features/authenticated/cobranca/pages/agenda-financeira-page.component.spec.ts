@@ -1,9 +1,12 @@
 import { provideHttpClient } from '@angular/common/http';
+import { importProvidersFrom } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { AgendaFinanceiraPageComponent } from './agenda-financeira-page.component';
 
 const PARCELA_PARCIAL_ID = 'a0000000-0000-4000-8000-000000000003';
@@ -22,25 +25,99 @@ async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
 
 function renderPage() {
   return render(AgendaFinanceiraPageComponent, {
-    providers: [provideHttpClient(), provideRouter([])],
+    providers: [
+      provideHttpClient(),
+      provideRouter([]),
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+    ],
   });
 }
 
-describe('AgendaFinanceiraPageComponent', () => {
+function valorNumerico(texto: string | null | undefined): number {
+  if (!texto) return 0;
+  return Number(
+    texto
+      .replace(/[^\d,]/g, '')
+      .replace(/\./g, '')
+      .replace(',', '.'),
+  );
+}
+
+describe('AgendaFinanceiraPageComponent — Mockup 29', () => {
   beforeEach(() => {
     window.localStorage.clear();
   });
 
-  it('lista os recebimentos com meio e parcela e sinaliza os gaps', async () => {
+  it('lista os recebimentos na tabela e sinaliza o gap do backend', async () => {
     const { fixture } = await renderPage();
     await estabilizar(fixture);
 
-    expect(screen.getByText('PIX')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Recebimentos registrados' })).toBeTruthy();
     expect(screen.getByText(/Sem lista global de agendas/)).toBeTruthy();
-    const link = screen.getByText('PIX').closest('a');
-    expect(link?.getAttribute('href')).toBe(
-      `/app/cobranca/financeiro/parcelas/${PARCELA_PARCIAL_ID}`,
+    // cinco linhas por página, como no desenho
+    expect(document.querySelectorAll('.px29-tabela-wrap tbody tr').length).toBe(5);
+    const primeiroLink = document.querySelector('.px29-mono a');
+    expect(primeiroLink?.getAttribute('href')).toContain('/app/cobranca/financeiro/parcelas/');
+  });
+
+  // Os agregados são somados da própria lista: as fatias têm de fechar no total.
+  it('as fatias por status fecham com o total da carteira', async () => {
+    const { fixture } = await renderPage();
+    await estabilizar(fixture);
+
+    const total = valorNumerico(
+      document.querySelector('.px29-rosca-grande strong')?.textContent ?? '',
     );
+    const fatias = Array.from(document.querySelectorAll('.px29-resumo .px29-legenda li')).map(
+      (li) => valorNumerico(li.querySelector('small')?.textContent ?? ''),
+    );
+    const soma = fatias.reduce((s, v) => s + v, 0);
+
+    expect(fatias.length).toBe(3);
+    expect(total).toBeGreaterThan(0);
+    expect(Math.abs(soma - total)).toBeLessThan(1);
+  });
+
+  it('as barras por método fecham em 100%', async () => {
+    const { fixture } = await renderPage();
+    await estabilizar(fixture);
+
+    const percentuais = Array.from(document.querySelectorAll('.px29-barra-pct')).map((el) =>
+      Number((el.textContent ?? '').replace('%', '').replace(',', '.')),
+    );
+    const soma = percentuais.reduce((s, v) => s + v, 0);
+
+    expect(percentuais.length).toBeGreaterThan(1);
+    expect(Math.abs(soma - 100)).toBeLessThanOrEqual(0.5);
+  });
+
+  // A série usa a última data de pagamento como referência: com qualquer data, a evolução
+  // zerava porque a referência caía num vencimento futuro.
+  it('a evolução dos sete dias tem valor em mais de um ponto', async () => {
+    const { fixture } = await renderPage();
+    await estabilizar(fixture);
+
+    const pontos = Array.from(document.querySelectorAll('.px29-grafico circle')).map((c) =>
+      Number(c.getAttribute('cy')),
+    );
+    expect(pontos.length).toBe(7);
+    expect(new Set(pontos).size).toBeGreaterThan(1);
+  });
+
+  it('a paginação avança e volta pelas páginas', async () => {
+    const { fixture } = await renderPage();
+    await estabilizar(fixture);
+    const primeiraLinha = () =>
+      document.querySelector('.px29-tabela-wrap tbody tr td')?.textContent?.trim();
+    const inicial = primeiraLinha();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Página 2' }));
+    fixture.detectChanges();
+    expect(primeiraLinha()).not.toBe(inicial);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Página 1' }));
+    fixture.detectChanges();
+    expect(primeiraLinha()).toBe(inicial);
   });
 
   it('lookup navega para o detalhe financeiro da parcela informada', async () => {
@@ -57,7 +134,7 @@ describe('AgendaFinanceiraPageComponent', () => {
     expect(navegar).toHaveBeenCalledWith(['/app/cobranca/financeiro/parcelas', PARCELA_PARCIAL_ID]);
   });
 
-  it('lookup com apenas espacos nao navega (evita rota sem id)', async () => {
+  it('lookup com apenas espaços não navega (evita rota sem id)', async () => {
     const { fixture, container } = await renderPage();
     await estabilizar(fixture);
     const router = fixture.debugElement.injector.get(Router);
@@ -69,5 +146,16 @@ describe('AgendaFinanceiraPageComponent', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Abrir' }));
 
     expect(navegar).not.toHaveBeenCalled();
+  });
+
+  it('controles sem endpoint aparecem desabilitados com o motivo', async () => {
+    const { fixture } = await renderPage();
+    await estabilizar(fixture);
+
+    const filtros = screen.getByRole('button', { name: /Filtros/ });
+    expect(filtros.hasAttribute('disabled')).toBe(true);
+    expect(filtros.getAttribute('title')).toContain('endpoint');
+    const boletos = screen.getByRole('button', { name: /Gerar boletos/ });
+    expect(boletos.hasAttribute('disabled')).toBe(true);
   });
 });

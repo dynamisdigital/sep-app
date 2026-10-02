@@ -14,7 +14,7 @@ export const ONBOARDING_ROUTES: Routes = [
       import('./pessoa/onboarding-pessoa-page.component').then(
         (m) => m.OnboardingPessoaPageComponent,
       ),
-    data: { breadcrumb: 'Pessoa fisica' },
+    data: { breadcrumb: 'Pessoa física', immersive: true },
   },
   {
     path: 'pessoa/:id',
@@ -22,7 +22,7 @@ export const ONBOARDING_ROUTES: Routes = [
       import('./pessoa/onboarding-pessoa-page.component').then(
         (m) => m.OnboardingPessoaPageComponent,
       ),
-    data: { breadcrumb: 'Pessoa fisica' },
+    data: { breadcrumb: 'Pessoa física', immersive: true },
   },
   {
     path: 'empresa',
@@ -30,7 +30,7 @@ export const ONBOARDING_ROUTES: Routes = [
       import('./empresa/onboarding-empresa-page.component').then(
         (m) => m.OnboardingEmpresaPageComponent,
       ),
-    data: { breadcrumb: 'Empresa' },
+    data: { breadcrumb: 'Empresa', immersive: true },
   },
   {
     path: 'empresa/:id',
@@ -38,6 +38,6 @@ export const ONBOARDING_ROUTES: Routes = [
       import('./empresa/onboarding-empresa-page.component').then(
         (m) => m.OnboardingEmpresaPageComponent,
       ),
-    data: { breadcrumb: 'Empresa' },
+    data: { breadcrumb: 'Empresa', immersive: true },
   },
 ];

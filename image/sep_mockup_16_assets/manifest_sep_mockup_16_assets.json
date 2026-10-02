@@ -1,0 +1,708 @@
+{
+  "mockup": "Mockup_16 — Fila operacional / Backoffice SEP",
+  "source_image": "/mnt/data/Mockup_16(1).png",
+  "target_project_path": "C:\\Pastas\\PROJETOS\\Projeto Dynamis SEP\\sep-app 16062026\\image\\sep_mockup_16_assets",
+  "method": "Recorte centro visual → expansão para fora, canvas centralizado e margem segura nas extremidades.",
+  "notes": [
+    "Ícones isolados possuem fundo transparente e margem de segurança.",
+    "Badges de tabela foram mantidos como badges completos para evitar perda de informação em chips onde texto e glyph são próximos.",
+    "UI-groups preservam o fundo original como referência visual do mockup."
+  ],
+  "assets": [
+    {
+      "file": "logos/logo_sep_header_completo.png",
+      "category": "logos",
+      "method": "rect_crop",
+      "box": [22, 16, 135, 50],
+      "transparent": true,
+      "note": "Logo completo do header"
+    },
+    {
+      "file": "logos/logo_sep_simbolo_header.png",
+      "category": "logos",
+      "method": "center_visual_to_out",
+      "center": [44, 33],
+      "canvas": [58, 58],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "logos/logo_sep_wordmark_header.png",
+      "category": "logos",
+      "method": "rect_crop",
+      "box": [73, 17, 137, 49],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "logos/logo_sep_texto_extenso_header.png",
+      "category": "logos",
+      "method": "rect_crop",
+      "box": [166, 18, 260, 54],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "logos/logo_sep_footer_completo.png",
+      "category": "logos",
+      "method": "rect_crop",
+      "box": [22, 1016, 128, 1050],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "logos/logo_sep_simbolo_footer.png",
+      "category": "logos",
+      "method": "center_visual_to_out",
+      "center": [35, 1032],
+      "canvas": [58, 58],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_topbar_ambiente_regulado.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [347, 34],
+      "canvas": [52, 52],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_topbar_horario_sistema.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [521, 34],
+      "canvas": [52, 52],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_topbar_search.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [1032, 34],
+      "canvas": [44, 44],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_topbar_bell_notification.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [1084, 31],
+      "canvas": [58, 58],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_topbar_help.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [1145, 34],
+      "canvas": [50, 50],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_topbar_avatar_user_b.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [1222, 34],
+      "canvas": [56, 56],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_topbar_theme_sun.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [1384, 34],
+      "canvas": [52, 52],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_sidebar_dashboard.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [31, 139],
+      "canvas": [38, 38],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_sidebar_onboarding.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [33, 220],
+      "canvas": [38, 38],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_sidebar_credito.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [33, 258],
+      "canvas": [38, 38],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_sidebar_formalizacao.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [33, 288],
+      "canvas": [38, 38],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_sidebar_cobranca.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [33, 327],
+      "canvas": [38, 38],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_sidebar_backoffice.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [33, 404],
+      "canvas": [38, 38],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_sidebar_pix.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [33, 444],
+      "canvas": [38, 38],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_sidebar_perfil.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [33, 516],
+      "canvas": [38, 38],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_sidebar_profile_avatar_b.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [43, 765],
+      "canvas": [58, 58],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_sidebar_help_central.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [43, 913],
+      "canvas": [42, 42],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_title_fila_operacional_list.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [438, 130],
+      "canvas": [46, 46],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_metric_criticas_alerta.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [392, 226],
+      "canvas": [68, 68],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_metric_altas_arrow_up.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [582, 226],
+      "canvas": [68, 68],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_metric_medias_equal.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [770, 226],
+      "canvas": [68, 68],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_metric_baixas_arrow_down.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [944, 226],
+      "canvas": [68, 68],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_metric_total_fila_stack.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [1113, 225],
+      "canvas": [60, 60],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_filter_search.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [397, 350],
+      "canvas": [36, 36],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_filter_periodo_calendar.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [1025, 350],
+      "canvas": [36, 36],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_quick_filter_lightning.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [1183, 121],
+      "canvas": [38, 38],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_quick_filter_atribuidos.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [1182, 161],
+      "canvas": [34, 34],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_quick_filter_sla_risco.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [1182, 195],
+      "canvas": [34, 34],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_quick_filter_atrasados.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [1182, 231],
+      "canvas": [34, 34],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_quick_filter_sem_atribuicao.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [1182, 267],
+      "canvas": [34, 34],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_table_action_visualizar_eye.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [1112, 466],
+      "canvas": [36, 36],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_shortcut_reprocessos.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [1183, 906],
+      "canvas": [38, 38],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_shortcut_gerenciar_integracoes.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [1183, 954],
+      "canvas": [38, 38],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_footer_ambiente_regulado.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [262, 1033],
+      "canvas": [46, 46],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_footer_segregacao_patrimonial.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [490, 1033],
+      "canvas": [46, 46],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_footer_dados_criptografados.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [714, 1033],
+      "canvas": [46, 46],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_footer_rastreabilidade_total.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [930, 1033],
+      "canvas": [46, 46],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_footer_seguranca_prioridade_shield.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [1155, 1033],
+      "canvas": [56, 56],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_avatar_ana_martins_am.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [797, 466],
+      "canvas": [40, 40],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_avatar_rafael_ferreira_rf.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [797, 529],
+      "canvas": [40, 40],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_avatar_camila_andrade_ca.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [797, 588],
+      "canvas": [40, 40],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_avatar_joao_silva_js.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [797, 653],
+      "canvas": [40, 40],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "icons/icon_avatar_lucas_gomes_lg.png",
+      "category": "icons",
+      "method": "center_visual_to_out",
+      "center": [797, 720],
+      "canvas": [40, 40],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "badges/badge_tipo_cobranca_red.png",
+      "category": "badges",
+      "method": "rect_crop",
+      "box": [329, 451, 409, 480],
+      "transparent": false,
+      "note": "Badge completo extraído para referência/uso direto"
+    },
+    {
+      "file": "badges/badge_tipo_webhook_purple.png",
+      "category": "badges",
+      "method": "rect_crop",
+      "box": [329, 514, 411, 543],
+      "transparent": false,
+      "note": "Badge completo extraído para referência/uso direto"
+    },
+    {
+      "file": "badges/badge_tipo_pix_orange.png",
+      "category": "badges",
+      "method": "rect_crop",
+      "box": [329, 574, 397, 603],
+      "transparent": false,
+      "note": "Badge completo extraído para referência/uso direto"
+    },
+    {
+      "file": "badges/badge_tipo_onboarding_green.png",
+      "category": "badges",
+      "method": "rect_crop",
+      "box": [329, 638, 411, 666],
+      "transparent": false,
+      "note": "Badge completo extraído para referência/uso direto"
+    },
+    {
+      "file": "badges/badge_tipo_formalizacao_purple.png",
+      "category": "badges",
+      "method": "rect_crop",
+      "box": [329, 703, 420, 734],
+      "transparent": false,
+      "note": "Badge completo extraído para referência/uso direto"
+    },
+    {
+      "file": "badges/badge_tipo_desembolso_blue.png",
+      "category": "badges",
+      "method": "rect_crop",
+      "box": [329, 768, 414, 798],
+      "transparent": false,
+      "note": "Badge completo extraído para referência/uso direto"
+    },
+    {
+      "file": "badges/badge_tipo_outros_gray.png",
+      "category": "badges",
+      "method": "rect_crop",
+      "box": [329, 896, 398, 926],
+      "transparent": false,
+      "note": "Badge completo extraído para referência/uso direto"
+    },
+    {
+      "file": "badges/badge_prioridade_critica.png",
+      "category": "badges",
+      "method": "rect_crop",
+      "box": [606, 451, 665, 480],
+      "transparent": false,
+      "note": "Badge completo extraído para referência/uso direto"
+    },
+    {
+      "file": "badges/badge_prioridade_alta.png",
+      "category": "badges",
+      "method": "rect_crop",
+      "box": [606, 514, 665, 543],
+      "transparent": false,
+      "note": "Badge completo extraído para referência/uso direto"
+    },
+    {
+      "file": "badges/badge_prioridade_media.png",
+      "category": "badges",
+      "method": "rect_crop",
+      "box": [606, 639, 670, 668],
+      "transparent": false,
+      "note": "Badge completo extraído para referência/uso direto"
+    },
+    {
+      "file": "badges/badge_prioridade_baixa.png",
+      "category": "badges",
+      "method": "rect_crop",
+      "box": [606, 768, 665, 798],
+      "transparent": false,
+      "note": "Badge completo extraído para referência/uso direto"
+    },
+    {
+      "file": "badges/badge_status_em_tratamento.png",
+      "category": "badges",
+      "method": "rect_crop",
+      "box": [690, 451, 768, 480],
+      "transparent": false,
+      "note": "Badge completo extraído para referência/uso direto"
+    },
+    {
+      "file": "badges/badge_status_aberto.png",
+      "category": "badges",
+      "method": "rect_crop",
+      "box": [690, 514, 758, 543],
+      "transparent": false,
+      "note": "Badge completo extraído para referência/uso direto"
+    },
+    {
+      "file": "badges/badge_status_em_analise.png",
+      "category": "badges",
+      "method": "rect_crop",
+      "box": [690, 639, 768, 668],
+      "transparent": false,
+      "note": "Badge completo extraído para referência/uso direto"
+    },
+    {
+      "file": "badges/badge_status_aguardando.png",
+      "category": "badges",
+      "method": "rect_crop",
+      "box": [690, 703, 775, 734],
+      "transparent": false,
+      "note": "Badge completo extraído para referência/uso direto"
+    },
+    {
+      "file": "visuals/visual_donut_prioridade.png",
+      "category": "visuals",
+      "method": "center_visual_to_out",
+      "center": [1227, 470],
+      "canvas": [150, 150],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "visuals/visual_donut_status.png",
+      "category": "visuals",
+      "method": "center_visual_to_out",
+      "center": [1227, 694],
+      "canvas": [150, 150],
+      "transparent": true,
+      "note": ""
+    },
+    {
+      "file": "visuals/visual_card_distribuicao_prioridade.png",
+      "category": "visuals",
+      "method": "rect_crop",
+      "box": [1153, 373, 1427, 589],
+      "transparent": false,
+      "note": ""
+    },
+    {
+      "file": "visuals/visual_card_distribuicao_status.png",
+      "category": "visuals",
+      "method": "rect_crop",
+      "box": [1153, 606, 1427, 817],
+      "transparent": false,
+      "note": ""
+    },
+    {
+      "file": "visuals/visual_queue_table_rows.png",
+      "category": "visuals",
+      "method": "rect_crop",
+      "box": [230, 431, 1137, 943],
+      "transparent": false,
+      "note": ""
+    },
+    {
+      "file": "ui-groups/ui_topbar.png",
+      "category": "ui-groups",
+      "method": "rect_crop",
+      "box": [0, 0, 1448, 71],
+      "transparent": false,
+      "note": ""
+    },
+    {
+      "file": "ui-groups/ui_sidebar.png",
+      "category": "ui-groups",
+      "method": "rect_crop",
+      "box": [0, 71, 222, 1086],
+      "transparent": false,
+      "note": ""
+    },
+    {
+      "file": "ui-groups/ui_page_header.png",
+      "category": "ui-groups",
+      "method": "rect_crop",
+      "box": [230, 85, 1136, 173],
+      "transparent": false,
+      "note": ""
+    },
+    {
+      "file": "ui-groups/ui_metric_cards.png",
+      "category": "ui-groups",
+      "method": "rect_crop",
+      "box": [230, 190, 1136, 300],
+      "transparent": false,
+      "note": ""
+    },
+    {
+      "file": "ui-groups/ui_filters_bar.png",
+      "category": "ui-groups",
+      "method": "rect_crop",
+      "box": [230, 318, 1136, 382],
+      "transparent": false,
+      "note": ""
+    },
+    {
+      "file": "ui-groups/ui_queue_table.png",
+      "category": "ui-groups",
+      "method": "rect_crop",
+      "box": [230, 400, 1136, 976],
+      "transparent": false,
+      "note": ""
+    },
+    {
+      "file": "ui-groups/ui_right_filtros_rapidos.png",
+      "category": "ui-groups",
+      "method": "rect_crop",
+      "box": [1152, 98, 1428, 354],
+      "transparent": false,
+      "note": ""
+    },
+    {
+      "file": "ui-groups/ui_right_distribuicao_prioridade.png",
+      "category": "ui-groups",
+      "method": "rect_crop",
+      "box": [1152, 373, 1428, 589],
+      "transparent": false,
+      "note": ""
+    },
+    {
+      "file": "ui-groups/ui_right_distribuicao_status.png",
+      "category": "ui-groups",
+      "method": "rect_crop",
+      "box": [1152, 604, 1428, 818],
+      "transparent": false,
+      "note": ""
+    },
+    {
+      "file": "ui-groups/ui_right_atalhos.png",
+      "category": "ui-groups",
+      "method": "rect_crop",
+      "box": [1152, 834, 1428, 976],
+      "transparent": false,
+      "note": ""
+    },
+    {
+      "file": "ui-groups/ui_footer_regulatory.png",
+      "category": "ui-groups",
+      "method": "rect_crop",
+      "box": [222, 1000, 1448, 1086],
+      "transparent": false,
+      "note": ""
+    },
+    {
+      "file": "ui-groups/ui_full_mockup_reference.png",
+      "category": "ui-groups",
+      "method": "rect_crop",
+      "box": [0, 0, 1448, 1086],
+      "transparent": false,
+      "note": ""
+    }
+  ]
+}

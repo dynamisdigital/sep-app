@@ -1,11 +1,18 @@
+import { importProvidersFrom } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
 import { describe, expect, it } from 'vitest';
 
 import { OnboardingHomeComponent } from './onboarding-home.component';
+import { LucideAngularModule } from 'lucide-angular';
+import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
 
-const providers = [provideRouter([]), provideHttpClient()];
+const providers = [
+  provideRouter([]),
+  provideHttpClient(),
+  importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+];
 
 describe('OnboardingHomeComponent', () => {
   it('apresenta os dois caminhos PF e PJ', async () => {
@@ -31,16 +38,8 @@ describe('OnboardingHomeComponent', () => {
 
     expect(screen.getByRole('region', { name: /área operacional sep/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /voltar para a tela anterior/i })).toBeTruthy();
-    expect(
-      document.querySelector(
-        'img[src="/image/sep_mockup_06_assets/visuals/visual_kyc_pessoa_fisica_hud.png"]',
-      ),
-    ).toBeTruthy();
-    expect(
-      document.querySelector(
-        'img[src="/image/sep_mockup_06_assets/visuals/visual_kyb_empresa_hud.png"]',
-      ),
-    ).toBeTruthy();
+    expect(document.querySelector('sep-arte.choice-visual[data-tom="verde"]')).toBeTruthy();
+    expect(document.querySelector('sep-arte.choice-visual[data-tom="azul"]')).toBeTruthy();
   });
 
   it('apresenta os motivos regulatórios e selos de conformidade', async () => {

@@ -1,61 +1,284 @@
-<section class="sep-parametros">
-  <header class="sep-parametros-header">
-    <h1 class="sep-parametros-title">Parâmetros operacionais</h1>
-    <a routerLink="/app/admin" class="sep-parametros-back">Voltar para Administração</a>
-  </header>
-
-  @if (loading()) {
-    <p class="sep-parametros-state" role="status">Carregando parâmetros...</p>
-  }
-
-  @if (errorMessage(); as msg) {
-    <div class="sep-parametros-error" role="alert">
-      <p>{{ msg }}</p>
-      <button type="button" (click)="carregar()" class="sep-parametros-retry">
-        Tentar novamente
-      </button>
-    </div>
-  }
-
-  @if (!loading() && !errorMessage()) {
-    @if (parametros().length === 0) {
-      <p class="sep-parametros-state">Nenhum parâmetro encontrado.</p>
-    } @else {
-      <div class="sep-parametros-table-wrapper">
-        <table class="sep-parametros-table">
-          <thead>
-            <tr>
-              <th scope="col">Chave</th>
-              <th scope="col">Tipo</th>
-              <th scope="col">Valor</th>
-              <th scope="col">Versão</th>
-              <th scope="col" class="sep-parametros-th-action">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (parametro of parametros(); track parametro.chave) {
-              <tr>
-                <td>
-                  <span class="sep-parametros-chave">{{ parametro.chave }}</span>
-                  <span class="sep-parametros-descricao">{{ parametro.descricao }}</span>
-                </td>
-                <td>{{ parametro.tipo }}</td>
-                <td class="sep-parametros-valor">{{ parametro.valor }}</td>
-                <td>{{ parametro.versao }}</td>
-                <td>
-                  <a
-                    [routerLink]="['/app/admin/parametros', parametro.chave]"
-                    class="sep-parametros-detail-link"
-                    [attr.aria-label]="'Ver detalhe de ' + parametro.chave"
-                  >
-                    Ver detalhe
-                  </a>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+<sep-operational-shell>
+  <section class="px40-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px40-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/admin">Administração</a><span>›</span><strong>Parâmetros</strong>
+      </nav>
+      <div class="px40-heading-row">
+        <div class="px40-titulo-wrap">
+          <div>
+            <h1>Parâmetros operacionais</h1>
+            <p class="px40-subtitulo">
+              Catálogo de parâmetros do sistema. Versões controladas e histórico de alterações.
+            </p>
+          </div>
+        </div>
+        <div class="px40-acoes-topo">
+          <a class="px40-btn-sec" routerLink="/app/admin">
+            <lucide-icon name="arrow-left" [size]="16" />Voltar para Administração
+          </a>
+          <button
+            type="button"
+            class="px40-btn-sec"
+            disabled
+            title="Sem endpoint de exportação do catálogo de parâmetros"
+          >
+            <lucide-icon name="download" [size]="16" />Exportar
+          </button>
+        </div>
       </div>
+    </header>
+
+    @if (errorMessage(); as msg) {
+      <div class="px40-estado px40-erro" role="alert">
+        <lucide-icon name="triangle-alert" [size]="18" />
+        <p>{{ msg }}</p>
+        <button type="button" class="px40-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
+      </div>
+    } @else {
+      <!-- ============ CATÁLOGO ============ -->
+      <article class="px40-card px40-tabela-card">
+        <header class="px40-resumo">
+          <div class="px40-metrica" data-tone="blue">
+            <span class="px40-metrica-icone"><lucide-icon name="settings" [size]="20" /></span>
+            <span>
+              <small>Total de parâmetros</small>
+              <strong>{{ total() }}</strong>
+            </span>
+          </div>
+          <div class="px40-metrica" data-tone="green">
+            <span class="px40-metrica-icone"><lucide-icon name="circle-check" [size]="20" /></span>
+            <span>
+              <small>Ativos no catálogo</small>
+              <strong>{{ ativos() }}</strong>
+            </span>
+          </div>
+          <div class="px40-metrica" data-tone="purple">
+            <span class="px40-metrica-icone"><lucide-icon name="history" [size]="20" /></span>
+            <span>
+              <small>Última alteração</small>
+              <strong>{{ ultimaAlteracao() ? formatarDataHora(ultimaAlteracao()!) : '—' }}</strong>
+            </span>
+          </div>
+
+          <div class="px40-controles">
+            <div class="px40-busca">
+              <label class="px40-oculto" for="busca-parametro">Buscar por chave ou descrição</label>
+              <input
+                id="busca-parametro"
+                type="search"
+                [formControl]="buscaControl"
+                placeholder="Buscar por chave ou descrição..."
+                autocomplete="off"
+              />
+              <lucide-icon name="search" [size]="16" />
+            </div>
+            <button
+              type="button"
+              class="px40-btn-sec px40-btn-filtros"
+              [class.px40-btn-filtros-ativo]="tipoFiltro() !== 'TODOS'"
+              [attr.aria-expanded]="filtrosAbertos()"
+              (click)="alternarFiltros()"
+            >
+              <lucide-icon name="list" [size]="16" />Filtros
+              <lucide-icon [name]="filtrosAbertos() ? 'chevron-up' : 'chevron-down'" [size]="14" />
+            </button>
+          </div>
+        </header>
+
+        @if (filtrosAbertos()) {
+          <div class="px40-filtros" role="group" aria-label="Filtrar por tipo">
+            <span>Tipo:</span>
+            <button
+              type="button"
+              class="px40-chip"
+              [class.px40-chip-ativo]="tipoFiltro() === 'TODOS'"
+              (click)="filtrarPorTipo('TODOS')"
+            >
+              Todos
+            </button>
+            @for (tipo of tipos; track tipo) {
+              <button
+                type="button"
+                class="px40-chip"
+                [attr.data-tone]="tomDoTipo(tipo)"
+                [class.px40-chip-ativo]="tipoFiltro() === tipo"
+                (click)="filtrarPorTipo(tipo)"
+              >
+                {{ tipo }}
+              </button>
+            }
+          </div>
+        }
+
+        @if (loading()) {
+          <p class="px40-estado" role="status">Carregando parâmetros...</p>
+        } @else if (ordenados().length === 0) {
+          <div class="px40-vazio" role="status">
+            <span class="px40-vazio-icone"><lucide-icon name="search" [size]="24" /></span>
+            <strong>Nenhum parâmetro encontrado.</strong>
+            <p>Ajuste a busca ou o filtro por tipo para ver outros itens do catálogo.</p>
+          </div>
+        } @else {
+          <div class="px40-tabela-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>
+                    <button type="button" class="px40-ordenar" (click)="ordenarPor('chave')">
+                      Chave<lucide-icon name="chevrons-up-down" [size]="13" />
+                    </button>
+                  </th>
+                  <th>
+                    <button type="button" class="px40-ordenar" (click)="ordenarPor('tipo')">
+                      Tipo<lucide-icon name="chevrons-up-down" [size]="13" />
+                    </button>
+                  </th>
+                  <th>
+                    <button type="button" class="px40-ordenar" (click)="ordenarPor('valor')">
+                      Valor<lucide-icon name="chevrons-up-down" [size]="13" />
+                    </button>
+                  </th>
+                  <th>
+                    <button type="button" class="px40-ordenar" (click)="ordenarPor('versao')">
+                      Versão<lucide-icon name="chevrons-up-down" [size]="13" />
+                    </button>
+                  </th>
+                  <th>
+                    <button
+                      type="button"
+                      class="px40-ordenar"
+                      (click)="ordenarPor('dataModificacao')"
+                    >
+                      Atualizado em<lucide-icon name="chevrons-up-down" [size]="13" />
+                    </button>
+                  </th>
+                  <th class="px40-acoes-col">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (parametro of naPagina(); track parametro.id) {
+                  <tr>
+                    <td>
+                      <span class="px40-chave">
+                        <strong>{{ parametro.chave }}</strong>
+                        <small>{{ parametro.descricao }}</small>
+                      </span>
+                    </td>
+                    <td>
+                      <span class="px40-selo" [attr.data-tone]="tomDoTipo(parametro.tipo)">
+                        {{ parametro.tipo }}
+                      </span>
+                    </td>
+                    <!-- Na tela o numero sai no padrao brasileiro; o canonico do backend
+                         fica no title, para quem precisa conferir o valor cru. -->
+                    <td class="px40-valor" [title]="parametro.valor">
+                      {{ formatarValorParametro(parametro.valor, parametro.tipo) }}
+                    </td>
+                    <td>
+                      <span class="px40-versao" [class.px40-versao-alterada]="parametro.versao > 1">
+                        v{{ parametro.versao }}
+                      </span>
+                    </td>
+                    <td>{{ formatarDataHora(parametro.dataModificacao) }}</td>
+                    <td class="px40-acoes-col">
+                      <div class="px40-acoes-linha">
+                        <a
+                          class="px40-link"
+                          [routerLink]="['/app/admin/parametros', parametro.chave]"
+                          [attr.aria-label]="'Ver detalhe de ' + parametro.chave"
+                        >
+                          <lucide-icon name="eye" [size]="15" />Ver detalhe
+                        </a>
+                        <button
+                          type="button"
+                          class="px40-btn-linha"
+                          disabled
+                          title="Sem endpoints de duplicação, desativação ou reversão direta pela lista"
+                          [attr.aria-label]="'Mais ações de ' + parametro.chave"
+                        >
+                          <lucide-icon name="ellipsis-vertical" [size]="15" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <footer class="px40-tabela-rodape">
+            <span class="px40-contagem">
+              Mostrando {{ primeiroDaPagina() }} a {{ ultimoDaPagina() }} de
+              {{ ordenados().length }}
+              {{ ordenados().length === 1 ? 'parâmetro' : 'parâmetros' }}
+            </span>
+            <div class="px40-paginacao">
+              <label class="px40-por-pagina">
+                <span>Linhas por página</span>
+                <select
+                  [value]="porPagina()"
+                  (change)="mudarPorPagina($any($event.target).value)"
+                  aria-label="Linhas por página"
+                >
+                  <option value="5">5</option>
+                  <option value="10">10</option>
+                  <option value="20">20</option>
+                </select>
+              </label>
+              <button
+                type="button"
+                class="px40-pag-btn"
+                [disabled]="paginaAtual() === 1"
+                aria-label="Página anterior"
+                (click)="irParaPagina(paginaAtual() - 1)"
+              >
+                «
+              </button>
+              @for (numero of paginas(); track numero) {
+                <button
+                  type="button"
+                  class="px40-pag-btn"
+                  [class.px40-pag-btn-ativa]="numero === paginaAtual()"
+                  [attr.aria-current]="numero === paginaAtual() ? 'page' : null"
+                  (click)="irParaPagina(numero)"
+                >
+                  {{ numero }}
+                </button>
+              }
+              <button
+                type="button"
+                class="px40-pag-btn"
+                [disabled]="paginaAtual() === totalPaginas()"
+                aria-label="Próxima página"
+                (click)="irParaPagina(paginaAtual() + 1)"
+              >
+                »
+              </button>
+            </div>
+          </footer>
+        }
+      </article>
+
+      <!-- ============ SOBRE OS PARÂMETROS ============ -->
+      <aside class="px40-card px40-aviso">
+        <span class="px40-aviso-icone"><lucide-icon name="info" [size]="20" /></span>
+        <div>
+          <strong>Sobre os parâmetros</strong>
+          <p>
+            Alterações em parâmetros podem impactar regras de negócio e cálculos do sistema. Todas
+            as alterações são versionadas, auditadas e exigem confirmação adicional por TOTP.
+          </p>
+        </div>
+        <span class="px40-aviso-numero">
+          <strong>{{ alteracoes() }}</strong>
+          <small>{{ alteracoes() === 1 ? 'alteração' : 'alterações' }} na trilha</small>
+        </span>
+      </aside>
     }
-  }
-</section>
+  </section>
+</sep-operational-shell>

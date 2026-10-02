@@ -1,90 +1,218 @@
-<section class="sep-oportunidade-detail">
-  <a routerLink="/app/credora/oportunidades" class="sep-oportunidade-detail-back">
-    Voltar para oportunidades
-  </a>
-
-  @if (loading()) {
-    <p class="sep-oportunidade-detail-state" role="status">Carregando oportunidade...</p>
-  } @else if (errorMessage(); as msg) {
-    <div class="sep-oportunidade-detail-state sep-oportunidade-detail-error" role="alert">
-      <p>{{ msg }}</p>
-      <button type="button" class="sep-oportunidade-detail-retry" (click)="carregar()">
-        Tentar novamente
-      </button>
-    </div>
-  } @else if (naoEncontrada()) {
-    <div class="sep-oportunidade-detail-state">
-      <p>Oportunidade nao encontrada.</p>
-    </div>
-  } @else if (oportunidade(); as o) {
-    <header class="sep-oportunidade-detail-header">
-      <h1 class="sep-oportunidade-detail-title">Oportunidade {{ idCurto(o.id) }}</h1>
-      <sep-oportunidade-status [status]="o.status" />
+<sep-operational-shell>
+  <section class="px45-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px45-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/credora">Credora</a><span>›</span
+        ><a routerLink="/app/credora/oportunidades">Oportunidades</a><span>›</span
+        ><strong>Detalhe</strong>
+      </nav>
+      <div class="px45-heading-row">
+        <div class="px45-titulo-wrap">
+          <span class="px45-titulo-icone" [attr.data-tone]="tomDoTitulo()">
+            <lucide-icon name="file-text" [size]="24" />
+          </span>
+          <div>
+            <h1>
+              {{ oportunidade() ? 'Oportunidade ' + idCurto(oportunidade()!.id) : 'Oportunidade' }}
+            </h1>
+            <p class="px45-subtitulo">
+              Condições publicadas pelo backend. A disponibilidade e a elegibilidade são decididas
+              lá.
+            </p>
+          </div>
+          @if (oportunidade(); as o) {
+            <span class="px45-selo" [attr.data-tone]="statusTom(o.status)">
+              {{ statusRotulo(o.status) }}
+            </span>
+          }
+        </div>
+        <a class="px45-btn-sec" routerLink="/app/credora/oportunidades">
+          <lucide-icon name="arrow-left" [size]="16" />Voltar para oportunidades
+        </a>
+      </div>
     </header>
 
-    @if (o.status === 'ENCERRADA') {
-      <p class="sep-oportunidade-detail-aviso" role="status">
-        Esta oportunidade esta encerrada e nao aceita manifestacao de interesse.
-      </p>
-    }
+    @if (loading()) {
+      <p class="px45-estado" role="status">Carregando oportunidade...</p>
+    } @else if (errorMessage(); as msg) {
+      <div class="px45-estado px45-erro" role="alert">
+        <lucide-icon name="triangle-alert" [size]="18" />
+        <p>{{ msg }}</p>
+        <button type="button" class="px45-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
+      </div>
+    } @else if (naoEncontrada()) {
+      <div class="px45-estado" role="status">
+        <lucide-icon name="circle-x" [size]="22" />
+        <p>Oportunidade não encontrada.</p>
+        <a class="px45-btn-sec" routerLink="/app/credora/oportunidades">
+          <lucide-icon name="arrow-left" [size]="16" />Voltar para oportunidades
+        </a>
+      </div>
+    } @else if (oportunidade(); as o) {
+      <div class="px45-corpo">
+        <div class="px45-topo">
+          <!-- ============ CONDIÇÕES ============ -->
+          <div class="px45-coluna">
+            <div class="px45-metricas">
+              <article class="px45-card px45-metrica" data-tone="blue">
+                <header>
+                  <span class="px45-metrica-icone"><lucide-icon name="wallet" [size]="18" /></span>
+                  <small>Valor</small>
+                </header>
+                <strong>{{ formatarMoeda(o.valor) }}</strong>
+                <em>teto de {{ formatarMoeda(15000) }}</em>
+              </article>
+              <article class="px45-card px45-metrica" data-tone="purple">
+                <header>
+                  <span class="px45-metrica-icone">
+                    <lucide-icon name="calendar-days" [size]="18" />
+                  </span>
+                  <small>Prazo</small>
+                </header>
+                <strong>{{ o.prazoMeses }} meses</strong>
+                <em>parcelas mensais</em>
+              </article>
+              <article class="px45-card px45-metrica" data-tone="amber">
+                <header>
+                  <span class="px45-metrica-icone">
+                    <lucide-icon name="circle-dollar-sign" [size]="18" />
+                  </span>
+                  <small>Taxa de juros</small>
+                </header>
+                <strong>{{ formatarTaxaMensal(o.taxaJurosMensal) }}</strong>
+                <em>ao mês</em>
+              </article>
+            </div>
 
-    <dl class="sep-oportunidade-detail-grid">
-      <div class="sep-oportunidade-detail-row">
-        <dt>Valor</dt>
-        <dd>{{ formatarMoeda(o.valor) }}</dd>
-      </div>
-      <div class="sep-oportunidade-detail-row">
-        <dt>Prazo</dt>
-        <dd>{{ o.prazoMeses }} meses</dd>
-      </div>
-      <div class="sep-oportunidade-detail-row">
-        <dt>Taxa de juros</dt>
-        <dd>{{ formatarTaxaMensal(o.taxaJurosMensal) }}</dd>
-      </div>
-      <div class="sep-oportunidade-detail-row">
-        <dt>Criada em</dt>
-        <dd>{{ formatarData(o.dataCriacao) }}</dd>
-      </div>
-    </dl>
+            <article class="px45-card px45-dados">
+              <h2>Identificação</h2>
+              <dl>
+                <div>
+                  <dt>Oportunidade</dt>
+                  <dd>{{ idCurto(o.id) }}</dd>
+                </div>
+                <div>
+                  <dt>Proposta</dt>
+                  <dd>{{ idCurto(o.propostaId) }}</dd>
+                </div>
+                <div>
+                  <dt>Contrato</dt>
+                  <dd>{{ o.contratoId ? idCurto(o.contratoId) : '—' }}</dd>
+                </div>
+                <div>
+                  <dt>Publicada em</dt>
+                  <dd>{{ formatarData(o.dataCriacao) }}</dd>
+                </div>
+              </dl>
+            </article>
+          </div>
 
-    @if (o.status === 'DISPONIVEL') {
-      <div class="sep-oportunidade-detail-acao">
-        @if (interesseAtivo()) {
-          <p class="sep-oportunidade-detail-interesse-ok" role="status">
-            Interesse registrado nesta oportunidade.
+          <!-- ============ INTERESSE ============ -->
+          <aside class="px45-coluna">
+            <article class="px45-card px45-acao">
+              <h2>Manifestação de interesse</h2>
+
+              @if (o.status !== 'DISPONIVEL') {
+                <p class="px45-bloqueio" role="status">
+                  <lucide-icon name="lock" [size]="16" />
+                  Esta oportunidade está encerrada e não aceita manifestação de interesse.
+                </p>
+              } @else if (interesseAtivo()) {
+                <p class="px45-ok" role="status">
+                  <lucide-icon name="circle-check" [size]="16" />
+                  Interesse registrado nesta oportunidade.
+                </p>
+                <button
+                  type="button"
+                  class="px45-btn-sec px45-btn-largo"
+                  [disabled]="enviando()"
+                  (click)="cancelarInteresse()"
+                >
+                  <lucide-icon name="x" [size]="16" />
+                  {{ enviando() ? 'Cancelando...' : 'Cancelar interesse' }}
+                </button>
+              } @else if (podeManifestar()) {
+                <button
+                  type="button"
+                  class="px45-btn-primary px45-btn-largo"
+                  [disabled]="enviando()"
+                  (click)="manifestarInteresse()"
+                >
+                  <lucide-icon name="handshake" [size]="16" />
+                  {{ enviando() ? 'Enviando...' : 'Manifestar interesse' }}
+                </button>
+              } @else {
+                <p class="px45-bloqueio" role="status">
+                  <lucide-icon name="triangle-alert" [size]="16" />
+                  Sua credora precisa estar ativa e elegível para manifestar interesse.
+                </p>
+                <a class="px45-btn-sec px45-btn-largo" routerLink="/app/credora/perfil">
+                  <lucide-icon name="user-check" [size]="16" />Ver situação da credora
+                </a>
+              }
+
+              @if (acaoErro(); as msg) {
+                <p class="px45-acao-erro" role="alert">
+                  <lucide-icon name="triangle-alert" [size]="16" />{{ msg }}
+                </p>
+              }
+            </article>
+
+            <!-- ============ SITUAÇÃO DA CREDORA ============ -->
+            <article class="px45-card px45-credora">
+              <h2>Sua credora</h2>
+              <dl>
+                <div>
+                  <dt>Status cadastral</dt>
+                  <dd>{{ elegibilidade()?.status ?? '—' }}</dd>
+                </div>
+                <div>
+                  <dt>Elegibilidade</dt>
+                  <dd>{{ elegibilidade()?.elegibilidade ?? '—' }}</dd>
+                </div>
+                <div>
+                  <dt>Motivo</dt>
+                  <dd>
+                    {{ elegibilidade()?.motivoInelegibilidade ?? 'Sem restrição registrada' }}
+                  </dd>
+                </div>
+              </dl>
+              <a class="px45-btn-sec px45-btn-largo" routerLink="/app/credora/perfil">
+                <lucide-icon name="user-check" [size]="16" />Abrir perfil da credora
+              </a>
+            </article>
+          </aside>
+        </div>
+
+        <!-- ============ O QUE ACONTECE DEPOIS ============ -->
+        <article class="px45-card px45-fluxo">
+          <h2>O que acontece depois</h2>
+          <ol class="px45-etapas">
+            <li data-tone="blue">
+              <span class="px45-etapa-icone"><lucide-icon name="handshake" [size]="22" /></span>
+              <strong>1. Interesse registrado</strong>
+              <p>Fica visível para a operação. Nada é alocado nem reservado nesse passo.</p>
+            </li>
+            <li data-tone="purple">
+              <span class="px45-etapa-icone"><lucide-icon name="user-check" [size]="22" /></span>
+              <strong>2. Associação assistida</strong>
+              <p>O backoffice associa a operação à credora depois da formalização.</p>
+            </li>
+            <li data-tone="green">
+              <span class="px45-etapa-icone"><lucide-icon name="wallet" [size]="22" /></span>
+              <strong>3. Operação na carteira</strong>
+              <p>Só então ela aparece na carteira, com a cobrança agregada pelo backend.</p>
+            </li>
+          </ol>
+          <p class="px45-nota">
+            <lucide-icon name="info" [size]="14" />
+            Manifestar interesse não gera aporte, alocação nem operação de carteira.
           </p>
-          <button
-            type="button"
-            class="sep-oportunidade-detail-cancelar"
-            [disabled]="enviando()"
-            (click)="cancelarInteresse()"
-          >
-            {{ enviando() ? 'Cancelando...' : 'Cancelar interesse' }}
-          </button>
-        } @else if (podeManifestar()) {
-          <button
-            type="button"
-            class="sep-oportunidade-detail-manifestar"
-            [disabled]="enviando()"
-            (click)="manifestarInteresse()"
-          >
-            {{ enviando() ? 'Enviando...' : 'Manifestar interesse' }}
-          </button>
-        } @else {
-          <p class="sep-oportunidade-detail-bloqueio" role="status">
-            Sua credora precisa estar ativa e elegivel para manifestar interesse.
-          </p>
-        }
-
-        @if (acaoErro(); as msg) {
-          <p class="sep-oportunidade-detail-acao-erro" role="alert">{{ msg }}</p>
-        }
-
-        <p class="sep-oportunidade-detail-nota">
-          Manifestar interesse nao gera aporte, alocacao nem operacao de carteira. A carteira nasce
-          por associacao operacional assistida.
-        </p>
+        </article>
       </div>
     }
-  }
-</section>
+  </section>
+</sep-operational-shell>

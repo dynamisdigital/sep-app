@@ -20,9 +20,12 @@ async function loginBackoffice(page: Page): Promise<void> {
 test('dashboard operacional carrega os indicadores', async ({ page }) => {
   await loginBackoffice(page);
 
-  await page.goto('/app/backoffice/dashboard');
+  // O dashboard operacional (Mockup 15) passou a ser a raiz de /app/backoffice; /dashboard
+  // continua servindo a tela anterior (Mockup 03).
+  await page.goto('/app/backoffice');
   await expect(page.getByText('Dashboard operacional')).toBeVisible();
-  await expect(page.getByText('Recebimentos do dia')).toBeVisible();
+  await expect(page.getByText('Recebimentos (30d)')).toBeVisible();
+  await expect(page.getByText('Itens por status')).toBeVisible();
 });
 
 test('fila lista itens e abre o detalhe', async ({ page }) => {
@@ -39,14 +42,15 @@ test('operador assume e comenta um item aberto', async ({ page }) => {
   await loginBackoffice(page);
 
   await page.goto(`/app/backoffice/fila/${ITEM_ABERTO_ID}`);
-  // Antes de assumir o item esta ABERTO; depois transiciona para EM_TRATAMENTO. Assertar o
-  // estado inicial torna a transicao inequivoca (o texto "Em tratamento" so surge pos-acao).
-  // exact evita casar com o rotulo "Aberto em" da secao de metadados.
-  await expect(page.getByText('Aberto', { exact: true })).toBeVisible();
+  // Antes de assumir o item esta ABERTO; depois transiciona para EM_TRATAMENTO. A assercao vai
+  // no proprio campo de status: a linha do tempo tem um marco fixo "Em tratamento pela operação",
+  // e procurar o texto solto casava com os dois assim que a transicao acontecia.
+  const status = page.locator('[data-field="status"]');
+  await expect(status).toHaveText('Aberto');
   await page.getByRole('button', { name: 'Assumir item' }).click();
-  await expect(page.getByText('Em tratamento')).toBeVisible({ timeout: 10_000 });
+  await expect(status).toHaveText('Em tratamento', { timeout: 10_000 });
 
-  await page.getByLabel('Novo comentario').fill('Verificando o evento de webhook.');
+  await page.getByLabel('Novo comentário interno').fill('Verificando o evento de webhook.');
   await page.getByRole('button', { name: 'Comentar' }).click();
   await expect(page.getByText('Verificando o evento de webhook.')).toBeVisible({ timeout: 10_000 });
 });

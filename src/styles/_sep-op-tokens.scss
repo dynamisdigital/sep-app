@@ -1,0 +1,241 @@
+// SEP — Frontend
+// Frontend Development: Daniel Möllmann
+// Angular • TypeScript • SCSS — 2026
+
+// ============ TOKENS SEMÂNTICOS DA SUPERFÍCIE OPERACIONAL ============
+// As telas operacionais do SEP nasceram com uma paleta neon própria, escrita em literais dentro
+// de cada folha. Este arquivo dá função a esses valores: a tela passa a dizer "superfície
+// elevada" ou "texto secundário", e não `#0b2137` ou `rgba(255,255,255,.64)`.
+// **Dark é a referência homologada.** Cada valor do bloco escuro é exatamente o literal que já
+// estava em uso; a tokenização não redesenha o tema escuro. O bloco claro é a contraparte
+// desenhada para o mesmo papel semântico.
+// Convenção de nomes: `--sep-<família>-<papel>`, seguindo o prefixo `--sep-*` que o projeto já
+// usa em raio, espaçamento e barras de rolagem.
+// Por que canal RGB e não HSL: os tokens do New Design System guardam trios HSL consumidos por
+// `hsl(var(--token))`. A superfície operacional precisa compor transparência em cima da mesma cor
+// dezenas de vezes (`rgb(38 170 255 / 12%)`), então guarda o trio **RGB** e é consumida por
+// `rgb(var(--token) / <alpha>)`. Um token por alpha faria a lista explodir sem ganho semântico.
+
+:root {
+  // ===== Canais base (primitivos) =====
+  // Identidade cromática da superfície operacional. Componentes não devem consumi-los
+  // diretamente: existem para os tokens semânticos abaixo e para compor transparência.
+  --sep-c-blue: 10 110 189;
+  --sep-c-cyan: 10 134 201;
+  --sep-c-green: 0 135 90;
+  --sep-c-amber: 168 100 0;
+  --sep-c-red: 198 42 63;
+  --sep-c-purple: 109 40 217;
+  --sep-c-canvas: 238 244 251;
+  --sep-c-surf: 255 255 255;
+  --sep-c-surf2: 245 249 253;
+  --sep-c-surf3: 234 241 249;
+  --sep-c-hover: 232 241 251;
+  --sep-c-active: 219 233 248;
+  --sep-c-sunken: 228 237 247;
+  --sep-c-fg: 20 41 63;
+  --sep-c-strong: 10 28 46;
+  --sep-c-secondary: 53 80 107;
+  --sep-c-muted: 76 100 128;
+  --sep-c-line: 201 217 234;
+  --sep-c-subtle: 221 231 242;
+  --sep-c-edge: 168 193 218;
+
+  // ===== Superfícies =====
+  --sep-canvas: #eef4fb;
+  --sep-surface: #fff;
+  --sep-surface-2: #f5f9fd;
+  --sep-surface-3: #eaf1f9;
+  --sep-surface-elevated: #fff;
+  --sep-surface-hover: #e8f1fb;
+  --sep-surface-active: #dbe9f8;
+  --sep-surface-sunken: #e4edf7;
+  --sep-overlay: rgb(12 32 54 / 42%);
+
+  // ===== Texto =====
+  --sep-text: #14293f;
+  --sep-text-strong: #0a1c2e;
+  --sep-text-secondary: #35506b;
+  --sep-text-muted: #4c6480;
+  --sep-text-inverse: #fff;
+
+  // ===== Bordas =====
+  --sep-border-subtle: #dde7f2;
+  --sep-border: #c9d9ea;
+  --sep-border-strong: #a8c1da;
+
+  // ===== Acentos =====
+  // O acento e o brilho ficam mais escuros no claro: o mesmo neon que se destaca sobre fundo
+  // escuro desaparece sobre fundo branco.
+  --sep-accent: #0a5f9f;
+  --sep-accent-strong: #084f88;
+  --sep-glow: #0a86c9;
+  --sep-on-accent: #fff;
+
+  // Texto sobre preenchimento cheio de cor (botao de acao, degrade de marca): branco nos dois
+  // temas. `--sep-on-accent` inverte no escuro porque o acento ali e claro; este nao.
+  --sep-on-solid: #fff;
+
+  // ===== Estados =====
+  // Um degrau mais escuros do que a leitura direta do mockup: o selo de estado poe este
+  // texto sobre a propria tinta a 12-14%, e ali #00714b/#8f5500/#b32438 paravam em 4,4:1.
+  // Com estes valores o mesmo selo vai a 5,0/4,9/4,9:1, e sobre o branco a 6,8/6,8/7,2:1.
+  --sep-success: #006844;
+  --sep-warning: #854e00;
+  --sep-danger: #a82134;
+  --sep-info: #0a5f9f;
+  --sep-purple: #6d28d9;
+
+  // ===== Tons de grafico =====
+  // O anel e a serie sao area, nao texto: pedem tom vivo sobre o branco, e nao a tinta escura que
+  // o selo usa. No escuro voltam ao neon da tela imersiva.
+  --sep-chart-blue: #1273d4;
+  --sep-chart-cyan: #0a97b8;
+  --sep-chart-green: #0a9e6a;
+  --sep-chart-amber: #c07600;
+  --sep-chart-red: #d8384f;
+  --sep-chart-purple: #7b4ddb;
+  --sep-chart-neutral: #6f8299;
+
+  // ===== Tons de modulo e de serie =====
+  // Hue que identifica modulo no menu e serie no grafico. Nao e estado — estado e `--sep-success`
+  // e companhia. Existem para dar identidade cromatica a itens que so se distinguem pela cor, e
+  // por isso nao podem virar um unico acento. No claro descem para tinta escura: todos acima de
+  // 4,5:1 sobre a superficie e sobre o canvas (medido; o menor e o ambar, 5,02:1 sobre branco).
+  --sep-tint-sky: #0b6d9e;
+  --sep-tint-cyan: #0d7490;
+  --sep-tint-teal: #0f766e;
+  --sep-tint-emerald: #047857;
+  --sep-tint-amber: #b45309;
+  --sep-tint-orange: #c2410c;
+  --sep-tint-coral: #bd3b22;
+  --sep-tint-red: #b32438;
+  --sep-tint-violet: #6d28d9;
+  --sep-tint-pink: #be185d;
+  --sep-tint-slate: #3b6a9e;
+
+  // ===== Campos =====
+  --sep-field-bg: #fff;
+  --sep-field-border: #c9d9ea;
+  --sep-field-placeholder: #6d849e;
+
+  // ===== Elevação e foco =====
+  --sep-shadow-sm: 0 2px 8px rgb(16 42 68 / 8%);
+  --sep-shadow: 0 10px 28px rgb(16 42 68 / 12%);
+  --sep-shadow-lg: 0 22px 54px rgb(16 42 68 / 18%);
+  --sep-focus-ring: 0 0 0 3px rgb(10 110 189 / 22%);
+
+  // Canal da cor de sombra. Escuro nos dois temas: sombra clara sobre fundo claro nao existe.
+  // No claro e mais suave e mais azulada, para nao sujar a superficie.
+  --sep-c-shadow: 16 42 68;
+
+  // Invariante por decisao: texto sobre tinta saturada (avatares, selos coloridos) e branco nos
+  // dois temas, porque a propria tinta nao muda com o tema.
+  --sep-on-tint: #fff;
+
+  // ===== Intensidade do brilho =====
+  // O tema claro não usa halo neon; o multiplicador zera os glows sem que cada folha precise
+  // saber disso. Ver `--sep-glow-alpha` no bloco escuro.
+  --sep-glow-alpha: 0;
+}
+
+.dark {
+  // ===== Canais base (primitivos) =====
+  --sep-c-blue: 38 170 255;
+  --sep-c-cyan: 0 178 255;
+  --sep-c-green: 0 217 154;
+  --sep-c-amber: 255 176 32;
+  --sep-c-red: 255 59 87;
+  --sep-c-purple: 168 85 247;
+  --sep-c-canvas: 2 8 20;
+  --sep-c-surf: 6 20 36;
+  --sep-c-surf2: 8 25 43;
+  --sep-c-surf3: 11 33 55;
+  --sep-c-hover: 13 39 64;
+  --sep-c-active: 16 48 83;
+  --sep-c-sunken: 3 13 25;
+  --sep-c-fg: 234 244 255;
+  --sep-c-strong: 244 251 255;
+  --sep-c-secondary: 169 192 210;
+  --sep-c-muted: 126 151 171;
+  --sep-c-line: 20 51 82;
+  --sep-c-subtle: 16 40 63;
+  --sep-c-edge: 26 63 96;
+
+  // ===== Superfícies =====
+  // Valores homologados, transcritos dos literais que já estavam nas folhas.
+  --sep-canvas: #020814;
+  --sep-surface: #061424;
+  --sep-surface-2: #08192b;
+  --sep-surface-3: #0b2137;
+  --sep-surface-elevated: #0a1e33;
+  --sep-surface-hover: #0d2740;
+  --sep-surface-active: #103053;
+  --sep-surface-sunken: #030d19;
+  --sep-overlay: rgb(2 8 20 / 72%);
+
+  // ===== Texto =====
+  --sep-text: #eaf4ff;
+  --sep-text-strong: #f4fbff;
+  --sep-text-secondary: #a9c0d2;
+  --sep-text-muted: #7e97ab;
+  --sep-text-inverse: #06121f;
+
+  // ===== Bordas =====
+  --sep-border-subtle: #10283f;
+  --sep-border: #143352;
+  --sep-border-strong: #1a3f60;
+
+  // ===== Acentos =====
+  --sep-accent: #26aaff;
+  --sep-accent-strong: #00b2ff;
+  --sep-glow: #00efff;
+  --sep-on-accent: #06121f;
+  --sep-on-solid: #f4fbff;
+
+  // ===== Estados =====
+  --sep-success: #00d99a;
+  --sep-warning: #ffb020;
+  --sep-danger: #ff3b57;
+  --sep-info: #26aaff;
+  --sep-purple: #a855f7;
+
+  // ===== Tons de grafico =====
+  --sep-chart-blue: #26aaff;
+  --sep-chart-cyan: #00efff;
+  --sep-chart-green: #00d99a;
+  --sep-chart-amber: #ffb020;
+  --sep-chart-red: #ff3b57;
+  --sep-chart-purple: #a855f7;
+  --sep-chart-neutral: #7e97ab;
+
+  // ===== Tons de modulo e de serie =====
+  // Valores homologados, transcritos dos literais que estavam gravados nos componentes.
+  --sep-tint-sky: #38bdf8;
+  --sep-tint-cyan: #22d3ee;
+  --sep-tint-teal: #2dd4bf;
+  --sep-tint-emerald: #34d399;
+  --sep-tint-amber: #fbbf24;
+  --sep-tint-orange: #ff8a3d;
+  --sep-tint-coral: #ff5a4d;
+  --sep-tint-red: #f87171;
+  --sep-tint-violet: #a78bfa;
+  --sep-tint-pink: #f472b6;
+  --sep-tint-slate: #94a3b8;
+
+  // ===== Campos =====
+  --sep-field-bg: #030d19;
+  --sep-field-border: #143352;
+  --sep-field-placeholder: #5f7f96;
+
+  // ===== Elevação e foco =====
+  --sep-shadow-sm: 0 2px 10px rgb(1 7 15 / 45%);
+  --sep-shadow: 0 18px 46px rgb(1 7 15 / 55%);
+  --sep-shadow-lg: 0 26px 60px rgb(1 7 15 / 72%);
+  --sep-focus-ring: 0 0 0 3px rgb(38 170 255 / 16%);
+  --sep-c-shadow: 1 7 15;
+  --sep-on-tint: #fff;
+
+  // ===== Intensidade do brilho =====
+  --sep-glow-alpha: 1;
+}

@@ -1,0 +1,529 @@
+{
+  "mockup": "Mockup_12 — Formalização SEP",
+  "source_file": "Mockup_12(1).png",
+  "asset_root_suggested": "C:\\Pastas\\PROJETOS\\Projeto Dynamis SEP\\sep-app 16062026\\image\\sep_mockup_12_assets",
+  "public_path_suggested": "/image/sep_mockup_12_assets",
+  "extraction_standard": "centro visual para fora, margem segura, canvas transparente centralizado",
+  "assets": [
+    {
+      "file": "logos/logo_sep_header_completo.png",
+      "type": "crop",
+      "box": [20, 16, 151, 58],
+      "transparent": true
+    },
+    {
+      "file": "logos/logo_sep_simbolo_header.png",
+      "type": "icon",
+      "center": [43, 36],
+      "size": 58,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "logos/logo_sep_wordmark_header.png",
+      "type": "crop",
+      "box": [74, 22, 151, 54],
+      "transparent": true
+    },
+    {
+      "file": "logos/logo_sep_texto_extenso_header.png",
+      "type": "crop",
+      "box": [157, 21, 247, 58],
+      "transparent": true
+    },
+    {
+      "file": "logos/logo_sep_footer_completo.png",
+      "type": "crop",
+      "box": [20, 1016, 151, 1060],
+      "transparent": true
+    },
+    {
+      "file": "logos/logo_sep_simbolo_footer.png",
+      "type": "icon",
+      "center": [38, 1038],
+      "size": 52,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_menu_hamburger.png",
+      "type": "icon",
+      "center": [29, 35],
+      "size": 36,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_sidebar_dashboard.png",
+      "type": "icon",
+      "center": [33, 140],
+      "size": 34,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_sidebar_onboarding.png",
+      "type": "icon",
+      "center": [33, 218],
+      "size": 34,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_sidebar_credito.png",
+      "type": "icon",
+      "center": [33, 260],
+      "size": 34,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_sidebar_formalizacao.png",
+      "type": "icon",
+      "center": [33, 300],
+      "size": 34,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_sidebar_cobranca.png",
+      "type": "icon",
+      "center": [33, 342],
+      "size": 34,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_sidebar_backoffice.png",
+      "type": "icon",
+      "center": [33, 421],
+      "size": 34,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_sidebar_pix.png",
+      "type": "icon",
+      "center": [33, 459],
+      "size": 34,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_sidebar_perfil.png",
+      "type": "icon",
+      "center": [33, 537],
+      "size": 34,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_sidebar_help.png",
+      "type": "icon",
+      "center": [44, 916],
+      "size": 36,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_profile_avatar_b.png",
+      "type": "icon",
+      "center": [45, 750],
+      "size": 54,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_topbar_ambiente_regulado.png",
+      "type": "icon",
+      "center": [338, 36],
+      "size": 44,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_topbar_horario_sistema.png",
+      "type": "icon",
+      "center": [493, 36],
+      "size": 44,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_topbar_search.png",
+      "type": "icon",
+      "center": [932, 36],
+      "size": 38,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_topbar_bell_notification.png",
+      "type": "icon",
+      "center": [1025, 35],
+      "size": 50,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_topbar_help.png",
+      "type": "icon",
+      "center": [1079, 35],
+      "size": 38,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_topbar_avatar_user_b.png",
+      "type": "icon",
+      "center": [1127, 36],
+      "size": 54,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_topbar_theme_sun.png",
+      "type": "icon",
+      "center": [1336, 36],
+      "size": 40,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_topbar_chevron_down.png",
+      "type": "icon",
+      "center": [1285, 36],
+      "size": 26,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_title_formalizacao_shield.png",
+      "type": "icon",
+      "center": [421, 139],
+      "size": 42,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_link_arrow_right.png",
+      "type": "icon",
+      "center": [1302, 229],
+      "size": 30,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_button_arrow_right.png",
+      "type": "icon",
+      "center": [1022, 362],
+      "size": 30,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_metric_contratos_disponiveis.png",
+      "type": "icon",
+      "center": [284, 241],
+      "size": 68,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_metric_em_assinatura.png",
+      "type": "icon",
+      "center": [503, 241],
+      "size": 68,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_metric_formalizados.png",
+      "type": "icon",
+      "center": [705, 241],
+      "size": 64,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_metric_pendencias.png",
+      "type": "icon",
+      "center": [904, 241],
+      "size": 68,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_onboarding_aprovado_hud.png",
+      "type": "icon",
+      "center": [1125, 157],
+      "size": 86,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_onboarding_aprovado_shield.png",
+      "type": "icon",
+      "center": [1125, 157],
+      "size": 62,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_resumo_contratos_ativos.png",
+      "type": "icon",
+      "center": [1108, 355],
+      "size": 30,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_resumo_valor_total_contratado.png",
+      "type": "icon",
+      "center": [1108, 392],
+      "size": 30,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_resumo_valor_formalizacao.png",
+      "type": "icon",
+      "center": [1108, 429],
+      "size": 30,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_resumo_pendente_assinatura.png",
+      "type": "icon",
+      "center": [1108, 466],
+      "size": 30,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_resumo_documentos_pendentes.png",
+      "type": "icon",
+      "center": [1108, 504],
+      "size": 30,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_seguranca_conformidade_shield.png",
+      "type": "icon",
+      "center": [1109, 596],
+      "size": 44,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_ajuda_headset.png",
+      "type": "icon",
+      "center": [1108, 858],
+      "size": 44,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_status_proposta_aprovada.png",
+      "type": "icon",
+      "center": [307, 489],
+      "size": 30,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_status_contrato_gerado.png",
+      "type": "icon",
+      "center": [478, 489],
+      "size": 30,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_status_assinatura_lock.png",
+      "type": "icon",
+      "center": [633, 489],
+      "size": 30,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_status_formalizado_lock.png",
+      "type": "icon",
+      "center": [765, 489],
+      "size": 30,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_acessar_contrato_document.png",
+      "type": "icon",
+      "center": [941, 436],
+      "size": 28,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_ver_contrato_external.png",
+      "type": "icon",
+      "center": [1013, 759],
+      "size": 28,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_timeline_proposta_aprovada.png",
+      "type": "icon",
+      "center": [316, 897],
+      "size": 60,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_timeline_contrato_gerado.png",
+      "type": "icon",
+      "center": [470, 897],
+      "size": 60,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_timeline_assinatura.png",
+      "type": "icon",
+      "center": [626, 897],
+      "size": 60,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_timeline_escrow_garantia.png",
+      "type": "icon",
+      "center": [789, 897],
+      "size": 60,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_timeline_formalizado.png",
+      "type": "icon",
+      "center": [949, 897],
+      "size": 60,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_footer_ambiente_regulado.png",
+      "type": "icon",
+      "center": [270, 1050],
+      "size": 44,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_footer_segregacao_patrimonial.png",
+      "type": "icon",
+      "center": [469, 1050],
+      "size": 44,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_footer_dados_criptografados.png",
+      "type": "icon",
+      "center": [670, 1050],
+      "size": 44,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_footer_rastreabilidade_total.png",
+      "type": "icon",
+      "center": [870, 1050],
+      "size": 44,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_check_seguranca_conformidade_01.png",
+      "type": "icon",
+      "center": [1110, 628],
+      "size": 24,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_check_seguranca_conformidade_02.png",
+      "type": "icon",
+      "center": [1110, 655],
+      "size": 24,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_check_seguranca_conformidade_03.png",
+      "type": "icon",
+      "center": [1110, 681],
+      "size": 24,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_check_seguranca_conformidade_04.png",
+      "type": "icon",
+      "center": [1110, 708],
+      "size": 24,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "icons/icon_check_seguranca_conformidade_05.png",
+      "type": "icon",
+      "center": [1110, 735],
+      "size": 24,
+      "method": "center_from_visual_center_equal_expansion"
+    },
+    {
+      "file": "visuals/visual_onboarding_aprovado_hud.png",
+      "type": "crop",
+      "box": [1088, 119, 1165, 194],
+      "transparent": true
+    },
+    {
+      "file": "visuals/visual_linha_tempo_formalizacao.png",
+      "type": "crop",
+      "box": [282, 860, 982, 928],
+      "transparent": true
+    },
+    {
+      "file": "visuals/visual_footer_fundo_tecnologico.png",
+      "type": "crop",
+      "box": [1065, 1016, 1350, 1082],
+      "transparent": true
+    },
+    {
+      "file": "ui-groups/ui_topbar.png",
+      "type": "crop",
+      "box": [0, 0, 1409, 70],
+      "transparent": false
+    },
+    {
+      "file": "ui-groups/ui_sidebar.png",
+      "type": "crop",
+      "box": [0, 70, 218, 1116],
+      "transparent": false
+    },
+    {
+      "file": "ui-groups/ui_header_page_formalizacao.png",
+      "type": "crop",
+      "box": [242, 94, 1054, 177],
+      "transparent": false
+    },
+    {
+      "file": "ui-groups/ui_cards_metricas_formalizacao.png",
+      "type": "crop",
+      "box": [242, 201, 1054, 313],
+      "transparent": false
+    },
+    {
+      "file": "ui-groups/ui_contratos_para_formalizar_card.png",
+      "type": "crop",
+      "box": [242, 329, 1055, 797],
+      "transparent": false
+    },
+    {
+      "file": "ui-groups/ui_linha_tempo_formalizacao_card.png",
+      "type": "crop",
+      "box": [242, 811, 1054, 992],
+      "transparent": false
+    },
+    {
+      "file": "ui-groups/ui_right_onboarding_aprovado_card.png",
+      "type": "crop",
+      "box": [1076, 113, 1350, 264],
+      "transparent": false
+    },
+    {
+      "file": "ui-groups/ui_right_resumo_formalizacao_card.png",
+      "type": "crop",
+      "box": [1076, 282, 1350, 541],
+      "transparent": false
+    },
+    {
+      "file": "ui-groups/ui_right_seguranca_conformidade_card.png",
+      "type": "crop",
+      "box": [1076, 562, 1350, 804],
+      "transparent": false
+    },
+    {
+      "file": "ui-groups/ui_right_ajuda_card.png",
+      "type": "crop",
+      "box": [1076, 826, 1350, 990],
+      "transparent": false
+    },
+    {
+      "file": "ui-groups/ui_footer_regulatorio.png",
+      "type": "crop",
+      "box": [218, 1004, 1409, 1116],
+      "transparent": false
+    },
+    {
+      "file": "ui-groups/ui_main_content_area.png",
+      "type": "crop",
+      "box": [218, 70, 1409, 1004],
+      "transparent": false
+    }
+  ],
+  "version": "v4_centro_expandido_final",
+  "notes": [
+    "Ícones extraídos por centro visual e expansão simétrica do recorte.",
+    "Ajustada centralização dos ícones próximos a textos para evitar captura indevida de letras.",
+    "Footer e linha do tempo corrigidos com centro real dos ícones no mockup original.",
+    "Canvas transparente preservado com margem segura nas extremidades visuais."
+  ]
+}

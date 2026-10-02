@@ -1,26 +1,104 @@
-<section class="sep-proposta-entry">
-  <header class="sep-proposta-entry-header">
-    <h1 class="sep-proposta-entry-title">Formalizacao da proposta</h1>
-  </header>
+<sep-operational-shell>
+  <section class="px59-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px59-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/formalizacao">Formalização</a><span>›</span
+        ><strong>Por proposta</strong>
+      </nav>
+      <div class="px59-heading-row">
+        <div class="px59-titulo-wrap">
+          <a class="px59-voltar-circulo" routerLink="/app/formalizacao" aria-label="Voltar">
+            <lucide-icon name="arrow-left" [size]="20" />
+          </a>
+          <div>
+            <h1>Formalização da proposta</h1>
+            <p class="px59-subtitulo">Buscando o contrato gerado para esta proposta aprovada.</p>
+          </div>
+        </div>
+        <a class="px59-btn-sec" routerLink="/app/formalizacao">
+          <lucide-icon name="arrow-left" [size]="16" />Voltar para Formalização
+        </a>
+      </div>
+    </header>
 
-  @if (loading()) {
-    <p class="sep-proposta-entry-state" role="status">Carregando contrato...</p>
-  } @else if (errorMessage()) {
-    <div class="sep-proposta-entry-state sep-proposta-entry-error" role="alert">
-      <p>{{ errorMessage() }}</p>
+    <div class="px59-centro">
+      <!-- ============ RESOLVENDO ============ -->
+      @if (loading()) {
+        <article class="px59-card px59-estado-card" role="status">
+          <span class="px59-estado-icone" data-tone="blue">
+            <lucide-icon name="loader-circle" [size]="30" />
+          </span>
+          <h2>Localizando o contrato</h2>
+          <p>
+            O contrato é consultado pela proposta, sob demanda. Assim que for encontrado, você é
+            levado direto para ele.
+          </p>
+          @if (propostaId(); as id) {
+            <p class="px59-mono">proposta {{ idCurto(id) }}</p>
+          }
+        </article>
+      } @else if (errorMessage(); as msg) {
+        <!-- ============ FALHA ============ -->
+        <article class="px59-card px59-estado-card" role="alert">
+          <span class="px59-estado-icone" data-tone="red">
+            <lucide-icon name="triangle-alert" [size]="30" />
+          </span>
+          <h2>Não foi possível carregar o contrato</h2>
+          <p>{{ msg }}</p>
+          <div class="px59-acoes">
+            <button type="button" class="px59-btn-primary" (click)="tentarDeNovo()">
+              <lucide-icon name="refresh-cw" [size]="16" />Tentar de novo
+            </button>
+            <a class="px59-btn-sec" routerLink="/app/formalizacao">Voltar para Formalização</a>
+          </div>
+        </article>
+      } @else if (semContrato()) {
+        <!-- ============ AINDA SEM CONTRATO ============ -->
+        <!-- 404 aqui não é erro: é a proposta que ainda não chegou ao ponto de virar contrato. -->
+        <article class="px59-card px59-estado-card" role="status">
+          <span class="px59-estado-icone" data-tone="amber">
+            <lucide-icon name="file-text" [size]="30" />
+          </span>
+          <h2>O contrato ainda não foi gerado</h2>
+          <p>
+            O contrato nasce quando a proposta é <strong>aprovada</strong> e passa pela conferência
+            da operação. Enquanto ela estiver em análise, pré-aprovada ou com pendência, não há
+            documento para formalizar.
+          </p>
+          @if (propostaId(); as id) {
+            <p class="px59-mono">proposta {{ idCurto(id) }}</p>
+          }
+          <div class="px59-acoes">
+            @if (propostaId(); as id) {
+              <a class="px59-btn-primary" [routerLink]="['/app/credito/propostas', id]">
+                <lucide-icon name="credit-card" [size]="16" />Ver a proposta
+              </a>
+            }
+            <button type="button" class="px59-btn-sec" (click)="tentarDeNovo()">
+              <lucide-icon name="refresh-cw" [size]="16" />Consultar de novo
+            </button>
+          </div>
+        </article>
+      } @else if (contrato(); as c) {
+        <!-- ============ ENCONTRADO ============ -->
+        <!-- O redirecionamento já foi disparado; este cartão cobre a fração de segundo até ele
+             acontecer, e o caso de a navegação falhar. -->
+        <article class="px59-card px59-estado-card" role="status">
+          <span class="px59-estado-icone" data-tone="green">
+            <lucide-icon name="circle-check" [size]="30" />
+          </span>
+          <h2>Contrato encontrado</h2>
+          <p>Levando você para o contrato {{ idCurto(c.id) }}.</p>
+          <span class="px59-selo" data-tone="green">{{ statusLabel[c.status] }}</span>
+          <div class="px59-acoes">
+            <a class="px59-btn-primary" [routerLink]="['/app/formalizacao/contratos', c.id]">
+              <lucide-icon name="arrow-right" [size]="16" />Ver contrato
+            </a>
+          </div>
+        </article>
+      }
     </div>
-  } @else if (semContrato()) {
-    <div class="sep-proposta-entry-state sep-proposta-entry-empty">
-      <p>O contrato desta proposta ainda nao foi gerado.</p>
-      <a routerLink="/app/formalizacao">Voltar</a>
-    </div>
-  } @else if (contrato(); as c) {
-    <div class="sep-proposta-entry-card">
-      <span class="sep-proposta-entry-card-status">{{ statusLabel[c.status] }}</span>
-      <span class="sep-proposta-entry-card-id">Contrato {{ idCurto(c.id) }}</span>
-      <a [routerLink]="['/app/formalizacao/contratos', c.id]" class="sep-proposta-entry-card-cta">
-        Ver contrato
-      </a>
-    </div>
-  }
-</section>
+  </section>
+</sep-operational-shell>

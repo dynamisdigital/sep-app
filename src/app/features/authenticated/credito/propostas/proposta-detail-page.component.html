@@ -1,64 +1,510 @@
-<section class="sep-proposta-detail">
-  <header class="sep-proposta-detail-header">
-    <a routerLink="/app/credito/propostas" class="sep-proposta-detail-back"
-      >Voltar para propostas</a
-    >
-  </header>
+<sep-operational-shell>
+  <section class="px28-page">
+    @if (loading()) {
+      <p class="px28-estado" role="status">Carregando proposta...</p>
+    } @else if (errorMessage(); as mensagem) {
+      <div class="px28-estado px28-erro" role="alert">
+        <lucide-icon name="circle-alert" [size]="18" />
+        <p>{{ mensagem }}</p>
+        <button type="button" class="px28-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
+        <a class="px28-btn-sec" routerLink="/app/credito/propostas">Ir para a lista de propostas</a>
+      </div>
+    } @else if (proposta(); as p) {
+      <!-- ============ CABEÇALHO ============ -->
+      <header class="px28-heading">
+        <nav aria-label="Navegação estrutural">
+          <a routerLink="/app/dashboard">Início</a><span>›</span
+          ><a routerLink="/app/credito">Crédito</a><span>›</span
+          ><a routerLink="/app/credito/propostas">Propostas</a><span>›</span
+          ><strong>Detalhe da proposta</strong>
+        </nav>
+        <div class="px28-heading-row">
+          <div class="px28-titulo-wrap">
+            <h1>
+              Proposta de Crédito
+              <span class="px28-selo-head" [attr.data-tone]="statusTom()">
+                {{ statusRotulo() }}
+              </span>
+            </h1>
+            <p class="px28-subtitulo">Acompanhe todos os detalhes da sua proposta de crédito.</p>
+          </div>
+          <div class="px28-heading-acoes px28-menu-wrap">
+            <a class="px28-btn-sec" routerLink="/app/credito/propostas">
+              <lucide-icon name="arrow-left" [size]="16" />Voltar para propostas
+            </a>
+            <button type="button" class="px28-btn-primary" (click)="alternarSecao('historico')">
+              <lucide-icon name="activity" [size]="16" />Acompanhar análise
+            </button>
+            <button
+              type="button"
+              class="px28-btn-sec px28-btn-icon"
+              aria-label="Mais ações da proposta"
+              [attr.aria-expanded]="menuAberto()"
+              (click)="alternarMenu()"
+              (keydown.escape)="menuAberto.set(false)"
+            >
+              <lucide-icon name="ellipsis" [size]="16" />
+            </button>
+            @if (menuAberto()) {
+              <div class="px28-menu" role="menu">
+                <button
+                  type="button"
+                  role="menuitem"
+                  (click)="copiar(p.id, 'menu-id'); alternarMenu()"
+                >
+                  <lucide-icon name="copy" [size]="15" />Copiar ID da proposta
+                </button>
+                <button type="button" role="menuitem" (click)="irPara('/app/credito/propostas')">
+                  <lucide-icon name="list" [size]="15" />Ver todas as propostas
+                </button>
+                @if (podeIniciarOpenFinance()) {
+                  <a
+                    role="menuitem"
+                    [routerLink]="['/app/credito/propostas', p.id, 'open-finance']"
+                    (click)="menuAberto.set(false)"
+                  >
+                    <lucide-icon name="share-2" [size]="15" />Compartilhar dados via Open Finance
+                  </a>
+                }
+                @if (podeFormalizar()) {
+                  <button
+                    type="button"
+                    role="menuitem"
+                    (click)="irPara('/app/formalizacao/proposta/' + p.id)"
+                  >
+                    <lucide-icon name="file-check" [size]="15" />Ir para formalização
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </header>
 
-  @if (loading()) {
-    <p class="sep-proposta-detail-state" role="status">Carregando proposta...</p>
-  } @else if (errorMessage()) {
-    <div class="sep-proposta-detail-state sep-proposta-detail-error" role="alert">
-      <p>{{ errorMessage() }}</p>
-      <a routerLink="/app/credito/propostas">Ir para a lista de propostas</a>
-    </div>
-  } @else if (proposta(); as proposta) {
-    <h1 class="sep-proposta-detail-title">Proposta</h1>
+      <!-- ============ FAIXA DE MÉTRICAS ============ -->
+      <article class="px28-card px28-metricas">
+        <div class="px28-metrica">
+          <span class="px28-metrica-icone"><lucide-icon name="banknote" [size]="20" /></span>
+          <div>
+            <small>Valor solicitado</small>
+            <strong class="px28-valor">{{ moeda(p.valorSolicitado) }}</strong>
+          </div>
+        </div>
+        <div class="px28-metrica">
+          <span class="px28-metrica-icone"><lucide-icon name="calendar" [size]="20" /></span>
+          <div>
+            <small>Prazo</small>
+            <strong>{{ meses(p.prazoMeses) }}</strong>
+          </div>
+        </div>
+        <div class="px28-metrica">
+          <span class="px28-metrica-icone"><lucide-icon name="briefcase" [size]="20" /></span>
+          <div>
+            <small>Tipo de operação</small>
+            <strong>{{ operacaoRotulo() }}</strong>
+          </div>
+        </div>
+        <div class="px28-metrica">
+          <span class="px28-metrica-icone"><lucide-icon name="activity" [size]="20" /></span>
+          <div>
+            <small>Status atual</small>
+            <strong [attr.data-tone]="statusTom()">{{ statusRotulo() }}</strong>
+          </div>
+        </div>
+        <div class="px28-metrica">
+          <span class="px28-metrica-icone"><lucide-icon name="calendar" [size]="20" /></span>
+          <div>
+            <small>Criada em</small>
+            <strong>{{ data(p.dataCriacao) }}</strong>
+            <small class="px28-metrica-hora">{{ hora(p.dataCriacao) }}</small>
+          </div>
+        </div>
+      </article>
 
-    <dl class="sep-proposta-detail-grid">
-      <div>
-        <dt>Tipo</dt>
-        <dd>{{ proposta.tipoOperacao }}</dd>
-      </div>
-      <div>
-        <dt>Valor solicitado</dt>
-        <dd>{{ formatarMoeda(proposta.valorSolicitado, proposta.moeda) }}</dd>
-      </div>
-      <div>
-        <dt>Prazo</dt>
-        <dd>{{ proposta.prazoMeses }} meses</dd>
-      </div>
-      <div>
-        <dt>Status</dt>
-        <dd><sep-proposta-status [status]="proposta.status" /></dd>
-      </div>
-      <div>
-        <dt>Criada em</dt>
-        <dd>{{ formatarData(proposta.dataCriacao) }}</dd>
-      </div>
-    </dl>
+      <!-- ============ MEIO: DADOS + LINHA DO TEMPO, LADO A LADO ============ -->
+      <div class="px28-meio">
+        <article class="px28-card px28-dados">
+          <h2><lucide-icon name="briefcase" [size]="17" />Dados da proposta</h2>
+          <dl class="px28-dados-grid">
+            <div class="px28-campo">
+              <dt>ID da proposta</dt>
+              <dd class="px28-quebra">
+                <span class="px28-mono">{{ p.id }}</span>
+                <button
+                  type="button"
+                  class="px28-btn-copy"
+                  aria-label="Copiar ID da proposta"
+                  (click)="copiar(p.id, 'id')"
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'id' ? 'circle-check' : 'copy')"
+                    [size]="13"
+                  />
+                </button>
+              </dd>
+            </div>
+            <div class="px28-campo">
+              <dt>Empresa / Tomador</dt>
+              <dd>{{ texto(p.empresaNome) }}</dd>
+            </div>
 
-    @if (proposta.score; as score) {
-      <sep-score-panel [score]="score" />
+            <div class="px28-campo">
+              <dt>Tipo de operação</dt>
+              <dd>{{ operacaoRotulo() }}</dd>
+            </div>
+            <div class="px28-campo">
+              <dt>CNPJ</dt>
+              <dd class="px28-quebra">
+                <span>{{ texto(p.cnpj) }}</span>
+                @if (p.cnpj) {
+                  <button
+                    type="button"
+                    class="px28-btn-copy"
+                    aria-label="Copiar CNPJ"
+                    (click)="copiar(p.cnpj, 'cnpj')"
+                  >
+                    <lucide-icon
+                      [name]="$any(copiado() === 'cnpj' ? 'circle-check' : 'copy')"
+                      [size]="13"
+                    />
+                  </button>
+                }
+              </dd>
+            </div>
+
+            <div class="px28-campo">
+              <dt>Finalidade</dt>
+              <dd>{{ texto(p.finalidade) }}</dd>
+            </div>
+            <div class="px28-campo">
+              <dt>Porte</dt>
+              <dd>{{ texto(p.porte) }}</dd>
+            </div>
+
+            <div class="px28-campo">
+              <dt>Valor solicitado</dt>
+              <dd>{{ moeda(p.valorSolicitado) }}</dd>
+            </div>
+            <div class="px28-campo">
+              <dt>Setor</dt>
+              <dd>{{ texto(p.setor) }}</dd>
+            </div>
+
+            <div class="px28-campo">
+              <dt>Prazo</dt>
+              <dd>{{ meses(p.prazoMeses) }}</dd>
+            </div>
+            <div class="px28-campo">
+              <dt>Criada em</dt>
+              <dd>{{ dataHora(p.dataCriacao) }}</dd>
+            </div>
+
+            <div class="px28-campo">
+              <dt>Carência</dt>
+              <dd>{{ meses(p.carenciaMeses) }}</dd>
+            </div>
+            <div class="px28-campo">
+              <dt>Última atualização</dt>
+              <dd>{{ dataHora(p.dataModificacao) }}</dd>
+            </div>
+          </dl>
+        </article>
+
+        <!-- ============ LINHA DO TEMPO ============ -->
+        <article class="px28-card px28-timeline">
+          <h2><lucide-icon name="activity" [size]="17" />Linha do tempo</h2>
+          @if (etapas().length) {
+            <ol class="px28-timeline-list">
+              @for (etapa of etapas(); track etapa.titulo) {
+                <li [attr.data-situacao]="etapa.situacao">
+                  <span class="px28-marco">
+                    <lucide-icon
+                      [name]="
+                        $any(
+                          etapa.situacao === 'CONCLUIDO'
+                            ? 'circle-check'
+                            : etapa.situacao === 'EM_ANDAMENTO'
+                              ? 'loader-circle'
+                              : 'circle-dashed'
+                        )
+                      "
+                      [size]="15"
+                    />
+                  </span>
+                  <div class="px28-etapa-texto">
+                    <strong>{{ etapa.titulo }}</strong>
+                    <small>
+                      @if (etapa.em) {
+                        {{ etapa.situacao === 'EM_ANDAMENTO' ? 'Desde ' : ''
+                        }}{{ dataHora(etapa.em) }}
+                      } @else {
+                        Aguardando...
+                      }
+                    </small>
+                  </div>
+                  <span class="px28-selo-etapa" [attr.data-situacao]="etapa.situacao">
+                    {{ etapaRotulo(etapa.situacao) }}
+                  </span>
+                </li>
+              }
+            </ol>
+          } @else {
+            <p class="px28-vazio">Sem etapas registradas para esta proposta.</p>
+          }
+        </article>
+      </div>
+
+      <!-- ============ SEÇÕES RECOLHÍVEIS ============ -->
+      <div class="px28-secoes">
+        <section class="px28-card px28-secao" [class.aberta]="secaoAberta() === 'complementares'">
+          <button
+            type="button"
+            class="px28-secao-cabecalho"
+            [attr.aria-expanded]="secaoAberta() === 'complementares'"
+            (click)="alternarSecao('complementares')"
+          >
+            <lucide-icon name="circle-alert" [size]="17" />
+            <span>Informações complementares</span>
+            <lucide-icon
+              [name]="$any(secaoAberta() === 'complementares' ? 'chevron-up' : 'chevron-down')"
+              [size]="17"
+            />
+          </button>
+          @if (secaoAberta() === 'complementares') {
+            <dl class="px28-secao-conteudo">
+              <div>
+                <dt>Taxa estimada</dt>
+                <dd>{{ texto(p.taxaEstimada) }}</dd>
+              </div>
+              <div>
+                <dt>Parcela estimada</dt>
+                <dd>{{ moeda(p.valorParcelaEstimado) }}</dd>
+              </div>
+              <div>
+                <dt>Garantia</dt>
+                <dd>{{ texto(p.garantia) }}</dd>
+              </div>
+              <div>
+                <dt>Canal de origem</dt>
+                <dd>{{ texto(p.canalOrigem) }}</dd>
+              </div>
+              <div>
+                <dt>Responsável pela análise</dt>
+                <dd>{{ texto(p.analista) }}</dd>
+              </div>
+              <div>
+                <dt>Observações</dt>
+                <dd>{{ texto(p.observacoes) }}</dd>
+              </div>
+            </dl>
+          }
+        </section>
+
+        <section class="px28-card px28-secao" [class.aberta]="secaoAberta() === 'documentos'">
+          <button
+            type="button"
+            class="px28-secao-cabecalho"
+            [attr.aria-expanded]="secaoAberta() === 'documentos'"
+            (click)="alternarSecao('documentos')"
+          >
+            <lucide-icon name="file-text" [size]="17" />
+            <span>Documentos anexados</span>
+            <lucide-icon
+              [name]="$any(secaoAberta() === 'documentos' ? 'chevron-up' : 'chevron-down')"
+              [size]="17"
+            />
+          </button>
+          @if (secaoAberta() === 'documentos') {
+            <ul class="px28-docs">
+              @for (doc of documentos(); track doc.nome) {
+                <li>
+                  <lucide-icon name="file-text" [size]="16" />
+                  <div>
+                    <strong>{{ doc.nome }}</strong>
+                    <small>{{ texto(doc.tipo) }} · {{ texto(doc.tamanho) }}</small>
+                  </div>
+                  <span>{{ data(doc.enviadoEm) }}</span>
+                </li>
+              } @empty {
+                <li class="px28-vazio-linha">Nenhum documento anexado à proposta.</li>
+              }
+            </ul>
+          }
+        </section>
+
+        <section class="px28-card px28-secao" [class.aberta]="secaoAberta() === 'historico'">
+          <button
+            type="button"
+            class="px28-secao-cabecalho"
+            [attr.aria-expanded]="secaoAberta() === 'historico'"
+            (click)="alternarSecao('historico')"
+          >
+            <lucide-icon name="clock" [size]="17" />
+            <span>Histórico da proposta</span>
+            <lucide-icon
+              [name]="$any(secaoAberta() === 'historico' ? 'chevron-up' : 'chevron-down')"
+              [size]="17"
+            />
+          </button>
+          @if (secaoAberta() === 'historico') {
+            <ul class="px28-historico">
+              @for (evento of historico(); track evento.titulo) {
+                <li>
+                  <em></em>
+                  <div>
+                    <strong>{{ evento.titulo }}</strong>
+                    <small>{{ dataHora(evento.em) }} · {{ texto(evento.autor) }}</small>
+                  </div>
+                </li>
+              } @empty {
+                <li class="px28-vazio-linha">Sem eventos registrados.</li>
+              }
+            </ul>
+          }
+        </section>
+      </div>
+
+      <!-- ============ AÇÕES RÁPIDAS ============ -->
+      <article class="px28-card px28-actions">
+        <h2>Ações rápidas</h2>
+        <div class="px28-actions-grid">
+          <button type="button" class="px28-btn-acao blue" (click)="alternarSecao('historico')">
+            <lucide-icon name="activity" [size]="19" />
+            <span>Acompanhar análise</span>
+          </button>
+          <button
+            type="button"
+            class="px28-btn-acao green"
+            title="Não há endpoint de solicitação de informações ao tomador"
+            disabled
+          >
+            <lucide-icon name="circle-alert" [size]="19" />
+            <span>Solicitar informações</span>
+          </button>
+          <a class="px28-btn-acao cyan" routerLink="/app/credito/propostas/nova">
+            <lucide-icon name="file-text" [size]="19" />
+            <span>Ver simulação</span>
+          </a>
+          @if (podeFormalizar()) {
+            <a
+              class="px28-btn-acao purple"
+              title="Formalizar contrato"
+              [routerLink]="['/app/formalizacao/proposta', p.id]"
+            >
+              <lucide-icon name="file-check" [size]="19" />
+              <span>Ir para formalização</span>
+            </a>
+          } @else {
+            <button
+              type="button"
+              class="px28-btn-acao purple"
+              title="A formalização abre quando a proposta é aprovada"
+              disabled
+            >
+              <lucide-icon name="file-check" [size]="19" />
+              <span>Ir para formalização</span>
+            </button>
+          }
+          <button type="button" class="px28-btn-acao grey" (click)="copiar(p.id, 'acao-id')">
+            <lucide-icon
+              [name]="$any(copiado() === 'acao-id' ? 'circle-check' : 'copy')"
+              [size]="19"
+            />
+            <span>Copiar ID</span>
+          </button>
+          <button type="button" class="px28-btn-acao grey" (click)="alternarMenu()">
+            <lucide-icon name="ellipsis" [size]="19" />
+            <span>Mais ações</span>
+          </button>
+        </div>
+      </article>
+
+      <!-- ============ COLUNA LATERAL ============ -->
+      <aside class="px28-side">
+        <section class="px28-card px28-resumo">
+          <h2><lucide-icon name="shield" [size]="17" />Resumo da proposta</h2>
+          <dl class="px28-side-dl">
+            <div>
+              <dt>Valor solicitado</dt>
+              <dd class="px28-bold-white">{{ moeda(p.valorSolicitado) }}</dd>
+            </div>
+            <div>
+              <dt>Prazo</dt>
+              <dd class="px28-bold-white">{{ meses(p.prazoMeses) }}</dd>
+            </div>
+            <div>
+              <dt>Valor estimado das parcelas</dt>
+              <dd class="px28-bold-white">{{ moeda(p.valorParcelaEstimado) }}</dd>
+            </div>
+            <div>
+              <dt>Tipo</dt>
+              <dd class="px28-bold-white">{{ operacaoRotulo() }}</dd>
+            </div>
+            <div>
+              <dt>Status</dt>
+              <dd>
+                <span class="px28-selo-inline" [attr.data-tone]="statusTom()">
+                  {{ statusRotulo() }}
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt>Criada em</dt>
+              <dd class="px28-bold-white">{{ data(p.dataCriacao) }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="px28-card px28-analise">
+          <h2><lucide-icon name="shield-check" [size]="17" />Análise e aprovação</h2>
+          <div class="px28-analise-corpo">
+            @if (percentual(); as pct) {
+              <div
+                class="px28-anel"
+                role="img"
+                [attr.aria-label]="'Análise em ' + pct + ' por cento'"
+                [style.--grau.deg]="anelGrau()"
+                [attr.data-tone]="statusTom()"
+              >
+                <span>{{ pct }}%</span>
+              </div>
+            }
+            <strong class="px28-analise-titulo">{{ statusRotulo() }}</strong>
+            <p class="px28-analise-frase">{{ analiseFrase() }}</p>
+            @if (p.score; as score) {
+              <dl class="px28-side-dl px28-score">
+                <div>
+                  <dt>Score do motor</dt>
+                  <dd class="px28-bold-white">{{ score.valor }}</dd>
+                </div>
+                <div>
+                  <dt>Pendências</dt>
+                  <dd class="px28-bold-white">{{ score.pendencias }}</dd>
+                </div>
+              </dl>
+            }
+            @if (p.parecer; as parecer) {
+              <div class="px28-parecer">
+                <strong>Último parecer</strong>
+                <p>{{ parecer.justificativa }}</p>
+              </div>
+            }
+          </div>
+        </section>
+
+        <section class="px28-card px28-seguranca">
+          <h2><lucide-icon name="shield" [size]="17" />Segurança e conformidade</h2>
+          <ul>
+            <li><em class="px28-led"></em>Ambiente regulado (CMN 4.656/2018)</li>
+            <li><em class="px28-led"></em>Dados protegidos (LGPD)</li>
+            <li><em class="px28-led"></em>Processo de crédito auditado</li>
+            <li><em class="px28-led"></em>Rastreabilidade completa</li>
+            <li><em class="px28-led"></em>Segregação patrimonial (Escrow)</li>
+          </ul>
+        </section>
+      </aside>
     }
-
-    @if (proposta.parecer; as parecer) {
-      <sep-parecer-panel [parecer]="parecer" />
-    }
-
-    @if (podeIniciarOpenFinance()) {
-      <a
-        [routerLink]="['/app/credito/propostas', proposta.id, 'open-finance']"
-        class="sep-proposta-detail-of"
-      >
-        Compartilhar dados via Open Finance
-      </a>
-    }
-
-    @if (podeFormalizar()) {
-      <a [routerLink]="['/app/formalizacao/proposta', proposta.id]" class="sep-proposta-detail-of">
-        Formalizar contrato
-      </a>
-    }
-  }
-</section>
+  </section>
+</sep-operational-shell>

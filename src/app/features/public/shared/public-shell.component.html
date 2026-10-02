@@ -1,0 +1,70 @@
+<main class="site-page">
+  <div class="site-shell">
+    <header class="site-header">
+      <a routerLink="/" class="site-brand" aria-label="SEP - Página inicial">
+        <img
+          [src]="assetBase + '/logos/logo_sep_simbolo_header.png'"
+          alt=""
+          class="site-brand-symbol"
+          aria-hidden="true"
+        />
+        <span class="site-brand-text">
+          <strong>SEP</strong>
+          <span>Sociedade de Empréstimo<br />entre Pessoas</span>
+        </span>
+      </a>
+
+      <nav class="site-nav" aria-label="Navegação principal">
+        @for (item of navegacao; track item.route) {
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="site-nav-ativo"
+            [routerLinkActiveOptions]="{ exact: true }"
+            >{{ item.label }}</a
+          >
+        }
+      </nav>
+
+      <div class="site-header-actions">
+        <button
+          type="button"
+          class="site-theme"
+          [attr.aria-label]="temaEscuro() ? 'Mudar para o tema claro' : 'Mudar para o tema escuro'"
+          [attr.aria-pressed]="!temaEscuro()"
+          (click)="alternarTema()"
+        >
+          <lucide-icon [name]="temaEscuro() ? 'sun' : 'moon'" [size]="20" [strokeWidth]="2" />
+        </button>
+        <a routerLink="/login" class="site-login">Entrar</a>
+      </div>
+    </header>
+
+    <div class="site-content">
+      <ng-content />
+    </div>
+
+    <footer class="site-footer">
+      <div class="site-footer-brand">
+        <img
+          [src]="assetBase + '/logos/logo_sep_simbolo_footer.png'"
+          alt=""
+          class="site-footer-logo"
+          aria-hidden="true"
+        />
+        <strong>SEP</strong>
+        <p>SEP — Sociedade de Empréstimo entre Pessoas. Capital de giro PJ.</p>
+      </div>
+
+      <nav class="site-footer-links" aria-label="Links institucionais">
+        @for (item of institucionais; track item.route) {
+          <a [routerLink]="item.route">{{ item.label }}</a>
+        }
+      </nav>
+
+      <p class="site-legal">
+        Regulado pela Resolução CMN 4.656/2018. Esta plataforma não oferece rendimento garantido nem
+        aprovação automática de crédito. © {{ ano }} SEP.
+      </p>
+    </footer>
+  </div>
+</main>

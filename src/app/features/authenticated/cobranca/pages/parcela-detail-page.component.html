@@ -1,23 +1,462 @@
-<section class="sep-parcela">
-  @if (loading()) {
-    <p class="sep-parcela-state" role="status">Carregando parcela...</p>
-  } @else if (errorMessage()) {
-    <div class="sep-parcela-state sep-parcela-error" role="alert">
-      <p>{{ errorMessage() }}</p>
-      <button type="button" class="sep-parcela-retry" (click)="carregar()">Tentar novamente</button>
-    </div>
-  } @else if (naoEncontrada()) {
-    <div class="sep-parcela-state sep-parcela-empty">
-      <p>Parcela nao encontrada.</p>
-    </div>
-  } @else if (parcela(); as p) {
-    <header class="sep-parcela-header">
-      <h1 class="sep-parcela-title">Parcela {{ p.numero }}</h1>
-      <sep-parcela-status [status]="p.status" />
-    </header>
+<sep-operational-shell>
+  <section class="cb24-page">
+    @if (loading()) {
+      <p class="cb24-estado" role="status">Carregando parcela...</p>
+    } @else if (errorMessage(); as mensagem) {
+      <div class="cb24-estado cb24-erro" role="alert">
+        <lucide-icon name="circle-alert" [size]="18" />
+        <p>{{ mensagem }}</p>
+        <button type="button" class="cb24-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
+      </div>
+    } @else if (naoEncontrada()) {
+      <div class="cb24-estado cb24-vazio">
+        <lucide-icon name="inbox" [size]="26" />
+        <p>Parcela não encontrada.</p>
+        <a class="cb24-btn-sec" routerLink="/app/cobranca">Voltar para Cobrança</a>
+      </div>
+    } @else if (parcela(); as p) {
+      <!-- ============ CABEÇALHO ============ -->
+      <header class="cb24-heading">
+        <nav aria-label="Navegação estrutural">
+          <a routerLink="/app/dashboard">Início</a><span>›</span
+          ><a routerLink="/app/cobranca">Cobrança</a><span>›</span
+          ><strong>Parcela {{ p.numero }}</strong>
+        </nav>
+        <div class="cb24-heading-row">
+          <div>
+            <h1>
+              Parcela {{ p.numero }}
+              <span class="cb24-selo" [attr.data-tone]="statusTom()">{{ statusRotulo() }}</span>
+            </h1>
+            <p>
+              Vencimento: {{ formatarDataLocal(p.dataVencimento) }}
+              <span class="cb24-prazo">• {{ prazoLegenda() }}</span>
+            </p>
+          </div>
+          <div class="cb24-heading-acoes cb24-menu-wrap">
+            <button type="button" class="cb24-btn-primary" (click)="baixarDemonstrativo()">
+              <lucide-icon name="download" [size]="18" />Baixar demonstrativo
+            </button>
+            <button
+              type="button"
+              class="cb24-btn-icone"
+              aria-label="Mais ações"
+              [attr.aria-expanded]="menuAberto()"
+              (click)="alternarMenu()"
+              (keydown.escape)="menuAberto.set(false)"
+            >
+              <lucide-icon name="ellipsis-vertical" [size]="18" />
+            </button>
+            @if (menuAberto()) {
+              <!-- O Esc vive nos próprios itens: são eles que recebem o foco no menu aberto. -->
+              <div class="cb24-menu" role="menu">
+                <button
+                  type="button"
+                  role="menuitem"
+                  (click)="copiarIdentificador()"
+                  (keydown.escape)="menuAberto.set(false)"
+                >
+                  <lucide-icon name="copy" [size]="16" />Copiar identificador da parcela
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  (click)="irPara('/app/cobranca/financeiro/agenda')"
+                  (keydown.escape)="menuAberto.set(false)"
+                >
+                  <lucide-icon name="calendar" [size]="16" />Ver agenda financeira
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  (click)="irPara('/app/cobranca/financeiro/inadimplencia')"
+                  (keydown.escape)="menuAberto.set(false)"
+                >
+                  <lucide-icon name="triangle-alert" [size]="16" />Ver inadimplência
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      </header>
 
-    <p class="sep-parcela-vencimento">Vencimento: {{ formatarDataLocal(p.dataVencimento) }}</p>
+      <!-- ============ FAIXA DE AVISO ============ -->
+      @if (aviso(); as a) {
+        <div class="cb24-aviso" [attr.data-tone]="statusTom()">
+          <lucide-icon name="circle-alert" [size]="20" />
+          <div>
+            <strong>{{ a.titulo }}</strong>
+            <span>{{ a.texto }}</span>
+          </div>
+        </div>
+      }
 
-    <sep-parcela-composicao [parcela]="p" />
-  }
-</section>
+      <!-- ============ COLUNA CENTRAL ============ -->
+      <div class="cb24-main">
+        <div class="cb24-duplo">
+          <article class="cb24-card cb24-valores">
+            <h2>
+              Valores detalhados
+              <button
+                type="button"
+                class="cb24-copy"
+                aria-label="Copiar valores"
+                (click)="copiar(moeda(p.valorEmAberto), 'valores')"
+              >
+                <lucide-icon
+                  [name]="$any(copiado() === 'valores' ? 'circle-check' : 'copy')"
+                  [size]="15"
+                />
+              </button>
+            </h2>
+            <dl>
+              <div>
+                <dt>Principal</dt>
+                <dd>{{ moeda(p.principalOriginal) }}</dd>
+              </div>
+              <div>
+                <dt>Juros</dt>
+                <dd>{{ moeda(p.jurosOriginal) }}</dd>
+              </div>
+              <div>
+                <dt>Juros de mora</dt>
+                <dd>{{ moeda(p.jurosMora) }}</dd>
+              </div>
+              <div>
+                <dt>Multa</dt>
+                <dd>{{ moeda(p.multa) }}</dd>
+              </div>
+              <div>
+                <dt>Desconto</dt>
+                <dd [class.cb24-vazio]="p.desconto === undefined">{{ moeda(p.desconto) }}</dd>
+              </div>
+              <div class="cb24-divisor">
+                <dt>Total recebido</dt>
+                <dd>{{ moeda(p.totalRecebido) }}</dd>
+              </div>
+              <div>
+                <dt>Valor devido atualizado</dt>
+                <dd class="cb24-destaque">{{ moeda(p.valorDevidoAtualizado) }}</dd>
+              </div>
+              <div>
+                <dt>Valor em aberto</dt>
+                <dd class="cb24-alerta">{{ moeda(p.valorEmAberto) }}</dd>
+              </div>
+            </dl>
+          </article>
+
+          <article class="cb24-card cb24-status">
+            <h2>Status da parcela</h2>
+            <dl>
+              <div>
+                <dt>Situação atual</dt>
+                <dd>
+                  <span class="cb24-selo" [attr.data-tone]="statusTom()">{{ statusRotulo() }}</span>
+                </dd>
+              </div>
+              <div>
+                <dt>Dias para vencimento</dt>
+                <dd>{{ diasParaVencer() }} dias</dd>
+              </div>
+              <div>
+                <dt>Dias em atraso</dt>
+                <dd [class.cb24-alerta]="(diasEmAtraso() ?? 0) > 0">{{ diasEmAtraso() }} dias</dd>
+              </div>
+              <div>
+                <dt>Tipo de cobrança</dt>
+                <dd [class.cb24-vazio]="!p.cobranca">{{ texto(p.cobranca?.tipoCobranca) }}</dd>
+              </div>
+              <div>
+                <dt>Forma de pagamento</dt>
+                <dd [class.cb24-vazio]="!p.cobranca">{{ texto(p.cobranca?.formaPagamento) }}</dd>
+              </div>
+              <div>
+                <dt>Banco recebedor</dt>
+                <dd [class.cb24-vazio]="!p.cobranca">{{ texto(p.cobranca?.bancoRecebedor) }}</dd>
+              </div>
+              <div>
+                <dt>Nosso número</dt>
+                <dd [class.cb24-vazio]="!p.cobranca">{{ texto(p.cobranca?.nossoNumero) }}</dd>
+              </div>
+              <div>
+                <dt>Linha digitável</dt>
+                <dd class="cb24-linha" [class.cb24-vazio]="!p.cobranca">
+                  <span>{{ texto(p.cobranca?.linhaDigitavel) }}</span>
+                  @if (p.cobranca; as c) {
+                    <button
+                      type="button"
+                      class="cb24-copy"
+                      aria-label="Copiar linha digitável"
+                      (click)="copiar(c.linhaDigitavel, 'linha')"
+                    >
+                      <lucide-icon
+                        [name]="$any(copiado() === 'linha' ? 'circle-check' : 'copy')"
+                        [size]="14"
+                      />
+                    </button>
+                  }
+                </dd>
+              </div>
+            </dl>
+          </article>
+        </div>
+
+        <article class="cb24-card cb24-info">
+          <h2>Informações da parcela</h2>
+          <dl>
+            <div>
+              <dt>Contrato</dt>
+              <dd [class.cb24-vazio]="!p.contrato">{{ texto(p.contrato?.numero) }}</dd>
+            </div>
+            <div>
+              <dt>Proposta</dt>
+              <dd [class.cb24-vazio]="!p.propostaNumero">{{ texto(p.propostaNumero) }}</dd>
+            </div>
+            <div>
+              <dt>Tomador</dt>
+              <dd [class.cb24-vazio]="!p.tomador">{{ texto(p.tomador) }}</dd>
+            </div>
+            <div>
+              <dt>Valor do contrato</dt>
+              <dd [class.cb24-vazio]="!p.contrato">{{ moeda(p.contrato?.valorTotal) }}</dd>
+            </div>
+            <div>
+              <dt>Número da parcela</dt>
+              <dd>{{ p.numero }}{{ p.contrato ? ' / ' + p.contrato.parcelasTotais : '' }}</dd>
+            </div>
+            <div>
+              <dt>Periodicidade</dt>
+              <dd [class.cb24-vazio]="!p.periodicidade">{{ texto(p.periodicidade) }}</dd>
+            </div>
+            <div>
+              <dt>Data de emissão</dt>
+              <dd [class.cb24-vazio]="!p.dataEmissao">{{ data(p.dataEmissao) }}</dd>
+            </div>
+            <div>
+              <dt>Data de vencimento</dt>
+              <dd>{{ formatarDataLocal(p.dataVencimento) }}</dd>
+            </div>
+            <div>
+              <dt>Valor original da parcela</dt>
+              <dd>{{ moeda(p.principalOriginal) }}</dd>
+            </div>
+            <div>
+              <dt>Identificador da parcela</dt>
+              <dd class="cb24-id">
+                <span>{{ p.parcelaId }}</span>
+                <button
+                  type="button"
+                  class="cb24-copy"
+                  aria-label="Copiar identificador da parcela"
+                  (click)="copiar(p.parcelaId, 'id')"
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'id' ? 'circle-check' : 'copy')"
+                    [size]="14"
+                  />
+                </button>
+              </dd>
+            </div>
+            <div>
+              <dt>Criado por</dt>
+              <dd [class.cb24-vazio]="!p.criadoPor">{{ texto(p.criadoPor) }}</dd>
+            </div>
+            <div>
+              <dt>Última atualização</dt>
+              <dd [class.cb24-vazio]="!p.atualizadoEm">{{ dataHora(p.atualizadoEm) }}</dd>
+            </div>
+          </dl>
+        </article>
+
+        <article class="cb24-card cb24-acoes">
+          <h2>Ações rápidas</h2>
+          <div>
+            <button type="button" data-tone="green" (click)="irParaFinanceiro()">
+              <lucide-icon name="download" [size]="20" />
+              <span>Registrar<br />recebimento</span>
+            </button>
+            <button type="button" data-tone="blue" (click)="irParaFinanceiro()">
+              <lucide-icon name="refresh-cw" [size]="20" />
+              <span>Renegociar<br />parcela</span>
+            </button>
+            <button
+              type="button"
+              data-tone="purple"
+              disabled
+              title="Sem endpoint de emissão de boleto no backend"
+            >
+              <lucide-icon name="credit-card" [size]="20" />
+              <span>Gerar 2ª via<br />boleto</span>
+            </button>
+            <button
+              type="button"
+              data-tone="orange"
+              disabled
+              title="Sem endpoint de notificação no backend"
+            >
+              <lucide-icon name="bell" [size]="20" />
+              <span>Enviar<br />lembrete</span>
+            </button>
+            <button type="button" data-tone="blue" (click)="alternarMenu()">
+              <lucide-icon name="ellipsis-vertical" [size]="20" />
+              <span>Mais<br />ações</span>
+            </button>
+          </div>
+        </article>
+      </div>
+
+      <!-- ============ COLUNA LATERAL ============ -->
+      <aside class="cb24-side">
+        <section class="cb24-card cb24-contrato">
+          <h2>
+            Resumo do contrato
+            <button
+              type="button"
+              class="cb24-btn-mini"
+              [disabled]="!p.contrato"
+              [title]="
+                p.contrato
+                  ? 'Abrir o contrato vinculado'
+                  : 'O contrato não é informado pelo contrato de dados da parcela'
+              "
+              (click)="abrirContrato()"
+            >
+              Ver contrato
+            </button>
+          </h2>
+          <dl>
+            <div>
+              <dt>Número do contrato</dt>
+              <dd [class.cb24-vazio]="!p.contrato">
+                {{ texto(p.contrato?.numero) }}
+                @if (p.contrato; as c) {
+                  <button
+                    type="button"
+                    class="cb24-copy"
+                    aria-label="Copiar número do contrato"
+                    (click)="copiar(c.numero, 'contrato')"
+                  >
+                    <lucide-icon
+                      [name]="$any(copiado() === 'contrato' ? 'circle-check' : 'copy')"
+                      [size]="14"
+                    />
+                  </button>
+                }
+              </dd>
+            </div>
+            <div>
+              <dt>Status do contrato</dt>
+              <dd [class.cb24-ok]="p.contrato" [class.cb24-vazio]="!p.contrato">
+                {{ texto(p.contrato?.status) }}
+              </dd>
+            </div>
+            <div>
+              <dt>Valor total do contrato</dt>
+              <dd [class.cb24-vazio]="!p.contrato">{{ moeda(p.contrato?.valorTotal) }}</dd>
+            </div>
+            <div>
+              <dt>Parcelas totais</dt>
+              <dd [class.cb24-vazio]="!p.contrato">{{ numero(p.contrato?.parcelasTotais) }}</dd>
+            </div>
+            <div>
+              <dt>Parcelas pagas</dt>
+              <dd [class.cb24-vazio]="!p.contrato">{{ numero(p.contrato?.parcelasPagas) }}</dd>
+            </div>
+            <div>
+              <dt>Parcelas em aberto</dt>
+              <dd [class.cb24-vazio]="!p.contrato">{{ numero(p.contrato?.parcelasEmAberto) }}</dd>
+            </div>
+            <div>
+              <dt>Próximo vencimento</dt>
+              <dd class="cb24-destaque" [class.cb24-vazio]="!p.contrato">
+                {{ data(p.contrato?.proximoVencimento) }}
+              </dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="cb24-card cb24-timeline">
+          <h2>Linha do tempo da parcela</h2>
+          <ol>
+            @for (etapa of etapas(); track etapa.rotulo) {
+              <li [class.pendente]="!etapa.concluida">
+                <span class="cb24-marco" [attr.data-tone]="etapa.tom" aria-hidden="true">
+                  @if (etapa.concluida) {
+                    <lucide-icon name="circle-check" [size]="13" />
+                  }
+                </span>
+                <div class="cb24-etapa-texto">
+                  <strong>{{ etapa.rotulo }}</strong>
+                  <small>{{ etapa.hora ?? '--/--/---- --:--:--' }}</small>
+                </div>
+                <span class="cb24-etapa-origem">{{ texto(etapa.origem) }}</span>
+              </li>
+            }
+          </ol>
+        </section>
+
+        <section class="cb24-card cb24-complementares">
+          <h2>Informações complementares</h2>
+          <dl>
+            <div>
+              <dt>Categoria</dt>
+              <dd [class.cb24-vazio]="!p.complementares">
+                {{ texto(p.complementares?.categoria) }}
+              </dd>
+            </div>
+            <div>
+              <dt>Finalidade</dt>
+              <dd [class.cb24-vazio]="!p.complementares">
+                {{ texto(p.complementares?.finalidade) }}
+              </dd>
+            </div>
+            <div>
+              <dt>Centro de custo</dt>
+              <dd [class.cb24-vazio]="!p.complementares">
+                {{ texto(p.complementares?.centroCusto) }}
+              </dd>
+            </div>
+            <div>
+              <dt>Observações</dt>
+              <dd class="cb24-vazio">{{ texto(p.complementares?.observacoes) }}</dd>
+            </div>
+            <div>
+              <dt>Tags</dt>
+              <dd class="cb24-tags">
+                @for (tag of p.complementares?.tags ?? []; track tag) {
+                  <span class="cb24-tag">{{ tag }}</span>
+                } @empty {
+                  <span class="cb24-vazio">—</span>
+                }
+              </dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="cb24-card cb24-seguranca">
+          <h2>Segurança e conformidade</h2>
+          <dl>
+            <div>
+              <dt>Ambiente</dt>
+              <dd class="cb24-ok">{{ ambiente() }}<i class="cb24-led"></i></dd>
+            </div>
+            <div>
+              <dt>Perfil</dt>
+              <dd>{{ perfil() }}</dd>
+            </div>
+            <div>
+              <dt>Auditoria</dt>
+              <dd class="cb24-ok">Habilitada<i class="cb24-led"></i></dd>
+            </div>
+            <div>
+              <dt>Dados protegidos</dt>
+              <dd class="cb24-ok">LGPD<i class="cb24-led"></i></dd>
+            </div>
+          </dl>
+        </section>
+      </aside>
+    }
+  </section>
+</sep-operational-shell>

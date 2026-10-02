@@ -1,0 +1,81 @@
+<sep-public-shell>
+  <section class="px52-page">
+    <header class="px52-heading">
+      <p class="px52-kicker"><lucide-icon name="landmark" [size]="14" />Sobre o SEP</p>
+      <h1>
+        Uma <em>Sociedade de Empréstimo entre Pessoas</em>, e o que isso significa na prática.
+      </h1>
+      <p class="px52-lead">
+        A SEP é a figura criada pela Resolução CMN 4.656/2018 para que empresas emprestem umas às
+        outras dentro de um ambiente regulado, com identificação das partes, contrato formal e
+        registro de cada passo. Não é uma promessa de rendimento, e não é um banco.
+      </p>
+    </header>
+
+    <!-- ============ PRINCÍPIOS ============ -->
+    <section class="px52-secao">
+      <div class="px52-secao-topo">
+        <h2>Como operamos</h2>
+        <p>Quatro compromissos que definem o desenho do produto, e não apenas o discurso.</p>
+      </div>
+
+      <div class="px52-grade">
+        @for (item of principios; track item.titulo) {
+          <article class="px52-card" [attr.data-tone]="item.tom">
+            <span class="px52-card-icone"><lucide-icon [name]="item.icone" [size]="22" /></span>
+            <h3>{{ item.titulo }}</h3>
+            <p>{{ item.descricao }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    <!-- ============ O QUE NÃO SOMOS ============ -->
+    <section class="px52-secao">
+      <div class="px52-secao-topo">
+        <h2>O que a SEP não é</h2>
+        <p>
+          Dizer isto de forma clara evita o mal-entendido mais caro deste mercado — o de confundir
+          empréstimo entre empresas com aplicação garantida.
+        </p>
+      </div>
+
+      <ul class="px52-nao">
+        @for (linha of naoSomos; track linha) {
+          <li><lucide-icon name="circle-x" [size]="17" />{{ linha }}</li>
+        }
+      </ul>
+    </section>
+
+    <!-- ============ IDENTIFICAÇÃO ============ -->
+    <section class="px52-secao">
+      <div class="px52-secao-topo">
+        <h2>Identificação</h2>
+        <p>Quem responde pela plataforma, e por onde falar oficialmente.</p>
+      </div>
+
+      <dl class="px52-identificacao">
+        @for (linha of identificacao; track linha.rotulo) {
+          <div>
+            <dt>{{ linha.rotulo }}</dt>
+            <dd>{{ linha.valor }}</dd>
+          </div>
+        }
+      </dl>
+    </section>
+
+    <div class="px52-chamada">
+      <h2>Ainda com dúvida?</h2>
+      <p>
+        Os termos de uso e a política de privacidade detalham direitos, deveres e tratamento de
+        dados. Se preferir conversar, a equipe responde pelo canal oficial.
+      </p>
+      <div class="px52-chamada-acoes">
+        <a class="px52-btn-primary" routerLink="/contato">
+          <lucide-icon name="mail" [size]="18" />Falar com a equipe
+        </a>
+        <a class="px52-btn-secondary" routerLink="/termos-de-uso">Ler os termos de uso</a>
+      </div>
+    </div>
+  </section>
+</sep-public-shell>

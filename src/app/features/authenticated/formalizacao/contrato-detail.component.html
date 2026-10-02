@@ -1,181 +1,472 @@
-<section class="sep-contrato-detail">
-  @if (loading()) {
-    <p class="sep-contrato-detail-state" role="status">Carregando contrato...</p>
-  } @else if (errorMessage()) {
-    <div class="sep-contrato-detail-state sep-contrato-detail-error" role="alert">
-      <p>{{ errorMessage() }}</p>
-    </div>
-  } @else if (contrato(); as c) {
-    <header class="sep-contrato-detail-header">
-      <h1 class="sep-contrato-detail-title">Contrato {{ idCurto(c.id) }}</h1>
-      <span class="sep-contrato-detail-status">{{ statusLabel[c.status] }}</span>
-    </header>
-
-    <dl class="sep-contrato-detail-meta">
-      <div class="sep-contrato-detail-meta-item">
-        <dt>Proposta</dt>
-        <dd>{{ idCurto(c.propostaId) }}</dd>
-      </div>
-      <div class="sep-contrato-detail-meta-item">
-        <dt>Tipo</dt>
-        <dd>{{ c.tipo }}</dd>
-      </div>
-      <div class="sep-contrato-detail-meta-item">
-        <dt>Criado em</dt>
-        <dd>{{ formatarData(c.dataCriacao) }}</dd>
-      </div>
-    </dl>
-
-    @if (c.status === 'AGUARDANDO_ACEITE') {
-      <div class="sep-contrato-detail-aceite">
-        <button
-          type="button"
-          class="sep-contrato-detail-aceite-cta"
-          [disabled]="aceitando()"
-          (click)="aceitar(c.id)"
-        >
-          @if (aceitando()) {
-            Registrando aceite...
-          } @else {
-            Aceitar contrato
-          }
-        </button>
-        @if (aceiteErrorMessage(); as msg) {
-          <p class="sep-contrato-detail-aceite-error" role="alert">{{ msg }}</p>
-        }
-      </div>
-    } @else if (c.aceite; as aceite) {
-      <div class="sep-contrato-detail-aceite-info">
-        <p>Aceite registrado em {{ formatarData(aceite.dataAceite) }}.</p>
-        <p class="sep-contrato-detail-aceite-versao">
-          Versao aceita: {{ idCurto(aceite.versaoId) }}
-        </p>
-      </div>
-    }
-
-    @if (statusAssinatura(); as assinatura) {
-      @if (assinatura.statusEnvelope; as envelope) {
-        <section class="sep-contrato-detail-assinatura">
-          <h2 class="sep-contrato-detail-assinatura-title">Assinatura</h2>
-          <dl class="sep-contrato-detail-meta">
-            <div class="sep-contrato-detail-meta-item">
-              <dt>Envelope</dt>
-              <dd>{{ envelopeLabel[envelope] }}</dd>
+<sep-operational-shell>
+  <section class="contract-page">
+    @if (loading()) {
+      <div class="contract-state" role="status">Carregando contrato...</div>
+    } @else if (errorMessage()) {
+      <div class="contract-state error" role="alert">{{ errorMessage() }}</div>
+    } @else if (contrato(); as c) {
+      <div class="contract-layout">
+        <main class="contract-main">
+          <header class="contract-heading">
+            <nav>
+              <a routerLink="/app/dashboard">Início</a><span>›</span
+              ><a routerLink="/app/formalizacao">Formalização</a><span>›</span
+              ><strong>Contrato</strong>
+            </nav>
+            <div class="contract-title-line">
+              <h1>Contrato {{ idCurto(c.propostaId) }}</h1>
+              <span class="contract-status">{{ statusLabel[c.status] }}</span>
             </div>
-            @if (assinatura.dataAtualizacaoProvider; as atualizado) {
-              <div class="sep-contrato-detail-meta-item">
-                <dt>Atualizado em</dt>
-                <dd>{{ formatarData(atualizado) }}</dd>
-              </div>
-            }
-            @if (assinatura.idEnvelopeExterno; as envelopeId) {
-              <div class="sep-contrato-detail-meta-item">
-                <dt>Envelope (provider)</dt>
-                <dd>{{ idCurto(envelopeId) }}</dd>
-              </div>
-            }
-          </dl>
-          @if (envelope === 'RECUSADO' || envelope === 'EXPIRADO') {
-            <p class="sep-contrato-detail-assinatura-aviso" role="status">
-              A assinatura nao foi concluida ({{ envelopeLabel[envelope] }}). Procure o suporte para
-              reemitir.
-            </p>
-          }
-        </section>
-      }
-    }
+            <p>Revise o contrato e confirme seu aceite digital para concluir a formalização.</p>
+          </header>
 
-    @if (c.status === 'ASSINADO') {
-      <div class="sep-contrato-detail-documento">
-        <button
-          type="button"
-          class="sep-contrato-detail-documento-cta"
-          [disabled]="baixando()"
-          (click)="baixarDocumento(c.id)"
-        >
-          @if (baixando()) {
-            Baixando...
+          <section class="contract-summary panel">
+            <dl>
+              <div>
+                <dt>Proposta</dt>
+                <dd class="cyan">{{ idCurto(c.propostaId) }}</dd>
+              </div>
+              <div>
+                <dt>Tipo de operação</dt>
+                <dd>
+                  {{ proposta()?.tipoOperacao === 'CAPITAL_GIRO' ? 'CAPITAL_GIRO' : 'OUTROS' }}
+                </dd>
+              </div>
+              <div>
+                <dt>Valor contratado</dt>
+                <dd>
+                  {{
+                    proposta() ? formatarMoeda(proposta()!.valorSolicitado, proposta()!.moeda) : '—'
+                  }}
+                </dd>
+              </div>
+              <div>
+                <dt>Prazo</dt>
+                <dd>{{ proposta()?.prazoMeses ?? '—' }} meses</dd>
+              </div>
+              <div>
+                <dt>Data de criação</dt>
+                <dd>{{ formatarDataHoraSegundos(c.dataCriacao) }}</dd>
+              </div>
+              <div>
+                <dt>Status</dt>
+                <dd>
+                  <span class="status-small">{{ statusLabel[c.status] }}</span>
+                </dd>
+              </div>
+            </dl>
+          </section>
+
+          @if (versaoSelecionada(); as versao) {
+            @if (versoes().length > 1) {
+              <nav class="version-tabs" aria-label="Versoes do contrato">
+                @for (v of versoes(); track v.id) {
+                  <button
+                    type="button"
+                    [class.active]="v.id === versao.id"
+                    (click)="selecionarVersao(v)"
+                  >
+                    Versão {{ v.numero }}
+                    @if (ehVersaoVigente(v)) {
+                      <small>vigente</small>
+                    }
+                  </button>
+                }
+              </nav>
+            }
+            <div class="contract-workspace">
+              <section
+                class="document-card panel"
+                [class.document-card-expanded]="documentoExpandido()"
+              >
+                <header>
+                  <div>
+                    <h2>Contrato de Mútuo</h2>
+                    <p>
+                      Versão {{ versao.numero.toFixed(1) }} •
+                      {{ ehVersaoVigente(versao) ? 'Vigente' : 'Anterior' }}
+                    </p>
+                  </div>
+                  <div class="document-tools">
+                    <button type="button" aria-label="Reduzir zoom" (click)="ajustarZoom(-10)">
+                      −</button
+                    ><strong>{{ zoomDocumento() }}%</strong
+                    ><button type="button" aria-label="Aumentar zoom" (click)="ajustarZoom(10)">
+                      +
+                    </button>
+                    <button type="button" aria-label="Imprimir" (click)="imprimir()">
+                      <lucide-icon name="printer" [size]="28" [strokeWidth]="1.75" />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Baixar contrato"
+                      (click)="baixarDocumento(c.id)"
+                    >
+                      <lucide-icon name="download" [size]="16" [strokeWidth]="2.25" />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Tela cheia"
+                      [attr.aria-label]="documentoExpandido() ? 'Sair da tela cheia' : 'Tela cheia'"
+                      [attr.aria-pressed]="documentoExpandido()"
+                      (click)="alternarTelaCheia()"
+                    >
+                      <lucide-icon name="maximize" [size]="34" [strokeWidth]="1.5" />
+                    </button>
+                  </div>
+                </header>
+                <article class="document-viewer">
+                  <div class="document-sheet" [style.zoom]="zoomDocumento() / 100">
+                    <header>
+                      <img
+                        src="/image/sep_mockup_03_assets/logos/logo_sep_header_completo_claro.png"
+                        alt="SEP"
+                      /><span>Página 1 de 12</span>
+                    </header>
+                    <h3>CONTRATO DE MÚTUO<br />Nº {{ idCurto(c.propostaId) }}</h3>
+                    <p class="contract-introduction">
+                      Pelo presente instrumento particular de contrato de mútuo, as partes abaixo
+                      qualificadas têm entre si, justo e contratado o que segue:
+                    </p>
+                    <ol>
+                      @if (proposta(); as p) {
+                        <li>
+                          <h4>CLÁUSULA 1 - OBJETO</h4>
+                          <p>
+                            1.1. Este contrato tem por objeto a concessão de mútuo de capital pela
+                            SOCIEDADE DE EMPRÉSTIMO ENTRE PESSOAS – SEP ao TOMADOR, nos termos e
+                            condições aqui estabelecidos.
+                          </p>
+                        </li>
+                        <li>
+                          <h4>CLÁUSULA 2 - VALOR E FORMA DE DISPONIBILIZAÇÃO</h4>
+                          <p>
+                            2.1. O valor do mútuo é de
+                            {{ formatarMoeda(p.valorSolicitado, p.moeda) }}, que será
+                            disponibilizado conforme as condições acordadas na proposta aprovada.
+                          </p>
+                        </li>
+                        <li>
+                          <h4>CLÁUSULA 3 - PRAZO</h4>
+                          <p>
+                            3.1. O prazo total do mútuo é de {{ p.prazoMeses }} meses, contados da
+                            data de disponibilização dos recursos.
+                          </p>
+                        </li>
+                      } @else {
+                        @for (clausula of versao.clausulas; track clausula.id) {
+                          <li>
+                            <h4>{{ clausula.titulo }}</h4>
+                            <p>{{ clausula.texto }}</p>
+                          </li>
+                        }
+                      }
+                    </ol>
+                  </div>
+                </article>
+                <footer>
+                  <span class="secure-icon" aria-hidden="true">✓</span>
+                  <span>Visualização segura • Documento assinado digitalmente pela SEP</span>
+                </footer>
+              </section>
+
+              <aside class="details-card panel">
+                <header>
+                  <h2>Detalhes do contrato</h2>
+                  <button
+                    type="button"
+                    [attr.aria-label]="
+                      c.status === 'ASSINADO' ? 'Baixar documento assinado' : 'Baixar contrato'
+                    "
+                    (click)="baixarDocumento(c.id)"
+                  >
+                    <svg class="details-download-icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M12 3v11" />
+                      <path d="m7.5 10 4.5 4.5 4.5-4.5" />
+                      <path d="M5 20h14" /></svg
+                    >{{ baixando() ? 'Baixando...' : 'Baixar contrato' }}
+                  </button>
+                </header>
+                <dl>
+                  <div>
+                    <dt>Tipo de contrato</dt>
+                    <dd>{{ c.tipo === 'MUTUO' ? 'Mútuo' : c.tipo }}</dd>
+                  </div>
+                  <div>
+                    <dt>Versão</dt>
+                    <dd>{{ versao.numero.toFixed(1) }} (vigente)</dd>
+                  </div>
+                  <div>
+                    <dt>Data de geração</dt>
+                    <dd>{{ formatarDataHoraSegundos(versao.dataGeracao) }}</dd>
+                  </div>
+                  <div>
+                    <dt>Gerado por</dt>
+                    <dd>Sistema SEP</dd>
+                  </div>
+                </dl>
+                <p class="hash-rotulo">Hash SHA-256</p>
+                <div class="hash-box">
+                  <code>{{ versao.hashSha256 }}</code
+                  ><button
+                    type="button"
+                    aria-label="Copiar hash"
+                    (click)="copiarHash(versao.hashSha256)"
+                  >
+                    ⧉
+                  </button>
+                </div>
+                <div class="integrity">
+                  <svg class="integrity-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3 19 6v5c0 4.7-2.8 8-7 10-4.2-2-7-5.3-7-10V6Z" />
+                    <path d="m8.5 12 2.2 2.2 4.8-5" /></svg
+                  ><span
+                    ><strong>Integridade verificada</strong
+                    ><small>Este documento não foi alterado desde sua geração.</small></span
+                  >
+                </div>
+                <h3>Partes</h3>
+                <div class="party">
+                  <strong>SEP - Sociedade de Empréstimo entre Pessoas</strong
+                  ><small>CNPJ 00.000.000/0001-00</small><em>EMPRESTADOR</em>
+                </div>
+                <div class="party">
+                  <strong>Tomador</strong><small>CPF 000.000.000-00</small
+                  ><em class="green">TOMADOR</em>
+                </div>
+                @if (statusAssinatura()?.statusEnvelope; as envelope) {
+                  <p class="signature-state">Assinatura: {{ envelopeLabel[envelope] }}</p>
+                } @else if (c.status === 'EM_ASSINATURA') {
+                  <p class="signature-state">Assinatura: Enviado para assinatura</p>
+                }
+                @if (documentoErro(); as msg) {
+                  <p class="document-error" role="alert">{{ msg }}</p>
+                }
+                @if (documentoHash(); as hash) {
+                  <p class="document-hash">
+                    <strong>Hash do documento</strong><code>{{ hash }}</code>
+                  </p>
+                }
+              </aside>
+            </div>
           } @else {
-            Baixar documento assinado
+            <div class="contract-state">O contrato ainda nao tem versao gerada.</div>
           }
-        </button>
-        @if (documentoHash(); as hash) {
-          <p class="sep-contrato-detail-hash">
-            <span class="sep-contrato-detail-hash-label">Hash do documento</span>
-            <code class="sep-contrato-detail-hash-value">{{ hash }}</code>
-          </p>
-        }
-        @if (documentoErro(); as msg) {
-          <p class="sep-contrato-detail-aceite-error" role="alert">{{ msg }}</p>
-        }
-      </div>
 
-      <div class="sep-contrato-detail-cobranca">
-        <a
-          [routerLink]="['/app/cobranca/contratos', c.id, 'agenda']"
-          class="sep-contrato-detail-cobranca-link"
-        >
-          Ver agenda de cobranca
-        </a>
-      </div>
-    }
+          <section class="benefits panel">
+            @for (
+              item of [
+                {
+                  icon: 'file-check',
+                  tom: 'ic-verde',
+                  title: 'Assinatura digital ICP-Brasil',
+                  text: 'Validade jurídica garantida',
+                },
+                {
+                  icon: 'file-lock',
+                  tom: 'ic-azul',
+                  title: 'Integridade criptográfica',
+                  text: 'Documento protegido contra alterações',
+                },
+                {
+                  icon: 'clock',
+                  tom: 'ic-ciano',
+                  title: 'Carimbo de tempo',
+                  text: 'Registro oficial de data e hora (UTC-3)',
+                },
+                {
+                  icon: 'database',
+                  tom: 'ic-roxo',
+                  title: 'Armazenamento seguro',
+                  text: 'Criptografado e em ambiente regulado',
+                },
+              ];
+              track item.title
+            ) {
+              <article>
+                <lucide-icon
+                  [class]="item.tom"
+                  [name]="item.icon"
+                  [size]="47"
+                  [strokeWidth]="1"
+                /><span
+                  ><strong>{{ item.title }}</strong
+                  ><small>{{ item.text }}</small></span
+                >
+              </article>
+            }
+          </section>
 
-    @if (versaoSelecionada(); as versao) {
-      @if (versoes().length > 1) {
-        <nav class="sep-contrato-detail-versoes" aria-label="Versoes do contrato">
-          <span class="sep-contrato-detail-versoes-label">Versoes</span>
-          <div class="sep-contrato-detail-versoes-list">
-            @for (v of versoes(); track v.id) {
+          @if (c.status === 'ASSINADO') {
+            <a class="billing-link" [routerLink]="['/app/cobranca/contratos', c.id, 'agenda']"
+              >Ver agenda de cobranca</a
+            >
+          }
+        </main>
+
+        <aside class="contract-aside">
+          <section class="accept-card purple-panel">
+            <header>
+              <lucide-icon class="ic-roxo" name="shield-check" [size]="58" [strokeWidth]="1" />
+              <h2>Aceite digital do contrato</h2>
+            </header>
+            <p>
+              Ao aceitar, você confirma que leu, compreendeu e concorda integralmente com todas as
+              cláusulas deste contrato.
+            </p>
+            <div>
+              <span>Status atual</span><strong>{{ statusLabel[c.status] }}</strong>
+            </div>
+            @if (c.status === 'AGUARDANDO_ACEITE') {
               <button
                 type="button"
-                class="sep-contrato-detail-versao-tab"
-                [class.is-active]="v.id === versao.id"
-                [attr.aria-pressed]="v.id === versao.id"
-                (click)="selecionarVersao(v)"
+                aria-label="Aceitar contrato"
+                [disabled]="aceitando()"
+                (click)="aceitar(c.id)"
               >
-                Versao {{ v.numero }}
-                @if (ehVersaoVigente(v)) {
-                  <span class="sep-contrato-detail-versao-vigente">vigente</span>
-                }
+                <svg class="accept-button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 20h16" />
+                  <path
+                    d="M6.5 16.5 17.7 5.3a1.4 1.4 0 0 1 2 0l.9.9a1.4 1.4 0 0 1 0 2L9.4 19.4 5 20Z"
+                  /></svg
+                >{{ aceitando() ? 'Registrando aceite...' : 'Ler e aceitar contrato' }}
               </button>
+            } @else if (c.aceite; as aceite) {
+              <p class="accepted">Aceite registrado em {{ formatarData(aceite.dataAceite) }}.</p>
             }
-          </div>
-        </nav>
-      }
-
-      <article class="sep-contrato-detail-versao">
-        <header class="sep-contrato-detail-versao-header">
-          <h2 class="sep-contrato-detail-versao-title">
-            Versao {{ versao.numero }}
-            @if (ehVersaoVigente(versao)) {
-              <span class="sep-contrato-detail-versao-vigente">vigente</span>
+            @if (aceiteErrorMessage(); as msg) {
+              <p class="accept-error" role="alert">{{ msg }}</p>
             }
-          </h2>
-          <span class="sep-contrato-detail-versao-data">
-            Gerada em {{ formatarData(versao.dataGeracao) }}
-          </span>
-        </header>
+            <footer>
+              <svg class="accept-legal-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="5" y="10" width="14" height="11" rx="2" />
+                <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                <path d="M12 14v3" />
+              </svg>
+              <span
+                >Seu aceite possui validade jurídica e é registrado com assinatura digital
+                ICP-Brasil.</span
+              >
+            </footer>
+          </section>
 
-        <p class="sep-contrato-detail-conteudo">{{ versao.conteudoTexto }}</p>
+          <section class="contract-timeline purple-panel">
+            <h2>Linha do tempo do contrato</h2>
+            <ol>
+              <li class="done">
+                <b
+                  ><lucide-icon
+                    class="ic-roxo"
+                    name="file-plus"
+                    [size]="28"
+                    [strokeWidth]="1.75" /></b
+                ><span
+                  ><strong>Contrato gerado</strong
+                  ><small>{{ formatarDataHora(c.dataCriacao) }}<br />Sistema SEP</small></span
+                >
+              </li>
+              <li>
+                <b><lucide-icon name="send" [size]="32" [strokeWidth]="1.5" /></b
+                ><span
+                  ><strong>Disponibilizado ao tomador</strong
+                  ><small>{{ formatarDataHora(c.dataModificacao) }}<br />Sistema SEP</small></span
+                >
+              </li>
+              <li>
+                <b><lucide-icon name="user-check" [size]="32" [strokeWidth]="1.5" /></b
+                ><span
+                  ><strong>Aceite do tomador</strong
+                  ><small>{{
+                    c.aceite ? formatarDataHora(c.aceite.dataAceite) : 'Aguardando'
+                  }}</small></span
+                >
+              </li>
+              <li>
+                <b><lucide-icon name="file-check" [size]="32" [strokeWidth]="1.5" /></b
+                ><span
+                  ><strong>Contrato formalizado</strong
+                  ><small>{{ c.status === 'ASSINADO' ? 'Concluído' : 'Aguardando' }}</small></span
+                >
+              </li>
+            </ol>
+          </section>
 
-        <ol class="sep-contrato-detail-clausulas">
-          @for (clausula of versao.clausulas; track clausula.id) {
-            <li class="sep-contrato-detail-clausula">
-              <h3 class="sep-contrato-detail-clausula-titulo">{{ clausula.titulo }}</h3>
-              <p class="sep-contrato-detail-clausula-texto">{{ clausula.texto }}</p>
-            </li>
-          }
-        </ol>
-
-        <p class="sep-contrato-detail-hash">
-          <span class="sep-contrato-detail-hash-label">Hash SHA-256</span>
-          <code class="sep-contrato-detail-hash-value">{{ versao.hashSha256 }}</code>
-        </p>
-      </article>
-    } @else {
-      <p class="sep-contrato-detail-state sep-contrato-detail-empty">
-        O contrato ainda nao tem versao gerada.
-      </p>
+          <section class="audit-card purple-panel">
+            <h2>Auditoria do documento</h2>
+            <dl>
+              <div class="audit-created">
+                <dt>Documento criado</dt>
+                <dd>{{ formatarDataHoraSegundos(c.dataCriacao) }}</dd>
+              </div>
+              <div class="audit-sent">
+                <dt>Enviado para aceite</dt>
+                <dd>{{ formatarDataHoraSegundos(c.dataModificacao) }}</dd>
+              </div>
+              <div class="audit-viewed">
+                <dt>Última visualização</dt>
+                <dd>30/05/2026 11:54:42</dd>
+              </div>
+              <div class="audit-ip">
+                <dt>IP de acesso</dt>
+                <dd>189.40.85.22</dd>
+              </div>
+            </dl>
+            <!-- A ancora #auditoria nao tinha alvo. O detalhe sai do proprio contrato: versao,
+                 hash e os dados de origem do aceite que o backend ja devolve. -->
+            @if (auditoriaCompleta()) {
+              <dl class="audit-extra" id="auditoria-completa">
+                <div>
+                  <dt>Contrato</dt>
+                  <dd>{{ idCurto(c.id) }}</dd>
+                </div>
+                @if (c.versaoVigente; as vigente) {
+                  <div>
+                    <dt>Versão vigente</dt>
+                    <dd>
+                      {{ vigente.numero.toFixed(1) }} · {{ formatarDataHora(vigente.dataGeracao) }}
+                    </dd>
+                  </div>
+                  <div class="audit-hash">
+                    <dt>Hash SHA-256</dt>
+                    <dd [attr.title]="vigente.hashSha256">{{ vigente.hashSha256 }}</dd>
+                  </div>
+                }
+                <div>
+                  <dt>Versões registradas</dt>
+                  <dd>{{ versoes().length || 1 }}</dd>
+                </div>
+                <div>
+                  <dt>Aceite</dt>
+                  <dd>
+                    {{ c.aceite ? formatarDataHoraSegundos(c.aceite.dataAceite) : 'Aguardando' }}
+                  </dd>
+                </div>
+                @if (c.aceite; as aceite) {
+                  <div>
+                    <dt>IP do aceite</dt>
+                    <dd>{{ aceite.ipOrigem }}</dd>
+                  </div>
+                  <div class="audit-hash">
+                    <dt>Navegador</dt>
+                    <dd [attr.title]="aceite.userAgentOrigem">{{ aceite.userAgentOrigem }}</dd>
+                  </div>
+                }
+              </dl>
+            }
+            <button
+              type="button"
+              class="audit-toggle"
+              aria-controls="auditoria-completa"
+              [attr.aria-expanded]="auditoriaCompleta()"
+              (click)="auditoriaCompleta.set(!auditoriaCompleta())"
+            >
+              {{
+                auditoriaCompleta() ? 'Ocultar auditoria completa ↑' : 'Ver auditoria completa →'
+              }}
+            </button>
+          </section>
+        </aside>
+      </div>
     }
-  }
-</section>
+  </section>
+</sep-operational-shell>

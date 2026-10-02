@@ -1,56 +1,56 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
-import { defaultPassword, uniqueEmail } from './fixtures/users';
+import { defaultPassword } from './fixtures/users';
 
-async function cadastrarUsuario(
-  page: import('@playwright/test').Page,
-  email: string,
-  role: 'ADMIN' | 'CLIENTE',
-) {
-  await page.goto('/register');
-  await page.getByLabel(/e-mail/i).fill(email);
-  await page.getByLabel(/^senha$/i).fill(defaultPassword);
-  await page.getByLabel(/perfil/i).selectOption(role);
-  await page.getByRole('button', { name: /criar|cadastrar|registrar/i }).click();
-  await page.waitForURL(/\/login/, { timeout: 10_000 });
-}
+// O cadastro público de usuário saiu do produto na Sprint 5 (`/register` virou redirect por
+// perfil), então estes fluxos passaram a usar as contas do dev-offline em vez de criar uma conta.
+const ADMIN = 'admin@empresa.com';
+// `cliente@empresa.com` existe na base de usuarios mas nao e uma conta de login do dev-offline;
+// a credora e a conta CLIENTE que entra de fato.
+const CLIENTE = 'credora@empresa.com';
 
-async function logar(page: import('@playwright/test').Page, email: string, senha: string) {
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => window.localStorage.setItem('NG_APP_USE_MSW', 'true'));
+});
+
+async function logar(page: Page, email: string, senha = defaultPassword) {
   await page.goto('/login');
-  await page.getByLabel(/e-mail/i).fill(email);
-  await page.getByLabel(/^senha$/i).fill(senha);
-  await page.getByRole('button', { name: /entrar/i }).click();
+  await page.locator('#login-username').fill(email);
+  await page.locator('#login-password').fill(senha);
+  await page.getByRole('button', { name: /entrar na plataforma/i }).click();
+  await page.waitForURL(/\/app\//, { timeout: 15_000 });
 }
 
 test('ADMIN: lista usuarios e abre detalhe', async ({ page }) => {
-  const adminEmail = uniqueEmail('admin');
-  await cadastrarUsuario(page, adminEmail, 'ADMIN');
+  await logar(page, ADMIN);
 
-  await logar(page, adminEmail, defaultPassword);
-  await page.waitForURL(/\/app\/dashboard/, { timeout: 10_000 });
-
-  await page.getByRole('link', { name: 'Administracao', exact: true }).click();
+  // O menu leva a landing de Administracao (Mockup 37); a lista fica no modulo Usuarios.
+  await page.locator('.op-nav-link[href="/app/admin"]').click();
+  await expect(page).toHaveURL(/\/app\/admin$/);
+  await page.locator('.px37-modulos .px37-modulo:nth-child(1) .px37-modulo-btn').click();
   await expect(page).toHaveURL(/\/app\/admin\/users$/);
 
   await expect(page.getByRole('table')).toBeVisible();
 
-  await page.getByLabel(/filtrar por e-mail/i).fill(adminEmail);
+  await page.getByLabel(/filtrar por e-mail/i).fill(ADMIN);
+  await expect(page.locator('.px38-tabela-wrap tbody tr')).toHaveCount(1);
 
-  await page.getByRole('link', { name: new RegExp(`ver detalhe de ${adminEmail}`, 'i') }).click();
+  await page.getByRole('link', { name: new RegExp(`ver detalhe de ${ADMIN}`, 'i') }).click();
   await expect(page).toHaveURL(/\/app\/admin\/users\//);
-  const detailMain = page.getByRole('main');
-  await expect(detailMain.getByText(adminEmail)).toBeVisible();
-  await expect(detailMain.getByText('ADMIN').first()).toBeVisible();
-  await expect(detailMain.getByText(/criado em/i)).toBeVisible();
+  // O e-mail tambem aparece no cabecalho e no cartao do usuario do shell, entao a assercao usa os
+  // seletores da propria tela de detalhe.
+  await expect(page.locator('.px39-dados dd', { hasText: ADMIN })).toBeVisible();
+  await expect(page.locator('.px39-selo', { hasText: 'ADMIN' }).first()).toBeVisible();
+  await expect(page.locator('.px39-dados dt', { hasText: /criado em/i })).toBeVisible();
 });
 
-test('CLIENTE: tentar acessar /app/admin/users cai em /access-denied', async ({ page }) => {
-  const clienteEmail = uniqueEmail('cliente-acesso');
-  await cadastrarUsuario(page, clienteEmail, 'CLIENTE');
+// A negativa por papel nao e observavel no dev-offline: `page.goto` recarrega a pagina, o
+// `currentMockUser` do MSW volta a ADMIN e o guard passa a ver um administrador. O que da para
+// verificar offline e que a area administrativa nao e oferecida ao cliente, nem no menu nem no
+// dashboard. O 403 real fica para o smoke contra backend.
+test('CLIENTE: nao recebe acesso a area administrativa', async ({ page }) => {
+  await logar(page, CLIENTE);
 
-  await logar(page, clienteEmail, defaultPassword);
-  await page.waitForURL(/\/app\/dashboard/, { timeout: 10_000 });
-
-  await page.goto('/app/admin/users');
-  await page.waitForURL(/\/access-denied/, { timeout: 10_000 });
+  await expect(page.locator('.op-nav-link[href="/app/admin"]')).toHaveCount(0);
+  await expect(page.locator('.px48-no[href="/app/admin"]')).toHaveCount(0);
 });

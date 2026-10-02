@@ -1,111 +1,350 @@
-<section class="sep-bo-fila">
-  <header class="sep-bo-fila-header">
-    <h1 class="sep-bo-fila-title">Fila operacional</h1>
-  </header>
+<sep-operational-shell>
+  <main class="bo16-page">
+    <section class="bo16-main" aria-labelledby="bo16-title">
+      <header class="bo16-heading">
+        <p>
+          <a routerLink="/app/dashboard">Início</a>　›　<a routerLink="/app/backoffice"
+            >Backoffice</a
+          >　›　<strong>Fila operacional</strong>
+        </p>
+        <h1 id="bo16-title">
+          Fila operacional
+          <lucide-icon name="list-checks" [size]="15" [strokeWidth]="2.25" />
+        </h1>
+        <span>Acompanhe, priorize e trate ocorrências da operação.</span>
+      </header>
 
-  <form class="sep-bo-fila-filtros" [formGroup]="filtros" (ngSubmit)="aplicarFiltros()">
-    <label class="sep-bo-field">
-      <span class="sep-bo-field-label">Tipo</span>
-      <select formControlName="tipo" class="sep-bo-field-control">
-        <option value="">Todos</option>
-        @for (t of tiposItem; track t) {
-          <option [value]="t">{{ tipoLabel[t] }}</option>
+      <section class="bo16-metrics" aria-label="Resumo da fila">
+        @for (metric of metrics(); track metric.label) {
+          <article class="bo16-metric" [attr.data-tone]="metric.tone">
+            <div>
+              <small>{{ metric.label }}</small
+              ><strong>{{ metric.value }}</strong
+              ><span>{{ metric.note }}</span>
+            </div>
+            <lucide-icon [name]="metric.icon" [size]="54" [strokeWidth]="1" />
+          </article>
         }
-      </select>
-    </label>
+      </section>
 
-    <label class="sep-bo-field">
-      <span class="sep-bo-field-label">Prioridade</span>
-      <select formControlName="prioridade" class="sep-bo-field-control">
-        <option value="">Todas</option>
-        @for (p of prioridades; track p) {
-          <option [value]="p">{{ prioridadeLabel[p] }}</option>
-        }
-      </select>
-    </label>
-
-    <label class="sep-bo-field">
-      <span class="sep-bo-field-label">Status</span>
-      <select formControlName="status" class="sep-bo-field-control">
-        <option value="">Todos</option>
-        @for (s of statusItens; track s) {
-          <option [value]="s">{{ statusLabel[s] }}</option>
-        }
-      </select>
-    </label>
-
-    <label class="sep-bo-field">
-      <span class="sep-bo-field-label">Aberto de</span>
-      <input type="date" formControlName="dataAberturaDe" class="sep-bo-field-control" />
-    </label>
-
-    <label class="sep-bo-field">
-      <span class="sep-bo-field-label">Aberto ate</span>
-      <input type="date" formControlName="dataAberturaAte" class="sep-bo-field-control" />
-    </label>
-
-    <label class="sep-bo-field">
-      <span class="sep-bo-field-label">Atribuido a (id)</span>
-      <input
-        type="text"
-        formControlName="atribuidoA"
-        class="sep-bo-field-control"
-        placeholder="UUID do operador"
-      />
-    </label>
-
-    <button type="submit" class="sep-bo-fila-aplicar">Aplicar filtros</button>
-  </form>
-
-  @if (loading()) {
-    <p class="sep-bo-fila-state">Carregando...</p>
-  } @else if (errorMessage()) {
-    <div class="sep-bo-fila-state sep-bo-fila-error" role="alert">
-      <p>{{ errorMessage() }}</p>
-      <button type="button" class="sep-bo-fila-aplicar" (click)="aplicarFiltros()">
-        Tentar novamente
-      </button>
-    </div>
-  } @else if (page(); as p) {
-    @if (p.empty) {
-      <p class="sep-bo-fila-state">Nenhum item para os filtros selecionados.</p>
-    } @else {
-      <ul class="sep-bo-fila-lista">
-        @for (item of p.content; track item.id) {
-          <li class="sep-bo-fila-row">
-            <a class="sep-bo-fila-link" [routerLink]="['/app/backoffice/fila', item.id]">
-              <sep-backoffice-chip [prioridade]="item.prioridade" />
-              <sep-backoffice-chip [status]="item.status" />
-              <span class="sep-bo-fila-titulo">{{ item.titulo }}</span>
-              <span class="sep-bo-fila-tipo">{{ tipoLabel[item.tipo] }}</span>
-              <span class="sep-bo-fila-data">{{ formatarDataHora(item.dataAbertura) }}</span>
-              <span class="sep-bo-fila-atribuido">
-                {{ item.atribuidoA ? idCurto(item.atribuidoA) : 'Sem atribuicao' }}
-              </span>
-            </a>
-          </li>
-        }
-      </ul>
-
-      <nav class="sep-bo-fila-paginacao" aria-label="Paginacao da fila">
-        <button
-          type="button"
-          class="sep-bo-fila-pag-botao"
-          [disabled]="p.first"
-          (click)="irParaPagina(p.number - 1)"
+      <form class="bo16-filters" [formGroup]="filtros" (ngSubmit)="aplicarFiltros()">
+        <label class="bo16-search">
+          <span class="sr-only">Buscar na fila</span>
+          <input formControlName="busca" placeholder="Buscar na fila..." />
+          <button type="submit" aria-label="Buscar na fila">
+            <lucide-icon name="search" [size]="14" [strokeWidth]="2.25" />
+          </button>
+        </label>
+        <label
+          ><small>Tipo</small
+          ><select formControlName="tipo">
+            <option value="">Todos</option>
+            @for (t of tiposItem; track t) {
+              <option [value]="t">{{ tipoLabel[t] }}</option>
+            }
+          </select></label
         >
-          Anterior
-        </button>
-        <span class="sep-bo-fila-pag-info">Pagina {{ p.number + 1 }} de {{ p.totalPages }}</span>
-        <button
-          type="button"
-          class="sep-bo-fila-pag-botao"
-          [disabled]="p.last"
-          (click)="irParaPagina(p.number + 1)"
+        <label
+          ><small>Prioridade</small
+          ><select formControlName="prioridade">
+            <option value="">Todos</option>
+            @for (p of prioridades; track p) {
+              <option [value]="p">{{ prioridadeLabel[p] }}</option>
+            }
+          </select></label
         >
-          Proxima
+        <label
+          ><small>Status</small
+          ><select formControlName="status">
+            <option value="">Todos</option>
+            @for (s of statusItens; track s) {
+              <option [value]="s">{{ statusLabel[s] }}</option>
+            }
+          </select></label
+        >
+        <label
+          ><small>Atribuído a</small
+          ><select formControlName="atribuidoA">
+            <option value="">Todos</option>
+            <option value="1f0799c0-98b9-6d9d-bc4a-7d6f5b771004">Ana Martins</option>
+            <option value="1f0799c0-98b9-6d9d-bc4a-7d6f5b771003">Camila Andrade</option>
+          </select></label
+        >
+        <fieldset class="bo16-period">
+          <legend>Período</legend>
+          <input type="date" formControlName="dataAberturaDe" aria-label="Período inicial" />
+          <span>–</span>
+          <input type="date" formControlName="dataAberturaAte" aria-label="Período final" />
+          <lucide-icon name="calendar" [size]="19" [strokeWidth]="2.25" />
+        </fieldset>
+        <button type="submit" class="sr-only">Aplicar filtros</button>
+        <button type="button" class="bo16-clear" (click)="limparFiltros()">Limpar filtros</button>
+      </form>
+
+      <section class="bo16-table-card" aria-label="Itens da fila operacional">
+        <div class="bo16-table-head">
+          <span>ID do item</span><span>Tipo</span><span>Descrição</span><span>Prioridade</span>
+          <span>Status</span><span>Atribuído a</span><span>Aberto em</span><span>SLA</span
+          ><span>Ações</span>
+        </div>
+
+        @if (loading()) {
+          <div class="bo16-state"><span class="bo16-spinner"></span>Carregando ocorrências...</div>
+        } @else if (errorMessage()) {
+          <div class="bo16-state bo16-error" role="alert">
+            <p>{{ errorMessage() }}</p>
+            <button type="button" (click)="aplicarFiltros()">Tentar novamente</button>
+          </div>
+        } @else if (visibleItems().length === 0) {
+          <div class="bo16-state">Nenhuma ocorrência para os filtros selecionados.</div>
+        } @else {
+          <div class="bo16-rows">
+            @for (item of visibleItems(); track item.id; let index = $index) {
+              @let assigned = assignedName(item, index);
+              @let date = dateParts(item.dataAbertura);
+              @let sla = slaFor(item, index);
+              <article class="bo16-row" [attr.data-priority]="item.prioridade">
+                <div class="bo16-id">
+                  <strong>
+                    {{ item.id.slice(-8) }}
+                    <button
+                      type="button"
+                      (click)="copiarId(item)"
+                      [attr.aria-label]="'Copiar ID ' + item.id"
+                      [class.copied]="copiedId() === item.id"
+                    >
+                      <lucide-icon
+                        [name]="$any(copiedId() === item.id ? 'circle-check' : 'copy')"
+                        [size]="11"
+                      />
+                    </button>
+                  </strong>
+                  <small>{{ itemCode(item) }}</small>
+                </div>
+                <div>
+                  <span
+                    class="bo16-type"
+                    [attr.data-tone]="typeTone(item.tipo)"
+                    [attr.data-tipo-key]="tipoKey(item.tipo)"
+                    ><lucide-icon [name]="$any(typeIcon(item.tipo))" [size]="15" />{{
+                      tipoCurto(item.tipo)
+                    }}</span
+                  >
+                </div>
+                <div class="bo16-description">
+                  <strong>{{ item.titulo }}</strong
+                  ><small>{{ itemDetail(item) }}</small>
+                </div>
+                <div>
+                  <sep-backoffice-chip [prioridade]="item.prioridade"
+                    ><lucide-icon [name]="$any(prioridadeIcon(item.prioridade))" [size]="12"
+                  /></sep-backoffice-chip>
+                </div>
+                <div>
+                  <sep-backoffice-chip [status]="item.status"
+                    ><lucide-icon [name]="$any(statusIcon(item.status))" [size]="12"
+                  /></sep-backoffice-chip>
+                </div>
+                <div class="bo16-assigned">
+                  <img [src]="avatarFor(assigned)" alt="" /><strong>{{ assigned }}</strong>
+                </div>
+                <div class="bo16-date">
+                  <span>{{ date[0] }}</span
+                  ><small>{{ date[1] }}</small>
+                </div>
+                <div class="bo16-sla" [attr.data-tone]="sla.tone">
+                  <strong>{{ sla.value }}</strong
+                  ><small>{{ sla.note }}</small>
+                </div>
+                <div>
+                  <a
+                    class="bo16-view"
+                    [routerLink]="['/app/backoffice/fila', item.id]"
+                    [attr.aria-label]="'Visualizar ' + item.titulo"
+                    ><lucide-icon name="eye" [size]="24" [strokeWidth]="2"
+                  /></a>
+                </div>
+              </article>
+            }
+          </div>
+        }
+
+        <footer class="bo16-pagination">
+          @let faixa = range();
+          <span>Mostrando {{ faixa.de }} a {{ faixa.ate }} de {{ faixa.total }} ocorrências</span>
+          <nav aria-label="Paginação da fila">
+            <button type="button" [disabled]="page()?.first" (click)="irParaPagina(0)">
+              <span class="sr-only">Primeira</span>«
+            </button>
+            <button
+              type="button"
+              [disabled]="page()?.first"
+              (click)="irParaPagina((page()?.number ?? 0) - 1)"
+            >
+              <span class="sr-only">Anterior</span>‹
+            </button>
+            @for (numero of pageButtons(); track $index) {
+              @if (numero === null) {
+                <span class="bo16-gap" aria-hidden="true">…</span>
+              } @else {
+                <button
+                  type="button"
+                  [class.active]="numero === page()?.number"
+                  [attr.aria-current]="numero === page()?.number ? 'page' : null"
+                  (click)="irParaPagina(numero)"
+                >
+                  {{ numero + 1 }}
+                </button>
+              }
+            }
+            <button
+              type="button"
+              [disabled]="page()?.last"
+              (click)="irParaPagina((page()?.number ?? 0) + 1)"
+            >
+              <span class="sr-only">Proxima</span>›
+            </button>
+            <button
+              type="button"
+              [disabled]="page()?.last"
+              (click)="irParaPagina((page()?.totalPages ?? 1) - 1)"
+            >
+              <span class="sr-only">Ultima</span>»
+            </button>
+          </nav>
+          <label
+            >Itens por página
+            <select
+              aria-label="Itens por página"
+              [value]="pageSize()"
+              (change)="alterarTamanhoPagina($event)"
+            >
+              @for (tamanho of pageSizes; track tamanho) {
+                <option [value]="tamanho">{{ tamanho }}</option>
+              }
+            </select>
+          </label>
+        </footer>
+      </section>
+    </section>
+
+    <aside class="bo16-side">
+      <section class="bo16-side-card bo16-quick">
+        <h2><lucide-icon name="zap" [size]="24" [strokeWidth]="2" />Filtros rápidos</h2>
+        <button type="button" (click)="aplicarFiltroRapido('mine')">
+          <lucide-icon name="user-check" [size]="14" [strokeWidth]="2.25" /><span
+            >Atribuídos a mim</span
+          ><strong>{{ contagemRapida().mine }}</strong>
         </button>
-      </nav>
-    }
-  }
-</section>
+        <button type="button" (click)="aplicarFiltroRapido('risk')">
+          <lucide-icon class="ic-ambar" name="alarm-clock" [size]="14" [strokeWidth]="2.25" /><span
+            >SLA em risco (&lt;2h)</span
+          ><strong>{{ contagemRapida().risk }}</strong>
+        </button>
+        <button type="button" (click)="aplicarFiltroRapido('late')">
+          <lucide-icon
+            class="ic-vermelho"
+            name="triangle-alert"
+            [size]="14"
+            [strokeWidth]="2.25"
+          /><span>Atrasados</span><strong class="red">{{ contagemRapida().late }}</strong>
+        </button>
+        <button type="button" (click)="aplicarFiltroRapido('unassigned')">
+          <lucide-icon name="user-x" [size]="18" [strokeWidth]="2.25" /><span>Sem atribuição</span
+          ><strong>{{ contagemRapida().unassigned }}</strong>
+        </button>
+        <button type="button" class="bo16-save" (click)="salvarFiltros()">
+          {{ savedMessage() ? 'Filtros salvos' : 'Salvar filtro atual' }}
+        </button>
+      </section>
+
+      <section class="bo16-side-card bo16-distribution priority">
+        <h2>Distribuição por prioridade</h2>
+        <div class="bo16-donut-wrap">
+          <div
+            class="bo16-donut"
+            [style.background]="gradiente(fatiasPrioridade())"
+            [style.box-shadow]="halo(fatiasPrioridade())"
+          >
+            <span
+              ><strong>{{ totalDistribuicao() }}</strong
+              ><small>Total</small></span
+            >
+          </div>
+          <ul>
+            @for (fatia of fatiasPrioridade(); track fatia.rotulo) {
+              <li [style.--legend]="corDoTom(fatia.tom)" [attr.data-prioridade]="fatia.chave">
+                <i></i><span>{{ fatia.rotulo }}</span
+                ><strong>{{ fatia.valor }} ({{ fatia.percentual }})</strong>
+              </li>
+            }
+          </ul>
+        </div>
+        <a routerLink="/app/backoffice">Ver detalhes　→</a>
+      </section>
+
+      <section class="bo16-side-card bo16-distribution status">
+        <h2>Distribuição por status</h2>
+        <div class="bo16-donut-wrap">
+          <div
+            class="bo16-donut"
+            [style.background]="gradiente(fatiasStatus())"
+            [style.box-shadow]="halo(fatiasStatus())"
+          >
+            <span
+              ><strong>{{ totalDistribuicao() }}</strong
+              ><small>Total</small></span
+            >
+          </div>
+          <ul>
+            @for (fatia of fatiasStatus(); track fatia.rotulo) {
+              <li [style.--legend]="corDoTom(fatia.tom)" [attr.data-status]="fatia.chave">
+                <i></i><span>{{ fatia.rotulo }}</span
+                ><strong>{{ fatia.valor }} ({{ fatia.percentual }})</strong>
+              </li>
+            }
+          </ul>
+        </div>
+        <a routerLink="/app/backoffice">Ver detalhes　→</a>
+      </section>
+
+      <section class="bo16-side-card bo16-distribution type">
+        <h2>Distribuição por tipo</h2>
+        <div class="bo16-donut-wrap">
+          <div
+            class="bo16-donut"
+            [style.background]="gradiente(fatiasTipo())"
+            [style.box-shadow]="halo(fatiasTipo())"
+          >
+            <span
+              ><strong>{{ totalDistribuicao() }}</strong
+              ><small>Total</small></span
+            >
+          </div>
+          <ul>
+            @for (fatia of fatiasTipo(); track fatia.rotulo) {
+              <li [style.--legend]="corDoTom(fatia.tom)" [attr.data-tipo-key]="fatia.chave">
+                <i></i><span>{{ fatia.rotulo }}</span
+                ><strong>{{ fatia.valor }} ({{ fatia.percentual }})</strong>
+              </li>
+            }
+          </ul>
+        </div>
+        <a routerLink="/app/backoffice">Ver detalhes　→</a>
+      </section>
+
+      <section class="bo16-side-card bo16-shortcuts">
+        <h2>Atalhos</h2>
+        <a routerLink="/app/backoffice/reprocessos"
+          ><lucide-icon name="refresh-cw" [size]="24" [strokeWidth]="2" /><span>Reprocessos</span
+          ><b>›</b></a
+        >
+        <a routerLink="/app/pix"
+          ><lucide-icon name="plug" [size]="26" [strokeWidth]="1.75" /><span
+            >Gerenciar integrações</span
+          ><b>›</b></a
+        >
+      </section>
+    </aside>
+  </main>
+</sep-operational-shell>

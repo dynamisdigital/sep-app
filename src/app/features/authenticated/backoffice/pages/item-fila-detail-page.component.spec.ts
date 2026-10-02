@@ -1,10 +1,13 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { importProvidersFrom } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { describe, expect, it, vi } from 'vitest';
 
 import { AuthService } from '../../../../core/auth/auth.service';
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
 import { stepUpInterceptor } from '../../../../core/interceptors/step-up.interceptor';
 import { ItemFilaDetailPageComponent } from './item-fila-detail-page.component';
@@ -42,6 +45,7 @@ function renderPagina(id?: string, comStepUp = false) {
     providers: [
       comStepUp ? provideHttpClient(withInterceptors([stepUpInterceptor])) : provideHttpClient(),
       provideRouter([]),
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
       { provide: ActivatedRoute, useValue: activatedRoute(id) },
     ],
   });
@@ -73,11 +77,11 @@ describe('ItemFilaDetailPageComponent', () => {
     expect(screen.getByText('Tomador contatado; aguardando comprovante.')).toBeTruthy();
   });
 
-  it('mostra "Item nao encontrado" para id inexistente (404)', async () => {
+  it('mostra "Item não encontrado" para id inexistente (404)', async () => {
     const { fixture } = await renderPagina(ITEM_INEXISTENTE_ID);
     await estabilizar(fixture);
 
-    expect(screen.getByText('Item nao encontrado.')).toBeTruthy();
+    expect(screen.getByText('Item não encontrado.')).toBeTruthy();
   });
 
   it('assumir move o item ABERTO para EM_TRATAMENTO', async () => {

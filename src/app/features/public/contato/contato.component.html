@@ -1,0 +1,181 @@
+<sep-public-shell>
+  <section class="px53-page">
+    <header class="px53-heading">
+      <p class="px53-kicker"><lucide-icon name="mail" [size]="14" />Contato</p>
+      <h1>Fale com a <em>equipe do SEP</em>.</h1>
+      <p class="px53-lead">
+        Dúvida sobre uma operação, sobre os seus dados ou sobre a plataforma: escolha o canal que
+        preferir. Atendimento: {{ contato.atendimento }}.
+      </p>
+    </header>
+
+    <div class="px53-colunas">
+      <!-- ============ FORMULÁRIO ============ -->
+      <article class="px53-form-card">
+        <h2>Envie uma mensagem</h2>
+
+        @if (enviado()) {
+          <div class="px53-sucesso" role="status">
+            <span class="px53-sucesso-icone">
+              <lucide-icon name="circle-check" [size]="28" />
+            </span>
+            <h3>Mensagem pronta para envio</h3>
+            <p>
+              O canal de mensagens ainda não tem endpoint no backend, então a plataforma não guarda
+              o texto. Use o botão abaixo para enviar pelo seu e-mail, com tudo já preenchido.
+            </p>
+            <a class="px53-btn-primary" [href]="mailto">
+              <lucide-icon name="mail" [size]="18" />Abrir no meu e-mail
+            </a>
+            <button type="button" class="px53-btn-secondary" (click)="novaMensagem()">
+              Escrever outra mensagem
+            </button>
+          </div>
+        } @else {
+          <form [formGroup]="form" (ngSubmit)="enviar()" class="px53-form">
+            <div class="px53-linha-dupla">
+              <label class="px53-campo" for="ct-nome">
+                <span>Nome</span>
+                <input id="ct-nome" type="text" formControlName="nome" autocomplete="name" />
+                @if (form.controls.nome.touched && form.controls.nome.invalid) {
+                  <small role="alert">Informe seu nome completo.</small>
+                }
+              </label>
+
+              <label class="px53-campo" for="ct-email">
+                <span>E-mail</span>
+                <input id="ct-email" type="email" formControlName="email" autocomplete="email" />
+                @if (form.controls.email.touched && form.controls.email.invalid) {
+                  <small role="alert">Informe um e-mail válido.</small>
+                }
+              </label>
+            </div>
+
+            <div class="px53-linha-dupla">
+              <label class="px53-campo" for="ct-telefone">
+                <span>Telefone <em>(opcional)</em></span>
+                <input
+                  id="ct-telefone"
+                  type="text"
+                  sepMask="telefone"
+                  formControlName="telefone"
+                  placeholder="(00) 00000-0000"
+                />
+                @if (form.controls.telefone.touched && form.controls.telefone.invalid) {
+                  <small role="alert">Telefone incompleto: informe DDD e número.</small>
+                }
+              </label>
+
+              <label class="px53-campo" for="ct-assunto">
+                <span>Assunto</span>
+                <select id="ct-assunto" formControlName="assunto">
+                  @for (assunto of assuntos; track assunto) {
+                    <option [value]="assunto">{{ assunto }}</option>
+                  }
+                </select>
+              </label>
+            </div>
+
+            <label class="px53-campo" for="ct-mensagem">
+              <span>Mensagem</span>
+              <textarea
+                id="ct-mensagem"
+                rows="6"
+                formControlName="mensagem"
+                placeholder="Conte o que precisa. Se for sobre uma operação, informe o número do contrato ou da proposta."
+              ></textarea>
+              @if (form.controls.mensagem.touched && form.controls.mensagem.invalid) {
+                <small role="alert"
+                  >Escreva ao menos 20 caracteres para entendermos o pedido.</small
+                >
+              }
+            </label>
+
+            <label class="px53-consent" for="ct-consent">
+              <input id="ct-consent" type="checkbox" formControlName="consentimento" />
+              <span>
+                Autorizo o tratamento dos meus dados para retorno deste contato, nos termos da
+                <a routerLink="/politica-de-privacidade">política de privacidade</a>.
+              </span>
+            </label>
+            @if (form.controls.consentimento.touched && form.controls.consentimento.invalid) {
+              <small class="px53-erro" role="alert">
+                Sem a autorização não conseguimos responder ao seu contato.
+              </small>
+            }
+
+            <button type="submit" class="px53-btn-primary" [disabled]="enviando()">
+              <lucide-icon name="send" [size]="18" />
+              {{ enviando() ? 'Preparando...' : 'Enviar mensagem' }}
+            </button>
+          </form>
+        }
+      </article>
+
+      <!-- ============ CANAIS E MAPA ============ -->
+      <div class="px53-lado">
+        <div class="px53-canais">
+          <a class="px53-canal" [href]="'tel:' + contato.telefoneLink">
+            <span class="px53-canal-icone"><lucide-icon name="headphones" [size]="22" /></span>
+            <strong>Telefone</strong>
+            <span>{{ contato.telefone }}</span>
+          </a>
+
+          <a class="px53-canal" [href]="'mailto:' + contato.email">
+            <span class="px53-canal-icone"><lucide-icon name="mail" [size]="22" /></span>
+            <strong>E-mail</strong>
+            <span>{{ contato.email }}</span>
+          </a>
+
+          <div class="px53-canal px53-canal-largo">
+            <span class="px53-canal-icone"><lucide-icon name="globe" [size]="22" /></span>
+            <strong>Endereço</strong>
+            <span>{{ contato.endereco }}<br />{{ contato.cep }}</span>
+          </div>
+
+          <div class="px53-canal px53-canal-largo">
+            <span class="px53-canal-icone"><lucide-icon name="clock" [size]="22" /></span>
+            <strong>Atendimento</strong>
+            <span>{{ contato.atendimento }}</span>
+          </div>
+        </div>
+
+        <figure class="px53-mapa" #alvoMapa>
+          @if (mapaVisivel()) {
+            <iframe
+              src="https://www.google.com/maps?q=R.+Dr.+Gon%C3%A7alves+Guerra,+276+-+Caj%C3%A1,+Carpina+-+PE,+55810-000&output=embed"
+              title="Mapa da sede do SEP em Carpina, Pernambuco"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+            ></iframe>
+          } @else {
+            <div class="px53-mapa-espera">
+              <lucide-icon name="globe" [size]="26" aria-hidden="true" />
+              @if (mapaSemObservador()) {
+                <button type="button" class="px53-btn-secondary" (click)="carregarMapa()">
+                  Carregar mapa
+                </button>
+              }
+            </div>
+          }
+          <figcaption>
+            <lucide-icon name="globe" [size]="15" />
+            <span>{{ contato.endereco }}</span>
+            <a [href]="mapaLink" target="_blank" rel="noopener noreferrer">
+              Abrir no Google Maps<lucide-icon name="external-link" [size]="14" />
+            </a>
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <p class="px53-aviso">
+      <lucide-icon name="triangle-alert" [size]="18" />
+      <span>
+        A SEP nunca pede senha, código do autenticador ou pagamento antecipado por telefone ou
+        e-mail. Na dúvida sobre a autenticidade de um contato, confirme por
+        {{ contato.email }} antes de responder.
+      </span>
+    </p>
+  </section>
+</sep-public-shell>

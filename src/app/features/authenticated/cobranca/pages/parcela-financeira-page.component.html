@@ -1,57 +1,272 @@
-<section class="sep-parcela-fin">
-  @if (loading()) {
-    <p class="sep-parcela-fin-state" role="status">Carregando parcela...</p>
-  } @else if (errorMessage()) {
-    <div class="sep-parcela-fin-state sep-parcela-fin-error" role="alert">
-      <p>{{ errorMessage() }}</p>
-      <button type="button" class="sep-parcela-fin-retry" (click)="carregar()">
-        Tentar novamente
-      </button>
-    </div>
-  } @else if (naoEncontrada()) {
-    <div class="sep-parcela-fin-state sep-parcela-fin-empty">
-      <p>Parcela nao encontrada.</p>
-    </div>
-  } @else if (parcela(); as p) {
-    <header class="sep-parcela-fin-header">
-      <h1 class="sep-parcela-fin-title">Parcela {{ p.numero }}</h1>
-      <sep-parcela-status [status]="p.status" />
-    </header>
+<sep-operational-shell>
+  <section class="px31-page">
+    @if (loading()) {
+      <p class="px31-estado" role="status">Carregando parcela...</p>
+    } @else if (errorMessage(); as mensagem) {
+      <div class="px31-estado px31-erro" role="alert">
+        <lucide-icon name="circle-alert" [size]="18" />
+        <p>{{ mensagem }}</p>
+        <button type="button" class="px31-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
+      </div>
+    } @else if (naoEncontrada()) {
+      <div class="px31-estado">
+        <lucide-icon name="circle-alert" [size]="18" />
+        <p>Parcela não encontrada.</p>
+        <a class="px31-btn-primary" routerLink="/app/cobranca/financeiro/inadimplencia">
+          <lucide-icon name="list" [size]="16" />Voltar para a inadimplência
+        </a>
+      </div>
+    } @else if (parcela(); as p) {
+      <!-- ============ CABEÇALHO ============ -->
+      <header class="px31-heading">
+        <nav aria-label="Navegação estrutural">
+          <a routerLink="/app/dashboard">Início</a><span>›</span
+          ><a routerLink="/app/cobranca">Cobrança</a><span>›</span
+          ><a routerLink="/app/cobranca/financeiro/inadimplencia">Parcela</a><span>›</span
+          ><strong>{{ id }}</strong>
+        </nav>
+        <div class="px31-heading-row">
+          <div class="px31-titulo-wrap">
+            <h1>
+              Parcela {{ p.numero }}
+              @if (estado(); as e) {
+                <span class="px31-selo" [attr.data-tone]="e.tom">{{ statusRotulo(p.status) }}</span>
+              }
+            </h1>
+            <p class="px31-subtitulo">Vencimento: {{ formatarDataLocal(p.dataVencimento) }}</p>
+          </div>
+          <div class="px31-heading-acoes">
+            <button type="button" class="px31-btn-sec" (click)="imprimir()">
+              <lucide-icon name="printer" [size]="16" />Imprimir
+            </button>
+            <div class="px31-menu-wrap">
+              <button
+                type="button"
+                class="px31-btn-sec"
+                [attr.aria-expanded]="menuAberto()"
+                (click)="alternarMenu()"
+                (keydown.escape)="menuAberto.set(false)"
+              >
+                <lucide-icon name="ellipsis" [size]="16" />Mais ações
+                <lucide-icon name="chevron-down" [size]="15" />
+              </button>
+              @if (menuAberto()) {
+                <div class="px31-menu" role="menu">
+                  <button
+                    type="button"
+                    role="menuitem"
+                    (click)="copiar(id, 'parcela'); menuAberto.set(false)"
+                  >
+                    <lucide-icon
+                      [name]="$any(copiado() === 'parcela' ? 'circle-check' : 'copy')"
+                      [size]="14"
+                    />Copiar ID da parcela
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    (click)="menuAberto.set(false)"
+                    routerLink="/app/cobranca/financeiro/agenda"
+                  >
+                    <lucide-icon name="list" [size]="14" />Ver na agenda financeira
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    (click)="menuAberto.set(false)"
+                    routerLink="/app/cobranca/financeiro/inadimplencia"
+                  >
+                    <lucide-icon name="triangle-alert" [size]="14" />Ver inadimplência
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    (click)="menuAberto.set(false)"
+                    routerLink="/app/cobranca"
+                  >
+                    <lucide-icon name="wallet" [size]="14" />Ver contrato na Cobrança
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </header>
 
-    <p class="sep-parcela-fin-vencimento">Vencimento: {{ formatarDataLocal(p.dataVencimento) }}</p>
+      <!-- ============ RESUMO DA PARCELA ============ -->
+      <article class="px31-card px31-resumo">
+        <h2>Resumo da parcela</h2>
+        <dl>
+          <div>
+            <dt>Principal</dt>
+            <dd>{{ formatarMoeda(p.principalOriginal) }}</dd>
+          </div>
+          <div>
+            <dt>Juros</dt>
+            <dd>{{ formatarMoeda(p.jurosOriginal) }}</dd>
+          </div>
+          <div>
+            <dt>Juros de mora</dt>
+            <dd>{{ formatarMoeda(p.jurosMora) }}</dd>
+          </div>
+          <div>
+            <dt>Multa</dt>
+            <dd>{{ formatarMoeda(p.multa) }}</dd>
+          </div>
+          <div>
+            <dt>Total recebido</dt>
+            <dd>{{ formatarMoeda(p.totalRecebido) }}</dd>
+          </div>
+        </dl>
+        <dl class="px31-resumo-totais">
+          <div>
+            <dt>Valor devido atualizado</dt>
+            <dd>{{ formatarMoeda(p.valorDevidoAtualizado) }}</dd>
+          </div>
+          <div>
+            <dt>Valor em aberto</dt>
+            <dd>{{ formatarMoeda(p.valorEmAberto) }}</dd>
+          </div>
+        </dl>
+      </article>
 
-    <sep-parcela-composicao [parcela]="p" />
+      <!-- ============ INFORMAÇÕES DA PARCELA ============ -->
+      <article class="px31-card px31-informacoes">
+        <h2>Informações da parcela</h2>
+        <dl>
+          <div>
+            <dt>Contrato</dt>
+            <dd>
+              <span>{{ texto(contratoCurto()) }}</span>
+              <button
+                type="button"
+                class="px31-btn-icone"
+                title="Copiar ID do contrato"
+                aria-label="Copiar ID do contrato"
+                (click)="copiar(p.contrato?.contratoId, 'contrato')"
+              >
+                <lucide-icon
+                  [name]="$any(copiado() === 'contrato' ? 'circle-check' : 'copy')"
+                  [size]="14"
+                />
+              </button>
+            </dd>
+          </div>
+          <div>
+            <dt>Nº da parcela</dt>
+            <dd>{{ p.numero }} de {{ numero(p.contrato?.parcelasTotais) }}</dd>
+          </div>
+          <div>
+            <dt>Data de vencimento</dt>
+            <dd>
+              <span>{{ formatarDataLocal(p.dataVencimento) }}</span>
+              @if (diasAtraso(); as dias) {
+                <span class="px31-selo px31-selo-mini" [attr.data-tone]="estado()?.tom">
+                  {{ statusRotulo(p.status) }} há {{ dias }} dias
+                </span>
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>Situação</dt>
+            <dd class="px31-situacao" [attr.data-tone]="estado()?.tom">
+              <em></em>{{ statusRotulo(p.status) }}
+            </dd>
+          </div>
+          <div>
+            <dt>Dias em atraso</dt>
+            <dd>{{ diasAtraso() === null ? '—' : diasAtraso() + ' dias' }}</dd>
+          </div>
+          <div>
+            <dt>Meio de pagamento</dt>
+            <dd>{{ texto(p.cobranca?.formaPagamento) }}</dd>
+          </div>
+          <div>
+            <dt>Valor original</dt>
+            <dd>{{ formatarMoeda(valorOriginal()) }}</dd>
+          </div>
+          <div>
+            <dt>Valor atualizado</dt>
+            <dd>{{ formatarMoeda(p.valorDevidoAtualizado) }}</dd>
+          </div>
+          <div>
+            <dt>Última atualização</dt>
+            <dd>{{ p.atualizadoEm ? formatarDataHora(p.atualizadoEm) : '—' }}</dd>
+          </div>
+        </dl>
+      </article>
 
-    @if (recebimentos().length > 0) {
-      <section class="sep-parcela-fin-recebimentos">
-        <h2 class="sep-parcela-fin-subtitle">Recebimentos desta parcela</h2>
-        <ul class="sep-parcela-fin-recebimentos-list">
-          @for (r of recebimentos(); track r.recebimentoId) {
-            <li class="sep-parcela-fin-recebimento">
-              <span>{{ formatarMoeda(r.valorRecebido) }}</span>
-              <span>{{ r.meioPagamento }}</span>
-              <span>{{ formatarData(r.dataRecebimento) }}</span>
-            </li>
-          }
-        </ul>
-      </section>
-    }
+      <!-- ============ STATUS DA PARCELA ============ -->
+      <article class="px31-card px31-status">
+        <h2>Status da parcela</h2>
+        @if (estado(); as e) {
+          <div class="px31-status-corpo" [attr.data-tone]="e.tom">
+            <span class="px31-status-anel">
+              <lucide-icon [name]="$any(e.icone)" [size]="34" />
+            </span>
+            <strong>{{ e.rotulo }}</strong>
+            <small>
+              {{
+                diasAtraso() === null
+                  ? formatarDataLocal(p.dataVencimento)
+                  : diasAtraso() + ' dias de atraso'
+              }}
+            </small>
+            <p>{{ e.mensagem }}</p>
+          </div>
+          <div class="px31-status-acoes">
+            <button
+              type="button"
+              class="px31-btn-primary"
+              [disabled]="!podeReceber()"
+              [title]="
+                podeReceber()
+                  ? 'Ir para o formulário de recebimento'
+                  : 'Parcela não aceita recebimento manual no estado atual'
+              "
+              (click)="focarRecebimento()"
+            >
+              Registrar recebimento
+            </button>
+            <button
+              type="button"
+              class="px31-btn-icone px31-btn-qr"
+              [disabled]="!p.cobranca?.linhaDigitavel"
+              title="Copiar linha digitável do boleto"
+              aria-label="Copiar linha digitável do boleto"
+              (click)="copiar(p.cobranca?.linhaDigitavel, 'linha')"
+            >
+              <lucide-icon
+                [name]="$any(copiado() === 'linha' ? 'circle-check' : 'qr-code')"
+                [size]="18"
+              />
+            </button>
+          </div>
+        }
+      </article>
 
-    @if (podeReceber()) {
-      <form class="sep-parcela-fin-form" [formGroup]="form" (ngSubmit)="registrar()">
-        <h2 class="sep-parcela-fin-subtitle">Registrar recebimento</h2>
-
-        <label class="sep-parcela-fin-field" for="rec-valor">
-          <span>Valor recebido</span>
-          <input id="rec-valor" type="number" step="0.01" formControlName="valorRecebido" />
-        </label>
-
-        <label class="sep-parcela-fin-field" for="rec-data">
-          <span>Data do recebimento</span>
-          <input id="rec-data" type="datetime-local" formControlName="dataRecebimento" />
-        </label>
-
-        <label class="sep-parcela-fin-field" for="rec-meio">
+      <!-- ============ REGISTRAR RECEBIMENTO ============ -->
+      <form class="px31-card px31-form px31-form-receb" [formGroup]="form" (ngSubmit)="registrar()">
+        <h2>Registrar recebimento</h2>
+        <div class="px31-linha-dupla">
+          <label for="rec-valor">
+            <span>Valor recebido</span>
+            <input
+              id="rec-valor"
+              type="text"
+              sepMask="moeda"
+              formControlName="valorRecebido"
+              placeholder="Ex.: {{ formatarMoeda(p.valorEmAberto) }}"
+            />
+          </label>
+          <label for="rec-data">
+            <span>Data do recebimento</span>
+            <input id="rec-data" type="datetime-local" formControlName="dataRecebimento" />
+          </label>
+        </div>
+        <label for="rec-meio">
           <span>Meio de pagamento</span>
           <select id="rec-meio" formControlName="meioPagamento">
             @for (meio of meiosPagamento; track meio) {
@@ -59,136 +274,250 @@
             }
           </select>
         </label>
-
-        <label class="sep-parcela-fin-field" for="rec-ident">
+        <label for="rec-ident">
           <span>Identificador externo (opcional)</span>
           <input
             id="rec-ident"
             type="text"
             formControlName="identificadorExterno"
             maxlength="100"
+            placeholder="Ex.: E2E, TXID, etc."
           />
         </label>
-
-        <label class="sep-parcela-fin-field" for="rec-obs">
-          <span>Observacao (opcional)</span>
-          <textarea id="rec-obs" formControlName="observacao" maxlength="500" rows="2"></textarea>
+        <label for="rec-obs">
+          <span>Observação (opcional)</span>
+          <textarea
+            id="rec-obs"
+            formControlName="observacao"
+            maxlength="500"
+            rows="2"
+            placeholder="Digite uma observação..."
+          ></textarea>
         </label>
-
-        <button type="submit" class="sep-parcela-fin-cta" [disabled]="submitting()">
-          @if (submitting()) {
-            Registrando...
-          } @else {
-            Registrar recebimento
-          }
+        <button
+          type="submit"
+          class="px31-btn-primary px31-btn-bloco"
+          [disabled]="submitting() || !podeReceber()"
+          [title]="podeReceber() ? '' : 'Parcela não aceita recebimento manual no estado atual'"
+        >
+          {{ submitting() ? 'Registrando...' : 'Registrar recebimento' }}
         </button>
-
+        @if (recebimentoOk()) {
+          <p class="px31-form-ok" role="status">Recebimento registrado.</p>
+        }
         @if (recebimentoErro(); as msg) {
-          <p class="sep-parcela-fin-form-error" role="alert">{{ msg }}</p>
+          <p class="px31-form-erro" role="alert">{{ msg }}</p>
         }
       </form>
-    } @else {
-      <p class="sep-parcela-fin-bloqueado" role="note">
-        Parcela nao aceita recebimento manual no estado atual.
-      </p>
-    }
 
-    <form class="sep-parcela-fin-form" [formGroup]="contatoForm" (ngSubmit)="registrarContato()">
-      <h2 class="sep-parcela-fin-subtitle">Registrar contato</h2>
-
-      <label class="sep-parcela-fin-field" for="cont-descricao">
-        <span>Descricao</span>
-        <textarea
-          id="cont-descricao"
-          formControlName="descricao"
-          maxlength="500"
-          rows="2"
-        ></textarea>
-      </label>
-
-      <label class="sep-parcela-fin-field" for="cont-dias">
-        <span>Dias de atraso (opcional)</span>
-        <input id="cont-dias" type="number" min="0" formControlName="diasAtraso" />
-      </label>
-
-      <button type="submit" class="sep-parcela-fin-cta" [disabled]="contatoSubmitting()">
-        @if (contatoSubmitting()) {
-          Registrando...
-        } @else {
-          Registrar contato
-        }
-      </button>
-
-      @if (contatoOk()) {
-        <p class="sep-parcela-fin-form-ok" role="status">Contato registrado.</p>
-      }
-      @if (contatoErro(); as msg) {
-        <p class="sep-parcela-fin-form-error" role="alert">{{ msg }}</p>
-      }
-    </form>
-
-    @if (podeRenegociar()) {
-      @if (renegCriada(); as reneg) {
-        <section class="sep-parcela-fin-reneg-criada" role="status">
-          <h2 class="sep-parcela-fin-subtitle">Proposta de renegociacao criada</h2>
-          <p>
-            Novo valor: {{ formatarMoeda(reneg.novoValorParcela) }} em {{ reneg.numeroParcelas }}x
-          </p>
-          <p>Vencimento inicial: {{ formatarDataLocal(reneg.novoVencimento) }}</p>
-          <p>Desconto: {{ formatarMoeda(reneg.desconto) }}</p>
-          <p>Expira em: {{ formatarData(reneg.dataExpiracao) }}</p>
-        </section>
-      } @else {
-        <form
-          class="sep-parcela-fin-form"
-          [formGroup]="renegForm"
-          (ngSubmit)="proporRenegociacao()"
+      <!-- ============ REGISTRAR CONTATO ============ -->
+      <form
+        class="px31-card px31-form px31-form-contato"
+        [formGroup]="contatoForm"
+        (ngSubmit)="registrarContato()"
+      >
+        <h2>Registrar contato</h2>
+        <label for="cont-descricao">
+          <span>Descrição</span>
+          <textarea
+            id="cont-descricao"
+            formControlName="descricao"
+            maxlength="500"
+            rows="3"
+            placeholder="Descreva o contato realizado..."
+          ></textarea>
+        </label>
+        <div class="px31-linha-dupla">
+          <label for="cont-dias">
+            <span>Dias de atraso (opcional)</span>
+            <input
+              id="cont-dias"
+              type="number"
+              min="0"
+              formControlName="diasAtraso"
+              placeholder="Ex.: 3"
+            />
+          </label>
+          <label for="cont-tipo">
+            <span>Tipo de contato</span>
+            <select
+              id="cont-tipo"
+              disabled
+              title="O endpoint de contato aceita apenas descrição e dias de atraso"
+            >
+              <option>Selecione o tipo</option>
+            </select>
+          </label>
+        </div>
+        <label for="cont-resp">
+          <span>Responsável</span>
+          <select
+            id="cont-resp"
+            disabled
+            title="O endpoint de contato aceita apenas descrição e dias de atraso"
+          >
+            <option>Selecione o responsável</option>
+          </select>
+        </label>
+        <button
+          type="submit"
+          class="px31-btn-primary px31-btn-bloco"
+          [disabled]="contatoSubmitting()"
         >
-          <h2 class="sep-parcela-fin-subtitle">Propor renegociacao</h2>
+          {{ contatoSubmitting() ? 'Registrando...' : 'Registrar contato' }}
+        </button>
+        @if (contatoOk()) {
+          <p class="px31-form-ok" role="status">Contato registrado.</p>
+        }
+        @if (contatoErro(); as msg) {
+          <p class="px31-form-erro" role="alert">{{ msg }}</p>
+        }
+      </form>
 
-          <label class="sep-parcela-fin-field" for="reneg-valor">
-            <span>Novo valor por parcela</span>
-            <input id="reneg-valor" type="number" step="0.01" formControlName="novoValorParcela" />
-          </label>
-
-          <label class="sep-parcela-fin-field" for="reneg-venc">
-            <span>Vencimento inicial</span>
-            <input id="reneg-venc" type="date" formControlName="novoVencimento" />
-          </label>
-
-          <label class="sep-parcela-fin-field" for="reneg-num">
-            <span>Numero de parcelas</span>
-            <input id="reneg-num" type="number" min="1" formControlName="numeroParcelas" />
-          </label>
-
-          <label class="sep-parcela-fin-field" for="reneg-desc">
-            <span>Desconto</span>
-            <input id="reneg-desc" type="number" step="0.01" min="0" formControlName="desconto" />
-          </label>
-
-          <label class="sep-parcela-fin-field" for="reneg-just">
-            <span>Justificativa</span>
-            <textarea
-              id="reneg-just"
-              formControlName="justificativa"
-              maxlength="1000"
-              rows="2"
-            ></textarea>
-          </label>
-
-          <button type="submit" class="sep-parcela-fin-cta" [disabled]="renegSubmitting()">
-            @if (renegSubmitting()) {
-              Enviando...
-            } @else {
-              Propor renegociacao
+      <!-- ============ PROPOR RENEGOCIAÇÃO ============ -->
+      <article class="px31-card px31-form px31-form-reneg">
+        <h2>Propor renegociação</h2>
+        @if (renegCriada(); as reneg) {
+          <div class="px31-reneg-criada" role="status">
+            <p>
+              <strong>{{ formatarMoeda(reneg.novoValorParcela) }}</strong> em
+              {{ reneg.numeroParcelas }}x
+            </p>
+            <p>Vencimento inicial: {{ formatarDataLocal(reneg.novoVencimento) }}</p>
+            <p>Desconto: {{ formatarMoeda(reneg.desconto) }}</p>
+            <p>Expira em: {{ formatarDataHora(reneg.dataExpiracao) }}</p>
+          </div>
+        } @else {
+          <form [formGroup]="renegForm" (ngSubmit)="proporRenegociacao()">
+            <label for="reneg-valor">
+              <span>Novo valor por parcela</span>
+              <input
+                id="reneg-valor"
+                type="text"
+                sepMask="moeda"
+                formControlName="novoValorParcela"
+                placeholder="Ex.: 950,00"
+              />
+            </label>
+            <div class="px31-linha-dupla">
+              <label for="reneg-venc">
+                <span>Vencimento inicial</span>
+                <input id="reneg-venc" type="date" formControlName="novoVencimento" />
+              </label>
+              <label for="reneg-num">
+                <span>Número de parcelas</span>
+                <input
+                  id="reneg-num"
+                  type="number"
+                  min="1"
+                  formControlName="numeroParcelas"
+                  placeholder="Ex.: 6"
+                />
+              </label>
+            </div>
+            <label for="reneg-desc">
+              <span>Desconto</span>
+              <input
+                id="reneg-desc"
+                type="text"
+                sepMask="moeda"
+                formControlName="desconto"
+                placeholder="Ex.: 50,00"
+              />
+            </label>
+            <label for="reneg-just">
+              <span>Justificativa</span>
+              <textarea
+                id="reneg-just"
+                formControlName="justificativa"
+                maxlength="1000"
+                rows="2"
+                placeholder="Justifique a proposta de renegociação..."
+              ></textarea>
+            </label>
+            <button
+              type="submit"
+              class="px31-btn-primary px31-btn-bloco"
+              [disabled]="renegSubmitting() || !podeRenegociar()"
+              [title]="
+                podeRenegociar()
+                  ? ''
+                  : 'Renegociação só é aceita em parcela atrasada ou inadimplente'
+              "
+            >
+              {{ renegSubmitting() ? 'Enviando...' : 'Propor renegociação' }}
+            </button>
+            @if (renegErro(); as msg) {
+              <p class="px31-form-erro" role="alert">{{ msg }}</p>
             }
-          </button>
+          </form>
+        }
+      </article>
 
-          @if (renegErro(); as msg) {
-            <p class="sep-parcela-fin-form-error" role="alert">{{ msg }}</p>
+      <!-- ============ HISTÓRICO DA PARCELA ============ -->
+      <article class="px31-card px31-historico">
+        <h2>Histórico da parcela</h2>
+        <ol class="px31-trilha">
+          @for (ev of eventos(); track ev.dataHora + ev.rotulo) {
+            <li [attr.data-tone]="tomDoEvento(ev.rotulo)">
+              <span class="px31-trilha-icone">
+                <lucide-icon [name]="$any(iconeDoEvento(ev.rotulo))" [size]="15" />
+              </span>
+              <div class="px31-trilha-texto">
+                <strong>{{ ev.rotulo }}</strong>
+                @if (ev.detalhe) {
+                  <small>{{ ev.detalhe }}</small>
+                }
+              </div>
+              <div class="px31-trilha-quando">
+                <strong>{{ formatarDataHora(ev.dataHora) }}</strong>
+                <small>{{ ev.origem }}</small>
+              </div>
+            </li>
+          } @empty {
+            <li class="px31-vazio">Nenhum evento registrado para esta parcela.</li>
           }
-        </form>
-      }
+        </ol>
+        @if (totalEventos() > 3) {
+          <button type="button" class="px31-link-todos" (click)="alternarHistorico()">
+            {{ historicoCompleto() ? 'Ver menos' : 'Ver histórico completo' }}
+            <lucide-icon name="arrow-right" [size]="15" />
+          </button>
+        }
+      </article>
+
+      <!-- ============ DOCUMENTOS RELACIONADOS ============ -->
+      <article class="px31-card px31-documentos">
+        <h2>Documentos relacionados</h2>
+        <ul>
+          @for (doc of documentos(); track doc.nome) {
+            <li>
+              <span class="px31-doc-icone"><lucide-icon name="file-text" [size]="18" /></span>
+              <div>
+                <strong>{{ doc.nome }}</strong>
+                <small>{{ texto(doc.tipo) }} • {{ texto(doc.tamanho) }}</small>
+              </div>
+              <button
+                type="button"
+                class="px31-btn-icone"
+                disabled
+                [title]="'Não há endpoint de download de documentos nesta fase'"
+                [attr.aria-label]="'Baixar ' + doc.nome"
+              >
+                <lucide-icon name="download" [size]="16" />
+              </button>
+            </li>
+          } @empty {
+            <li class="px31-vazio">Nenhum documento relacionado a esta parcela.</li>
+          }
+        </ul>
+        @if (totalDocumentos() > 3) {
+          <button type="button" class="px31-link-todos" (click)="alternarDocumentos()">
+            {{ documentosCompletos() ? 'Ver menos' : 'Ver todos os documentos' }}
+            <lucide-icon name="arrow-right" [size]="15" />
+          </button>
+        }
+      </article>
     }
-  }
-</section>
+  </section>
+</sep-operational-shell>

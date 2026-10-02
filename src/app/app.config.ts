@@ -1,3 +1,13 @@
+/**
+ * SEP — Frontend
+ *
+ * Frontend Development:
+ * Daniel Möllmann
+ *
+ * Angular • TypeScript • SCSS
+ * 2026
+ */
+
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,

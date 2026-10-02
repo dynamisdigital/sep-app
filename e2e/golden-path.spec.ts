@@ -1,71 +1,64 @@
 import { expect, test } from '@playwright/test';
 
-import { changedPassword, defaultPassword, uniqueEmail } from './fixtures/users';
+import { changedPassword, defaultPassword } from './fixtures/users';
 
-test('CLIENTE: cadastro -> login -> perfil -> alterar senha -> relogar', async ({ page }) => {
-  const email = uniqueEmail('cliente');
+// Caminho feliz de ponta a ponta em MSW/dev-offline. O passo de autocadastro saiu do teste
+// porque a rota `/register` foi removida no Sprint 5: no SEP quem cria usuario e a
+// Administracao, e o operador entra com a conta que recebeu.
+const CONTA = 'credora@empresa.com';
 
-  // 1. landing
-  await page.goto('/');
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => window.localStorage.setItem('NG_APP_USE_MSW', 'true'));
+});
 
-  // 2. abrir cadastro
-  await page
-    .getByRole('link', { name: /criar conta|cadastrar/i })
-    .first()
-    .click();
-  await expect(page).toHaveURL(/\/register/);
+test('CLIENTE: login -> perfil -> alterar senha -> relogar', async ({ page }) => {
+  // As telas do SEP sao desenhadas para desktop operacional; no viewport padrao do Playwright
+  // (1280x720) o rodape fixo cobre o rodape do formulario.
+  await page.setViewportSize({ width: 1440, height: 900 });
 
-  // 3. cadastro CLIENTE
-  await page.getByLabel(/e-mail/i).fill(email);
-  await page.getByLabel(/^senha$/i).fill(defaultPassword);
-  await page.getByLabel(/perfil/i).selectOption('CLIENTE');
-  await page.getByRole('button', { name: /criar|cadastrar|registrar/i }).click();
-
-  // 4. ir para login
-  await page.waitForURL(/\/login/, { timeout: 10_000 });
-
-  // 5. autenticar
-  await page.getByLabel(/e-mail/i).fill(email);
+  // 1. autenticar
+  await page.goto('/login');
+  await page.getByLabel(/e-mail/i).fill(CONTA);
   await page.getByLabel(/^senha$/i).fill(defaultPassword);
   await page.getByRole('button', { name: /entrar/i }).click();
 
-  // 6. dashboard
+  // 2. dashboard
   await page.waitForURL(/\/app\/dashboard/, { timeout: 10_000 });
-  await expect(page.getByText(new RegExp(`ola, ${email}`, 'i'))).toBeVisible();
 
-  // 7. abrir Meu perfil
+  // 3. abrir Meu perfil pelo menu
   await page.getByRole('link', { name: 'Meu perfil', exact: true }).first().click();
   await expect(page).toHaveURL(/\/app\/profile$/);
 
-  // 8. confirmar e-mail e role
-  const profileMain = page.getByRole('main');
-  await expect(profileMain.getByText(email)).toBeVisible();
-  await expect(profileMain.getByText('CLIENTE').first()).toBeVisible();
+  // 4. confirmar e-mail e papel no cartao de identidade (o e-mail tambem aparece no cabecalho
+  // e na barra lateral, por isso a assercao e presa ao cartao).
+  const identidade = page.locator('.profile-identity, .profile-panel').first();
+  await expect(identidade.getByText(CONTA).first()).toBeVisible();
+  await expect(page.locator('.profile-page').getByText('CLIENTE').first()).toBeVisible();
 
-  // 9. abrir Alterar senha
+  // 5. abrir Alterar senha
   await page
     .getByRole('link', { name: /alterar senha/i })
     .first()
     .click();
   await expect(page).toHaveURL(/\/app\/profile\/change-password/);
 
-  // 10. alterar senha
-  await page.getByLabel(/senha atual/i).fill(defaultPassword);
-  await page.getByLabel(/^nova senha$/i).fill(changedPassword);
-  await page.getByLabel(/confirme a nova senha/i).fill(changedPassword);
+  // 6. alterar senha
+  // Cada campo tem ao lado um botao "Mostrar ou ocultar <campo>": o seletor por id evita casar
+  // com o aria-label desse botao.
+  await page.locator('#passwordAtual').fill(defaultPassword);
+  await page.locator('#novaSenha').fill(changedPassword);
+  await page.locator('#confirmacaoNovaSenha').fill(changedPassword);
   await page.getByRole('button', { name: /salvar nova senha/i }).click();
   await expect(page.getByRole('status')).toContainText(/sucesso/i);
 
-  // 11. logout
-  await page.getByRole('button', { name: /sair/i }).click();
+  // 7. sair (a acao mora no menu da conta, no cabecalho)
+  await page.getByRole('button', { name: 'Menu da conta' }).click();
+  await page.getByRole('menuitem', { name: /Sair da conta/ }).click();
   await page.waitForURL(/\/login/, { timeout: 10_000 });
 
-  // 12. login com nova senha
-  await page.getByLabel(/e-mail/i).fill(email);
+  // 8. entrar com a nova senha
+  await page.getByLabel(/e-mail/i).fill(CONTA);
   await page.getByLabel(/^senha$/i).fill(changedPassword);
   await page.getByRole('button', { name: /entrar/i }).click();
-
-  // 13. dashboard novamente
   await page.waitForURL(/\/app\/dashboard/, { timeout: 10_000 });
-  await expect(page.getByText(new RegExp(`ola, ${email}`, 'i'))).toBeVisible();
 });
