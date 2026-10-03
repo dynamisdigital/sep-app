@@ -1,5 +1,5 @@
 import { PassoRoteiro, Roteiro } from '../tour.model';
-import { ROTA_STEP_UP, confirmarComTotp, peloMenu } from './passos-comuns';
+import { ROTA_STEP_UP, confirmarComTotp, peloMenu, emSecao } from './passos-comuns';
 
 // Tours assistidos da Cobranca. A tela inicial e dos tres papeis operacionais; a agenda financeira,
 // a inadimplencia e a parcela sao do financeiro e da administracao (o roteiro nao aparece para o
@@ -860,14 +860,13 @@ const completo: Roteiro = {
   papeis: PAPEIS_FINANCEIROS,
   impedimento: IMPEDIMENTO_TOTP,
   passos: (ctx) => {
-    const sem = (passos: PassoRoteiro[]): PassoRoteiro[] => passos.slice(1);
     return [
-      ...visaoGeral.passos(ctx),
-      ...sem(agendaContrato.passos(ctx)),
-      ...sem(agendaFinanceira.passos(ctx)),
-      ...sem(inadimplencia.passos(ctx)),
-      ...sem(parcela.passos(ctx)),
-      ...sem(renegociacao.passos(ctx)),
+      ...emSecao(visaoGeral, ctx, { primeira: true }),
+      ...emSecao(agendaContrato, ctx),
+      ...emSecao(agendaFinanceira, ctx),
+      ...emSecao(inadimplencia, ctx),
+      ...emSecao(parcela, ctx),
+      ...emSecao(renegociacao, ctx),
     ];
   },
 };

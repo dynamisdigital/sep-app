@@ -1,5 +1,5 @@
 import { PassoRoteiro, Roteiro } from '../tour.model';
-import { ROTA_STEP_UP, confirmarComTotp, peloMenu, rotaExata } from './passos-comuns';
+import { ROTA_STEP_UP, confirmarComTotp, peloMenu, rotaExata, emSecao } from './passos-comuns';
 
 // Tours assistidos do Pix operacional. Os tres papeis operacionais alcancam o modulo; solicitar um
 // desembolso e do financeiro e da administracao, e pede TOTP. Consultar e ler detalhes nao grava nada.
@@ -753,13 +753,12 @@ const completo: Roteiro = {
   papeis: PAPEIS_FINANCEIROS,
   impedimento: IMPEDIMENTO_TOTP,
   passos: (ctx) => {
-    const sem = (passos: PassoRoteiro[]): PassoRoteiro[] => passos.slice(1);
     return [
-      ...visaoGeral.passos(ctx),
-      ...sem(desembolsos.passos(ctx)),
-      ...sem(solicitar.passos(ctx)),
-      ...sem(recebimentos.passos(ctx)),
-      ...sem(divergencias.passos(ctx)),
+      ...emSecao(visaoGeral, ctx, { primeira: true }),
+      ...emSecao(desembolsos, ctx),
+      ...emSecao(solicitar, ctx),
+      ...emSecao(recebimentos, ctx),
+      ...emSecao(divergencias, ctx),
     ];
   },
 };

@@ -510,6 +510,81 @@ describe('TourService', () => {
     }
   });
 
+  describe('submodulos do modulo completo', () => {
+    const ctx = { demo: true, papel: 'ADMIN' as const, mfa: true, carimbo: '000000', dados: {} };
+
+    it('todo "Modulo completo" marca cada passo com o roteiro a que pertence, em ordem', () => {
+      const completos = ROTEIROS.filter((r) => r.titulo === 'Módulo completo');
+      expect(completos.length).toBe(Object.keys(MODULOS_TOUR).length);
+      for (const completo of completos) {
+        const passos = completo.passos(ctx);
+        expect(
+          passos.every((p) => p.secao),
+          `${completo.id}: passo sem secao`,
+        ).toBe(true);
+        const nomes = passos.map((p) => p.secao as string);
+        const unicas = [...new Set(nomes)];
+        // Cada secao e uma faixa continua: nenhuma reaparece depois de outra.
+        expect(unicas.length, completo.id).toBe(
+          nomes.filter((n, i) => i === 0 || n !== nomes[i - 1]).length,
+        );
+        expect(unicas.length, completo.id).toBeGreaterThan(1);
+      }
+    });
+
+    it('roteiros avulsos nao tem secao', () => {
+      const avulso = ROTEIROS.find((r) => r.id === 'backoffice-fila')!;
+      expect(avulso.passos(ctx).some((p) => p.secao)).toBe(false);
+    });
+
+    it('lista as secoes com a faixa de passos de cada uma e a situacao pelo passo atual', () => {
+      auth.currentUserState.set(usuario('ADMIN', true));
+      tour.iniciar('backoffice-completo');
+      const secoes = tour.secoes();
+      expect(secoes.length).toBe(6);
+      expect(secoes[0].inicio).toBe(0);
+      for (let i = 1; i < secoes.length; i += 1) {
+        expect(secoes[i].inicio).toBe(secoes[i - 1].fim + 1);
+      }
+      expect(secoes[secoes.length - 1].fim).toBe(tour.passos().length - 1);
+
+      tour.indice.set(secoes[2].inicio + 1);
+      expect(tour.situacaoDasSecoes()).toEqual([
+        'feita',
+        'feita',
+        'atual',
+        'pendente',
+        'pendente',
+        'pendente',
+      ]);
+    });
+
+    it('irParaSecao recomeca do primeiro passo da secao e volta a rodar', () => {
+      auth.currentUserState.set(usuario('ADMIN', true));
+      tour.iniciar('backoffice-completo');
+      tour.pausar();
+      tour.indice.set(tour.secoes()[4].inicio + 3);
+      tour.irParaSecao(1);
+      expect(tour.indice()).toBe(tour.secoes()[1].inicio);
+      expect(tour.estado()).toBe('rodando');
+    });
+
+    it('voltar sem historico fica no passo atual; com historico, recua pelo relogio do tour', () => {
+      auth.currentUserState.set(usuario('ADMIN', true));
+      tour.iniciar('backoffice-completo');
+      tour.pausar();
+      const interno = tour as unknown as { marcas: number[]; acumulado: number };
+      // Passos 0..5 comecaram a cada 10 s de tour; o relogio esta em 55 s, no passo 5.
+      interno.marcas = [0, 10_000, 20_000, 30_000, 40_000, 50_000];
+      interno.acumulado = 55_000;
+      tour.indice.set(5);
+      tour.voltar();
+      // 55 s - 15 s = 40 s: o passo que estava no ar era o 4.
+      expect(tour.indice()).toBe(4);
+      expect(tour.estado()).toBe('rodando');
+    });
+  });
+
   it('criarArquivoDemo gera arquivo pequeno com o nome e o tipo pedidos', () => {
     const arquivo = criarArquivoDemo('rg-demonstracao.pdf', 'application/pdf');
     expect(arquivo.name).toBe('rg-demonstracao.pdf');

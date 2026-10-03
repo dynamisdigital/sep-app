@@ -1,5 +1,5 @@
-import { ContextoRoteiro, PassoRoteiro, Roteiro } from '../tour.model';
-import { peloMenu, rotaExata } from './passos-comuns';
+import { ContextoRoteiro, Roteiro } from '../tour.model';
+import { peloMenu, rotaExata, emSecao } from './passos-comuns';
 
 // Tours assistidos da jornada Credora. A credora e um usuario CLIENTE: nao existe papel proprio,
 // e o que muda o que a tela mostra e ter ou nao uma credora cadastrada. Por isso cada roteiro diz,
@@ -478,12 +478,11 @@ const completo: Roteiro = {
   papeis: PAPEIS,
   impedimento: IMPEDIMENTO_CREDORA,
   passos: (ctx) => {
-    const sem = (passos: PassoRoteiro[]): PassoRoteiro[] => passos.slice(1);
     return [
-      ...visaoGeral.passos(ctx),
-      ...sem(perfil.passos(ctx)),
-      ...sem(oportunidades.passos(ctx)),
-      ...sem(carteira.passos(ctx)),
+      ...emSecao(visaoGeral, ctx, { primeira: true }),
+      ...emSecao(perfil, ctx),
+      ...emSecao(oportunidades, ctx),
+      ...emSecao(carteira, ctx),
     ];
   },
 };

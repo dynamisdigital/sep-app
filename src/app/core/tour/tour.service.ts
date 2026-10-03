@@ -10,6 +10,20 @@ import { AlvoPasso, ContextoRoteiro, PassoRoteiro, Roteiro } from './tour.model'
 
 export type EstadoTour = 'parado' | 'rodando' | 'pausado' | 'concluido' | 'interrompido';
 
+/** Um submodulo do tour "Modulo completo": a faixa de passos [inicio, fim] de um roteiro. */
+export interface SecaoTour {
+  titulo: string;
+  inicio: number;
+  fim: number;
+  /** Cliques de navegacao a rodar antes, quando o operador salta direto para esta secao. */
+  entrada: PassoRoteiro[];
+}
+
+export type SituacaoSecao = 'feita' | 'atual' | 'pendente';
+
+/** Quanto o botao "voltar" retrocede, em tempo de tour (sem contar as pausas). */
+export const VOLTAR_MS = 15_000;
+
 export interface PosicaoCursor {
   x: number;
   y: number;
@@ -59,7 +73,39 @@ export class TourService {
     return typeof passo.texto === 'function' ? passo.texto(this.contexto) : passo.texto;
   });
 
+  /**
+   * Submodulos do tour atual. So existe nos roteiros "Modulo completo", cujos passos carregam a
+   * secao a que pertencem; nos demais a lista e vazia e o cartao nao mostra a faixa.
+   */
+  readonly secoes = computed<SecaoTour[]>(() => {
+    const lista: SecaoTour[] = [];
+    this.passos().forEach((passo, i) => {
+      if (!passo.secao) return;
+      const ultima = lista[lista.length - 1];
+      if (ultima?.titulo === passo.secao) ultima.fim = i;
+      else lista.push({ titulo: passo.secao, inicio: i, fim: i, entrada: passo.entrada ?? [] });
+    });
+    return lista;
+  });
+
+  /** Situacao de cada secao agora: ja apresentada, em apresentacao ou ainda por vir. */
+  readonly situacaoDasSecoes = computed<SituacaoSecao[]>(() => {
+    const atual = this.indice();
+    return this.secoes().map((s) =>
+      atual > s.fim ? 'feita' : atual >= s.inicio ? 'atual' : 'pendente',
+    );
+  });
+
   private contexto: ContextoRoteiro = novoContexto(false, null, false, null);
+  /**
+   * Relogio do tour: tempo de apresentacao sem as pausas. `marcas[i]` e o relogio quando o passo i
+   * comecou; o botao de voltar procura nele o passo de 15 segundos atras.
+   */
+  private marcas: number[] = [];
+  /** Primeiro passo que o botao de voltar alcanca: o do inicio do tour ou do ultimo salto. */
+  private base = 0;
+  private acumulado = 0;
+  private desde: number | null = null;
   private execucao = 0;
   private retomar: (() => void) | null = null;
   private pularEspera: (() => void) | null = null;
@@ -93,7 +139,12 @@ export class TourService {
     this.passos.set(roteiro.passos(this.contexto));
     this.indice.set(0);
     this.mensagem.set(null);
+    this.marcas = [];
+    this.base = 0;
+    this.acumulado = 0;
+    this.desde = null;
     this.estado.set('rodando');
+    this.descongelar();
     // Chamado dentro do clique que abriu o tour: e o gesto que o navegador exige para ter audio.
     this.musica.tocar();
     void this.executar(++this.execucao);
@@ -102,6 +153,7 @@ export class TourService {
   pausar(): void {
     if (this.estado() === 'rodando') {
       this.estado.set('pausado');
+      this.congelar();
       this.narrador.parar();
     }
   }
@@ -109,6 +161,7 @@ export class TourService {
   continuar(): void {
     if (this.estado() !== 'pausado') return;
     this.estado.set('rodando');
+    this.descongelar();
     this.retomar?.();
     this.retomar = null;
   }
@@ -127,6 +180,38 @@ export class TourService {
   repetir(): void {
     const roteiro = this.roteiro();
     if (roteiro) this.iniciar(roteiro.id);
+  }
+
+  /**
+   * Recomeca do inicio de um submodulo. Vale em qualquer estado, ate depois de concluido: e o jeito
+   * de rever so aquela parte sem comecar o modulo de novo.
+   */
+  irParaSecao(posicao: number): void {
+    const secao = this.secoes()[posicao];
+    if (!secao) return;
+    this.saltar(secao.inicio, secao.entrada, true, true);
+  }
+
+  /**
+   * Volta 15 segundos de apresentacao, a cada clique. Reexecuta a partir do passo que estava no ar
+   * naquele momento. Se entre ele e o passo atual a tela trocou (um passo esperou outra rota), nao da
+   * para refazer o caminho de volta: o retrocesso para no primeiro passo depois da ultima troca.
+   */
+  voltar(): void {
+    const atual = this.indice();
+    const alvo = Math.max(0, this.relogio() - VOLTAR_MS);
+    let indice = this.base;
+    for (let i = this.base; i <= atual; i += 1) {
+      if ((this.marcas[i] ?? Infinity) <= alvo) indice = i;
+    }
+    const passos = this.passos();
+    for (let k = atual - 1; k >= indice; k -= 1) {
+      if (passos[k]?.aguardarRota) {
+        indice = k + 1;
+        break;
+      }
+    }
+    this.saltar(Math.min(indice, atual), [], false, false);
   }
 
   alternarVelocidade(): void {
@@ -149,22 +234,97 @@ export class TourService {
     this.roteiro.set(null);
     this.passos.set([]);
     this.mensagem.set(null);
+    this.marcas = [];
+    this.base = 0;
+    this.congelar();
+  }
+
+  /** Interrompe a execucao em curso e recomeca de `indice`, com o relogio de volta ao seu inicio. */
+  private saltar(
+    indice: number,
+    entrada: PassoRoteiro[],
+    doDashboard: boolean,
+    novoInicio: boolean,
+  ): void {
+    if (!this.roteiro() || indice < 0 || indice >= this.passos().length) return;
+    const execucao = ++this.execucao;
+    this.narrador.parar();
+    this.passoUnico = false;
+    this.retomar?.();
+    this.retomar = null;
+    this.pularEspera?.();
+    this.destacar(null);
+    this.focoAceso.set(false);
+    this.areaAlvo.set(null);
+    this.cursor.set(null);
+    this.clicando.set(false);
+    this.digitando.set(false);
+    this.mensagem.set(null);
+    if (novoInicio) {
+      // Salto para um submodulo: o tempo anterior nao vale mais, e o voltar nao passa daqui.
+      this.marcas = [];
+      this.base = indice;
+      this.acumulado = 0;
+    } else {
+      this.acumulado = this.marcas[indice] ?? 0;
+      this.marcas.length = Math.min(this.marcas.length, indice);
+    }
+    this.desde = null;
+    this.indice.set(indice);
+    this.estado.set('rodando');
+    this.descongelar();
+    // Foi um clique do operador: e o gesto de que o navegador precisa para devolver o audio.
+    this.musica.tocar();
+    void this.executar(execucao, indice, entrada, doDashboard);
+  }
+
+  private relogio(): number {
+    return this.acumulado + (this.desde === null ? 0 : performance.now() - this.desde);
+  }
+
+  private congelar(): void {
+    if (this.desde === null) return;
+    this.acumulado += performance.now() - this.desde;
+    this.desde = null;
+  }
+
+  private descongelar(): void {
+    if (this.desde === null) this.desde = performance.now();
   }
 
   // ============ EXECUCAO ============
 
   private passoUnico = false;
 
-  private async executar(execucao: number): Promise<void> {
+  private async executar(
+    execucao: number,
+    inicio = 0,
+    entrada: PassoRoteiro[] = [],
+    doDashboard = true,
+  ): Promise<void> {
     const vivo = () => execucao === this.execucao;
     const roteiro = this.roteiro();
-    if (roteiro?.id && this.router.url.split('?')[0] !== '/app/dashboard') {
+    if (doDashboard && roteiro?.id && this.router.url.split('?')[0] !== '/app/dashboard') {
       // Todo roteiro parte do Dashboard, como quem acabou de entrar no sistema.
       await this.router.navigateByUrl('/app/dashboard').catch(() => false);
       await this.esperar(400);
     }
 
-    for (let i = 0; vivo() && i < this.passos().length; i += 1) {
+    // Salto para um submodulo: os cliques de navegacao que o completo omitia rodam antes dele.
+    for (const passo of entrada) {
+      if (!vivo()) return;
+      try {
+        if (await this.executarPasso(passo, inicio, vivo, false)) return;
+      } catch {
+        if (!vivo()) return;
+        this.estado.set('interrompido');
+        this.musica.parar();
+        this.mensagem.set('Não foi possível chegar a esta parte. Tente repetir o módulo.');
+        return;
+      }
+    }
+
+    for (let i = inicio; vivo() && i < this.passos().length; i += 1) {
       const passo = this.passos()[i];
       if (passo.pularSe?.(this.contexto)) continue;
 
@@ -185,6 +345,7 @@ export class TourService {
       if (this.passoUnico) {
         this.passoUnico = false;
         this.estado.set('pausado');
+        this.congelar();
       }
       await this.aguardarSePausado(vivo);
     }
@@ -206,6 +367,7 @@ export class TourService {
     passo: PassoRoteiro,
     indice: number,
     vivo: () => boolean,
+    registrar = true,
   ): Promise<boolean> {
     const texto = typeof passo.texto === 'function' ? passo.texto(this.contexto) : passo.texto;
     this.focoAceso.set(false);
@@ -227,12 +389,12 @@ export class TourService {
       await new Promise((resolve) => window.setTimeout(resolve, 320));
       // Cartao e destaque trocam juntos: antes o texto do passo seguinte aparecia com o foco
       // ainda no campo anterior.
-      this.indice.set(indice);
+      this.entrouNoPasso(indice, registrar);
       this.destacar(alvo);
       await this.moverCursor(alvo);
       this.focoAceso.set(true);
     } else {
-      this.indice.set(indice);
+      this.entrouNoPasso(indice, registrar);
       this.destacar(null);
     }
 
@@ -280,6 +442,12 @@ export class TourService {
       await this.localizar(passo.aguardarAlvo, vivo);
     }
     return false;
+  }
+
+  /** O passo passa a ser o atual e o relogio do tour marca quando ele comecou. */
+  private entrouNoPasso(indice: number, registrar: boolean): void {
+    this.indice.set(indice);
+    if (registrar) this.marcas[indice] = this.relogio();
   }
 
   // ============ DOM ============

@@ -1,5 +1,5 @@
 import { PassoRoteiro, Roteiro } from '../tour.model';
-import { ROTA_STEP_UP, confirmarComTotp, peloMenu, rotaExata } from './passos-comuns';
+import { ROTA_STEP_UP, confirmarComTotp, peloMenu, rotaExata, emSecao } from './passos-comuns';
 
 // Tours assistidos do Backoffice. Os tres papeis operacionais alcancam o modulo. Ler dashboards,
 // fila e reprocessos nao grava nada. Tratar uma ocorrencia (assumir, comentar) grava, e resolve-la
@@ -773,14 +773,13 @@ const completo: Roteiro = {
   papeis: PAPEIS,
   impedimento: IMPEDIMENTO_TOTP,
   passos: (ctx) => {
-    const sem = (passos: PassoRoteiro[]): PassoRoteiro[] => passos.slice(1);
     return [
-      ...visaoGeral.passos(ctx),
-      ...sem(indicadores.passos(ctx)),
-      ...sem(fila.passos(ctx)),
-      ...sem(tratar.passos(ctx)),
-      ...sem(reprocessos.passos(ctx)),
-      ...sem(reprocessar.passos(ctx)),
+      ...emSecao(visaoGeral, ctx, { primeira: true }),
+      ...emSecao(indicadores, ctx),
+      ...emSecao(fila, ctx),
+      ...emSecao(tratar, ctx),
+      ...emSecao(reprocessos, ctx),
+      ...emSecao(reprocessar, ctx),
     ];
   },
 };

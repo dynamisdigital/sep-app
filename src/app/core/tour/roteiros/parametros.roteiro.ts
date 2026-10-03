@@ -1,6 +1,6 @@
 import { ContextoRoteiro, PassoRoteiro, Roteiro } from '../tour.model';
 import { MENU_ADMINISTRACAO } from './menus';
-import { ROTA_STEP_UP, confirmarComTotp, peloMenu } from './passos-comuns';
+import { ROTA_STEP_UP, confirmarComTotp, peloMenu, emSecao } from './passos-comuns';
 
 // Tours assistidos dos Parametros operacionais (Administracao). So o papel ADMIN alcanca a area.
 // O roteiro que grava um valor pede conta com TOTP, porque o sistema exige a segunda confirmacao.
@@ -288,9 +288,9 @@ const completo: Roteiro = {
   papeis: ['ADMIN'],
   impedimento: IMPEDIMENTO_TOTP,
   passos: (ctx) => [
-    ...catalogo.passos(ctx),
-    ...consultar.passos(ctx).slice(1),
-    ...alterar.passos(ctx).slice(1),
+    ...emSecao(catalogo, ctx, { primeira: true }),
+    ...emSecao(consultar, ctx),
+    ...emSecao(alterar, ctx),
   ],
 };
 

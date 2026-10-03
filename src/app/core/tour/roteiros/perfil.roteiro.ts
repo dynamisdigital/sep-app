@@ -1,5 +1,5 @@
-import { PassoRoteiro, Roteiro } from '../tour.model';
-import { peloMenu } from './passos-comuns';
+import { Roteiro } from '../tour.model';
+import { peloMenu, emSecao } from './passos-comuns';
 
 // Tours assistidos do Meu perfil. Servem a todos os papeis e nao gravam nada: trocar a senha ou
 // ativar o TOTP mexe na credencial da conta, entao os roteiros so mostram a tela. Digitar uma senha
@@ -296,8 +296,11 @@ const completo: Roteiro = {
   duracao: '≈ 6 min',
   papeis: PAPEIS,
   passos: (ctx) => {
-    const sem = (passos: PassoRoteiro[]): PassoRoteiro[] => passos.slice(1);
-    return [...perfil.passos(ctx), ...sem(senha.passos(ctx)), ...sem(totp.passos(ctx))];
+    return [
+      ...emSecao(perfil, ctx, { primeira: true }),
+      ...emSecao(senha, ctx),
+      ...emSecao(totp, ctx),
+    ];
   },
 };
 

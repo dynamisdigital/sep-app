@@ -1,5 +1,5 @@
-import { PassoRoteiro, Roteiro } from '../tour.model';
-import { peloMenu } from './passos-comuns';
+import { Roteiro } from '../tour.model';
+import { peloMenu, emSecao } from './passos-comuns';
 
 // Tours assistidos do modulo de Credito. Roda para qualquer papel que alcance o modulo (backoffice,
 // financeiro e administracao) e nao pede TOTP: nenhum passo mexe em papel ou em credencial.
@@ -420,12 +420,11 @@ const completo: Roteiro = {
   duracao: '≈ 9 min',
   papeis: PAPEIS,
   passos: (ctx) => {
-    const sem = (passos: PassoRoteiro[]): PassoRoteiro[] => passos.slice(1);
     return [
-      ...visaoGeral.passos(ctx),
-      ...sem(propostas.passos(ctx)),
-      ...sem(nova.passos(ctx)),
-      ...sem(acompanhar.passos(ctx)),
+      ...emSecao(visaoGeral, ctx, { primeira: true }),
+      ...emSecao(propostas, ctx),
+      ...emSecao(nova, ctx),
+      ...emSecao(acompanhar, ctx),
     ];
   },
 };

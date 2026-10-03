@@ -1,5 +1,5 @@
 import { PassoRoteiro, Roteiro } from '../tour.model';
-import { ROTA_STEP_UP, confirmarComTotp, peloMenu } from './passos-comuns';
+import { ROTA_STEP_UP, confirmarComTotp, peloMenu, emSecao } from './passos-comuns';
 
 // Tours assistidos da Formalizacao. Roda para backoffice, financeiro e administracao, os papeis que
 // alcancam o modulo. Ler e percorrer o contrato nao grava nada; so o roteiro de aceite grava, e por
@@ -383,15 +383,14 @@ const completo: Roteiro = {
   papeis: PAPEIS,
   impedimento: IMPEDIMENTO_TOTP,
   passos: (ctx) => {
-    const sem = (passos: PassoRoteiro[]): PassoRoteiro[] => passos.slice(1);
     // O contrato ja esta aberto quando o segundo roteiro termina; o aceite parte da lista.
     const jaNaTela = ['Abrir o menu', 'Menu Formalização', 'Acessar contrato'];
     return [
-      ...visaoGeral.passos(ctx),
-      ...sem(contrato.passos(ctx)).filter(
-        (p) => !['Abrir o menu', 'Menu Formalização'].includes(p.titulo),
-      ),
-      ...sem(aceite.passos(ctx)).filter((p) => !jaNaTela.includes(p.titulo)),
+      ...emSecao(visaoGeral, ctx, { primeira: true }),
+      ...emSecao(contrato, ctx, {
+        manter: (p) => !['Abrir o menu', 'Menu Formalização'].includes(p.titulo),
+      }),
+      ...emSecao(aceite, ctx, { manter: (p) => !jaNaTela.includes(p.titulo) }),
     ];
   },
 };

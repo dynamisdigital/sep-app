@@ -42,6 +42,16 @@ export interface PassoRoteiro {
   aguardarRota?: RegExp;
   /** Depois da acao, espera este elemento aparecer (resposta do backend, painel que abre). */
   aguardarAlvo?: AlvoPasso;
+  /**
+   * Submodulo a que o passo pertence, nos roteiros "Modulo completo" (que juntam varios roteiros).
+   * O cartao do tour lista as secoes e deixa recomecar de qualquer uma.
+   */
+  secao?: string;
+  /**
+   * So no primeiro passo de uma secao: os passos de navegacao que o roteiro completo omite porque a
+   * secao anterior ja deixou a tela no ponto certo. Ao saltar para a secao, rodam antes dela.
+   */
+  entrada?: PassoRoteiro[];
   /** Pula o passo quando a condicao ja estiver satisfeita (chip que ja esta marcado). */
   pularSe?: (ctx: ContextoRoteiro) => boolean;
 }

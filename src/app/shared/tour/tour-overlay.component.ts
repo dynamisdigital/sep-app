@@ -59,7 +59,7 @@ export class TourOverlayComponent implements OnDestroy {
 
   private readonly cartao = viewChild<ElementRef<HTMLElement>>('cartao');
   // Tamanho real do cartao: o texto de cada passo muda a altura, e o canto e recalculado com ela.
-  private readonly tamanhoCartao = signal({ largura: 390, altura: 240 });
+  private readonly tamanhoCartao = signal({ largura: 430, altura: 240 });
   private observador: ResizeObserver | null = null;
 
   /**

@@ -1,4 +1,4 @@
-import { AlvoPasso, PassoRoteiro } from '../tour.model';
+import { AlvoPasso, ContextoRoteiro, PassoRoteiro, Roteiro } from '../tour.model';
 
 // Passos que todo modulo repete: abrir o menu, chegar a uma tela pelo menu lateral e confirmar uma
 // operacao sensivel por TOTP. Ficam aqui para um roteiro novo descrever so o que e proprio dele.
@@ -91,4 +91,29 @@ export function confirmarComTotp(opcoes: {
       aguardarRota: opcoes.destino,
     },
   ];
+}
+
+/**
+ * Passos de um sub-roteiro como uma secao do "Modulo completo". O primeiro roteiro entra inteiro; os
+ * seguintes sem a apresentacao do inicio (`primeira: false` e o padrao). `manter` filtra os passos
+ * que a secao anterior ja deixou prontos. O que ficou de fora antes do primeiro passo mantido e que
+ * age na tela (cliques de menu) vira `entrada`: roda se o operador saltar direto para esta secao.
+ */
+export function emSecao(
+  roteiro: Roteiro,
+  ctx: ContextoRoteiro,
+  opcoes: { primeira?: boolean; manter?: (passo: PassoRoteiro) => boolean } = {},
+): PassoRoteiro[] {
+  const todos = roteiro.passos(ctx);
+  const mantidos = (opcoes.primeira ? todos : todos.slice(1)).filter(opcoes.manter ?? (() => true));
+  const primeiro = mantidos[0] ? todos.indexOf(mantidos[0]) : -1;
+  const entrada =
+    primeiro > 0
+      ? todos.slice(0, primeiro).filter((p) => p.acao && p.acao.tipo !== 'observar')
+      : [];
+  return mantidos.map((passo, i) => ({
+    ...passo,
+    secao: roteiro.titulo,
+    ...(i === 0 && entrada.length ? { entrada } : {}),
+  }));
 }

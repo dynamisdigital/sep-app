@@ -55,12 +55,35 @@
     <div class="sep-tour-barra" aria-hidden="true">
       <span [style.width.%]="progresso()"></span>
     </div>
-    <p class="sep-tour-contagem">
-      Passo {{ tour.indice() + 1 }} de {{ tour.passos().length }}
-      @if (tour.estado() === 'pausado') {
-        · <strong>pausado</strong>
+    <div class="sep-tour-linha">
+      <p class="sep-tour-contagem">
+        Passo {{ tour.indice() + 1 }} de {{ tour.passos().length }}
+        @if (tour.estado() === 'pausado') {
+          · <strong>pausado</strong>
+        }
+      </p>
+      @if (tour.secoes().length > 1) {
+        <ul class="sep-tour-secoes" aria-label="Submódulos do tour">
+          @for (secao of tour.secoes(); track secao.inicio; let i = $index) {
+            <li>
+              <button
+                type="button"
+                class="sep-tour-secao"
+                [attr.data-situacao]="tour.situacaoDasSecoes()[i]"
+                [attr.aria-current]="tour.situacaoDasSecoes()[i] === 'atual' ? 'step' : null"
+                [attr.title]="'Recomeçar em: ' + secao.titulo"
+                (click)="tour.irParaSecao(i)"
+              >
+                @if (tour.situacaoDasSecoes()[i] === 'feita') {
+                  <lucide-icon name="check" [size]="10" />
+                }
+                <span>{{ secao.titulo }}</span>
+              </button>
+            </li>
+          }
+        </ul>
       }
-    </p>
+    </div>
 
     <h3>{{ tour.passoAtual()?.titulo }}</h3>
     <p class="sep-tour-texto" aria-live="polite">{{ tour.textoAtual() }}</p>
@@ -101,6 +124,15 @@
             <lucide-icon name="pause" [size]="15" />Pausar
           </button>
         }
+        <button
+          type="button"
+          class="sep-tour-btn"
+          title="Volta 15 segundos; a cada clique, mais 15"
+          aria-label="Voltar 15 segundos"
+          (click)="tour.voltar()"
+        >
+          <lucide-icon name="rotate-ccw" [size]="15" />15s
+        </button>
         <button
           type="button"
           class="sep-tour-btn"

@@ -123,7 +123,7 @@
   z-index: 1004;
   display: grid;
   gap: 8px;
-  width: min(390px, calc(100vw - 32px));
+  width: min(430px, calc(100vw - 32px));
   padding: 14px 16px;
   color: var(--sep-text);
   border: 1px solid rgb(var(--sep-c-cyan) / 55%);
@@ -214,13 +214,83 @@
   }
 }
 
+// Contagem de passos a esquerda e, a direita, os submodulos do tour completo.
+.sep-tour-linha {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
 .sep-tour-contagem {
+  flex: none;
   margin: 0;
+  padding-top: 3px;
   color: var(--sep-text-muted);
   font-size: 11.5px;
 
   strong {
     color: var(--sep-warning);
+  }
+}
+
+.sep-tour-secoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: flex-end;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// Tres estados: apresentado (apagado, com visto), em apresentacao (aceso) e por apresentar.
+.sep-tour-secao {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+  max-width: 128px;
+  padding: 2px 8px;
+  color: var(--sep-text-muted);
+  font: inherit;
+  font-size: 10.5px;
+  line-height: 1.5;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.7;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    opacity 160ms ease;
+
+  // O texto fica num span: reticencias nao funcionam direto num contêiner flex.
+  span {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  &:hover {
+    opacity: 1;
+    border-color: rgb(var(--sep-c-cyan) / 55%);
+  }
+
+  &[data-situacao="feita"] {
+    color: var(--sep-success);
+    border-color: rgb(var(--sep-c-cyan) / 25%);
+  }
+
+  &[data-situacao="atual"] {
+    color: var(--sep-text-strong);
+    font-weight: 700;
+    border-color: var(--sep-glow);
+    background: rgb(var(--sep-c-cyan) / 18%);
+    box-shadow: 0 0 10px rgb(var(--sep-c-cyan) / 30%);
+    opacity: 1;
   }
 }
 
@@ -262,7 +332,7 @@
 .sep-tour-cartao footer {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
   margin-top: 4px;
 }

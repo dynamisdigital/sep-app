@@ -1,5 +1,5 @@
 import { PassoRoteiro, Roteiro } from '../tour.model';
-import { peloMenu } from './passos-comuns';
+import { peloMenu, emSecao } from './passos-comuns';
 
 // Tours assistidos do Onboarding (KYC de pessoa fisica e KYB de empresa). Rodam para backoffice,
 // financeiro e administracao, sem TOTP. Nenhum dado real entra: CPF e CNPJ sao os numeros de teste
@@ -302,9 +302,9 @@ const completo: Roteiro = {
   duracao: '≈ 7 min',
   papeis: PAPEIS,
   passos: (ctx) => [
-    ...visaoGeral.passos(ctx),
-    ...pessoa.passos(ctx).slice(1),
-    ...empresa.passos(ctx).slice(1),
+    ...emSecao(visaoGeral, ctx, { primeira: true }),
+    ...emSecao(pessoa, ctx),
+    ...emSecao(empresa, ctx),
   ],
 };
 

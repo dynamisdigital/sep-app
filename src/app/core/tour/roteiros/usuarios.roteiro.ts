@@ -1,6 +1,6 @@
 import { ContextoRoteiro, PassoRoteiro, Roteiro } from '../tour.model';
 import { MENU_ADMINISTRACAO } from './menus';
-import { ROTA_STEP_UP, confirmarComTotp, peloMenu } from './passos-comuns';
+import { ROTA_STEP_UP, confirmarComTotp, peloMenu, emSecao } from './passos-comuns';
 
 // Piloto dos tours assistidos: modulo de Usuarios (Administracao). Cada roteiro parte do menu,
 // como faria um operador, e usa so o que a tela oferece de verdade. Serve de molde para os
@@ -353,10 +353,10 @@ const completo: Roteiro = {
   papeis: ['ADMIN'],
   impedimento: editar.impedimento,
   passos: (ctx) => [
-    ...visaoGeral.passos(ctx),
-    ...incluir.passos(ctx).slice(1),
-    ...editar.passos(ctx).slice(1),
-    ...excluir.passos(ctx).slice(1),
+    ...emSecao(visaoGeral, ctx, { primeira: true }),
+    ...emSecao(incluir, ctx),
+    ...emSecao(editar, ctx),
+    ...emSecao(excluir, ctx),
   ],
 };
 
