@@ -1,4 +1,8 @@
-<section class="op-dashboard" aria-label="Área operacional SEP">
+<section
+  class="op-dashboard"
+  aria-label="Área operacional SEP"
+  [attr.data-largura]="larguraConteudo()"
+>
   <button
     type="button"
     class="op-back-link"
@@ -595,6 +599,31 @@
           }
         </div>
         <!-- ============ TEMA E ENQUADRAMENTO ============ -->
+        @if (janelaMaximizada()) {
+          <!-- So em janela maximizada: la a tela pode ficar do tamanho de meia tela ou ocupar tudo. -->
+          <button
+            type="button"
+            class="op-icon-button"
+            [attr.aria-pressed]="larguraConteudo() === 'expandida'"
+            [attr.aria-label]="
+              larguraConteudo() === 'ajustada'
+                ? 'Expandir a tela para toda a largura'
+                : 'Voltar a tela ao tamanho de meia tela'
+            "
+            [attr.title]="
+              larguraConteudo() === 'ajustada'
+                ? 'Tamanho de meia tela. Clique para ocupar toda a largura'
+                : 'Largura total. Clique para voltar ao tamanho de meia tela'
+            "
+            (click)="alternarLargura()"
+          >
+            <lucide-icon
+              [name]="larguraConteudo() === 'ajustada' ? 'maximize-2' : 'minimize-2'"
+              [size]="22"
+              [strokeWidth]="2"
+            />
+          </button>
+        }
         <button
           type="button"
           class="op-icon-button"

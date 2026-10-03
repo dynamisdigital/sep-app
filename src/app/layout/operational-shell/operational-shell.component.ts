@@ -63,6 +63,15 @@ interface ContaDemo {
 }
 
 const CHAVE_MENU_COLAPSADO = 'SEP_MENU_COLAPSADO';
+const CHAVE_LARGURA_CONTEUDO = 'SEP_LARGURA_CONTEUDO';
+/** Largura de CSS de uma meia tela num monitor de 2559px com zoom de 75%; espelha o shell SCSS. */
+const JANELA_MEIA_TELA_PX = 1716;
+
+/**
+ * Largura do conteudo em janela maximizada (acima de 1440px). `ajustada` mantem os widgets no tamanho
+ * que tem em meia tela; `expandida` deixa a area de conteudo ocupar toda a janela.
+ */
+export type LarguraConteudo = 'ajustada' | 'expandida';
 
 /** Um verbete de ajuda: o que a tela faz e o que dá para fazer nela. */
 interface AjudaContexto {
@@ -791,6 +800,31 @@ export class OperationalShellComponent implements OnDestroy {
     return nome.charAt(0).toUpperCase();
   });
 
+  protected readonly larguraConteudo = signal<LarguraConteudo>(lerLarguraConteudo());
+
+  /**
+   * Janela acima da largura de uma meia tela (1716px de CSS, a mesma de `_shell-operacional.scss`).
+   * So nela o botao de largura aparece: abaixo disso a escolha nao muda nada.
+   */
+  private readonly consultaMaximizada =
+    typeof window.matchMedia === 'function'
+      ? window.matchMedia(`(width > ${JANELA_MEIA_TELA_PX}px)`)
+      : null;
+  protected readonly janelaMaximizada = signal(this.consultaMaximizada?.matches ?? false);
+  private readonly aoMudarJanela = (e: MediaQueryListEvent): void =>
+    this.janelaMaximizada.set(e.matches);
+
+  protected alternarLargura(): void {
+    const proxima: LarguraConteudo =
+      this.larguraConteudo() === 'ajustada' ? 'expandida' : 'ajustada';
+    this.larguraConteudo.set(proxima);
+    try {
+      window.localStorage.setItem(CHAVE_LARGURA_CONTEUDO, proxima);
+    } catch {
+      // Armazenamento bloqueado: a escolha vale so ate recarregar a pagina.
+    }
+  }
+
   protected alternarConta(): void {
     this.contaAberta.update((aberto) => !aberto);
   }
@@ -853,8 +887,24 @@ export class OperationalShellComponent implements OnDestroy {
     this.location.back();
   }
 
+  constructor() {
+    this.consultaMaximizada?.addEventListener('change', this.aoMudarJanela);
+  }
+
   ngOnDestroy(): void {
+    this.consultaMaximizada?.removeEventListener('change', this.aoMudarJanela);
     window.clearInterval(this.clockInterval);
     this.inscricaoRota.unsubscribe();
+  }
+}
+
+/** Preferencia salva da largura do conteudo; sem ela, ajustada. */
+function lerLarguraConteudo(): LarguraConteudo {
+  try {
+    return window.localStorage.getItem(CHAVE_LARGURA_CONTEUDO) === 'expandida'
+      ? 'expandida'
+      : 'ajustada';
+  } catch {
+    return 'ajustada';
   }
 }

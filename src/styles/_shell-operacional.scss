@@ -128,6 +128,20 @@
   color-scheme: dark;
 }
 
+/* Largura "ajustada" em janela maximizada: a tela inteira (menu, cabecalho, conteudo e rodape) nao passa
+   da largura de uma meia tela e fica centrada, em vez de esticar com o monitor. A medida e a de meia
+   tela num monitor de 2559px com zoom de 75% (1716px de CSS); abaixo disso nada muda, e as regras de
+   janela maximizada seguem valendo porque a janela continua acima de 1440px. "Expandida" nao entra
+   aqui e acompanha a janela inteira. */
+$janela-meia-tela: 1716px;
+
+@media (width > #{$janela-meia-tela}) {
+  .op-dashboard[data-largura="ajustada"] {
+    max-width: var(--sep-largura-janela-ajustada, #{$janela-meia-tela - 8px});
+    margin-inline: auto;
+  }
+}
+
 .op-dashboard::before,
 .op-dashboard::after {
   position: absolute;
