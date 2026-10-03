@@ -536,6 +536,10 @@ export class OperationalShellComponent implements OnDestroy {
     { username: 'backoffice@empresa.com', rotulo: 'Backoffice', papel: 'BACKOFFICE' },
     { username: 'credora@empresa.com', rotulo: 'Credora ativa', papel: 'CLIENTE' },
     { username: 'credora-novo@empresa.com', rotulo: 'Credora sem cadastro', papel: 'CLIENTE' },
+    { username: 'credora-inelegivel@empresa.com', rotulo: 'Credora inelegível', papel: 'CLIENTE' },
+    { username: 'cliente@empresa.com', rotulo: 'Cliente', papel: 'CLIENTE' },
+    { username: 'multirole@empresa.com', rotulo: 'Financeiro + Backoffice', papel: 'FINANCEIRO' },
+    { username: 'dev@sep.local', rotulo: 'Desenvolvimento', papel: 'ADMIN' },
   ];
 
   protected readonly footerItems: OperationalFooterItem[] = [

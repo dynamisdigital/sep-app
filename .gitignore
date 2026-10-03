@@ -57,6 +57,7 @@ Thumbs.db
 **/venv/
 **/ENV/
 **/env/
+!src/app/core/env/
 **/.idea/
 **/.qodo/
 **/.vscode/

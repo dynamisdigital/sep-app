@@ -922,7 +922,7 @@ dl {
   right: 30px;
   border: 0;
   background: transparent;
-  color: white;
+  color: var(--sep-text-strong);
   font-size: 32px;
 }
 
@@ -934,7 +934,7 @@ dl {
   border: 1px solid var(--sep-accent);
   border-radius: 10px;
   background: var(--sep-surface-active);
-  color: var(--sep-surface-3);
+  color: var(--sep-text);
   box-shadow: 0 0 32px rgb(var(--sep-c-blue) / calc(28% * var(--sep-glow-alpha)));
   font-size: 14px;
 }
@@ -974,14 +974,14 @@ dl {
   padding: 5px 9px;
   border-radius: 5px;
   background: var(--sep-surface-active);
-  color: var(--sep-text-muted);
+  color: var(--sep-text);
   font-size: 12px;
   font-weight: 700;
 }
 
 .px21-documento-valor {
   margin: 12px 0 22px;
-  color: var(--sep-text-muted);
+  color: var(--sep-text-strong);
   font-size: 30px;
   font-weight: 700;
 }
@@ -1006,6 +1006,7 @@ dl {
 
 .px21-documento dd {
   margin: 0;
+  color: var(--sep-text-strong);
   overflow-wrap: anywhere;
   font-weight: 650;
   text-align: right;

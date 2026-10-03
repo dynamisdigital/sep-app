@@ -20,7 +20,7 @@ com uma regra única para "aprovada".
 ✅ O que ainda é fixo na tela ou depende do backend está declarado na apresentação
 
 📱 Acesse a apresentação interativa e o PDF oficial:
-[LINK]
+https://sep-atualizacao-02-10.netlify.app
 
 Responsável Técnico:
 Daniel Möllmann

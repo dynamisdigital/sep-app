@@ -2089,6 +2089,10 @@ a.op-alerta:hover {
 /* ============ AJUDA ============ */
 .op-painel-ajuda {
   width: 400px;
+
+  // O painel base para em 660px; a Ajuda tem a lista dos tours e usa quase toda a altura livre
+  // abaixo do cabecalho (o shell reserva ~96px acima e o rodape fica fora da area rolavel).
+  max-height: calc(100vh - 110px);
 }
 
 .op-ajuda-contexto {

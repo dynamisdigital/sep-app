@@ -419,7 +419,7 @@
                       narração opcional.
                     </p>
                     @for (grupo of tour.catalogo(); track grupo.modulo) {
-                      <details class="op-ajuda-grupo" [style.--tom]="grupo.tom" open>
+                      <details class="op-ajuda-grupo" [style.--tom]="grupo.tom">
                         <summary>
                           <span class="op-ajuda-icone op-ajuda-icone-grupo">
                             <lucide-icon [name]="grupo.icone" [size]="17" />
