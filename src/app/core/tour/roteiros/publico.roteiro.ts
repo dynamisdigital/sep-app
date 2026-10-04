@@ -39,6 +39,11 @@ function ler(titulo: string, texto: string, alvo: PassoRoteiro['alvo']): PassoRo
   return { titulo, texto, alvo, acao: { tipo: 'observar' } };
 }
 
+/** O tema escuro e a classe `dark` na raiz do documento. */
+function temaEscuroAtivo(): boolean {
+  return document.documentElement.classList.contains('dark');
+}
+
 /** O que todo roteiro publico declara: roda sem login e parte da pagina inicial. */
 const BASE = {
   modulo: MODULO,
@@ -72,11 +77,27 @@ const inicio: Roteiro = {
       'O menu leva a Crédito PJ, Segurança, Como funciona, Sobre o SEP e Contato. Cada uma tem um roteiro próprio.',
       '.landing-nav',
     ),
+    {
+      titulo: 'Tema claro ou escuro',
+      texto: () =>
+        temaEscuroAtivo()
+          ? 'O botão com o sol ou a lua troca entre o tema escuro, que é o padrão, e o tema claro. Vamos ativar o tema claro.'
+          : 'O botão com o sol ou a lua troca entre o tema claro e o escuro, que é o padrão. Vamos ativar o tema escuro.',
+      alvo: '.landing-theme',
+      acao: { tipo: 'clicar' },
+    },
     ler(
-      'Tema claro ou escuro',
-      'O botão com o sol ou a lua troca entre o tema escuro, que é o padrão, e o tema claro.',
-      '.landing-theme',
+      'Tema trocado',
+      'Assim fica a página no outro tema. A escolha fica guardada no navegador.',
+      '.landing-header',
     ),
+    {
+      titulo: 'Voltar ao tema original',
+      texto:
+        'Clicando de novo no mesmo botão, a página volta ao tema em que estava, e o tour continua.',
+      alvo: '.landing-theme',
+      acao: { tipo: 'clicar' },
+    },
     ler(
       'Largura da tela',
       'Em janela maximizada, este botão alterna entre a tela no tamanho de meia tela e a tela ocupando toda a largura.',

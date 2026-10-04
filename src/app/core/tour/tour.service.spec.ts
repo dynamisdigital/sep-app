@@ -551,7 +551,10 @@ describe('TourService', () => {
           roteiro.id,
         ).toBe(false);
         // Todo passo que age tem alvo, e os de navegacao esperam a pagina chegar.
-        for (const passo of passos.filter((p) => p.acao?.tipo === 'clicar')) {
+        // Trocar o tema nao muda de pagina: so os cliques de navegacao esperam a rota.
+        for (const passo of passos.filter(
+          (p) => p.acao?.tipo === 'clicar' && !/tema/i.test(p.titulo),
+        )) {
           expect(passo.alvo, `${roteiro.id}: ${passo.titulo}`).toBeTruthy();
           expect(passo.aguardarRota, `${roteiro.id}: ${passo.titulo}`).toBeTruthy();
         }
