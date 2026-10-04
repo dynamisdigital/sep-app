@@ -1,4 +1,4 @@
-<main class="landing-page">
+<main class="landing-page" sepLarguraTela>
   <div class="landing-shell">
     <header class="landing-header">
       <a routerLink="/" class="landing-brand" aria-label="SEP - Página inicial">
@@ -27,6 +27,7 @@
         >
           <lucide-icon [name]="temaEscuro() ? 'sun' : 'moon'" [size]="20" [strokeWidth]="2" />
         </button>
+        <sep-acoes-publicas />
         <a routerLink="/login" class="landing-login">Entrar</a>
       </div>
     </header>

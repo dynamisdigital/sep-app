@@ -1,4 +1,4 @@
-<main class="site-page">
+<main class="site-page" sepLarguraTela>
   <div class="site-shell">
     <header class="site-header">
       <a routerLink="/" class="site-brand" aria-label="SEP - Página inicial">
@@ -35,6 +35,7 @@
         >
           <lucide-icon [name]="temaEscuro() ? 'sun' : 'moon'" [size]="20" [strokeWidth]="2" />
         </button>
+        <sep-acoes-publicas />
         <a routerLink="/login" class="site-login">Entrar</a>
       </div>
     </header>

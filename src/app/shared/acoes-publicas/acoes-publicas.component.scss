@@ -1,0 +1,154 @@
+// Botoes de ajuda e de largura do cabecalho publico. Mesma linguagem do botao de tema do site
+// (`.site-theme`, `.landing-theme`): contorno ciano, fundo da superficie, 38px.
+
+.ap-raiz {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.ap-ajuda {
+  position: relative;
+}
+
+.ap-botao {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  color: rgb(var(--lp-c-ciano));
+  cursor: pointer;
+  border: 1px solid rgb(var(--lp-c-ciano) / 45%);
+  border-radius: 11px;
+  background: rgb(var(--lp-c-surf) / 72%);
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+
+  &:hover,
+  &:focus-visible,
+  &[aria-expanded="true"] {
+    border-color: rgb(var(--lp-c-ciano));
+    background: rgb(var(--lp-c-ciano) / 14%);
+    outline: none;
+    transform: translateY(-1px);
+  }
+}
+
+// Fecha o painel ao clicar fora, sem depender de um ouvinte no documento.
+.ap-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  cursor: default;
+  border: 0;
+  background: transparent;
+}
+
+.ap-painel {
+  position: absolute;
+  z-index: 41;
+  top: calc(100% + 12px);
+  right: 0;
+  display: grid;
+  gap: 10px;
+  width: min(400px, calc(100vw - 32px));
+  max-height: min(640px, calc(100vh - 120px));
+  padding: 14px;
+  overflow-y: auto;
+  color: rgb(var(--lp-c-suave));
+  border: 1px solid rgb(var(--lp-c-ciano) / 46%);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgb(var(--lp-c-surf) / 98%), rgb(var(--lp-c-fundo) / 98%));
+  box-shadow: 0 26px 60px rgb(var(--lp-c-fundo) / 72%);
+
+  header {
+    display: grid;
+    gap: 2px;
+
+    strong {
+      font-size: 14px;
+    }
+
+    small {
+      color: rgb(var(--lp-c-suave) / 70%);
+      font-size: 11.5px;
+    }
+  }
+}
+
+.ap-intro {
+  margin: 0;
+  color: rgb(var(--lp-c-suave) / 78%);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.ap-lista {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ap-roteiro {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  padding: 9px 10px;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid rgb(var(--lp-c-ciano) / 24%);
+  border-radius: 10px;
+  background: rgb(var(--lp-c-surf) / 60%);
+  transition:
+    border-color 160ms ease,
+    background 160ms ease;
+
+  &:hover,
+  &:focus-visible {
+    border-color: rgb(var(--lp-c-ciano) / 70%);
+    background: rgb(var(--lp-c-ciano) / 12%);
+    outline: none;
+  }
+
+  em {
+    color: rgb(var(--lp-c-suave) / 62%);
+    font-size: 11px;
+    font-style: normal;
+    white-space: nowrap;
+  }
+}
+
+.ap-icone {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  color: rgb(var(--lp-c-ciano));
+  border-radius: 8px;
+  background: rgb(var(--lp-c-ciano) / 14%);
+}
+
+.ap-texto {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+
+  strong {
+    font-size: 12.5px;
+  }
+
+  small {
+    color: rgb(var(--lp-c-suave) / 70%);
+    font-size: 11px;
+    line-height: 1.35;
+  }
+}

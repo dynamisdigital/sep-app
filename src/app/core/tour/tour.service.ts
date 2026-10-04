@@ -113,7 +113,9 @@ export class TourService {
   /** Roteiros que o papel corrente alcanca, agrupados por modulo, para o painel de Ajuda. */
   readonly catalogo = computed(() => {
     const papel = this.auth.currentUser()?.role ?? null;
-    const visiveis = ROTEIROS.filter((r) => !papel || r.papeis.includes(papel));
+    const visiveis = ROTEIROS.filter(
+      (r) => r.area !== 'publica' && (!papel || r.papeis.includes(papel)),
+    );
     const grupos = new Map<string, Roteiro[]>();
     for (const roteiro of visiveis) {
       grupos.set(roteiro.modulo, [...(grupos.get(roteiro.modulo) ?? []), roteiro]);
@@ -123,6 +125,14 @@ export class TourService {
       ...(MODULOS_TOUR[modulo] ?? MODULO_PADRAO),
       roteiros,
     }));
+  });
+
+  /** Roteiros do site institucional (sem login), em um grupo so, para a ajuda das paginas publicas. */
+  readonly catalogoPublico = computed(() => {
+    const roteiros = ROTEIROS.filter((r) => r.area === 'publica');
+    if (!roteiros.length) return [];
+    const modulo = roteiros[0].modulo;
+    return [{ modulo, ...(MODULOS_TOUR[modulo] ?? MODULO_PADRAO), roteiros }];
   });
 
   /** Motivo de um roteiro nao poder rodar agora (papel, MFA), ou null. */
@@ -304,9 +314,11 @@ export class TourService {
   ): Promise<void> {
     const vivo = () => execucao === this.execucao;
     const roteiro = this.roteiro();
-    if (doDashboard && roteiro?.id && this.router.url.split('?')[0] !== '/app/dashboard') {
-      // Todo roteiro parte do Dashboard, como quem acabou de entrar no sistema.
-      await this.router.navigateByUrl('/app/dashboard').catch(() => false);
+    const inicial = roteiro?.rotaInicial ?? '/app/dashboard';
+    if (doDashboard && roteiro?.id && this.router.url.split('?')[0] !== inicial) {
+      // Todo roteiro parte da tela inicial: o Dashboard, como quem acabou de entrar no sistema, ou a
+      // pagina inicial do site, nos roteiros publicos.
+      await this.router.navigateByUrl(inicial).catch(() => false);
       await this.esperar(400);
     }
 
@@ -584,7 +596,16 @@ export class TourService {
       if (/(auto|scroll)/.test(overflowY) && rolavel.scrollHeight > rolavel.clientHeight) break;
       rolavel = rolavel.parentElement;
     }
-    if (!rolavel) return;
+    if (!rolavel) {
+      // Paginas do site publico rolam o documento, nao um painel interno.
+      const r = elemento.getBoundingClientRect();
+      if (r.top >= 90 && r.bottom <= window.innerHeight - 40) return;
+      window.scrollTo({
+        top: window.scrollY + r.top - window.innerHeight / 3,
+        behavior: 'instant',
+      });
+      return;
+    }
     const caixa = rolavel.getBoundingClientRect();
     const r = elemento.getBoundingClientRect();
     if (r.top >= caixa.top + 40 && r.bottom <= caixa.bottom - 40) return;

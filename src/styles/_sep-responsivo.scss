@@ -94,8 +94,11 @@ $janela-telefone: 460px;
 /// cabendo na altura da tela. Abaixo disso o empilhamento com rolagem continua sendo o desenho.
 $janela-panoramica: 2400px;
 
+// Mede o container `sep-publico` (a raiz do site publico), e nao a janela: com a largura "ajustada" o
+// site fica na largura de meia tela mesmo num monitor largo e nao entra na diagramacao panoramica.
+// So o site publico usa estes dois mixins.
 @mixin panoramica {
-  @media (width > #{$janela-panoramica}) {
+  @container sep-publico (width > #{$janela-panoramica}) {
     @content;
   }
 }
@@ -106,7 +109,7 @@ $janela-panoramica: 2400px;
 $janela-panoramica-larga: 3000px;
 
 @mixin panoramica-larga {
-  @media (width > #{$janela-panoramica-larga}) {
+  @container sep-publico (width > #{$janela-panoramica-larga}) {
     @content;
   }
 }

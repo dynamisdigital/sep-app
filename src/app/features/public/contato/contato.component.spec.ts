@@ -1,4 +1,5 @@
 import { importProvidersFrom } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { LucideAngularModule } from 'lucide-angular';
@@ -9,7 +10,11 @@ import { ContatoComponent } from './contato.component';
 
 async function montar() {
   return render(ContatoComponent, {
-    providers: [provideRouter([]), importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS))],
+    providers: [
+      provideRouter([]),
+      provideHttpClient(),
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+    ],
   });
 }
 

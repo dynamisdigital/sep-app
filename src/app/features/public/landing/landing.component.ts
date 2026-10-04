@@ -4,7 +4,9 @@ import { LucideAngularModule } from 'lucide-angular';
 
 import { SepArteComponent } from '../../../shared/arte/sep-arte.component';
 import { SepLogoComponent } from '../../../shared/arte/sep-logo.component';
+import { LarguraTelaDirective } from '../../../core/layout/largura-tela.directive';
 import { ThemeService } from '../../../core/theme/theme.service';
+import { AcoesPublicasComponent } from '../../../shared/acoes-publicas/acoes-publicas.component';
 
 interface AssetItem {
   icon: string;
@@ -14,7 +16,14 @@ interface AssetItem {
 
 @Component({
   selector: 'sep-landing',
-  imports: [LucideAngularModule, RouterLink, SepArteComponent, SepLogoComponent],
+  imports: [
+    LucideAngularModule,
+    RouterLink,
+    SepArteComponent,
+    SepLogoComponent,
+    LarguraTelaDirective,
+    AcoesPublicasComponent,
+  ],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

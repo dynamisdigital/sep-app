@@ -67,6 +67,13 @@ export interface Roteiro {
   /** Duracao aproximada na velocidade normal, para quem escolhe o que assistir. */
   duracao: string;
   papeis: UsuarioRole[];
+  /**
+   * `publica`: roteiro do site institucional, que roda sem login e aparece na ajuda do site (e nao na
+   * do sistema). Sem este campo o roteiro e do sistema logado.
+   */
+  area?: 'publica';
+  /** Tela de onde o roteiro parte. Por padrao, o Dashboard do sistema; os do site partem da inicial. */
+  rotaInicial?: string;
   /** Condicao para o roteiro rodar; devolve o motivo quando nao pode. */
   impedimento?: (ctx: ContextoRoteiro) => string | null;
   /** Monta os passos na hora de iniciar: alguns dependem da conta e do momento. */

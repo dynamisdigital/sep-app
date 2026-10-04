@@ -1,0 +1,22 @@
+// ============ LARGURA DA TELA EM JANELA MAXIMIZADA ============
+// Acima de 1716px de CSS (meia tela num monitor de 2559px com zoom de 75%, `JANELA_MEIA_TELA_PX` em
+// `core/layout/largura-tela.service.ts`) a tela pode ficar `ajustada` — na largura de meia tela,
+// centralizada — ou `expandida`, acompanhando a janela. Abaixo disso nada muda.
+// O site publico declara a propria raiz como container `sep-publico`: a diagramacao panoramica
+// (`resp.panoramica`) mede esse container, e nao a janela. Ajustada, o container fica com 1716px e a
+// pagina se diagrama como em meia tela; expandida, ele e a janela inteira e vale a panoramica.
+
+$janela-meia-tela: 1716px;
+
+.landing-page,
+.site-page {
+  container: sep-publico / inline-size;
+}
+
+@media (width > #{$janela-meia-tela}) {
+  .landing-page[data-largura="ajustada"],
+  .site-page[data-largura="ajustada"] {
+    max-width: $janela-meia-tela;
+    margin-inline: auto;
+  }
+}

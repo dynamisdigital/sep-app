@@ -2,6 +2,7 @@ import { importProvidersFrom } from '@angular/core';
 import { LucideAngularModule } from 'lucide-angular';
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/angular';
+import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { LandingComponent } from './landing.component';
 import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
@@ -9,7 +10,11 @@ import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
 describe('LandingComponent', () => {
   it('renderiza headline principal', async () => {
     await render(LandingComponent, {
-      providers: [importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)), provideRouter([])],
+      providers: [
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+        provideRouter([]),
+        provideHttpClient(),
+      ],
     });
 
     expect(
@@ -22,7 +27,11 @@ describe('LandingComponent', () => {
 
   it('expoe links para /login e /register', async () => {
     await render(LandingComponent, {
-      providers: [importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)), provideRouter([])],
+      providers: [
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+        provideRouter([]),
+        provideHttpClient(),
+      ],
     });
 
     const loginLinks = screen.getAllByRole('link', { name: /entrar/i });
@@ -34,7 +43,11 @@ describe('LandingComponent', () => {
 
   it('expoe secao de seguranca/escrow', async () => {
     await render(LandingComponent, {
-      providers: [importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)), provideRouter([])],
+      providers: [
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+        provideRouter([]),
+        provideHttpClient(),
+      ],
     });
 
     expect(screen.getByRole('heading', { name: /formalização e escrow/i })).toBeTruthy();
@@ -43,7 +56,11 @@ describe('LandingComponent', () => {
 
   it('usa assets extraidos do mockup na landing', async () => {
     await render(LandingComponent, {
-      providers: [importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)), provideRouter([])],
+      providers: [
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+        provideRouter([]),
+        provideHttpClient(),
+      ],
     });
 
     expect(screen.getAllByText('SEP').length).toBeGreaterThan(0);

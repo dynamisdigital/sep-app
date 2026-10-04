@@ -1,3 +1,4 @@
+import { provideHttpClient } from '@angular/common/http';
 import { importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
@@ -10,7 +11,11 @@ import { PublicShellComponent } from './public-shell.component';
 
 async function montar() {
   return render(PublicShellComponent, {
-    providers: [importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)), provideRouter([])],
+    providers: [
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      provideRouter([]),
+      provideHttpClient(),
+    ],
   });
 }
 

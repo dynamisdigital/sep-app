@@ -1,0 +1,75 @@
+<div class="ap-raiz">
+  @if (largura.janelaMaximizada()) {
+    <button
+      type="button"
+      class="ap-botao"
+      [attr.aria-pressed]="largura.largura() === 'expandida'"
+      [attr.aria-label]="
+        largura.largura() === 'ajustada'
+          ? 'Expandir a tela para toda a largura'
+          : 'Voltar a tela ao tamanho de meia tela'
+      "
+      [attr.title]="
+        largura.largura() === 'ajustada'
+          ? 'Tamanho de meia tela. Clique para ocupar toda a largura'
+          : 'Largura total. Clique para voltar ao tamanho de meia tela'
+      "
+      (click)="largura.alternar()"
+    >
+      <lucide-icon
+        [name]="largura.largura() === 'ajustada' ? 'maximize-2' : 'minimize-2'"
+        [size]="20"
+        [strokeWidth]="2"
+      />
+    </button>
+  }
+
+  <div class="ap-ajuda">
+    <button
+      type="button"
+      class="ap-botao"
+      aria-haspopup="dialog"
+      [attr.aria-expanded]="aberta()"
+      aria-label="Ajuda e tours do site"
+      title="Ajuda"
+      (click)="alternar()"
+    >
+      <lucide-icon name="circle-question-mark" [size]="20" [strokeWidth]="2" />
+    </button>
+
+    @if (aberta()) {
+      <button
+        type="button"
+        class="ap-fundo"
+        aria-label="Fechar a ajuda"
+        (click)="fechar()"
+      ></button>
+      <section class="ap-painel" role="dialog" aria-label="Ajuda do site">
+        <header>
+          <strong>Ajuda</strong>
+          <small>Conheça o site com um tour guiado</small>
+        </header>
+        <p class="ap-intro">
+          O site percorre as páginas sozinho, destacando cada parte, com narração em português e
+          música de fundo. Você pode pausar, avançar, voltar 15 segundos ou sair quando quiser.
+        </p>
+        @for (grupo of tour.catalogoPublico(); track grupo.modulo) {
+          <ul class="ap-lista">
+            @for (roteiro of grupo.roteiros; track roteiro.id) {
+              <li>
+                <button type="button" class="ap-roteiro" (click)="iniciar(roteiro.id)">
+                  <span class="ap-icone"><lucide-icon [name]="roteiro.icone" [size]="15" /></span>
+                  <span class="ap-texto">
+                    <strong>{{ roteiro.titulo }}</strong>
+                    <small>{{ roteiro.descricao }}</small>
+                  </span>
+                  <em>{{ roteiro.duracao }}</em>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    }
+  </div>
+</div>

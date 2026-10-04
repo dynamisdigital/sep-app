@@ -12,7 +12,9 @@ import { ChangeDetectionStrategy, Component, inject, ViewEncapsulation } from '@
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 
+import { LarguraTelaDirective } from '../../../core/layout/largura-tela.directive';
 import { ThemeService } from '../../../core/theme/theme.service';
+import { AcoesPublicasComponent } from '../../../shared/acoes-publicas/acoes-publicas.component';
 
 /** Item do menu institucional. As rotas existem todas; nenhuma é âncora. */
 interface SiteNavItem {
@@ -27,7 +29,13 @@ interface SiteNavItem {
  */
 @Component({
   selector: 'sep-public-shell',
-  imports: [RouterLink, RouterLinkActive, LucideAngularModule],
+  imports: [
+    RouterLink,
+    RouterLinkActive,
+    LucideAngularModule,
+    LarguraTelaDirective,
+    AcoesPublicasComponent,
+  ],
   templateUrl: './public-shell.component.html',
   styleUrl: './public-shell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
