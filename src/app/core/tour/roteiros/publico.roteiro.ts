@@ -133,6 +133,7 @@ const inicio: Roteiro = {
 const login: Roteiro = {
   ...BASE,
   id: 'publico-login',
+  tela: '/login',
   titulo: 'Tela de login',
   icone: 'log-in',
   descricao: 'O acesso à plataforma: e-mail e senha, biometria, ajuda e os selos de segurança.',

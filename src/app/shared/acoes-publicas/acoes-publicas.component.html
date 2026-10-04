@@ -53,7 +53,7 @@
           O site percorre as páginas sozinho, destacando cada parte, com narração em português e
           música de fundo. Você pode pausar, avançar, voltar 15 segundos ou sair quando quiser.
         </p>
-        @for (grupo of tour.catalogoPublico(); track grupo.modulo) {
+        @for (grupo of grupos(); track grupo.modulo) {
           <ul class="ap-lista">
             @for (roteiro of grupo.roteiros; track roteiro.id) {
               <li>

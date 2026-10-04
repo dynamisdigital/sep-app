@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   ViewEncapsulation,
   inject,
   input,
@@ -31,7 +32,19 @@ export class AcoesPublicasComponent {
   /** `coluna` empilha os botoes: e como ficam na tela de login, que nao tem cabecalho. */
   readonly direcao = input<'linha' | 'coluna'>('linha');
 
+  /** Quando informada, a ajuda lista so os roteiros dessa tela (a de login mostra so o dela). */
+  readonly tela = input<string | null>(null);
+
   protected readonly aberta = signal(false);
+
+  protected readonly grupos = computed(() => {
+    const tela = this.tela();
+    const grupos = this.tour.catalogoPublico();
+    if (!tela) return grupos;
+    return grupos
+      .map((g) => ({ ...g, roteiros: g.roteiros.filter((r) => r.tela === tela) }))
+      .filter((g) => g.roteiros.length);
+  });
 
   protected alternar(): void {
     this.aberta.update((v) => !v);

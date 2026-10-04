@@ -74,6 +74,8 @@ export interface Roteiro {
   area?: 'publica';
   /** Tela de onde o roteiro parte. Por padrao, o Dashboard do sistema; os do site partem da inicial. */
   rotaInicial?: string;
+  /** Tela propria do roteiro: a ajuda dessa tela lista so os roteiros que a declaram. */
+  tela?: string;
   /** Condicao para o roteiro rodar; devolve o motivo quando nao pode. */
   impedimento?: (ctx: ContextoRoteiro) => string | null;
   /** Monta os passos na hora de iniciar: alguns dependem da conta e do momento. */
