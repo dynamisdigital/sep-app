@@ -7,7 +7,9 @@ import { ROTEIROS_FORMALIZACAO } from './formalizacao.roteiro';
 import { ROTEIROS_ONBOARDING } from './onboarding.roteiro';
 import { ROTEIROS_PIX } from './pix.roteiro';
 import { ROTEIROS_PARAMETROS } from './parametros.roteiro';
+import { ROTEIROS_PLATAFORMA } from './plataforma.roteiro';
 import { ROTEIROS_PERFIL } from './perfil.roteiro';
+import { ROTEIROS_PUBLICO } from './publico.roteiro';
 import { ROTEIROS_USUARIOS } from './usuarios.roteiro';
 
 // Um arquivo por modulo. Para um modulo novo: criar `<modulo>.roteiro.ts` no molde do de
@@ -25,6 +27,8 @@ export const ROTEIROS: Roteiro[] = [
   ...ROTEIROS_USUARIOS,
   ...ROTEIROS_PARAMETROS,
   ...ROTEIROS_PERFIL,
+  ...ROTEIROS_PLATAFORMA,
+  ...ROTEIROS_PUBLICO,
 ];
 
 /**
@@ -43,6 +47,8 @@ export const MODULOS_TOUR: Record<string, { icone: string; tom: string }> = {
   Usuários: { icone: 'users', tom: 'var(--sep-tint-red)' },
   Parâmetros: { icone: 'settings', tom: 'var(--sep-tint-orange)' },
   Perfil: { icone: 'user-round', tom: 'var(--sep-tint-slate)' },
+  Plataforma: { icone: 'layout-dashboard', tom: 'var(--sep-glow)' },
+  'Site institucional': { icone: 'globe', tom: 'var(--sep-tint-coral)' },
 };
 
 export const MODULO_PADRAO = { icone: 'monitor-play', tom: 'var(--sep-glow)' };

@@ -63,6 +63,7 @@ describe('TourService', () => {
       'Usuários',
       'Parâmetros',
       'Perfil',
+      'Plataforma',
     ]);
     const usuarios = grupos.find((g) => g.modulo === 'Usuários')!;
     expect(usuarios.roteiros.map((r) => r.titulo)).toEqual([
@@ -83,11 +84,12 @@ describe('TourService', () => {
       'Pix',
       'Backoffice',
       'Perfil',
+      'Plataforma',
     ]);
 
     // O cliente so alcanca a jornada da Credora; nenhum dos modulos operacionais.
     auth.currentUserState.set(usuario('CLIENTE', true));
-    expect(tour.catalogo().map((g) => g.modulo)).toEqual(['Credora', 'Perfil']);
+    expect(tour.catalogo().map((g) => g.modulo)).toEqual(['Credora', 'Perfil', 'Plataforma']);
   });
 
   it('em Parametros, so alterar (e o modulo completo) pede TOTP; catalogo e consulta rodam sem', () => {
@@ -465,6 +467,7 @@ describe('TourService', () => {
       'users',
       'settings',
       'user-round',
+      'layout-dashboard',
     ]);
     expect(grupos.every((g) => g.tom.startsWith('var(--sep-'))).toBe(true);
   });
@@ -508,6 +511,100 @@ describe('TourService', () => {
     for (const passo of envios) {
       expect(passo.acao).toMatchObject({ tipo: 'clicar', efeito: true });
     }
+  });
+
+  describe('tours do site institucional', () => {
+    it('ficam fora do catalogo do sistema e entram no catalogo publico, sem depender de login', () => {
+      auth.currentUserState.set(usuario('ADMIN', true));
+      expect(tour.catalogo().some((g) => g.modulo === 'Site institucional')).toBe(false);
+
+      const publico = tour.catalogoPublico();
+      expect(publico.length).toBe(1);
+      expect(publico[0].modulo).toBe('Site institucional');
+      expect(publico[0].roteiros.map((r) => r.titulo)).toEqual([
+        'Módulo completo',
+        'Página inicial',
+        'Crédito PJ',
+        'Segurança',
+        'Como funciona',
+        'Sobre o SEP',
+        'Contato',
+        'Política de privacidade',
+        'Termos de uso',
+      ]);
+      // Sem sessao: o catalogo publico nao muda, e nenhum roteiro tem impedimento.
+      auth.currentUserState.set(null);
+      expect(tour.catalogoPublico()[0].roteiros.every((r) => !tour.impedimento(r))).toBe(true);
+    });
+
+    it('partem da pagina inicial e so apontam elementos, sem gravar nada', () => {
+      const ctx = { demo: true, papel: null, mfa: false, carimbo: '000000', dados: {} };
+      for (const roteiro of ROTEIROS.filter((r) => r.area === 'publica')) {
+        expect(roteiro.rotaInicial, roteiro.id).toBe('/');
+        const passos = roteiro.passos(ctx);
+        // Nenhum passo grava: o formulario de contato e so mostrado, e nada e digitado.
+        expect(
+          passos.some(
+            (p) => p.acao?.tipo === 'digitar' || (p.acao?.tipo === 'clicar' && p.acao.efeito),
+          ),
+          roteiro.id,
+        ).toBe(false);
+        // Todo passo que age tem alvo, e os de navegacao esperam a pagina chegar.
+        for (const passo of passos.filter((p) => p.acao?.tipo === 'clicar')) {
+          expect(passo.alvo, `${roteiro.id}: ${passo.titulo}`).toBeTruthy();
+          expect(passo.aguardarRota, `${roteiro.id}: ${passo.titulo}`).toBeTruthy();
+        }
+      }
+    });
+
+    it('o roteiro de contato nao aciona o envio do formulario', () => {
+      const ctx = { demo: true, papel: null, mfa: false, carimbo: '000000', dados: {} };
+      const passos = ROTEIROS.find((r) => r.id === 'publico-contato')!.passos(ctx);
+      const envio = passos.find((p) => p.titulo === 'Enviar mensagem')!;
+      expect(envio.acao).toEqual({ tipo: 'observar' });
+    });
+  });
+
+  describe('tours da plataforma', () => {
+    it('servem a todos os papeis e nao exigem TOTP', () => {
+      for (const papel of ['ADMIN', 'FINANCEIRO', 'BACKOFFICE', 'CLIENTE'] as const) {
+        auth.currentUserState.set(usuario(papel, false));
+        const grupo = tour.catalogo().find((g) => g.modulo === 'Plataforma')!;
+        expect(
+          grupo.roteiros.map((r) => r.titulo),
+          papel,
+        ).toEqual(['Módulo completo', 'Menu lateral', 'Barra superior', 'Conta e sessão']);
+        expect(
+          grupo.roteiros.every((r) => !tour.impedimento(r)),
+          papel,
+        ).toBe(true);
+      }
+    });
+
+    it('mostra a troca de usuario e a saida, mas nao aciona nenhuma das duas', () => {
+      const ctx = { demo: true, papel: 'ADMIN' as const, mfa: true, carimbo: '000000', dados: {} };
+      const passos = ROTEIROS.find((r) => r.id === 'plataforma-conta')!.passos(ctx);
+      for (const titulo of ['Trocar de usuário', 'Sair da conta']) {
+        const passo = passos.find((p) => p.titulo === titulo)!;
+        expect(passo.acao, titulo).toEqual({ tipo: 'observar' });
+      }
+    });
+
+    it('o menu recolhe e expande de volta, sem pular o passo de quem ja o encontrou recolhido', () => {
+      const ctx = { demo: true, papel: 'ADMIN' as const, mfa: true, carimbo: '000000', dados: {} };
+      const passos = ROTEIROS.find((r) => r.id === 'plataforma-menu')!.passos(ctx);
+      const recolher = passos.find((p) => p.titulo === 'Recolher o menu')!;
+      const expandir = passos.find((p) => p.titulo === 'Expandir o menu')!;
+      expect(recolher.acao).toEqual({ tipo: 'clicar' });
+      expect(expandir.acao).toEqual({ tipo: 'clicar' });
+
+      document.body.innerHTML = '<div class="op-sidebar-colapsada"></div>';
+      expect(recolher.pularSe?.(ctx)).toBe(true);
+      expect(expandir.pularSe?.(ctx)).toBe(false);
+      document.body.innerHTML = '';
+      expect(recolher.pularSe?.(ctx)).toBe(false);
+      expect(expandir.pularSe?.(ctx)).toBe(true);
+    });
   });
 
   describe('submodulos do modulo completo', () => {
