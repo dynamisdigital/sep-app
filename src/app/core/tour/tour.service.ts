@@ -24,6 +24,9 @@ export type SituacaoSecao = 'feita' | 'atual' | 'pendente';
 /** Quanto o botao "voltar" retrocede, em tempo de tour (sem contar as pausas). */
 export const VOLTAR_MS = 15_000;
 
+/** Depois de concluido, o tour do site fecha o widget e volta a pagina inicial apos este tempo. */
+export const FECHAR_PUBLICO_MS = 4000;
+
 export interface PosicaoCursor {
   x: number;
   y: number;
@@ -372,6 +375,19 @@ export class TourService {
     }, 2500);
     this.mensagem.set('Roteiro concluído. Você pode repetir ou escolher outro no painel de Ajuda.');
     void this.narrador.falar('Roteiro concluído.', this.velocidade());
+    if (roteiro?.area === 'publica') this.fecharPublicoDepois(execucao, roteiro.rotaInicial ?? '/');
+  }
+
+  /**
+   * Fim de um tour do site: 4s depois o widget se fecha e o visitante volta ao topo da pagina inicial.
+   * Se ele repetiu ou saltou para outra parte nesse meio-tempo, nada acontece.
+   */
+  private fecharPublicoDepois(execucao: number, inicial: string): void {
+    window.setTimeout(() => {
+      if (execucao !== this.execucao || this.estado() !== 'concluido') return;
+      this.encerrar();
+      void this.router.navigateByUrl(inicial).then(() => window.scrollTo({ top: 0 }));
+    }, FECHAR_PUBLICO_MS);
   }
 
   /** Executa um passo. Devolve true quando o roteiro precisa parar ali. */

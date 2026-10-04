@@ -8,14 +8,17 @@
 
 $janela-meia-tela: 1716px;
 
+// A tela de login tem o proprio SCSS, com medidas em `cqw` (e nao `vw`) para acompanhar este container.
 .landing-page,
-.site-page {
+.site-page,
+.login-page {
   container: sep-publico / inline-size;
 }
 
 @media (width > #{$janela-meia-tela}) {
   .landing-page[data-largura="ajustada"],
-  .site-page[data-largura="ajustada"] {
+  .site-page[data-largura="ajustada"],
+  .login-page[data-largura="ajustada"] {
     max-width: $janela-meia-tela;
     margin-inline: auto;
   }

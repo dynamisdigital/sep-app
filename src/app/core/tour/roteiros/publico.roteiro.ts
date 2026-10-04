@@ -130,6 +130,113 @@ const inicio: Roteiro = {
   ],
 };
 
+const login: Roteiro = {
+  ...BASE,
+  id: 'publico-login',
+  titulo: 'Tela de login',
+  icone: 'log-in',
+  descricao: 'O acesso à plataforma: e-mail e senha, biometria, ajuda e os selos de segurança.',
+  duracao: '≈ 2,5 min',
+  passos: () => [
+    {
+      titulo: 'Ponto de partida',
+      texto:
+        'Este roteiro percorre a tela de login, a segunda tela do site, a partir da página inicial. Nada é digitado nem enviado durante o tour.',
+    },
+    {
+      titulo: 'Entrar',
+      texto: 'Na página inicial, o botão Entrar leva à tela de login.',
+      alvo: '.landing-login',
+      acao: { tipo: 'clicar' },
+      aguardarRota: rotaExata('/login'),
+      aguardarAlvo: '.login-card',
+    },
+    ler(
+      'Botões do canto',
+      'No canto superior direito ficam três botões: o tema claro ou escuro, a largura da tela, que só aparece em janela maximizada, e a ajuda, com os tours do site.',
+      '.login-acoes',
+    ),
+    ler(
+      'Voltar à página inicial',
+      'A seta redonda, no alto e ao centro, volta para a página inicial. A marca do SEP faz o mesmo.',
+      '.login-home-link',
+    ),
+    ler(
+      'A proposta',
+      'À esquerda, a apresentação: capital de giro com rastreabilidade, segurança e experiência simples, conectando empresas que precisam de crédito a empresas que querem aportar recursos.',
+      '.login-hero-copy',
+    ),
+    ler(
+      'Selos de confiança',
+      'Os três selos resumem o essencial: ambiente regulado pela Resolução CMN 4.656/2018, segregação patrimonial por conta escrow e auditoria, e KYC, KYB e prevenção à lavagem de dinheiro.',
+      '.login-hero-badges',
+    ),
+    ler(
+      'Plataforma segura e auditável',
+      'O painel lista escrow e contratos automatizados, auditoria completa e rastreabilidade, criptografia de ponta a ponta e monitoramento contínuo.',
+      '.audit-panel',
+    ),
+    ler(
+      'Indicadores',
+      'Na base, três indicadores: segurança em primeiro lugar, disponibilidade e suporte especializado.',
+      '.login-bottom-indicators',
+    ),
+    ler(
+      'Ambiente seguro',
+      'À direita, o selo mostra que o ambiente é verificado e protegido.',
+      '.safe-status',
+    ),
+    ler(
+      'Acesso à plataforma',
+      'Este é o cartão de acesso. A conta é a que o administrador cadastrou para a empresa.',
+      '.login-card-header',
+    ),
+    ler(
+      'E-mail',
+      'No campo de e-mail entra o endereço da conta. O tour apenas mostra o campo, sem digitar.',
+      '#login-username',
+    ),
+    ler(
+      'Senha',
+      'Na senha entra a credencial da conta, e o olho ao lado mostra ou oculta o que foi digitado.',
+      '#login-password',
+    ),
+    ler(
+      'Lembrar de mim e senha esquecida',
+      'Lembrar de mim mantém o acesso neste navegador. Quem esqueceu a senha usa o link ao lado, que leva ao Contato: o administrador redefine a senha e o próximo login exige a troca.',
+      '.login-options',
+    ),
+    ler(
+      'Entrar na plataforma',
+      'Este botão valida o e-mail e a senha. Se a conta tiver a segunda etapa, o código do autenticador é pedido em seguida. Durante o tour ele não é acionado.',
+      '.login-submit',
+    ),
+    ler(
+      'Acesso com biometria',
+      'Onde o navegador permite, a biometria é uma alternativa à senha. Quando não há suporte, o botão aparece desabilitado.',
+      '.biometry-button',
+    ),
+    ler(
+      'Acesso protegido e monitorado',
+      'Todas as operações são registradas e auditadas, desde o login.',
+      '.protected-card',
+    ),
+    ler(
+      'Termos e privacidade',
+      'No rodapé, o aviso de que o acesso implica concordar com os termos de uso e a política de privacidade.',
+      '.login-footer',
+    ),
+    {
+      titulo: 'Voltar ao início',
+      texto: 'Para terminar, a seta volta à página inicial.',
+      alvo: '.login-home-link',
+      acao: { tipo: 'clicar' },
+      aguardarRota: rotaExata('/'),
+      aguardarAlvo: '.landing-header',
+    },
+  ],
+};
+
 const creditoPj: Roteiro = {
   ...BASE,
   id: 'publico-credito-pj',
@@ -491,10 +598,11 @@ const completo: Roteiro = {
   id: 'publico-completo',
   titulo: 'Módulo completo',
   icone: 'list-checks',
-  descricao: 'Os oito roteiros em sequência: da página inicial aos termos de uso.',
+  descricao: 'Os nove roteiros em sequência: da página inicial aos termos de uso.',
   duracao: '≈ 17 min',
   passos: (ctx) => [
     ...emSecao(inicio, ctx, { primeira: true }),
+    ...emSecao(login, ctx),
     ...emSecao(creditoPj, ctx),
     ...emSecao(seguranca, ctx),
     ...emSecao(comoFunciona, ctx),
@@ -508,6 +616,7 @@ const completo: Roteiro = {
 export const ROTEIROS_PUBLICO: Roteiro[] = [
   completo,
   inicio,
+  login,
   creditoPj,
   seguranca,
   comoFunciona,

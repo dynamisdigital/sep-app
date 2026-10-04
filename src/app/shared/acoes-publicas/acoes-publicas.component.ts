@@ -3,6 +3,7 @@ import {
   Component,
   ViewEncapsulation,
   inject,
+  input,
   signal,
 } from '@angular/core';
 import { LucideAngularModule } from 'lucide-angular';
@@ -26,6 +27,9 @@ import { TourService } from '../../core/tour/tour.service';
 export class AcoesPublicasComponent {
   protected readonly tour = inject(TourService);
   protected readonly largura = inject(LarguraTelaService);
+
+  /** `coluna` empilha os botoes: e como ficam na tela de login, que nao tem cabecalho. */
+  readonly direcao = input<'linha' | 'coluna'>('linha');
 
   protected readonly aberta = signal(false);
 

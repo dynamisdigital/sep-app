@@ -5,7 +5,9 @@ import { LucideAngularModule } from 'lucide-angular';
 
 import { AuthService } from '../../../core/auth/auth.service';
 import { ehAmbienteDemo } from '../../../core/env/ambiente';
+import { LarguraTelaDirective } from '../../../core/layout/largura-tela.directive';
 import { ThemeService } from '../../../core/theme/theme.service';
+import { AcoesPublicasComponent } from '../../../shared/acoes-publicas/acoes-publicas.component';
 import { SepArteComponent } from '../../../shared/arte/sep-arte.component';
 import { SepLogoComponent } from '../../../shared/arte/sep-logo.component';
 
@@ -21,6 +23,8 @@ const ehDevOffline = ehAmbienteDemo;
 @Component({
   selector: 'sep-login',
   imports: [
+    AcoesPublicasComponent,
+    LarguraTelaDirective,
     LucideAngularModule,
     ReactiveFormsModule,
     RouterLink,

@@ -524,6 +524,7 @@ describe('TourService', () => {
       expect(publico[0].roteiros.map((r) => r.titulo)).toEqual([
         'Módulo completo',
         'Página inicial',
+        'Tela de login',
         'Crédito PJ',
         'Segurança',
         'Como funciona',

@@ -1,4 +1,4 @@
-<div class="ap-raiz">
+<div class="ap-raiz" [class.ap-raiz-coluna]="direcao() === 'coluna'">
   @if (largura.janelaMaximizada()) {
     <button
       type="button"

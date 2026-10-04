@@ -234,15 +234,22 @@ input {
 }
 
 // Botao de tema no canto oposto ao link de volta: a tela de login nao usa o cabecalho do site.
-.login-theme {
+.login-acoes {
   position: absolute;
-  top: clamp(18px, 2.4vw, 30px);
-  right: clamp(18px, 2.4vw, 30px);
+  top: clamp(18px, 2.4cqw, 30px);
+  right: clamp(18px, 2.4cqw, 30px);
   z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.login-theme {
   display: inline-grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   padding: 0;
   color: rgb(var(--lp-c-ciano));
   cursor: pointer;
@@ -265,7 +272,7 @@ input {
 
 .login-home-link {
   position: absolute;
-  top: clamp(18px, 2.4vw, 30px);
+  top: clamp(18px, 2.4cqw, 30px);
   left: 50%;
   z-index: 5;
   display: inline-grid;
@@ -306,7 +313,7 @@ input {
 
 .login-institutional {
   min-height: 100vh;
-  padding: clamp(28px, 3.4vw, 48px) clamp(42px, 6vw, 90px) 122px;
+  padding: clamp(28px, 3.4cqw, 48px) clamp(42px, 6cqw, 90px) 122px;
   overflow: hidden;
   border-right: 1px solid rgb(var(--lp-c-azul) / 30%);
 }
@@ -339,7 +346,7 @@ input {
 .login-globe {
   top: 158px;
   left: -116px;
-  width: clamp(260px, 24vw, 420px);
+  width: clamp(260px, 24cqw, 420px);
   opacity: 0.84;
 }
 
@@ -380,7 +387,7 @@ input {
 }
 
 .login-logo-copy strong {
-  font-size: clamp(2.45rem, 3.5vw, 3.35rem);
+  font-size: clamp(2.45rem, 3.5cqw, 3.35rem);
   font-weight: 800;
   line-height: 0.92;
 }
@@ -388,7 +395,7 @@ input {
 .login-logo-copy span {
   max-width: 230px;
   padding-left: 22px;
-  font-size: clamp(0.95rem, 1.2vw, 1.18rem);
+  font-size: clamp(0.95rem, 1.2cqw, 1.18rem);
   line-height: 1.25;
   color: rgb(var(--lp-c-suave) / 92%);
   border-left: 1px solid rgb(var(--lp-c-azul) / 55%);
@@ -399,8 +406,8 @@ input {
   z-index: 2;
   width: min(100%, 720px);
   max-width: 720px;
-  margin-top: clamp(42px, 4.6vw, 62px);
-  margin-left: clamp(34px, 5.4vw, 84px);
+  margin-top: clamp(42px, 4.6cqw, 62px);
+  margin-left: clamp(34px, 5.4cqw, 84px);
 }
 
 .login-kicker {
@@ -414,7 +421,7 @@ input {
 
 .login-hero-copy h1 {
   margin: 0;
-  font-size: clamp(2.22rem, 2.85vw, 2.9rem);
+  font-size: clamp(2.22rem, 2.85cqw, 2.9rem);
   font-weight: 800;
   line-height: 1.12;
   letter-spacing: 0;
@@ -428,7 +435,7 @@ input {
 .login-hero-copy p:last-child {
   max-width: 560px;
   margin: 16px 0 0;
-  font-size: clamp(0.95rem, 1.05vw, 1.04rem);
+  font-size: clamp(0.95rem, 1.05cqw, 1.04rem);
   line-height: 1.58;
   color: rgb(var(--lp-c-suave) / 88%);
 }
@@ -439,10 +446,10 @@ input {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
-  width: min(48vw, 720px);
+  width: min(48cqw, 720px);
   max-width: 720px;
   padding: 0;
-  margin: clamp(28px, 3.5vw, 46px) 0 0 clamp(34px, 5.4vw, 84px);
+  margin: clamp(28px, 3.5cqw, 46px) 0 0 clamp(34px, 5.4cqw, 84px);
   list-style: none;
 }
 
@@ -544,9 +551,9 @@ input {
 
 .audit-panel {
   z-index: 2;
-  width: min(48vw, 720px);
+  width: min(48cqw, 720px);
   max-width: 720px;
-  margin: clamp(30px, 4vw, 58px) 0 0 clamp(34px, 5.4vw, 84px);
+  margin: clamp(30px, 4cqw, 58px) 0 0 clamp(34px, 5.4cqw, 84px);
   padding: 14px 20px 16px;
   border-radius: 16px;
   transition:
@@ -638,7 +645,7 @@ input {
   gap: 14px;
   align-items: center;
   min-width: 0;
-  padding: 20px clamp(18px, 2.4vw, 32px);
+  padding: 20px clamp(18px, 2.4cqw, 32px);
 }
 
 .login-bottom-indicators article + article {
@@ -678,13 +685,13 @@ input {
   grid-template-rows: 1fr auto;
   place-items: center;
   min-height: 100vh;
-  padding: clamp(24px, 3vw, 44px) clamp(28px, 5vw, 70px);
+  padding: clamp(24px, 3cqw, 44px) clamp(28px, 5cqw, 70px);
 }
 
 .safe-status {
   position: absolute;
-  top: clamp(28px, 3.5vw, 54px);
-  right: clamp(28px, 5vw, 70px);
+  top: clamp(28px, 3.5cqw, 54px);
+  right: clamp(28px, 5cqw, 70px);
   z-index: 3;
   justify-self: end;
   display: inline-flex;
@@ -719,7 +726,7 @@ input {
   align-self: start;
   width: min(100%, 460px);
   margin-top: clamp(132px, 15vh, 190px);
-  padding: clamp(16px, 2vw, 24px);
+  padding: clamp(16px, 2cqw, 24px);
   background:
     linear-gradient(rgb(var(--lp-c-azul) / 8%) 1px, transparent 1px),
     linear-gradient(90deg, rgb(var(--lp-c-azul) / 7%) 1px, transparent 1px),
@@ -748,7 +755,7 @@ input {
 
 .login-card-header h2 {
   margin: 0;
-  font-size: clamp(1.34rem, 1.55vw, 1.5rem);
+  font-size: clamp(1.34rem, 1.55cqw, 1.5rem);
   line-height: 1.2;
 }
 
@@ -1109,7 +1116,7 @@ a:focus-visible {
   .login-globe {
     top: 128px;
     left: -136px;
-    width: clamp(230px, 21vw, 320px);
+    width: clamp(230px, 21cqw, 320px);
     opacity: 0.76;
   }
 
@@ -1125,7 +1132,7 @@ a:focus-visible {
   }
 
   .login-hero-copy h1 {
-    font-size: clamp(2.14rem, 2.85vw, 2.72rem);
+    font-size: clamp(2.14rem, 2.85cqw, 2.72rem);
     line-height: 1.07;
   }
 
@@ -1236,7 +1243,7 @@ a:focus-visible {
 
   .safe-status {
     top: 28px;
-    right: clamp(28px, 4vw, 54px);
+    right: clamp(28px, 4cqw, 54px);
     min-width: 198px;
     min-height: 54px;
     padding: 10px 14px;
@@ -1394,7 +1401,7 @@ a:focus-visible {
   }
 
   .login-card-header h2 {
-    font-size: clamp(1.5rem, 1.7vw, 1.68rem);
+    font-size: clamp(1.5rem, 1.7cqw, 1.68rem);
   }
 
   .login-form {
@@ -1436,7 +1443,7 @@ a:focus-visible {
   }
 
   .login-hero-copy h1 {
-    font-size: clamp(2.2rem, 2.6vw, 2.62rem);
+    font-size: clamp(2.2rem, 2.6cqw, 2.62rem);
     line-height: 1.1;
   }
 
@@ -1579,7 +1586,7 @@ a:focus-visible {
   }
 
   .login-hero-copy h1 {
-    font-size: clamp(2rem, 2.55vw, 2.48rem);
+    font-size: clamp(2rem, 2.55cqw, 2.48rem);
   }
 
   .login-hero-copy p:last-child {
@@ -1669,7 +1676,7 @@ a:focus-visible {
 
   .login-hero-copy {
     max-width: 720px;
-    margin-left: clamp(56px, 10vw, 110px);
+    margin-left: clamp(56px, 10cqw, 110px);
   }
 
   .login-hero-badges,
@@ -1849,68 +1856,68 @@ a:focus-visible {
   // Ate 920px de altura (notebook e Full HD com barras): 590 / 540 / 640 / 452 / 470.
   @media (height <= #{resp.$altura-curta}) {
     .login-hero-copy {
-      width: min(100%, max(590px, 40.97vw));
+      width: min(100%, max(590px, 40.97cqw));
       max-width: none;
     }
 
     .login-hero-copy p:last-child {
-      max-width: max(540px, 37.5vw);
+      max-width: max(540px, 37.5cqw);
     }
 
     .login-hero-badges,
     .audit-panel {
-      width: max(640px, 44.44vw);
+      width: max(640px, 44.44cqw);
       max-width: none;
     }
 
     .login-card {
-      width: min(100%, max(452px, 31.39vw));
+      width: min(100%, max(452px, 31.39cqw));
     }
 
     .login-footer {
-      max-width: max(470px, 32.64vw);
+      max-width: max(470px, 32.64cqw);
     }
   }
 
-  // De 920 a 1100px (Full HD maximizado): 560 / 560 / 48vw / 460 / 560.
+  // De 920 a 1100px (Full HD maximizado): 560 / 560 / 48cqw / 460 / 560.
   @media (height > #{resp.$altura-curta}) and (height <= #{resp.$altura-densa}) {
     .login-hero-copy {
-      width: min(100%, max(560px, 38.89vw));
+      width: min(100%, max(560px, 38.89cqw));
       max-width: none;
     }
 
     .login-card {
-      width: min(100%, max(460px, 31.94vw));
+      width: min(100%, max(460px, 31.94cqw));
     }
   }
 
-  // Acima de 1100px (QHD e maiores): 720 / 560 / 48vw / 500 / 560.
+  // Acima de 1100px (QHD e maiores): 720 / 560 / 48cqw / 500 / 560.
   @media (height > #{resp.$altura-densa}) {
     .login-hero-copy {
-      width: min(100%, max(720px, 50vw));
+      width: min(100%, max(720px, 50cqw));
       max-width: none;
     }
 
     .login-card {
-      width: min(100%, max(500px, 34.72vw));
+      width: min(100%, max(500px, 34.72cqw));
     }
   }
 
-  // Comum as duas faixas altas: os selos e o painel seguem `min(48vw, 720px)` sem o teto (a 1441
-  // os dois dao 48vw), e o paragrafo e o rodape crescem a partir de 560.
+  // Comum as duas faixas altas: os selos e o painel seguem `min(48cqw, 720px)` sem o teto (a 1441
+  // os dois dao 48cqw), e o paragrafo e o rodape crescem a partir de 560.
   @media (height > #{resp.$altura-curta}) {
     .login-hero-copy p:last-child {
-      max-width: max(560px, 38.89vw);
+      max-width: max(560px, 38.89cqw);
     }
 
     .login-hero-badges,
     .audit-panel {
-      width: 48vw;
+      width: 48cqw;
       max-width: none;
     }
 
     .login-footer {
-      max-width: max(560px, 38.89vw);
+      max-width: max(560px, 38.89cqw);
     }
   }
 }
