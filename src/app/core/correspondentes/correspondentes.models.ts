@@ -10,6 +10,8 @@ export type StatusCadastroCorrespondente =
   | 'SUSPENSO'
   | 'INATIVO';
 
+import type { NivelCorrespondente } from './correspondentes-rede.models';
+
 export type StatusVinculo = 'VIGENTE' | 'PERDIDO' | 'TRANSFERIDO' | 'DIRETO_SEP';
 
 export type MotivoFimVinculo =
@@ -38,6 +40,10 @@ export interface CorrespondenteResponse {
   valorEmAtraso: number;
   /** Parcelas vencidas sobre as parcelas ja devidas, em %. */
   inadimplenciaPct: number;
+  /** MAJORITARIO capta e pode credenciar subs; SUB capta so a propria base. Ausente: majoritario. */
+  nivel?: NivelCorrespondente;
+  /** Id do majoritario que credenciou este sub; null nos majoritarios. */
+  majoritarioId?: string | null;
 }
 
 export interface VinculoResponse {

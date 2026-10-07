@@ -4,6 +4,7 @@ import {
   resumirCronograma,
 } from '../../app/core/financeiro/calculo-financeiro';
 import { TAXA_MENSAL_PADRAO } from '../../app/core/financeiro/politica-credito';
+import type { NivelCorrespondente } from '../../app/core/correspondentes/correspondentes-rede.models';
 import type {
   CarteiraResumo,
   CorrespondenteResponse,
@@ -37,11 +38,23 @@ interface CorrespondenteBase {
   cadastroAtualizadoEm: string;
   suspenso: boolean;
   comissaoPrevista: number;
+  /** Ausente: majoritario. */
+  nivel?: NivelCorrespondente;
+  /** Majoritario que credenciou este sub. */
+  majoritarioId?: string | null;
+  /** Sub com cadastro enviado e ainda nao validado pelo SEP: nao opera. */
+  pendente?: boolean;
+  telefone?: string;
+  criadoEm?: string;
+  /** Repasse do sub por produto da regra de comissao (pontos percentuais da mesma base). */
+  percentuaisSub?: Record<string, number>;
 }
 
 export const ID_CORRESPONDENTE_CARLA = 'c1000000-0000-4000-8000-000000000001';
 export const ID_CORRESPONDENTE_RAFAEL = 'c1000000-0000-4000-8000-000000000002';
 export const ID_CORRESPONDENTE_MARCOS = 'c1000000-0000-4000-8000-000000000003';
+export const ID_SUB_BRUNO = 'c1000000-0000-4000-8000-000000000004';
+export const ID_SUB_FERNANDA = 'c1000000-0000-4000-8000-000000000005';
 
 const SEMENTE_CORRESPONDENTES: CorrespondenteBase[] = [
   {
@@ -73,6 +86,38 @@ const SEMENTE_CORRESPONDENTES: CorrespondenteBase[] = [
     cadastroAtualizadoEm: '2025-09-15',
     suspenso: false,
     comissaoPrevista: 960,
+  },
+  // Sub-correspondentes da Carla: captam a propria base, e a Carla ve e controla a carteira deles.
+  {
+    id: ID_SUB_BRUNO,
+    nome: 'Bruno Teixeira',
+    cpfMascarado: '***.290.671-**',
+    email: 'sub-correspondente@empresa.com',
+    validadeCadastro: '2027-06-30',
+    cadastroAtualizadoEm: '2026-06-02',
+    suspenso: false,
+    comissaoPrevista: 0,
+    nivel: 'SUB',
+    majoritarioId: ID_CORRESPONDENTE_CARLA,
+    telefone: '(11) 98412-7730',
+    criadoEm: '2026-06-02',
+    percentuaisSub: { 'Capital de giro': 1, 'Crédito pessoal': 1.5, 'Todos os produtos': 0.2 },
+  },
+  {
+    id: ID_SUB_FERNANDA,
+    nome: 'Fernanda Lopes',
+    cpfMascarado: '***.845.302-**',
+    email: 'fernanda.lopes@empresa.com',
+    validadeCadastro: '2027-10-05',
+    cadastroAtualizadoEm: '2026-10-05',
+    suspenso: false,
+    comissaoPrevista: 0,
+    nivel: 'SUB',
+    majoritarioId: ID_CORRESPONDENTE_CARLA,
+    pendente: true,
+    telefone: '(11) 97765-0912',
+    criadoEm: '2026-10-05',
+    percentuaisSub: { 'Capital de giro': 1, 'Crédito pessoal': 1.5, 'Todos os produtos': 0.2 },
   },
 ];
 
@@ -150,6 +195,9 @@ const SEMENTE_VINCULOS: VinculoResponse[] = [
     true,
   ),
   vinculo(9, ID_CORRESPONDENTE_MARCOS, 'Luciana Prado', '***.395.826-**', '2026-07-01', null),
+  vinculo(10, ID_SUB_BRUNO, 'Lanchonete Boa Hora', '**.318.045/0001-**', '2026-06-08', true),
+  vinculo(11, ID_SUB_BRUNO, 'Marcos Antônio Reis', '***.552.019-**', '2026-07-14', true),
+  vinculo(12, ID_SUB_BRUNO, 'Gráfica Expressa ME', '**.640.772/0001-**', '2026-09-21', null),
 ];
 
 const SEMENTE_ENVIOS: EnvioDocumentosResponse[] = [
@@ -271,6 +319,24 @@ const SEMENTE_CONTRATOS: ContratoSemente[] = [
     pagas: 6,
   },
   {
+    numero: 'CT-2026-0521',
+    cliente: 'Lanchonete Boa Hora',
+    produto: 'Capital de giro',
+    valor: 8000,
+    total: 10,
+    primeiroVencimento: '2026-07-08',
+    pagas: 3,
+  },
+  {
+    numero: 'CT-2026-0544',
+    cliente: 'Marcos Antônio Reis',
+    produto: 'Crédito pessoal',
+    valor: 5000,
+    total: 6,
+    primeiroVencimento: '2026-08-15',
+    pagas: 1,
+  },
+  {
     numero: 'CT-2026-0388',
     cliente: 'Transportes Horizonte',
     produto: 'Capital de giro',
@@ -295,6 +361,13 @@ const SEMENTE_PROPOSTAS: PropostaSemente[] = [
     produto: 'Capital de giro',
     valor: 15000,
     situacao: 'EM_FORMALIZACAO',
+  },
+  {
+    numero: 'PR-2026-0931',
+    cliente: 'Gráfica Expressa ME',
+    produto: 'Capital de giro',
+    valor: 12000,
+    situacao: 'EM_ANALISE',
   },
   {
     numero: 'PR-2026-0845',
@@ -455,6 +528,7 @@ let vinculos: VinculoResponse[] = [];
 let envios: EnvioDocumentosResponse[] = [];
 let seqEnvio = 0;
 let seqVinculo = 0;
+let seqSub = 5;
 
 export function resetCorrespondentesState(): void {
   correspondentes = SEMENTE_CORRESPONDENTES.map((c) => ({ ...c }));
@@ -462,6 +536,7 @@ export function resetCorrespondentesState(): void {
   envios = SEMENTE_ENVIOS.map((e) => ({ ...e, documentos: [...e.documentos] }));
   seqEnvio = 0;
   seqVinculo = 0;
+  seqSub = 5;
 }
 resetCorrespondentesState();
 
@@ -504,7 +579,118 @@ function montar(c: CorrespondenteBase): CorrespondenteResponse {
     valorCarteira: carteira.valorContratado,
     valorEmAtraso: carteira.valorEmAtraso,
     inadimplenciaPct: carteira.inadimplenciaPct,
+    nivel: c.nivel ?? 'MAJORITARIO',
+    majoritarioId: c.majoritarioId ?? null,
   };
+}
+
+// ---------------------------------------------------------------- rede de sub-correspondentes
+
+export interface SubBase {
+  id: string;
+  nome: string;
+  cpfMascarado: string;
+  email: string;
+  telefone: string;
+  status: 'ATIVO' | 'PENDENTE' | 'SUSPENSO';
+  criadoEm: string;
+  percentuais: Record<string, number>;
+}
+
+function subDe(c: CorrespondenteBase): SubBase {
+  return {
+    id: c.id,
+    nome: c.nome,
+    cpfMascarado: c.cpfMascarado,
+    email: c.email,
+    telefone: c.telefone ?? '',
+    status: c.suspenso ? 'SUSPENSO' : c.pendente ? 'PENDENTE' : 'ATIVO',
+    criadoEm: c.criadoEm ?? c.cadastroAtualizadoEm,
+    percentuais: { ...(c.percentuaisSub ?? {}) },
+  };
+}
+
+export function nivelDe(id: string): NivelCorrespondente {
+  return correspondentes.find((c) => c.id === id)?.nivel ?? 'MAJORITARIO';
+}
+
+export function nomeDe(id: string): string {
+  return correspondentes.find((c) => c.id === id)?.nome ?? '';
+}
+
+export function majoritarioDe(id: string): string | null {
+  return correspondentes.find((c) => c.id === id)?.majoritarioId ?? null;
+}
+
+/** Todos os correspondentes, subs incluidos: o livro de comissoes do SEP precisa deles. */
+export function todosOsCorrespondentes(): CorrespondenteResponse[] {
+  return correspondentes.map(montar);
+}
+
+export function listarSubs(majoritarioId: string): SubBase[] {
+  return correspondentes
+    .filter((c) => c.nivel === 'SUB' && c.majoritarioId === majoritarioId)
+    .map(subDe);
+}
+
+export function consultarSub(id: string): SubBase | undefined {
+  const c = correspondentes.find((x) => x.id === id && x.nivel === 'SUB');
+  return c ? subDe(c) : undefined;
+}
+
+/** Repasse do sub para o produto da regra, em pontos percentuais; undefined se nao e sub ou nao ha. */
+export function percentualSubDe(subId: string, produtoDaRegra: string): number | undefined {
+  const c = correspondentes.find((x) => x.id === subId && x.nivel === 'SUB');
+  return c?.percentuaisSub?.[produtoDaRegra];
+}
+
+export function emailCadastrado(email: string): boolean {
+  return correspondentes.some((c) => c.email.toLowerCase() === email.toLowerCase());
+}
+
+export function criarSub(
+  majoritarioId: string,
+  dados: {
+    nome: string;
+    cpf: string;
+    email: string;
+    telefone: string;
+    percentuais: Record<string, number>;
+  },
+): SubBase {
+  seqSub += 1;
+  const digitos = dados.cpf.replace(/D/g, '');
+  const novo: CorrespondenteBase = {
+    id: `c1000000-0000-4000-8000-0000000001${String(seqSub).padStart(2, '0')}`,
+    nome: dados.nome.trim(),
+    cpfMascarado: `***.${digitos.slice(3, 6)}.${digitos.slice(6, 9)}-**`,
+    email: dados.email.trim(),
+    validadeCadastro: somarMeses(HOJE_DEMO, 12),
+    cadastroAtualizadoEm: HOJE_DEMO,
+    suspenso: false,
+    comissaoPrevista: 0,
+    nivel: 'SUB',
+    majoritarioId,
+    // Cadastro enviado, aguardando a validacao do SEP: o sub ainda nao opera nem capta clientes.
+    pendente: true,
+    telefone: dados.telefone.trim(),
+    criadoEm: HOJE_DEMO,
+    percentuaisSub: { ...dados.percentuais },
+  };
+  correspondentes.push(novo);
+  return subDe(novo);
+}
+
+export function definirPercentuaisSub(subId: string, percentuais: Record<string, number>): void {
+  const c = correspondentes.find((x) => x.id === subId && x.nivel === 'SUB');
+  if (c) c.percentuaisSub = { ...(c.percentuaisSub ?? {}), ...percentuais };
+}
+
+export function suspenderSub(subId: string, suspenso: boolean): SubBase | undefined {
+  const c = correspondentes.find((x) => x.id === subId && x.nivel === 'SUB');
+  if (!c) return undefined;
+  c.suspenso = suspenso;
+  return subDe(c);
 }
 
 export function correspondentePorEmail(email: string): CorrespondenteResponse | undefined {
@@ -513,7 +699,10 @@ export function correspondentePorEmail(email: string): CorrespondenteResponse | 
 }
 
 export function consultarRede(): RedeResumoResponse {
-  const lista = correspondentes.map(montar);
+  // A lista da administracao e a dos majoritarios; os subs aparecem na rede de cada um.
+  const lista = correspondentes
+    .filter((c) => (c.nivel ?? 'MAJORITARIO') === 'MAJORITARIO')
+    .map(montar);
   return {
     correspondentes: lista,
     totalClientesNaBase: vinculos.filter((v) => v.status === 'VIGENTE').length,

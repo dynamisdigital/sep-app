@@ -183,7 +183,20 @@ export function criarHandlersGestao(
       if (!body.justificativa?.trim()) {
         return erro(400, 'Bad Request', 'A justificativa e obrigatoria', path);
       }
-      const res = atualizarRegra(String(params['id']), body.percentual, usuarioAtual().username);
+      if (body.tetoSub !== undefined && !(body.tetoSub >= 0 && body.tetoSub <= body.percentual)) {
+        return erro(
+          400,
+          'Bad Request',
+          'O teto de repasse a subs deve ficar entre 0 e a comissao da regra',
+          path,
+        );
+      }
+      const res = atualizarRegra(
+        String(params['id']),
+        body.percentual,
+        usuarioAtual().username,
+        body.tetoSub,
+      );
       if (!res) return erro(404, 'Not Found', 'Regra nao encontrada', path);
       auditar(
         'REGRA_COMISSAO_ALTERADA',

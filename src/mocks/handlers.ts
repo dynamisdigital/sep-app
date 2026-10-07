@@ -7,6 +7,7 @@ import {
   textoTaxaMensal,
 } from '../app/core/financeiro/politica-credito';
 import { criarHandlersCorrespondentes } from './correspondentes.handlers';
+import { criarHandlersRede } from './correspondentes-rede.handlers';
 import { criarHandlersGestao } from './correspondentes-gestao.handlers';
 import { qrDataUrl } from './qr';
 import { codigoTotpValido } from './totp';
@@ -178,6 +179,12 @@ const correspondenteVencidoUsuario = {
   username: 'correspondente-vencido@empresa.com',
 };
 
+const subCorrespondenteUsuario = {
+  ...correspondenteUsuario,
+  id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771023',
+  username: 'sub-correspondente@empresa.com',
+};
+
 const usuariosFake = [
   devUsuario,
   adminUsuario,
@@ -220,6 +227,7 @@ const loginUsuarios: Record<string, typeof adminUsuario> = {
   'credora-novo@empresa.com': credoraNovoUsuario,
   'correspondente@empresa.com': correspondenteUsuario,
   'correspondente-vencido@empresa.com': correspondenteVencidoUsuario,
+  'sub-correspondente@empresa.com': subCorrespondenteUsuario,
 };
 let currentMockUser = adminUsuario;
 // Contas criadas por POST /usuarios nesta sessao do mock; o reset da governanca as remove.
@@ -3650,6 +3658,8 @@ const credoraHandlers = [
 
 export const handlers = [
   // A gestao vem antes: `/correspondentes/:id` casaria rotas como /comissoes e /auditoria.
+  // A rede vem antes da gestao: `/correspondentes/me/rede/...` nao pode cair nas rotas `/me/...` genericas.
+  ...criarHandlersRede(baseUrl, () => currentMockUser, errorResponse),
   ...criarHandlersGestao(baseUrl, () => currentMockUser, errorResponse),
   ...criarHandlersCorrespondentes(baseUrl, () => currentMockUser, errorResponse),
 

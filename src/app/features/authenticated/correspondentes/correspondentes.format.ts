@@ -203,6 +203,7 @@ export const ROTULO_EVENTO_COMISSAO: Record<EventoComissao, string> = {
   ORIGINACAO: 'Originação',
   PARCELA_RECEBIDA: 'Parcela recebida',
   ESTORNO: 'Estorno',
+  MARGEM_SUB: 'Margem sobre sub',
 };
 
 export const ROTULO_ACAO_AUDITORIA: Record<AcaoAuditoria, string> = {
@@ -217,6 +218,10 @@ export const ROTULO_ACAO_AUDITORIA: Record<AcaoAuditoria, string> = {
   PROSPECT_CRIADO: 'Prospect criado',
   PROSPECT_MOVIDO: 'Prospect movido',
   INTERACAO_REGISTRADA: 'Interação registrada',
+  SUB_CRIADO: 'Sub-correspondente criado',
+  PERCENTUAIS_SUB_ALTERADOS: 'Percentuais de sub alterados',
+  SUB_SUSPENSO: 'Sub-correspondente suspenso',
+  SUB_REATIVADO: 'Sub-correspondente reativado',
 };
 
 export function formatarDataHora(iso: string): string {

@@ -170,6 +170,14 @@ export const AUTHENTICATED_ROUTES: Routes = [
             data: { breadcrumb: 'Detalhe do contrato', immersive: true },
           },
           {
+            path: 'rede',
+            loadComponent: () =>
+              import('./meu-backoffice/minha-rede-page.component').then(
+                (m) => m.MinhaRedePageComponent,
+              ),
+            data: { breadcrumb: 'Minha rede', immersive: true },
+          },
+          {
             path: 'documentos',
             loadComponent: () =>
               import('./meu-backoffice/envio-documentos-page.component').then(

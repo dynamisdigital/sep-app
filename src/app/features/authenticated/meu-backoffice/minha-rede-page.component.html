@@ -1,0 +1,450 @@
+<sep-operational-shell>
+  <main class="cor-page">
+    <header class="cor-hero">
+      <div>
+        <p class="cor-crumbs">
+          <a routerLink="/app/dashboard">Início</a> ›
+          <a routerLink="/app/meu-backoffice">Meu Back Office</a> › <strong>Minha rede</strong>
+        </p>
+        <h1>Minha rede</h1>
+        @if (ehMajoritario()) {
+          <p>
+            Credencie sub-correspondentes, defina quanto da comissão cada um recebe por produto e
+            acompanhe a carteira da rede inteira. O repasse nunca passa do teto que o SEP fixa.
+          </p>
+        } @else {
+          <p>
+            Você capta e lança seus clientes como sub-correspondente. Aqui estão o seu
+            correspondente majoritário e os percentuais de comissão que você recebe por produto.
+          </p>
+        }
+      </div>
+      @if (ehMajoritario()) {
+        <button type="button" class="cor-btn" data-tour="cor-rede-novo" (click)="abrirCriacao()">
+          <lucide-icon name="user-plus" [size]="14" [strokeWidth]="2" /> Novo sub-correspondente
+        </button>
+      }
+    </header>
+
+    @if (erro()) {
+      <div class="cor-erro" role="alert">{{ erro() }}</div>
+    }
+    @if (aviso()) {
+      <div class="cor-aviso" role="status">{{ aviso() }}</div>
+    }
+
+    @if (carregando()) {
+      <p class="cor-estado" role="status">Carregando a rede...</p>
+    } @else if (ehMajoritario() && rede(); as r) {
+      <section class="cor-kpis" aria-label="Resumo da rede" data-tour="cor-rede-kpis">
+        <article class="cor-kpi" data-tone="green">
+          <small>Clientes da rede</small>
+          <strong>{{ r.consolidado.clientes }}</strong>
+          <span>{{ r.consolidado.clientesProprios }} seus + {{ r.subs.length }} subs</span>
+          <lucide-icon name="users" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi">
+          <small>Carteira</small>
+          <strong>{{ moeda(r.consolidado.valorCarteira) }}</strong>
+          <span>contratos ativos da rede</span>
+          <lucide-icon name="wallet" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article
+          class="cor-kpi"
+          [attr.data-tone]="r.consolidado.inadimplenciaPct > 8 ? 'red' : 'green'"
+        >
+          <small>Inadimplência</small>
+          <strong>{{ pct(r.consolidado.inadimplenciaPct) }}</strong>
+          <span>{{ moeda(r.consolidado.valorEmAtraso) }} em atraso</span>
+          <lucide-icon name="triangle-alert" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi">
+          <small>Comissão bruta</small>
+          <strong>{{ moeda(r.consolidado.comissaoBruta) }}</strong>
+          <span>pela regra do SEP</span>
+          <lucide-icon name="banknote" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" data-tone="amber">
+          <small>Repasse aos subs</small>
+          <strong>{{ moeda(r.consolidado.repasseAosSubs) }}</strong>
+          <span>parte dos subs</span>
+          <lucide-icon name="split" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" data-tone="green">
+          <small>Fica com você</small>
+          <strong>{{ moeda(r.consolidado.comissaoLiquida) }}</strong>
+          <span>bruta menos o repasse</span>
+          <lucide-icon name="circle-check" [size]="34" [strokeWidth]="1.25" />
+        </article>
+      </section>
+
+      <section class="cor-card" aria-labelledby="cor-tetos" data-tour="cor-rede-tetos">
+        <header class="cor-card-titulo">
+          <lucide-icon name="shield-check" [size]="24" [strokeWidth]="1.5" />
+          <div>
+            <h2 id="cor-tetos">Limite de repasse imposto pelo SEP</h2>
+            <p>O que cada sub pode receber, por produto, sobre a comissão que o SEP paga a você</p>
+          </div>
+        </header>
+        <div class="cor-tabela-wrap">
+          <table class="cor-tabela">
+            <thead>
+              <tr>
+                <th>Produto</th>
+                <th class="num">Comissão do SEP</th>
+                <th class="num">Teto para o sub</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (t of r.tetos; track t.produto) {
+                <tr>
+                  <td>{{ t.produto }}</td>
+                  <td class="num">{{ pct(t.percentualSep) }}</td>
+                  <td class="num">{{ pct(t.tetoSub) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      @if (criando()) {
+        <section class="cor-card" aria-labelledby="cor-novo-sub">
+          <header class="cor-card-titulo">
+            <lucide-icon name="user-plus" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2 id="cor-novo-sub">Novo sub-correspondente</h2>
+              <p>O cadastro passa pela validação do SEP antes de o sub poder lançar clientes</p>
+            </div>
+          </header>
+          <div class="cor-form">
+            <label>
+              Nome
+              <input name="nome" [(ngModel)]="novo.nome" placeholder="Pessoa ou empresa" />
+            </label>
+            <label>
+              CPF
+              <input name="cpf" [(ngModel)]="novo.cpf" placeholder="000.000.000-00" />
+            </label>
+            <label>
+              E-mail
+              <input type="email" name="email" [(ngModel)]="novo.email" />
+            </label>
+            <label>
+              Telefone
+              <input name="telefone" [(ngModel)]="novo.telefone" placeholder="(00) 00000-0000" />
+            </label>
+            @for (t of r.tetos; track t.produto) {
+              <label>
+                {{ t.produto }}: repasse (%), até {{ pct(t.tetoSub) }}
+                <input
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  [max]="t.tetoSub"
+                  [name]="'pct-' + t.produto"
+                  [(ngModel)]="percentuaisNovo[t.produto]"
+                />
+                @if (acimaDoTeto(t.produto, percentuaisNovo[t.produto])) {
+                  <small class="cor-erro-campo" role="alert">
+                    Acima do limite de {{ pct(t.tetoSub) }} que o SEP permite repassar.
+                  </small>
+                }
+              </label>
+            }
+          </div>
+          <div class="cor-acoes" style="margin-top: 12px">
+            <button
+              type="button"
+              class="cor-btn"
+              [disabled]="!novoValido() || salvando()"
+              (click)="criar()"
+            >
+              Credenciar
+            </button>
+            <button
+              type="button"
+              class="cor-btn secundario"
+              (click)="cancelarCriacao(); criando.set(false)"
+            >
+              Cancelar
+            </button>
+          </div>
+        </section>
+      }
+
+      <section class="cor-card" aria-labelledby="cor-subs" data-tour="cor-rede-subs">
+        <header class="cor-card-titulo">
+          <lucide-icon name="network" [size]="24" [strokeWidth]="1.5" />
+          <div>
+            <h2 id="cor-subs">Sub-correspondentes</h2>
+            <p>Produção, inadimplência e quanto cada sub e você ganham</p>
+          </div>
+        </header>
+        <div class="cor-tabela-wrap">
+          <table class="cor-tabela">
+            <thead>
+              <tr>
+                <th>Sub</th>
+                <th>Situação</th>
+                <th class="num">Clientes</th>
+                <th class="num">Carteira</th>
+                <th class="num">Inadimpl.</th>
+                <th class="num">Comissão do sub</th>
+                <th class="num">Sua margem</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (s of r.subs; track s.id) {
+                <tr>
+                  <td>
+                    {{ s.nome }}<small>{{ s.cpfMascarado }} · {{ s.email }}</small>
+                  </td>
+                  <td>
+                    <span class="cor-selo" [attr.data-tone]="tomStatus[s.status]">{{
+                      rotuloStatus[s.status]
+                    }}</span>
+                  </td>
+                  <td class="num">{{ s.clientesNaBase }}</td>
+                  <td class="num">{{ moeda(s.valorCarteira) }}</td>
+                  <td class="num">{{ pct(s.inadimplenciaPct) }}</td>
+                  <td class="num">{{ moeda(s.comissaoDoSub) }}</td>
+                  <td class="num">{{ moeda(s.margemDoMajoritario) }}</td>
+                  <td>
+                    <div class="cor-acoes">
+                      <button type="button" class="cor-btn secundario" (click)="editar(s)">
+                        Percentuais
+                      </button>
+                      <button
+                        type="button"
+                        class="cor-btn secundario"
+                        (click)="alternarSuspensao(s)"
+                      >
+                        {{ s.status === 'SUSPENSO' ? 'Reativar' : 'Suspender' }}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                @if (editando() === s.id) {
+                  <tr>
+                    <td colspan="8">
+                      <div class="cor-form">
+                        @for (p of s.percentuais; track p.produto) {
+                          <label>
+                            {{ p.produto }}: repasse (%), até {{ pct(p.tetoSub) }}
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.1"
+                              [max]="p.tetoSub"
+                              [name]="'ed-' + p.produto"
+                              [(ngModel)]="percentuaisEdicao[p.produto]"
+                            />
+                            @if (
+                              percentuaisEdicao[p.produto] > p.tetoSub ||
+                              percentuaisEdicao[p.produto] < 0
+                            ) {
+                              <small class="cor-erro-campo" role="alert">
+                                Acima do limite de {{ pct(p.tetoSub) }} que o SEP permite repassar.
+                              </small>
+                            }
+                          </label>
+                        }
+                        <label>
+                          Justificativa
+                          <input
+                            name="justificativa"
+                            [(ngModel)]="justificativa"
+                            placeholder="Motivo da alteração"
+                          />
+                        </label>
+                      </div>
+                      <div class="cor-acoes" style="margin-top: 10px">
+                        <button
+                          type="button"
+                          class="cor-btn"
+                          [disabled]="!edicaoValida(s) || salvando()"
+                          (click)="salvarPercentuais(s)"
+                        >
+                          Salvar
+                        </button>
+                        <button
+                          type="button"
+                          class="cor-btn secundario"
+                          (click)="editando.set(null)"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              } @empty {
+                <tr>
+                  <td colspan="8" class="cor-estado">
+                    Você ainda não credenciou sub-correspondentes.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      @if (comissoes(); as c) {
+        <section class="cor-card" aria-labelledby="cor-com-rede" data-tour="cor-rede-comissoes">
+          <header class="cor-card-titulo">
+            <lucide-icon name="wallet" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2 id="cor-com-rede">Comissão por origem</h2>
+              <p>Bruta pela regra do SEP, repasse ao sub e o que fica com você</p>
+            </div>
+          </header>
+          <div class="cor-tabela-wrap">
+            <table class="cor-tabela">
+              <thead>
+                <tr>
+                  <th>Origem</th>
+                  <th class="num">Bruta</th>
+                  <th class="num">Repasse</th>
+                  <th class="num">Fica com você</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (o of c.porOrigem; track o.subNome) {
+                  <tr>
+                    <td>{{ o.subNome }}</td>
+                    <td class="num">{{ moeda(o.bruta) }}</td>
+                    <td class="num">{{ moeda(o.repasse) }}</td>
+                    <td class="num">{{ moeda(o.liquida) }}</td>
+                  </tr>
+                }
+                <tr>
+                  <td><strong>Total</strong></td>
+                  <td class="num">
+                    <strong>{{ moeda(c.totalBruta) }}</strong>
+                  </td>
+                  <td class="num">
+                    <strong>{{ moeda(c.totalRepasse) }}</strong>
+                  </td>
+                  <td class="num">
+                    <strong>{{ moeda(c.totalLiquida) }}</strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+
+      <section class="cor-card" aria-labelledby="cor-cart-rede" data-tour="cor-rede-carteira">
+        <header class="cor-card-titulo">
+          <lucide-icon name="file-check" [size]="24" [strokeWidth]="1.5" />
+          <div>
+            <h2 id="cor-cart-rede">Carteira da rede</h2>
+            <p>Contratos e propostas, seus e dos subs</p>
+          </div>
+        </header>
+        <div
+          class="cor-filtros"
+          role="group"
+          aria-label="Filtrar por origem"
+          style="margin-bottom: 12px"
+        >
+          <button
+            type="button"
+            [class.ativo]="filtroOrigem() === 'TODAS'"
+            (click)="filtroOrigem.set('TODAS')"
+          >
+            Todas
+          </button>
+          <button
+            type="button"
+            [class.ativo]="filtroOrigem() === 'PROPRIA'"
+            (click)="filtroOrigem.set('PROPRIA')"
+          >
+            Minha carteira
+          </button>
+          @for (s of r.subs; track s.id) {
+            <button
+              type="button"
+              [class.ativo]="filtroOrigem() === s.id"
+              (click)="filtroOrigem.set(s.id)"
+            >
+              {{ s.nome }}
+            </button>
+          }
+        </div>
+        <div class="cor-tabela-wrap">
+          <table class="cor-tabela">
+            <thead>
+              <tr>
+                <th>Origem</th>
+                <th>Cliente</th>
+                <th>Contrato</th>
+                <th class="num">Valor</th>
+                <th>Situação</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (o of carteiraVisivel(); track o.operacao.id) {
+                <tr>
+                  <td>{{ o.origem === 'PROPRIA' ? 'Você' : o.subNome }}</td>
+                  <td>{{ o.operacao.clienteNome }}</td>
+                  <td>{{ o.operacao.numero }}</td>
+                  <td class="num">{{ moeda(o.operacao.valorContratado) }}</td>
+                  <td>
+                    <span class="cor-selo" [attr.data-tone]="tomOperacao[o.operacao.situacao]">{{
+                      rotuloOperacao[o.operacao.situacao]
+                    }}</span>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="cor-estado">Nenhuma operação nesta origem.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    } @else if (posicao(); as p) {
+      <section class="cor-card" aria-labelledby="cor-minha-posicao" data-tour="cor-rede-posicao">
+        <header class="cor-card-titulo">
+          <lucide-icon name="network" [size]="24" [strokeWidth]="1.5" />
+          <div>
+            <h2 id="cor-minha-posicao">Sua posição</h2>
+            <p>
+              @if (p.nivel === 'SUB') {
+                Sub-correspondente de {{ p.majoritarioNome }}
+              } @else {
+                Correspondente majoritário
+              }
+            </p>
+          </div>
+        </header>
+        <div class="cor-tabela-wrap">
+          <table class="cor-tabela">
+            <thead>
+              <tr>
+                <th>Produto</th>
+                <th class="num">Seu percentual</th>
+                <th class="num">Limite do SEP</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (x of p.percentuais; track x.produto) {
+                <tr>
+                  <td>{{ x.produto }}</td>
+                  <td class="num">{{ pct(x.percentualSub) }}</td>
+                  <td class="num">{{ pct(x.tetoSub) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+  </main>
+</sep-operational-shell>

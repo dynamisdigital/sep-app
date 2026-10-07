@@ -91,7 +91,7 @@ export interface CriarInteracaoRequest {
 // ---- Comissoes ----
 
 export type BaseComissao = 'VALOR_LIBERADO' | 'PARCELA_RECEBIDA';
-export type EventoComissao = 'ORIGINACAO' | 'PARCELA_RECEBIDA' | 'ESTORNO';
+export type EventoComissao = 'ORIGINACAO' | 'PARCELA_RECEBIDA' | 'ESTORNO' | 'MARGEM_SUB';
 export type StatusComissao = 'PREVISTA' | 'DISPONIVEL' | 'PAGA' | 'ESTORNADA';
 
 /** Regra configuravel (nunca no codigo): produto, base de calculo e percentual, com versao. */
@@ -100,6 +100,11 @@ export interface RegraComissao {
   produto: string;
   base: BaseComissao;
   percentual: number;
+  /**
+   * Maximo, em pontos percentuais da mesma base, que o SEP aceita repassar a um sub-correspondente por esta
+   * regra. Sempre <= percentual. O majoritario escolhe o repasse de cada sub abaixo deste teto.
+   */
+  tetoSub: number;
   gatilhoPagamento: string;
   versao: number;
   vigenteDesde: string;
@@ -108,6 +113,8 @@ export interface RegraComissao {
 
 export interface AtualizarRegraRequest {
   percentual: number;
+  /** Novo teto de repasse a subs; omitido, o teto fica como esta (e e reduzido se passar do percentual). */
+  tetoSub?: number;
   justificativa: string;
 }
 
@@ -126,6 +133,9 @@ export interface LancamentoComissao {
   status: StatusComissao;
   pagoEm: string | null;
   regraVersao: number;
+  /** Nos lancamentos MARGEM_SUB: o sub cuja producao gerou a margem do majoritario. */
+  viaSubId?: string | null;
+  viaSubNome?: string | null;
 }
 
 export interface ComissoesResponse {
@@ -197,7 +207,11 @@ export type AcaoAuditoria =
   | 'META_ALTERADA'
   | 'PROSPECT_CRIADO'
   | 'PROSPECT_MOVIDO'
-  | 'INTERACAO_REGISTRADA';
+  | 'INTERACAO_REGISTRADA'
+  | 'SUB_CRIADO'
+  | 'PERCENTUAIS_SUB_ALTERADOS'
+  | 'SUB_SUSPENSO'
+  | 'SUB_REATIVADO';
 
 export interface EventoAuditoria {
   id: string;

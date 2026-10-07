@@ -535,6 +535,12 @@ export class OperationalShellComponent implements OnDestroy {
           tom: 'var(--sep-tint-lime)',
         },
         {
+          label: 'Minha rede',
+          route: '/app/meu-backoffice/rede',
+          lucide: 'network',
+          tom: 'var(--sep-tint-lime)',
+        },
+        {
           label: 'Envio de documentos',
           route: '/app/meu-backoffice/documentos',
           lucide: 'file-up',
@@ -720,7 +726,16 @@ export class OperationalShellComponent implements OnDestroy {
     { username: 'credora-novo@empresa.com', rotulo: 'Credora sem cadastro', papel: 'CLIENTE' },
     { username: 'credora-inelegivel@empresa.com', rotulo: 'Credora inelegível', papel: 'CLIENTE' },
     { username: 'cliente@empresa.com', rotulo: 'Cliente', papel: 'CLIENTE' },
-    { username: 'correspondente@empresa.com', rotulo: 'Correspondente', papel: 'CORRESPONDENTE' },
+    {
+      username: 'correspondente@empresa.com',
+      rotulo: 'Correspondente majoritário',
+      papel: 'CORRESPONDENTE',
+    },
+    {
+      username: 'sub-correspondente@empresa.com',
+      rotulo: 'Sub-correspondente',
+      papel: 'CORRESPONDENTE',
+    },
     {
       username: 'correspondente-vencido@empresa.com',
       rotulo: 'Correspondente (cadastro vencido)',

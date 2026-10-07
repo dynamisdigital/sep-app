@@ -23,9 +23,16 @@ import {
   ID_CORRESPONDENTE_CARLA,
   ID_CORRESPONDENTE_MARCOS,
   ID_CORRESPONDENTE_RAFAEL,
+  ID_SUB_BRUNO,
+  ID_SUB_FERNANDA,
   listarBaseDe,
+  listarSubs,
   listarTodasOperacoes,
+  nivelDe,
+  nomeDe,
+  percentualSubDe,
   somarMeses,
+  todosOsCorrespondentes,
 } from './correspondentes.store';
 
 // Dados ficticios da gestao comercial do modulo de Correspondentes: funil, agenda, comissoes,
@@ -122,6 +129,26 @@ const SEMENTE_PROSPECTS: ProspectInterno[] = [
   prospect(14, M, 'Transportes Horizonte', 'PJ', 'Capital de giro', 14000, 'ATIVO', null),
   prospect(15, M, 'Luciana Prado', 'PF', 'Crédito pessoal', 15000, 'PERDIDO', null),
   prospect(16, M, 'Auto Peças Central', 'PJ', 'Capital de giro', 13000, 'PROSPECTADO', null),
+  prospect(
+    17,
+    ID_SUB_BRUNO,
+    'Gráfica Expressa ME',
+    'PJ',
+    'Capital de giro',
+    12000,
+    'ANALISE_CREDITO',
+    null,
+  ),
+  prospect(
+    18,
+    ID_SUB_BRUNO,
+    'Salão Bella Vita',
+    'PJ',
+    'Capital de giro',
+    9000,
+    'CONTATADO',
+    '2026-10-12',
+  ),
 ];
 
 function interacao(
@@ -237,6 +264,7 @@ const SEMENTE_REGRAS: RegraComissao[] = [
     produto: 'Capital de giro',
     base: 'VALOR_LIBERADO',
     percentual: 2,
+    tetoSub: 1.2,
     gatilhoPagamento: 'Após a liberação do crédito',
     versao: 1,
     vigenteDesde: '2026-01-01',
@@ -247,6 +275,7 @@ const SEMENTE_REGRAS: RegraComissao[] = [
     produto: 'Crédito pessoal',
     base: 'VALOR_LIBERADO',
     percentual: 3,
+    tetoSub: 1.8,
     gatilhoPagamento: 'Após a liberação do crédito',
     versao: 1,
     vigenteDesde: '2026-01-01',
@@ -257,6 +286,7 @@ const SEMENTE_REGRAS: RegraComissao[] = [
     produto: 'Todos os produtos',
     base: 'PARCELA_RECEBIDA',
     percentual: 0.5,
+    tetoSub: 0.3,
     gatilhoPagamento: 'Mensal, sobre a parcela efetivamente recebida',
     versao: 1,
     vigenteDesde: '2026-01-01',
@@ -264,16 +294,18 @@ const SEMENTE_REGRAS: RegraComissao[] = [
   },
 ];
 
-const SEMENTE_METAS: MetaCorrespondente[] = [C, R, M].map((id, i) => ({
-  correspondenteId: id,
-  periodo: '2026',
-  metaClientes: [8, 5, 4][i],
-  metaValorOriginado: [45000, 40000, 30000][i],
-  realizadoClientes: 0,
-  realizadoValorOriginado: 0,
-  atingimentoClientesPct: 0,
-  atingimentoValorPct: 0,
-}));
+const SEMENTE_METAS: MetaCorrespondente[] = [C, R, M, ID_SUB_BRUNO, ID_SUB_FERNANDA].map(
+  (id, i) => ({
+    correspondenteId: id,
+    periodo: '2026',
+    metaClientes: [8, 5, 4, 3, 2][i],
+    metaValorOriginado: [45000, 40000, 30000, 20000, 12000][i],
+    realizadoClientes: 0,
+    realizadoValorOriginado: 0,
+    atingimentoClientesPct: 0,
+    atingimentoValorPct: 0,
+  }),
+);
 
 // ---------------------------------------------------------------- auditoria
 
@@ -515,11 +547,14 @@ export function atualizarRegra(
   id: string,
   percentual: number,
   ator: string,
+  tetoSub?: number,
 ): { regra: RegraComissao; anterior: number } | undefined {
   const r = regras.find((x) => x.id === id);
   if (!r) return undefined;
   const anterior = r.percentual;
   r.percentual = percentual;
+  // O teto de repasse a subs nunca passa da propria comissao: baixou a regra, o teto desce junto.
+  r.tetoSub = Math.min(tetoSub ?? r.tetoSub, percentual);
   r.versao += 1;
   r.vigenteDesde = HOJE_DEMO;
   r.atualizadoPor = ator;
@@ -538,7 +573,45 @@ function regraDe(produto: string, base: RegraComissao['base']): RegraComissao | 
  * fica e o que viria depois nao nasce.
  */
 export function lancamentosDe(id: string): LancamentoComissao[] {
-  const nome = consultarCorrespondente(id)?.nome ?? '';
+  const proprios = lancamentosProprios(id);
+  if (nivelDe(id) !== 'MAJORITARIO') return proprios;
+  // O majoritario ganha, em cima da producao de cada sub, o que a regra do SEP paga acima do repasse do sub.
+  const operacoes = listarTodasOperacoes();
+  const margens: LancamentoComissao[] = [];
+  for (const sub of listarSubs(id)) {
+    for (const l of lancamentosProprios(sub.id)) {
+      const op = operacoes.find((o) => o.numero === l.contratoNumero);
+      const base = l.evento === 'ORIGINACAO' ? 'VALOR_LIBERADO' : 'PARCELA_RECEBIDA';
+      const regra = op ? regraDe(op.produto, base) : undefined;
+      if (!regra) continue;
+      const pct = Math.round((regra.percentual - l.percentual) * 1000) / 1000;
+      if (pct <= 0) continue;
+      margens.push({
+        ...l,
+        id: `m-${l.id}`,
+        correspondenteId: id,
+        correspondenteNome: nomeDe(id),
+        evento: 'MARGEM_SUB',
+        percentual: pct,
+        valor: Math.round(l.baseCalculo * pct) / 100,
+        regraVersao: regra.versao,
+        viaSubId: sub.id,
+        viaSubNome: sub.nome,
+      });
+    }
+  }
+  return [...proprios, ...margens].sort((a, b) => b.competencia.localeCompare(a.competencia));
+}
+
+/**
+ * Lancamentos da producao do proprio correspondente. Num sub, o percentual e o repasse que o majoritario
+ * definiu para o produto (sempre abaixo do teto do SEP), e nao o percentual cheio da regra.
+ */
+function lancamentosProprios(id: string): LancamentoComissao[] {
+  const nome = consultarCorrespondente(id)?.nome ?? nomeDe(id);
+  const ehSub = nivelDe(id) === 'SUB';
+  const pctDe = (r: RegraComissao): number =>
+    ehSub ? (percentualSubDe(id, r.produto) ?? r.percentual) : r.percentual;
   const vinculos = listarBaseDe(id);
   const operacoes = listarTodasOperacoes().filter((o) => o.tipo === 'CONTRATO');
   const lancamentos: LancamentoComissao[] = [];
@@ -562,8 +635,8 @@ export function lancamentosDe(id: string): LancamentoComissao[] {
         competencia,
         // Base da regra "valor liberado": o contratado menos a tarifa de originacao retida no desembolso.
         baseCalculo: valorLiberadoDe(op.valorContratado),
-        percentual: ro.percentual,
-        valor: Math.round(valorLiberadoDe(op.valorContratado) * ro.percentual) / 100,
+        percentual: pctDe(ro),
+        valor: Math.round(valorLiberadoDe(op.valorContratado) * pctDe(ro)) / 100,
         status: competencia < mesAtual ? 'PAGA' : 'DISPONIVEL',
         pagoEm: competencia < mesAtual ? `${somarMeses(`${competencia}-01`, 1)}` : null,
         regraVersao: ro.versao,
@@ -587,8 +660,8 @@ export function lancamentosDe(id: string): LancamentoComissao[] {
         evento: 'PARCELA_RECEBIDA',
         competencia,
         baseCalculo: p.valor,
-        percentual: rp.percentual,
-        valor: Math.round(p.valor * rp.percentual) / 100,
+        percentual: pctDe(rp),
+        valor: Math.round(p.valor * pctDe(rp)) / 100,
         status: !paga ? 'PREVISTA' : competencia < mesAtual ? 'PAGA' : 'DISPONIVEL',
         pagoEm: paga && competencia < mesAtual ? `${somarMeses(`${competencia}-01`, 1)}` : null,
         regraVersao: rp.versao,
@@ -637,8 +710,8 @@ export function comissaoPrevistaDe(id: string): number {
 }
 
 export function lancamentosDaRede(): LancamentoComissao[] {
-  return consultarRede()
-    .correspondentes.flatMap((c) => lancamentosDe(c.id))
+  return todosOsCorrespondentes()
+    .flatMap((c) => lancamentosDe(c.id))
     .sort((a, b) => b.competencia.localeCompare(a.competencia));
 }
 
