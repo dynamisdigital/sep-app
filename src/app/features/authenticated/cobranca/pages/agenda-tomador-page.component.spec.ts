@@ -75,9 +75,10 @@ describe('AgendaTomadorPageComponent — Mockup 32', () => {
     );
     const [recebido, emAberto, atrasado, aVencer] = valores;
 
-    expect(recebido + emAberto).toBe(3125);
-    expect(atrasado + aVencer).toBe(emAberto);
-    expect(emAberto).toBe(937.5);
+    // As metricas somam parcelas com juros: fecham no total a pagar do contrato, nao no valor contratado.
+    expect(Math.round((recebido + emAberto) * 100) / 100).toBe(3552.14);
+    expect(Math.round((atrasado + aVencer) * 100) / 100).toBe(emAberto);
+    expect(emAberto).toBe(1065.6);
   });
 
   // Nenhum contrato da base fictícia pode superar o teto de R$ 15.000,00 do regimento SEP.

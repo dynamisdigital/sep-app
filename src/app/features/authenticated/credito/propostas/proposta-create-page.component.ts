@@ -5,6 +5,8 @@ import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 
 import { TipoOperacao } from '../../../../core/api/api.models';
+import { gerarCronograma, resumirCronograma } from '../../../../core/financeiro/calculo-financeiro';
+import { IOF_ESTIMADO_PCT, TAXA_MENSAL_PADRAO } from '../../../../core/financeiro/politica-credito';
 import { CreditoService } from '../../../../core/credito/credito.service';
 import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
 import { mensagemCreditoErro } from '../shared/credito-error';
@@ -88,24 +90,42 @@ export class PropostaCreatePageComponent {
     return Number(this.form.controls.prazoMeses.value ?? 0);
   }
 
+  /** Taxa mensal em %, a mesma que a proposta e a agenda usam (politica de credito); zero sem valor digitado. */
   protected taxaEstimada(): number {
-    return this.valorAtual() > 0 ? 1.85 : 0;
+    return this.valorAtual() > 0 ? TAXA_MENSAL_PADRAO * 100 : 0;
   }
 
+  /** Parcela Price na taxa padrao, com a carencia escolhida: a mesma conta da agenda do contrato. */
   protected parcelaEstimada(): number {
     const valor = this.valorAtual();
     const prazo = this.prazoAtual();
     if (!valor || !prazo) return 0;
-    const taxa = this.taxaEstimada() / 100;
-    return (valor * taxa * (1 + taxa) ** prazo) / ((1 + taxa) ** prazo - 1);
+    const carencia = Number(this.form.controls.carenciaMeses.value ?? 0);
+    return resumirCronograma(
+      gerarCronograma({
+        principal: valor,
+        taxaMensal: TAXA_MENSAL_PADRAO,
+        prazoMeses: prazo,
+        carenciaMeses: carencia,
+      }),
+    ).parcelaCheia;
   }
 
   protected iofEstimado(): number {
-    return this.valorAtual() * 0.0338;
+    return this.valorAtual() * IOF_ESTIMADO_PCT;
   }
 
   protected custoTotal(): number {
-    return this.parcelaEstimada() * this.prazoAtual() + this.iofEstimado();
+    const valor = this.valorAtual();
+    const prazo = this.prazoAtual();
+    if (!valor || !prazo) return 0;
+    const plano = gerarCronograma({
+      principal: valor,
+      taxaMensal: TAXA_MENSAL_PADRAO,
+      prazoMeses: prazo,
+      carenciaMeses: Number(this.form.controls.carenciaMeses.value ?? 0),
+    });
+    return resumirCronograma(plano).totalAPagar + this.iofEstimado();
   }
 
   protected moeda(valor: number): string {

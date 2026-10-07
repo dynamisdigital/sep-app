@@ -74,8 +74,8 @@ describe('InadimplenciaPageComponent — Mockup 30', () => {
     const total = metricas[0];
     const soma = metricas.slice(1).reduce((s, v) => s + v, 0);
 
-    expect(total).toBe(2012.5);
-    expect(soma).toBe(total);
+    expect(total).toBe(2287.6);
+    expect(Math.round(soma * 100) / 100).toBe(total);
   });
 
   it('a exposição por contrato fecha com o total em atraso', async () => {
@@ -89,7 +89,7 @@ describe('InadimplenciaPageComponent — Mockup 30', () => {
     );
 
     expect(linhas.length).toBeGreaterThan(0);
-    expect(soma).toBe(2012.5);
+    expect(Math.round(soma * 100) / 100).toBe(2287.6);
   });
 
   // Nenhum valor da base fictícia pode superar o teto de R$ 15.000,00 por contrato.

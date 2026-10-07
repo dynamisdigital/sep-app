@@ -1,3 +1,5 @@
+import { parcelaPrice } from '../../app/core/financeiro/calculo-financeiro';
+import { TAXA_MENSAL_PADRAO } from '../../app/core/financeiro/politica-credito';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import {
@@ -99,7 +101,10 @@ describe('correspondentes.store', () => {
 
     expect(ana?.situacao).toBe('EM_ATRASO');
     expect(ana?.parcelasVencidas).toBe(2);
-    expect(ana?.valorEmAtraso).toBe(2 * 1190);
+    // Duas parcelas da tabela Price de R$ 6.000,00 em 12x a 2,4% a.m., com juros.
+    expect(ana?.valorEmAtraso).toBe(
+      Math.round(2 * parcelaPrice(6000, TAXA_MENSAL_PADRAO, 12) * 100) / 100,
+    );
     expect(ana?.parcelas.filter((p) => p.status === 'VENCIDA').every((p) => p.diasAtraso > 0)).toBe(
       true,
     );

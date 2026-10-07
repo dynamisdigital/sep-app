@@ -1,3 +1,4 @@
+import { TARIFA_ORIGINACAO_PCT } from '../../app/core/financeiro/politica-credito';
 import type {
   AcaoAuditoria,
   AtualizarMetaRequest,
@@ -75,7 +76,7 @@ const SEMENTE_PROSPECTS: ProspectInterno[] = [
     'Academia Corpo em Forma',
     'PJ',
     'Capital de giro',
-    40000,
+    14000,
     'PROSPECTADO',
     '2026-10-09',
   ),
@@ -86,7 +87,7 @@ const SEMENTE_PROSPECTS: ProspectInterno[] = [
     'Restaurante Sabor da Terra',
     'PJ',
     'Capital de giro',
-    55000,
+    15000,
     'CONTATADO',
     '2026-10-08',
   ),
@@ -97,16 +98,16 @@ const SEMENTE_PROSPECTS: ProspectInterno[] = [
     'Mecânica Irmãos Lopes',
     'PJ',
     'Capital de giro',
-    30000,
+    12000,
     'EM_NEGOCIACAO',
     '2026-10-10',
   ),
-  prospect(6, C, 'Oficina Rápida ME', 'PJ', 'Capital de giro', 35000, 'ANALISE_CREDITO', null),
-  prospect(7, C, 'Mercado Bom Preço', 'PJ', 'Capital de giro', 80000, 'APROVADO', null),
-  prospect(8, C, 'Padaria Estrela Ltda', 'PJ', 'Capital de giro', 60000, 'ATIVO', null),
+  prospect(6, C, 'Oficina Rápida ME', 'PJ', 'Capital de giro', 14000, 'ANALISE_CREDITO', null),
+  prospect(7, C, 'Mercado Bom Preço', 'PJ', 'Capital de giro', 15000, 'APROVADO', null),
+  prospect(8, C, 'Padaria Estrela Ltda', 'PJ', 'Capital de giro', 12000, 'ATIVO', null),
   prospect(9, C, 'Fábio Menezes', 'PF', 'Crédito pessoal', 6000, 'PERDIDO', null),
-  prospect(10, R, 'Studio Pilates Vida', 'PJ', 'Capital de giro', 25000, 'CONTATADO', '2026-10-11'),
-  prospect(11, R, 'Clínica Vida Plena', 'PJ', 'Capital de giro', 120000, 'ATIVO', null),
+  prospect(10, R, 'Studio Pilates Vida', 'PJ', 'Capital de giro', 11000, 'CONTATADO', '2026-10-11'),
+  prospect(11, R, 'Clínica Vida Plena', 'PJ', 'Capital de giro', 15000, 'ATIVO', null),
   prospect(12, R, 'Pedro Henrique Alves', 'PF', 'Crédito pessoal', 9000, 'CONTRATADO', null),
   prospect(
     13,
@@ -114,13 +115,13 @@ const SEMENTE_PROSPECTS: ProspectInterno[] = [
     'Lavanderia Brilho',
     'PJ',
     'Capital de giro',
-    18000,
+    14000,
     'DOCUMENTACAO',
     '2026-10-09',
   ),
-  prospect(14, M, 'Transportes Horizonte', 'PJ', 'Capital de giro', 45000, 'ATIVO', null),
+  prospect(14, M, 'Transportes Horizonte', 'PJ', 'Capital de giro', 14000, 'ATIVO', null),
   prospect(15, M, 'Luciana Prado', 'PF', 'Crédito pessoal', 15000, 'PERDIDO', null),
-  prospect(16, M, 'Auto Peças Central', 'PJ', 'Capital de giro', 38000, 'PROSPECTADO', null),
+  prospect(16, M, 'Auto Peças Central', 'PJ', 'Capital de giro', 13000, 'PROSPECTADO', null),
 ];
 
 function interacao(
@@ -267,7 +268,7 @@ const SEMENTE_METAS: MetaCorrespondente[] = [C, R, M].map((id, i) => ({
   correspondenteId: id,
   periodo: '2026',
   metaClientes: [8, 5, 4][i],
-  metaValorOriginado: [150000, 100000, 60000][i],
+  metaValorOriginado: [45000, 40000, 30000][i],
   realizadoClientes: 0,
   realizadoValorOriginado: 0,
   atingimentoClientesPct: 0,
@@ -559,9 +560,10 @@ export function lancamentosDe(id: string): LancamentoComissao[] {
         contratoNumero: op.numero,
         evento: 'ORIGINACAO',
         competencia,
-        baseCalculo: op.valorContratado,
+        // Base da regra "valor liberado": o contratado menos a tarifa de originacao retida no desembolso.
+        baseCalculo: valorLiberadoDe(op.valorContratado),
         percentual: ro.percentual,
-        valor: Math.round(op.valorContratado * ro.percentual) / 100,
+        valor: Math.round(valorLiberadoDe(op.valorContratado) * ro.percentual) / 100,
         status: competencia < mesAtual ? 'PAGA' : 'DISPONIVEL',
         pagoEm: competencia < mesAtual ? `${somarMeses(`${competencia}-01`, 1)}` : null,
         regraVersao: ro.versao,
@@ -594,6 +596,11 @@ export function lancamentosDe(id: string): LancamentoComissao[] {
     }
   }
   return lancamentos.sort((a, b) => b.competencia.localeCompare(a.competencia));
+}
+
+/** Valor liberado ao tomador: o contratado menos a tarifa de originacao (4%). */
+function valorLiberadoDe(valorContratado: number): number {
+  return Math.round(valorContratado * (1 - TARIFA_ORIGINACAO_PCT) * 100) / 100;
 }
 
 export function comissoesDe(id: string): ComissoesResponse {

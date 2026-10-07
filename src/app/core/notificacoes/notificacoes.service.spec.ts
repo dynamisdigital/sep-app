@@ -94,7 +94,7 @@ describe('NotificacoesService', () => {
 
     const alerta = servico.alertas().find((a) => a.id === 'inadimplencia');
     expect(alerta?.titulo).toContain('5 parcela');
-    expect(alerta?.detalhe.replace(/\u00a0/g, ' ')).toContain('R$ 2.012,50');
+    expect(alerta?.detalhe.replace(/\u00a0/g, ' ')).toContain('R$ 2.287,60');
   });
 
   // BACKOFFICE não opera cobrança financeira, então o alerta de inadimplência não é dele.

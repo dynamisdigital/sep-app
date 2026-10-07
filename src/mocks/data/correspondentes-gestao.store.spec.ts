@@ -109,9 +109,10 @@ describe('correspondentes-gestao.store', () => {
         (l) => l.evento === 'ORIGINACAO' && l.contratoNumero === 'CT-2026-0412',
       )!;
 
-      // Capital de giro: 2% de R$ 60.000,00.
+      // Capital de giro: 2% do valor LIBERADO: R$ 12.000,00 contratados menos 4% de tarifa = R$ 11.520,00.
       expect(orig.percentual).toBe(2);
-      expect(orig.valor).toBe(1200);
+      expect(orig.baseCalculo).toBe(11520);
+      expect(orig.valor).toBe(230.4);
       expect(orig.status).toBe('PAGA');
     });
 

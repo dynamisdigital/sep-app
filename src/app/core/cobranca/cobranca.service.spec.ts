@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { resetCobrancaState } from '../../../mocks/handlers';
+import { parcelaPrice } from '../financeiro/calculo-financeiro';
 import { CobrancaService } from './cobranca.service';
 import { RegistrarRecebimentoRequest } from '../api/api.models';
 
@@ -67,8 +68,19 @@ describe('CobrancaService', () => {
         'INADIMPLENTE',
         'PENDENTE',
       ]);
-      expect(agenda.parcelas[0].total).toBe(312.5);
+      // A parcela e a da tabela Price a 2,4% a.m.: principal + juros, e nao mais a divisao simples (312,50).
+      expect(agenda.parcelas[0].total).toBe(parcelaPrice(3125, 0.024, 10));
+      expect(agenda.parcelas[0].juros).toBeGreaterThan(0);
+      expect(agenda.parcelas[0].total).toBe(
+        Math.round((agenda.parcelas[0].principal + agenda.parcelas[0].juros) * 100) / 100,
+      );
       expect(agenda.valorContratado).toBe(3125);
+      // O que se paga fecha: a soma dos principais e o contratado; a soma dos totais e o total a pagar.
+      const somar = (campo: 'principal' | 'total') =>
+        Math.round(agenda.parcelas.reduce((s, p) => s + p[campo], 0) * 100) / 100;
+      expect(somar('principal')).toBe(3125);
+      expect(somar('total')).toBe(agenda.valorTotal);
+      expect(agenda.valorTotal).toBeGreaterThan(agenda.valorContratado);
     });
 
     it('rejeita com 403 quando a agenda e de outro tomador', async () => {

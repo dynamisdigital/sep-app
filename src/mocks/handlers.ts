@@ -1,5 +1,11 @@
 import { http, HttpResponse } from 'msw';
 
+import { gerarCronograma, parcelaPrice } from '../app/core/financeiro/calculo-financeiro';
+import {
+  TAXA_MENSAL_PADRAO,
+  TARIFA_ORIGINACAO_PCT,
+  textoTaxaMensal,
+} from '../app/core/financeiro/politica-credito';
 import { criarHandlersCorrespondentes } from './correspondentes.handlers';
 import { criarHandlersGestao } from './correspondentes-gestao.handlers';
 import { qrDataUrl } from './qr';
@@ -528,12 +534,13 @@ function propostaFake(
     // Apresentacao do Mockup 28: nenhum destes participa de decisao de credito.
     finalidade: 'Compra de estoque',
     carenciaMeses: 0,
-    valorParcelaEstimado: Number((valorSolicitado / prazoMeses).toFixed(2)),
+    // Parcela da tabela Price na taxa que a propria proposta anuncia (antes: valor / prazo, sem juros).
+    valorParcelaEstimado: parcelaPrice(valorSolicitado, TAXA_MENSAL_PADRAO, prazoMeses),
     empresaNome: 'Empresa Exemplo Ltda.',
     cnpj: '11.111.111/0001-91',
     porte: 'Pequeno Porte',
     setor: 'Comércio',
-    taxaEstimada: '2,4% a.m.',
+    taxaEstimada: textoTaxaMensal(),
     garantia: 'Conta escrow',
     canalOrigem: 'Portal SEP',
     analista: status === 'EM_ANALISE' ? 'Equipe de crédito' : 'Motor de crédito',
@@ -1296,18 +1303,18 @@ const detalheParcela: Record<string, ReturnType<typeof valorAtualizado>> = {
 
 // ============ CARTEIRA UNICA DA BASE FICTICIA ============
 //
-// Quatro contratos somando R$ 15.000,00 contratados, o teto do regimento SEP. Cada um tem
-// prazo e valor de parcela coerentes com o que foi contratado (parcela = contratado / prazo),
-// e TODAS as parcelas da base nascem daqui. Inadimplencia (Mockup 30), agenda financeira
+// Quatro contratos somando R$ 15.000,00 contratados (principal), o teto do regimento SEP. Cada um
+// tem prazo e taxa, e a parcela e a da tabela Price (core/financeiro): principal + juros, com a
+// ultima parcela fechando o saldo. TODAS as parcelas da base nascem daqui. Inadimplencia (Mockup 30), agenda financeira
 // (Mockup 29), detalhe da parcela (Mockup 31), agenda do contrato (Mockup 32) e os
 // indicadores da Cobranca (Mockup 14) sao somados dessas parcelas, entao os numeros batem
 // entre as telas por construcao, e nao por coincidencia de constantes.
 //
-//   contrato    tipo             contratado   prazo   parcela   pagas   em aberto   estado
-//   5b771c03    CAPITAL_GIRO     R$ 1.250,00    10    R$ 125,00     8   R$   250,00  em dia
-//   5b771c05    INVESTIMENTO     R$ 3.125,00    10    R$ 312,50     7   R$   937,50  atrasado
-//   5b771c06    REFINANCIAMENTO  R$ 4.625,00    10    R$ 462,50     6   R$ 1.850,00  atrasado
-//   5b771c08    CAPITAL_GIRO     R$ 6.000,00    10    R$ 600,00     8   R$ 1.200,00  em dia
+// A taxa dos quatro e a anunciada nas propostas, 2,4% a.m.; o que cada tela mostra de parcela, de
+// juros e de saldo e somado destas linhas, nunca digitado.
+// Taxa mensal unica da base ficticia: a mesma que as propostas anunciam ("2,4% a.m.").
+const TAXA_CARTEIRA = TAXA_MENSAL_PADRAO;
+
 const CARTEIRA = {
   '5b771c03': {
     tipo: 'CAPITAL_GIRO',
@@ -1315,6 +1322,7 @@ const CARTEIRA = {
     documento: '11.111.111/0001-91',
     contratado: 1250.0,
     prazo: 10,
+    taxaMensal: TAXA_CARTEIRA,
     primeiroVencimento: '2025-10-20',
     pagas: 8,
     meio: 'PIX',
@@ -1325,6 +1333,7 @@ const CARTEIRA = {
     documento: '33.333.333/0001-33',
     contratado: 3125.0,
     prazo: 10,
+    taxaMensal: TAXA_CARTEIRA,
     primeiroVencimento: '2025-09-05',
     pagas: 7,
     meio: 'PIX',
@@ -1335,6 +1344,7 @@ const CARTEIRA = {
     documento: '22.222.222/0001-22',
     contratado: 4625.0,
     prazo: 10,
+    taxaMensal: TAXA_CARTEIRA,
     primeiroVencimento: '2025-09-15',
     pagas: 6,
     meio: 'BOLETO',
@@ -1345,6 +1355,7 @@ const CARTEIRA = {
     documento: '44.444.444/0001-44',
     contratado: 6000.0,
     prazo: 10,
+    taxaMensal: TAXA_CARTEIRA,
     primeiroVencimento: '2025-10-25',
     pagas: 8,
     meio: 'TRANSFERENCIA',
@@ -1360,20 +1371,16 @@ interface ParcelaCarteira {
   contrato: ChaveContrato;
   numero: number;
   totalParcelas: number;
+  /** Total da parcela: principal + juros. */
   valor: number;
+  principal: number;
+  juros: number;
   vencimento: string;
   paga: boolean;
   dataPagamento: string | null;
   diasAtraso: number;
   status: 'PAGA' | 'PENDENTE' | 'ATRASADA' | 'INADIMPLENTE';
   parcelaId: string;
-}
-
-// Vencimentos mensais a partir do primeiro, preservando o dia do mes.
-function vencimentoMensal(primeiro: string, indice: number): string {
-  const [ano, mes, dia] = primeiro.split('-').map(Number);
-  const data = new Date(Date.UTC(ano, mes - 1 + indice, dia));
-  return data.toISOString().slice(0, 10);
 }
 
 // Gera todas as parcelas da carteira. Status e dias de atraso saem da comparacao entre o
@@ -1383,10 +1390,16 @@ function carteiraParcelas(): ParcelaCarteira[] {
   let seq = 300;
   for (const chave of Object.keys(CARTEIRA) as ChaveContrato[]) {
     const c = CARTEIRA[chave];
-    const valor = Math.round((c.contratado / c.prazo) * 100) / 100;
+    const plano = gerarCronograma({
+      principal: c.contratado,
+      taxaMensal: c.taxaMensal,
+      prazoMeses: c.prazo,
+      primeiroVencimento: c.primeiroVencimento,
+    });
     for (let i = 0; i < c.prazo; i += 1) {
       const numero = i + 1;
-      const vencimento = vencimentoMensal(c.primeiroVencimento, i);
+      const linha = plano[i];
+      const vencimento = linha.vencimento;
       const paga = numero <= c.pagas;
       const atraso = Math.floor(
         (HOJE_BASE.getTime() - new Date(`${vencimento}T00:00:00-03:00`).getTime()) / DIA_MS,
@@ -1404,7 +1417,9 @@ function carteiraParcelas(): ParcelaCarteira[] {
         contrato: chave,
         numero,
         totalParcelas: c.prazo,
-        valor,
+        valor: linha.total,
+        principal: linha.principal,
+        juros: linha.juros,
         vencimento,
         paga,
         dataPagamento: paga ? vencimento : null,
@@ -1482,8 +1497,8 @@ for (const p of PARCELAS_CARTEIRA) {
     p.numero,
     p.status,
     p.vencimento,
-    p.valor,
-    0,
+    p.principal,
+    p.juros,
     p.diasAtraso > 0 ? centavos(p.valor * 0.00033 * p.diasAtraso) : 0,
     p.diasAtraso > 0 ? centavos(p.valor * 0.02) : 0,
     p.paga ? p.valor : 0,
@@ -1558,13 +1573,14 @@ function agendaDoContrato(chave: ChaveContrato) {
     id: novoId('a0000000', 900 + Object.keys(CARTEIRA).indexOf(chave)),
     contratoId: CONTRATO_UUID[chave],
     numeroParcelas: c.prazo,
-    valorTotal: c.contratado,
+    // Total a pagar: soma das parcelas (principal + juros), e nao o valor contratado.
+    valorTotal: Math.round(parcelas.reduce((soma, p) => soma + p.valor, 0) * 100) / 100,
     dataGeracao: `${c.primeiroVencimento}T09:12:00-03:00`,
     parcelas: parcelas.map((p) => ({
       id: p.parcelaId,
       numero: p.numero,
-      principal: p.valor,
-      juros: 0,
+      principal: p.principal,
+      juros: p.juros,
       multa: 0,
       encargos: 0,
       total: p.valor,
@@ -1581,7 +1597,7 @@ function agendaDoContrato(chave: ChaveContrato) {
     tomador: c.tomador,
     valorContratado: c.contratado,
     // Liberado = contratado menos a taxa de originacao de 4% retida no desembolso.
-    valorLiberado: Math.round(c.contratado * 0.96 * 100) / 100,
+    valorLiberado: Math.round(c.contratado * (1 - TARIFA_ORIGINACAO_PCT) * 100) / 100,
     vencimentoFinal: parcelas[parcelas.length - 1].vencimento,
     statusContrato: parcelas.some((p) => p.diasAtraso > 0) ? 'Em atraso' : 'Em andamento',
     parcelasPagas: c.pagas,
@@ -3366,7 +3382,8 @@ function seedOportunidadesCredora(): Record<string, Record<string, unknown>> {
       contratoId: '7f0799c0-98b9-6d9d-bc4a-7d6f5b78e001',
       valor: 6000.0,
       prazoMeses: 10,
-      taxaJurosMensal: 0.025,
+      // Espelha o contrato 5b771c08: a taxa e a dele (a credora nao rende mais do que o tomador paga).
+      taxaJurosMensal: TAXA_CARTEIRA,
       status: 'DISPONIVEL',
       dataCriacao: now,
     },
@@ -3395,25 +3412,35 @@ function seedOportunidadesCredora(): Record<string, Record<string, unknown>> {
 
 function operacaoAssociadaSeed(): Record<string, unknown> {
   // Carteira nasce por associacao assistida do admin (nao por interesse). Cobranca e so agregada.
+  // O agregado sai do mesmo cronograma do contrato 5b771c08 na carteira de Cobranca: parcelas com juros.
+  const contrato = CARTEIRA['5b771c08'];
+  const plano = gerarCronograma({
+    principal: contrato.contratado,
+    taxaMensal: contrato.taxaMensal,
+    prazoMeses: contrato.prazo,
+    primeiroVencimento: contrato.primeiroVencimento,
+  });
+  const somaTotais = (linhas: typeof plano) =>
+    Math.round(linhas.reduce((t, l) => t + l.total, 0) * 100) / 100;
   return {
     id: OPERACAO_ASSOCIADA_ID,
     contratoId: '7f0799c0-98b9-6d9d-bc4a-7d6f5b78e001',
     oportunidadeId: OPORTUNIDADE_DISPONIVEL_ID,
     status: 'ASSOCIADA',
     justificativa: 'Associacao assistida apos formalizacao do contrato',
-    valor: 6000.0,
-    prazoMeses: 10,
-    taxaJurosMensal: 0.025,
+    valor: contrato.contratado,
+    prazoMeses: contrato.prazo,
+    taxaJurosMensal: contrato.taxaMensal,
     contratoStatus: 'ASSINADO',
-    // Espelho do contrato 5b771c08 da carteira: 10 parcelas de R$ 600,00, 8 pagas ate 2026-05-30,
-    // nenhuma em atraso e a 9a vencendo em 2026-06-25.
+    // Espelho do contrato 5b771c08 da carteira: 8 parcelas pagas ate 2026-05-30, nenhuma em atraso e a 9a
+    // vencendo em 2026-06-25. Os valores sao a soma das parcelas do plano, com juros.
     cobranca: {
-      numeroParcelas: 10,
-      valorTotal: 6000.0,
-      parcelasPagas: 8,
+      numeroParcelas: contrato.prazo,
+      valorTotal: somaTotais(plano),
+      parcelasPagas: contrato.pagas,
       parcelasAtrasadas: 0,
-      totalRecebido: 4800.0,
-      proximoVencimento: '2026-06-25',
+      totalRecebido: somaTotais(plano.slice(0, contrato.pagas)),
+      proximoVencimento: plano[contrato.pagas].vencimento,
     },
     dataCriacao: now,
   };

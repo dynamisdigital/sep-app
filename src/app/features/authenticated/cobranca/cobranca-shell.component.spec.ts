@@ -36,6 +36,9 @@ async function renderComRole(role: UsuarioRole) {
     modificadoPor: 'system',
   });
   result.fixture.detectChanges();
+  // A carteira chega por HTTP (as agendas dos contratos): sem esperar, a tela ainda esta vazia.
+  await result.fixture.whenStable();
+  result.fixture.detectChanges();
   return result;
 }
 
@@ -115,9 +118,9 @@ describe('CobrancaShellComponent', () => {
   it('combina status e periodo ao filtrar parcelas', async () => {
     await renderComRole('BACKOFFICE');
 
-    // Contrato 5b771c05: 10 parcelas mensais, as duas ultimas ainda agendadas.
+    // Contrato 5b771c05, como a agenda dele informa: 7 pagas, a 8a e a 9a em atraso e a 10a ainda por vencer.
     fireEvent.change(screen.getByLabelText('Status da parcela'), {
-      target: { value: 'AGENDADA' },
+      target: { value: 'PENDENTE' },
     });
     fireEvent.change(screen.getByLabelText('Vencimento inicial'), {
       target: { value: '2026-06-01' },

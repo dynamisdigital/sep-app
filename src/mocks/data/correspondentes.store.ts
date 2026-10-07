@@ -1,3 +1,9 @@
+import {
+  centavos,
+  gerarCronograma,
+  resumirCronograma,
+} from '../../app/core/financeiro/calculo-financeiro';
+import { TAXA_MENSAL_PADRAO } from '../../app/core/financeiro/politica-credito';
 import type {
   CarteiraResumo,
   CorrespondenteResponse,
@@ -203,7 +209,6 @@ interface ContratoSemente {
   cliente: string;
   produto: string;
   valor: number;
-  parcela: number;
   total: number;
   primeiroVencimento: string;
   pagas: number;
@@ -217,13 +222,14 @@ interface PropostaSemente {
   situacao: 'EM_ANALISE' | 'EM_FORMALIZACAO' | 'RECUSADA';
 }
 
+// Nenhum contrato passa do teto do regimento SEP (R$ 15.000,00 por operacao). A parcela nao e digitada: sai da
+// tabela Price na taxa padrao (core/financeiro), como na carteira de Cobranca e nas propostas.
 const SEMENTE_CONTRATOS: ContratoSemente[] = [
   {
     numero: 'CT-2026-0412',
     cliente: 'Padaria Estrela Ltda',
     produto: 'Capital de giro',
-    valor: 60000,
-    parcela: 5650,
+    valor: 12000,
     total: 12,
     primeiroVencimento: '2026-03-10',
     pagas: 7,
@@ -232,8 +238,7 @@ const SEMENTE_CONTRATOS: ContratoSemente[] = [
     numero: 'CT-2026-0431',
     cliente: 'João da Silva',
     produto: 'Crédito pessoal',
-    valor: 18000,
-    parcela: 1980,
+    valor: 9000,
     total: 10,
     primeiroVencimento: '2026-04-04',
     pagas: 7,
@@ -242,8 +247,7 @@ const SEMENTE_CONTRATOS: ContratoSemente[] = [
     numero: 'CT-2026-0502',
     cliente: 'Ana Beatriz Costa',
     produto: 'Crédito pessoal',
-    valor: 12000,
-    parcela: 1190,
+    valor: 6000,
     total: 12,
     primeiroVencimento: '2026-07-22',
     pagas: 1,
@@ -252,8 +256,7 @@ const SEMENTE_CONTRATOS: ContratoSemente[] = [
     numero: 'CT-2026-0301',
     cliente: 'Clínica Vida Plena',
     produto: 'Capital de giro',
-    valor: 120000,
-    parcela: 7940,
+    valor: 15000,
     total: 18,
     primeiroVencimento: '2026-02-15',
     pagas: 8,
@@ -262,8 +265,7 @@ const SEMENTE_CONTRATOS: ContratoSemente[] = [
     numero: 'CT-2026-0466',
     cliente: 'Pedro Henrique Alves',
     produto: 'Crédito pessoal',
-    valor: 9000,
-    parcela: 1620,
+    valor: 4500,
     total: 6,
     primeiroVencimento: '2026-05-27',
     pagas: 6,
@@ -272,8 +274,7 @@ const SEMENTE_CONTRATOS: ContratoSemente[] = [
     numero: 'CT-2026-0388',
     cliente: 'Transportes Horizonte',
     produto: 'Capital de giro',
-    valor: 45000,
-    parcela: 4310,
+    valor: 14000,
     total: 12,
     primeiroVencimento: '2026-04-12',
     pagas: 3,
@@ -285,14 +286,14 @@ const SEMENTE_PROPOSTAS: PropostaSemente[] = [
     numero: 'PR-2026-0877',
     cliente: 'Oficina Rápida ME',
     produto: 'Capital de giro',
-    valor: 35000,
+    valor: 14000,
     situacao: 'EM_ANALISE',
   },
   {
     numero: 'PR-2026-0910',
     cliente: 'Mercado Bom Preço',
     produto: 'Capital de giro',
-    valor: 80000,
+    valor: 15000,
     situacao: 'EM_FORMALIZACAO',
   },
   {
@@ -309,15 +310,21 @@ function idOperacao(numero: string): string {
 }
 
 function montarContrato(c: ContratoSemente, doc: string): OperacaoClienteResponse {
+  const plano = gerarCronograma({
+    principal: c.valor,
+    taxaMensal: TAXA_MENSAL_PADRAO,
+    prazoMeses: c.total,
+    primeiroVencimento: c.primeiroVencimento,
+  });
   const parcelas: ParcelaContrato[] = [];
   for (let i = 1; i <= c.total; i += 1) {
-    const vencimento = somarMeses(c.primeiroVencimento, i - 1);
+    const vencimento = plano[i - 1].vencimento;
     const paga = i <= c.pagas;
     const atraso = !paga && diasEntre(vencimento, HOJE_DEMO) > 0;
     parcelas.push({
       numero: i,
       vencimento,
-      valor: c.parcela,
+      valor: plano[i - 1].total,
       status: paga ? 'PAGA' : atraso ? 'VENCIDA' : 'A_VENCER',
       pagoEm: paga ? (vencimento > HOJE_DEMO ? HOJE_DEMO : vencimento) : null,
       diasAtraso: atraso ? diasEntre(vencimento, HOJE_DEMO) : 0,
@@ -339,13 +346,15 @@ function montarContrato(c: ContratoSemente, doc: string): OperacaoClienteRespons
     produto: c.produto,
     situacao,
     valorContratado: c.valor,
-    valorParcela: c.parcela,
+    valorParcela: resumirCronograma(plano).parcelaCheia,
     totalParcelas: c.total,
     parcelasPagas: parcelas.filter((p) => p.status === 'PAGA').length,
     parcelasVencidas: vencidas.length,
-    valorPago: parcelas.filter((p) => p.status === 'PAGA').reduce((t, p) => t + p.valor, 0),
-    valorEmAtraso: vencidas.reduce((t, p) => t + p.valor, 0),
-    saldoAReceber: abertas.reduce((t, p) => t + p.valor, 0),
+    valorPago: centavos(
+      parcelas.filter((p) => p.status === 'PAGA').reduce((t, p) => t + p.valor, 0),
+    ),
+    valorEmAtraso: centavos(vencidas.reduce((t, p) => t + p.valor, 0)),
+    saldoAReceber: centavos(abertas.reduce((t, p) => t + p.valor, 0)),
     proximoVencimento: abertas[0]?.vencimento ?? null,
     contratadoEm: somarMeses(c.primeiroVencimento, -1),
     parcelas,

@@ -25,7 +25,7 @@
               <span
                 ><small>Valor total contratado</small
                 ><strong>{{ formatMoney(totalContracted()) }}</strong
-                ><em>{{ contracts.length }} contratos ativos</em></span
+                ><em>{{ contracts().length }} contratos ativos</em></span
               >
             </article>
             <article class="metric-card blue">
@@ -268,35 +268,38 @@
               </div>
               <article class="green">
                 <small><i></i>Em dia</small
-                ><strong>{{ formatMoney(delinquencyBands.current) }}</strong
+                ><strong>{{ formatMoney(delinquencyBands().current) }}</strong
                 ><em
                   >↑
-                  {{ formatPercentage((delinquencyBands.current / totalContracted()) * 100) }}</em
+                  {{ formatPercentage((delinquencyBands().current / totalContracted()) * 100) }}</em
                 >
               </article>
               <article class="yellow">
                 <small><i></i>Atraso 1–15 dias</small
-                ><strong>{{ formatMoney(delinquencyBands.from1To15) }}</strong
+                ><strong>{{ formatMoney(delinquencyBands().from1To15) }}</strong
                 ><em
                   >◉
-                  {{ formatPercentage((delinquencyBands.from1To15 / totalContracted()) * 100) }}</em
+                  {{
+                    formatPercentage((delinquencyBands().from1To15 / totalContracted()) * 100)
+                  }}</em
                 >
               </article>
               <article class="orange">
                 <small><i></i>Atraso 16–30 dias</small
-                ><strong>{{ formatMoney(delinquencyBands.from16To30) }}</strong
+                ><strong>{{ formatMoney(delinquencyBands().from16To30) }}</strong
                 ><em
                   >◉
                   {{
-                    formatPercentage((delinquencyBands.from16To30 / totalContracted()) * 100)
+                    formatPercentage((delinquencyBands().from16To30 / totalContracted()) * 100)
                   }}</em
                 >
               </article>
               <article class="red">
                 <small><i></i>Atraso &gt; 30 dias</small
-                ><strong>{{ formatMoney(delinquencyBands.over30) }}</strong
+                ><strong>{{ formatMoney(delinquencyBands().over30) }}</strong
                 ><em
-                  >↓ {{ formatPercentage((delinquencyBands.over30 / totalContracted()) * 100) }}</em
+                  >↓
+                  {{ formatPercentage((delinquencyBands().over30 / totalContracted()) * 100) }}</em
                 >
               </article>
               <article class="agreements">
@@ -307,8 +310,12 @@
                   <path d="m8 18-4 5 7 7 4-5M40 19l4 5-7 7-4-5" />
                 </svg>
                 <span
-                  ><small>Acordos ativos</small><strong>2 acordos</strong
-                  ><small>Valor acordado</small><b>{{ formatMoney(2125) }}</b></span
+                  ><small>Acordos ativos</small
+                  ><strong
+                    >{{ acordosAtivos().quantidade }}
+                    {{ acordosAtivos().quantidade === 1 ? 'acordo' : 'acordos' }}</strong
+                  ><small>Valor acordado</small
+                  ><b>{{ formatMoney(acordosAtivos().valor) }}</b></span
                 >
               </article>
             </div>
@@ -343,37 +350,41 @@
                 <a routerLink="/app/cobranca/financeiro/inadimplencia">Ver todos →</a>
               </header>
               <ul>
-                <li class="red">
-                  <b
-                    ><lucide-icon
-                      class="ic-vermelho"
-                      name="triangle-alert"
-                      [size]="14"
-                      [strokeWidth]="2.25" /></b
-                  ><span
-                    ><strong>Parcela 4/24 em atraso</strong
-                    ><small>Contrato 5b771c05 - 15 dias</small></span
-                  ><em>Hoje</em>
-                </li>
-                <li class="orange">
-                  <b
-                    ><lucide-icon
-                      class="ic-ambar"
-                      name="triangle-alert"
-                      [size]="14"
-                      [strokeWidth]="2.25" /></b
-                  ><span
-                    ><strong>Parcela 5/24 em atraso</strong
-                    ><small>Contrato 5b771c05 - 5 dias</small></span
-                  ><em>Hoje</em>
-                </li>
-                <li class="blue">
-                  <b><lucide-icon class="ic-ciano" name="info" [size]="25" [strokeWidth]="2" /></b
-                  ><span
-                    ><strong>Vencimento amanhã</strong
-                    ><small>Parcela 3/24 - {{ formatMoney(1250) }}</small></span
-                  ><em>Hoje</em>
-                </li>
+                @for (alerta of alertas(); track alerta.chave) {
+                  <li [class]="alerta.tom">
+                    <b>
+                      @if (alerta.tom === 'blue') {
+                        <lucide-icon class="ic-ciano" name="info" [size]="25" [strokeWidth]="2" />
+                      } @else {
+                        <lucide-icon
+                          [class]="alerta.tom === 'red' ? 'ic-vermelho' : 'ic-ambar'"
+                          name="triangle-alert"
+                          [size]="14"
+                          [strokeWidth]="2.25"
+                        />
+                      }
+                    </b>
+                    <span
+                      ><strong>{{ alerta.titulo }}</strong
+                      ><small
+                        >{{ alerta.detalhe
+                        }}{{
+                          alerta.valor === undefined ? '' : ' - ' + formatMoney(alerta.valor)
+                        }}</small
+                      ></span
+                    ><em>Hoje</em>
+                  </li>
+                } @empty {
+                  <li class="blue">
+                    <b
+                      ><lucide-icon class="ic-ciano" name="info" [size]="25" [strokeWidth]="2"
+                    /></b>
+                    <span
+                      ><strong>Sem alertas</strong
+                      ><small>Nenhuma parcela em atraso ou a vencer.</small></span
+                    >
+                  </li>
+                }
               </ul>
             </section>
             <section class="renegotiations panel">
@@ -415,11 +426,21 @@
                 <h2>Recebimentos (30 dias)</h2>
                 <a routerLink="/app/cobranca/financeiro/agenda">Ver todos →</a>
               </header>
-              <strong>{{ formatMoney(3075.13) }}</strong
-              ><small><b>+12,4%</b> <span>vs. 30 dias anteriores</span></small>
+              <strong>{{ formatMoney(recebimentos30().total) }}</strong
+              ><small
+                ><b>{{
+                  recebimentos30().variacaoPct === null
+                    ? '—'
+                    : (recebimentos30().variacaoPct! >= 0 ? '+' : '') +
+                      formatPercentage(recebimentos30().variacaoPct!)
+                }}</b
+                >&nbsp;<span>vs. 30 dias anteriores</span></small
+              >
               <div class="mountain-chart">
                 <div class="chart-y-labels" aria-hidden="true">
-                  <span>30k</span><span>20k</span><span>10k</span><span>0</span>
+                  @for (marca of recebimentos30().eixoY; track $index) {
+                    <span>{{ marca }}</span>
+                  }
                 </div>
                 <svg
                   viewBox="0 0 320 94"
@@ -433,19 +454,14 @@
                       <stop offset="1" style="stop-color: var(--sep-success)" stop-opacity="0" />
                     </linearGradient>
                   </defs>
-                  <path
-                    class="area"
-                    d="M0 74 18 72 34 78 51 65 70 67 85 54 103 57 120 46 139 48 157 34 177 36 196 26 216 30 232 22 246 43 261 27 276 38 291 20 307 24 320 9V94H0Z"
-                  />
-                  <path
-                    class="line"
-                    d="M0 74 18 72 34 78 51 65 70 67 85 54 103 57 120 46 139 48 157 34 177 36 196 26 216 30 232 22 246 43 261 27 276 38 291 20 307 24 320 9"
-                  />
+                  <path class="area" [attr.d]="recebimentos30().area" />
+                  <path class="line" [attr.d]="recebimentos30().linha" />
                 </svg>
               </div>
               <div class="chart-labels">
-                <span>30/04</span><span>07/05</span><span>14/05</span><span>21/05</span
-                ><span>30/05</span>
+                @for (data of recebimentos30().datas; track $index) {
+                  <span>{{ data }}</span>
+                }
               </div>
             </section>
           </div>

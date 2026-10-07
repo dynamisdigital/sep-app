@@ -8,12 +8,23 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
+import { forkJoin } from 'rxjs';
 
 import { RenegociacaoResponse, StatusRenegociacao } from '../../../core/api/api.models';
 import { AuthService } from '../../../core/auth/auth.service';
 import { CobrancaService } from '../../../core/cobranca/cobranca.service';
+import { centavos } from '../../../core/financeiro/calculo-financeiro';
 import { gerarLinhaCsv } from '../../../core/format/csv-format';
 import { OperationalShellComponent } from '../../../layout/operational-shell/operational-shell.component';
+import {
+  ContratoDaCarteira,
+  LinhaDeParcela,
+  alertasDaCarteira,
+  caminhosDoGrafico,
+  contratoDaAgenda,
+  linhasDaAgenda,
+  recebimentosDaJanela,
+} from './shared/cobranca-carteira';
 
 import {
   FaixaDonut,
@@ -23,30 +34,8 @@ import {
   haloDonut,
 } from '../../../shared/donut';
 
-type ContractStatus = 'EM_DIA' | 'ATRASADO';
-type InstallmentStatus = 'PAGA' | 'PENDENTE' | 'ATRASADA' | 'AGENDADA';
-
-// `id` é o identificador curto exibido; `agendaId` é o UUID real do contrato usado na rota da
-// agenda, no mesmo padrão já homologado de "UUID real na rota, id curto na tela". Sem ele o
-// link levava o id curto para a URL e a agenda abria vazia.
-interface ContractCard {
-  id: string;
-  agendaId?: string;
-  operation: string;
-  contracted: number;
-  open: number;
-  status: ContractStatus;
-}
-
-interface InstallmentRow {
-  contractId: string;
-  number: string;
-  dueDate: string;
-  dueIso: string;
-  value: number;
-  status: InstallmentStatus;
-  overdueDays: number | null;
-}
+type ContractCard = ContratoDaCarteira;
+type InstallmentRow = LinhaDeParcela;
 
 @Component({
   selector: 'sep-cobranca-shell',
@@ -81,417 +70,32 @@ export class CobrancaShellComponent implements OnInit {
   // Carteira canonica da base ficticia: os mesmos quatro contratos que o mock devolve, com
   // prazo e valor de parcela coerentes com o contratado. `agendaId` e o UUID real usado na
   // rota da agenda do contrato (Mockup 32); o id curto e o que a tela mostra.
-  protected readonly contracts: ContractCard[] = [
-    {
-      id: '5b771c03',
-      agendaId: '6f0799c0-98b9-6d9d-bc4a-7d6f5b771c03',
-      operation: 'CAPITAL_GIRO',
-      contracted: 1250,
-      open: 250,
-      status: 'EM_DIA',
-    },
-    {
-      id: '5b771c05',
-      agendaId: '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e03',
-      operation: 'INVESTIMENTO',
-      contracted: 3125,
-      open: 937.5,
-      status: 'ATRASADO',
-    },
-    {
-      id: '5b771c06',
-      agendaId: '6f0799c0-98b9-6d9d-bc4a-7d6f5b771c06',
-      operation: 'REFINANCIAMENTO',
-      contracted: 4625,
-      open: 1850,
-      status: 'ATRASADO',
-    },
-    {
-      id: '5b771c08',
-      agendaId: '6f0799c0-98b9-6d9d-bc4a-7d6f5b771c08',
-      operation: 'CAPITAL_GIRO',
-      contracted: 6000,
-      open: 1200,
-      status: 'EM_DIA',
-    },
-  ];
+  // O universo da tela e a carteira. Nao ha endpoint que liste as agendas, entao fica aqui so a identificacao
+  // de cada contrato (id curto e UUID da rota); contratado, em aberto, parcelas, juros e atrasos vem da
+  // agenda de cada um (GET /cobranca/contratos/{id}/agenda), a mesma que as demais telas consultam.
+  private static readonly CONTRATOS_DA_CARTEIRA = [
+    { id: '5b771c03', agendaId: '6f0799c0-98b9-6d9d-bc4a-7d6f5b771c03' },
+    { id: '5b771c05', agendaId: '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e03' },
+    { id: '5b771c06', agendaId: '6f0799c0-98b9-6d9d-bc4a-7d6f5b771c06' },
+    { id: '5b771c08', agendaId: '6f0799c0-98b9-6d9d-bc4a-7d6f5b771c08' },
+  ] as const;
 
-  // Todas as parcelas dos quatro contratos, geradas da mesma carteira do mock.
-  protected readonly installments: InstallmentRow[] = [
-    {
-      contractId: '5b771c03',
-      number: '1/10',
-      dueDate: '20/10/2025',
-      dueIso: '2025-10-20',
-      value: 125,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c03',
-      number: '2/10',
-      dueDate: '20/11/2025',
-      dueIso: '2025-11-20',
-      value: 125,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c03',
-      number: '3/10',
-      dueDate: '20/12/2025',
-      dueIso: '2025-12-20',
-      value: 125,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c03',
-      number: '4/10',
-      dueDate: '20/01/2026',
-      dueIso: '2026-01-20',
-      value: 125,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c03',
-      number: '5/10',
-      dueDate: '20/02/2026',
-      dueIso: '2026-02-20',
-      value: 125,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c03',
-      number: '6/10',
-      dueDate: '20/03/2026',
-      dueIso: '2026-03-20',
-      value: 125,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c03',
-      number: '7/10',
-      dueDate: '20/04/2026',
-      dueIso: '2026-04-20',
-      value: 125,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c03',
-      number: '8/10',
-      dueDate: '20/05/2026',
-      dueIso: '2026-05-20',
-      value: 125,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c03',
-      number: '9/10',
-      dueDate: '20/06/2026',
-      dueIso: '2026-06-20',
-      value: 125,
-      status: 'PENDENTE',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c03',
-      number: '10/10',
-      dueDate: '20/07/2026',
-      dueIso: '2026-07-20',
-      value: 125,
-      status: 'AGENDADA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c05',
-      number: '1/10',
-      dueDate: '05/09/2025',
-      dueIso: '2025-09-05',
-      value: 312.5,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c05',
-      number: '2/10',
-      dueDate: '05/10/2025',
-      dueIso: '2025-10-05',
-      value: 312.5,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c05',
-      number: '3/10',
-      dueDate: '05/11/2025',
-      dueIso: '2025-11-05',
-      value: 312.5,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c05',
-      number: '4/10',
-      dueDate: '05/12/2025',
-      dueIso: '2025-12-05',
-      value: 312.5,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c05',
-      number: '5/10',
-      dueDate: '05/01/2026',
-      dueIso: '2026-01-05',
-      value: 312.5,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c05',
-      number: '6/10',
-      dueDate: '05/02/2026',
-      dueIso: '2026-02-05',
-      value: 312.5,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c05',
-      number: '7/10',
-      dueDate: '05/03/2026',
-      dueIso: '2026-03-05',
-      value: 312.5,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c05',
-      number: '8/10',
-      dueDate: '05/04/2026',
-      dueIso: '2026-04-05',
-      value: 312.5,
-      status: 'ATRASADA',
-      overdueDays: 55,
-    },
-    {
-      contractId: '5b771c05',
-      number: '9/10',
-      dueDate: '05/05/2026',
-      dueIso: '2026-05-05',
-      value: 312.5,
-      status: 'ATRASADA',
-      overdueDays: 25,
-    },
-    {
-      contractId: '5b771c05',
-      number: '10/10',
-      dueDate: '05/06/2026',
-      dueIso: '2026-06-05',
-      value: 312.5,
-      status: 'AGENDADA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c06',
-      number: '1/10',
-      dueDate: '15/09/2025',
-      dueIso: '2025-09-15',
-      value: 462.5,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c06',
-      number: '2/10',
-      dueDate: '15/10/2025',
-      dueIso: '2025-10-15',
-      value: 462.5,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c06',
-      number: '3/10',
-      dueDate: '15/11/2025',
-      dueIso: '2025-11-15',
-      value: 462.5,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c06',
-      number: '4/10',
-      dueDate: '15/12/2025',
-      dueIso: '2025-12-15',
-      value: 462.5,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c06',
-      number: '5/10',
-      dueDate: '15/01/2026',
-      dueIso: '2026-01-15',
-      value: 462.5,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c06',
-      number: '6/10',
-      dueDate: '15/02/2026',
-      dueIso: '2026-02-15',
-      value: 462.5,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c06',
-      number: '7/10',
-      dueDate: '15/03/2026',
-      dueIso: '2026-03-15',
-      value: 462.5,
-      status: 'ATRASADA',
-      overdueDays: 76,
-    },
-    {
-      contractId: '5b771c06',
-      number: '8/10',
-      dueDate: '15/04/2026',
-      dueIso: '2026-04-15',
-      value: 462.5,
-      status: 'ATRASADA',
-      overdueDays: 45,
-    },
-    {
-      contractId: '5b771c06',
-      number: '9/10',
-      dueDate: '15/05/2026',
-      dueIso: '2026-05-15',
-      value: 462.5,
-      status: 'ATRASADA',
-      overdueDays: 15,
-    },
-    {
-      contractId: '5b771c06',
-      number: '10/10',
-      dueDate: '15/06/2026',
-      dueIso: '2026-06-15',
-      value: 462.5,
-      status: 'AGENDADA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c08',
-      number: '1/10',
-      dueDate: '25/10/2025',
-      dueIso: '2025-10-25',
-      value: 600,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c08',
-      number: '2/10',
-      dueDate: '25/11/2025',
-      dueIso: '2025-11-25',
-      value: 600,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c08',
-      number: '3/10',
-      dueDate: '25/12/2025',
-      dueIso: '2025-12-25',
-      value: 600,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c08',
-      number: '4/10',
-      dueDate: '25/01/2026',
-      dueIso: '2026-01-25',
-      value: 600,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c08',
-      number: '5/10',
-      dueDate: '25/02/2026',
-      dueIso: '2026-02-25',
-      value: 600,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c08',
-      number: '6/10',
-      dueDate: '25/03/2026',
-      dueIso: '2026-03-25',
-      value: 600,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c08',
-      number: '7/10',
-      dueDate: '25/04/2026',
-      dueIso: '2026-04-25',
-      value: 600,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c08',
-      number: '8/10',
-      dueDate: '25/05/2026',
-      dueIso: '2026-05-25',
-      value: 600,
-      status: 'PAGA',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c08',
-      number: '9/10',
-      dueDate: '25/06/2026',
-      dueIso: '2026-06-25',
-      value: 600,
-      status: 'PENDENTE',
-      overdueDays: null,
-    },
-    {
-      contractId: '5b771c08',
-      number: '10/10',
-      dueDate: '25/07/2026',
-      dueIso: '2026-07-25',
-      value: 600,
-      status: 'AGENDADA',
-      overdueDays: null,
-    },
-  ];
+  protected readonly contracts = signal<readonly ContractCard[]>([]);
+  protected readonly installments = signal<readonly InstallmentRow[]>([]);
+  protected readonly carteiraIndisponivel = signal(false);
 
   protected readonly filteredContracts = computed(() => {
     const status = this.contractStatus();
     return status === 'TODOS'
-      ? this.contracts
-      : this.contracts.filter((item) => item.status === status);
+      ? this.contracts()
+      : this.contracts().filter((item) => item.status === status);
   });
 
   protected readonly filteredInstallments = computed(() => {
     const status = this.installmentStatus();
     const start = this.startDate();
     const end = this.endDate();
-    return this.installments.filter((item) => {
+    return this.installments().filter((item) => {
       if (item.contractId !== this.selectedContractId()) return false;
       if (status !== 'TODOS' && item.status !== status) return false;
       if (start && item.dueIso < start) return false;
@@ -501,7 +105,15 @@ export class CobrancaShellComponent implements OnInit {
   });
 
   protected readonly selectedContract = computed(
-    () => this.contracts.find((item) => item.id === this.selectedContractId()) ?? this.contracts[0],
+    () =>
+      this.contracts().find((item) => item.id === this.selectedContractId()) ??
+      this.contracts()[0] ?? {
+        id: '—',
+        operation: '—',
+        contracted: 0,
+        open: 0,
+        status: 'EM_DIA' as const,
+      },
   );
 
   // Rota da agenda: UUID real quando o contrato tem agenda, id curto como fallback.
@@ -511,48 +123,48 @@ export class CobrancaShellComponent implements OnInit {
   });
 
   protected readonly totalContracted = computed(() =>
-    this.contracts.reduce((total, contract) => total + contract.contracted, 0),
+    this.contracts().reduce((total, contract) => total + contract.contracted, 0),
   );
   protected readonly totalOpen = computed(() =>
-    this.contracts.reduce((total, contract) => total + contract.open, 0),
+    this.contracts().reduce((total, contract) => total + contract.open, 0),
   );
   protected readonly openPercentage = computed(() =>
     this.totalContracted() ? (this.totalOpen() / this.totalContracted()) * 100 : 0,
   );
   // Faixas somadas das proprias parcelas: com valores fixos, o resumo divergia do que a
   // inadimplencia e a agenda financeira mostravam para os mesmos contratos.
-  private faixa(min: number, max: number): number {
-    const total = this.installments
-      .filter((i) => (i.overdueDays ?? 0) >= min && (i.overdueDays ?? 0) <= max)
-      .reduce((soma, i) => soma + i.value, 0);
-    return Math.round(total * 100) / 100;
-  }
-
   protected readonly overdueCount = computed(
-    () => this.installments.filter((i) => (i.overdueDays ?? 0) > 15).length,
+    () => this.installments().filter((i) => (i.overdueDays ?? 0) > 15).length,
   );
 
-  protected readonly delinquencyBands = {
-    current:
-      Math.round((this.contracts.reduce((s, c) => s + c.open, 0) - this.faixa(1, Infinity)) * 100) /
-      100,
-    from1To15: this.faixa(1, 15),
-    from16To30: this.faixa(16, 30),
-    over30: this.faixa(31, Infinity),
-  };
+  protected readonly delinquencyBands = computed(() => {
+    const valor = (min: number, max: number): number =>
+      centavos(
+        this.installments()
+          .filter((i) => (i.overdueDays ?? 0) >= min && (i.overdueDays ?? 0) <= max)
+          .reduce((soma, i) => soma + i.value, 0),
+      );
+    return {
+      current: centavos(this.totalOpen() - valor(1, Infinity)),
+      from1To15: valor(1, 15),
+      from16To30: valor(16, 30),
+      over30: valor(31, Infinity),
+    };
+  });
   protected readonly overdueOver15 = computed(
-    () => this.delinquencyBands.from16To30 + this.delinquencyBands.over30,
+    () => this.delinquencyBands().from16To30 + this.delinquencyBands().over30,
   );
   protected readonly delinquencyPercentage = computed(() =>
     this.totalContracted()
-      ? ((this.delinquencyBands.from1To15 + this.overdueOver15()) / this.totalContracted()) * 100
+      ? ((this.delinquencyBands().from1To15 + this.overdueOver15()) / this.totalContracted()) * 100
       : 0,
   );
   protected readonly delinquencyGradient = computed(() => {
     const total = this.totalContracted() || 1;
-    const firstEnd = (this.delinquencyBands.from1To15 / total) * 100;
-    const secondEnd = firstEnd + (this.delinquencyBands.from16To30 / total) * 100;
-    const overdueEnd = secondEnd + (this.delinquencyBands.over30 / total) * 100;
+    const bandas = this.delinquencyBands();
+    const firstEnd = (bandas.from1To15 / total) * 100;
+    const secondEnd = firstEnd + (bandas.from16To30 / total) * 100;
+    const overdueEnd = secondEnd + (bandas.over30 / total) * 100;
     return `conic-gradient(from 0deg, var(--sep-warning) 0 ${firstEnd}%, var(--sep-tint-orange) ${firstEnd}% ${secondEnd}%, var(--sep-tint-coral) ${secondEnd}% ${overdueEnd}%, var(--sep-success) ${overdueEnd}% 100%)`;
   });
   // ---- Renegociacoes -------------------------------------------------------------------------
@@ -597,6 +209,7 @@ export class CobrancaShellComponent implements OnInit {
   protected readonly corDoTom = corDoTom;
 
   ngOnInit(): void {
+    this.carregarCarteira();
     this.cobranca.listarRenegociacoes().subscribe({
       next: (lista) => {
         this.renegociacoes.set(lista);
@@ -609,9 +222,71 @@ export class CobrancaShellComponent implements OnInit {
     });
   }
 
+  // Uma agenda por contrato, em paralelo. Se qualquer uma falhar, a tela diz que a carteira esta indisponivel
+  // em vez de mostrar uma carteira pela metade, que somaria numeros errados.
+  private carregarCarteira(): void {
+    const contratos = CobrancaShellComponent.CONTRATOS_DA_CARTEIRA;
+    forkJoin(contratos.map((c) => this.cobranca.consultarAgendaPorContrato(c.agendaId))).subscribe({
+      next: (agendas) => {
+        this.contracts.set(
+          agendas.map((a, i) => contratoDaAgenda(a, contratos[i].id, contratos[i].agendaId)),
+        );
+        this.installments.set(
+          agendas.flatMap((a, i) => linhasDaAgenda(a, contratos[i].id, this.referenceDateIso)),
+        );
+        this.carteiraIndisponivel.set(false);
+      },
+      error: () => {
+        this.contracts.set([]);
+        this.installments.set([]);
+        this.carteiraIndisponivel.set(true);
+      },
+    });
+  }
+
+  // ---- Coluna lateral: tudo sai das parcelas e das renegociacoes carregadas ------------------------------
+  protected readonly alertas = computed(() =>
+    alertasDaCarteira(this.installments(), this.referenceDateIso),
+  );
+
+  /** Acordos de renegociacao aceitos e o valor que eles somam (parcela nova x numero de parcelas). */
+  protected readonly acordosAtivos = computed(() => {
+    const aceitos = this.renegociacoes().filter((r) => r.status === 'ACEITA');
+    return {
+      quantidade: aceitos.length,
+      valor: centavos(aceitos.reduce((s, r) => s + r.novoValorParcela * r.numeroParcelas, 0)),
+    };
+  });
+
+  protected readonly recebimentos30 = computed(() => {
+    const janela = recebimentosDaJanela(this.installments(), this.referenceDateIso, 30);
+    const caminhos = caminhosDoGrafico(janela.acumulado);
+    const maximo = caminhos.maximo;
+    const rotulo = (v: number) =>
+      v >= 1000
+        ? `${(v / 1000).toFixed(v >= 10000 ? 0 : 1).replace('.', ',')}k`
+        : String(Math.round(v));
+    const data = (iso: string) => iso.slice(8, 10) + '/' + iso.slice(5, 7);
+    const meio = janela.acumulado.length >> 1;
+    return {
+      ...janela,
+      linha: caminhos.linha,
+      area: caminhos.area,
+      // Do maior para o menor, como as marcas do eixo vertical aparecem na tela.
+      eixoY: [maximo, (maximo * 2) / 3, maximo / 3, 0].map(rotulo),
+      datas: [
+        data(janela.inicio),
+        data(somarDiasIso(janela.inicio, Math.round(meio / 2))),
+        data(somarDiasIso(janela.inicio, meio)),
+        data(somarDiasIso(janela.inicio, Math.round((meio + janela.acumulado.length - 1) / 2))),
+        data(janela.fim),
+      ],
+    };
+  });
+
   protected readonly nextInstallment = computed<InstallmentRow | undefined>(
     () =>
-      [...this.installments]
+      [...this.installments()]
         .filter((item) => item.dueIso > this.referenceDateIso && item.status !== 'PAGA')
         .sort((a, b) => a.dueIso.localeCompare(b.dueIso))[0],
   );
@@ -713,4 +388,10 @@ export class CobrancaShellComponent implements OnInit {
     anchor.click();
     URL.revokeObjectURL(url);
   }
+}
+
+function somarDiasIso(iso: string, dias: number): string {
+  const d = new Date(`${iso}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + dias);
+  return d.toISOString().slice(0, 10);
 }
