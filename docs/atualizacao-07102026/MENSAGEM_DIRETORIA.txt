@@ -1,43 +1,59 @@
 🖥️ SEP — Correspondentes, Pix Automático e Análise de Crédito · 7 de Outubro de 2026
 
-Prezada Diretoria e Conselho Executivo,
+Prezados Senhores da Diretoria e do Conselho Executivo,
 
-Apresento o Módulo de Correspondentes do SEP e as três ampliações feitas no mesmo dia, em teste e com
-dados fictícios:
+Cumprimentando-os cordialmente, submeto à apreciação de Vossas Senhorias três frentes que desenvolvi
+no frontend do SEP por entendê-las valiosas e fundamentais para o crescimento sustentável da
+plataforma. Todas funcionam hoje em ambiente de teste, com dados fictícios, e estão apresentadas no
+relatório interativo:
 
-🤝 O correspondente é uma pessoa física credenciada, com cadastro de validade definida, que
-capta clientes e acompanha a própria base. Quem capta não decide o crédito: análise, aprovação,
-formalização e liberação continuam do SEP.
-📎 Os documentos são enviados com atesto de que o correspondente conferiu os originais e entram na
-fila do backoffice, que valida ou devolve.
-⏳ A base não é permanente: cadastro vencido ou desatualizado, ou proposta assinada sem citar o
-correspondente, encerra o vínculo.
-📊 O correspondente acompanha contratos e parcelas dos clientes que captou, tem funil, agenda,
-comissões, metas e relatórios. A administração configura as regras de comissão e tem auditoria.
+🔗 https://sep-relatorio-correspondentes-07-10.netlify.app/
 
-🆕 Rede de sub-correspondentes: o correspondente majoritário credencia subs, que também lançam
-clientes, e define o repasse de cada um por produto, sempre abaixo do teto que o SEP fixa. Ele
-acompanha a carteira e a comissão da rede inteira; o sub vê só a própria posição.
-🆕 Pix Automático no Crédito: o tomador autoriza uma vez, no banco dele, e cada parcela é debitada no
-vencimento. Há chave geral de habilitação, registro dos dados do pagador com consentimento e as
-cobranças por parcela. (O "Pix Agendado" é pagamento único e não serve para parcelas.)
-🆕 Análise de crédito: consulta a Serasa, SPC/Boa Vista e SCR do Banco Central e score interno que
-se explica fator a fator. O motor sugere; quem decide é o analista, com justificativa.
-🔎 Todos os dados históricos foram conferidos: 10 divergências de valores, parcelas e juros foram
-corrigidas, e um teste impede que voltem.
+🤝 1. Módulo de Correspondentes e sub-correspondentes
+Permite ao SEP crescer de um canal comercial único para uma equipe de captação escalável. O
+correspondente majoritário credencia sub-correspondentes, que também lançam clientes, e dispõe de um
+backoffice próprio para acompanhar a sua carteira e a de seus subs, com o repasse de comissão
+definido por produto e sempre abaixo do limite máximo que o SEP estabelece. Quem capta não decide o
+crédito: análise, aprovação e liberação continuam sob responsabilidade do SEP, e os documentos
+enviados são validados pelo backoffice.
 
-📌 Para decisão: enquadramento regulatório e tributação (correspondente e sub), parceiro e regras do
-Pix Automático, contratos com os bureaus e base legal LGPD (quadro no slide 16).
-🛡️ Entrega em teste, com ponto de retorno ao estado anterior preservado.
+📊 2. Análise de crédito
+Preparei a camada de frontend para a consulta, via API, a Serasa, SPC/Boa Vista e ao SCR do Banco
+Central, somada a uma análise interna moderna, com score explicável fator a fator. O sistema sugere
+e o analista decide, com justificativa, observados o consentimento do titular e a LGPD.
+
+💸 3. Pix Automático
+Ferramenta de grande valor para evitar a cobrança manual e recorrente das parcelas. O tomador autoriza
+uma única vez, no próprio banco, e cada parcela é debitada no vencimento. A expectativa é reduzir o
+índice de inadimplência e tornar o fluxo de caixa previsto muito mais confiável. Há uma chave geral
+para a administração habilitar ou suspender o recurso.
+
+🔎 Conferi ainda todos os dados históricos do sistema (valores, parcelas e juros) e corrigi as
+divergências encontradas, com um teste automatizado que impede o seu retorno.
+
+🛡️ Base anterior protegida
+Todo o trabalho foi feito em ramificação própria. O estado anterior do sistema está preservado em um
+ponto de retorno e permanece intacto: caso Vossas Senhorias decidam não prosseguir com a
+implementação destes módulos, basta retornar a ele, sem qualquer perda.
+
+📌 Próximos passos, a critério da Diretoria
+Por serem implementações que considerei válidas para o desenvolvimento do SEP, submeto-as à
+apreciação e à autorização de Vossas Senhorias. Havendo aprovação, a parte do backend precisará ser
+implementada. Ao Sr. Maurício, encaminho em anexo todas as demandas necessárias, com os contratos,
+as regras e as justificativas:
+
+📎 https://sep-relatorio-correspondentes-07-10.netlify.app/backend.html
+
+Ficam em aberto, para decisão, o enquadramento regulatório e a tributação do correspondente e do
+sub-correspondente, o parceiro e as regras do Pix Automático, a contratação dos bureaus de crédito e a
+base legal da LGPD (quadro no slide 16).
+
 ✅ 808 testes automatizados aprovados (100%).
 
-📱 Relatório interativo e PDF oficial:
-[LINK]
+Coloco-me à disposição para quaisquer esclarecimentos e agradeço, desde já, a atenção dispensada.
 
-O apoio técnico para o backend (contratos, regras e justificativas) está em:
-[LINK]/backend.html
+Atenciosamente,
 
-Responsável Técnico:
 Daniel Möllmann
 Frontend Development & Security Architecture
 7 de Outubro de 2026
