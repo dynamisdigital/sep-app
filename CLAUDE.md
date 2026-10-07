@@ -11,6 +11,7 @@ agir e siga o que ele diz.** Não carregue por conta própria: só quando for so
 | Quando o Daniel pedir                                                                  | Arquivo                                                     |
 | -------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
 | "carregar o handoff do relatório semanal de 02/10" (ou "relatório da semana 1 e 2/10") | `docs/handoff/2026-10-02-relatorio-semanal-e-publicacao.md` |
+| "carregar o handoff de correspondentes de 07/10"                                       | `docs/handoff/2026-10-07-correspondentes.md`                |
 
 Ao criar um handoff novo, acrescente uma linha nesta tabela com a frase que o Daniel vai usar.
 
