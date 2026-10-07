@@ -431,16 +431,86 @@ const relatorios: Roteiro = {
   ],
 };
 
+const minhaRede: Roteiro = {
+  id: 'correspondentes-minha-rede',
+  modulo: MODULO,
+  titulo: 'Minha rede de sub-correspondentes',
+  icone: 'network',
+  descricao:
+    'Credenciar sub-correspondentes, definir o repasse de cada um dentro do limite do SEP e acompanhar a carteira da rede.',
+  duracao: '≈ 3 min',
+  papeis: ['CORRESPONDENTE'],
+  impedimento: (ctx) =>
+    ctx.usuario === 'sub-correspondente@empresa.com'
+      ? 'Este roteiro mostra a gestão da rede, que é do correspondente majoritário. Entre com a conta de correspondente majoritário.'
+      : null,
+  passos: () => [
+    {
+      titulo: 'Sua rede de sub-correspondentes',
+      texto:
+        'Este roteiro mostra como o correspondente majoritário credencia sub-correspondentes, que também lançam clientes, e acompanha a rede inteira.',
+    },
+    ...ateSubmenu(
+      '/app/meu-backoffice/rede',
+      'Submenu Minha rede',
+      'O submenu Minha rede reúne os sub-correspondentes, os percentuais e a carteira da rede.',
+      '[data-tour="cor-rede-kpis"]',
+    ),
+    {
+      titulo: 'Resumo da rede',
+      texto:
+        'Os indicadores somam clientes, carteira e inadimplência da sua base e das bases dos subs. Mostram também a comissão bruta, o repasse aos subs e o que fica com você.',
+      alvo: '[data-tour="cor-rede-kpis"]',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'O limite do SEP',
+      texto:
+        'Para cada produto, o SEP fixa o teto que você pode repassar a um sub-correspondente. O repasse sempre fica abaixo dele, e a diferença é a sua margem.',
+      alvo: '[data-tour="cor-rede-tetos"]',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Sub-correspondentes',
+      texto:
+        'Cada sub mostra a situação do cadastro, clientes, carteira, inadimplência, a comissão dele e a sua margem. Os botões ajustam os percentuais, com justificativa, ou suspendem o sub.',
+      alvo: '[data-tour="cor-rede-subs"]',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Comissão por origem',
+      texto:
+        'Aqui a comissão aparece separada por origem: a sua carteira e a de cada sub, com a parte bruta, o repasse e o que fica com você. A soma fecha com o total.',
+      alvo: '[data-tour="cor-rede-comissoes"]',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Carteira da rede',
+      texto:
+        'Os contratos e propostas de toda a rede, com filtro por origem. Assim você acompanha o que cada sub captou e como a carteira está.',
+      alvo: '[data-tour="cor-rede-carteira"]',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Novo sub-correspondente',
+      texto:
+        'Este botão abre o cadastro de um novo sub: dados, percentuais por produto e, depois, a validação do cadastro pelo SEP. O formulário recusa percentual acima do limite.',
+      alvo: '[data-tour="cor-rede-novo"]',
+      acao: { tipo: 'observar' },
+    },
+  ],
+};
+
 const completoCorrespondente: Roteiro = {
   id: 'correspondentes-completo',
   modulo: MODULO,
   titulo: 'Módulo completo',
   icone: 'list-checks',
   descricao:
-    'Os nove roteiros em sequência: painel, funil, agenda, contratos, base, documentos, comissões, desempenho e relatórios.',
-  duracao: '≈ 17 min',
+    'Os dez roteiros em sequência: painel, funil, agenda, contratos, base, documentos, comissões, desempenho, relatórios e minha rede.',
+  duracao: '≈ 20 min',
   papeis: ['CORRESPONDENTE'],
-  impedimento: documentos.impedimento,
+  impedimento: (ctx) => documentos.impedimento?.(ctx) ?? minhaRede.impedimento?.(ctx) ?? null,
   passos: (ctx) => [
     ...emSecao(painel, ctx, { primeira: true }),
     ...emSecao(prospeccao, ctx),
@@ -451,6 +521,7 @@ const completoCorrespondente: Roteiro = {
     ...emSecao(comissoes, ctx),
     ...emSecao(desempenho, ctx),
     ...emSecao(relatorios, ctx),
+    ...emSecao(minhaRede, ctx),
   ],
 };
 
@@ -490,6 +561,13 @@ const rede: Roteiro = {
       texto:
         'O anel mostra a situação dos cadastros. As barras mostram a carteira de cada correspondente, e em âmbar fica quem tem parcelas vencidas.',
       alvo: '[data-tour="cor-rede-graficos"]',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Majoritários e sub-correspondentes',
+      texto:
+        'Na lista, cada correspondente majoritário vem seguido dos seus sub-correspondentes, com a etiqueta do nível. Assim a administração enxerga toda a hierarquia da rede.',
+      alvo: '.cor-tabela',
       acao: { tipo: 'observar' },
     },
     {
@@ -557,6 +635,13 @@ const comissoesAdmin: Roteiro = {
       titulo: 'Regras por produto',
       texto:
         'Cada regra tem produto, base de cálculo, gatilho de pagamento e versão. Alterar o percentual exige justificativa e cria uma nova versão, que vai para a auditoria.',
+      alvo: '[data-tour="cor-regras"]',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Teto de repasse aos subs',
+      texto:
+        'Na mesma tabela, a coluna Teto para subs fixa quanto o correspondente majoritário pode repassar aos seus sub-correspondentes em cada produto. Ela nunca passa do percentual da regra, e é com esse limite que o majoritário define a margem de cada sub.',
       alvo: '[data-tour="cor-regras"]',
       acao: { tipo: 'observar' },
     },
@@ -714,6 +799,7 @@ export const ROTEIROS_CORRESPONDENTES: Roteiro[] = [
   comissoes,
   desempenho,
   relatorios,
+  minhaRede,
   rede,
   comissoesAdmin,
   desempenhoAdmin,

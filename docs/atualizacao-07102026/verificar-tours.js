@@ -21,12 +21,23 @@ const CASOS = [
       'Minhas comissões',
       'Meu desempenho',
       'Relatórios da carteira',
+      'Minha rede de sub-correspondentes',
       'Módulo completo',
     ],
   },
   {
     conta: 'admin@empresa.com',
     roteiros: ['Rede de Correspondentes', 'Comissionamento da rede', 'Desempenho e metas da rede', 'Auditoria do módulo'],
+  },
+  {
+    conta: 'admin@empresa.com',
+    modulo: 'Crédito',
+    roteiros: ['Análise de crédito', 'Pix Automático das parcelas', 'Módulo completo'],
+  },
+  {
+    conta: 'backoffice@empresa.com',
+    modulo: 'Crédito',
+    roteiros: ['Análise de crédito', 'Pix Automático das parcelas'],
   },
   { conta: 'backoffice@empresa.com', roteiros: ['Validar envios de correspondentes'] },
 ];
@@ -43,11 +54,17 @@ async function entrar(browser, email) {
   return { ctx, page };
 }
 
-async function rodar(page, titulo) {
+// O titulo pode aparecer dentro da descricao de outro roteiro ("Módulo completo" cita os demais):
+// por isso casa so quando o texto do botao COMECA por ele.
+function comecaCom(titulo) {
+  return new RegExp('^\\s*' + titulo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+}
+
+async function rodar(page, titulo, modulo) {
   await page.getByRole('button', { name: 'Ajuda' }).first().click();
-  const grupo = page.locator('details.op-ajuda-grupo', { hasText: 'Correspondentes' }).first();
+  const grupo = page.locator('details.op-ajuda-grupo', { hasText: modulo }).first();
   await grupo.locator('summary').click();
-  await grupo.locator('button.op-ajuda-roteiro', { hasText: titulo }).first().click();
+  await grupo.locator('button.op-ajuda-roteiro', { hasText: comecaCom(titulo) }).first().click();
 
   // Acelera ao maximo e espera o aviso final (verde = concluiu; ambar = parou).
   const velocidade = page.locator('button[aria-label^="Velocidade"]');
@@ -71,7 +88,7 @@ async function rodar(page, titulo) {
       if (process.argv[2] && !titulo.includes(process.argv[2])) continue;
       const { ctx, page } = await entrar(browser, caso.conta);
       try {
-        const r = await rodar(page, titulo);
+        const r = await rodar(page, titulo, caso.modulo || 'Correspondentes');
         console.log(`${r.ok ? 'OK    ' : 'FALHOU'} [${caso.conta}] ${titulo}${r.ok ? '' : ` -> ${r.passo}: ${r.texto}`}`);
         if (!r.ok) falhas += 1;
       } catch (e) {

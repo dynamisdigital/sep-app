@@ -1,4 +1,4 @@
-import { Roteiro } from '../tour.model';
+import { PassoRoteiro, Roteiro } from '../tour.model';
 import { peloMenu, emSecao } from './passos-comuns';
 
 // Tours assistidos do modulo de Credito. Roda para qualquer papel que alcance o modulo (backoffice,
@@ -411,13 +411,241 @@ const acompanhar: Roteiro = {
   ],
 };
 
+const MENU_PIX_AUTOMATICO = {
+  rota: '/app/credito/pix-automatico',
+  titulo: 'Submenu Pix Automático',
+  texto: 'O submenu Pix Automático reúne o débito automático das parcelas.',
+  aguardarAlvo: '[data-tour="pix-auto-kpis"]',
+};
+
+const temBotao = (texto: string) => () =>
+  Array.from(document.querySelectorAll('button')).some((b) => b.textContent?.trim() === texto);
+
+const SEM_FORMULARIO_PAGADOR = () => !document.querySelector('input[name="p-nome"]');
+
+/** Campo do formulário de pagador: digita o valor de demonstração, e some se o formulário não abriu. */
+function campoPagador(nome: string, rotulo: string, valor: string): PassoRoteiro {
+  return {
+    titulo: rotulo,
+    texto: `Aqui entra ${rotulo.toLowerCase()}. Os dados são de demonstração.`,
+    alvo: `input[name="${nome}"]`,
+    acao: { tipo: 'digitar', texto: () => valor },
+    pularSe: SEM_FORMULARIO_PAGADOR,
+  };
+}
+
+const pixAutomatico: Roteiro = {
+  id: 'credito-pix-automatico',
+  modulo: MODULO,
+  titulo: 'Pix Automático das parcelas',
+  icone: 'repeat',
+  descricao:
+    'Habilitar o débito automático de um contrato, registrar os dados do pagador e acompanhar as cobranças.',
+  duracao: '≈ 3 min',
+  papeis: PAPEIS,
+  impedimento: (ctx) =>
+    ctx.demo
+      ? null
+      : 'Este roteiro habilita um contrato de exemplo. Ele só roda no ambiente de demonstração.',
+  passos: (ctx) => [
+    {
+      titulo: 'Débito automático via Pix',
+      texto:
+        'Este roteiro mostra o Pix Automático: o tomador autoriza uma vez, no banco dele, e cada parcela é cobrada no vencimento. É diferente do Pix agendado, que é um pagamento único.',
+    },
+    ...peloMenu(MENU_CREDITO, MENU_PIX_AUTOMATICO),
+    {
+      titulo: 'Resumo',
+      texto:
+        'Os indicadores mostram as autorizações ativas, as que aguardam o aceite do tomador, as cobranças a vencer, o valor agendado e a taxa de sucesso.',
+      alvo: '[data-tour="pix-auto-kpis"]',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Contratos da carteira',
+      texto:
+        'Cada contrato mostra o que falta pagar e a situação do Pix Automático. A autorização só vale depois do aceite do tomador, e pode ser revogada a qualquer momento.',
+      alvo: '[data-tour="pix-auto-contratos"]',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Habilitar um contrato',
+      texto:
+        'Habilitar abre o cadastro do pagador. Se a administração desligar a chave geral do Pix Automático, o botão deixa de aparecer.',
+      alvo: { css: 'button', texto: 'Habilitar' },
+      acao: { tipo: 'clicar' },
+      aguardarAlvo: 'input[name="p-nome"]',
+      pularSe: () => !temBotao('Habilitar')(),
+    },
+    campoPagador('p-nome', 'Nome do pagador', 'Mercearia Boa Vista Ltda'),
+    campoPagador('p-doc', 'CPF ou CNPJ', '11222333000181'),
+    campoPagador('p-banco', 'Banco', 'Banco do Brasil S.A.'),
+    campoPagador('p-ispb', 'ISPB do banco', '00000000'),
+    campoPagador('p-ag', 'Agência', '0001'),
+    campoPagador('p-conta', 'Conta', '998877'),
+    {
+      titulo: 'Consentimento do tomador',
+      texto:
+        'É preciso registrar que o tomador foi informado do débito automático e consentiu com o uso destes dados, conforme a LGPD. Senha, token e saldo do tomador nunca passam por aqui.',
+      alvo: 'input[name="p-consent"]',
+      acao: { tipo: 'clicar' },
+      pularSe: SEM_FORMULARIO_PAGADOR,
+    },
+    {
+      titulo: 'Enviar ao banco do tomador',
+      texto:
+        'O pedido de recorrência segue para o banco do tomador. Enquanto ele não aceitar, a autorização fica aguardando e nenhuma cobrança é gerada.',
+      alvo: { css: 'button', texto: 'Enviar ao banco do tomador' },
+      acao: { tipo: 'clicar', efeito: true },
+      aguardarAlvo: '.cor-aviso[role="status"]',
+      pularSe: SEM_FORMULARIO_PAGADOR,
+    },
+    {
+      titulo: 'Aceite do tomador',
+      texto:
+        'No sistema real, o aceite acontece no aplicativo do banco. Na demonstração, este botão simula a resposta do tomador.',
+      alvo: { css: 'button', texto: 'Simular aceite' },
+      acao: { tipo: 'clicar', efeito: true },
+      pularSe: () => !temBotao('Simular aceite')(),
+    },
+    {
+      titulo: 'Cobranças do contrato',
+      texto:
+        'Com a autorização ativa, o botão Cobranças abre uma lista por parcela, com o valor, o aviso ao tomador, as tentativas e a situação de cada débito.',
+      alvo: { css: 'button', texto: 'Cobranças' },
+      acao: { tipo: 'clicar' },
+      aguardarAlvo: '[data-tour="pix-auto-cobrancas"] tbody tr',
+    },
+    {
+      titulo: 'Situação de cada cobrança',
+      texto:
+        'Agendada, tomador avisado, liquidada, falhou ou cancelada. O tomador é avisado antes do vencimento, e uma cobrança que falha é reapresentada até o limite de tentativas.',
+      alvo: '[data-tour="pix-auto-cobrancas"]',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Parâmetros do Pix Automático',
+      texto:
+        'Só o administrador altera a chave geral, os dias de aviso e o número de tentativas, sempre com justificativa registrada na auditoria.',
+      alvo: '[data-tour="pix-auto-parametros"]',
+      acao: { tipo: 'observar' },
+      pularSe: () => ctx.papel !== 'ADMIN',
+    },
+  ],
+};
+
+const analise: Roteiro = {
+  id: 'credito-analise',
+  modulo: MODULO,
+  titulo: 'Análise de crédito',
+  icone: 'gauge',
+  descricao:
+    'Consultar os bureaus, entender o score interno, ver as regras e registrar o parecer do analista.',
+  duracao: '≈ 4 min',
+  papeis: PAPEIS,
+  impedimento: (ctx) =>
+    ctx.demo
+      ? null
+      : 'Este roteiro executa uma análise de exemplo. Ele só roda no ambiente de demonstração.',
+  passos: (ctx) => [
+    {
+      titulo: 'Análise de crédito',
+      texto:
+        'Este roteiro mostra como o sistema consulta os bureaus e calcula um score que se explica sozinho. O motor sugere; quem decide é o analista.',
+    },
+    ...peloMenu(MENU_CREDITO, MENU_PROPOSTAS),
+    {
+      titulo: 'Abrir a proposta',
+      texto: 'A análise é feita por proposta. Na tabela, o número da proposta abre o detalhe.',
+      alvo: '.proposals-table-card tbody a',
+      acao: { tipo: 'clicar' },
+      aguardarRota: ROTA_DETALHE,
+      aguardarAlvo: '.px28-metricas',
+    },
+    {
+      titulo: 'Mais ações',
+      texto: 'No menu de três pontos fica o atalho para a análise de crédito.',
+      alvo: 'button[aria-label="Mais ações da proposta"]',
+      acao: { tipo: 'clicar' },
+      aguardarAlvo: '.px28-menu',
+    },
+    {
+      titulo: 'Abrir a análise',
+      texto: 'Análise de crédito leva à tela com as fontes, o score e o parecer.',
+      alvo: 'a[role="menuitem"][href$="/analise"]',
+      acao: { tipo: 'clicar' },
+      aguardarRota: /\/analise(\?.*)?$/,
+      aguardarAlvo: '[data-tour="analise-executar"]',
+    },
+    {
+      titulo: 'Consentimento do titular',
+      texto:
+        'A consulta aos bureaus exige o consentimento do titular, conforme a LGPD. Sem marcar esta confirmação, o botão não habilita.',
+      alvo: 'input[name="consent"]',
+      acao: { tipo: 'clicar' },
+    },
+    {
+      titulo: 'Executar a análise',
+      texto:
+        'O sistema consulta Serasa, SPC e Boa Vista e o SCR do Banco Central, conforme os parâmetros, e calcula o score interno. Uma consulta ainda válida é reaproveitada.',
+      alvo: '[data-tour="analise-executar"] button.cor-btn',
+      acao: { tipo: 'clicar', efeito: true },
+      aguardarAlvo: '[data-tour="analise-resultado"]',
+    },
+    {
+      titulo: 'Resultado',
+      texto:
+        'No alto, a decisão sugerida pelo motor, o score de zero a mil e a faixa de risco, o comprometimento da renda e o limite que cabe na renda do tomador.',
+      alvo: '[data-tour="analise-resultado"]',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Fontes de consulta',
+      texto:
+        'Cada bureau mostra o que respondeu: score, restrições, endividamento e maior atraso. Se uma fonte estiver fora do ar, a decisão vai para análise manual, e o motor não decide sozinho.',
+      alvo: '[data-tour="analise-fontes"]',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Por que este score',
+      texto:
+        'Seis fatores com peso, o que foi observado e quanto cada um somou. A soma das contribuições é exatamente o score, então o resultado pode ser explicado ao tomador.',
+      alvo: '[data-tour="analise-fatores"]',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Regras disparadas',
+      texto:
+        'Regras bloqueantes, como restrições altas ou atraso grave, levam à recusa. As demais mandam para análise manual.',
+      alvo: 'section[aria-labelledby="an-regras"]',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Parecer do analista',
+      texto:
+        'O analista acata ou diverge. Divergir de uma aprovação ou recusa sugerida exige uma justificativa detalhada, e o parecer fica marcado como divergente do motor.',
+      alvo: '[data-tour="analise-parecer"]',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Parâmetros da análise',
+      texto:
+        'Só o administrador altera as fontes habilitadas, a validade da consulta, os cortes de aprovação e recusa e o comprometimento máximo, sempre com justificativa na auditoria.',
+      alvo: '[data-tour="analise-parametros"]',
+      acao: { tipo: 'observar' },
+      pularSe: () => ctx.papel !== 'ADMIN',
+    },
+  ],
+};
+
 const completo: Roteiro = {
   id: 'credito-completo',
   modulo: MODULO,
   titulo: 'Módulo completo',
   icone: 'list-checks',
-  descricao: 'Os quatro roteiros em sequência: visão geral, propostas, nova proposta e detalhe.',
-  duracao: '≈ 9 min',
+  descricao:
+    'Os seis roteiros em sequência: visão geral, propostas, nova proposta, detalhe, análise de crédito e Pix Automático.',
+  duracao: '≈ 16 min',
   papeis: PAPEIS,
   passos: (ctx) => {
     return [
@@ -425,8 +653,18 @@ const completo: Roteiro = {
       ...emSecao(propostas, ctx),
       ...emSecao(nova, ctx),
       ...emSecao(acompanhar, ctx),
+      ...emSecao(analise, ctx),
+      ...emSecao(pixAutomatico, ctx),
     ];
   },
 };
 
-export const ROTEIROS_CREDITO: Roteiro[] = [completo, visaoGeral, propostas, nova, acompanhar];
+export const ROTEIROS_CREDITO: Roteiro[] = [
+  completo,
+  visaoGeral,
+  propostas,
+  nova,
+  acompanhar,
+  analise,
+  pixAutomatico,
+];

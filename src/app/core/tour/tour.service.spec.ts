@@ -107,6 +107,7 @@ describe('TourService', () => {
       'Minhas comissões',
       'Meu desempenho',
       'Relatórios da carteira',
+      'Minha rede de sub-correspondentes',
     ]);
     expect(tour.catalogo().map((g) => g.modulo)).not.toContain('Crédito');
   });
@@ -324,8 +325,13 @@ describe('TourService', () => {
       'Minhas propostas',
       'Solicitar nova proposta',
       'Acompanhar uma proposta',
+      'Análise de crédito',
+      'Pix Automático das parcelas',
     ]);
+    // Em demonstracao nenhum roteiro de Credito tem impedimento (os dois novos so recusam fora dela).
     expect(credito.roteiros.map((r) => tour.impedimento(r))).toEqual([
+      null,
+      null,
       null,
       null,
       null,
