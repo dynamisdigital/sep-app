@@ -1,3 +1,4 @@
+import { ROTULO_SECAO } from './secoes-curtas';
 import { AlvoPasso, ContextoRoteiro, PassoRoteiro, Roteiro } from '../tour.model';
 
 // Passos que todo modulo repete: abrir o menu, chegar a uma tela pelo menu lateral e confirmar uma
@@ -113,7 +114,7 @@ export function emSecao(
       : [];
   return mantidos.map((passo, i) => ({
     ...passo,
-    secao: roteiro.titulo,
+    secao: ROTULO_SECAO[roteiro.id] ?? roteiro.titulo,
     ...(i === 0 && entrada.length ? { entrada } : {}),
   }));
 }

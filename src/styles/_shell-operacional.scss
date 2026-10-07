@@ -1677,6 +1677,11 @@ $janela-meia-tela: 1716px;
   display: grid;
   gap: 3px;
   width: 292px;
+
+  // Em janela baixa (meia tela) a lista de contas rola por dentro: antes, as ultimas ficavam abaixo da borda.
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 10px;
   border: 1px solid rgb(var(--sep-c-cyan) / 38%);
   border-radius: 12px;

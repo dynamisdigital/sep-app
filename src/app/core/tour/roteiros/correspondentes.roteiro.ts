@@ -682,8 +682,29 @@ const validacao: Roteiro = {
   ],
 };
 
+// O modulo tem duas faces: o correspondente usa o Meu Back Office, e a administracao gere a rede. Cada
+// face tem o seu "Modulo completo", com as mesmas fichas de submodulo, para o cartao ser igual ao dos demais.
+const completoAdmin: Roteiro = {
+  id: 'correspondentes-completo-admin',
+  modulo: MODULO,
+  titulo: 'Módulo completo',
+  icone: 'clipboard-check',
+  descricao:
+    'Os cinco roteiros da administração em sequência: rede, comissionamento, desempenho, auditoria e validação de envios.',
+  duracao: '≈ 9 min',
+  papeis: ['ADMIN'],
+  passos: (ctx) => [
+    ...emSecao(rede, ctx, { primeira: true }),
+    ...emSecao(comissoesAdmin, ctx),
+    ...emSecao(desempenhoAdmin, ctx),
+    ...emSecao(auditoria, ctx),
+    ...emSecao(validacao, ctx),
+  ],
+};
+
 export const ROTEIROS_CORRESPONDENTES: Roteiro[] = [
   completoCorrespondente,
+  completoAdmin,
   painel,
   prospeccao,
   agenda,

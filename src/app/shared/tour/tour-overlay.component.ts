@@ -21,6 +21,8 @@ const MARGEM = 24;
 // Abaixo do cabecalho do shell: no alto, o cartao nao cobre a pesquisa, os alertas e a ajuda.
 const TOPO_LIVRE = 92;
 const FOLGA = 20;
+// Folga minima entre o cartao e a borda da janela quando ela e menor que o cartao.
+const MARGEM_MINIMA = 8;
 
 interface Caixa {
   top: number;
@@ -41,7 +43,10 @@ interface Caixa {
   styleUrl: './tour-overlay.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  host: { '(document:keydown.escape)': 'sair()' },
+  host: {
+    '(document:keydown.escape)': 'sair()',
+    '(window:resize)': 'medirJanela()',
+  },
 })
 export class TourOverlayComponent implements OnDestroy {
   protected readonly tour = inject(TourService);
@@ -61,6 +66,8 @@ export class TourOverlayComponent implements OnDestroy {
   // Tamanho real do cartao: o texto de cada passo muda a altura, e o canto e recalculado com ela.
   private readonly tamanhoCartao = signal({ largura: 430, altura: 240 });
   private observador: ResizeObserver | null = null;
+  // Tamanho da janela como sinal: ao maximizar ou restaurar, o cartao e recolocado dentro da area visivel.
+  private readonly janela = signal({ largura: window.innerWidth, altura: window.innerHeight });
 
   /**
    * Canto do cartao de controle: dos quatro, o que menos cobre o proximo alvo (com folga de 20px).
@@ -70,13 +77,17 @@ export class TourOverlayComponent implements OnDestroy {
   protected readonly posicaoCartao = computed(() => {
     const alvo = this.tour.areaAlvo();
     const { largura, altura } = this.tamanhoCartao();
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
+    const { largura: vw, altura: vh } = this.janela();
+    // Nunca fora da janela: em janela menor que o cartao, ele encosta na margem em vez de sumir.
+    const dentroX = (x: number) =>
+      Math.max(MARGEM_MINIMA, Math.min(x, vw - largura - MARGEM_MINIMA));
+    const dentroY = (y: number) =>
+      Math.max(MARGEM_MINIMA, Math.min(y, vh - altura - MARGEM_MINIMA));
     const cantos = [
-      { top: vh - altura - MARGEM, left: vw - largura - MARGEM },
-      { top: vh - altura - MARGEM, left: MARGEM },
-      { top: TOPO_LIVRE, left: vw - largura - MARGEM },
-      { top: TOPO_LIVRE, left: MARGEM },
+      { top: dentroY(vh - altura - MARGEM), left: dentroX(vw - largura - MARGEM) },
+      { top: dentroY(vh - altura - MARGEM), left: dentroX(MARGEM) },
+      { top: dentroY(TOPO_LIVRE), left: dentroX(vw - largura - MARGEM) },
+      { top: dentroY(TOPO_LIVRE), left: dentroX(MARGEM) },
     ];
     if (!alvo) return cantos[0];
     const area = {
@@ -133,6 +144,17 @@ export class TourOverlayComponent implements OnDestroy {
       if (this.tour.ativo()) this.quadro = requestAnimationFrame(passo);
     };
     this.quadro = requestAnimationFrame(passo);
+  }
+
+  /** A janela mudou de tamanho (maximizar, meia tela): recalcula onde o cartao cabe. */
+  protected medirJanela(): void {
+    this.janela.set({ largura: window.innerWidth, altura: window.innerHeight });
+    // O layout se refaz com a janela: depois do reflow, a area do alvo e medida de novo, para o canto
+    // do cartao ser escolhido com a posicao nova do destaque.
+    requestAnimationFrame(() => {
+      const el = this.tour.elemento();
+      if (el?.isConnected) this.tour.areaAlvo.set(el.getBoundingClientRect());
+    });
   }
 
   protected sair(): void {

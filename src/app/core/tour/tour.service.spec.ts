@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { Router, provideRouter } from '@angular/router';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { UsuarioResponse } from '../api/api.models';
 import { AuthService } from '../auth/auth.service';
@@ -631,12 +631,53 @@ describe('TourService', () => {
     });
   });
 
+  describe('fim do tour', () => {
+    afterEach(() => vi.useRealTimers());
+
+    it('quatro segundos depois de concluido, fecha o widget e volta ao Dashboard', () => {
+      vi.useFakeTimers();
+      const ir = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+      tour.estado.set('concluido');
+      tour['fecharDepoisDeConcluir'](tour['execucao'], '/app/dashboard');
+
+      vi.advanceTimersByTime(3900);
+      expect(tour.estado()).toBe('concluido');
+      expect(ir).not.toHaveBeenCalled();
+
+      vi.advanceTimersByTime(200);
+      expect(tour.estado()).toBe('parado');
+      expect(ir).toHaveBeenCalledWith('/app/dashboard');
+    });
+
+    it('se quem assistia repetiu ou saltou nesse meio-tempo, o widget fica', () => {
+      vi.useFakeTimers();
+      const ir = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+      tour.estado.set('concluido');
+      tour['fecharDepoisDeConcluir'](tour['execucao'], '/app/dashboard');
+      tour.estado.set('rodando');
+      vi.advanceTimersByTime(5000);
+      expect(tour.estado()).toBe('rodando');
+      expect(ir).not.toHaveBeenCalled();
+    });
+
+    it('o roteiro interrompido por erro nao e fechado: o aviso fica na tela', () => {
+      vi.useFakeTimers();
+      const ir = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+      tour.estado.set('interrompido');
+      tour['fecharDepoisDeConcluir'](tour['execucao'], '/app/dashboard');
+      vi.advanceTimersByTime(5000);
+      expect(tour.estado()).toBe('interrompido');
+      expect(ir).not.toHaveBeenCalled();
+    });
+  });
+
   describe('submodulos do modulo completo', () => {
     const ctx = { demo: true, papel: 'ADMIN' as const, mfa: true, carimbo: '000000', dados: {} };
 
     it('todo "Modulo completo" marca cada passo com o roteiro a que pertence, em ordem', () => {
       const completos = ROTEIROS.filter((r) => r.titulo === 'Módulo completo');
-      expect(completos.length).toBe(Object.keys(MODULOS_TOUR).length);
+      // Todo modulo tem o seu; Correspondentes tem dois, um por face (correspondente e administracao).
+      expect(new Set(completos.map((c) => c.modulo)).size).toBe(Object.keys(MODULOS_TOUR).length);
       for (const completo of completos) {
         const passos = completo.passos(ctx);
         expect(
@@ -650,6 +691,20 @@ describe('TourService', () => {
           nomes.filter((n, i) => i === 0 || n !== nomes[i - 1]).length,
         );
         expect(unicas.length, completo.id).toBeGreaterThan(1);
+      }
+    });
+
+    it('as fichas de submodulo sao curtas em todos os modulos: o cartao tem o mesmo tamanho em qualquer um', () => {
+      for (const completo of ROTEIROS.filter((r) => r.titulo === 'Módulo completo')) {
+        const nomes = [...new Set(completo.passos(ctx).map((p) => p.secao as string))];
+        for (const nome of nomes) {
+          expect(
+            nome.length,
+            `${completo.id}: "${nome}" e longo para uma ficha`,
+          ).toBeLessThanOrEqual(20);
+        }
+        // Fichas repetidas num mesmo cartao nao se distinguem: cada submodulo tem o seu nome.
+        expect(new Set(nomes).size, completo.id).toBe(nomes.length);
       }
     });
 

@@ -206,6 +206,9 @@ const loginUsuarios: Record<string, typeof adminUsuario> = {
   'admin@empresa.com': adminUsuario,
   'financeiro@empresa.com': financeiroUsuario,
   'backoffice@empresa.com': backofficeUsuario,
+  // Contas que o menu "Trocar de usuario" oferece: sem entrar aqui, o clique falhava em silencio.
+  'cliente@empresa.com': clienteUsuario,
+  'multirole@empresa.com': multiroleUsuario,
   'credora@empresa.com': credoraUsuario,
   'credora-inelegivel@empresa.com': credoraInelegivelUsuario,
   'credora-novo@empresa.com': credoraNovoUsuario,
