@@ -14,7 +14,7 @@ const PDF_ANTIGO = 'SEP_Atualizacao_Semana_Daniel_Mollmann_22092026_24092026.pdf
 const PDF_NOVO = 'SEP_Correspondentes_Daniel_Mollmann_07102026.pdf';
 
 const DESCRICAO =
-  'Módulo de Correspondentes do SEP, por Daniel Möllmann: pessoas físicas credenciadas captam clientes, enviam documentos com atesto de conferência e acompanham a própria base, com validade de cadastro e perda de clientes por vencimento. Em teste, com dados fictícios e apoio técnico ao backend.';
+  'Módulo de Correspondentes do SEP, por Daniel Möllmann: pessoas físicas credenciadas captam clientes, enviam documentos com atesto de conferência e acompanham a própria base. Inclui a rede de sub-correspondentes, o Pix Automático e a análise de crédito com bureaus e score explicável. Em teste, com dados fictícios e apoio técnico ao backend.';
 
 let html = fs.readFileSync(anterior, 'utf8');
 
@@ -26,11 +26,11 @@ const principal = fs.readFileSync(path.join(pasta, 'conteudo-main.html'), 'utf8'
 html = html.slice(0, inicio) + principal + html.slice(fim);
 
 const trocas = [
-  [/<title>[\s\S]*?<\/title>/, '<title>SEP — Módulo de Correspondentes: Captação com Base Própria, Validade de Cadastro &amp; Documentos Atestados</title>'],
+  [/<title>[\s\S]*?<\/title>/, '<title>SEP — Correspondentes, Pix Automático &amp; Análise de Crédito</title>'],
   [/(<meta name="description" content=")[^"]*(">)/, `$1${DESCRICAO}$2`],
-  [/(<meta property="og:title" content=")[^"]*(">)/, '$1SEP — Módulo de Correspondentes · 7/10/2026$2'],
+  [/(<meta property="og:title" content=")[^"]*(">)/, '$1SEP — Correspondentes, Pix Automático e Análise de Crédito · 7/10/2026$2'],
   [/(<meta property="og:description" content=")[^"]*(">)/, `$1${DESCRICAO}$2`],
-  [/(<meta name="twitter:title" content=")[^"]*(">)/, '$1SEP — Módulo de Correspondentes · 7/10/2026$2'],
+  [/(<meta name="twitter:title" content=")[^"]*(">)/, '$1SEP — Correspondentes, Pix Automático e Análise de Crédito · 7/10/2026$2'],
   [/(<meta name="twitter:description" content=")[^"]*(">)/, `$1${DESCRICAO}$2`],
   [/(<meta property="og:image:alt" content=")[^"]*(">)/, '$1SEP — Módulo de Correspondentes, relatório de 7 de outubro$2'],
   [/Atualização do Frontend · 22 a 24 de Setembro de 2026/, 'Módulo de Correspondentes · 7 de Outubro de 2026'],
@@ -66,6 +66,7 @@ const novoTexto =
   '        "• Documentos enviados com atesto de conferência; o backoffice valida\\n" +\n' +
   '        "• Base com validade: cadastro vencido ou proposta sem citação encerra o vínculo\\n" +\n' +
   '        "• Comissão via Pix, sujeita a normativa e legislação\\n" +\n' +
+  '        "• Rede de sub-correspondentes, Pix Automático e análise de crédito\\n" +\n' +
   '        "• Em teste, com dados fictícios e ponto de retorno\\n\\n" +\n' +
   '        "Acesse o relatório completo:\\n" + urlAtual;';
 html = html.slice(0, inicioTexto) + novoTexto + html.slice(fimTexto);

@@ -601,3 +601,81 @@ devolveu** à própria pessoa. Isso evita endpoint extra, mas tem limite.
 18. Toda alteração de regra, meta, vínculo e envio grava evento de auditoria **na mesma transação**, e a
     tentativa de editar ou apagar um evento é recusada.
 19. Exportação de relatório respeita o escopo e neutraliza fórmulas em CSV.
+
+---
+
+## 20. Rede de sub-correspondentes
+
+O correspondente **majoritário** pode credenciar **sub-correspondentes**, que também lançam clientes. O
+majoritário acompanha a carteira e a comissão da rede inteira e define quanto de cada comissão repassa a
+cada sub, sempre **abaixo do teto que o SEP fixa por produto**. A rede tem **um nível só**: um sub não
+credencia outros subs.
+
+### 20.1 Modelo
+
+- `Correspondente.nivel`: `MAJORITARIO` ou `SUB`; `Correspondente.majoritarioId` (nulo no majoritário).
+- `RegraComissao.tetoSub`: maior percentual que o SEP aceita repassar a um sub naquele produto.
+  Restrição: `0 <= tetoSub <= percentual` da regra. É alterado pela administração, com justificativa,
+  TOTP e nova versão da regra (mesma mecânica da seção 16.1).
+- `PercentualSub(subId, produto, percentual)`: o repasse que o majoritário definiu. Restrição:
+  `percentual <= tetoSub` **da regra vigente**. Cada alteração gera versão e entra na auditoria.
+- Status do sub: `PENDENTE` (cadastro enviado, aguardando a validação do SEP), `ATIVO` ou `SUSPENSO`. Só
+  `ATIVO` capta e lança clientes.
+
+### 20.2 Regra de repasse
+
+Para cada evento de comissão de um cliente do sub, com `bruta = base x percentual da regra`:
+
+- comissão do sub = `base x percentual do sub` (lançamento do próprio sub);
+- margem do majoritário = `bruta - comissão do sub` (lançamento `MARGEM_SUB` do majoritário).
+
+A soma dos dois **é igual à comissão bruta**. Se o teto da regra baixar depois, os lançamentos já gerados
+**não mudam**; só os novos usam o percentual vigente. Eventos estornados estornam as duas pontas.
+
+### 20.3 Isolamento
+
+- O majoritário vê a própria carteira e a de **seus** subs; nunca a de outro majoritário (404).
+- O sub vê **somente a própria carteira e a própria comissão**, o nome do majoritário e **os próprios
+  percentuais**. Não vê outros subs nem a margem do majoritário.
+- Cliente captado por um sub fica com **vínculo no sub**; as regras de perda de base da seção 5 valem para
+  ele. Suspender ou descredenciar o sub **não** transfere clientes sozinho: a administração decide.
+
+### 20.4 Endpoints
+
+| Método e rota                                   | Papel                | Descrição                                                                 |
+| ----------------------------------------------- | -------------------- | ------------------------------------------------------------------------- |
+| `GET /correspondentes/me/rede/posicao`          | CORRESPONDENTE       | Nível, majoritário (se sub) e os próprios percentuais.                    |
+| `GET /correspondentes/me/rede`                  | majoritário          | Subs, tetos por produto e consolidado da rede.                            |
+| `POST /correspondentes/me/rede/subs`            | majoritário          | Credencia um sub (`nome, cpf, email, telefone, percentuais[]`). 201.      |
+| `PUT /correspondentes/me/rede/subs/{id}/percentuais` | majoritário     | `{percentuais[], justificativa}`.                                         |
+| `POST /correspondentes/me/rede/subs/{id}/suspender` e `/reativar` | majoritário | Muda o status; 409 se o cadastro ainda é `PENDENTE`.        |
+| `GET /correspondentes/me/rede/carteira`         | majoritário          | Operações próprias e dos subs, com `origem`.                              |
+| `GET /correspondentes/me/rede/comissoes`        | majoritário          | Comissão por origem: bruta, repasse e líquida.                            |
+| `PUT /correspondentes/comissoes/regras/{id}`    | ADMIN                | Passa a aceitar `tetoSub`; 400 se fora de `0..percentual`.                |
+
+Erros: `403` para sub (ou não correspondente) nas rotas de majoritário; `404` para sub de outra rede;
+`409` para e-mail já cadastrado; `422` quando algum percentual passa do `tetoSub` (a mensagem diz o
+produto e o teto); `400` para dados inválidos ou justificativa ausente.
+
+### 20.5 Auditoria
+
+Ações novas: `SUB_CRIADO`, `PERCENTUAIS_SUB_ALTERADOS` (guardar valor anterior e novo por produto e a
+justificativa), `SUB_SUSPENSO`, `SUB_REATIVADO`, e a alteração de `tetoSub` na regra. Mesma exigência da
+seção 17: gravar na mesma transação e impedir edição.
+
+### 20.6 Em aberto (jurídico e fiscal)
+
+- Natureza da relação entre majoritário e sub (subcontratação do correspondente bancário): o regulamento
+  aplicável pode exigir **cadastro e validação do sub pelo SEP**, que o front já trata como `PENDENTE`.
+- Quem paga a comissão do sub: hoje o desenho assume pagamento pelo SEP ao sub, com a margem ao majoritário;
+  se o majoritário pagar o sub, há implicação fiscal e de retenção a definir.
+- Responsabilidade do majoritário pela conduta e pela documentação enviada por seus subs.
+
+## 21. Testes de aceite da rede
+
+20. Um repasse acima do `tetoSub` da regra é recusado (422) na criação e na alteração do sub.
+21. A soma da comissão do sub com a margem do majoritário é igual à comissão bruta, evento a evento.
+22. O sub não lê dados de outro sub nem a margem do majoritário (403 ou 404).
+23. Um majoritário não altera nem lê sub de outra rede (404).
+24. Baixar o `tetoSub` não altera lançamentos já gerados.
+25. Sub `PENDENTE` ou `SUSPENSO` não lança cliente nem gera comissão.

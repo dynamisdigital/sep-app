@@ -219,6 +219,12 @@
                       <button
                         type="button"
                         class="cor-btn secundario"
+                        [disabled]="s.status === 'PENDENTE'"
+                        [attr.title]="
+                          s.status === 'PENDENTE'
+                            ? 'O cadastro ainda aguarda a validação do SEP'
+                            : null
+                        "
                         (click)="alternarSuspensao(s)"
                       >
                         {{ s.status === 'SUSPENSO' ? 'Reativar' : 'Suspender' }}

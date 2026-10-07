@@ -2,7 +2,8 @@
 // usa, e informa se cada roteiro concluiu ou parou (e em que passo).
 //
 // Pre-requisito: sistema em modo demonstracao na porta 4200 (npm run start -- --port 4200).
-// Uso (raiz do projeto): node docs/atualizacao-07102026/verificar-tours.js
+// Uso (raiz do projeto): node docs/atualizacao-07102026/verificar-tours.js [parte do titulo]
+// Filtros opcionais por variavel de ambiente: CONTA=admin@empresa.com MODULO=Crédito
 
 const { chromium } = require('@playwright/test');
 
@@ -27,7 +28,13 @@ const CASOS = [
   },
   {
     conta: 'admin@empresa.com',
-    roteiros: ['Rede de Correspondentes', 'Comissionamento da rede', 'Desempenho e metas da rede', 'Auditoria do módulo'],
+    roteiros: [
+      'Rede de Correspondentes',
+      'Comissionamento da rede',
+      'Desempenho e metas da rede',
+      'Auditoria do módulo',
+      'Módulo completo',
+    ],
   },
   {
     conta: 'admin@empresa.com',
@@ -84,6 +91,8 @@ async function rodar(page, titulo, modulo) {
   const browser = await chromium.launch({ headless: true });
   let falhas = 0;
   for (const caso of CASOS) {
+    if (process.env.CONTA && caso.conta !== process.env.CONTA) continue;
+    if (process.env.MODULO && (caso.modulo || 'Correspondentes') !== process.env.MODULO) continue;
     for (const titulo of caso.roteiros) {
       if (process.argv[2] && !titulo.includes(process.argv[2])) continue;
       const { ctx, page } = await entrar(browser, caso.conta);

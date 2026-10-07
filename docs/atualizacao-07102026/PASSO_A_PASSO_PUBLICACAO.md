@@ -7,13 +7,13 @@ das edições de 18/09, 24/09 e 02/10 continuarem no ar. **Ainda não foi public
 
 | Arquivo | Para quê |
 |---|---|
-| `apresentacao-atualizacao-sep.html` | O relatório para a Diretoria (19 slides) |
+| `apresentacao-atualizacao-sep.html` | O relatório para a Diretoria (25 slides, atualizado no fim do dia 07/10) |
 | `SEP_Correspondentes_Daniel_Mollmann_07102026.pdf` | PDF oficial |
 | `CONTRATO_BACKEND_CORRESPONDENTES.md` e `backend.html` | Apoio técnico ao backend (mesmo texto, em Markdown e em página) |
-| `imagens/` | As 19 capturas reais do sistema |
+| `imagens/` | As 29 capturas reais do sistema |
 | **`publicar/`** | **A pasta que vai para o Netlify** |
 | `MENSAGEM_DIRETORIA.txt` | Texto pronto para WhatsApp ou e-mail |
-| `conteudo-main.html`, `montar-html.js`, `md-para-html.js`, `gerar-publicacao.js`, `capturar-telas.js`, `verificar-tours.js` | Fontes, geradores e o verificador dos tours |
+| `conteudo-main.html`, `capturar-telas-extra.js`, `montar-html.js`, `md-para-html.js`, `gerar-publicacao.js`, `capturar-telas.js`, `verificar-tours.js` | Fontes, geradores e o verificador dos tours |
 
 ## Passo a passo
 

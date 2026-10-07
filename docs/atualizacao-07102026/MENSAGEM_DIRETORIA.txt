@@ -1,32 +1,40 @@
-🖥️ SEP — Módulo de Correspondentes · 7 de Outubro de 2026
+🖥️ SEP — Correspondentes, Pix Automático e Análise de Crédito · 7 de Outubro de 2026
 
 Prezada Diretoria e Conselho Executivo,
 
-Apresento a proposta e o protótipo funcional do Módulo de Correspondentes do SEP, em teste e com
+Apresento o Módulo de Correspondentes do SEP e as três ampliações feitas no mesmo dia, em teste e com
 dados fictícios:
 
 🤝 O correspondente é uma pessoa física credenciada, com cadastro de validade definida, que
 capta clientes e acompanha a própria base. Quem capta não decide o crédito: análise, aprovação,
 formalização e liberação continuam do SEP.
-📎 Os documentos são enviados pelo correspondente com atesto de que conferiu os originais, ficam
-sinalizados como formalizados e entram na fila do backoffice, que valida ou devolve.
+📎 Os documentos são enviados com atesto de que o correspondente conferiu os originais e entram na
+fila do backoffice, que valida ou devolve.
 ⏳ A base não é permanente: cadastro vencido ou desatualizado, ou proposta assinada sem citar o
-correspondente, encerra o vínculo. O cliente pode então eleger outro correspondente ou ficar
-direto com o SEP.
-📊 O correspondente acompanha os contratos e as parcelas dos clientes que captou (em dia ou em atraso, e o valor de cada parcela), tem funil de prospecção, agenda, comissões, metas e relatórios, e conta com tour assistido na tela. A administração configura as regras de comissão, acompanha ranking e metas e tem trilha de auditoria.
-💸 A comissão será paga pelo Pix do SEP, desde que a normativa e a legislação permitam. Hoje o
-valor é calculado só com dados fictícios, sem pagamento.
+correspondente, encerra o vínculo.
+📊 O correspondente acompanha contratos e parcelas dos clientes que captou, tem funil, agenda,
+comissões, metas e relatórios. A administração configura as regras de comissão e tem auditoria.
 
-📌 Para decisão: enquadramento regulatório do correspondente pessoa física, tributação da
-comissão, base legal LGPD e a regra da comissão recorrente após a perda da base (quadro no
-slide 16).
+🆕 Rede de sub-correspondentes: o correspondente majoritário credencia subs, que também lançam
+clientes, e define o repasse de cada um por produto, sempre abaixo do teto que o SEP fixa. Ele
+acompanha a carteira e a comissão da rede inteira; o sub vê só a própria posição.
+🆕 Pix Automático no Crédito: o tomador autoriza uma vez, no banco dele, e cada parcela é debitada no
+vencimento. Há chave geral de habilitação, registro dos dados do pagador com consentimento e as
+cobranças por parcela. (O "Pix Agendado" é pagamento único e não serve para parcelas.)
+🆕 Análise de crédito: consulta a Serasa, SPC/Boa Vista e SCR do Banco Central e score interno que
+se explica fator a fator. O motor sugere; quem decide é o analista, com justificativa.
+🔎 Todos os dados históricos foram conferidos: 10 divergências de valores, parcelas e juros foram
+corrigidas, e um teste impede que voltem.
+
+📌 Para decisão: enquadramento regulatório e tributação (correspondente e sub), parceiro e regras do
+Pix Automático, contratos com os bureaus e base legal LGPD (quadro no slide 16).
 🛡️ Entrega em teste, com ponto de retorno ao estado anterior preservado.
-✅ 745 testes automatizados aprovados (100%).
+✅ 808 testes automatizados aprovados (100%).
 
 📱 Relatório interativo e PDF oficial:
 [LINK]
 
-O apoio técnico para o backend (contrato, regras e justificativas) está em:
+O apoio técnico para o backend (contratos, regras e justificativas) está em:
 [LINK]/backend.html
 
 Responsável Técnico:
