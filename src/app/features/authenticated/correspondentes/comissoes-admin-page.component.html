@@ -55,7 +55,10 @@
             <lucide-icon name="percent" [size]="24" [strokeWidth]="1.5" />
             <div>
               <h2>Regras de comissão</h2>
-              <p>Percentual por produto e base de cálculo, com versão</p>
+              <p>
+                Percentual do correspondente por produto e o teto que ele pode repassar aos seus
+                sub-correspondentes (nunca acima do próprio percentual)
+              </p>
             </div>
           </header>
           <div class="cor-tabela-wrap">
@@ -66,7 +69,8 @@
                   <th>Base</th>
                   <th>Gatilho</th>
                   <th class="num">Versão</th>
-                  <th class="num">%</th>
+                  <th class="num">% do SEP</th>
+                  <th class="num">Teto p/ subs (%)</th>
                   <th>Justificativa</th>
                   <th></th>
                 </tr>
@@ -92,6 +96,18 @@
                         [attr.aria-label]="'Percentual da regra ' + r.produto"
                         [name]="'pct-' + r.id"
                         [(ngModel)]="edicao[r.id].percentual"
+                      />
+                    </td>
+                    <td class="num">
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        [max]="edicao[r.id].percentual"
+                        class="cor-input-mini"
+                        [attr.aria-label]="'Teto de repasse a sub-correspondentes em ' + r.produto"
+                        [name]="'teto-' + r.id"
+                        [(ngModel)]="edicao[r.id].tetoSub"
                       />
                     </td>
                     <td>

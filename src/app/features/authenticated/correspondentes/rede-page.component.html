@@ -121,8 +121,12 @@
             <tbody>
               @for (c of r.correspondentes; track c.id) {
                 <tr>
-                  <td>
-                    {{ c.nome }}<small>{{ c.cpfMascarado }}</small>
+                  <td [style.padding-left.px]="c.nivel === 'SUB' ? 28 : null">
+                    {{ c.nome
+                    }}<small
+                      >{{ c.cpfMascarado
+                      }}{{ c.nivel === 'SUB' ? ' · sub-correspondente' : ' · majoritário' }}</small
+                    >
                   </td>
                   <td>
                     <span class="cor-selo" [attr.data-tone]="tom[c.status]">{{

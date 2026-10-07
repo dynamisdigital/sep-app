@@ -55,7 +55,10 @@ export class ComissoesAdminPageComponent implements OnInit {
   protected readonly erro = signal<string | null>(null);
   protected readonly aviso = signal<string | null>(null);
 
-  protected readonly edicao: Record<string, { percentual: number; justificativa: string }> = {};
+  protected readonly edicao: Record<
+    string,
+    { percentual: number; tetoSub: number; justificativa: string }
+  > = {};
 
   protected readonly moeda = formatarMoeda;
   protected readonly pct = formatarPercentual;
@@ -112,7 +115,11 @@ export class ComissoesAdminPageComponent implements OnInit {
         this.regras.set(regras);
         this.lancamentos.set(lancamentos);
         for (const r of regras) {
-          this.edicao[r.id] ??= { percentual: r.percentual, justificativa: '' };
+          this.edicao[r.id] ??= {
+            percentual: r.percentual,
+            tetoSub: r.tetoSub,
+            justificativa: '',
+          };
         }
         this.carregando.set(false);
       },
@@ -125,7 +132,15 @@ export class ComissoesAdminPageComponent implements OnInit {
 
   protected podeSalvar(r: RegraComissao): boolean {
     const e = this.edicao[r.id];
-    return !!e && e.percentual > 0 && e.percentual !== r.percentual && !!e.justificativa.trim();
+    const mudou = e?.percentual !== r.percentual || e?.tetoSub !== r.tetoSub;
+    return (
+      !!e &&
+      e.percentual > 0 &&
+      e.tetoSub >= 0 &&
+      e.tetoSub <= e.percentual &&
+      mudou &&
+      !!e.justificativa.trim()
+    );
   }
 
   protected salvar(r: RegraComissao): void {
@@ -133,11 +148,19 @@ export class ComissoesAdminPageComponent implements OnInit {
     const e = this.edicao[r.id];
     this.erro.set(null);
     this.service
-      .atualizarRegra(r.id, { percentual: e.percentual, justificativa: e.justificativa })
+      .atualizarRegra(r.id, {
+        percentual: e.percentual,
+        tetoSub: e.tetoSub,
+        justificativa: e.justificativa,
+      })
       .subscribe({
         next: (nova) => {
           this.regras.update((l) => l.map((x) => (x.id === nova.id ? nova : x)));
-          this.edicao[r.id] = { percentual: nova.percentual, justificativa: '' };
+          this.edicao[r.id] = {
+            percentual: nova.percentual,
+            tetoSub: nova.tetoSub,
+            justificativa: '',
+          };
           this.aviso.set(
             `Regra de ${nova.produto} atualizada para ${formatarPercentual(nova.percentual)} (versão ${nova.versao}). A alteração foi registrada na auditoria.`,
           );

@@ -699,10 +699,12 @@ export function correspondentePorEmail(email: string): CorrespondenteResponse | 
 }
 
 export function consultarRede(): RedeResumoResponse {
-  // A lista da administracao e a dos majoritarios; os subs aparecem na rede de cada um.
-  const lista = correspondentes
-    .filter((c) => (c.nivel ?? 'MAJORITARIO') === 'MAJORITARIO')
-    .map(montar);
+  // A administracao ve a hierarquia inteira: cada majoritario seguido dos seus subs.
+  const majoritarios = correspondentes.filter((c) => (c.nivel ?? 'MAJORITARIO') === 'MAJORITARIO');
+  const lista = majoritarios.flatMap((m) => [
+    montar(m),
+    ...correspondentes.filter((c) => c.nivel === 'SUB' && c.majoritarioId === m.id).map(montar),
+  ]);
   return {
     correspondentes: lista,
     totalClientesNaBase: vinculos.filter((v) => v.status === 'VIGENTE').length,

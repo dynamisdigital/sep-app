@@ -1379,14 +1379,19 @@ $janela-meia-tela: 1716px;
   margin-top: 2px;
 }
 
+/* O rotulo "Correspondentes" pede 112px e a seta tomava 38px: o "s" final era cortado. */
 .op-nav-group:has(> .op-nav-caret) > .op-nav-link {
-  padding-right: 38px;
+  padding-right: 30px;
+}
+
+.op-nav-group:has(> .op-nav-caret) > .op-nav-link small:empty {
+  display: none;
 }
 
 .op-nav-caret {
   position: absolute;
   top: 11px;
-  right: 9px;
+  right: 5px;
   z-index: 2;
   display: grid;
   place-items: center;
@@ -2492,4 +2497,13 @@ a.op-regulated:focus-visible b {
   color: var(--sep-text-secondary);
   font-weight: 700;
   white-space: nowrap;
+}
+
+/* Barra estreita (208px): a folga encolhe mais um pouco para o rotulo caber inteiro. */
+@media (width <= 1180px) {
+  .op-nav-group:has(> .op-nav-caret) > .op-nav-link {
+    gap: 4px;
+    padding-right: 26px;
+    padding-left: 7px;
+  }
 }

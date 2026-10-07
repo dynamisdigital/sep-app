@@ -779,7 +779,10 @@ function desempenhoBase(id: string): Omit<DesempenhoCorrespondente, 'posicao'> {
 }
 
 export function desempenhoDaRede(): DesempenhoRedeResponse {
-  const ids = consultarRede().correspondentes.map((c) => c.id);
+  // O ranking compara majoritarios; a producao dos subs ja compoe a rede de cada um.
+  const ids = consultarRede()
+    .correspondentes.filter((c) => c.nivel !== 'SUB')
+    .map((c) => c.id);
   const ranking = ids
     .map(desempenhoBase)
     .sort((a, b) => b.valorOriginado - a.valorOriginado)
