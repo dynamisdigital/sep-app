@@ -1,0 +1,116 @@
+<sep-operational-shell>
+  <main class="cor-page">
+    @if (erro()) {
+      <div class="cor-erro" role="alert">{{ erro() }}</div>
+      <a class="cor-link" routerLink="/app/meu-backoffice/contratos">Voltar aos contratos</a>
+    }
+
+    @if (carregando()) {
+      <p class="cor-estado" role="status">Carregando o contrato...</p>
+    } @else if (operacao(); as o) {
+      <header class="cor-hero">
+        <div>
+          <p class="cor-crumbs">
+            <a routerLink="/app/dashboard">Início</a> ›
+            <a routerLink="/app/meu-backoffice">Meu Back Office</a> ›
+            <a routerLink="/app/meu-backoffice/contratos">Contratos</a> ›
+            <strong>{{ o.numero }}</strong>
+          </p>
+          <h1>{{ o.clienteNome }}</h1>
+          <p>{{ o.clienteDocumentoMascarado }} · {{ o.produto }} · contrato {{ o.numero }}</p>
+        </div>
+        <span class="cor-selo" [attr.data-tone]="tom[o.situacao]">{{ rotulo[o.situacao] }}</span>
+      </header>
+
+      <section class="cor-kpis" aria-label="Valores do contrato" data-tour="cor-contrato-kpis">
+        <article class="cor-kpi">
+          <small>Valor contratado</small>
+          <strong>{{ moeda(o.valorContratado) }}</strong>
+          <span>contratado em {{ data(o.contratadoEm) }}</span>
+          <lucide-icon name="file-check" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi">
+          <small>Valor da parcela</small>
+          <strong>{{ moeda(o.valorParcela) }}</strong>
+          <span>{{ o.totalParcelas }} parcelas mensais</span>
+          <lucide-icon name="receipt" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" data-tone="green">
+          <small>Já pago</small>
+          <strong>{{ moeda(o.valorPago) }}</strong>
+          <span>{{ o.parcelasPagas }} de {{ o.totalParcelas }} parcelas</span>
+          <lucide-icon name="circle-check" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" data-tone="amber">
+          <small>A receber</small>
+          <strong>{{ moeda(o.saldoAReceber) }}</strong>
+          <span>próximo vencimento {{ data(o.proximoVencimento) }}</span>
+          <lucide-icon name="banknote" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" [attr.data-tone]="o.valorEmAtraso ? 'red' : 'green'">
+          <small>Em atraso</small>
+          <strong>{{ moeda(o.valorEmAtraso) }}</strong>
+          <span>{{ o.parcelasVencidas }} parcela(s) vencida(s)</span>
+          <lucide-icon name="triangle-alert" [size]="34" [strokeWidth]="1.25" />
+        </article>
+      </section>
+
+      <section class="cor-grid">
+        <article class="cor-card">
+          <header class="cor-card-titulo">
+            <lucide-icon name="chart-pie" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2>Andamento</h2>
+              <p>{{ pct(o.parcelasPagas, o.totalParcelas) }}% do contrato pago</p>
+            </div>
+          </header>
+          <sep-cor-donut
+            [faixas]="faixas()"
+            legendaCentro="parcelas"
+            descricao="Andamento do contrato"
+          />
+        </article>
+      </section>
+
+      <section class="cor-card" aria-labelledby="cor-parcelas-titulo" data-tour="cor-parcelas">
+        <header class="cor-card-titulo">
+          <lucide-icon name="list-checks" [size]="24" [strokeWidth]="1.5" />
+          <div>
+            <h2 id="cor-parcelas-titulo">Parcelas</h2>
+            <p>Vencimento, valor e situação de cada parcela</p>
+          </div>
+        </header>
+        <div class="cor-tabela-wrap">
+          <table class="cor-tabela">
+            <thead>
+              <tr>
+                <th>Parcela</th>
+                <th>Vencimento</th>
+                <th class="num">Valor</th>
+                <th>Situação</th>
+                <th>Pago em</th>
+                <th class="num">Dias de atraso</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of o.parcelas; track p.numero) {
+                <tr [class.cor-linha-atraso]="p.status === 'VENCIDA'">
+                  <td>{{ p.numero }}/{{ o.totalParcelas }}</td>
+                  <td>{{ data(p.vencimento) }}</td>
+                  <td class="num">{{ moeda(p.valor) }}</td>
+                  <td>
+                    <span class="cor-selo" [attr.data-tone]="tomParcela[p.status]">{{
+                      rotuloParcela[p.status]
+                    }}</span>
+                  </td>
+                  <td>{{ data(p.pagoEm) }}</td>
+                  <td class="num">{{ p.diasAtraso || '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+  </main>
+</sep-operational-shell>

@@ -60,6 +60,7 @@ describe('TourService', () => {
       'Cobrança',
       'Pix',
       'Backoffice',
+      'Correspondentes',
       'Usuários',
       'Parâmetros',
       'Perfil',
@@ -83,6 +84,7 @@ describe('TourService', () => {
       'Cobrança',
       'Pix',
       'Backoffice',
+      'Correspondentes',
       'Perfil',
       'Plataforma',
     ]);
@@ -90,6 +92,23 @@ describe('TourService', () => {
     // O cliente so alcanca a jornada da Credora; nenhum dos modulos operacionais.
     auth.currentUserState.set(usuario('CLIENTE', true));
     expect(tour.catalogo().map((g) => g.modulo)).toEqual(['Credora', 'Perfil', 'Plataforma']);
+
+    // O correspondente so alcanca o proprio modulo, sem nenhum roteiro de decisao de credito.
+    auth.currentUserState.set(usuario('CORRESPONDENTE', true));
+    const doCorrespondente = tour.catalogo().find((g) => g.modulo === 'Correspondentes')!;
+    expect(doCorrespondente.roteiros.map((r) => r.titulo)).toEqual([
+      'Módulo completo',
+      'Meu painel',
+      'Funil de prospecção',
+      'Agenda e relacionamento',
+      'Contratos e parcelas dos clientes',
+      'Minha base de clientes',
+      'Enviar documentos com atesto',
+      'Minhas comissões',
+      'Meu desempenho',
+      'Relatórios da carteira',
+    ]);
+    expect(tour.catalogo().map((g) => g.modulo)).not.toContain('Crédito');
   });
 
   it('em Parametros, so alterar (e o modulo completo) pede TOTP; catalogo e consulta rodam sem', () => {
@@ -464,6 +483,7 @@ describe('TourService', () => {
       'banknote',
       'qr-code',
       'briefcase',
+      'handshake',
       'users',
       'settings',
       'user-round',

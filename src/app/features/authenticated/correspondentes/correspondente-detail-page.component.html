@@ -1,0 +1,137 @@
+<sep-operational-shell>
+  <main class="cor-page">
+    @if (erro()) {
+      <div class="cor-erro" role="alert">{{ erro() }}</div>
+    }
+    @if (aviso()) {
+      <div class="cor-aviso" data-tone="green" role="status">{{ aviso() }}</div>
+    }
+
+    @if (carregando()) {
+      <p class="cor-estado" role="status">Carregando o correspondente...</p>
+    } @else if (correspondente(); as c) {
+      <header class="cor-heading">
+        <div>
+          <p class="cor-crumbs">
+            <a routerLink="/app/dashboard">Início</a> ›
+            <a routerLink="/app/correspondentes">Rede de Correspondentes</a> ›
+            <strong>{{ c.nome }}</strong>
+          </p>
+          <h1>{{ c.nome }}</h1>
+          <p>{{ c.cpfMascarado }} · {{ c.email }}</p>
+        </div>
+        <span class="cor-selo" [attr.data-tone]="tom[c.status]">{{ rotulo[c.status] }}</span>
+      </header>
+
+      <section class="cor-metrics" aria-label="Resumo do correspondente">
+        <article class="cor-metric" [attr.data-tone]="tom[c.status]">
+          <small>Validade do cadastro</small>
+          <strong>{{ data(c.validadeCadastro) }}</strong>
+          <span>{{ prazo(c.diasParaVencer) }}</span>
+        </article>
+        <article class="cor-metric">
+          <small>Última atualização</small>
+          <strong>{{ data(c.cadastroAtualizadoEm) }}</strong>
+          <span>dados cadastrais</span>
+        </article>
+        <article class="cor-metric" data-tone="green">
+          <small>Clientes na base</small>
+          <strong>{{ c.clientesNaBase }}</strong>
+          <span>vínculos vigentes</span>
+        </article>
+        <article class="cor-metric">
+          <small>Comissão prevista</small>
+          <strong>{{ moeda(c.comissaoPrevista) }}</strong>
+          <span>valor fictício de demonstração</span>
+        </article>
+      </section>
+
+      <section class="cor-card" aria-labelledby="cor-renovar">
+        <h2 id="cor-renovar">Renovar cadastro</h2>
+        <p>
+          Cadastro vencido faz o correspondente perder os clientes da base na apuração de vigência.
+          A renovação deve vir acompanhada da atualização dos dados.
+        </p>
+        <div class="cor-form">
+          <label>
+            Nova validade
+            <input type="date" name="novaValidade" [(ngModel)]="novaValidade" />
+          </label>
+        </div>
+        <div class="cor-acoes" style="margin-top: 12px">
+          <button type="button" class="cor-btn" (click)="renovar()">Renovar cadastro</button>
+        </div>
+      </section>
+
+      <section class="cor-card" aria-labelledby="cor-vinculos">
+        <h2 id="cor-vinculos">Vínculos e histórico</h2>
+        <p>
+          Cada vínculo guarda início, fim e motivo. A eleição do cliente leva a base para outro
+          correspondente ou para o SEP direto.
+        </p>
+        <div class="cor-tabela-wrap">
+          <table class="cor-tabela">
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Situação</th>
+                <th>Início</th>
+                <th>Fim / motivo</th>
+                <th>Proposta cita o correspondente?</th>
+                <th>Eleição do cliente</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (v of vinculos(); track v.id) {
+                <tr>
+                  <td>
+                    {{ v.clienteNome }}<small>{{ v.clienteDocumentoMascarado }}</small>
+                  </td>
+                  <td>
+                    <span class="cor-selo" [attr.data-tone]="tomVinculo[v.status]">{{
+                      rotuloVinculo[v.status]
+                    }}</span>
+                  </td>
+                  <td>{{ data(v.inicio) }}</td>
+                  <td>
+                    {{ data(v.fim) }}
+                    @if (v.motivoFim) {
+                      <small>{{ motivo[v.motivoFim] }}</small>
+                    }
+                  </td>
+                  <td>
+                    @if (v.ultimaPropostaCitaCorrespondente === null) {
+                      Sem proposta
+                    } @else if (v.ultimaPropostaCitaCorrespondente) {
+                      Sim
+                    } @else {
+                      Não
+                    }
+                  </td>
+                  <td>
+                    @if (podeReatribuir(v)) {
+                      <select
+                        [attr.aria-label]="'Reatribuir ' + v.clienteNome"
+                        (change)="reatribuir(v, $any($event.target).value)"
+                      >
+                        <option value="">Reatribuir...</option>
+                        <option value="SEP">Direto com o SEP</option>
+                        @for (o of outros(); track o.id) {
+                          <option [value]="o.id">{{ o.nome }}</option>
+                        }
+                      </select>
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="cor-estado">Nenhum vínculo registrado.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+  </main>
+</sep-operational-shell>

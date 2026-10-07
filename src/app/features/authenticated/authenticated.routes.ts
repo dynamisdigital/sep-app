@@ -92,6 +92,142 @@ export const AUTHENTICATED_ROUTES: Routes = [
           import('./backoffice/backoffice.routes').then((m) => m.BACKOFFICE_ROUTES),
       },
       {
+        // Area do correspondente: a propria base e os envios de documentos. Captar nao e decidir,
+        // por isso o papel nao entra nas listas de credito, formalizacao, cobranca ou Pix.
+        path: 'meu-backoffice',
+        canActivate: [roleGuard],
+        data: { roles: ['CORRESPONDENTE'], breadcrumb: 'Meu Back Office' },
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            loadComponent: () =>
+              import('./meu-backoffice/meu-dashboard-page.component').then(
+                (m) => m.MeuDashboardPageComponent,
+              ),
+            data: { immersive: true },
+          },
+          {
+            path: 'base',
+            loadComponent: () =>
+              import('./meu-backoffice/minha-base-page.component').then(
+                (m) => m.MinhaBasePageComponent,
+              ),
+            data: { breadcrumb: 'Minha base', immersive: true },
+          },
+          {
+            path: 'prospeccao',
+            loadComponent: () =>
+              import('./meu-backoffice/prospeccao-page.component').then(
+                (m) => m.ProspeccaoPageComponent,
+              ),
+            data: { breadcrumb: 'Prospecção', immersive: true },
+          },
+          {
+            path: 'agenda',
+            loadComponent: () =>
+              import('./meu-backoffice/agenda-page.component').then((m) => m.AgendaPageComponent),
+            data: { breadcrumb: 'Agenda', immersive: true },
+          },
+          {
+            path: 'comissoes',
+            loadComponent: () =>
+              import('./meu-backoffice/comissoes-page.component').then(
+                (m) => m.ComissoesCorrespondentePageComponent,
+              ),
+            data: { breadcrumb: 'Comissões', immersive: true },
+          },
+          {
+            path: 'desempenho',
+            loadComponent: () =>
+              import('./meu-backoffice/desempenho-page.component').then(
+                (m) => m.DesempenhoCorrespondentePageComponent,
+              ),
+            data: { breadcrumb: 'Desempenho', immersive: true },
+          },
+          {
+            path: 'relatorios',
+            loadComponent: () =>
+              import('./meu-backoffice/relatorios-page.component').then(
+                (m) => m.RelatoriosCorrespondentePageComponent,
+              ),
+            data: { breadcrumb: 'Relatórios', immersive: true },
+          },
+          {
+            path: 'contratos',
+            loadComponent: () =>
+              import('./meu-backoffice/contratos-page.component').then(
+                (m) => m.ContratosPageComponent,
+              ),
+            data: { breadcrumb: 'Contratos', immersive: true },
+          },
+          {
+            path: 'contratos/:id',
+            loadComponent: () =>
+              import('./meu-backoffice/contrato-detail-page.component').then(
+                (m) => m.ContratoDetailPageComponent,
+              ),
+            data: { breadcrumb: 'Detalhe do contrato', immersive: true },
+          },
+          {
+            path: 'documentos',
+            loadComponent: () =>
+              import('./meu-backoffice/envio-documentos-page.component').then(
+                (m) => m.EnvioDocumentosPageComponent,
+              ),
+            data: { breadcrumb: 'Envio de documentos', immersive: true },
+          },
+        ],
+      },
+      {
+        // Rede de Correspondentes: administracao do credenciamento, vigencia e vinculos.
+        path: 'correspondentes',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'], breadcrumb: 'Correspondentes' },
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            loadComponent: () =>
+              import('./correspondentes/rede-page.component').then((m) => m.RedePageComponent),
+            data: { immersive: true },
+          },
+          // Antes de ':id': senao "comissoes" seria lido como identificador.
+          {
+            path: 'comissoes',
+            loadComponent: () =>
+              import('./correspondentes/comissoes-admin-page.component').then(
+                (m) => m.ComissoesAdminPageComponent,
+              ),
+            data: { breadcrumb: 'Comissões', immersive: true },
+          },
+          {
+            path: 'desempenho',
+            loadComponent: () =>
+              import('./correspondentes/desempenho-admin-page.component').then(
+                (m) => m.DesempenhoAdminPageComponent,
+              ),
+            data: { breadcrumb: 'Desempenho', immersive: true },
+          },
+          {
+            path: 'auditoria',
+            loadComponent: () =>
+              import('./correspondentes/auditoria-page.component').then(
+                (m) => m.AuditoriaPageComponent,
+              ),
+            data: { breadcrumb: 'Auditoria', immersive: true },
+          },
+          {
+            path: ':id',
+            loadComponent: () =>
+              import('./correspondentes/correspondente-detail-page.component').then(
+                (m) => m.CorrespondenteDetailPageComponent,
+              ),
+            data: { breadcrumb: 'Detalhe do correspondente', immersive: true },
+          },
+        ],
+      },
+      {
         path: 'admin',
         canActivate: [roleGuard],
         data: { roles: ['ADMIN'], breadcrumb: 'Administração' },

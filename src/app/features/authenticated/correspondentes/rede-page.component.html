@@ -1,0 +1,152 @@
+<sep-operational-shell>
+  <main class="cor-page">
+    <header class="cor-heading">
+      <div>
+        <p class="cor-crumbs">
+          <a routerLink="/app/dashboard">Início</a> › <strong>Rede de Correspondentes</strong>
+        </p>
+        <h1>Rede de Correspondentes</h1>
+        <p>Pessoas físicas credenciadas para captar clientes, com cadastro de validade definida.</p>
+      </div>
+      <div class="cor-atalhos">
+        <a class="cor-btn secundario" routerLink="/app/correspondentes/comissoes">Comissões</a>
+        <a class="cor-btn secundario" routerLink="/app/correspondentes/desempenho">Desempenho</a>
+        <a class="cor-btn secundario" routerLink="/app/correspondentes/auditoria">Auditoria</a>
+        <button
+          type="button"
+          class="cor-btn"
+          [disabled]="processando()"
+          (click)="processarVigencia()"
+          title="Simula o job do backend que encerra os vínculos de cadastro vencido"
+        >
+          {{ processando() ? 'Apurando...' : 'Apurar vigências (simulação)' }}
+        </button>
+      </div>
+    </header>
+
+    @if (erro()) {
+      <div class="cor-erro" role="alert">{{ erro() }}</div>
+    }
+    @if (aviso()) {
+      <div class="cor-aviso" data-tone="green" role="status">{{ aviso() }}</div>
+    }
+
+    @if (carregando()) {
+      <p class="cor-estado" role="status">Carregando a rede...</p>
+    } @else if (rede(); as r) {
+      <section class="cor-metrics" aria-label="Resumo da rede">
+        <article class="cor-metric">
+          <small>Correspondentes</small>
+          <strong>{{ r.correspondentes.length }}</strong>
+          <span>credenciados na rede</span>
+        </article>
+        <article class="cor-metric" data-tone="green">
+          <small>Clientes em bases vigentes</small>
+          <strong>{{ r.totalClientesNaBase }}</strong>
+          <span>vinculados a um correspondente</span>
+        </article>
+        <article class="cor-metric">
+          <small>Clientes diretos com o SEP</small>
+          <strong>{{ r.totalClientesDiretoSep }}</strong>
+          <span>sem correspondente</span>
+        </article>
+        <article class="cor-metric" data-tone="amber">
+          <small>Cadastros a vencer</small>
+          <strong>{{ r.cadastrosAVencer }}</strong>
+          <span>nos próximos 30 dias</span>
+        </article>
+        <article class="cor-metric" data-tone="red">
+          <small>Cadastros vencidos</small>
+          <strong>{{ r.cadastrosVencidos }}</strong>
+          <span>perdem a base na apuração</span>
+        </article>
+        <article class="cor-metric" data-tone="amber">
+          <small>Envios em validação</small>
+          <strong>{{ r.enviosEmValidacao }}</strong>
+          <span>na fila do backoffice</span>
+        </article>
+      </section>
+
+      <section class="cor-grid" aria-label="Gráficos da rede" data-tour="cor-rede-graficos">
+        <article class="cor-card">
+          <header class="cor-card-titulo">
+            <lucide-icon name="chart-pie" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2>Situação dos cadastros</h2>
+              <p>Quantos correspondentes estão em dia com a validade</p>
+            </div>
+          </header>
+          <sep-cor-donut
+            [faixas]="cadastros()"
+            legendaCentro="correspondentes"
+            descricao="Situação dos cadastros"
+          />
+        </article>
+        <article class="cor-card">
+          <header class="cor-card-titulo">
+            <lucide-icon name="chart-column" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2>Carteira por correspondente</h2>
+              <p>Valor contratado; em âmbar, quem tem parcelas vencidas</p>
+            </div>
+          </header>
+          <sep-cor-barras
+            [itens]="carteiras()"
+            [formato]="moedaCurta"
+            descricao="Carteira contratada por correspondente"
+          />
+        </article>
+      </section>
+
+      <section class="cor-card" aria-labelledby="cor-rede-titulo">
+        <h2 id="cor-rede-titulo">Correspondentes</h2>
+        <p>
+          A comissão exibida é prevista e fictícia: a regra de apuração e pagamento via Pix ainda
+          depende do contrato com o backend e da validação jurídica.
+        </p>
+        <div class="cor-tabela-wrap">
+          <table class="cor-tabela">
+            <thead>
+              <tr>
+                <th>Correspondente</th>
+                <th>Cadastro</th>
+                <th>Validade</th>
+                <th class="num">Clientes</th>
+                <th class="num">Carteira</th>
+                <th class="num">Inadimplência</th>
+                <th class="num">Comissão prevista</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (c of r.correspondentes; track c.id) {
+                <tr>
+                  <td>
+                    {{ c.nome }}<small>{{ c.cpfMascarado }}</small>
+                  </td>
+                  <td>
+                    <span class="cor-selo" [attr.data-tone]="tom[c.status]">{{
+                      rotulo[c.status]
+                    }}</span>
+                  </td>
+                  <td>
+                    {{ data(c.validadeCadastro) }}<small>{{ prazo(c.diasParaVencer) }}</small>
+                  </td>
+                  <td class="num">{{ c.clientesNaBase }}</td>
+                  <td class="num">{{ moeda(c.valorCarteira) }}</td>
+                  <td class="num">{{ c.inadimplenciaPct.toString().replace('.', ',') }}%</td>
+                  <td class="num">{{ moeda(c.comissaoPrevista) }}</td>
+                  <td>
+                    <a class="cor-btn secundario" [routerLink]="['/app/correspondentes', c.id]"
+                      >Abrir</a
+                    >
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+  </main>
+</sep-operational-shell>

@@ -1,0 +1,45 @@
+<sep-operational-shell>
+  <main class="cor-page">
+    <header class="cor-hero">
+      <div>
+        <p class="cor-crumbs">
+          <a routerLink="/app/dashboard">Início</a> ›
+          <a routerLink="/app/meu-backoffice">Meu Back Office</a> › <strong>Relatórios</strong>
+        </p>
+        <h1>Relatórios da minha carteira</h1>
+        <p>Arquivos CSV para abrir em planilha. Cada um traz só os dados da sua própria base.</p>
+      </div>
+    </header>
+
+    @if (erro()) {
+      <div class="cor-erro" role="alert">{{ erro() }}</div>
+    }
+    @if (aviso()) {
+      <div class="cor-aviso" data-tone="green" role="status">{{ aviso() }}</div>
+    }
+
+    <section class="cor-grid" aria-label="Relatórios disponíveis" data-tour="cor-relatorios">
+      @for (r of relatorios; track r.chave) {
+        <article class="cor-card cor-relatorio">
+          <header class="cor-card-titulo">
+            <lucide-icon [name]="r.icone" [size]="26" [strokeWidth]="1.5" />
+            <div>
+              <h2>{{ r.titulo }}</h2>
+              <p>{{ r.descricao }}</p>
+            </div>
+          </header>
+          <button
+            type="button"
+            class="cor-btn"
+            [disabled]="gerando() === r.chave"
+            [attr.aria-label]="'Baixar relatório ' + r.titulo"
+            (click)="gerar(r)"
+          >
+            <lucide-icon name="download" [size]="14" [strokeWidth]="2" />
+            {{ gerando() === r.chave ? 'Gerando...' : 'Baixar CSV' }}
+          </button>
+        </article>
+      }
+    </section>
+  </main>
+</sep-operational-shell>

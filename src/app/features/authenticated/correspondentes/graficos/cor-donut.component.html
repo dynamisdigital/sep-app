@@ -1,0 +1,24 @@
+<div class="cor-donut-wrap">
+  <div
+    class="cor-donut"
+    role="img"
+    [attr.aria-label]="descricao() + ': ' + total() + ' no total'"
+    [style.background]="gradiente()"
+    [style.box-shadow]="halo()"
+  >
+    <span>
+      <strong>{{ centro() ?? total() }}</strong>
+      <small>{{ legendaCentro() }}</small>
+    </span>
+  </div>
+  <dl class="cor-legenda">
+    @for (fatia of fatias(); track fatia.rotulo) {
+      <div>
+        <dt><i [style.background]="cor(fatia.tom)"></i>{{ fatia.rotulo }}</dt>
+        <dd>
+          {{ fatia.valor }} <small>{{ fatia.percentual }}</small>
+        </dd>
+      </div>
+    }
+  </dl>
+</div>

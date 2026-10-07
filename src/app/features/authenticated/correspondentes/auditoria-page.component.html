@@ -1,0 +1,85 @@
+<sep-operational-shell>
+  <main class="cor-page">
+    <header class="cor-hero">
+      <div>
+        <p class="cor-crumbs">
+          <a routerLink="/app/dashboard">Início</a> ›
+          <a routerLink="/app/correspondentes">Rede de Correspondentes</a> ›
+          <strong>Auditoria</strong>
+        </p>
+        <h1>Auditoria do módulo</h1>
+        <p>
+          Quem cadastrou, alterou, aprovou, transferiu ou modificou comissão, e quando. O registro é
+          somente leitura.
+        </p>
+      </div>
+      <button type="button" class="cor-btn secundario" (click)="exportar()">
+        <lucide-icon name="download" [size]="14" [strokeWidth]="2" /> Exportar CSV
+      </button>
+    </header>
+
+    @if (erro()) {
+      <div class="cor-erro" role="alert">{{ erro() }}</div>
+    }
+
+    @if (carregando()) {
+      <p class="cor-estado" role="status">Carregando a auditoria...</p>
+    } @else {
+      <section class="cor-card" data-tour="cor-auditoria">
+        <div class="cor-form" style="margin-bottom: 14px">
+          <label>
+            Autor
+            <input
+              name="ator"
+              placeholder="Filtrar por e-mail"
+              [ngModel]="filtroAtor()"
+              (ngModelChange)="filtroAtor.set($event)"
+            />
+          </label>
+          <label>
+            Ação
+            <select name="acao" [ngModel]="filtroAcao()" (ngModelChange)="filtroAcao.set($event)">
+              <option value="">Todas</option>
+              @for (a of acoes; track a) {
+                <option [value]="a">{{ rotulo[a] }}</option>
+              }
+            </select>
+          </label>
+        </div>
+
+        <div class="cor-tabela-wrap">
+          <table class="cor-tabela">
+            <thead>
+              <tr>
+                <th>Quando</th>
+                <th>Autor</th>
+                <th>Ação</th>
+                <th>Entidade</th>
+                <th>Detalhe</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (e of visiveis(); track e.id) {
+                <tr>
+                  <td>{{ dataHora(e.quando) }}</td>
+                  <td>
+                    {{ e.ator }}<small>{{ e.papel }}</small>
+                  </td>
+                  <td>
+                    <span class="cor-selo" data-tone="cyan">{{ rotulo[e.acao] }}</span>
+                  </td>
+                  <td>{{ e.entidade }}</td>
+                  <td>{{ e.detalhe }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="cor-estado">Nenhum evento com esses filtros.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+  </main>
+</sep-operational-shell>

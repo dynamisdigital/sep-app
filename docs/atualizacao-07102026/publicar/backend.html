@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEP — Módulo de Correspondentes: apoio técnico ao backend</title>
+  <meta name="description" content="Contrato, regras e justificativas do módulo de Correspondentes, para o backend do SEP.">
+  <meta name="robots" content="noindex">
+  <style>
+    :root { --bg:#0b1220; --card:#121b2e; --texto:#e6edf7; --muda:#93a4bf; --linha:#26344f; --acento:#38bdf8; --codigo:#0a1020; }
+    @media (prefers-color-scheme: light) {
+      :root { --bg:#f5f7fb; --card:#fff; --texto:#142033; --muda:#51607a; --linha:#d7deea; --acento:#0369a1; --codigo:#eef2f8; }
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--texto); font:15px/1.65 Inter,"Segoe UI",system-ui,sans-serif; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 80px; }
+    .topo { display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; margin-bottom:18px; }
+    .topo a { color:var(--acento); font-size:13px; text-decoration:none; font-weight:600; }
+    h1 { font-size:28px; margin:8px 0 6px; line-height:1.25; }
+    h2 { font-size:20px; margin:38px 0 8px; padding-top:10px; border-top:1px solid var(--linha); }
+    h3 { font-size:16px; margin:24px 0 6px; }
+    p, li { color:var(--texto); }
+    ul, ol { padding-left:22px; }
+    li { margin:4px 0; }
+    code { background:var(--codigo); padding:1px 6px; border-radius:4px; font:13px ui-monospace,Consolas,monospace; }
+    pre { background:var(--codigo); border:1px solid var(--linha); border-radius:8px; padding:14px 16px; overflow-x:auto; }
+    pre code { background:none; padding:0; font-size:12.5px; line-height:1.5; }
+    blockquote { margin:16px 0; padding:12px 16px; border-left:4px solid var(--acento); background:var(--card); border-radius:0 8px 8px 0; font-size:16px; }
+    hr { border:0; border-top:1px solid var(--linha); margin:26px 0; }
+    .tabela { overflow-x:auto; margin:14px 0; border:1px solid var(--linha); border-radius:8px; background:var(--card); }
+    table { width:100%; border-collapse:collapse; font-size:13.5px; }
+    th { text-align:left; padding:9px 12px; color:var(--muda); font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; border-bottom:1px solid var(--linha); white-space:nowrap; }
+    td { padding:9px 12px; border-bottom:1px solid var(--linha); vertical-align:top; }
+    tr:last-child td { border-bottom:0; }
+    @media print { :root { --bg:#fff; --card:#fff; --texto:#111; --muda:#444; --linha:#ccc; --acento:#036; --codigo:#f2f2f2; } .topo { display:none; } }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topo">
+      <a href="index.html">← Relatório para a Diretoria</a>
+      <a href="CONTRATO_BACKEND_CORRESPONDENTES.md" download>Baixar em Markdown</a>
+    </div>
+<h1 id="modulo-de-correspondentes-apoio-tecnico-ao-backend">Módulo de Correspondentes — apoio técnico ao backend</h1>
+<p><strong>Destinatário:</strong> responsável pelo backend e infraestrutura (Maurício Chaves) <strong>Autor:</strong> Daniel Möllmann, Frontend Development <strong>Data:</strong> 07/10/2026 <strong>Situação:</strong> proposta de contrato. O front já funciona contra dados fictícios (MSW) seguindo exatamente este contrato; nada aqui foi publicado no backend.</p>
+<p>Este documento diz o que o front espera, o que o backend precisa garantir e <strong>por que</strong> cada decisão foi tomada. Onde a regra é incerta ou depende do jurídico, está marcado como <strong>EM ABERTO</strong>.</p>
+<hr>
+<h2 id="1-principio-que-governa-todo-o-desenho">1. Princípio que governa todo o desenho</h2>
+<blockquote><strong>Quem capta o cliente não é quem decide o crédito.</strong></blockquote>
+<p>O correspondente capta, atesta a conferência de documentos e acompanha sua base. Analisar, aprovar, formalizar e liberar crédito continuam exclusivos de BACKOFFICE, FINANCEIRO e ADMIN.</p>
+<p><strong>Por quê:</strong> o SEP movimenta dinheiro e dados sensíveis. Se a carteira comercial der acesso, ainda que parcial, à decisão de crédito, um correspondente poderia influenciar a própria comissão. A separação precisa existir no backend (<code>@PreAuthorize</code>), porque o front só esconde telas.</p>
+<p><strong>Consequência prática:</strong> <code>CORRESPONDENTE</code> <strong>não</strong> entra em nenhuma das listas de papéis dos módulos de Onboarding, Crédito, Formalização, Cobrança, Pix e Backoffice. Ele ganha rotas próprias, de leitura da própria base e de envio.</p>
+<hr>
+<h2 id="2-papel-e-autorizacao">2. Papel e autorização</h2>
+<h3 id="2-1-novo-valor-de-usuariorole">2.1 Novo valor de <code>UsuarioRole</code></h3>
+<p>Acrescentar <code>CORRESPONDENTE</code> ao enum. O front já o reconhece (<code>api.models.ts</code>).</p>
+<h3 id="2-2-matriz-de-acesso">2.2 Matriz de acesso</h3>
+<div class="tabela"><table><thead><tr><th>Recurso</th><th>ADMIN</th><th>BACKOFFICE</th><th>FINANCEIRO</th><th>CORRESPONDENTE</th><th>CLIENTE</th></tr></thead><tbody><tr><td>Rede de correspondentes (listar, detalhar, renovar)</td><td>✔</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>Reatribuir vínculo / apurar vigência</td><td>✔</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>Própria base, resumo e envios (<code>/me/*</code>)</td><td>—</td><td>—</td><td>—</td><td>✔</td><td>—</td></tr><tr><td>Contratos, propostas e parcelas dos clientes da própria base (leitura)</td><td>—</td><td>—</td><td>—</td><td>✔</td><td>—</td></tr><tr><td>Funil, agenda, comissões e desempenho <strong>próprios</strong> (<code>/me/*</code>)</td><td>—</td><td>—</td><td>—</td><td>✔</td><td>—</td></tr><tr><td>Regras de comissão, metas, ranking da rede e auditoria</td><td>✔</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>Criar envio de documentos</td><td>—</td><td>—</td><td>—</td><td>✔</td><td>—</td></tr><tr><td>Listar e validar envios</td><td>✔</td><td>✔</td><td>✔</td><td>—</td><td>—</td></tr><tr><td>Decisão de crédito, formalização, Pix</td><td>conforme hoje</td><td>conforme hoje</td><td>conforme hoje</td><td><strong>nunca</strong></td><td>—</td></tr></tbody></table></div>
+<h3 id="2-3-acumulo-de-papeis">2.3 Acúmulo de papéis</h3>
+<p><strong>Recomendação:</strong> <code>CORRESPONDENTE</code> <strong>não pode ser acumulado</strong> com ADMIN, BACKOFFICE ou FINANCEIRO.</p>
+<p><strong>Por quê:</strong> o papel principal é calculado pela precedência <code>ADMIN &gt; FINANCEIRO &gt; BACKOFFICE &gt; CLIENTE</code> e o front decide menu e rota por ele. Uma mesma pessoa captando e validando seria exatamente o conflito que o princípio da seção 1 evita. A validação deve estar na API de papéis (<code>PUT /usuarios/{id}/roles</code>), devolvendo 422 com mensagem clara. Se o negócio precisar acumular <code>CORRESPONDENTE</code> com <code>CLIENTE</code> (o correspondente que também toma crédito), definir isso explicitamente e proibir que ele atue sobre a própria operação.</p>
+<h3 id="2-4-isolamento-da-base-o-ponto-mais-importante">2.4 Isolamento da base (o ponto mais importante)</h3>
+<ul><li>As rotas <code>/correspondentes/me/*</code> <strong>não recebem identificador</strong>. O <code>correspondente_id</code> é resolvido a partir da identidade autenticada (claim do token ou consulta pelo <code>usuario_id</code>).</li><li><strong>Nunca</strong> aceitar <code>correspondenteId</code> vindo de parâmetro, corpo ou cabeçalho para filtrar a base de quem está autenticado.</li><li>Toda consulta de clientes, propostas, parcelas e inadimplência exposta ao correspondente precisa de predicado de escopo <strong>na camada de dados</strong> (repositório ou filtro de linha), não só no controller.</li><li>Recurso de outro correspondente: responder <strong>404</strong>, não 403. Isso evita que se descubra, por tentativa, quais identificadores existem (enumeração).</li></ul>
+<p><strong>Por quê:</strong> é o risco de maior impacto do módulo. Um erro de escopo expõe CPF, renda e contratos de clientes de terceiros (LGPD). Pedir testes automatizados de acesso indevido (IDOR) como critério de aceite: o correspondente A tenta ler, por identificador, cada recurso do correspondente B e recebe 404.</p>
+<hr>
+<h2 id="3-modelo-de-dados-proposto">3. Modelo de dados proposto</h2>
+<pre><code>correspondente
+  id, usuario_id (único), nome, cpf (criptografado), email, telefone,
+  status, validade_cadastro (date), cadastro_atualizado_em,
+  criado_em, atualizado_em, criado_por, atualizado_por
+
+correspondente_cadastro_historico        -- uma linha por renovação/atualização
+  id, correspondente_id, validade_anterior, validade_nova,
+  dados_atualizados (bool), responsavel_id, motivo, criado_em
+
+vinculo_cliente_correspondente           -- a entidade central
+  id, cliente_id, correspondente_id (nulo = direto SEP),
+  status, inicio (date), fim (date), motivo_fim,
+  origem (CAPTACAO | ELEICAO_CLIENTE | TRANSFERENCIA_ADMIN),
+  criado_em, criado_por
+
+envio_documentos
+  id, correspondente_id, cliente_id, status, enviado_em,
+  atesto_conferencia (bool), atesto_texto_versao, atesto_ip, atesto_em,
+  observacao_backoffice, validado_por, validado_em
+
+envio_documentos_item
+  id, envio_id, tipo, nome_arquivo, storage_key, tamanho, sha256, content_type
+
+comissao_regra                           -- versionada, ver seção 8
+comissao_lancamento                      -- ledger imutável, ver seção 8</code></pre>
+<p>Mais: acrescentar à <strong>proposta</strong> o campo <code>correspondente_informado_id</code> (nulo = nenhum), ver seção 5.</p>
+<h3 id="por-que-o-vinculo-e-uma-entidade-e-nao-um-campo-no-cliente">Por que o vínculo é uma entidade, e não um campo no cliente</h3>
+<p>Um campo <code>correspondente_id</code> em <code>cliente</code> perde o histórico. Quem tem direito à comissão de um contrato assinado em março, se o cliente trocou de correspondente em setembro? Sem vínculo com <strong>vigência</strong> (início e fim), qualquer apuração retroativa vira disputa. Com ele, cada evento financeiro é atribuído ao vínculo que estava vigente <strong>na data do evento</strong>.</p>
+<h3 id="restricoes-obrigatorias">Restrições obrigatórias</h3>
+<ul><li><strong>Um único vínculo vigente por cliente:</strong> índice único parcial em <code>(cliente_id)</code> onde <code>status = 'VIGENTE'</code> (ou <code>fim IS NULL</code>). Impede dois correspondentes com direito sobre o mesmo cliente por corrida ou erro de tela.</li><li><code>fim &gt;= inicio</code>; <code>motivo_fim</code> obrigatório quando <code>fim</code> preenchido.</li><li>Vínculo <strong>nunca é apagado nem editado em retrospecto</strong>: encerra-se e cria-se outro.</li></ul>
+<hr>
+<h2 id="4-ciclo-de-vida-do-cadastro-do-correspondente">4. Ciclo de vida do cadastro do correspondente</h2>
+<pre><code>PENDENTE ──aprovação──▶ ATIVO ──(D-30)──▶ A_VENCER ──(validade &lt; hoje)──▶ VENCIDO
+                          ▲                    │                              │
+                          └──────── renovação + atualização de dados ─────────┘
+ATIVO | A_VENCER ──ação do admin──▶ SUSPENSO ──ação do admin──▶ ATIVO
+qualquer ──ação do admin──▶ INATIVO (terminal)</code></pre>
+<ul><li><code>A_VENCER</code> e <code>VENCIDO</code> são <strong>derivados</strong> da data de validade; não precisam de job para existir, só para gerar efeitos (aviso e perda de base).</li><li>O front hoje usa janela de <strong>30 dias</strong> para <code>A_VENCER</code>. Tornar isso <strong>parâmetro</strong> (ver parâmetros operacionais já existentes em <code>/admin/parametros</code>), e não constante.</li><li>Renovação exige <strong>atualização de dados</strong>: a regra de negócio diz que cadastro "desatualizado" também faz perder a base. O backend precisa definir o que é "desatualizado" (sugestão: <code>cadastro_atualizado_em</code> mais antigo que N meses, com N parametrizável).</li><li><code>POST /correspondentes/{id}/renovar-cadastro</code> deve exigir <strong>step-up (TOTP)</strong>, pois muda a elegibilidade de pagamento e de posse de clientes.</li></ul>
+<hr>
+<h2 id="5-regras-de-perda-de-base">5. Regras de perda de base</h2>
+<p>Três gatilhos encerram um vínculo <code>VIGENTE</code>:</p>
+<div class="tabela"><table><thead><tr><th>#</th><th>Gatilho</th><th><code>motivo_fim</code></th><th>Quem detecta</th></tr></thead><tbody><tr><td>1</td><td>Cadastro do correspondente vencido ou desatualizado</td><td><code>CADASTRO_VENCIDO</code></td><td>Job diário</td></tr><tr><td>2</td><td>Proposta do cliente assinada <strong>sem citar</strong> o correspondente</td><td><code>PROPOSTA_SEM_CITACAO</code></td><td>Evento de assinatura</td></tr><tr><td>3</td><td>Cliente elege outro correspondente ou o SEP direto</td><td><code>ELEICAO_CLIENTE</code></td><td>Ação registrada</td></tr></tbody></table></div>
+<p>Depois da perda, o cliente pode eleger outro correspondente ou ficar direto com o SEP (<code>correspondente_id</code> nulo, <code>status = DIRETO_SEP</code>).</p>
+<h3 id="5-1-job-de-vigencia">5.1 Job de vigência</h3>
+<ul><li>Agendado (diário), <strong>idempotente</strong> (rodar duas vezes no mesmo dia não encerra nada em duplicidade), com lock distribuído para não rodar em paralelo em duas instâncias.</li><li>Registra em auditoria cada vínculo encerrado: quem (sistema), quando, motivo, correspondente afetado.</li><li>Notifica o correspondente em <strong>D-30, D-7 e D-0</strong> (o front já tem o serviço de notificações para consumir isso).</li><li>No front há o botão "Apurar vigências (simulação)", que chama <code>POST /correspondentes/vigencia/processar</code>. <strong>Em produção esse endpoint não deve existir como ação de tela</strong>: ou some, ou fica restrito a ADMIN com step-up para reprocessamento manual.</li></ul>
+<h3 id="5-2-citacao-do-correspondente-na-proposta">5.2 Citação do correspondente na proposta</h3>
+<p>A regra 2 só é verificável se a proposta registrar <strong>quem foi citado</strong>. Pedido ao backend:</p>
+<ul><li>Campo <code>correspondente_informado_id</code> na proposta (nulo = nenhum), preenchido no fluxo de formalização.</li><li>No evento de assinatura, comparar com o vínculo vigente do cliente. Divergência encerra o vínculo (<code>PROPOSTA_SEM_CITACAO</code>).</li></ul>
+<p><strong>Por quê:</strong> sem esse dado o gatilho não é auditável; viraria julgamento manual.</p>
+<p><strong>EM ABERTO (negócio):</strong> se o cliente cita <strong>outro</strong> correspondente na proposta, o vínculo passa automaticamente a esse outro (<code>ELEICAO_CLIENTE</code>) ou depende de confirmação do SEP?</p>
+<hr>
+<h2 id="6-endpoints-contrato-que-o-front-consome">6. Endpoints (contrato que o front consome)</h2>
+<p>Base: <code>/api/v1</code>. Os tipos exatos estão em <code>src/app/core/correspondentes/correspondentes.models.ts</code>.</p>
+<h3 id="administracao-admin">Administração (ADMIN)</h3>
+<div class="tabela"><table><thead><tr><th>Método</th><th>Rota</th><th>Descrição</th><th>Observação</th></tr></thead><tbody><tr><td>GET</td><td><code>/correspondentes</code></td><td>Rede e indicadores consolidados</td><td>Paginar quando a rede crescer</td></tr><tr><td>GET</td><td><code>/correspondentes/{id}</code></td><td>Detalhe</td><td>404 se inexistente</td></tr><tr><td>GET</td><td><code>/correspondentes/{id}/vinculos</code></td><td>Vínculos vigentes e encerrados</td><td>Inclui histórico</td></tr><tr><td>POST</td><td><code>/correspondentes/{id}/renovar-cadastro</code></td><td>Renova validade <code>{ novaValidade }</code></td><td><strong>Step-up</strong>; auditar</td></tr><tr><td>POST</td><td><code>/correspondentes/vinculos/{id}/reatribuir</code></td><td>`{ correspondenteDestinoId \</td><td>null }`</td><td><strong>Step-up</strong>; auditar; encerra e cria vínculo</td></tr><tr><td>POST</td><td><code>/correspondentes/vigencia/processar</code></td><td>Apuração manual</td><td>Ver seção 5.1</td></tr></tbody></table></div>
+<h3 id="correspondente-correspondente-sempre-a-propria-base">Correspondente (CORRESPONDENTE) — sempre a própria base</h3>
+<div class="tabela"><table><thead><tr><th>Método</th><th>Rota</th><th>Descrição</th></tr></thead><tbody><tr><td>GET</td><td><code>/correspondentes/me/resumo</code></td><td>Cadastro, contadores e comissão prevista</td></tr><tr><td>GET</td><td><code>/correspondentes/me/base</code></td><td>Clientes vinculados e histórico</td></tr><tr><td>GET</td><td><code>/correspondentes/me/operacoes</code></td><td>Propostas e contratos dos clientes da base, <strong>com parcelas</strong> (ver seção 6.1)</td></tr><tr><td>GET</td><td><code>/correspondentes/me/envios</code></td><td>Envios de documentos próprios</td></tr><tr><td>POST</td><td><code>/correspondentes/me/envios</code></td><td>Cria envio (ver seção 7)</td></tr></tbody></table></div>
+<h3 id="6-1-acompanhamento-da-carteira-contratos-e-parcelas">6.1 Acompanhamento da carteira (contratos e parcelas)</h3>
+<p>O correspondente captou o cliente e é quem faz o acompanhamento, então precisa ver <strong>se o contrato está em dia e quanto vale a parcela</strong>. O front já consome isto:</p>
+<ul><li><code>GET /correspondentes/me/operacoes</code> devolve, por operação: número, tipo (<code>PROPOSTA</code> ou <code>CONTRATO</code>), produto, situação (<code>EM_ANALISE</code>, <code>EM_FORMALIZACAO</code>, <code>EM_DIA</code>, <code>EM_ATRASO</code>, <code>QUITADO</code>, <code>RECUSADA</code>), valor contratado, <strong>valor da parcela</strong>, total e pagas, parcelas vencidas, valor pago, <strong>valor em atraso</strong>, saldo a receber, próximo vencimento e a lista de parcelas (número, vencimento, valor, situação, data de pagamento, dias de atraso).</li><li><code>GET /correspondentes/me/resumo</code> traz o bloco <code>carteira</code>: contratos ativos, valor contratado, valor em atraso, saldo a receber, parcelas pagas, a vencer e vencidas, <strong>inadimplência (%)</strong>, contagem por situação e o valor a receber nos próximos seis meses (alimenta os gráficos).</li><li><code>GET /correspondentes</code> (ADMIN) passa a trazer, por correspondente, <code>valorCarteira</code>, <code>valorEmAtraso</code> e <code>inadimplenciaPct</code>.</li></ul>
+<p><strong>Regras:</strong></p>
+<ol><li><strong>Origem dos dados:</strong> são derivados de Formalização (contrato) e Cobrança (parcelas). O correspondente <strong>não escreve</strong> nada neles. Recomendo um *read model* próprio (visão ou tabela de leitura) para não expor as tabelas operacionais e para a consulta da base ser barata.</li><li><strong>Escopo pelo vínculo vigente:</strong> só entram operações de clientes com <strong>vínculo vigente</strong> com o correspondente. Perdida a base, <strong>a leitura acaba junto</strong>, inclusive do que já foi contratado. *Por quê:* o vínculo é o que legitima o acesso a dados do cliente. Manter a leitura depois da perda seria acesso sem base legal.</li><li><strong>Inadimplência:</strong> parcelas vencidas ÷ parcelas já devidas (vencidas mais as pagas). Fixar essa definição com a Cobrança, para o número do correspondente bater com o da cobrança.</li><li><strong>Minimização:</strong> o correspondente vê situação, valores e parcelas. <strong>Não</strong> vê score, renda, parecer de crédito nem dados de pagamento do cliente além do status.</li><li><strong>Desempenho:</strong> o resumo é consultado a cada abertura do painel; calcular no banco com índice por <code>vinculo</code> e, se preciso, materializar por correspondente.</li></ol>
+<h3 id="backoffice-backoffice-financeiro-admin">Backoffice (BACKOFFICE, FINANCEIRO, ADMIN)</h3>
+<div class="tabela"><table><thead><tr><th>Método</th><th>Rota</th><th>Descrição</th></tr></thead><tbody><tr><td>GET</td><td><code>/backoffice/correspondentes/envios</code></td><td>Envios para validação</td></tr><tr><td>POST</td><td><code>/backoffice/correspondentes/envios/{id}/validar</code></td><td>`{ decisao: VALIDAR \</td><td>DEVOLVER, observacao }`</td></tr></tbody></table></div>
+<h3 id="codigos-de-erro-esperados">Códigos de erro esperados</h3>
+<div class="tabela"><table><thead><tr><th>Código</th><th>Quando</th></tr></thead><tbody><tr><td>400</td><td>Atesto ausente; cliente ou documentos ausentes; devolução sem observação; data inválida</td></tr><tr><td>403</td><td>Papel sem acesso à rota</td></tr><tr><td>404</td><td>Recurso inexistente <strong>ou de outro correspondente</strong></td></tr><tr><td>409</td><td>Envio com cadastro <code>VENCIDO</code> ou <code>SUSPENSO</code>; vínculo já encerrado; segundo vínculo vigente</td></tr><tr><td>422</td><td>Acúmulo de papéis proibido</td></tr></tbody></table></div>
+<p>O formato de erro é o mesmo do restante da API (<code>ApiErrorResponse</code>), que o front já trata.</p>
+<hr>
+<h2 id="7-envio-de-documentos-atesto-e-fila-do-backoffice">7. Envio de documentos, atesto e fila do backoffice</h2>
+<p>Fluxo: correspondente envia → atesta que <strong>conferiu os documentos com os originais</strong> → envio fica <code>EM_VALIDACAO</code> e é sinalizado como formalizado → entra na fila operacional → backoffice <strong>valida ou devolve</strong> (devolução exige motivo) → correspondente acompanha o retorno.</p>
+<h3 id="7-1-o-atesto-e-registro-juridico">7.1 O atesto é registro jurídico</h3>
+<p>Gravar, de forma imutável: <code>correspondente_id</code>, data e hora, IP, <strong>versão do texto</strong> do atesto exibido e o identificador do envio. O front envia <code>atestoConferencia: true</code>; o servidor <strong>não confia</strong> nisso sozinho e deve registrar a versão do texto vigente.</p>
+<p><strong>Por quê:</strong> se um documento se mostrar adulterado, o SEP precisa provar quem atestou, quando e sob qual declaração.</p>
+<h3 id="7-2-upload-real-hoje-o-front-so-envia-nome-e-tipo">7.2 Upload real (hoje o front só envia nome e tipo)</h3>
+<p>A tela atual mostra o seletor de arquivo, mas <strong>não transmite o conteúdo</strong>: depende do contrato de armazenamento. Requisitos sugeridos:</p>
+<ul><li>Tipos permitidos (PDF, JPEG, PNG), tamanho máximo, quantidade máxima por envio, todos parametrizados.</li><li>Varredura antivírus antes de disponibilizar ao backoffice.</li><li>Hash <strong>SHA-256</strong> de cada arquivo, o mesmo padrão já usado nas versões de contrato da Formalização.</li><li>Armazenamento fora do banco, com chave não previsível e URL assinada de curta duração para leitura.</li><li>Documentos de terceiros <strong>mascarados</strong> em listagens (padrão já adotado nas telas).</li></ul>
+<h3 id="7-3-integracao-com-a-fila">7.3 Integração com a fila</h3>
+<p>O envio deve gerar um item na fila operacional. Hoje <code>TipoItemFila</code> não tem tipo para isso.</p>
+<ul><li>Sugestão: novo valor <code>DOCUMENTOS_CORRESPONDENTE</code>, com prioridade e SLA parametrizáveis.</li><li>O front hoje lista os envios em <code>/app/backoffice/correspondentes</code>. Quando o tipo existir, o item também aparecerá em <code>/app/backoffice/fila</code> e essa tela passa a ser o detalhe do item.</li><li><strong>Atenção:</strong> o front tem mapas fechados por <code>TipoItemFila</code>. Acrescentar o tipo exige um ajuste coordenado no front; avisar antes de publicar.</li></ul>
+<hr>
+<h2 id="8-comissionamento-e-pagamento-via-pix">8. Comissionamento e pagamento via Pix</h2>
+<blockquote><strong>Nada disto foi implementado no front além de um valor fictício de "comissão prevista".</strong> Depende de validação jurídica e fiscal (seção 11).</blockquote>
+<h3 id="8-1-regras-configuraveis-nunca-no-codigo">8.1 Regras configuráveis, nunca no código</h3>
+<p>Reaproveitar a infraestrutura de <strong>parâmetros operacionais versionados</strong> (já usada para o teto de crédito), com alteração auditada, justificativa e step-up.</p>
+<p>Tabela <code>comissao_regra</code> (versionada): produto, base de cálculo (valor liberado, parcela recebida), percentual ou valor fixo, gatilho de pagamento, período de apuração, vigência da regra, correspondente específico (opcional).</p>
+<p><strong>Por quê:</strong> as regras vão mudar por produto, por período e por correspondente. Código fixo obrigaria publicação a cada ajuste comercial.</p>
+<h3 id="8-2-ledger-imutavel">8.2 Ledger imutável</h3>
+<p><code>comissao_lancamento</code>: nunca se altera nem se apaga. Correção é <strong>novo lançamento</strong> (estorno com sinal contrário) referenciando o original.</p>
+<p>Campos: <code>correspondente_id</code>, <code>vinculo_id</code>, <code>regra_id</code> (versão usada), <code>evento_origem</code> (contrato/parcela), <code>valor</code>, <code>competencia</code>, <code>status</code> (<code>PREVISTA</code>, <code>DISPONIVEL</code>, <code>PAGA</code>, <code>ESTORNADA</code>), <code>data_evento</code>.</p>
+<p><strong>Por quê:</strong> é a única forma de reconstruir, meses depois, por que um correspondente recebeu determinado valor. Também sustenta o estorno em cancelamento.</p>
+<h3 id="8-3-atribuicao-ao-vinculo-vigente-na-data-do-evento">8.3 Atribuição ao vínculo vigente na data do evento</h3>
+<p>Cada lançamento aponta para o <code>vinculo_id</code> vigente <strong>na data do evento gerador</strong>. Assim, perder a base depois não apaga comissão já gerada, e eventos posteriores à perda não geram comissão para quem perdeu.</p>
+<p><strong>EM ABERTO (negócio):</strong> a comissão <strong>recorrente</strong> (por parcela recebida) continua após a perda do vínculo, ou corta na data da perda? Recomendo decidir antes de modelar o gatilho, pois muda o ledger.</p>
+<h3 id="8-4-pagamento-via-pix-do-sep">8.4 Pagamento via Pix do SEP</h3>
+<p>Reaproveitar o fluxo Pix existente de desembolso, com os mesmos controles:</p>
+<ul><li><strong>Step-up (TOTP)</strong> na autorização do lote de pagamento.</li><li><strong>Idempotência</strong> por <code>(correspondente, competência, lote)</code>: reenvio não paga duas vezes.</li><li><strong>Conciliação</strong> com o retorno do provedor; item pago só vira <code>PAGA</code> após confirmação.</li><li>Chave Pix do correspondente <strong>validada e titularidade conferida</strong> com o CPF cadastrado (pagar a conta de terceiro é o vetor clássico de fraude).</li><li>Segregação de funções: quem <strong>configura</strong> regra não é quem <strong>autoriza</strong> o pagamento.</li></ul>
+<hr>
+<h2 id="9-auditoria">9. Auditoria</h2>
+<p>Registrar, com autor, data e hora, IP e valores antes e depois:</p>
+<ul><li>cadastro, atualização, renovação, suspensão e inativação de correspondente;</li><li>criação, encerramento, transferência e reatribuição de vínculo (incluindo o motivo);</li><li>criação e decisão de envio de documentos;</li><li>alteração de regra de comissão e autorização de pagamento;</li><li>toda leitura de dados de cliente por correspondente (log de acesso, ver seção 10).</li></ul>
+<p><strong>Por quê:</strong> é o que sustenta a resposta a um titular (LGPD), a uma fiscalização e a uma disputa de comissão.</p>
+<hr>
+<h2 id="10-lgpd-e-seguranca">10. LGPD e segurança</h2>
+<ul><li><strong>Base legal e finalidade:</strong> o correspondente trata dados do cliente em nome do SEP. Definir se atua como operador, formalizar em contrato e registrar o <strong>termo de ciência/autorização do cliente</strong> para o tratamento e o envio de documentos. Validar com o jurídico/DPO.</li><li><strong>Minimização:</strong> o correspondente vê apenas o necessário para captar e acompanhar a própria base: documento mascarado, situação do vínculo e, dos contratos que captou, situação, valor da parcela, parcelas e atraso (seção 6.1). Não expor renda, score nem parecer de crédito. O acesso a esses dados cessa quando o vínculo deixa de estar vigente.</li><li><strong>MFA obrigatório</strong> para o papel <code>CORRESPONDENTE</code>, dado o volume de dados pessoais e o impacto financeiro. O fluxo TOTP já existe.</li><li><strong>Rate limit</strong> nas rotas <code>/me/*</code> e no upload; bloqueio e alerta em padrão anormal de consulta.</li><li><strong>Sessão</strong> com expiração curta e invalidação imediata quando o cadastro passa a <code>VENCIDO</code>, <code>SUSPENSO</code> ou <code>INATIVO</code>: um correspondente suspenso não pode continuar operando com o token em curso.</li><li><strong>Retenção:</strong> definir prazo de guarda dos documentos enviados e dos logs, e rotina de descarte.</li></ul>
+<hr>
+<h2 id="11-pontos-que-dependem-do-juridico-e-do-fiscal-em-aberto">11. Pontos que dependem do jurídico e do fiscal (EM ABERTO)</h2>
+<p>Não são decisões de código; o front só reflete o que for definido.</p>
+<ol><li><strong>Enquadramento regulatório.</strong> Se o modelo do SEP admite correspondente <strong>pessoa física</strong>, e em que condições de contrato, registro e responsabilidade. A norma de correspondentes no País é a Resolução CMN 4.935/2021; confirmar aplicabilidade e vigência com o jurídico.</li><li><strong>Tributação da comissão paga a pessoa física</strong> (retenções e documento fiscal ou recibo). Muda o dado que o pagamento carrega e o ledger.</li><li><strong>Responsabilidade do correspondente pelo atesto</strong> e consequência de atesto falso, em contrato.</li><li><strong>Base legal LGPD</strong> e papel de operador/controlador.</li><li><strong>Prazo de validade do cadastro</strong> e o que caracteriza "desatualizado".</li></ol>
+<hr>
+<h2 id="12-testes-de-aceite-sugeridos">12. Testes de aceite sugeridos</h2>
+<ol><li>Correspondente A não lê, por identificador, nenhum recurso do B (404 em todos os endpoints).</li><li><code>CORRESPONDENTE</code> recebe 403 em Crédito, Formalização, Cobrança, Pix e Backoffice.</li><li>Cadastro vencido: a apuração encerra os vínculos com <code>CADASTRO_VENCIDO</code>; rodar de novo não duplica.</li><li>Dois vínculos vigentes para o mesmo cliente são impossíveis (constraint).</li><li>Envio sem atesto, com cadastro vencido ou com arquivo inválido é rejeitado.</li><li>Devolução sem observação é rejeitada.</li><li>Renovação e reatribuição sem step-up são rejeitadas.</li><li>Comissão gerada antes da perda do vínculo permanece; evento posterior não gera.</li><li>Pagamento reenviado não paga duas vezes (idempotência).</li><li>O correspondente só lê contratos e parcelas de clientes com vínculo vigente; ao perder o vínculo, a consulta volta vazia (e o contrato do ex-cliente responde 404).</li><li>A inadimplência da carteira bate com a da Cobrança para o mesmo conjunto de contratos.</li></ol>
+<hr>
+<h2 id="13-sugestao-de-entrega-em-fases">13. Sugestão de entrega em fases</h2>
+<div class="tabela"><table><thead><tr><th>Fase</th><th>Backend entrega</th><th>Front entrega (já pronto com mock)</th></tr></thead><tbody><tr><td>1</td><td>Papel, entidade <code>correspondente</code>, ciclo de vida, vínculo, endpoints <code>/me/resumo</code> e <code>/me/base</code>, auditoria</td><td>Meu Back Office, Rede, Detalhe</td></tr><tr><td>1b</td><td><code>/me/operacoes</code> e bloco <code>carteira</code> (read model de contratos e parcelas, seção 6.1)</td><td>Painel com gráficos, Contratos, Detalhe das parcelas</td></tr><tr><td>1c</td><td>Funil, agenda, comissões (livro e regras), metas, desempenho, auditoria e relatórios (seções 15 a 18)</td><td>Prospecção, Agenda, Comissões, Desempenho, Relatórios, e as três telas da administração</td></tr><tr><td>2</td><td>Upload real, atesto registrado, tipo de item na fila, <code>/me/envios</code>, validação</td><td>Envio de documentos, Envios de correspondentes</td></tr><tr><td>3</td><td>Job de vigência, avisos D-30/D-7/D-0, campo de citação na proposta</td><td>Avisos no painel, notificações</td></tr><tr><td>4</td><td>Regras e ledger de comissão, pagamento via Pix</td><td>Comissões, relatórios (ainda não construídos)</td></tr><tr><td>5</td><td>Metas, ranking, performance da rede</td><td>Painéis da rede (ainda não construídos)</td></tr></tbody></table></div>
+<p>A fase 1 pode começar sem decisão jurídica. As fases 3 e 4 dependem da seção 11.</p>
+<hr>
+<h2 id="14-como-o-front-troca-o-mock-pelo-backend">14. Como o front troca o mock pelo backend</h2>
+<ul><li>Os contratos estão em <code>src/app/core/correspondentes/correspondentes.models.ts</code> e o transporte em <code>correspondentes.service.ts</code>. Se o backend seguir os nomes e formatos acima, <strong>não há alteração de tela</strong>: basta o ambiente apontar para a API real.</li><li>O mock vive em <code>src/mocks/correspondentes.handlers.ts</code> e <code>src/mocks/data/correspondentes.store.ts</code>, e espelha as regras desta seção. Ele pode servir de <strong>especificação executável</strong>: o spec <code>correspondentes.store.spec.ts</code> descreve em testes o comportamento esperado de vigência, reatribuição e validação.</li><li>Qualquer diferença de nome ou formato deve ser combinada antes: o front ajusta o tipo, não a tela.</li></ul>
+<hr>
+<h2 id="15-funil-de-prospeccao-e-agenda-de-relacionamento">15. Funil de prospecção e agenda de relacionamento</h2>
+<p><strong>Para quê:</strong> o módulo não pode começar só quando o cliente contrata. O correspondente precisa organizar quem ainda não contratou e registrar o relacionamento.</p>
+<h3 id="endpoints-todos-correspondentes-me-sempre-a-propria-base">Endpoints (todos <code>/correspondentes/me/*</code>, sempre a própria base)</h3>
+<div class="tabela"><table><thead><tr><th>Método</th><th>Rota</th><th>Descrição</th></tr></thead><tbody><tr><td>GET</td><td><code>/me/prospects</code></td><td>Prospects do correspondente, em todas as etapas</td></tr><tr><td>POST</td><td><code>/me/prospects</code></td><td>Cria prospect (nasce <code>PROSPECTADO</code>)</td></tr><tr><td>PATCH</td><td><code>/me/prospects/{id}/etapa</code></td><td><code>{ etapa, motivoPerda? }</code>; <code>PERDIDO</code> exige motivo</td></tr><tr><td>GET</td><td><code>/me/interacoes</code></td><td>Compromissos e histórico</td></tr><tr><td>POST</td><td><code>/me/interacoes</code></td><td>Registra (já ocorreu) ou agenda (futuro)</td></tr><tr><td>POST</td><td><code>/me/interacoes/{id}/concluir</code></td><td>Conclui um compromisso</td></tr></tbody></table></div>
+<h3 id="regras">Regras</h3>
+<ol><li><strong>Etapas:</strong> <code>PROSPECTADO → CONTATADO → EM_NEGOCIACAO → DOCUMENTACAO → ANALISE_CREDITO → APROVADO → CONTRATADO → ATIVO</code>, mais <code>PERDIDO</code> (com motivo). <strong><code>ANALISE_CREDITO</code>, <code>APROVADO</code> e <code>CONTRATADO</code> não podem ser definidas pelo correspondente de forma livre</strong>: devem refletir o estado real da proposta na esteira do SEP. *Por quê:* o princípio da seção 1. Se o correspondente pudesse marcar "aprovado", o funil viraria uma declaração dele sobre uma decisão que não é dele. No mock a tela deixa avançar todas as etapas para demonstrar o fluxo; <strong>no backend, as etapas de decisão são derivadas, e o correspondente só move as etapas comerciais</strong> (até <code>DOCUMENTACAO</code>).</li><li><strong>Status da interação:</strong> <code>REGISTRADA</code>, <code>AGENDADA</code>, <code>CONCLUIDA</code> e <code>ATRASADA</code>. <code>ATRASADA</code> é <strong>derivada</strong> (agendada com data vencida), e não gravada: evita job e inconsistência.</li><li><strong>Conflito de captação:</strong> o mesmo CPF/CNPJ pode ser prospectado por dois correspondentes, ou já ser cliente de um deles. Definir a regra de <strong>primeiro registro vigente</strong> e como o conflito é tratado (bloqueio, aviso ao administrador, ou disputa). <strong>EM ABERTO (negócio).</strong> *Por quê:* sem regra, o prospect vira fonte de disputa de comissão.</li><li><strong>Do prospect ao cliente:</strong> ao ser contratado, o prospect gera o vínculo (seção 3) com <code>origem = CAPTACAO</code>. O elo prospect → vínculo deve ser gravado.</li></ol>
+<h3 id="lgpd">LGPD</h3>
+<p>Prospect é dado pessoal coletado <strong>antes</strong> de qualquer relação. Definir a base legal (consentimento ou legítimo interesse, com teste de balanceamento), a finalidade, o <strong>prazo de retenção</strong> (sugestão: descarte de <code>PERDIDO</code> e de prospect inativo após prazo parametrizado) e o direito de exclusão. Minimizar: nome, tipo, telefone, produto e valor estimado. Não coletar documento no funil.</p>
+<hr>
+<h2 id="16-comissionamento-metas-desempenho-e-ranking">16. Comissionamento, metas, desempenho e ranking</h2>
+<h3 id="16-1-comissionamento-detalhamento-da-secao-8">16.1 Comissionamento (detalhamento da seção 8)</h3>
+<div class="tabela"><table><thead><tr><th>Método</th><th>Rota</th><th>Papel</th><th>Descrição</th></tr></thead><tbody><tr><td>GET</td><td><code>/me/comissoes</code></td><td>CORRESPONDENTE</td><td>Resumo e lançamentos próprios</td></tr><tr><td>GET</td><td><code>/comissoes/regras</code></td><td>ADMIN</td><td>Regras vigentes</td></tr><tr><td>PUT</td><td><code>/comissoes/regras/{id}</code></td><td>ADMIN</td><td><code>{ percentual, justificativa }</code>; cria <strong>nova versão</strong></td></tr><tr><td>GET</td><td><code>/comissoes/lancamentos</code></td><td>ADMIN</td><td>Livro da rede</td></tr></tbody></table></div>
+<ul><li><strong>Regra versionada com vigência por data:</strong> a versão aplicada a um evento é a <strong>vigente na data do evento</strong>, e o lançamento <strong>grava a versão usada</strong>. Alterar a regra hoje <strong>não</strong> recalcula o passado. *Aviso:* o mock recalcula pela regra vigente para ser simples; <strong>isso não deve ser copiado</strong>.</li><li><strong>Percentual:</strong> o front limita a faixa (0 a 20%) só como conveniência; o limite real é do backend, e a alteração exige <strong>justificativa</strong>, <strong>step-up (TOTP)</strong> e <strong>segregação de funções</strong> (quem altera regra não autoriza pagamento).</li><li><strong>Situações:</strong> <code>PREVISTA</code> (parcela ainda a vencer), <code>DISPONIVEL</code>, <code>PAGA</code>, <code>ESTORNADA</code>. Parcela vencida e não paga <strong>não gera</strong> comissão. Estorno é <strong>novo lançamento</strong> que referencia o original.</li><li><strong>Vínculo:</strong> o evento só gera comissão se ocorreu dentro da vigência do vínculo (seção 8.3). O que já foi gerado permanece depois da perda da base; o futuro deixa de nascer.</li></ul>
+<h3 id="16-2-metas-desempenho-e-ranking">16.2 Metas, desempenho e ranking</h3>
+<div class="tabela"><table><thead><tr><th>Método</th><th>Rota</th><th>Papel</th><th>Descrição</th></tr></thead><tbody><tr><td>GET</td><td><code>/me/desempenho</code></td><td>CORRESPONDENTE</td><td>Seus indicadores, sua meta e <strong>sua</strong> posição</td></tr><tr><td>GET</td><td><code>/desempenho</code></td><td>ADMIN</td><td>Ranking e metas da rede</td></tr><tr><td>PUT</td><td><code>/metas/{correspondenteId}</code></td><td>ADMIN</td><td><code>{ metaClientes, metaValorOriginado }</code></td></tr></tbody></table></div>
+<p><strong>Definições de indicador a fixar com a Cobrança e a Formalização</strong>, para o número do correspondente bater com o do restante do SEP:</p>
+<ul><li><strong>Clientes captados:</strong> vínculos criados por <code>CAPTACAO</code> no período.</li><li><strong>Crédito originado:</strong> soma do valor <strong>liberado</strong> (e não só proposto) dos contratos dos clientes captados.</li><li><strong>Conversão:</strong> prospects <code>CONTRATADO</code> ou <code>ATIVO</code> ÷ prospects cadastrados no período.</li><li><strong>Inadimplência:</strong> parcelas vencidas ÷ parcelas já devidas da carteira vigente.</li><li><strong>Atingimento da meta:</strong> média do atingimento de clientes e de valor (ou outra regra; <strong>EM ABERTO</strong>).</li></ul>
+<p><strong>Privacidade do ranking:</strong> o correspondente recebe <strong>só a própria posição e o total</strong> de correspondentes. Nomes e números dos demais ficam restritos ao ADMIN. *Por quê:* evita exposição entre concorrentes diretos da mesma rede e reduz risco de dados pessoais de terceiros.</p>
+<p><strong>Período da meta:</strong> o mock usa o ano. Definir periodicidade (mensal, trimestral, anual) e histórico das metas anteriores (a meta é versionada, como a regra).</p>
+<hr>
+<h2 id="17-auditoria">17. Auditoria</h2>
+<p><code>GET /correspondentes/auditoria</code> (ADMIN, <strong>somente leitura</strong>). Exportação em CSV pelo front, com neutralização de fórmulas (o utilitário do sistema já faz).</p>
+<h3 id="modelo-do-evento">Modelo do evento</h3>
+<pre><code>evento_auditoria
+  id, quando (timestamp com fuso), ator (usuário), papel, acao, entidade, entidade_id,
+  detalhe (texto legível), valores_antes (json), valores_depois (json), ip, user_agent, origem</code></pre>
+<h3 id="catalogo-minimo-de-acoes">Catálogo mínimo de ações</h3>
+<p><code>CADASTRO_RENOVADO</code>, <code>VINCULO_REATRIBUIDO</code>, <code>VINCULO_ENCERRADO</code>, <code>ENVIO_CRIADO</code>, <code>ENVIO_VALIDADO</code>, <code>ENVIO_DEVOLVIDO</code>, <code>REGRA_COMISSAO_ALTERADA</code>, <code>META_ALTERADA</code>, <code>PROSPECT_CRIADO</code>, <code>PROSPECT_MOVIDO</code>, <code>INTERACAO_REGISTRADA</code>. Acrescentar: aprovação e suspensão de correspondente, geração e autorização de pagamento de comissão, <strong>leitura de dados de cliente por correspondente</strong> e login/logout.</p>
+<h3 id="requisitos">Requisitos</h3>
+<ol><li><strong>Append-only:</strong> nenhum perfil, nem ADMIN, edita ou apaga evento. Considerar encadeamento por hash (cada evento guarda o hash do anterior) para detectar adulteração.</li><li><strong>Gravar na mesma transação</strong> da alteração: ou os dois acontecem, ou nenhum. *Por quê:* auditoria que pode ficar para trás não prova nada.</li><li><strong>Valores antes e depois</strong> para alterações de regra, meta, validade e vínculo.</li><li><strong>Quem audita:</strong> hoje ADMIN. Recomendo um perfil de <strong>auditoria/compliance</strong> separado, para que o administrador não seja o único a revisar as próprias ações.</li><li><strong>Retenção:</strong> prazo definido com o jurídico; o log de acesso a dado pessoal tem prazo próprio.</li><li><strong>Sem excesso de dado pessoal no <code>detalhe</code>:</strong> usar o identificador e mascarar documento.</li></ol>
+<hr>
+<h2 id="18-relatorios">18. Relatórios</h2>
+<p>O front gera hoje cinco relatórios CSV do correspondente (carteira, parcelas, comissões, funil e agenda) e três da administração (comissões da rede, desempenho e auditoria), <strong>a partir dos dados que a API já devolveu</strong> à própria pessoa. Isso evita endpoint extra, mas tem limite.</p>
+<p><strong>Para o backend:</strong></p>
+<ul><li>Relatório grande ou de longo período deve ser <strong>gerado no servidor</strong> (assíncrono, com notificação), <strong>com a mesma regra de escopo</strong> das telas, e entregue por URL assinada e de curta duração.</li><li>Registrar em auditoria <strong>quem exportou o quê</strong>.</li><li>Manter a neutralização de <strong>injeção de fórmula</strong> em CSV e o BOM para abrir acentos no Excel.</li><li>Não incluir no relatório do correspondente nenhum dado que a tela dele não mostra.</li></ul>
+<hr>
+<h2 id="19-testes-de-aceite-adicionais">19. Testes de aceite adicionais</h2>
+<ol><li>Correspondente A não lê nem altera prospect, interação, comissão ou desempenho do B (404).</li><li>O correspondente não consegue levar um prospect às etapas de decisão (<code>ANALISE_CREDITO</code>, <code>APROVADO</code>, <code>CONTRATADO</code>) por conta própria.</li><li>Alterar regra de comissão cria nova versão, exige justificativa e TOTP, e <strong>não altera lançamentos já gerados</strong>; o lançamento novo registra a versão aplicada.</li><li>Parcela vencida e não paga não gera comissão; parcela paga gera uma vez só (idempotência por parcela).</li><li>Após a perda do vínculo, o que já foi gerado permanece e eventos posteriores não geram comissão.</li><li>O correspondente vê a própria posição no ranking e nenhum dado de outro correspondente.</li><li>Toda alteração de regra, meta, vínculo e envio grava evento de auditoria <strong>na mesma transação</strong>, e a tentativa de editar ou apagar um evento é recusada.</li><li>Exportação de relatório respeita o escopo e neutraliza fórmulas em CSV.</li></ol>
+  </main>
+</body>
+</html>

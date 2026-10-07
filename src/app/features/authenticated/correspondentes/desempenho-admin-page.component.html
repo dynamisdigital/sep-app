@@ -1,0 +1,203 @@
+<sep-operational-shell>
+  <main class="cor-page">
+    <header class="cor-hero">
+      <div>
+        <p class="cor-crumbs">
+          <a routerLink="/app/dashboard">Início</a> ›
+          <a routerLink="/app/correspondentes">Rede de Correspondentes</a> ›
+          <strong>Desempenho</strong>
+        </p>
+        <h1>Desempenho da rede</h1>
+        <p>Ranking, metas e qualidade da carteira de cada correspondente.</p>
+      </div>
+      <button type="button" class="cor-btn secundario" (click)="exportar()">
+        <lucide-icon name="download" [size]="14" [strokeWidth]="2" /> Exportar CSV
+      </button>
+    </header>
+
+    @if (erro()) {
+      <div class="cor-erro" role="alert">{{ erro() }}</div>
+    }
+    @if (aviso()) {
+      <div class="cor-aviso" data-tone="green" role="status">{{ aviso() }}</div>
+    }
+
+    @if (carregando()) {
+      <p class="cor-estado" role="status">Carregando o desempenho...</p>
+    } @else {
+      <section class="cor-kpis" aria-label="Totais da rede">
+        <article class="cor-kpi" data-tone="green">
+          <small>Crédito originado</small>
+          <strong>{{ moeda(totais().originado) }}</strong>
+          <span>soma da rede</span>
+          <lucide-icon name="wallet" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi">
+          <small>Clientes captados</small>
+          <strong>{{ totais().clientes }}</strong>
+          <span>vínculos desde o início</span>
+          <lucide-icon name="users" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" data-tone="amber">
+          <small>Comissão gerada</small>
+          <strong>{{ moeda(totais().comissao) }}</strong>
+          <span>paga e disponível</span>
+          <lucide-icon name="banknote" [size]="34" [strokeWidth]="1.25" />
+        </article>
+      </section>
+
+      <section class="cor-grid">
+        <article class="cor-card cor-card-largo" data-tour="cor-ranking">
+          <header class="cor-card-titulo">
+            <lucide-icon name="trophy" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2>Ranking de correspondentes</h2>
+              <p>Ordene pelo critério que quiser</p>
+            </div>
+          </header>
+          <div
+            class="cor-filtros"
+            role="group"
+            aria-label="Critério do ranking"
+            style="margin-bottom: 12px"
+          >
+            @for (c of criterios; track c.chave) {
+              <button
+                type="button"
+                [class.ativo]="criterio() === c.chave"
+                (click)="criterio.set(c.chave)"
+              >
+                {{ c.rotulo }}
+              </button>
+            }
+          </div>
+          <div class="cor-tabela-wrap">
+            <table class="cor-tabela">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Correspondente</th>
+                  <th class="num">Clientes</th>
+                  <th class="num">Conversão</th>
+                  <th class="num">Originado</th>
+                  <th class="num">Contratos</th>
+                  <th class="num">Inadimpl.</th>
+                  <th class="num">Comissão</th>
+                  <th class="num">Meta</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (r of ranking(); track r.correspondenteId; let i = $index) {
+                  <tr>
+                    <td>{{ i + 1 }}º</td>
+                    <td>{{ r.nome }}</td>
+                    <td class="num">{{ r.clientesCaptados }}</td>
+                    <td class="num">{{ pct(r.taxaConversaoPct) }}</td>
+                    <td class="num">{{ moeda(r.valorOriginado) }}</td>
+                    <td class="num">{{ r.contratos }}</td>
+                    <td class="num">{{ pct(r.inadimplenciaPct) }}</td>
+                    <td class="num">{{ moeda(r.comissaoGerada) }}</td>
+                    <td class="num">{{ pct(r.atingimentoMetaPct) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="cor-card">
+          <header class="cor-card-titulo">
+            <lucide-icon name="chart-column" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2>Crédito originado</h2>
+              <p>Por correspondente</p>
+            </div>
+          </header>
+          <sep-cor-barras
+            [itens]="barras()"
+            [formato]="moedaCurta"
+            descricao="Crédito originado por correspondente"
+          />
+        </article>
+      </section>
+
+      <section class="cor-card" aria-labelledby="cor-metas-admin" data-tour="cor-metas-admin">
+        <header class="cor-card-titulo">
+          <lucide-icon name="target" [size]="24" [strokeWidth]="1.5" />
+          <div>
+            <h2 id="cor-metas-admin">Metas</h2>
+            <p>Defina a meta do período; o atingimento é calculado sobre o realizado</p>
+          </div>
+        </header>
+        <div class="cor-tabela-wrap">
+          <table class="cor-tabela">
+            <thead>
+              <tr>
+                <th>Correspondente</th>
+                <th>Meta de clientes</th>
+                <th>Atingimento</th>
+                <th>Meta de crédito (R$)</th>
+                <th>Atingimento</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (m of rede()?.metas ?? []; track m.correspondenteId) {
+                <tr>
+                  <td>
+                    {{ nomeDe(m.correspondenteId) }}<small>período {{ m.periodo }}</small>
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      min="1"
+                      class="cor-input-mini"
+                      [attr.aria-label]="'Meta de clientes de ' + nomeDe(m.correspondenteId)"
+                      [name]="'mc-' + m.correspondenteId"
+                      [(ngModel)]="edicao[m.correspondenteId].metaClientes"
+                    />
+                    <small>realizado {{ m.realizadoClientes }}</small>
+                  </td>
+                  <td>
+                    <div class="cor-progresso" [attr.data-tone]="tom(m.atingimentoClientesPct)">
+                      <div><i [style.width.%]="largura(m.atingimentoClientesPct)"></i></div>
+                      <small>{{ pct(m.atingimentoClientesPct) }}</small>
+                    </div>
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      min="1"
+                      step="1000"
+                      class="cor-input-mini cor-input-largo"
+                      [attr.aria-label]="'Meta de crédito de ' + nomeDe(m.correspondenteId)"
+                      [name]="'mv-' + m.correspondenteId"
+                      [(ngModel)]="edicao[m.correspondenteId].metaValorOriginado"
+                    />
+                    <small>realizado {{ moeda(m.realizadoValorOriginado) }}</small>
+                  </td>
+                  <td>
+                    <div class="cor-progresso" [attr.data-tone]="tom(m.atingimentoValorPct)">
+                      <div><i [style.width.%]="largura(m.atingimentoValorPct)"></i></div>
+                      <small>{{ pct(m.atingimentoValorPct) }}</small>
+                    </div>
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      class="cor-btn"
+                      [attr.aria-label]="'Salvar meta de ' + nomeDe(m.correspondenteId)"
+                      (click)="salvarMeta(m.correspondenteId)"
+                    >
+                      Salvar
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+  </main>
+</sep-operational-shell>

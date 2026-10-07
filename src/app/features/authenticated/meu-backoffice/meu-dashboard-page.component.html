@@ -1,0 +1,201 @@
+<sep-operational-shell>
+  <main class="cor-page">
+    <header class="cor-hero" data-tour="cor-hero">
+      <div>
+        <p class="cor-crumbs">
+          <a routerLink="/app/dashboard">Início</a> › <strong>Meu Back Office</strong>
+        </p>
+        <h1>Meu Back Office</h1>
+        <p>Sua base, o que ela deve e a validade do seu cadastro, em um só lugar.</p>
+      </div>
+      @if (resumo(); as r) {
+        <div class="cor-hero-selo" [attr.data-tone]="tom[r.correspondente.status]">
+          <lucide-icon name="badge-check" [size]="30" [strokeWidth]="1.5" />
+          <div>
+            <strong>Cadastro {{ rotulo[r.correspondente.status].toLowerCase() }}</strong>
+            <small>validade {{ data(r.correspondente.validadeCadastro) }}</small>
+          </div>
+        </div>
+      }
+      <div class="cor-acoes">
+        <a class="cor-btn secundario" routerLink="/app/meu-backoffice/prospeccao">Prospecção</a>
+        <a class="cor-btn secundario" routerLink="/app/meu-backoffice/agenda">Agenda</a>
+        <a class="cor-btn secundario" routerLink="/app/meu-backoffice/comissoes">Comissões</a>
+        <a class="cor-btn secundario" routerLink="/app/meu-backoffice/contratos">Contratos</a>
+        <a class="cor-btn secundario" routerLink="/app/meu-backoffice/base">Minha base</a>
+        <a class="cor-btn" routerLink="/app/meu-backoffice/documentos">Enviar documentos</a>
+      </div>
+    </header>
+
+    @if (erro()) {
+      <div class="cor-erro" role="alert">{{ erro() }}</div>
+    }
+
+    @if (carregando()) {
+      <p class="cor-estado" role="status">Carregando o seu painel...</p>
+    } @else if (resumo(); as r) {
+      @if (r.correspondente.status === 'VENCIDO' || r.correspondente.status === 'SUSPENSO') {
+        <div class="cor-aviso" data-tone="red" role="alert">
+          <span>
+            <strong>Cadastro {{ rotulo[r.correspondente.status].toLowerCase() }}.</strong>
+            Você não pode enviar documentos e os clientes da sua base podem ser desvinculados.
+            Procure a administração do SEP para renovar e atualizar o cadastro.
+          </span>
+        </div>
+      } @else if (r.correspondente.status === 'A_VENCER') {
+        <div class="cor-aviso" data-tone="amber" role="status">
+          <span>
+            <strong>Seu cadastro {{ prazo(r.correspondente.diasParaVencer) }}.</strong>
+            Renove e atualize os dados antes de {{ data(r.correspondente.validadeCadastro) }} para
+            não perder a sua base.
+          </span>
+        </div>
+      }
+
+      <section class="cor-kpis" aria-label="Indicadores da carteira" data-tour="cor-kpis">
+        <article class="cor-kpi" data-tone="green">
+          <small>Clientes na base</small>
+          <strong>{{ r.vinculosVigentes }}</strong>
+          <span>vínculos vigentes</span>
+          <lucide-icon name="users" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi">
+          <small>Contratos ativos</small>
+          <strong>{{ r.carteira.contratosAtivos }}</strong>
+          <span>em dia ou em atraso</span>
+          <lucide-icon name="file-check" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi">
+          <small>Carteira contratada</small>
+          <strong>{{ moeda(r.carteira.valorContratado) }}</strong>
+          <span>soma dos contratos da base</span>
+          <lucide-icon name="wallet" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" data-tone="amber">
+          <small>A receber</small>
+          <strong>{{ moeda(r.carteira.saldoAReceber) }}</strong>
+          <span>parcelas em aberto</span>
+          <lucide-icon name="banknote" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" [attr.data-tone]="r.carteira.valorEmAtraso ? 'red' : 'green'">
+          <small>Em atraso</small>
+          <strong>{{ moeda(r.carteira.valorEmAtraso) }}</strong>
+          <span>{{ r.carteira.parcelasVencidas }} parcela(s) vencida(s)</span>
+          <lucide-icon name="triangle-alert" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" [attr.data-tone]="r.carteira.inadimplenciaPct ? 'red' : 'green'">
+          <small>Inadimplência</small>
+          <strong>{{ r.carteira.inadimplenciaPct.toString().replace('.', ',') }}%</strong>
+          <span>vencidas sobre as já devidas</span>
+          <lucide-icon name="trending-up" [size]="34" [strokeWidth]="1.25" />
+        </article>
+      </section>
+
+      <section class="cor-grid" aria-label="Gráficos da carteira" data-tour="cor-graficos">
+        <article class="cor-card">
+          <header class="cor-card-titulo">
+            <lucide-icon name="chart-pie" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2>Situação das operações</h2>
+              <p>Propostas e contratos dos seus clientes</p>
+            </div>
+          </header>
+          <sep-cor-donut
+            [faixas]="situacoes()"
+            legendaCentro="operações"
+            descricao="Situação das operações"
+          />
+        </article>
+
+        <article class="cor-card">
+          <header class="cor-card-titulo">
+            <lucide-icon name="calendar-check" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2>Parcelas</h2>
+              <p>Pagas, a vencer e vencidas</p>
+            </div>
+          </header>
+          <sep-cor-donut
+            [faixas]="parcelas()"
+            legendaCentro="parcelas"
+            descricao="Situação das parcelas"
+          />
+        </article>
+
+        <article class="cor-card">
+          <header class="cor-card-titulo">
+            <lucide-icon name="chart-column" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2>A receber nos próximos meses</h2>
+              <p>Parcelas em aberto por mês de vencimento</p>
+            </div>
+          </header>
+          <sep-cor-barras
+            [itens]="aReceber()"
+            [formato]="moedaCurta"
+            descricao="Valor a receber por mês"
+          />
+        </article>
+      </section>
+
+      <section class="cor-card" aria-labelledby="cor-atencao-titulo" data-tour="cor-atencao">
+        <header class="cor-card-titulo">
+          <lucide-icon name="bell-ring" [size]="24" [strokeWidth]="1.5" />
+          <div>
+            <h2 id="cor-atencao-titulo">Precisa da sua atenção</h2>
+            <p>Atrasos dos clientes que você captou, vínculos em risco e envios devolvidos</p>
+          </div>
+        </header>
+        @if (pendencias()) {
+          <ul class="cor-atencao">
+            @for (o of emAtraso(); track o.id) {
+              <li data-tone="red">
+                <span>
+                  <strong>{{ o.clienteNome }}</strong> · {{ o.numero }}
+                  <small
+                    >{{ o.parcelasVencidas }} parcela(s) vencida(s) de {{ moeda(o.valorParcela) }},
+                    {{ moeda(o.valorEmAtraso) }} em atraso</small
+                  >
+                </span>
+                <a class="cor-link" [routerLink]="['/app/meu-backoffice/contratos', o.id]"
+                  >Ver parcelas</a
+                >
+              </li>
+            }
+            @for (v of vinculosEmRisco(); track v.id) {
+              <li>
+                <span>
+                  <strong>{{ v.clienteNome }}</strong>
+                  <small>A última proposta assinada não cita você: o vínculo está em risco.</small>
+                </span>
+                <a class="cor-link" routerLink="/app/meu-backoffice/base">Ver na base</a>
+              </li>
+            }
+            @if (r.enviosDevolvidos > 0) {
+              <li>
+                <span>
+                  <strong>{{ r.enviosDevolvidos }} envio(s) devolvido(s)</strong>
+                  <small>O backoffice pediu correção nos documentos.</small>
+                </span>
+                <a class="cor-link" routerLink="/app/meu-backoffice/documentos">Corrigir</a>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="cor-estado">Nada pendente. Sua carteira está em dia.</p>
+        }
+      </section>
+
+      <section class="cor-card">
+        <h2>Como funciona a sua base</h2>
+        <p>
+          O cliente fica na sua base enquanto o seu cadastro estiver em dia e as propostas dele
+          citarem você como correspondente. Se o cadastro vencer ou ficar desatualizado, ou se uma
+          nova proposta for assinada sem citar você, o cliente sai da sua base e pode eleger outro
+          correspondente ou operar direto com o SEP. Você capta, envia documentos e acompanha os
+          contratos; a análise e a decisão de crédito são do SEP.
+        </p>
+      </section>
+    }
+  </main>
+</sep-operational-shell>

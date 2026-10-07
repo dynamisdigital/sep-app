@@ -1,0 +1,109 @@
+<sep-operational-shell>
+  <main class="cor-page">
+    <header class="cor-heading">
+      <div>
+        <p class="cor-crumbs">
+          <a routerLink="/app/dashboard">Início</a> ›
+          <a routerLink="/app/meu-backoffice">Meu Back Office</a> ›
+          <strong>Envio de documentos</strong>
+        </p>
+        <h1>Envio de documentos</h1>
+        <p>
+          Envie os documentos do cliente e ateste a conferência. O backoffice do SEP valida cada
+          envio.
+        </p>
+      </div>
+    </header>
+
+    @if (erro()) {
+      <div class="cor-erro" role="alert">{{ erro() }}</div>
+    }
+    @if (aviso()) {
+      <div class="cor-aviso" data-tone="green" role="status">{{ aviso() }}</div>
+    }
+
+    <section class="cor-card" aria-labelledby="cor-novo-envio">
+      <h2 id="cor-novo-envio">Novo envio</h2>
+      <p>O atesto é obrigatório: ele registra que você conferiu os documentos com os originais.</p>
+      <div class="cor-form">
+        <label>
+          Cliente da sua base
+          <select name="cliente" [(ngModel)]="clienteNome">
+            <option value="">Selecione...</option>
+            @for (c of clientes(); track c.id) {
+              <option [value]="c.clienteNome">{{ c.clienteNome }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          Tipo de documento
+          <select name="tipo" [(ngModel)]="tipo">
+            @for (t of tipos; track t) {
+              <option [value]="t">{{ t }}</option>
+            }
+          </select>
+        </label>
+        <label class="largo">
+          Arquivo
+          <input type="file" name="arquivo" (change)="escolherArquivo($event)" />
+        </label>
+        <label class="check largo">
+          <input type="checkbox" name="atesto" [(ngModel)]="atesto" />
+          <span>
+            Atesto que conferi os documentos acima com os originais e que as informações estão
+            corretas. Estou ciente de que a validação e a decisão de crédito são do SEP.
+          </span>
+        </label>
+      </div>
+      <div class="cor-acoes" style="margin-top: 12px">
+        <button type="button" class="cor-btn" [disabled]="!podeEnviar" (click)="enviar()">
+          {{ enviando() ? 'Enviando...' : 'Enviar documentos' }}
+        </button>
+      </div>
+    </section>
+
+    <section class="cor-card" aria-labelledby="cor-meus-envios">
+      <h2 id="cor-meus-envios">Meus envios</h2>
+      @if (carregando()) {
+        <p class="cor-estado" role="status">Carregando...</p>
+      } @else {
+        <div class="cor-tabela-wrap">
+          <table class="cor-tabela">
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Documentos</th>
+                <th>Enviado em</th>
+                <th>Situação</th>
+                <th>Retorno do backoffice</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (e of envios(); track e.id) {
+                <tr>
+                  <td>{{ e.clienteNome }}</td>
+                  <td>
+                    @for (d of e.documentos; track d.nomeArquivo) {
+                      {{ d.tipo }}<small>{{ d.nomeArquivo }}</small>
+                    }
+                  </td>
+                  <td>{{ data(e.enviadoEm) }}</td>
+                  <td>
+                    <span class="cor-selo" [attr.data-tone]="tom[e.status]">{{
+                      rotulo[e.status]
+                    }}</span>
+                  </td>
+                  <td>{{ e.observacaoBackoffice ?? '—' }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="cor-estado">Nenhum envio ainda.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  </main>
+</sep-operational-shell>

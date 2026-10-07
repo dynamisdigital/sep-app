@@ -6,7 +6,9 @@
 // suporta roles cumulativas (Set), mas expoe ao web apenas a de maior precedencia
 // (ADMIN > FINANCEIRO > BACKOFFICE > CLIENTE). FINANCEIRO/BACKOFFICE sao perfis
 // operacionais internos usados a partir da jornada de cobranca (F-Sprint 9).
-export type UsuarioRole = 'ADMIN' | 'CLIENTE' | 'FINANCEIRO' | 'BACKOFFICE';
+// CORRESPONDENTE capta clientes e envia documentos; nao decide credito. Proposta de contrato ate o
+// backend publicar o papel (ver docs/atualizacao-07102026).
+export type UsuarioRole = 'ADMIN' | 'CLIENTE' | 'FINANCEIRO' | 'BACKOFFICE' | 'CORRESPONDENTE';
 
 export interface UsuarioResponse {
   id: string;

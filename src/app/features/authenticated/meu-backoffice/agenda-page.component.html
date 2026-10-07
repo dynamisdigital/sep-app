@@ -1,0 +1,176 @@
+<sep-operational-shell>
+  <main class="cor-page">
+    <header class="cor-hero">
+      <div>
+        <p class="cor-crumbs">
+          <a routerLink="/app/dashboard">Início</a> ›
+          <a routerLink="/app/meu-backoffice">Meu Back Office</a> › <strong>Agenda</strong>
+        </p>
+        <h1>Agenda e relacionamento</h1>
+        <p>
+          Ligações, WhatsApp, visitas, reuniões, retornos e pendências documentais dos seus
+          clientes.
+        </p>
+      </div>
+    </header>
+
+    @if (erro()) {
+      <div class="cor-erro" role="alert">{{ erro() }}</div>
+    }
+    @if (aviso()) {
+      <div class="cor-aviso" data-tone="green" role="status">{{ aviso() }}</div>
+    }
+
+    @if (carregando()) {
+      <p class="cor-estado" role="status">Carregando a agenda...</p>
+    } @else {
+      <section class="cor-kpis" aria-label="Indicadores da agenda">
+        <article class="cor-kpi">
+          <small>Compromissos</small>
+          <strong>{{ compromissos().length }}</strong>
+          <span>agendados e em aberto</span>
+          <lucide-icon name="calendar-clock" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" [attr.data-tone]="atrasados() ? 'red' : 'green'">
+          <small>Atrasados</small>
+          <strong>{{ atrasados() }}</strong>
+          <span>passaram da data marcada</span>
+          <lucide-icon name="triangle-alert" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" [attr.data-tone]="pendenciasDocumentais() ? 'amber' : 'green'">
+          <small>Pendências documentais</small>
+          <strong>{{ pendenciasDocumentais() }}</strong>
+          <span>aguardando documentos</span>
+          <lucide-icon name="file-up" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" data-tone="green">
+          <small>Atendimentos registrados</small>
+          <strong>{{ historico().length }}</strong>
+          <span>no histórico</span>
+          <lucide-icon name="history" [size]="34" [strokeWidth]="1.25" />
+        </article>
+      </section>
+
+      <section class="cor-card" aria-labelledby="cor-nova-interacao" data-tour="cor-agenda-form">
+        <header class="cor-card-titulo">
+          <lucide-icon name="plus" [size]="24" [strokeWidth]="1.5" />
+          <div>
+            <h2 id="cor-nova-interacao">Novo registro ou compromisso</h2>
+            <p>
+              Marque "agendar" para criar um compromisso futuro; desmarque para registrar o que já
+              aconteceu
+            </p>
+          </div>
+        </header>
+        <div class="cor-form">
+          <label>
+            Cliente ou prospect
+            <select name="cliente" [(ngModel)]="nova.clienteNome">
+              <option value="">Selecione...</option>
+              @for (c of clientes(); track c) {
+                <option [value]="c">{{ c }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            Tipo
+            <select name="tipo" [(ngModel)]="nova.tipo">
+              @for (t of tipos; track t) {
+                <option [value]="t">{{ rotuloTipo[t] }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            Data
+            <input type="date" name="data" [(ngModel)]="nova.data" />
+          </label>
+          <label class="largo">
+            Descrição
+            <input
+              name="descricao"
+              [(ngModel)]="nova.descricao"
+              placeholder="O que foi ou será tratado"
+            />
+          </label>
+          <label class="check largo">
+            <input type="checkbox" name="agendar" [(ngModel)]="nova.agendar" />
+            <span>Agendar como compromisso futuro</span>
+          </label>
+        </div>
+        <div class="cor-acoes" style="margin-top: 12px">
+          <button type="button" class="cor-btn" [disabled]="!podeSalvar" (click)="salvar()">
+            {{ nova.agendar ? 'Agendar' : 'Registrar' }}
+          </button>
+        </div>
+      </section>
+
+      <section class="cor-grid">
+        <article
+          class="cor-card"
+          aria-labelledby="cor-compromissos"
+          data-tour="cor-agenda-compromissos"
+        >
+          <header class="cor-card-titulo">
+            <lucide-icon name="calendar-clock" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2 id="cor-compromissos">Compromissos</h2>
+              <p>O que está marcado, do mais próximo ao mais distante</p>
+            </div>
+          </header>
+          <ul class="cor-atencao">
+            @for (i of compromissos(); track i.id) {
+              <li [attr.data-tone]="i.status === 'ATRASADA' ? 'red' : null">
+                <span>
+                  <lucide-icon [name]="icone[i.tipo]" [size]="14" [strokeWidth]="2" />
+                  <strong>{{ i.clienteNome }}</strong> · {{ rotuloTipo[i.tipo] }}
+                  <small>{{ data(i.data) }} — {{ i.descricao }}</small>
+                </span>
+                <span class="cor-acoes">
+                  <span class="cor-selo" [attr.data-tone]="tomStatus[i.status]">{{
+                    rotuloStatus[i.status]
+                  }}</span>
+                  <button
+                    type="button"
+                    class="cor-btn secundario"
+                    [attr.aria-label]="'Concluir compromisso com ' + i.clienteNome"
+                    (click)="concluir(i)"
+                  >
+                    Concluir
+                  </button>
+                </span>
+              </li>
+            } @empty {
+              <li class="cor-estado">Nenhum compromisso em aberto.</li>
+            }
+          </ul>
+        </article>
+
+        <article class="cor-card" aria-labelledby="cor-historico">
+          <header class="cor-card-titulo">
+            <lucide-icon name="history" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2 id="cor-historico">Histórico de atendimento</h2>
+              <p>O que já foi feito, do mais recente ao mais antigo</p>
+            </div>
+          </header>
+          <ul class="cor-atencao">
+            @for (i of historico(); track i.id) {
+              <li>
+                <span>
+                  <lucide-icon [name]="icone[i.tipo]" [size]="14" [strokeWidth]="2" />
+                  <strong>{{ i.clienteNome }}</strong> · {{ rotuloTipo[i.tipo] }}
+                  <small>{{ data(i.data) }} — {{ i.descricao }}</small>
+                </span>
+                <span class="cor-selo" [attr.data-tone]="tomStatus[i.status]">{{
+                  rotuloStatus[i.status]
+                }}</span>
+              </li>
+            } @empty {
+              <li class="cor-estado">Nenhum atendimento registrado.</li>
+            }
+          </ul>
+        </article>
+      </section>
+    }
+  </main>
+</sep-operational-shell>

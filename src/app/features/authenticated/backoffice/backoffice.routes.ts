@@ -34,6 +34,14 @@ export const BACKOFFICE_ROUTES: Routes = [
     data: { breadcrumb: 'Item da fila', immersive: true },
   },
   {
+    path: 'correspondentes',
+    loadComponent: () =>
+      import('./pages/envios-correspondentes-page.component').then(
+        (m) => m.EnviosCorrespondentesPageComponent,
+      ),
+    data: { breadcrumb: 'Envios de correspondentes', immersive: true },
+  },
+  {
     path: 'reprocessos',
     loadComponent: () =>
       import('./pages/reprocessos-page.component').then((m) => m.ReprocessosPageComponent),

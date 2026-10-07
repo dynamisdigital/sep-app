@@ -9,10 +9,17 @@ export const ROLES_DISPONIVEIS: readonly UsuarioRole[] = [
   'FINANCEIRO',
   'BACKOFFICE',
   'CLIENTE',
+  'CORRESPONDENTE',
 ];
 
 export function selecaoVaziaInicial(): Record<UsuarioRole, boolean> {
-  return { ADMIN: false, FINANCEIRO: false, BACKOFFICE: false, CLIENTE: false };
+  return {
+    ADMIN: false,
+    FINANCEIRO: false,
+    BACKOFFICE: false,
+    CLIENTE: false,
+    CORRESPONDENTE: false,
+  };
 }
 
 // Leitura do que cada papel habilita. Nao vem de catalogo — o backend nao expoe permissoes — e
@@ -26,6 +33,11 @@ export const PERMISSOES_POR_PAPEL: Record<UsuarioRole, string[]> = {
     'Trilha de auditoria',
   ],
   CLIENTE: ['Jornadas próprias de crédito', 'Área da credora', 'Dados da própria conta'],
+  CORRESPONDENTE: [
+    'Base própria de clientes',
+    'Envio de documentos com atesto de conferência',
+    'Acompanhamento da validade do cadastro',
+  ],
 };
 
 export const VETOR_POR_PAPEL: Record<
@@ -52,6 +64,11 @@ export const VETOR_POR_PAPEL: Record<
     descricao: 'Acesso restrito às próprias jornadas e aos dados da própria conta.',
     tom: 'blue',
   },
+  CORRESPONDENTE: {
+    rotulo: 'Correspondente',
+    descricao: 'Capta clientes e envia documentos; não analisa, aprova nem libera crédito.',
+    tom: 'cyan',
+  },
 };
 
 export const TOM_POR_PAPEL: Record<UsuarioRole, string> = {
@@ -59,6 +76,7 @@ export const TOM_POR_PAPEL: Record<UsuarioRole, string> = {
   CLIENTE: 'green',
   FINANCEIRO: 'purple',
   BACKOFFICE: 'amber',
+  CORRESPONDENTE: 'cyan',
 };
 
 // Intencao de alteracao guardada antes do step-up: sem isso o usuario autoriza a operacao, volta

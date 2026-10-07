@@ -1,0 +1,1993 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+
+  <!-- SEO & Social Sharing (WhatsApp, LinkedIn, Slack, Twitter) -->
+  <title>SEP — Módulo de Correspondentes: Captação com Base Própria, Validade de Cadastro &amp; Documentos Atestados</title>
+  <meta name="description" content="Módulo de Correspondentes do SEP, por Daniel Möllmann: pessoas físicas credenciadas captam clientes, enviam documentos com atesto de conferência e acompanham a própria base, com validade de cadastro e perda de clientes por vencimento. Em teste, com dados fictícios e apoio técnico ao backend.">
+  <meta name="author" content="Daniel Möllmann">
+
+  <!-- Open Graph / WhatsApp Preview (o gerador troca __URL_PUBLICADA__ pelo endereço do site) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Dynamis SEP — Sociedade de Empréstimo entre Pessoas">
+  <meta property="og:title" content="SEP — Módulo de Correspondentes · 7/10/2026">
+  <meta property="og:description" content="Módulo de Correspondentes do SEP, por Daniel Möllmann: pessoas físicas credenciadas captam clientes, enviam documentos com atesto de conferência e acompanham a própria base, com validade de cadastro e perda de clientes por vencimento. Em teste, com dados fictícios e apoio técnico ao backend.">
+  <meta property="og:url" content="__URL_PUBLICADA__">
+  <meta property="og:image" content="__URL_PUBLICADA__preview-banner.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="SEP — Módulo de Correspondentes, relatório de 7 de outubro">
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SEP — Módulo de Correspondentes · 7/10/2026">
+  <meta name="twitter:description" content="Módulo de Correspondentes do SEP, por Daniel Möllmann: pessoas físicas credenciadas captam clientes, enviam documentos com atesto de conferência e acompanham a própria base, com validade de cadastro e perda de clientes por vencimento. Em teste, com dados fictícios e apoio técnico ao backend.">
+  <meta name="twitter:image" content="__URL_PUBLICADA__preview-banner.png">
+
+  <!-- Mobile & PWA Theme Colors -->
+  <meta name="theme-color" content="#030d19">
+  <meta name="msapplication-navbutton-color" content="#030d19">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- Favicon SVG -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231af0ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='3' width='20' height='14' rx='2'/><path d='M10 8l5 3-5 3z'/></svg>">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #030d19;
+      --bg-surface: #061527;
+      --bg-surface-elevated: #0a213d;
+      --bg-card: rgba(10, 33, 61, 0.75);
+      --border-subtle: rgba(0, 178, 255, 0.18);
+      --border-glow: rgba(26, 240, 255, 0.45);
+      --accent-cyan: #1af0ff;
+      --accent-blue: #00b2ff;
+      --accent-green: #00f0b0;
+      --accent-amber: #fab23c;
+      --accent-red: #ff5a6e;
+      --text-main: #f5faff;
+      --text-muted: #9bb7d4;
+      --text-dim: #6282a6;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(circle at 12% 15%, rgba(0, 178, 255, 0.09) 0%, transparent 45%),
+        radial-gradient(circle at 88% 85%, rgba(0, 240, 176, 0.07) 0%, transparent 45%);
+    }
+
+    /* Top Navigation Bar */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(3, 13, 25, 0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 14px 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+      color: var(--bg-base);
+      font-weight: 900;
+      font-size: 15px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      letter-spacing: 1px;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      color: var(--text-main);
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      border-left: 1px solid var(--border-subtle);
+      padding-left: 12px;
+      margin-left: 6px;
+    }
+
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 240, 176, 0.12);
+      border: 1px solid rgba(0, 240, 176, 0.4);
+      color: var(--accent-green);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 14px;
+      border-radius: 9999px;
+      letter-spacing: 0.4px;
+    }
+
+    .badge-status::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent-green);
+    }
+
+    .btn {
+      background: var(--bg-surface-elevated);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: rgba(0, 178, 255, 0.15);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+      color: var(--bg-base);
+      border: none;
+      font-weight: 700;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 0 18px rgba(26, 240, 255, 0.45);
+      color: var(--bg-base);
+    }
+
+    /* Container */
+    .deck-container {
+      max-width: 1260px;
+      margin: 0 auto;
+      padding: 36px 24px 80px;
+    }
+
+    /* Slides */
+    .slide-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 48px;
+      margin-bottom: 48px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue), var(--accent-green));
+    }
+
+    .slide-header {
+      margin-bottom: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid rgba(0, 178, 255, 0.14);
+      padding-bottom: 20px;
+    }
+
+    .slide-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 6px;
+    }
+
+    .slide-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.5px;
+    }
+
+    .slide-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Cover Slide */
+    .cover-slide {
+      text-align: center;
+      padding: 72px 48px;
+      background: radial-gradient(circle at 50% 25%, rgba(10, 33, 61, 0.85) 0%, var(--bg-surface) 75%);
+    }
+
+    .cover-badge {
+      display: inline-block;
+      padding: 6px 18px;
+      background: rgba(0, 178, 255, 0.12);
+      border: 1px solid var(--accent-cyan);
+      border-radius: 9999px;
+      color: var(--accent-cyan);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      margin-bottom: 24px;
+    }
+
+    .cover-title {
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      line-height: 1.18;
+      margin-bottom: 18px;
+      background: linear-gradient(135deg, #ffffff 30%, var(--accent-cyan) 75%, var(--accent-green) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .cover-desc {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 820px;
+      margin: 0 auto 40px;
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      max-width: 960px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    .meta-card {
+      background: rgba(6, 21, 39, 0.85);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 16px 18px;
+    }
+
+    .meta-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-family: var(--font-mono);
+    }
+
+    .meta-val {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-top: 4px;
+    }
+
+    /* Executive Textualization Layouts */
+    .exec-quote-box {
+      background: rgba(10, 33, 61, 0.6);
+      border-left: 4px solid var(--accent-cyan);
+      border-top: 1px solid var(--border-subtle);
+      border-right: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 24px 30px;
+      margin-bottom: 32px;
+      position: relative;
+    }
+
+    .exec-quote-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .exec-quote-text {
+      font-size: 15px;
+      color: var(--text-main);
+      line-height: 1.7;
+      font-weight: 400;
+    }
+
+    .exec-quote-text strong {
+      color: var(--accent-green);
+      font-weight: 600;
+    }
+
+    .exec-two-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      margin-bottom: 24px;
+    }
+
+    .exec-text-card {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 26px;
+    }
+
+    .exec-card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent-blue);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .exec-card-paragraph {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.65;
+      margin-bottom: 12px;
+    }
+
+    .exec-card-paragraph:last-child {
+      margin-bottom: 0;
+    }
+
+    .exec-highlight-list {
+      list-style: none;
+      margin-top: 14px;
+    }
+
+    .exec-highlight-list li {
+      position: relative;
+      padding-left: 24px;
+      font-size: 13.5px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      line-height: 1.55;
+    }
+
+    .exec-highlight-list li::before {
+      content: '▹';
+      position: absolute;
+      left: 6px;
+      color: var(--accent-cyan);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .exec-highlight-list li strong {
+      color: var(--text-main);
+    }
+
+    /* Score Card */
+    .score-banner {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 36px;
+      align-items: center;
+      background: rgba(10, 33, 61, 0.5);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 32px;
+    }
+
+    .score-circle-wrapper {
+      text-align: center;
+      position: relative;
+    }
+
+    .score-circle {
+      width: 190px;
+      height: 190px;
+      margin: 0 auto;
+      border-radius: 50%;
+      background: conic-gradient(var(--accent-green) 0% 96%, rgba(255, 255, 255, 0.08) 96% 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 30px rgba(0, 240, 176, 0.25);
+    }
+
+    .score-circle-inner {
+      width: 154px;
+      height: 154px;
+      background: var(--bg-surface);
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .score-number {
+      font-size: 46px;
+      font-weight: 900;
+      color: var(--text-main);
+      line-height: 1;
+      font-family: var(--font-mono);
+    }
+
+    .score-scale {
+      font-size: 13px;
+      color: var(--accent-green);
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .pillar-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .pillar-item {
+      background: rgba(3, 13, 25, 0.6);
+      border: 1px solid rgba(0, 178, 255, 0.12);
+      border-radius: 8px;
+      padding: 12px 16px;
+    }
+
+    .pillar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .pillar-score {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+
+    .pillar-bar-bg {
+      height: 5px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .pillar-bar-fill {
+      height: 100%;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+    }
+
+    /* Tables */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    .data-table th {
+      background: rgba(10, 33, 61, 0.85);
+      color: var(--accent-cyan);
+      font-weight: 700;
+      padding: 12px 14px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--border-subtle);
+    }
+
+    .data-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(0, 178, 255, 0.08);
+      vertical-align: middle;
+      color: var(--text-main);
+    }
+
+    .data-table tr:hover td {
+      background: rgba(0, 178, 255, 0.04);
+    }
+
+    .sev-critical {
+      color: var(--accent-red);
+      font-weight: 800;
+      background: rgba(255, 90, 110, 0.12);
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .sev-high {
+      color: #ff9f43;
+      font-weight: 700;
+      background: rgba(255, 159, 67, 0.12);
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .sev-medium {
+      color: var(--accent-amber);
+      font-weight: 600;
+      background: rgba(250, 178, 60, 0.12);
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .status-fixed {
+      color: var(--accent-green);
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-fixed::before {
+      content: '✓';
+      font-weight: 900;
+    }
+
+    /* Cards Grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 24px;
+      position: relative;
+    }
+
+    .feature-card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .feature-card-body {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .code-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: rgba(3, 13, 25, 0.7);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(0, 178, 255, 0.18);
+      color: var(--accent-cyan);
+    }
+
+    /* Executive Final Signoff Slide */
+    .signoff-card {
+      background: radial-gradient(circle at 70% 30%, rgba(0, 240, 176, 0.08) 0%, var(--bg-surface) 70%);
+      border: 1px solid var(--border-glow);
+    }
+
+    .signoff-seal {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      background: rgba(10, 33, 61, 0.6);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 24px 32px;
+      margin: 28px 0;
+    }
+
+    .signoff-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, rgba(0, 178, 255, 0.2), rgba(0, 240, 176, 0.2));
+      border: 1px solid var(--accent-green);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-green);
+      flex-shrink: 0;
+    }
+
+    .signature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-top: 36px;
+      border-top: 1px solid rgba(0, 178, 255, 0.15);
+      padding-top: 24px;
+    }
+
+    .signature-box {
+      background: rgba(3, 13, 25, 0.5);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .sig-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .sig-role {
+      font-size: 13px;
+      color: var(--accent-cyan);
+      margin-top: 2px;
+      font-weight: 600;
+    }
+
+    .sig-date {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 6px;
+      font-family: var(--font-mono);
+    }
+
+    /* Table Responsive Wrapper */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      margin-top: 16px;
+      background: rgba(6, 21, 39, 0.4);
+    }
+
+    .data-table {
+      min-width: 660px; /* Garante leitura nítida e scroll horizontal suave em telas estreitas */
+    }
+
+    /* WhatsApp Button Styles */
+    .btn-whatsapp {
+      background: #25d366;
+      color: #030d19;
+      font-weight: 700;
+      border: none;
+      box-shadow: 0 4px 14px rgba(37, 211, 102, 0.25);
+    }
+
+    .btn-whatsapp:hover {
+      background: #20bd5a;
+      color: #030d19;
+      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
+      transform: translateY(-1px);
+    }
+
+    /* Floating Action Bar for Mobile & Desktop */
+    .floating-bar {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1100;
+      background: rgba(6, 21, 39, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glow);
+      border-radius: 9999px;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 18px rgba(0, 178, 255, 0.2);
+      animation: floatFadeIn 0.5s ease-out;
+    }
+
+    @keyframes floatFadeIn {
+      from { opacity: 0; transform: translate(-50%, 20px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    .floating-bar .btn {
+      padding: 8px 14px;
+      font-size: 12px;
+      border-radius: 9999px;
+      white-space: nowrap;
+    }
+
+    .btn-icon-only {
+      width: 36px;
+      height: 36px;
+      padding: 0 !important;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50% !important;
+      background: var(--bg-surface-elevated);
+      color: var(--accent-cyan);
+      border: 1px solid var(--border-subtle);
+      cursor: pointer;
+    }
+
+    .btn-icon-only:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 178, 255, 0.15);
+    }
+
+    /* Responsive Queries for Tablets & Laptops (max-width: 992px) */
+    @media screen and (max-width: 992px) {
+      .deck-container {
+        padding: 24px 16px 90px;
+      }
+      .slide-card {
+        padding: 32px 24px;
+        margin-bottom: 32px;
+      }
+      .meta-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+      .score-banner {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        text-align: center;
+      }
+      .exec-two-columns {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+    }
+
+    /* Responsive Queries for Smartphones (max-width: 768px) */
+    @media screen and (max-width: 768px) {
+      .top-nav {
+        padding: 10px 14px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+      .brand {
+        justify-content: space-between;
+      }
+      .brand-subtitle {
+        display: none;
+      }
+      .nav-controls {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        gap: 8px;
+      }
+      .badge-status {
+        font-size: 10.5px;
+        padding: 4px 10px;
+      }
+      .deck-container {
+        padding: 16px 10px 96px;
+      }
+      .slide-card {
+        padding: 22px 14px;
+        margin-bottom: 20px;
+        border-radius: 12px;
+      }
+      .slide-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        margin-bottom: 20px;
+        padding-bottom: 14px;
+      }
+      .slide-title {
+        font-size: 20px;
+      }
+      .slide-subtitle {
+        font-size: 13px;
+      }
+      .cover-slide {
+        padding: 36px 14px 28px;
+      }
+      .cover-title {
+        font-size: 25px;
+        line-height: 1.25;
+        margin-bottom: 14px;
+      }
+      .cover-desc {
+        font-size: 14px;
+        line-height: 1.55;
+        margin-bottom: 24px;
+      }
+      .meta-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .meta-card {
+        padding: 12px 14px;
+      }
+      .exec-quote-box {
+        padding: 16px 14px;
+        margin-bottom: 20px;
+      }
+      .exec-quote-title {
+        font-size: 15px;
+      }
+      .exec-quote-text {
+        font-size: 13.5px;
+        line-height: 1.6;
+      }
+      .exec-text-card {
+        padding: 18px 14px;
+      }
+      .score-banner {
+        padding: 20px 14px;
+      }
+      .score-circle {
+        width: 150px;
+        height: 150px;
+      }
+      .score-circle-inner {
+        width: 120px;
+        height: 120px;
+      }
+      .score-number {
+        font-size: 38px;
+      }
+      .pillar-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .cards-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+      .signoff-seal {
+        flex-direction: column;
+        text-align: center;
+        padding: 18px 14px;
+        gap: 14px;
+      }
+      .signoff-icon {
+        margin: 0 auto;
+      }
+      .signature-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-top: 20px;
+        padding-top: 16px;
+      }
+      .signature-box {
+        padding: 16px 14px;
+        text-align: left !important;
+        align-items: flex-start !important;
+      }
+      .floating-bar {
+        bottom: 12px;
+        width: calc(100% - 24px);
+        max-width: 380px;
+        justify-content: space-between;
+        padding: 6px 10px;
+      }
+      .floating-bar .btn {
+        padding: 8px 12px;
+        font-size: 11.5px;
+      }
+    }
+
+    /* Print Styles for High-Def PDF Generation */
+    @media print {
+      body {
+        background: #030d19 !important;
+        color: #f5faff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .top-nav {
+        display: none !important;
+      }
+      .deck-container {
+        padding: 0 !important;
+        max-width: 100% !important;
+      }
+      .slide-card {
+        page-break-after: always;
+        break-after: page;
+        margin-bottom: 0 !important;
+        border: none !important;
+        border-radius: 0 !important;
+        padding: 32px 30px !important;
+        min-height: 98vh;
+        box-shadow: none !important;
+        background: #061527 !important;
+      }
+      .cover-slide {
+        padding-top: 50px !important;
+      }
+    }
+  
+    /* ============ COMPLEMENTOS DESTA EDIÇÃO (capturas, indicadores, etapas) ============ */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .stat-card {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 22px 22px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+      opacity: 0.7;
+    }
+
+    .stat-number {
+      font-family: var(--font-mono);
+      font-size: 38px;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--text-main);
+    }
+
+    .stat-number small {
+      font-size: 17px;
+      color: var(--accent-cyan);
+      margin-left: 4px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      margin-top: 10px;
+    }
+
+    .stat-detail {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    .shot {
+      margin: 0;
+      background: rgba(3, 13, 25, 0.6);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .shot img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .shot figcaption {
+      padding: 12px 16px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      border-top: 1px solid rgba(0, 178, 255, 0.12);
+      line-height: 1.5;
+    }
+
+    .shot figcaption strong {
+      color: var(--text-main);
+    }
+
+    .shot-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 24px;
+    }
+
+    .shot-wide {
+      margin-top: 24px;
+    }
+
+    .steps {
+      list-style: none;
+      counter-reset: passo;
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .steps li {
+      counter-increment: passo;
+      position: relative;
+      padding: 12px 16px 12px 54px;
+      background: rgba(3, 13, 25, 0.55);
+      border: 1px solid rgba(0, 178, 255, 0.14);
+      border-radius: 10px;
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .steps li::before {
+      content: counter(passo);
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--bg-base);
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+    }
+
+    .steps li strong {
+      color: var(--text-main);
+    }
+
+    .tag-ok,
+    .tag-pend {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .tag-ok {
+      color: var(--accent-green);
+      background: rgba(0, 240, 176, 0.12);
+    }
+
+    .tag-pend {
+      color: var(--accent-amber);
+      background: rgba(250, 178, 60, 0.12);
+    }
+
+    .note {
+      margin-top: 18px;
+      font-size: 12.5px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    @media screen and (max-width: 992px) {
+      .stat-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .shot-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media screen and (max-width: 768px) {
+      .stat-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .stat-number {
+        font-size: 32px;
+      }
+      .steps li {
+        padding: 10px 12px 10px 48px;
+        font-size: 13px;
+      }
+    }
+
+    @media print {
+      .floating-bar {
+        display: none !important;
+      }
+      .shot,
+      .stat-card,
+      .exec-text-card,
+      .feature-card,
+      .steps li,
+      tr,
+      .signature-grid,
+      .signoff-seal,
+      .cards-grid,
+      .exec-two-columns,
+      .exec-quote-box,
+      .stat-grid,
+      .shot-grid {
+        break-inside: avoid;
+      }
+      .shot img {
+        max-height: 150mm;
+        object-fit: contain;
+        background: #030d19;
+      }
+    }
+
+
+    .shot-grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    @media screen and (max-width: 992px) {
+      .shot-grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Action Navigation -->
+  <header class="top-nav">
+    <div class="brand">
+      <div class="brand-logo">SEP</div>
+      <div>
+        <div class="brand-title">Sociedade de Empréstimo entre Pessoas</div>
+        <div class="brand-subtitle">Módulo de Correspondentes · 7 de Outubro de 2026</div>
+      </div>
+    </div>
+    <div class="nav-controls">
+      <div class="badge-status">ENTREGA DA SEMANA — VERIFICADA</div>
+      <button class="btn btn-whatsapp" onclick="compartilharWhatsApp()" title="Enviar para a Diretoria pelo WhatsApp">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0012.04 2zm.01 1.67c4.54 0 8.24 3.7 8.24 8.24 0 2.2-.86 4.27-2.42 5.82a8.19 8.19 0 01-5.82 2.41c-1.47 0-2.91-.39-4.17-1.14l-.3-.18-3.11.82.83-3.03-.2-.31a8.19 8.19 0 01-1.26-4.39c0-4.54 3.7-8.24 8.24-8.24zm4.52 11.59c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.39-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.43h-.47c-.17 0-.43.06-.66.31-.22.25-.86.84-.86 2.05s.88 2.38 1 2.54c.12.17 1.73 2.64 4.2 3.7.59.25 1.05.41 1.41.52.59.19 1.13.16 1.56.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.1-.22-.17-.47-.29z"/></svg>
+        Compartilhar WhatsApp
+      </button>
+      <a href="SEP_Correspondentes_Daniel_Mollmann_07102026.pdf" download="SEP_Correspondentes_Daniel_Mollmann_07102026.pdf" class="btn btn-primary" title="Baixar o PDF oficial em alta resolução">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Baixar PDF Oficial
+      </a>
+    </div>
+  </header>
+
+  <main class="deck-container">
+
+    <!-- SLIDE 1: CAPA -->
+    <section class="slide-card cover-slide">
+      <div class="cover-badge">ATUALIZAÇÃO · DIRETORIA &amp; BACKEND</div>
+      <h1 class="cover-title">Módulo de Correspondentes: captação de clientes com base própria, validade de cadastro e documentos atestados</h1>
+      <p class="cover-desc">
+        Nova frente do SEP: pessoas físicas credenciadas captam clientes, enviam os documentos já conferidos e acompanham a própria base. O módulo está funcionando no sistema com dados fictícios, como os demais, e vem com o apoio técnico para o backend transformar o modelo em produto.
+      </p>
+
+      <div class="meta-grid">
+        <div class="meta-card">
+          <div class="meta-label">Sistema &amp; Versão</div>
+          <div class="meta-val">SEP Frontend · Angular 20</div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-label">Responsável Técnico</div>
+          <div class="meta-val">Daniel Möllmann</div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-label">Data</div>
+          <div class="meta-val">7 de Outubro de 2026</div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-label">Situação</div>
+          <div class="meta-val">Teste, com ponto de retorno</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: MENSAGEM À DIRETORIA -->
+    <section class="slide-card">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag">Mensagem à Diretoria Executiva</div>
+          <h2 class="slide-title">O que esta entrega traz ao SEP</h2>
+          <div class="slide-subtitle">Um novo canal de originação, com as regras de controle desenhadas desde o início</div>
+        </div>
+      </div>
+
+      <div class="exec-quote-box">
+        <div class="exec-quote-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Síntese executiva
+        </div>
+        <p class="exec-quote-text">
+          O SEP passa a poder crescer de um canal comercial único para uma <strong>rede de correspondentes</strong>. Cada correspondente é uma <strong>pessoa física credenciada</strong>, com cadastro de validade definida, que capta clientes, envia a documentação <strong>atestando que conferiu os originais</strong> e acompanha a sua própria base. O que ele envia entra na fila do backoffice, que valida: <strong>quem capta não decide o crédito</strong>.
+        </p>
+        <p class="exec-quote-text" style="margin-top: 10px;">
+          A base do correspondente <strong>não é permanente</strong>. Se o cadastro vence ou fica desatualizado, ou se o cliente assina uma nova proposta sem citá-lo, o cliente deixa a base e pode eleger outro correspondente ou ficar direto com o SEP. A comissão será paga pelo Pix do SEP, sempre que a normativa e a legislação permitirem.
+        </p>
+      </div>
+
+      <div class="exec-two-columns">
+        <div class="exec-text-card">
+          <div class="exec-card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            O que já funciona no sistema
+          </div>
+          <ul class="exec-highlight-list">
+            <li><strong>Novo papel CORRESPONDENTE</strong>, separado de crédito, formalização, cobrança e Pix.</li>
+            <li><strong>Meu Back Office:</strong> painel com gráficos, base de clientes, <strong>contratos e parcelas dos clientes captados</strong> e envio de documentos com atesto.</li>
+            <li><strong>Gestão comercial:</strong> funil de prospecção, agenda de relacionamento, comissões, metas, desempenho e relatórios do correspondente.</li>
+            <li><strong>Administração:</strong> regras de comissão configuráveis, ranking e metas da rede, e <strong>auditoria</strong> de tudo o que muda no módulo.</li>
+            <li><strong>Tour assistido:</strong> 15 roteiros que o sistema executa sozinho na tela, para o correspondente, a administração e o backoffice.</li>
+            <li><strong>Rede de Correspondentes</strong> para a administração: validade, renovação, vínculos e reatribuição.</li>
+            <li><strong>Validação no backoffice</strong> dos envios, com devolução motivada.</li>
+          </ul>
+        </div>
+
+        <div class="exec-text-card">
+          <div class="exec-card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            O que esta entrega não é
+          </div>
+          <ul class="exec-highlight-list">
+            <li><strong>Não é produção:</strong> os dados são fictícios e o backend ainda não tem o módulo.</li>
+            <li><strong>Não paga comissão:</strong> mostra apenas um valor previsto fictício. A regra depende de definição de negócio e de validação jurídica e fiscal.</li>
+            <li><strong>Não define o enquadramento regulatório:</strong> isso é decisão do jurídico, listada neste relatório.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: PAINEL DE INDICADORES -->
+    <section class="slide-card">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag">Painel da Entrega</div>
+          <h2 class="slide-title">Os números do módulo</h2>
+          <div class="slide-subtitle">Contados no código, não estimados</div>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-number">5<small>papéis</small></div>
+          <div class="stat-label">Eram 4, entrou o CORRESPONDENTE</div>
+          <div class="stat-detail">O novo papel fica fora de Crédito, Formalização, Cobrança e Pix: captar e decidir são funções separadas.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">16<small>telas</small></div>
+          <div class="stat-label">10 do correspondente, 5 da administração, 1 do backoffice</div>
+          <div class="stat-detail">Correspondente: painel, base, prospecção, agenda, contratos, parcelas, comissões, desempenho, relatórios e envio de documentos. Administração: rede, detalhe, comissionamento, desempenho e auditoria.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">27<small>endpoints</small></div>
+          <div class="stat-label">Propostos ao backend</div>
+          <div class="stat-detail">12 de administração, 13 do correspondente (sempre a própria base) e 2 do backoffice. O contrato está documentado, com as regras e as justificativas.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">3<small>gatilhos</small></div>
+          <div class="stat-label">Para o cliente sair da base</div>
+          <div class="stat-detail">Cadastro vencido ou desatualizado, proposta sem citar o correspondente e eleição do cliente.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">15<small>roteiros de tour</small></div>
+          <div class="stat-label">Executados no navegador, sem erro</div>
+          <div class="stat-detail">Do painel ao relatório, passando por funil, agenda, comissões e auditoria, cada um com a conta do papel que o usa.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">745<small>testes</small></div>
+          <div class="stat-label">100% aprovados, em 98 arquivos</div>
+          <div class="stat-detail">Os testes do módulo descrevem as regras de vigência, reatribuição, validação, atraso das parcelas, perda de acesso, comissão por regra versionada, metas, ranking e auditoria, e servem de especificação para o backend.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: O CONCEITO -->
+    <section class="slide-card">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag">O Conceito</div>
+          <h2 class="slide-title">Por que "Correspondentes" e não "Agentes"</h2>
+          <div class="slide-subtitle">Quem capta e quem decide, lado a lado</div>
+        </div>
+      </div>
+
+      <div class="exec-two-columns">
+        <div class="exec-text-card">
+          <div class="exec-card-title">A escolha do nome</div>
+          <p class="exec-card-paragraph">
+            "Agente" sugere apenas venda. O papel descrito vai além: o correspondente <strong>capta clientes, origina propostas e administra a própria carteira</strong> dentro do SEP. "Correspondente" é também o termo usado no crédito brasileiro, o que alinha o SEP ao vocabulário do mercado e do regulador. O nome na interface deve ser confirmado pelo jurídico antes da publicação.
+          </p>
+          <p class="exec-card-paragraph" style="margin-top: 10px;">
+            Duas áreas: <strong>Rede de Correspondentes</strong>, para a administração, e <strong>Meu Back Office</strong>, para o correspondente.
+          </p>
+        </div>
+
+        <div class="exec-text-card">
+          <div class="exec-card-title">Quem faz o quê</div>
+          <div class="table-responsive" style="margin-top: 0;">
+            <table class="data-table" style="min-width: 0;">
+              <thead>
+                <tr><th>Etapa</th><th>Quem</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Captar o cliente</td><td>Correspondente</td></tr>
+                <tr><td>Conferir documentos e atestar</td><td>Correspondente</td></tr>
+                <tr><td>Validar ou devolver o envio</td><td>Backoffice</td></tr>
+                <tr><td>Analisar e aprovar crédito</td><td>SEP (esteira)</td></tr>
+                <tr><td>Formalizar e liberar</td><td>SEP (esteira)</td></tr>
+                <tr><td>Credenciar, renovar, reatribuir</td><td>Administração</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <p class="note">
+        A separação entre captar e decidir foi tratada como regra de segurança: se a carteira comercial desse acesso às funções de decisão, um correspondente poderia influenciar a própria comissão. No sistema, o papel não aparece em nenhuma tela de decisão; no backend, isso precisa ser imposto na API.
+      </p>
+    </section>
+
+    <!-- SLIDE 5: A BASE E A VALIDADE -->
+    <section class="slide-card">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag">Regras do Negócio</div>
+          <h2 class="slide-title">A base não é permanente: validade e perda de clientes</h2>
+          <div class="slide-subtitle">Como o SEP mantém a base do correspondente sempre legítima</div>
+        </div>
+      </div>
+
+      <div class="cards-grid">
+        <div class="feature-card">
+          <div class="feature-card-title">1 · Cadastro vencido ou desatualizado</div>
+          <div class="feature-card-body">O correspondente tem cadastro com validade. Vencida a data, ou desatualizados os dados, ele perde os clientes da base. O sistema avisa 30 dias antes, e o prazo é um parâmetro.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-title">2 · Proposta sem citação</div>
+          <div class="feature-card-body">Se o cliente assina uma nova proposta sem citar o correspondente como o seu, o vínculo se encerra. É o cliente quem confirma, na assinatura, de quem ele é cliente.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-title">3 · Eleição do cliente</div>
+          <div class="feature-card-body">Quem sai da base pode eleger outro correspondente ou ficar direto com o SEP. O vínculo antigo é encerrado com motivo, e o novo começa na data da eleição.</div>
+        </div>
+      </div>
+
+      <div class="exec-two-columns" style="margin-top: 20px;">
+        <div class="exec-text-card">
+          <div class="exec-card-title">Ciclo de vida do cadastro</div>
+          <ul class="exec-highlight-list">
+            <li><strong>Pendente</strong>, depois <strong>Ativo</strong>, após a aprovação da administração.</li>
+            <li><strong>A vencer</strong> nos 30 dias finais, com aviso ao correspondente.</li>
+            <li><strong>Vencido</strong> quando passa da validade: não envia documentos e entra na apuração de perda de base.</li>
+            <li><strong>Suspenso</strong> ou <strong>Inativo</strong> por decisão da administração.</li>
+          </ul>
+        </div>
+        <div class="exec-text-card">
+          <div class="exec-card-title">Por que o vínculo guarda histórico</div>
+          <ul class="exec-highlight-list">
+            <li>Cada vínculo tem <strong>início, fim e motivo</strong>; nunca é apagado nem reescrito.</li>
+            <li>A comissão de um evento é atribuída ao vínculo que estava <strong>vigente na data do evento</strong>, o que evita disputas depois.</li>
+            <li>Um cliente só pode ter <strong>um vínculo vigente</strong> por vez.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: MEU BACK OFFICE -->
+    <section class="slide-card">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag">Área do Correspondente</div>
+          <h2 class="slide-title">Meu Back Office: painel com indicadores e gráficos</h2>
+          <div class="slide-subtitle">Capturas reais do sistema, com a conta de correspondente de demonstração</div>
+        </div>
+      </div>
+
+      <div class="shot-grid">
+        <figure class="shot">
+          <img src="imagens/01-meu-backoffice-painel.jpg" alt="Painel do correspondente com indicadores, gráficos e pendências" loading="lazy">
+          <figcaption><strong>O painel.</strong> Validade do cadastro, clientes na base, contratos ativos, carteira contratada, quanto falta receber, valor em atraso e inadimplência. Três gráficos: situação das operações, parcelas e valor a receber nos próximos seis meses. Abaixo, a lista do que pede atenção.</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="imagens/02-minha-base.jpg" alt="Lista de clientes da base do correspondente com a situação da operação de cada um" loading="lazy">
+          <figcaption><strong>Minha base.</strong> Cada cliente com documento mascarado, situação do vínculo, a situação do contrato ou da proposta, o valor da parcela e se a última proposta cita o correspondente. "Não" aparece como vínculo em risco.</figcaption>
+        </figure>
+      </div>
+
+      <p class="note">
+        O correspondente só lê a própria base. No sistema, a tela não envia nenhum identificador de carteira; no backend, o isolamento precisa vir da identidade autenticada. Um correspondente nunca vê cliente, proposta ou contrato de outro.
+      </p>
+    </section>
+
+    <!-- SLIDE 6B: CONTRATOS E PARCELAS -->
+    <section class="slide-card">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag">Acompanhamento da carteira</div>
+          <h2 class="slide-title">Contratos e parcelas dos clientes que o correspondente captou</h2>
+          <div class="slide-subtitle">Quem captou o cliente acompanha o contrato: em dia ou não, e o valor de cada parcela</div>
+        </div>
+      </div>
+
+      <div class="shot-grid">
+        <figure class="shot">
+          <img src="imagens/09-contratos.jpg" alt="Lista de contratos e propostas dos clientes com filtros por situação" loading="lazy">
+          <figcaption><strong>Contratos e propostas.</strong> Filtros por situação (em dia, em atraso, quitados, propostas), com o valor contratado, o valor da parcela, o andamento em parcelas pagas, o próximo vencimento e o valor em atraso. Contratos em atraso ficam em destaque.</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="imagens/10-detalhe-contrato.jpg" alt="Detalhe de um contrato com valores, gráfico de andamento e tabela de parcelas" loading="lazy">
+          <figcaption><strong>Parcela por parcela.</strong> Valor contratado, valor da parcela, quanto já foi pago, o que falta receber e o que está em atraso, com o andamento em gráfico e a situação, a data de pagamento e os dias de atraso de cada parcela.</figcaption>
+        </figure>
+      </div>
+
+      <div class="cards-grid" style="margin-top: 24px;">
+        <div class="feature-card">
+          <div class="feature-card-title">Só leitura</div>
+          <div class="feature-card-body">O correspondente acompanha. A cobrança, a baixa e a renegociação continuam sendo do SEP.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-title">Acesso acaba com o vínculo</div>
+          <div class="feature-card-body">Se o cliente sai da base, o correspondente deixa de ver os contratos dele. O vínculo é o que legitima o acesso aos dados.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-title">Sem dado sensível de crédito</div>
+          <div class="feature-card-body">Situação, valores e parcelas, sim. Score, renda e parecer de crédito, não.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6D: FUNIL E AGENDA -->
+    <section class="slide-card">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag">CRM do correspondente</div>
+          <h2 class="slide-title">Funil de prospecção e agenda de relacionamento</h2>
+          <div class="slide-subtitle">O módulo não começa só quando o cliente contrata</div>
+        </div>
+      </div>
+
+      <div class="shot-grid">
+        <figure class="shot">
+          <img src="imagens/12-funil-prospeccao.jpg" alt="Funil de prospecção com as etapas do prospectado ao ativo" loading="lazy">
+          <figcaption><strong>O funil.</strong> Do prospectado ao cliente ativo: contatado, em negociação, documentação, análise de crédito, aprovado e contratado. Indicadores de prospects, valor em potencial, conversão e perdidos; o motivo de cada perda fica registrado.</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="imagens/13-agenda.jpg" alt="Agenda com compromissos, atrasos e histórico de atendimento" loading="lazy">
+          <figcaption><strong>A agenda.</strong> Ligações, WhatsApp, visitas, reuniões, retornos e pendências documentais. Compromisso que passa da data fica atrasado, e o histórico de atendimento mostra o relacionamento com cada cliente.</figcaption>
+        </figure>
+      </div>
+
+      <p class="note">
+        No sistema, avançar de etapa é um registro comercial do correspondente. No backend, as etapas de decisão (análise de crédito, aprovado, contratado) precisam ser <strong>derivadas do estado real da proposta</strong>, e não marcadas à mão: quem capta não decide.
+      </p>
+    </section>
+
+    <!-- SLIDE 6E: COMISSOES, METAS E DESEMPENHO -->
+    <section class="slide-card">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag">Comissões, metas e desempenho</div>
+          <h2 class="slide-title">Quanto o correspondente gera, e como a rede está indo</h2>
+          <div class="slide-subtitle">Regras configuráveis, metas com atingimento e ranking por critério</div>
+        </div>
+      </div>
+
+      <div class="shot-grid">
+        <figure class="shot">
+          <img src="imagens/14-comissoes.jpg" alt="Comissões do correspondente com resumo, gráficos e histórico" loading="lazy">
+          <figcaption><strong>Minhas comissões.</strong> Acumulada, disponível, paga e prevista, com o histórico de lançamentos por contrato: originação sobre o valor liberado e comissão recorrente por parcela recebida, cada uma com o percentual da regra vigente.</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="imagens/15-desempenho.jpg" alt="Desempenho do correspondente com metas, posição e funil" loading="lazy">
+          <figcaption><strong>Meu desempenho.</strong> Metas de clientes e de crédito originado, com o atingimento, a posição na rede e a conversão do funil. O correspondente vê só a própria colocação: os dados dos demais não aparecem.</figcaption>
+        </figure>
+      </div>
+
+      <div class="shot-grid" style="margin-top: 24px;">
+        <figure class="shot">
+          <img src="imagens/17-comissoes-admin.jpg" alt="Regras de comissão configuráveis na administração" loading="lazy">
+          <figcaption><strong>Regras de comissão (administração).</strong> Percentual por produto e base de cálculo, com versão. Alterar exige justificativa e vai para a auditoria; os parâmetros não ficam no código.</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="imagens/18-desempenho-admin.jpg" alt="Ranking e metas da rede de correspondentes" loading="lazy">
+          <figcaption><strong>Ranking e metas da rede.</strong> Ordenação por crédito originado, clientes, contratos, conversão, comissão, atingimento da meta ou qualidade da carteira, e definição das metas de cada correspondente.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- SLIDE 6F: AUDITORIA E RELATORIOS -->
+    <section class="slide-card">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag">Controle e transparência</div>
+          <h2 class="slide-title">Auditoria e relatórios</h2>
+          <div class="slide-subtitle">O SEP movimenta dinheiro e dados sensíveis: tudo o que muda deixa rastro</div>
+        </div>
+      </div>
+
+      <div class="shot-grid">
+        <figure class="shot">
+          <img src="imagens/19-auditoria.jpg" alt="Trilha de auditoria do módulo com filtros" loading="lazy">
+          <figcaption><strong>Auditoria.</strong> Quem agiu, quando, a ação, a entidade e o detalhe com o valor anterior e o novo: cadastro renovado, vínculo reatribuído, envio validado, regra de comissão e meta alteradas. Somente leitura, com filtros e exportação.</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="imagens/16-relatorios.jpg" alt="Relatórios disponíveis ao correspondente" loading="lazy">
+          <figcaption><strong>Relatórios.</strong> Cinco arquivos CSV da carteira própria: contratos, parcelas, comissões, funil e agenda. A administração exporta comissões da rede, desempenho e auditoria.</figcaption>
+        </figure>
+      </div>
+
+      <div class="cards-grid" style="margin-top: 24px;">
+        <div class="feature-card">
+          <div class="feature-card-title">Somente leitura</div>
+          <div class="feature-card-body">Nenhum perfil edita ou apaga evento de auditoria. No backend, o registro é gravado na mesma transação da alteração.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-title">Exportação segura</div>
+          <div class="feature-card-body">Os arquivos CSV passam pela proteção contra injeção de fórmula em planilhas e respeitam o escopo de quem exporta.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-title">Quem audita</div>
+          <div class="feature-card-body">Recomenda-se um perfil de auditoria separado, para o administrador não ser o único a revisar as próprias ações.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6C: TOUR ASSISTIDO -->
+    <section class="slide-card">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag">Tour assistido</div>
+          <h2 class="slide-title">O sistema se demonstra sozinho, também neste módulo</h2>
+          <div class="slide-subtitle">Ajuda (?) → Tours assistidos → Correspondentes</div>
+        </div>
+      </div>
+
+      <div class="shot-grid">
+        <figure class="shot">
+          <img src="imagens/11-tour-contratos.jpg" alt="Tour assistido destacando a tabela de contratos do correspondente" loading="lazy">
+          <figcaption><strong>Em execução.</strong> O roteiro destaca a tabela de contratos, move o cursor, explica cada coluna e, no passo seguinte, abre as parcelas de um contrato. É o mesmo motor dos demais módulos.</figcaption>
+        </figure>
+        <div class="exec-text-card">
+          <div class="exec-card-title">Os 15 roteiros</div>
+          <div class="table-responsive" style="margin-top: 0;">
+            <table class="data-table" style="min-width: 0;">
+              <thead>
+                <tr><th>Roteiro</th><th>Quem vê</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Módulo completo (9 seções)</td><td>Correspondente</td></tr>
+                <tr><td>Meu painel</td><td>Correspondente</td></tr>
+                <tr><td>Funil de prospecção</td><td>Correspondente</td></tr>
+                <tr><td>Agenda e relacionamento</td><td>Correspondente</td></tr>
+                <tr><td>Contratos e parcelas dos clientes</td><td>Correspondente</td></tr>
+                <tr><td>Minha base de clientes</td><td>Correspondente</td></tr>
+                <tr><td>Enviar documentos com atesto</td><td>Correspondente</td></tr>
+                <tr><td>Minhas comissões</td><td>Correspondente</td></tr>
+                <tr><td>Meu desempenho</td><td>Correspondente</td></tr>
+                <tr><td>Relatórios da carteira</td><td>Correspondente</td></tr>
+                <tr><td>Rede de Correspondentes</td><td>Administração</td></tr>
+                <tr><td>Comissionamento da rede</td><td>Administração</td></tr>
+                <tr><td>Desempenho e metas da rede</td><td>Administração</td></tr>
+                <tr><td>Auditoria do módulo</td><td>Administração</td></tr>
+                <tr><td>Validar envios de correspondentes</td><td>Backoffice, financeiro, administração</td></tr>
+              </table>
+          </div>
+        </div>
+      </div>
+
+      <p class="note">
+        Os 15 roteiros foram executados de ponta a ponta no navegador, cada um com a conta do papel que o usa, e todos concluíram sem erro. Fora do ambiente de demonstração, o tour mostra e explica, mas para antes de gravar qualquer dado (enviar documento, apurar vigência).
+      </p>
+    </section>
+
+    <!-- SLIDE 7: ENVIO DE DOCUMENTOS -->
+    <section class="slide-card">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag">Documentação</div>
+          <h2 class="slide-title">Envio com atesto e validação do backoffice</h2>
+          <div class="slide-subtitle">O correspondente atesta a conferência; o backoffice decide</div>
+        </div>
+      </div>
+
+      <div class="shot-grid">
+        <figure class="shot">
+          <img src="imagens/03-envio-documentos.jpg" alt="Tela de envio de documentos com atesto de conferência" loading="lazy">
+          <figcaption><strong>O envio.</strong> Cliente da própria base, tipo de documento, arquivo e o atesto de que os originais foram conferidos. Sem o atesto, o envio não segue. Depois de enviado, aparece em "Meus envios" como em validação.</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="imagens/08-backoffice-envios.jpg" alt="Tela do backoffice com os envios dos correspondentes para validar" loading="lazy">
+          <figcaption><strong>A validação.</strong> O backoffice vê correspondente, cliente, documentos e atesto, e valida ou devolve. A devolução exige o motivo, que o correspondente lê no seu painel.</figcaption>
+        </figure>
+      </div>
+
+      <div class="cards-grid" style="margin-top: 24px;">
+        <div class="feature-card">
+          <div class="feature-card-title">Sinalização de formalizado</div>
+          <div class="feature-card-body">O envio nasce sinalizado como formalizado e em validação, e entra na fila de demandas do backoffice.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-title">O atesto é registro jurídico</div>
+          <div class="feature-card-body">No backend, ele deve guardar quem atestou, quando, de onde e qual versão do texto, para sustentar uma eventual contestação.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-title">Cadastro vencido bloqueia</div>
+          <div class="feature-card-body">Com o cadastro vencido ou suspenso, o envio é recusado. A renovação vem antes.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: ADMINISTRAÇÃO -->
+    <section class="slide-card">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag">Área da Administração</div>
+          <h2 class="slide-title">Rede de Correspondentes</h2>
+          <div class="slide-subtitle">Credenciamento, validade e vínculos em uma só tela</div>
+        </div>
+      </div>
+
+      <div class="shot-grid">
+        <figure class="shot">
+          <img src="imagens/05-rede-correspondentes.jpg" alt="Rede de correspondentes com indicadores e tabela" loading="lazy">
+          <figcaption><strong>A rede.</strong> Indicadores da rede, o anel com a situação dos cadastros, as barras com a carteira de cada correspondente (âmbar para quem tem parcelas vencidas) e a tabela com validade, carteira e inadimplência.</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="imagens/04-cadastro-vencido.jpg" alt="Painel de correspondente com cadastro vencido e aviso em destaque" loading="lazy">
+          <figcaption><strong>Cadastro vencido.</strong> O correspondente vê o aviso em destaque, sem poder enviar documentos, e é orientado a procurar a administração para renovar.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: APURAÇÃO -->
+    <section class="slide-card">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag">A regra em ação</div>
+          <h2 class="slide-title">Apuração de vigência e eleição do cliente</h2>
+          <div class="slide-subtitle">Simulada na tela; em produção é uma rotina automática do backend</div>
+        </div>
+      </div>
+
+      <div class="shot-grid">
+        <figure class="shot">
+          <img src="imagens/06-apuracao-vigencia.jpg" alt="Resultado da apuração de vigência na rede" loading="lazy">
+          <figcaption><strong>A apuração.</strong> Os vínculos de cadastro vencido são encerrados e a tela diz quantos e de quem. Os clientes ficam livres para eleger outro correspondente ou o SEP.</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="imagens/07-detalhe-vinculos.jpg" alt="Detalhe do correspondente com vínculos perdidos e opção de reatribuir" loading="lazy">
+          <figcaption><strong>O histórico.</strong> No detalhe, cada vínculo mostra início, fim e motivo. A administração registra a eleição do cliente reatribuindo para outro correspondente ou para o SEP direto.</figcaption>
+        </figure>
+      </div>
+
+      <p class="note">
+        O botão de apuração existe só para demonstrar a regra. Em produção não deve ser uma ação de tela: a rotina roda sozinha todos os dias, de forma idempotente, e registra cada vínculo encerrado em auditoria.
+      </p>
+    </section>
+
+    <!-- SLIDE 10: COMISSÃO -->
+    <section class="slide-card">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag">Comissionamento</div>
+          <h2 class="slide-title">Comissão paga via Pix: o que está pronto e o que depende de decisão</h2>
+          <div class="slide-subtitle">Transparência sobre o que ainda não foi construído</div>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Ponto</th>
+              <th>Situação</th>
+              <th>O que falta</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Cálculo e histórico na tela</strong></td><td><span class="status-fixed">Pronto (mock)</span></td><td>Calculados por regra versionada sobre os contratos dos clientes captados, com dados fictícios; o backend assume o cálculo</td></tr>
+            <tr><td><strong>Regras configuráveis</strong></td><td><span class="status-fixed">Pronto (mock)</span></td><td>Percentual por produto e base, com versão, justificativa e auditoria; falta fixar vigência por data e step-up no backend</td></tr>
+            <tr><td><strong>Registro das comissões</strong></td><td><span class="tag-pend">Proposto</span></td><td>Lançamentos imutáveis que guardam a versão da regra usada, com estorno por novo lançamento</td></tr>
+            <tr><td><strong>Pagamento pelo Pix do SEP</strong></td><td><span class="tag-pend">Proposto</span></td><td>Reaproveitar o fluxo de desembolso, com confirmação por TOTP, idempotência e conferência de titularidade da chave</td></tr>
+            <tr><td><strong>Comissão recorrente após perda da base</strong></td><td><span class="tag-pend">Decisão de negócio</span></td><td>Definir se continua ou se corta na data da perda</td></tr>
+            <tr><td><strong>Tributação sobre a comissão</strong></td><td><span class="tag-pend">Decisão fiscal</span></td><td>Retenções e documento fiscal ou recibo, para pessoa física</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="note">
+        O pagamento só será implementado se a normativa e a legislação permitirem, como combinado. Por isso o comissionamento é a última fase do plano e não foi simulado além do valor previsto.
+      </p>
+    </section>
+
+    <!-- SLIDE 11: DECISÕES -->
+    <section class="slide-card">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag">Decisões da Diretoria</div>
+          <h2 class="slide-title">O que precisa ser definido antes de produção</h2>
+          <div class="slide-subtitle">Pontos de negócio e jurídicos; o sistema reflete o que for decidido</div>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Tema</th>
+              <th>Pergunta</th>
+              <th>Quem decide</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Enquadramento regulatório</strong></td><td>O modelo do SEP admite correspondente pessoa física? Em que condições de contrato, registro e responsabilidade? (A norma de correspondentes no País é a Resolução CMN 4.935/2021; aplicabilidade e vigência a confirmar.)</td><td><span class="tag-pend">Jurídico</span></td></tr>
+            <tr><td><strong>Tributação</strong></td><td>Que retenções e documento fiscal valem para a comissão paga a pessoa física?</td><td><span class="tag-pend">Fiscal / Contabilidade</span></td></tr>
+            <tr><td><strong>LGPD</strong></td><td>O correspondente é operador dos dados do cliente? Qual termo de autorização o cliente assina?</td><td><span class="tag-pend">Jurídico / DPO</span></td></tr>
+            <tr><td><strong>Comissão recorrente</strong></td><td>Continua depois que o cliente sai da base ou corta na data da perda?</td><td><span class="tag-pend">Negócio</span></td></tr>
+            <tr><td><strong>Citação em outra proposta</strong></td><td>Se o cliente cita outro correspondente, o vínculo muda sozinho ou depende de confirmação do SEP?</td><td><span class="tag-pend">Negócio</span></td></tr>
+            <tr><td><strong>Prazo do cadastro</strong></td><td>Qual a validade e o que caracteriza "desatualizado"?</td><td><span class="tag-pend">Negócio / Jurídico</span></td></tr>
+            <tr><td><strong>Conflito de captação</strong></td><td>Se dois correspondentes prospectam o mesmo cliente, quem fica com ele? Primeiro registro, decisão do SEP ou outra regra?</td><td><span class="tag-pend">Negócio</span></td></tr>
+            <tr><td><strong>Etapas do funil</strong></td><td>As etapas de decisão (análise, aprovado, contratado) refletem a esteira do SEP e não são marcadas pelo correspondente. Confirmar.</td><td><span class="tag-pend">Negócio / Crédito</span></td></tr>
+            <tr><td><strong>Metas</strong></td><td>Qual a periodicidade (mensal, trimestral, anual) e o que conta como atingimento?</td><td><span class="tag-pend">Negócio</span></td></tr>
+            <tr><td><strong>Auditoria</strong></td><td>Quem audita: só a administração ou um perfil de compliance separado? Qual o prazo de guarda dos registros?</td><td><span class="tag-pend">Compliance / Jurídico</span></td></tr>
+            <tr><td><strong>Nome na interface</strong></td><td>"Correspondentes" pode ser usado, ou há restrição de termo regulado?</td><td><span class="tag-pend">Jurídico</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SLIDE 12: BACKEND -->
+    <section class="slide-card">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag">Apoio técnico ao Backend</div>
+          <h2 class="slide-title">O que o backend precisa garantir, e por quê</h2>
+          <div class="slide-subtitle">Resumo para a Diretoria; o detalhe, com contrato e justificativas, está no documento do backend</div>
+        </div>
+      </div>
+
+      <div class="cards-grid">
+        <div class="feature-card">
+          <div class="feature-card-title">Isolar a base na API</div>
+          <div class="feature-card-body">O filtro por correspondente precisa estar na camada de dados e vir da identidade, nunca de parâmetro. Recurso de outro correspondente responde "não encontrado". <strong>Por quê:</strong> um erro aqui expõe dados pessoais de terceiros.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-title">Vínculo como entidade com vigência</div>
+          <div class="feature-card-body">Início, fim, motivo e histórico, com um único vínculo vigente por cliente. <strong>Por quê:</strong> sem isso, a comissão vira disputa retroativa.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-title">Rotina de vigência automática</div>
+          <div class="feature-card-body">Diária, idempotente, auditada, com aviso em D-30, D-7 e D-0. <strong>Por quê:</strong> a perda de base não pode depender de alguém lembrar de apurar.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-title">Atesto e upload com prova</div>
+          <div class="feature-card-body">Registro imutável do atesto, hash de cada arquivo, antivírus e armazenamento fora do banco. <strong>Por quê:</strong> permite provar quem conferiu o quê, e quando.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-title">Comissão em registro imutável</div>
+          <div class="feature-card-body">Regras versionadas como parâmetros e lançamentos que nunca se alteram, apenas se estornam. <strong>Por quê:</strong> é a única forma de explicar um pagamento meses depois.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-title">Segurança reforçada</div>
+          <div class="feature-card-body">MFA obrigatório, confirmação por TOTP em renovar, reatribuir e pagar, e sessão encerrada quando o cadastro vence. <strong>Por quê:</strong> volume de dados pessoais e impacto financeiro.</div>
+        </div>
+      </div>
+
+      <p class="note">
+        O <a href="backend.html" style="color: inherit; text-decoration: underline;"><strong>documento técnico para o backend</strong></a> (também em Markdown, <code>CONTRATO_BACKEND_CORRESPONDENTES.md</code>) acompanha este relatório e traz modelo de dados, endpoints, códigos de erro, testes de aceite e a divisão em cinco fases. Os nomes e formatos já estão implementados no front: se o backend os seguir, não há alteração de tela.
+      </p>
+    </section>
+
+    <!-- SLIDE 13: FASES -->
+    <section class="slide-card">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag">Plano</div>
+          <h2 class="slide-title">Entrega em cinco fases</h2>
+          <div class="slide-subtitle">A fase 1 já está pronta no front com dados fictícios e pode começar no backend sem decisão jurídica</div>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Fase</th>
+              <th>Conteúdo</th>
+              <th>Frontend</th>
+              <th>Depende de</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>1</strong></td><td>Papel, cadastro com validade, vínculo, painel com gráficos, base, contratos e parcelas dos clientes</td><td><span class="status-fixed">Pronto (mock)</span></td><td>Backend (contratos e parcelas vêm de Formalização e Cobrança)</td></tr>
+            <tr><td><strong>1c</strong></td><td>Funil, agenda, comissões, metas, desempenho, auditoria e relatórios</td><td><span class="status-fixed">Pronto (mock)</span></td><td>Backend e definições de negócio (conflito de captação, períodos de meta)</td></tr>
+            <tr><td><strong>2</strong></td><td>Envio de documentos com atesto, validação e fila</td><td><span class="status-fixed">Pronto (mock)</span></td><td>Backend, armazenamento</td></tr>
+            <tr><td><strong>3</strong></td><td>Rotina de vigência, avisos, citação na proposta</td><td><span class="tag-pend">Simulado</span></td><td>Backend, regra de negócio</td></tr>
+            <tr><td><strong>4</strong></td><td>Comissão e pagamento via Pix</td><td><span class="tag-pend">Não iniciado</span></td><td>Jurídico, fiscal, backend</td></tr>
+            <tr><td><strong>5</strong></td><td>Metas, ranking e desempenho da rede; funil de prospecção e agenda</td><td><span class="tag-pend">Não iniciado</span></td><td>Backend</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="note">
+        Do desenho original, <strong>continua pendente</strong> o que depende de decisão externa: o <strong>pagamento efetivo da comissão pelo Pix</strong> (normativa, legislação e tributação), o estorno automático e a regra de comissão recorrente após a perda da base. Todo o resto do desenho (funil, agenda, comissões, metas, ranking, desempenho, relatórios e auditoria) está construído com dados fictícios.
+      </p>
+    </section>
+
+    <!-- SLIDE 14: ENCERRAMENTO -->
+    <section class="slide-card signoff-card">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tag">Parecer Técnico</div>
+          <h2 class="slide-title">Resumo da entrega &amp; ponto de retorno</h2>
+          <div class="slide-subtitle">Entrega em teste, preservando exatamente o estado anterior</div>
+        </div>
+      </div>
+
+      <div class="signoff-seal">
+        <div class="signoff-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div>
+          <h3 style="font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">
+            MÓDULO DE CORRESPONDENTES — FASES 1 E 2 EM TESTE — 7/10/2026
+          </h3>
+          <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6;">
+            Papel, painel, base, envio de documentos com atesto, rede, vínculos com histórico e validação do backoffice funcionando com dados fictícios, mais o apoio técnico ao backend. Construído sem alterar as regras do que já estava homologado.
+          </p>
+        </div>
+      </div>
+
+      <div class="exec-two-columns" style="margin-top: 20px;">
+        <div class="exec-text-card">
+          <div class="exec-card-title">Métricas atestadas</div>
+          <ul class="exec-highlight-list">
+            <li><strong>Testes automatizados:</strong> 98 arquivos e 745 testes, 100% aprovados.</li>
+            <li><strong>Compilação:</strong> build de produção concluído sem erros; ESLint, Prettier e stylelint limpos nos arquivos do módulo.</li>
+            <li><strong>Telas novas:</strong> 16, verificadas no navegador com as contas de correspondente, administração e backoffice.</li>
+            <li><strong>Tours:</strong> 15 roteiros executados de ponta a ponta no navegador, todos concluídos sem erro.</li>
+            <li><strong>Regras:</strong> vigência, perda de base, reatribuição e validação cobertas por testes.</li>
+          </ul>
+        </div>
+        <div class="exec-text-card">
+          <div class="exec-card-title">Como voltar ao estado anterior</div>
+          <ul class="exec-highlight-list">
+            <li><strong>Ponto de retorno:</strong> a marca <code>backup-pre-correspondentes-2026-10-07</code> guarda o sistema exatamente como estava antes de qualquer alteração.</li>
+            <li><strong>Trabalho isolado:</strong> tudo foi feito em branch própria, sem tocar nas branches principais.</li>
+            <li><strong>Descartar o teste:</strong> basta voltar à marca; nada do estado anterior foi sobrescrito.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="signature-grid">
+        <div class="signature-box">
+          <div class="sig-name">Daniel Möllmann</div>
+          <div class="sig-role">Frontend Development &amp; Security Architecture</div>
+          <div class="sig-date">7 de Outubro de 2026 · Entrega em teste</div>
+        </div>
+
+        <div class="signature-box" style="display: flex; flex-direction: column; justify-content: center; align-items: flex-end;">
+          <div class="badge-status" style="font-size: 13px; padding: 8px 18px;">STATUS: EM TESTE, COM PONTO DE RETORNO</div>
+          <div style="font-size: 11px; color: var(--text-dim); margin-top: 6px; font-family: var(--font-mono);">
+            REFERÊNCIA DA ENTREGA: SEP-UPD-2026-10-07
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Floating Action Bar for Mobile & Quick Interaction -->
+  <div class="floating-bar" id="floatingBar">
+    <button class="btn btn-whatsapp" onclick="compartilharWhatsApp()" title="Compartilhar no WhatsApp">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0012.04 2zm.01 1.67c4.54 0 8.24 3.7 8.24 8.24 0 2.2-.86 4.27-2.42 5.82a8.19 8.19 0 01-5.82 2.41c-1.47 0-2.91-.39-4.17-1.14l-.3-.18-3.11.82.83-3.03-.2-.31a8.19 8.19 0 01-1.26-4.39c0-4.54 3.7-8.24 8.24-8.24zm4.52 11.59c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.39-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.43h-.47c-.17 0-.43.06-.66.31-.22.25-.86.84-.86 2.05s.88 2.38 1 2.54c.12.17 1.73 2.64 4.2 3.7.59.25 1.05.41 1.41.52.59.19 1.13.16 1.56.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.1-.22-.17-.47-.29z"/></svg>
+      WhatsApp
+    </button>
+    <a href="SEP_Correspondentes_Daniel_Mollmann_07102026.pdf" download="SEP_Correspondentes_Daniel_Mollmann_07102026.pdf" class="btn btn-primary" title="Baixar PDF Oficial">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      PDF
+    </a>
+    <button class="btn-icon-only" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })" title="Voltar ao início">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+    </button>
+  </div>
+
+  <script>
+    function compartilharWhatsApp() {
+      const urlAtual = window.location.href.startsWith('http')
+        ? window.location.href
+        : '__URL_PUBLICADA__';
+
+      const texto = "*SEP — Módulo de Correspondentes · 7/10/2026*\n\n" +
+        "Relatório de *Daniel Möllmann* para a Diretoria:\n" +
+        "• Correspondente: pessoa física credenciada que capta clientes\n" +
+        "• Documentos enviados com atesto de conferência; o backoffice valida\n" +
+        "• Base com validade: cadastro vencido ou proposta sem citação encerra o vínculo\n" +
+        "• Comissão via Pix, sujeita a normativa e legislação\n" +
+        "• Em teste, com dados fictícios e ponto de retorno\n\n" +
+        "Acesse o relatório completo:\n" + urlAtual;
+
+      if (navigator.share && /Mobi|Android|iPhone/i.test(navigator.userAgent)) {
+        navigator.share({
+          title: 'SEP — Atualização do Frontend',
+          text: texto,
+          url: urlAtual
+        }).catch(function() {
+          abrirLinkWhatsApp(texto);
+        });
+      } else {
+        abrirLinkWhatsApp(texto);
+      }
+    }
+
+    function abrirLinkWhatsApp(texto) {
+      const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(texto);
+      window.open(waUrl, '_blank');
+    }
+  </script>
+
+</body>
+</html>

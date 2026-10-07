@@ -1,0 +1,185 @@
+<sep-operational-shell>
+  <main class="cor-page">
+    <header class="cor-hero">
+      <div>
+        <p class="cor-crumbs">
+          <a routerLink="/app/dashboard">Início</a> ›
+          <a routerLink="/app/correspondentes">Rede de Correspondentes</a> ›
+          <strong>Comissões</strong>
+        </p>
+        <h1>Comissionamento</h1>
+        <p>
+          Regras configuráveis e livro de comissões da rede. Alterar uma regra cria nova versão,
+          exige justificativa e vai para a auditoria.
+        </p>
+      </div>
+      <button type="button" class="cor-btn secundario" (click)="exportar()">
+        <lucide-icon name="download" [size]="14" [strokeWidth]="2" /> Exportar CSV
+      </button>
+    </header>
+
+    @if (erro()) {
+      <div class="cor-erro" role="alert">{{ erro() }}</div>
+    }
+    @if (aviso()) {
+      <div class="cor-aviso" data-tone="green" role="status">{{ aviso() }}</div>
+    }
+
+    @if (carregando()) {
+      <p class="cor-estado" role="status">Carregando as comissões...</p>
+    } @else {
+      <section class="cor-kpis" aria-label="Resumo da rede">
+        <article class="cor-kpi" data-tone="green">
+          <small>Paga na rede</small>
+          <strong>{{ moeda(paga()) }}</strong>
+          <span>pelo Pix do SEP</span>
+          <lucide-icon name="circle-check" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" data-tone="amber">
+          <small>A pagar (disponível)</small>
+          <strong>{{ moeda(disponivel()) }}</strong>
+          <span>aguardando autorização</span>
+          <lucide-icon name="banknote" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi">
+          <small>Prevista</small>
+          <strong>{{ moeda(prevista()) }}</strong>
+          <span>parcelas ainda a vencer</span>
+          <lucide-icon name="calendar-clock" [size]="34" [strokeWidth]="1.25" />
+        </article>
+      </section>
+
+      <section class="cor-grid">
+        <article class="cor-card cor-card-largo" data-tour="cor-regras">
+          <header class="cor-card-titulo">
+            <lucide-icon name="percent" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2>Regras de comissão</h2>
+              <p>Percentual por produto e base de cálculo, com versão</p>
+            </div>
+          </header>
+          <div class="cor-tabela-wrap">
+            <table class="cor-tabela">
+              <thead>
+                <tr>
+                  <th>Produto</th>
+                  <th>Base</th>
+                  <th>Gatilho</th>
+                  <th class="num">Versão</th>
+                  <th class="num">%</th>
+                  <th>Justificativa</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (r of regras(); track r.id) {
+                  <tr>
+                    <td>
+                      {{ r.produto }}<small>vigente desde {{ data(r.vigenteDesde) }}</small>
+                    </td>
+                    <td>
+                      {{ r.base === 'VALOR_LIBERADO' ? 'Valor liberado' : 'Parcela recebida' }}
+                    </td>
+                    <td>{{ r.gatilhoPagamento }}</td>
+                    <td class="num">v{{ r.versao }}</td>
+                    <td class="num">
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="20"
+                        class="cor-input-mini"
+                        [attr.aria-label]="'Percentual da regra ' + r.produto"
+                        [name]="'pct-' + r.id"
+                        [(ngModel)]="edicao[r.id].percentual"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        class="cor-input-mini cor-input-largo"
+                        placeholder="Motivo da alteração"
+                        [attr.aria-label]="'Justificativa da regra ' + r.produto"
+                        [name]="'just-' + r.id"
+                        [(ngModel)]="edicao[r.id].justificativa"
+                      />
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        class="cor-btn"
+                        [disabled]="!podeSalvar(r)"
+                        [attr.aria-label]="'Salvar regra ' + r.produto"
+                        (click)="salvar(r)"
+                      >
+                        Salvar
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="cor-card">
+          <header class="cor-card-titulo">
+            <lucide-icon name="chart-pie" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2>Comissão gerada por correspondente</h2>
+              <p>Paga e disponível, em reais</p>
+            </div>
+          </header>
+          <sep-cor-donut
+            [faixas]="faixas()"
+            legendaCentro="correspondentes"
+            descricao="Comissão por correspondente"
+          />
+        </article>
+      </section>
+
+      <section class="cor-card" aria-labelledby="cor-livro-rede">
+        <header class="cor-card-titulo">
+          <lucide-icon name="list-checks" [size]="24" [strokeWidth]="1.5" />
+          <div>
+            <h2 id="cor-livro-rede">Últimos lançamentos</h2>
+            <p>Cada lançamento guarda a versão da regra usada</p>
+          </div>
+        </header>
+        <div class="cor-tabela-wrap">
+          <table class="cor-tabela">
+            <thead>
+              <tr>
+                <th>Competência</th>
+                <th>Correspondente</th>
+                <th>Cliente</th>
+                <th>Evento</th>
+                <th class="num">Valor</th>
+                <th class="num">Regra</th>
+                <th>Situação</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (l of recentes(); track l.id) {
+                <tr>
+                  <td>{{ mes(l.competencia) }}</td>
+                  <td>{{ l.correspondenteNome }}</td>
+                  <td>
+                    {{ l.clienteNome }}<small>{{ l.contratoNumero }}</small>
+                  </td>
+                  <td>{{ rotuloEvento[l.evento] }}</td>
+                  <td class="num">{{ moeda(l.valor) }}</td>
+                  <td class="num">v{{ l.regraVersao }}</td>
+                  <td>
+                    <span class="cor-selo" [attr.data-tone]="tomStatus[l.status]">{{
+                      rotuloStatus[l.status]
+                    }}</span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+  </main>
+</sep-operational-shell>

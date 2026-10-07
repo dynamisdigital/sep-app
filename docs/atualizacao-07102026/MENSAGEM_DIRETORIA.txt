@@ -1,0 +1,35 @@
+🖥️ SEP — Módulo de Correspondentes · 7 de Outubro de 2026
+
+Prezada Diretoria e Conselho Executivo,
+
+Apresento a proposta e o protótipo funcional do Módulo de Correspondentes do SEP, em teste e com
+dados fictícios:
+
+🤝 O correspondente é uma pessoa física credenciada, com cadastro de validade definida, que
+capta clientes e acompanha a própria base. Quem capta não decide o crédito: análise, aprovação,
+formalização e liberação continuam do SEP.
+📎 Os documentos são enviados pelo correspondente com atesto de que conferiu os originais, ficam
+sinalizados como formalizados e entram na fila do backoffice, que valida ou devolve.
+⏳ A base não é permanente: cadastro vencido ou desatualizado, ou proposta assinada sem citar o
+correspondente, encerra o vínculo. O cliente pode então eleger outro correspondente ou ficar
+direto com o SEP.
+📊 O correspondente acompanha os contratos e as parcelas dos clientes que captou (em dia ou em atraso, e o valor de cada parcela), tem funil de prospecção, agenda, comissões, metas e relatórios, e conta com tour assistido na tela. A administração configura as regras de comissão, acompanha ranking e metas e tem trilha de auditoria.
+💸 A comissão será paga pelo Pix do SEP, desde que a normativa e a legislação permitam. Hoje o
+valor é calculado só com dados fictícios, sem pagamento.
+
+📌 Para decisão: enquadramento regulatório do correspondente pessoa física, tributação da
+comissão, base legal LGPD e a regra da comissão recorrente após a perda da base (quadro no
+slide 16).
+🛡️ Entrega em teste, com ponto de retorno ao estado anterior preservado.
+✅ 745 testes automatizados aprovados (100%).
+
+📱 Relatório interativo e PDF oficial:
+[LINK]
+
+O apoio técnico para o backend (contrato, regras e justificativas) está em:
+[LINK]/backend.html
+
+Responsável Técnico:
+Daniel Möllmann
+Frontend Development & Security Architecture
+7 de Outubro de 2026

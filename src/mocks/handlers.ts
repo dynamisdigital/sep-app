@@ -1,5 +1,7 @@
 import { http, HttpResponse } from 'msw';
 
+import { criarHandlersCorrespondentes } from './correspondentes.handlers';
+import { criarHandlersGestao } from './correspondentes-gestao.handlers';
 import { qrDataUrl } from './qr';
 import { codigoTotpValido } from './totp';
 
@@ -150,6 +152,26 @@ const credoraNovoUsuario = {
   modificadoPor: 'system',
 };
 
+// Personas do modulo de Correspondentes. Ficam fora de `usuariosFake` de proposito: sao contas de
+// demonstracao do modulo e nao entram na contagem da governanca de usuarios.
+const correspondenteUsuario = {
+  id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771021',
+  username: 'correspondente@empresa.com',
+  role: 'CORRESPONDENTE',
+  precisaRedefinirSenha: false,
+  mfaHabilitado: false,
+  dataCriacao: now,
+  dataModificacao: now,
+  criadoPor: 'system',
+  modificadoPor: 'system',
+};
+
+const correspondenteVencidoUsuario = {
+  ...correspondenteUsuario,
+  id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771022',
+  username: 'correspondente-vencido@empresa.com',
+};
+
 const usuariosFake = [
   devUsuario,
   adminUsuario,
@@ -187,6 +209,8 @@ const loginUsuarios: Record<string, typeof adminUsuario> = {
   'credora@empresa.com': credoraUsuario,
   'credora-inelegivel@empresa.com': credoraInelegivelUsuario,
   'credora-novo@empresa.com': credoraNovoUsuario,
+  'correspondente@empresa.com': correspondenteUsuario,
+  'correspondente-vencido@empresa.com': correspondenteVencidoUsuario,
 };
 let currentMockUser = adminUsuario;
 // Contas criadas por POST /usuarios nesta sessao do mock; o reset da governanca as remove.
@@ -3595,6 +3619,10 @@ const credoraHandlers = [
 ];
 
 export const handlers = [
+  // A gestao vem antes: `/correspondentes/:id` casaria rotas como /comissoes e /auditoria.
+  ...criarHandlersGestao(baseUrl, () => currentMockUser, errorResponse),
+  ...criarHandlersCorrespondentes(baseUrl, () => currentMockUser, errorResponse),
+
   http.post(`${baseUrl}/auth/login`, async ({ request }) => {
     const body = (await request.json()) as { username?: string; password?: string };
     const candidato = loginUsuarios[body.username ?? ''];

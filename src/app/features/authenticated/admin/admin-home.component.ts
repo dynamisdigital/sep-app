@@ -18,7 +18,13 @@ import { OperationalShellComponent } from '../../../layout/operational-shell/ope
 
 // Papeis de acesso do contrato (UsuarioRole no backend). A contagem de papeis sai daqui, e nao de
 // um endpoint, porque o conjunto e fechado pelo proprio contrato da API.
-const PAPEIS_DO_CONTRATO = ['ADMIN', 'CLIENTE', 'FINANCEIRO', 'BACKOFFICE'] as const;
+const PAPEIS_DO_CONTRATO = [
+  'ADMIN',
+  'CLIENTE',
+  'FINANCEIRO',
+  'BACKOFFICE',
+  'CORRESPONDENTE',
+] as const;
 
 // Landing da area Administracao (ADMIN-only; guard herdado da rota pai). Os dois modulos entregues
 // sao Usuarios e Parametros operacionais. Roles cumulativas nao tem modulo proprio — sao geridas no

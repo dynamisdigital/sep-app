@@ -17,7 +17,13 @@ import { OperationalShellComponent } from '../../../../layout/operational-shell/
 import { UsuariosService } from '../../../../core/users/usuarios.service';
 
 // Papeis do contrato (UsuarioRole). A contagem sai daqui porque o conjunto e fechado pela API.
-const PAPEIS_DO_CONTRATO: UsuarioRole[] = ['ADMIN', 'CLIENTE', 'FINANCEIRO', 'BACKOFFICE'];
+const PAPEIS_DO_CONTRATO: UsuarioRole[] = [
+  'ADMIN',
+  'CLIENTE',
+  'FINANCEIRO',
+  'BACKOFFICE',
+  'CORRESPONDENTE',
+];
 
 // Descricao legivel do papel, para a linha dizer o que o perfil faz sem consultar outra tela.
 const DESCRICAO_POR_PAPEL: Record<UsuarioRole, string> = {
@@ -25,6 +31,7 @@ const DESCRICAO_POR_PAPEL: Record<UsuarioRole, string> = {
   CLIENTE: 'Usuário cliente',
   FINANCEIRO: 'Analista financeiro',
   BACKOFFICE: 'Analista backoffice',
+  CORRESPONDENTE: 'Correspondente (capta e envia documentos)',
 };
 
 const TOM_POR_PAPEL: Record<UsuarioRole, string> = {
@@ -32,6 +39,7 @@ const TOM_POR_PAPEL: Record<UsuarioRole, string> = {
   CLIENTE: 'green',
   FINANCEIRO: 'purple',
   BACKOFFICE: 'amber',
+  CORRESPONDENTE: 'cyan',
 };
 
 type Coluna = 'username' | 'role' | 'dataCriacao' | 'dataModificacao';

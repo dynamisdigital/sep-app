@@ -1,0 +1,175 @@
+<sep-operational-shell>
+  <main class="cor-page">
+    <header class="cor-hero">
+      <div>
+        <p class="cor-crumbs">
+          <a routerLink="/app/dashboard">Início</a> ›
+          <a routerLink="/app/meu-backoffice">Meu Back Office</a> › <strong>Prospecção</strong>
+        </p>
+        <h1>Funil de prospecção</h1>
+        <p>
+          Do prospectado ao cliente ativo. Avançar de etapa é um registro seu: a análise e a decisão
+          de crédito continuam do SEP.
+        </p>
+      </div>
+    </header>
+
+    @if (erro()) {
+      <div class="cor-erro" role="alert">{{ erro() }}</div>
+    }
+    @if (aviso()) {
+      <div class="cor-aviso" data-tone="green" role="status">{{ aviso() }}</div>
+    }
+
+    @if (carregando()) {
+      <p class="cor-estado" role="status">Carregando o funil...</p>
+    } @else {
+      <section class="cor-kpis" aria-label="Indicadores do funil" data-tour="cor-funil-kpis">
+        <article class="cor-kpi">
+          <small>Prospects no funil</small>
+          <strong>{{ prospects().length }}</strong>
+          <span>incluindo ativos e perdidos</span>
+          <lucide-icon name="funnel" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" data-tone="amber">
+          <small>Em andamento</small>
+          <strong>{{ emAndamento().length }}</strong>
+          <span>{{ moeda(valorEmAndamento()) }} em potencial</span>
+          <lucide-icon name="target" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" data-tone="green">
+          <small>Conversão</small>
+          <strong>{{ pct(conversao()) }}</strong>
+          <span>contratados ou ativos sobre o total</span>
+          <lucide-icon name="trending-up" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" [attr.data-tone]="perdidos() ? 'red' : 'green'">
+          <small>Perdidos</small>
+          <strong>{{ perdidos() }}</strong>
+          <span>com o motivo registrado</span>
+          <lucide-icon name="circle-alert" [size]="34" [strokeWidth]="1.25" />
+        </article>
+      </section>
+
+      <details class="cor-card cor-detalhes" data-tour="cor-funil-novo">
+        <summary><lucide-icon name="plus" [size]="18" [strokeWidth]="2" /> Novo prospect</summary>
+        <div class="cor-form" style="margin-top: 12px">
+          <label>
+            Nome
+            <input name="nome" [(ngModel)]="novo.nome" placeholder="Pessoa ou empresa" />
+          </label>
+          <label>
+            Tipo
+            <select name="tipoPessoa" [(ngModel)]="novo.tipoPessoa">
+              <option value="PF">Pessoa física</option>
+              <option value="PJ">Pessoa jurídica</option>
+            </select>
+          </label>
+          <label>
+            Telefone
+            <input name="telefone" [(ngModel)]="novo.telefone" placeholder="(00) 00000-0000" />
+          </label>
+          <label>
+            Produto de interesse
+            <select name="produto" [(ngModel)]="novo.produtoInteresse">
+              <option>Capital de giro</option>
+              <option>Crédito pessoal</option>
+            </select>
+          </label>
+          <label>
+            Valor estimado (R$)
+            <input type="number" min="0" name="valor" [(ngModel)]="novo.valorEstimado" />
+          </label>
+        </div>
+        <div class="cor-acoes" style="margin-top: 12px">
+          <button type="button" class="cor-btn" [disabled]="!podeCriar" (click)="criar()">
+            Adicionar ao funil
+          </button>
+        </div>
+      </details>
+
+      <section class="cor-funil" aria-label="Etapas do funil" data-tour="cor-funil">
+        @for (etapa of etapas; track etapa) {
+          <div class="cor-coluna" [attr.data-etapa]="etapa">
+            <header>
+              <strong>{{ rotulo[etapa] }}</strong>
+              <span>{{ porEtapa().get(etapa)?.length ?? 0 }}</span>
+            </header>
+            @for (p of porEtapa().get(etapa) ?? []; track p.id) {
+              <article class="cor-prospect">
+                <strong>{{ p.nome }}</strong>
+                <small>{{ p.tipoPessoa }} · {{ p.produtoInteresse }}</small>
+                <span>{{ moeda(p.valorEstimado) }}</span>
+                @if (p.proximoContato) {
+                  <small>Próximo contato: {{ data(p.proximoContato) }}</small>
+                }
+                @if (perdendo() === p.id) {
+                  <input
+                    [attr.aria-label]="'Motivo da perda de ' + p.nome"
+                    name="motivo-{{ p.id }}"
+                    placeholder="Motivo da perda"
+                    [(ngModel)]="motivoPerda"
+                  />
+                  <div class="cor-acoes">
+                    <button type="button" class="cor-btn perigo" (click)="confirmarPerda(p)">
+                      Confirmar
+                    </button>
+                    <button type="button" class="cor-btn secundario" (click)="perdendo.set(null)">
+                      Cancelar
+                    </button>
+                  </div>
+                } @else if (etapa !== 'ATIVO') {
+                  <div class="cor-acoes">
+                    @if (proxima(p.etapa); as prox) {
+                      <button
+                        type="button"
+                        class="cor-btn"
+                        [attr.aria-label]="'Avançar ' + p.nome + ' para ' + rotulo[prox]"
+                        (click)="avancar(p)"
+                      >
+                        {{ rotulo[prox] }} ▸
+                      </button>
+                    }
+                    <button
+                      type="button"
+                      class="cor-btn secundario"
+                      [attr.aria-label]="'Marcar ' + p.nome + ' como perdido'"
+                      (click)="iniciarPerda(p)"
+                    >
+                      Perdido
+                    </button>
+                  </div>
+                }
+              </article>
+            } @empty {
+              <p class="cor-coluna-vazia">Nenhum</p>
+            }
+          </div>
+        }
+      </section>
+
+      @if (perdidos()) {
+        <section class="cor-card" aria-labelledby="cor-perdidos">
+          <header class="cor-card-titulo">
+            <lucide-icon name="circle-alert" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2 id="cor-perdidos">Prospects perdidos</h2>
+              <p>O motivo fica registrado para ajustar a abordagem</p>
+            </div>
+          </header>
+          <ul class="cor-atencao">
+            @for (p of porEtapa().get('PERDIDO') ?? []; track p.id) {
+              <li data-tone="red">
+                <span
+                  ><strong>{{ p.nome }}</strong> · {{ p.produtoInteresse }}
+                  <small>{{ p.motivoPerda }}</small></span
+                >
+                <span>{{ moeda(p.valorEstimado) }}</span>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+    }
+  </main>
+</sep-operational-shell>

@@ -1,5 +1,6 @@
 import { Roteiro } from '../tour.model';
 import { ROTEIROS_BACKOFFICE } from './backoffice.roteiro';
+import { ROTEIROS_CORRESPONDENTES } from './correspondentes.roteiro';
 import { ROTEIROS_CREDITO } from './credito.roteiro';
 import { ROTEIROS_CREDORA } from './credora.roteiro';
 import { ROTEIROS_COBRANCA } from './cobranca.roteiro';
@@ -24,6 +25,7 @@ export const ROTEIROS: Roteiro[] = [
   ...ROTEIROS_PIX,
   ...ROTEIROS_BACKOFFICE,
   ...ROTEIROS_CREDORA,
+  ...ROTEIROS_CORRESPONDENTES,
   ...ROTEIROS_USUARIOS,
   ...ROTEIROS_PARAMETROS,
   ...ROTEIROS_PERFIL,
@@ -44,6 +46,7 @@ export const MODULOS_TOUR: Record<string, { icone: string; tom: string }> = {
   Pix: { icone: 'qr-code', tom: 'var(--sep-tint-teal)' },
   Backoffice: { icone: 'briefcase', tom: 'var(--sep-tint-sky)' },
   Credora: { icone: 'building-2', tom: 'var(--sep-tint-emerald)' },
+  Correspondentes: { icone: 'handshake', tom: 'var(--sep-tint-lime)' },
   Usuários: { icone: 'users', tom: 'var(--sep-tint-red)' },
   Parâmetros: { icone: 'settings', tom: 'var(--sep-tint-orange)' },
   Perfil: { icone: 'user-round', tom: 'var(--sep-tint-slate)' },

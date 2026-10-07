@@ -79,6 +79,14 @@ export class DashboardComponent {
       tone: 'green',
       roles: ['CLIENTE'],
     },
+    {
+      label: 'Meu Back Office',
+      description: 'Sua base de clientes e o envio de documentos.',
+      route: '/app/meu-backoffice',
+      icon: 'briefcase',
+      tone: 'green',
+      roles: ['CORRESPONDENTE'],
+    },
   ];
 
   private readonly todasOperacoes: DashboardAtalho[] = [
@@ -97,6 +105,14 @@ export class DashboardComponent {
       icon: 'wallet',
       tone: 'purple',
       roles: ['FINANCEIRO', 'ADMIN', 'BACKOFFICE'],
+    },
+    {
+      label: 'Correspondentes',
+      description: 'Rede, validade de cadastro e vínculos.',
+      route: '/app/correspondentes',
+      icon: 'handshake',
+      tone: 'green',
+      roles: ['ADMIN'],
     },
     {
       label: 'Administração',

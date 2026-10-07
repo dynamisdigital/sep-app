@@ -1,0 +1,174 @@
+<sep-operational-shell>
+  <main class="cor-page">
+    <header class="cor-hero">
+      <div>
+        <p class="cor-crumbs">
+          <a routerLink="/app/dashboard">Início</a> ›
+          <a routerLink="/app/meu-backoffice">Meu Back Office</a> › <strong>Comissões</strong>
+        </p>
+        <h1>Minhas comissões</h1>
+        <p>
+          Calculadas sobre os contratos dos clientes que você captou, pelas regras vigentes do SEP.
+          O pagamento será feito pelo Pix do SEP, conforme a normativa e a legislação.
+        </p>
+      </div>
+      <button type="button" class="cor-btn secundario" (click)="exportar()">
+        <lucide-icon name="download" [size]="14" [strokeWidth]="2" /> Exportar CSV
+      </button>
+    </header>
+
+    @if (erro()) {
+      <div class="cor-erro" role="alert">{{ erro() }}</div>
+    }
+
+    @if (carregando()) {
+      <p class="cor-estado" role="status">Carregando as comissões...</p>
+    } @else if (comissoes(); as c) {
+      <section class="cor-kpis" aria-label="Resumo das comissões" data-tour="cor-comissoes-kpis">
+        <article class="cor-kpi" data-tone="green">
+          <small>Acumulada</small>
+          <strong>{{ moeda(c.acumulada) }}</strong>
+          <span>paga e disponível</span>
+          <lucide-icon name="wallet" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" data-tone="amber">
+          <small>Disponível</small>
+          <strong>{{ moeda(c.disponivel) }}</strong>
+          <span>aguardando o pagamento</span>
+          <lucide-icon name="banknote" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" data-tone="green">
+          <small>Já paga</small>
+          <strong>{{ moeda(c.paga) }}</strong>
+          <span>pelo Pix do SEP</span>
+          <lucide-icon name="circle-check" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi">
+          <small>Prevista</small>
+          <strong>{{ moeda(c.prevista) }}</strong>
+          <span>parcelas ainda a vencer</span>
+          <lucide-icon name="calendar-clock" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" [attr.data-tone]="c.estornada ? 'red' : 'green'">
+          <small>Estornada</small>
+          <strong>{{ moeda(c.estornada) }}</strong>
+          <span>cancelamentos conforme a regra</span>
+          <lucide-icon name="rotate-ccw" [size]="34" [strokeWidth]="1.25" />
+        </article>
+      </section>
+
+      <section class="cor-grid" aria-label="Gráficos de comissão">
+        <article class="cor-card">
+          <header class="cor-card-titulo">
+            <lucide-icon name="chart-pie" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2>Composição</h2>
+              <p>Valor por situação, em reais</p>
+            </div>
+          </header>
+          <sep-cor-donut
+            [faixas]="faixas()"
+            legendaCentro="R$ total"
+            [centro]="moedaCurta(c.paga + c.disponivel + c.prevista)"
+            descricao="Composição das comissões"
+          />
+        </article>
+        <article class="cor-card">
+          <header class="cor-card-titulo">
+            <lucide-icon name="chart-column" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2>Comissão gerada por mês</h2>
+              <p>Últimos seis meses, sem as previstas</p>
+            </div>
+          </header>
+          <sep-cor-barras
+            [itens]="barras()"
+            [formato]="moedaCurta"
+            descricao="Comissão gerada por mês"
+          />
+        </article>
+      </section>
+
+      <section class="cor-card" aria-labelledby="cor-livro" data-tour="cor-comissoes-livro">
+        <header class="cor-card-titulo">
+          <lucide-icon name="list-checks" [size]="24" [strokeWidth]="1.5" />
+          <div>
+            <h2 id="cor-livro">Histórico de comissões</h2>
+            <p>Cada lançamento mostra a base, o percentual da regra vigente e a situação</p>
+          </div>
+        </header>
+        <div
+          class="cor-filtros"
+          role="group"
+          aria-label="Filtrar por situação"
+          style="margin-bottom: 12px"
+        >
+          @for (f of filtros; track f.chave) {
+            <button type="button" [class.ativo]="filtro() === f.chave" (click)="filtrar(f.chave)">
+              {{ f.rotulo }}
+            </button>
+          }
+        </div>
+        <div class="cor-tabela-wrap">
+          <table class="cor-tabela">
+            <thead>
+              <tr>
+                <th>Competência</th>
+                <th>Cliente</th>
+                <th>Evento</th>
+                <th class="num">Base</th>
+                <th class="num">%</th>
+                <th class="num">Valor</th>
+                <th>Situação</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (l of pagina12(); track l.id) {
+                <tr>
+                  <td>{{ mes(l.competencia) }}</td>
+                  <td>
+                    {{ l.clienteNome }}<small>{{ l.contratoNumero }}</small>
+                  </td>
+                  <td>{{ rotuloEvento[l.evento] }}</td>
+                  <td class="num">{{ moeda(l.baseCalculo) }}</td>
+                  <td class="num">{{ pct(l.percentual) }}</td>
+                  <td class="num">{{ moeda(l.valor) }}</td>
+                  <td>
+                    <span class="cor-selo" [attr.data-tone]="tomStatus[l.status]">{{
+                      rotuloStatus[l.status]
+                    }}</span>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="cor-estado">Nenhum lançamento nesta situação.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        @if (paginas() > 1) {
+          <div class="cor-acoes" style="margin-top: 10px; justify-content: flex-end">
+            <button
+              type="button"
+              class="cor-btn secundario"
+              [disabled]="pagina() === 1"
+              (click)="pagina.set(pagina() - 1)"
+            >
+              Anterior
+            </button>
+            <small>Página {{ pagina() }} de {{ paginas() }}</small>
+            <button
+              type="button"
+              class="cor-btn secundario"
+              [disabled]="pagina() === paginas()"
+              (click)="pagina.set(pagina() + 1)"
+            >
+              Próxima
+            </button>
+          </div>
+        }
+      </section>
+    }
+  </main>
+</sep-operational-shell>
