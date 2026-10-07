@@ -405,6 +405,12 @@ export class OperationalShellComponent implements OnDestroy {
           lucide: 'plus',
           tom: 'var(--sep-tint-violet)',
         },
+        {
+          label: 'Pix Automático',
+          route: '/app/credito/pix-automatico',
+          lucide: 'repeat',
+          tom: 'var(--sep-tint-violet)',
+        },
       ],
     },
     {

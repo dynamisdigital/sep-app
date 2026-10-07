@@ -8,6 +8,9 @@ import {
 } from '../app/core/financeiro/politica-credito';
 import { criarHandlersCorrespondentes } from './correspondentes.handlers';
 import { criarHandlersRede } from './correspondentes-rede.handlers';
+import type { AgendaPagamentoResponse } from '../app/core/api/api.models';
+import { semearPix } from './data/pix-automatico.store';
+import { criarHandlersPixAutomatico } from './pix-automatico.handlers';
 import { criarHandlersGestao } from './correspondentes-gestao.handlers';
 import { qrDataUrl } from './qr';
 import { codigoTotpValido } from './totp';
@@ -1623,6 +1626,15 @@ for (const chave of Object.keys(CARTEIRA) as ChaveContrato[]) {
   agendasPorContrato.set(chave, agenda);
 }
 
+// Pix Automatico: uma autorizacao ativa e uma aguardando o aceite do pagador, sobre contratos da carteira.
+const agendaParaPix = (contratoId: string) =>
+  agendasPorContrato.get(contratoId) as unknown as AgendaPagamentoResponse | undefined;
+const SEMENTES_PIX = {
+  ativa: CONTRATO_UUID['5b771c03'],
+  pendente: CONTRATO_UUID['5b771c06'],
+};
+semearPix(agendaParaPix, SEMENTES_PIX);
+
 // Segredo TOTP do dev-offline (Mockup 34). O desenho traz uma chave com 0/1/8/9, que nao
 // existem no alfabeto Base32 (A-Z e 2-7); aqui a chave e valida de verdade. Ainda assim o
 // codigo aceito e fixo: nenhum aplicativo autenticador real vai gerar o mesmo numero.
@@ -1718,6 +1730,7 @@ let renegociacoes = seedRenegociacoes();
 // a mutacao, agora a listagem enxerga, e um teste de aceite mudaria a contagem do seguinte.
 export function resetCobrancaState(): void {
   renegociacoes = seedRenegociacoes();
+  semearPix(agendaParaPix, SEMENTES_PIX);
 }
 
 const cobrancaHandlers = [
@@ -3661,6 +3674,7 @@ export const handlers = [
   // A rede vem antes da gestao: `/correspondentes/me/rede/...` nao pode cair nas rotas `/me/...` genericas.
   ...criarHandlersRede(baseUrl, () => currentMockUser, errorResponse),
   ...criarHandlersGestao(baseUrl, () => currentMockUser, errorResponse),
+  ...criarHandlersPixAutomatico(baseUrl, () => currentMockUser, errorResponse, agendaParaPix),
   ...criarHandlersCorrespondentes(baseUrl, () => currentMockUser, errorResponse),
 
   http.post(`${baseUrl}/auth/login`, async ({ request }) => {

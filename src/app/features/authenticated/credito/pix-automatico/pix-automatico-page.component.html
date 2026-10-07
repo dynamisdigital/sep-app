@@ -1,0 +1,396 @@
+<sep-operational-shell>
+  <main class="cor-page">
+    <header class="cor-hero">
+      <div>
+        <p class="cor-crumbs">
+          <a routerLink="/app/dashboard">Início</a> › <a routerLink="/app/credito">Crédito</a> ›
+          <strong>Pix Automático</strong>
+        </p>
+        <h1>Pix Automático</h1>
+        <p>
+          Débito recorrente das parcelas, autorizado pelo tomador no aplicativo do banco dele. O SEP
+          registra a autorização e acompanha as cobranças; senha, token e saldo do tomador nunca
+          passam por aqui.
+        </p>
+      </div>
+      @if (ehAdmin()) {
+        <button
+          type="button"
+          class="cor-btn secundario"
+          data-tour="pix-auto-parametros"
+          (click)="editandoParametros.set(!editandoParametros())"
+        >
+          <lucide-icon name="settings" [size]="14" [strokeWidth]="2" /> Parâmetros
+        </button>
+      }
+    </header>
+
+    @if (erro()) {
+      <div class="cor-erro" role="alert">{{ erro() }}</div>
+    }
+    @if (aviso()) {
+      <div class="cor-aviso" role="status">{{ aviso() }}</div>
+    }
+
+    @if (carregando()) {
+      <p class="cor-estado" role="status">Carregando o Pix Automático...</p>
+    } @else {
+      @if (!habilitado()) {
+        <div class="cor-aviso" data-tone="red" role="status">
+          O Pix Automático está desabilitado pela administração: não é possível habilitar contratos
+          nem agendar novas cobranças. As autorizações já ativas continuam consultáveis.
+        </div>
+      }
+
+      @if (editandoParametros() && ehAdmin()) {
+        <section class="cor-card" aria-labelledby="pix-parametros">
+          <header class="cor-card-titulo">
+            <lucide-icon name="settings" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2 id="pix-parametros">Parâmetros do Pix Automático</h2>
+              <p>Chave geral e regras de cobrança; toda alteração vai para a auditoria</p>
+            </div>
+          </header>
+          <div class="cor-form">
+            <label>
+              Pix Automático habilitado
+              <select name="habilitado" [(ngModel)]="edicao.habilitado">
+                <option [ngValue]="true">Habilitado</option>
+                <option [ngValue]="false">Desabilitado</option>
+              </select>
+            </label>
+            <label>
+              Aviso ao tomador (dias antes, de 2 a 10)
+              <input
+                type="number"
+                min="2"
+                max="10"
+                name="antecedencia"
+                [(ngModel)]="edicao.antecedenciaNotificacaoDias"
+              />
+            </label>
+            <label>
+              Tentativas por cobrança (de 1 a 3)
+              <input
+                type="number"
+                min="1"
+                max="3"
+                name="tentativas"
+                [(ngModel)]="edicao.maxTentativas"
+              />
+            </label>
+            <label>
+              Justificativa
+              <input
+                name="justificativa"
+                [(ngModel)]="edicao.justificativa"
+                placeholder="Motivo da alteração"
+              />
+            </label>
+          </div>
+          <div class="cor-acoes" style="margin-top: 12px">
+            <button
+              type="button"
+              class="cor-btn"
+              [disabled]="!edicaoValida() || salvando()"
+              (click)="salvarParametros()"
+            >
+              Salvar
+            </button>
+            <button
+              type="button"
+              class="cor-btn secundario"
+              (click)="editandoParametros.set(false)"
+            >
+              Cancelar
+            </button>
+          </div>
+        </section>
+      }
+
+      @if (resumo(); as r) {
+        <section class="cor-kpis" aria-label="Resumo do Pix Automático" data-tour="pix-auto-kpis">
+          <article class="cor-kpi" data-tone="green">
+            <small>Autorizações ativas</small>
+            <strong>{{ r.autorizacoesAtivas }}</strong>
+            <span>contratos com débito automático</span>
+            <lucide-icon name="repeat" [size]="34" [strokeWidth]="1.25" />
+          </article>
+          <article class="cor-kpi" data-tone="amber">
+            <small>Aguardando o tomador</small>
+            <strong>{{ r.pendentes }}</strong>
+            <span>aceite no banco dele</span>
+            <lucide-icon name="hourglass" [size]="34" [strokeWidth]="1.25" />
+          </article>
+          <article class="cor-kpi">
+            <small>Cobranças a vencer</small>
+            <strong>{{ r.debitosNoMes }}</strong>
+            <span>agendadas ou com o tomador já avisado</span>
+            <lucide-icon name="calendar-clock" [size]="34" [strokeWidth]="1.25" />
+          </article>
+          <article class="cor-kpi">
+            <small>Valor agendado</small>
+            <strong>{{ moeda(r.valorAgendado) }}</strong>
+            <span>parcelas a debitar</span>
+            <lucide-icon name="banknote" [size]="34" [strokeWidth]="1.25" />
+          </article>
+          <article
+            class="cor-kpi"
+            [attr.data-tone]="(r.taxaSucessoPct ?? 100) < 90 ? 'red' : 'green'"
+          >
+            <small>Taxa de sucesso</small>
+            <strong>{{ r.taxaSucessoPct === null ? '—' : r.taxaSucessoPct + '%' }}</strong>
+            <span>liquidadas sobre as com desfecho</span>
+            <lucide-icon name="circle-check" [size]="34" [strokeWidth]="1.25" />
+          </article>
+        </section>
+      }
+
+      <section class="cor-card" aria-labelledby="pix-contratos" data-tour="pix-auto-contratos">
+        <header class="cor-card-titulo">
+          <lucide-icon name="repeat" [size]="24" [strokeWidth]="1.5" />
+          <div>
+            <h2 id="pix-contratos">Contratos da carteira</h2>
+            <p>Habilite o débito automático e acompanhe a autorização de cada contrato</p>
+          </div>
+        </header>
+        <div class="cor-tabela-wrap">
+          <table class="cor-tabela">
+            <thead>
+              <tr>
+                <th>Contrato</th>
+                <th class="num">Em aberto</th>
+                <th class="num">Parcelas</th>
+                <th>Pix Automático</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (c of contratos(); track c.agendaId) {
+                <tr>
+                  <td>
+                    {{ c.id }}<small>{{ c.produto }}</small>
+                  </td>
+                  <td class="num">{{ moeda(c.emAberto) }}</td>
+                  <td class="num">{{ c.parcelasEmAberto }}</td>
+                  <td>
+                    @if (c.autorizacao; as a) {
+                      <span class="cor-selo" [attr.data-tone]="tomStatus[a.status]">{{
+                        rotuloStatus[a.status]
+                      }}</span>
+                      <small
+                        >{{ a.pagador.banco }} · ag. {{ a.pagador.agencia }} · conta
+                        {{ a.pagador.contaMascarada }}</small
+                      >
+                    } @else {
+                      <span class="cor-selo" data-tone="blue">Não habilitado</span>
+                    }
+                  </td>
+                  <td>
+                    <div class="cor-acoes">
+                      @if (podeHabilitar(c)) {
+                        <button type="button" class="cor-btn" (click)="abrirHabilitar(c)">
+                          Habilitar
+                        </button>
+                      }
+                      @if (c.autorizacao?.status === 'PENDENTE_PAGADOR') {
+                        <button
+                          type="button"
+                          class="cor-btn secundario"
+                          (click)="responder(c, true)"
+                        >
+                          Simular aceite
+                        </button>
+                        <button
+                          type="button"
+                          class="cor-btn secundario"
+                          (click)="responder(c, false)"
+                        >
+                          Simular recusa
+                        </button>
+                      }
+                      @if (c.autorizacao?.status === 'ATIVA') {
+                        <button type="button" class="cor-btn secundario" (click)="verCobrancas(c)">
+                          Cobranças
+                        </button>
+                      }
+                      @if (
+                        c.autorizacao?.status === 'ATIVA' ||
+                        c.autorizacao?.status === 'PENDENTE_PAGADOR'
+                      ) {
+                        <button type="button" class="cor-btn secundario" (click)="abrirRevogar(c)">
+                          Revogar
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+                @if (habilitando() === c.agendaId) {
+                  <tr>
+                    <td colspan="5">
+                      <p class="cor-estado" style="text-align: left">
+                        Dados do pagador para o contrato {{ c.id }}. O tomador confirma a
+                        recorrência no aplicativo do banco; o limite por cobrança será o da maior
+                        parcela com 10% de folga.
+                      </p>
+                      <div class="cor-form">
+                        <label>
+                          Nome do pagador
+                          <input name="p-nome" [(ngModel)]="pagador.nome" />
+                        </label>
+                        <label>
+                          CPF ou CNPJ
+                          <input
+                            name="p-doc"
+                            [(ngModel)]="pagador.documento"
+                            placeholder="Somente números"
+                          />
+                        </label>
+                        <label>
+                          Banco
+                          <input name="p-banco" [(ngModel)]="pagador.banco" />
+                        </label>
+                        <label>
+                          ISPB do banco (8 dígitos)
+                          <input name="p-ispb" [(ngModel)]="pagador.ispb" maxlength="8" />
+                        </label>
+                        <label>
+                          Agência
+                          <input name="p-ag" [(ngModel)]="pagador.agencia" />
+                        </label>
+                        <label>
+                          Conta
+                          <input name="p-conta" [(ngModel)]="pagador.conta" />
+                        </label>
+                        <label>
+                          Tipo de conta
+                          <select name="p-tipo" [(ngModel)]="pagador.tipoConta">
+                            <option value="CORRENTE">Conta corrente</option>
+                            <option value="POUPANCA">Poupança</option>
+                            <option value="PAGAMENTO">Conta de pagamento</option>
+                          </select>
+                        </label>
+                      </div>
+                      <label style="display: flex; gap: 8px; margin-top: 10px; font-size: 12.5px">
+                        <input type="checkbox" name="p-consent" [(ngModel)]="consentimento" />
+                        O tomador foi informado do débito automático das parcelas e consentiu com o
+                        registro destes dados (LGPD).
+                      </label>
+                      <div class="cor-acoes" style="margin-top: 10px">
+                        <button
+                          type="button"
+                          class="cor-btn"
+                          [disabled]="!pagadorValido() || salvando()"
+                          (click)="habilitar(c)"
+                        >
+                          Enviar ao banco do tomador
+                        </button>
+                        <button
+                          type="button"
+                          class="cor-btn secundario"
+                          (click)="habilitando.set(null)"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+                @if (revogando() && revogando() === c.autorizacao?.id) {
+                  <tr>
+                    <td colspan="5">
+                      <div class="cor-form">
+                        <label>
+                          Motivo da revogação
+                          <input
+                            name="r-motivo"
+                            [(ngModel)]="motivoRevogacao"
+                            placeholder="Ex.: pedido do tomador"
+                          />
+                        </label>
+                      </div>
+                      <div class="cor-acoes" style="margin-top: 10px">
+                        <button
+                          type="button"
+                          class="cor-btn"
+                          [disabled]="!motivoRevogacao.trim() || salvando()"
+                          (click)="revogar(c)"
+                        >
+                          Confirmar revogação
+                        </button>
+                        <button
+                          type="button"
+                          class="cor-btn secundario"
+                          (click)="revogando.set(null)"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      @if (vendo(); as a) {
+        <section class="cor-card" aria-labelledby="pix-cobrancas" data-tour="pix-auto-cobrancas">
+          <header class="cor-card-titulo">
+            <lucide-icon name="calendar-clock" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2 id="pix-cobrancas">Cobranças do contrato {{ a.contratoCurto }}</h2>
+              <p>
+                Recorrência {{ a.idRecorrencia }} · limite de {{ moeda(a.valorMaximo) }} por
+                cobrança · vence todo dia {{ a.diaDebito }}
+              </p>
+            </div>
+          </header>
+          <div class="cor-tabela-wrap">
+            <table class="cor-tabela">
+              <thead>
+                <tr>
+                  <th>Parcela</th>
+                  <th>Vencimento</th>
+                  <th class="num">Valor</th>
+                  <th>Situação</th>
+                  <th>Tomador avisado em</th>
+                  <th class="num">Tentativas</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (d of debitos(); track d.parcela) {
+                  <tr>
+                    <td>{{ d.parcela }}</td>
+                    <td>{{ data(d.vencimento) }}</td>
+                    <td class="num">{{ moeda(d.valor) }}</td>
+                    <td>
+                      <span class="cor-selo" [attr.data-tone]="tomDebito[d.status]">{{
+                        rotuloDebito[d.status]
+                      }}</span>
+                      @if (d.motivo) {
+                        <small>{{ d.motivo }}</small>
+                      }
+                    </td>
+                    <td>{{ d.notificadoEm ? data(d.notificadoEm) : '—' }}</td>
+                    <td class="num">{{ d.tentativas }}</td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="6" class="cor-estado">Nenhuma cobrança neste contrato.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <div class="cor-acoes" style="margin-top: 10px">
+            <button type="button" class="cor-btn secundario" (click)="vendo.set(null)">
+              Fechar
+            </button>
+          </div>
+        </section>
+      }
+    }
+  </main>
+</sep-operational-shell>

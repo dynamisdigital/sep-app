@@ -42,4 +42,12 @@ export const CREDITO_ROUTES: Routes = [
       import('./open-finance/open-finance-page.component').then((m) => m.OpenFinancePageComponent),
     data: { breadcrumb: 'Open Finance', retorno: true, immersive: true },
   },
+  {
+    path: 'pix-automatico',
+    loadComponent: () =>
+      import('./pix-automatico/pix-automatico-page.component').then(
+        (m) => m.PixAutomaticoPageComponent,
+      ),
+    data: { breadcrumb: 'Pix Automático', immersive: true },
+  },
 ];
