@@ -1,0 +1,390 @@
+<sep-operational-shell>
+  <main class="cor-page">
+    <header class="cor-hero">
+      <div>
+        <p class="cor-crumbs">
+          <a routerLink="/app/dashboard">Início</a> › <a routerLink="/app/credito">Crédito</a> ›
+          <a routerLink="/app/credito/propostas">Propostas</a> ›
+          <a [routerLink]="['/app/credito/propostas', propostaId]">Proposta</a> ›
+          <strong>Análise de crédito</strong>
+        </p>
+        <h1>Análise de crédito</h1>
+        @if (proposta(); as p) {
+          <p>
+            {{ p.empresaNome ?? 'Tomador' }} · {{ moeda(p.valorSolicitado) }} em
+            {{ p.prazoMeses }} meses · parcela estimada
+            {{ p.valorParcelaEstimado ? moeda(p.valorParcelaEstimado) : '—' }}. O motor consulta os
+            bureaus e sugere; quem decide é o analista, com justificativa.
+          </p>
+        }
+      </div>
+      @if (ehAdmin()) {
+        <button
+          type="button"
+          class="cor-btn secundario"
+          data-tour="analise-parametros"
+          (click)="editandoParametros.set(!editandoParametros())"
+        >
+          <lucide-icon name="settings" [size]="14" [strokeWidth]="2" /> Parâmetros
+        </button>
+      }
+    </header>
+
+    @if (erro()) {
+      <div class="cor-erro" role="alert">{{ erro() }}</div>
+    }
+    @if (aviso()) {
+      <div class="cor-aviso" role="status">{{ aviso() }}</div>
+    }
+
+    @if (editandoParametros() && ehAdmin()) {
+      <section class="cor-card" aria-labelledby="an-parametros">
+        <header class="cor-card-titulo">
+          <lucide-icon name="settings" [size]="24" [strokeWidth]="1.5" />
+          <div>
+            <h2 id="an-parametros">Parâmetros da análise</h2>
+            <p>
+              Fontes, validade da consulta e cortes do motor; toda alteração vai para a auditoria
+            </p>
+          </div>
+        </header>
+        <div class="cor-form">
+          @for (f of fontes; track f) {
+            <label>
+              {{ rotuloFonte[f] }}
+              <select [name]="'fonte-' + f" [(ngModel)]="edicao.bureausHabilitados[f]">
+                <option [ngValue]="true">Habilitada</option>
+                <option [ngValue]="false">Desabilitada</option>
+              </select>
+            </label>
+          }
+          <label>
+            Validade da consulta (dias)
+            <input
+              type="number"
+              min="1"
+              max="90"
+              name="validade"
+              [(ngModel)]="edicao.validadeConsultaDias"
+            />
+          </label>
+          <label>
+            Corte de aprovação (score)
+            <input
+              type="number"
+              min="1"
+              max="1000"
+              name="corte-ap"
+              [(ngModel)]="edicao.corteAprovacao"
+            />
+          </label>
+          <label>
+            Corte de recusa (score)
+            <input
+              type="number"
+              min="0"
+              max="999"
+              name="corte-rec"
+              [(ngModel)]="edicao.corteRecusa"
+            />
+          </label>
+          <label>
+            Comprometimento máximo da renda (%)
+            <input
+              type="number"
+              min="5"
+              max="50"
+              name="compr"
+              [(ngModel)]="edicao.comprometimentoMaximoPct"
+            />
+          </label>
+          <label>
+            Justificativa
+            <input
+              name="just-param"
+              [(ngModel)]="edicao.justificativa"
+              placeholder="Motivo da alteração"
+            />
+          </label>
+        </div>
+        <div class="cor-acoes" style="margin-top: 12px">
+          <button
+            type="button"
+            class="cor-btn"
+            [disabled]="!edicaoValida() || salvando()"
+            (click)="salvarParametros()"
+          >
+            Salvar
+          </button>
+          <button type="button" class="cor-btn secundario" (click)="editandoParametros.set(false)">
+            Cancelar
+          </button>
+        </div>
+      </section>
+    }
+
+    @if (carregando()) {
+      <p class="cor-estado" role="status">Carregando a análise...</p>
+    } @else {
+      <section class="cor-card" aria-labelledby="an-executar" data-tour="analise-executar">
+        <header class="cor-card-titulo">
+          <lucide-icon name="search" [size]="24" [strokeWidth]="1.5" />
+          <div>
+            <h2 id="an-executar">
+              {{ analise() ? 'Refazer as consultas' : 'Executar a análise' }}
+            </h2>
+            <p>
+              Consulta Serasa, SPC/Boa Vista e SCR do Banco Central conforme os parâmetros e calcula
+              o score interno.
+            </p>
+          </div>
+        </header>
+        <label style="display: flex; gap: 8px; font-size: 12.5px">
+          <input type="checkbox" name="consent" [(ngModel)]="consentimento" />
+          O titular foi informado e autorizou a consulta aos bureaus de crédito para esta análise
+          (LGPD, proteção ao crédito).
+        </label>
+        <div class="cor-acoes" style="margin-top: 10px">
+          <button
+            type="button"
+            class="cor-btn"
+            [disabled]="!consentimento || executando()"
+            (click)="executar(!!analise())"
+          >
+            {{ analise() ? 'Consultar de novo' : 'Executar análise' }}
+          </button>
+          @if (analise(); as a) {
+            <small>Consulta válida até {{ data(a.validaAte.slice(0, 10)) }}</small>
+          }
+        </div>
+      </section>
+
+      @if (analise(); as a) {
+        <section class="cor-kpis" aria-label="Resultado da análise" data-tour="analise-resultado">
+          <article class="cor-kpi" [attr.data-tone]="tomDecisao[a.decisaoSugerida]">
+            <small>Decisão sugerida</small>
+            <strong>{{ rotuloDecisao[a.decisaoSugerida] }}</strong>
+            <span>pelo motor, {{ a.versaoModelo }}</span>
+            <lucide-icon name="shield-check" [size]="34" [strokeWidth]="1.25" />
+          </article>
+          <article class="cor-kpi">
+            <small>Score interno</small>
+            <strong>{{ a.score }}</strong>
+            <span>faixa {{ a.faixa }} · de 0 a 1000</span>
+            <lucide-icon name="gauge" [size]="34" [strokeWidth]="1.25" />
+          </article>
+          <article
+            class="cor-kpi"
+            [attr.data-tone]="
+              a.capacidade.comprometimentoPct > a.capacidade.comprometimentoMaximoPct
+                ? 'red'
+                : 'green'
+            "
+          >
+            <small>Comprometimento da renda</small>
+            <strong>{{ pct(a.capacidade.comprometimentoPct) }}</strong>
+            <span>máximo {{ pct(a.capacidade.comprometimentoMaximoPct) }}</span>
+            <lucide-icon name="percent" [size]="34" [strokeWidth]="1.25" />
+          </article>
+          <article class="cor-kpi">
+            <small>Limite que cabe</small>
+            <strong>{{ moeda(a.capacidade.limiteSugerido) }}</strong>
+            <span>parcela dentro do máximo</span>
+            <lucide-icon name="wallet" [size]="34" [strokeWidth]="1.25" />
+          </article>
+        </section>
+
+        <div
+          class="cor-aviso"
+          [attr.data-tone]="a.decisaoSugerida === 'RECUSAR' ? 'red' : null"
+          role="status"
+        >
+          {{ a.resumo }}
+        </div>
+
+        <section class="cor-card" aria-labelledby="an-fontes" data-tour="analise-fontes">
+          <header class="cor-card-titulo">
+            <lucide-icon name="landmark" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2 id="an-fontes">Fontes de consulta</h2>
+              <p>
+                O que cada bureau respondeu. Fonte fora do ar leva a decisão para análise manual.
+              </p>
+            </div>
+          </header>
+          <div class="cor-tabela-wrap">
+            <table class="cor-tabela">
+              <thead>
+                <tr>
+                  <th>Fonte</th>
+                  <th>Situação</th>
+                  <th class="num">Score da fonte</th>
+                  <th>Restrições</th>
+                  <th class="num">Endividamento</th>
+                  <th class="num">Maior atraso</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (c of a.consultas; track c.fonte) {
+                  <tr>
+                    <td>{{ rotuloFonte[c.fonte] }}</td>
+                    <td>
+                      <span class="cor-selo" [attr.data-tone]="tomConsulta[c.status]">{{
+                        rotuloConsulta[c.status]
+                      }}</span>
+                      @if (c.mensagem) {
+                        <small>{{ c.mensagem }}</small>
+                      }
+                    </td>
+                    <td class="num">{{ c.scoreExterno ?? '—' }}</td>
+                    <td>
+                      @for (r of c.restricoes; track r.credor + r.tipo) {
+                        <small
+                          >{{ r.tipo.replace('_', ' ').toLowerCase() }} · {{ r.credor }} ·
+                          {{ moeda(r.valor) }}</small
+                        >
+                      } @empty {
+                        {{ c.status === 'OK' ? 'Nenhuma' : '—' }}
+                      }
+                    </td>
+                    <td class="num">
+                      {{ c.endividamentoTotal === null ? '—' : moeda(c.endividamentoTotal) }}
+                    </td>
+                    <td class="num">
+                      {{ c.maiorAtrasoDias === null ? '—' : c.maiorAtrasoDias + ' dias' }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="cor-card" aria-labelledby="an-fatores" data-tour="analise-fatores">
+          <header class="cor-card-titulo">
+            <lucide-icon name="chart-column" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2 id="an-fatores">Por que este score</h2>
+              <p>
+                Cada fator, o que foi observado e quanto somou. A soma das contribuições é o score.
+              </p>
+            </div>
+          </header>
+          <div class="cor-tabela-wrap">
+            <table class="cor-tabela">
+              <thead>
+                <tr>
+                  <th>Fator</th>
+                  <th>Observado</th>
+                  <th class="num">Peso</th>
+                  <th class="num">Desempenho</th>
+                  <th class="num">Contribuição</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (f of a.fatores; track f.chave) {
+                  <tr>
+                    <td>
+                      {{ f.nome }}<small>{{ f.explicacao }}</small>
+                    </td>
+                    <td>{{ f.observado }}</td>
+                    <td class="num">{{ f.peso }}%</td>
+                    <td class="num">
+                      <span class="cor-selo" [attr.data-tone]="tomSentido[f.sentido]"
+                        >{{ f.pontos }}/100</span
+                      >
+                    </td>
+                    <td class="num">
+                      {{ f.contribuicao }} <small>de {{ f.peso * 10 }}</small>
+                    </td>
+                  </tr>
+                }
+                <tr>
+                  <td colspan="4"><strong>Score interno</strong></td>
+                  <td class="num">
+                    <strong>{{ a.score }}</strong> <small>de 1000</small>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="cor-card" aria-labelledby="an-regras">
+          <header class="cor-card-titulo">
+            <lucide-icon name="scroll-text" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2 id="an-regras">Regras disparadas</h2>
+              <p>Regras bloqueantes recusam; as demais mandam para análise manual</p>
+            </div>
+          </header>
+          @for (r of a.regras; track r.regra) {
+            <p style="margin: 6px 0">
+              <span class="cor-selo" [attr.data-tone]="r.bloqueante ? 'red' : 'amber'">{{
+                r.bloqueante ? 'Bloqueante' : 'Atenção'
+              }}</span>
+              <strong> {{ r.regra }}.</strong> {{ r.motivo }}
+            </p>
+          } @empty {
+            <p class="cor-estado">Nenhuma regra foi disparada.</p>
+          }
+        </section>
+
+        <section class="cor-card" aria-labelledby="an-parecer" data-tour="analise-parecer">
+          <header class="cor-card-titulo">
+            <lucide-icon name="user-check" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2 id="an-parecer">Parecer do analista</h2>
+              <p>
+                Acatar ou divergir do motor. Divergir de aprovar ou recusar exige justificativa
+                detalhada.
+              </p>
+            </div>
+          </header>
+          @if (a.parecer; as pa) {
+            <p style="margin: 0 0 10px">
+              <span class="cor-selo" [attr.data-tone]="pa.divergeDoMotor ? 'amber' : 'green'">{{
+                pa.divergeDoMotor ? 'Diverge do motor' : 'De acordo com o motor'
+              }}</span>
+              <strong> {{ rotuloParecer[pa.decisao] }}</strong> por {{ pa.analista }}:
+              {{ pa.justificativa }}
+            </p>
+          }
+          <div class="cor-form">
+            <label>
+              Decisão
+              <select name="decisao" [(ngModel)]="decisao">
+                <option value="APROVAR">Aprovar</option>
+                <option value="REJEITAR">Rejeitar</option>
+                <option value="PENDENCIA">Pedir pendência</option>
+              </select>
+            </label>
+            <label>
+              Justificativa
+              <input
+                name="justificativa"
+                [(ngModel)]="justificativa"
+                placeholder="Fundamento do parecer"
+              />
+              @if (diverge() && justificativa.trim().length < 20) {
+                <small class="cor-erro-campo" role="alert">
+                  Você diverge da sugestão do motor: detalhe o motivo (20 caracteres ou mais).
+                </small>
+              }
+            </label>
+          </div>
+          <div class="cor-acoes" style="margin-top: 12px">
+            <button
+              type="button"
+              class="cor-btn"
+              [disabled]="!parecerValido() || salvando()"
+              (click)="registrar()"
+            >
+              Registrar parecer
+            </button>
+          </div>
+        </section>
+      }
+    }
+  </main>
+</sep-operational-shell>

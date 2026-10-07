@@ -31,6 +31,12 @@ export const CREDITO_ROUTES: Routes = [
     data: { breadcrumb: 'Detalhe da proposta', immersive: true },
   },
   {
+    path: 'propostas/:id/analise',
+    loadComponent: () =>
+      import('./analise/analise-credito-page.component').then((m) => m.AnaliseCreditoPageComponent),
+    data: { breadcrumb: 'Análise de crédito', immersive: true },
+  },
+  {
     path: 'propostas/:id/open-finance',
     loadComponent: () =>
       import('./open-finance/open-finance-page.component').then((m) => m.OpenFinancePageComponent),

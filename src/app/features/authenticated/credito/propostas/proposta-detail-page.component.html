@@ -59,6 +59,13 @@
                 <button type="button" role="menuitem" (click)="irPara('/app/credito/propostas')">
                   <lucide-icon name="list" [size]="15" />Ver todas as propostas
                 </button>
+                <a
+                  role="menuitem"
+                  [routerLink]="['/app/credito/propostas', p.id, 'analise']"
+                  (click)="menuAberto.set(false)"
+                >
+                  <lucide-icon name="gauge" [size]="15" />Análise de crédito
+                </a>
                 @if (podeIniciarOpenFinance()) {
                   <a
                     role="menuitem"

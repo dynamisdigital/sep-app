@@ -7,8 +7,10 @@ import {
   textoTaxaMensal,
 } from '../app/core/financeiro/politica-credito';
 import { criarHandlersCorrespondentes } from './correspondentes.handlers';
+import { criarHandlersAnaliseCredito } from './analise-credito.handlers';
 import { criarHandlersRede } from './correspondentes-rede.handlers';
 import type { AgendaPagamentoResponse } from '../app/core/api/api.models';
+import { reiniciarAnalises } from './data/analise-credito.store';
 import { semearPix } from './data/pix-automatico.store';
 import { criarHandlersPixAutomatico } from './pix-automatico.handlers';
 import { criarHandlersGestao } from './correspondentes-gestao.handlers';
@@ -1731,6 +1733,7 @@ let renegociacoes = seedRenegociacoes();
 export function resetCobrancaState(): void {
   renegociacoes = seedRenegociacoes();
   semearPix(agendaParaPix, SEMENTES_PIX);
+  reiniciarAnalises();
 }
 
 const cobrancaHandlers = [
@@ -3675,6 +3678,12 @@ export const handlers = [
   ...criarHandlersRede(baseUrl, () => currentMockUser, errorResponse),
   ...criarHandlersGestao(baseUrl, () => currentMockUser, errorResponse),
   ...criarHandlersPixAutomatico(baseUrl, () => currentMockUser, errorResponse, agendaParaPix),
+  ...criarHandlersAnaliseCredito(
+    baseUrl,
+    () => currentMockUser,
+    errorResponse,
+    (id) => propostasFake[id],
+  ),
   ...criarHandlersCorrespondentes(baseUrl, () => currentMockUser, errorResponse),
 
   http.post(`${baseUrl}/auth/login`, async ({ request }) => {
