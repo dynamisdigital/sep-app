@@ -438,7 +438,7 @@ const minhaRede: Roteiro = {
   icone: 'network',
   descricao:
     'Credenciar sub-correspondentes, definir o repasse de cada um dentro do limite do SEP e acompanhar a carteira da rede.',
-  duracao: '≈ 3 min',
+  duracao: '≈ 5 min',
   papeis: ['CORRESPONDENTE'],
   impedimento: (ctx) =>
     ctx.usuario === 'sub-correspondente@empresa.com'
@@ -494,8 +494,70 @@ const minhaRede: Roteiro = {
     {
       titulo: 'Novo sub-correspondente',
       texto:
-        'Este botão abre o cadastro de um novo sub: dados, percentuais por produto e, depois, a validação do cadastro pelo SEP. O formulário recusa percentual acima do limite.',
+        'Este botão abre o cadastro de um novo sub. Vamos preencher um exemplo, do nome aos percentuais de repasse por produto.',
       alvo: '[data-tour="cor-rede-novo"]',
+      acao: { tipo: 'clicar' },
+      aguardarAlvo: 'section[aria-labelledby="cor-novo-sub"] input[name="nome"]',
+    },
+    {
+      titulo: 'Nome',
+      texto: 'O nome da pessoa ou da empresa que vai captar clientes na sua rede.',
+      alvo: 'section[aria-labelledby="cor-novo-sub"] input[name="nome"]',
+      acao: { tipo: 'digitar', texto: () => 'Mariana Duarte Correspondências', limpar: true },
+    },
+    {
+      titulo: 'CPF',
+      texto:
+        'O CPF identifica o sub no cadastro. Na demonstração, um número de exemplo, sem relação com pessoa real.',
+      alvo: 'section[aria-labelledby="cor-novo-sub"] input[name="cpf"]',
+      acao: { tipo: 'digitar', texto: () => '000.000.000-00', limpar: true },
+    },
+    {
+      titulo: 'E-mail e telefone',
+      texto:
+        'Os contatos do sub. O e-mail vai ser o login dele depois que o SEP validar o cadastro.',
+      alvo: 'section[aria-labelledby="cor-novo-sub"] input[name="email"]',
+      acao: { tipo: 'digitar', texto: () => 'mariana.exemplo@empresa.com', limpar: true },
+    },
+    {
+      titulo: 'Telefone',
+      texto: 'O telefone para contato.',
+      alvo: 'section[aria-labelledby="cor-novo-sub"] input[name="telefone"]',
+      acao: { tipo: 'digitar', texto: () => '(11) 90000-0000', limpar: true },
+    },
+    {
+      titulo: 'Repasse: capital de giro',
+      texto:
+        'Aqui você define quanto da sua comissão o sub recebe neste produto. O formulário mostra o teto que o SEP permite, e recusa qualquer valor acima dele.',
+      alvo: 'section[aria-labelledby="cor-novo-sub"] .cor-form label:nth-of-type(5) input',
+      acao: { tipo: 'digitar', texto: () => '1', limpar: true },
+    },
+    {
+      titulo: 'Repasse: crédito pessoal',
+      texto: 'O mesmo vale para o crédito pessoal, que tem o seu próprio teto.',
+      alvo: 'section[aria-labelledby="cor-novo-sub"] .cor-form label:nth-of-type(6) input',
+      acao: { tipo: 'digitar', texto: () => '1.5', limpar: true },
+    },
+    {
+      titulo: 'Repasse: comissão recorrente',
+      texto:
+        'E o percentual sobre as parcelas recebidas. A diferença entre o que o SEP paga a você e o que você repassa é a sua margem.',
+      alvo: 'section[aria-labelledby="cor-novo-sub"] .cor-form label:nth-of-type(7) input',
+      acao: { tipo: 'digitar', texto: () => '0.2', limpar: true },
+    },
+    {
+      titulo: 'Credenciar',
+      texto:
+        'Credenciar envia o cadastro. O sub só começa a lançar clientes depois que o SEP valida o cadastro dele.',
+      alvo: { css: 'section[aria-labelledby="cor-novo-sub"] button', texto: 'Credenciar' },
+      acao: { tipo: 'clicar', efeito: true },
+      aguardarAlvo: '.cor-aviso[role="status"]',
+    },
+    {
+      titulo: 'Sub na lista',
+      texto:
+        'O novo sub aparece na lista, aguardando a validação do cadastro pelo SEP, já com a margem que sobra para você.',
+      alvo: '[data-tour="cor-rede-subs"]',
       acao: { tipo: 'observar' },
     },
   ],

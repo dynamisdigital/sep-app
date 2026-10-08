@@ -767,6 +767,139 @@ describe('TourService', () => {
     });
   });
 
+  describe('pausa e retomada', () => {
+    afterEach(() => vi.useRealTimers());
+
+    function pausarComTrecho(trecho: string) {
+      auth.currentUserState.set(usuario('ADMIN', true));
+      tour.iniciar('backoffice-completo');
+      const narrador = tour['narrador'];
+      vi.spyOn(narrador, 'trechoParaRetomar').mockReturnValue(trecho);
+      const falar = vi.spyOn(narrador, 'falar').mockResolvedValue();
+      tour.pausar();
+      return falar;
+    }
+
+    it('ao retomar, a narracao volta 2 segundos: relê o trecho calculado no instante da pausa', () => {
+      const falar = pausarComTrecho('no meio do passo');
+      falar.mockClear();
+
+      tour.continuar();
+
+      expect(falar).toHaveBeenCalledTimes(1);
+      expect(falar).toHaveBeenCalledWith('no meio do passo', 1);
+      expect(tour.estado()).toBe('rodando');
+    });
+
+    it('o trecho e calculado com a janela de 2 segundos', () => {
+      auth.currentUserState.set(usuario('ADMIN', true));
+      tour.iniciar('backoffice-completo');
+      const calcular = vi.spyOn(tour['narrador'], 'trechoParaRetomar').mockReturnValue('');
+
+      tour.pausar();
+
+      expect(calcular).toHaveBeenCalledWith(2000);
+    });
+
+    it('sem o que reler, retoma direto sem falar nada', () => {
+      const falar = pausarComTrecho('');
+      falar.mockClear();
+
+      tour.continuar();
+
+      expect(falar).not.toHaveBeenCalled();
+    });
+
+    it('Proximo, com o tour pausado, nao relê: quer ir adiante', () => {
+      const falar = pausarComTrecho('trecho que nao deve ser relido');
+      falar.mockClear();
+
+      tour.avancar();
+
+      expect(falar).not.toHaveBeenCalledWith('trecho que nao deve ser relido', expect.anything());
+    });
+
+    it('a releitura vale uma vez por pausa: cada pausa recalcula o trecho', () => {
+      const falar = pausarComTrecho('trecho');
+      falar.mockClear();
+      tour.continuar();
+      tour.pausar();
+      tour.continuar();
+
+      expect(falar).toHaveBeenCalledTimes(2);
+    });
+
+    it('o proximo passo espera a releitura terminar', async () => {
+      auth.currentUserState.set(usuario('ADMIN', true));
+      tour.iniciar('backoffice-completo');
+      let terminar: (() => void) | undefined;
+      vi.spyOn(tour['narrador'], 'trechoParaRetomar').mockReturnValue('releitura');
+      vi.spyOn(tour['narrador'], 'falar').mockImplementation(
+        () => new Promise<void>((resolve) => (terminar = resolve)),
+      );
+      tour.pausar();
+      tour.continuar();
+      let liberado = false;
+      void tour['aguardarSePausado'](() => true).then(() => (liberado = true));
+
+      await Promise.resolve();
+      await Promise.resolve();
+      expect(liberado).toBe(false);
+
+      terminar?.();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(liberado).toBe(true);
+    });
+  });
+
+  describe('digitar em campo numerico', () => {
+    afterEach(() => vi.useRealTimers());
+
+    it('o ponto decimal nao se perde: "1.5" fica 1.5 e "0.2" fica 0.2, e nao 5 e 2', async () => {
+      vi.useFakeTimers();
+      const campo = document.createElement('input');
+      campo.type = 'number';
+      campo.step = '0.1';
+      document.body.append(campo);
+
+      for (const texto of ['1.5', '0.2', '1']) {
+        const feito = tour['digitar'](campo, texto, true, () => true);
+        await vi.runAllTimersAsync();
+        await feito;
+        expect(campo.value).toBe(texto);
+      }
+    });
+
+    it('avisa o formulario a cada valor valido e nunca com o intermediario "1."', async () => {
+      vi.useFakeTimers();
+      const campo = document.createElement('input');
+      campo.type = 'number';
+      document.body.append(campo);
+      const valores: string[] = [];
+      campo.addEventListener('input', () => valores.push(campo.value));
+
+      const feito = tour['digitar'](campo, '1.5', true, () => true);
+      await vi.runAllTimersAsync();
+      await feito;
+
+      expect(valores.filter((v) => v !== '')).toEqual(['1', '1.5']);
+    });
+
+    it('texto comum continua sendo digitado letra por letra', async () => {
+      vi.useFakeTimers();
+      const campo = document.createElement('input');
+      document.body.append(campo);
+      const valores: string[] = [];
+      campo.addEventListener('input', () => valores.push(campo.value));
+
+      const feito = tour['digitar'](campo, 'abc', true, () => true);
+      await vi.runAllTimersAsync();
+      await feito;
+
+      expect(valores.filter((v) => v !== '')).toEqual(['a', 'ab', 'abc']);
+    });
+  });
+
   it('criarArquivoDemo gera arquivo pequeno com o nome e o tipo pedidos', () => {
     const arquivo = criarArquivoDemo('rg-demonstracao.pdf', 'application/pdf');
     expect(arquivo.name).toBe('rg-demonstracao.pdf');

@@ -16,6 +16,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { MusicaService } from '../../core/tour/musica.service';
 import { NarradorService } from '../../core/tour/narrador.service';
 import { TourService } from '../../core/tour/tour.service';
+import { acaoDaTecla } from './tecla-pausa';
 
 const MARGEM = 24;
 // Abaixo do cabecalho do shell: no alto, o cartao nao cobre a pesquisa, os alertas e a ajuda.
@@ -45,6 +46,8 @@ interface Caixa {
   encapsulation: ViewEncapsulation.None,
   host: {
     '(document:keydown.escape)': 'sair()',
+    '(document:keydown)': 'aoTeclar($event)',
+    '(document:keyup)': 'aoSoltarTecla($event)',
     '(window:resize)': 'medirJanela()',
   },
 })
@@ -155,6 +158,26 @@ export class TourOverlayComponent implements OnDestroy {
       const el = this.tour.elemento();
       if (el?.isConnected) this.tour.areaAlvo.set(el.getBoundingClientRect());
     });
+  }
+
+  /** Barra de espaco ja tratada no keydown: o keyup tambem e contido, senao um botao em foco clicaria de novo. */
+  private espacoTratado = false;
+
+  /** Barra de espaco pausa e retoma o tour, como o botao Pausar/Continuar. O mouse segue funcionando. */
+  protected aoTeclar(evento: KeyboardEvent): void {
+    const acao = acaoDaTecla(evento, this.tour.estado());
+    if (!acao) return;
+    // Sem isto a pagina rolaria, e um botao em foco seria acionado alem do atalho.
+    evento.preventDefault();
+    this.espacoTratado = true;
+    if (acao === 'pausar') this.tour.pausar();
+    else this.tour.continuar();
+  }
+
+  protected aoSoltarTecla(evento: KeyboardEvent): void {
+    if (!this.espacoTratado || (evento.code !== 'Space' && evento.key !== ' ')) return;
+    this.espacoTratado = false;
+    evento.preventDefault();
   }
 
   protected sair(): void {

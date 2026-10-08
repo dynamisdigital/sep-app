@@ -115,12 +115,20 @@
           <button
             type="button"
             class="sep-tour-btn sep-tour-btn-primario"
+            title="Continuar (barra de espaço)"
+            aria-keyshortcuts="Space"
             (click)="tour.continuar()"
           >
             <lucide-icon name="play" [size]="15" />Continuar
           </button>
         } @else {
-          <button type="button" class="sep-tour-btn" (click)="tour.pausar()">
+          <button
+            type="button"
+            class="sep-tour-btn"
+            title="Pausar (barra de espaço)"
+            aria-keyshortcuts="Space"
+            (click)="tour.pausar()"
+          >
             <lucide-icon name="pause" [size]="15" />Pausar
           </button>
         }

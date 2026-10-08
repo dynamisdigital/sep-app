@@ -22,7 +22,9 @@ export interface SecaoTour {
 export type SituacaoSecao = 'feita' | 'atual' | 'pendente';
 
 /** Quanto o botao "voltar" retrocede, em tempo de tour (sem contar as pausas). */
-export const VOLTAR_MS = 15_000;
+export /** Ao retomar de uma pausa, a narracao volta este tanto antes do ponto em que parou. */
+const RETOMAR_ANTES_MS = 2000;
+const VOLTAR_MS = 15_000;
 
 /** Depois de concluido, todo tour fecha o widget e volta a tela inicial (Dashboard ou pagina inicial do site) apos este tempo. */
 export const FECHAR_APOS_CONCLUIR_MS = 4000;
@@ -165,16 +167,29 @@ export class TourService {
 
   pausar(): void {
     if (this.estado() === 'rodando') {
+      // Antes de calar a voz: e a posicao deste instante que decide o que reler ao retomar.
+      this.trechoRetomada = this.narrador.trechoParaRetomar(RETOMAR_ANTES_MS);
       this.estado.set('pausado');
       this.congelar();
       this.narrador.parar();
     }
   }
 
-  continuar(): void {
+  /**
+   * Retoma de uma pausa. A narracao volta `RETOMAR_ANTES_MS` antes do ponto em que parou (pausa pelo
+   * botao ou pela barra de espaco, tanto faz), e o proximo passo so comeca depois dessa releitura.
+   */
+  continuar(reler = true): void {
     if (this.estado() !== 'pausado') return;
     this.estado.set('rodando');
     this.descongelar();
+    const trecho = reler ? this.trechoRetomada : '';
+    this.trechoRetomada = '';
+    if (trecho) {
+      this.reproducao = this.narrador.falar(trecho, this.velocidade()).finally(() => {
+        this.reproducao = null;
+      });
+    }
     this.retomar?.();
     this.retomar = null;
   }
@@ -184,7 +199,8 @@ export class TourService {
     this.narrador.parar();
     if (this.estado() === 'pausado') {
       this.passoUnico = true;
-      this.continuar();
+      // "Proximo" quer ir adiante: reler o que estava no ar seria o contrario.
+      this.continuar(false);
       return;
     }
     this.pularEspera?.();
@@ -308,6 +324,10 @@ export class TourService {
   // ============ EXECUCAO ============
 
   private passoUnico = false;
+  /** O que reler ao retomar, calculado no instante da pausa. */
+  private trechoRetomada = '';
+  /** A releitura em curso depois de retomar; o proximo passo espera por ela. */
+  private reproducao: Promise<void> | null = null;
 
   private async executar(
     execucao: number,
@@ -359,6 +379,7 @@ export class TourService {
 
       if (this.passoUnico) {
         this.passoUnico = false;
+        this.trechoRetomada = '';
         this.estado.set('pausado');
         this.congelar();
       }
@@ -549,11 +570,24 @@ export class TourService {
       entrada.dispatchEvent(new Event('input', { bubbles: true }));
     }
     this.digitando.set(true);
+    let escrito = entrada.value;
     for (const letra of texto) {
       if (!vivo()) break;
-      entrada.value += letra;
+      escrito += letra;
+      // `<input type="number">` recusa o intermediario "1." (e o esvazia): o ponto decimal so entra
+      // junto com o digito seguinte, para o "1.5" nao virar "5".
+      if (entrada.type === 'number' && /[.,]$/.test(escrito)) {
+        await this.esperar(70);
+        continue;
+      }
+      entrada.value = escrito;
       entrada.dispatchEvent(new Event('input', { bubbles: true }));
       await this.esperar(70);
+    }
+    // Termina com o texto inteiro, mesmo que o ultimo caractere tenha sido adiado.
+    if (vivo() && entrada.value !== escrito) {
+      entrada.value = escrito;
+      entrada.dispatchEvent(new Event('input', { bubbles: true }));
     }
     this.digitando.set(false);
     entrada.dispatchEvent(new Event('change', { bubbles: true }));
@@ -673,8 +707,17 @@ export class TourService {
   }
 
   private async aguardarSePausado(vivo: () => boolean): Promise<void> {
-    if (this.estado() !== 'pausado' || !vivo()) return;
-    await new Promise<void>((resolve) => (this.retomar = resolve));
+    // Pausado espera a retomada; retomado espera a releitura terminar. Uma nova pausa durante a
+    // releitura volta a esperar.
+    while (vivo()) {
+      if (this.estado() === 'pausado') {
+        await new Promise<void>((resolve) => (this.retomar = resolve));
+      } else if (this.reproducao) {
+        await this.reproducao;
+      } else {
+        return;
+      }
+    }
   }
 
   private contextoDaSessao(): ContextoRoteiro {

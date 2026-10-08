@@ -23,6 +23,7 @@ const CASOS = [
       'Meu desempenho',
       'Relatórios da carteira',
       'Minha rede de sub-correspondentes',
+      'Minha rede de sub-correspondentes',
       'Módulo completo',
     ],
   },
