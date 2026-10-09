@@ -8,6 +8,7 @@
 }
 
 @include site.base("px53");
+@include site.fundo-foto("px53", "contato");
 
 .px53-colunas {
   display: grid;

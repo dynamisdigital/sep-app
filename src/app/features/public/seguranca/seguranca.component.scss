@@ -7,6 +7,7 @@
 }
 
 @include site.base("px50");
+@include site.fundo-foto("px50", "seguranca");
 
 .px50-conta {
   display: grid;

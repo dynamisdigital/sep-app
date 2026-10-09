@@ -16,6 +16,7 @@
 .px48-page {
   position: relative;
   display: grid;
+  isolation: isolate;
   grid-template-rows: auto minmax(min-content, 1fr) min-content;
   gap: 14px;
   width: 100%;
@@ -40,6 +41,62 @@
   background-size: 46px 46px;
   mask-image: radial-gradient(circle at 50% 45%, var(--sep-canvas) 0%, transparent 72%);
   pointer-events: none;
+}
+
+/* Foto de fundo (fachada de vidro à noite), atrás da malha e dos cartões. O centro da foto é liso e
+   escuro de propósito: a luz fica nas bordas e o núcleo SEP segue sendo a imagem da composição. */
+.px48-page::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: "";
+  background: url("/image/fundos/painel.jpg") center / cover no-repeat;
+  opacity: 0.4;
+  filter: saturate(1.15);
+  pointer-events: none;
+
+  /* Cobre o fundo da página inteira e escurece só no pé, onde ficam o aviso e o rodapé. */
+  mask-image: linear-gradient(to bottom, #000 0%, #000 65%, rgb(0 0 0 / 55%) 100%);
+}
+
+:host-context(html:not(.dark)) .px48-page::after {
+  display: none;
+}
+
+/* Cartões e o que há dentro deles mais translúcidos sobre a foto, só no tema escuro: o padrão é de
+   88 a 96% de opacidade e escondia a foto por inteiro. O desfoque mantém o texto legível. */
+:host-context(html.dark) {
+  .px48-no {
+    background: linear-gradient(
+      135deg,
+      rgb(var(--sep-c-surf2) / 34%),
+      rgb(var(--sep-c-sunken) / 30%)
+    );
+    backdrop-filter: blur(6px);
+  }
+
+  .px48-no:hover,
+  .px48-no:focus-visible {
+    background: linear-gradient(
+      135deg,
+      rgb(var(--sep-c-surf3) / 54%),
+      rgb(var(--sep-c-surf) / 48%)
+    );
+  }
+
+  .px48-nucleo-rodape span {
+    background: rgb(var(--sep-c-surf) / 38%);
+    backdrop-filter: blur(6px);
+  }
+
+  .px48-aviso {
+    background: linear-gradient(
+      160deg,
+      rgb(var(--sep-c-surf2) / 50%),
+      rgb(var(--sep-c-sunken) / 46%)
+    );
+    backdrop-filter: blur(6px);
+  }
 }
 
 .px48-page > * {

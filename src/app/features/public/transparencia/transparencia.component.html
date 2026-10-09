@@ -10,12 +10,6 @@
           reúne tudo isso em um lugar só.
         </p>
       </header>
-      <div class="px61-hero-arte" sepEntrada="direita" [entradaAtraso]="120">
-        <sep-ilustracao
-          cena="grafico"
-          descricao="Gráfico de barras com a classificação de risco de A a E"
-        />
-      </div>
     </div>
 
     <!-- ============ IDENTIFICAÇÃO ============ -->
@@ -89,25 +83,33 @@
           últimos 12 meses, por classificação de risco.
         </p>
       </div>
-      <div class="px61-tabela-wrap" sepEntrada="base">
-        <table class="px61-tabela">
-          <thead>
-            <tr>
-              <th>Faixa de risco</th>
-              <th class="num">Inadimplência média, 12 meses</th>
-              <th class="num">Data-base</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (faixa of faixas; track faixa) {
+      <div class="px61-inad">
+        <div class="px61-tabela-wrap" sepEntrada="base">
+          <table class="px61-tabela">
+            <thead>
               <tr>
-                <td>Faixa {{ faixa }}</td>
-                <td class="num">—</td>
-                <td class="num">—</td>
+                <th>Faixa de risco</th>
+                <th class="num">Inadimplência média, 12 meses</th>
+                <th class="num">Data-base</th>
               </tr>
-            }
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              @for (faixa of faixas; track faixa) {
+                <tr>
+                  <td>Faixa {{ faixa }}</td>
+                  <td class="num">—</td>
+                  <td class="num">—</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="px61-inad-arte" sepEntrada="direita" [entradaAtraso]="120">
+          <sep-ilustracao
+            cena="grafico"
+            descricao="Gráfico de barras com a classificação de risco de A a E"
+          />
+        </div>
       </div>
       <div class="px61-risco" sepEntrada="base" role="note">
         <lucide-icon name="info" [size]="22" />

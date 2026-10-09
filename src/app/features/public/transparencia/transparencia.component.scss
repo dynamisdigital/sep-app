@@ -8,6 +8,7 @@
 
 @include site.base("px61");
 @include site.extras("px61");
+@include site.fundo-foto("px61", "transparencia");
 
 .px61-legenda a,
 .px61-card a {
@@ -17,4 +18,37 @@
 
 .px61-risco {
   margin: 18px 0 0;
+}
+
+// A abertura agora é só texto (o gráfico foi para a seção de inadimplência).
+.px61-hero {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+// As tabelas param antes da borda direita da página, para as linhas não ficarem longas demais.
+.px61-tabela-wrap {
+  max-width: 860px;
+}
+
+// Inadimplência: a tabela à esquerda e o gráfico de barras A a E ocupando a sobra à direita.
+.px61-inad {
+  display: grid;
+  grid-template-columns: minmax(0, 860px) minmax(220px, 1fr);
+  gap: clamp(20px, 3vw, 40px);
+  align-items: center;
+}
+
+.px61-inad-arte {
+  min-width: 0;
+  filter: drop-shadow(0 18px 40px rgb(var(--lp-c-fundo) / 45%));
+}
+
+@media (width <= 1180px) {
+  .px61-inad {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .px61-inad-arte {
+    max-width: 420px;
+  }
 }
