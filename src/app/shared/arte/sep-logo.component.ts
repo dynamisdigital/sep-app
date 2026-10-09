@@ -5,8 +5,8 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 /**
- * Marca SEP em vetor: o simbolo (tetraedro visto de cima, azul para ciano) e a palavra em traco
- * geometrico. Substitui os PNG de 113x48 e 86x39 dos pacotes de mockup, que so existiam sobre
+ * Marca Dynamis SEP em vetor: o simbolo (tetraedro visto de cima, azul para ciano) e o nome
+ * em duas linhas, "Dynamis" sobre "SEP". Substitui os PNG de 113x48 e 86x39 dos pacotes de mockup, que so existiam sobre
  * fundo escuro e borravam em qualquer tamanho fora do nativo.
  *
  * A palavra sai em `currentColor`: preta no claro, branca no escuro, sem arquivo por tema. O
@@ -28,18 +28,19 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
           <stop offset="1" stop-color="#19d2ff" />
         </linearGradient>
       </defs>
-      <g class="simbolo-g" [attr.stroke]="'url(#' + idGradiente + ')'">
+      <g
+        class="simbolo-g"
+        [attr.stroke]="'url(#' + idGradiente + ')'"
+        [attr.transform]="variante() === 'simbolo' ? null : 'translate(0 4) scale(0.84)'"
+      >
         <path d="M5 9h38L24 42z" class="borda" />
         <path d="M10.5 12.5h27L24 36z" class="face" />
         <path d="M24 21.5L5 9M24 21.5L43 9M24 21.5V42" class="aresta" />
       </g>
       @if (variante() !== 'simbolo') {
         <g class="palavra">
-          <path
-            d="M77 14.5H62.5q-3.5 0-3.5 3.5v2.5q0 3.5 3.5 3.5h10q3.5 0 3.5 3.5V30q0 3.5-3.5 3.5H57"
-          />
-          <path d="M98 14.5H84v19h14M84 24h11.5" />
-          <path d="M105 33.5v-19h9.5q4.5 0 4.5 4.5v1.5q0 4.5-4.5 4.5H105" />
+          <text x="46" y="20" class="nome">Dynamis</text>
+          <text x="46" y="43" class="nome sigla">SEP</text>
         </g>
       }
     </svg>
@@ -83,9 +84,18 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
       stroke-width: 2.2;
     }
 
-    .palavra {
-      stroke: currentcolor;
-      stroke-width: 5;
+    .palavra .nome {
+      fill: currentcolor;
+      stroke: none;
+      font-family: inherit;
+      font-size: 17.5px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    .palavra .sigla {
+      font-size: 19px;
+      letter-spacing: 0.14em;
     }
 
     :host-context(.dark) .simbolo-g {
@@ -98,7 +108,7 @@ export class SepLogoComponent {
 
   /** `completo` (simbolo + palavra) ou so o `simbolo`. */
   readonly variante = input<'completo' | 'simbolo'>('completo');
-  readonly rotulo = input('SEP');
+  readonly rotulo = input('Dynamis SEP');
 
   // Um id por instancia: dois logos na mesma pagina com o mesmo `<linearGradient id>` fariam o
   // segundo pintar com o gradiente do primeiro — e sumir quando aquele fosse removido.

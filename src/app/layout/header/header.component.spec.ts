@@ -17,7 +17,7 @@ describe('HeaderComponent', () => {
     window.localStorage.clear();
   });
 
-  it('mostra brand SEP', async () => {
+  it('mostra a marca Dynamis SEP', async () => {
     await render(HeaderComponent, {
       providers: [
         provideRouter([]),
@@ -26,7 +26,7 @@ describe('HeaderComponent', () => {
       ],
     });
 
-    expect(screen.getByText('SEP')).toBeTruthy();
+    expect(screen.getByText('Dynamis SEP')).toBeTruthy();
   });
 
   it('mostra usuario autenticado e badge de role', async () => {
