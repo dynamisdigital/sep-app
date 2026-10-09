@@ -21,7 +21,13 @@
         <sep-imagem-post [post]="p" />
       </figure>
 
-      <sep-ouvir-texto [escopo]="artigo" [seletor]="seletorLeitura" [chave]="p.slug" />
+      <sep-ouvir-texto
+        [escopo]="artigo"
+        [seletor]="seletorLeitura"
+        [chave]="p.slug"
+        (iniciada)="cancelarVolta()"
+        (concluida)="leituraConcluida()"
+      />
 
       <div class="px65-corpo">
         @for (b of p.blocos; track $index; let i = $index) {

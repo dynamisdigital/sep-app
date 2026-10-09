@@ -47,12 +47,13 @@ function remover() {
   delete (globalThis as unknown as Record<string, unknown>)['SpeechSynthesisUtterance'];
 }
 
-const montar = (textos: string[]) => {
+const montar = (textos: string[], on: Record<string, () => void> = {}) => {
   const escopo = document.createElement('article');
   escopo.innerHTML = textos.map((t) => `<p>${t}</p>`).join('');
   document.body.appendChild(escopo);
   return render(OuvirTextoComponent, {
     inputs: { escopo, seletor: 'p', chave: 'a' },
+    on,
     providers: [importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS))],
   });
 };
@@ -92,6 +93,22 @@ describe('OuvirTextoComponent', () => {
       voz.faladas[2].onend?.();
       fixture.detectChanges();
       expect(screen.getByRole('button', { name: /Ouvir/ })).toBeTruthy();
+    });
+
+    it('avisa a conclusão só quando a leitura termina sozinha, não ao parar', async () => {
+      const concluida = vi.fn();
+      const iniciada = vi.fn();
+      const { fixture } = await montar(['Um.'], { concluida, iniciada });
+      fireEvent.click(screen.getByRole('button', { name: /Ouvir/ }));
+      expect(iniciada).toHaveBeenCalledTimes(1);
+      voz.faladas[0].onend?.();
+      expect(concluida).toHaveBeenCalledTimes(1);
+      fixture.detectChanges();
+
+      fireEvent.click(screen.getByRole('button', { name: /Ouvir/ }));
+      fixture.detectChanges();
+      fireEvent.click(screen.getByRole('button', { name: /Parar/ }));
+      expect(concluida).toHaveBeenCalledTimes(1);
     });
 
     it('pausa e continua pelo navegador, sem recomeçar do início', async () => {

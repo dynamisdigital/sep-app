@@ -7,6 +7,7 @@ import {
   ElementRef,
   inject,
   input,
+  output,
   signal,
   viewChild,
 } from '@angular/core';
@@ -52,6 +53,10 @@ export class OuvirTextoComponent {
   readonly seletor = input.required<string>();
   /** Identifica o texto; quando muda, a leitura em andamento é interrompida. */
   readonly chave = input<string>('');
+  /** Avisa quando a leitura chega ao fim sozinha (parar ou trocar de texto não conta). */
+  readonly concluida = output<void>();
+  /** Avisa quando uma leitura começa, para quem espera o fim cancelar o que tinha agendado. */
+  readonly iniciada = output<void>();
 
   protected readonly disponivel =
     typeof window !== 'undefined' &&
@@ -114,6 +119,7 @@ export class OuvirTextoComponent {
     this.total.set(this.partes.length);
     this.indice.set(0);
     this.estado.set('falando');
+    this.iniciada.emit();
     this.iniciarQuadro();
     this.falarDe(0, ++this.geracao);
   }
@@ -209,6 +215,7 @@ export class OuvirTextoComponent {
     this.limparMarcas();
     this.estado.set('parado');
     this.indice.set(0);
+    this.concluida.emit();
   }
 
   // ============ Marcação na página ============

@@ -1,8 +1,15 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { map } from 'rxjs';
 
@@ -31,7 +38,9 @@ import { AVISO_DO_BLOG, minutosDeLeitura, postPorSlug, PostBlog } from '../share
 })
 export class BlogArtigoComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly titulo = inject(Title);
+  private voltaParaOBlog = 0;
 
   private readonly slug = toSignal(this.route.paramMap.pipe(map((p) => p.get('slug') ?? '')), {
     initialValue: this.route.snapshot.paramMap.get('slug') ?? '',
@@ -56,7 +65,18 @@ export class BlogArtigoComponent {
   protected readonly minutos = minutosDeLeitura;
   protected readonly aviso = AVISO_DO_BLOG;
 
+  /** Terminada a leitura, a página espera 3 segundos e volta para a lista do blog. */
+  protected leituraConcluida(): void {
+    this.cancelarVolta();
+    this.voltaParaOBlog = window.setTimeout(() => void this.router.navigateByUrl('/blog'), 3000);
+  }
+
+  protected cancelarVolta(): void {
+    window.clearTimeout(this.voltaParaOBlog);
+  }
+
   constructor() {
+    inject(DestroyRef).onDestroy(() => this.cancelarVolta());
     effect(() => {
       const p = this.post();
       this.titulo.setTitle(
