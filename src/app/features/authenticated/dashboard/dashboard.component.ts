@@ -102,7 +102,7 @@ export class DashboardComponent {
       label: 'Pix',
       description: 'Desembolsos, recebimentos e divergências.',
       route: '/app/pix',
-      icon: 'wallet',
+      icon: 'pix',
       tone: 'purple',
       roles: ['FINANCEIRO', 'ADMIN', 'BACKOFFICE'],
     },

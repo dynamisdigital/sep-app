@@ -408,7 +408,7 @@ export class OperationalShellComponent implements OnDestroy {
         {
           label: 'Pix Automático',
           route: '/app/credito/pix-automatico',
-          lucide: 'repeat',
+          lucide: 'pix',
           tom: 'var(--sep-tint-violet)',
         },
       ],

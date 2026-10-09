@@ -487,7 +487,7 @@ describe('TourService', () => {
       'credit-card',
       'file-check',
       'banknote',
-      'qr-code',
+      'pix',
       'briefcase',
       'handshake',
       'users',

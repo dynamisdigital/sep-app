@@ -171,7 +171,7 @@ export class BackofficeDashboardPageComponent implements OnDestroy {
       },
       PIX: {
         label: 'PIX',
-        icon: 'qr-code',
+        icon: 'pix',
         tone: 'purple',
       },
     };

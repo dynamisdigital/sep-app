@@ -126,8 +126,12 @@
       <g class="glow">
         <rect class="miolo" x="142" y="22" width="116" height="196" rx="20" />
         <rect class="tr" fill="none" x="142" y="22" width="116" height="196" rx="20" />
-        <path class="tv" fill="none" d="M200 78l26 26l-26 26l-26-26z" />
-        <path class="tv" fill="none" d="M188 104h24" />
+        <path
+          [attr.d]="pixPath"
+          transform="translate(172 74) scale(0.109375)"
+          [attr.fill]="pixCor"
+          stroke="none"
+        />
       </g>
       <g class="tr" fill="none">
         <path d="M168 160h64M176 178h48" />

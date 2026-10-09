@@ -171,12 +171,21 @@ import {
   WifiOff,
   Wrench,
   Zap,
+  LucideIconData,
 } from 'lucide-angular';
+
+import { PIX_COR, PIX_LOGO_PATH } from '../../shared/arte/pix-logo';
 
 // Set curado de icones Lucide do New Design System SEP (atalhos, jornadas, navegacao, header,
 // e os simbolos de todas as telas vetorizadas). Registrado uma vez via `LucideAngularModule.pick`
 // em `app.config`; as telas consomem por nome, ex.: `<lucide-icon name="users">`.
+/** Marca do Pix como ícone: `<lucide-icon name="pix">`. Preenchida e na cor oficial, e não em traço. */
+export const Pix: LucideIconData = [
+  ['path', { d: PIX_LOGO_PATH, transform: 'scale(0.046875)', fill: PIX_COR, stroke: 'none' }],
+];
+
 export const LUCIDE_ICONS = {
+  Pix,
   Activity,
   Music,
   ChevronRight,

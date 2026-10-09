@@ -60,7 +60,7 @@ export class SidenavComponent {
           {
             label: 'Pix',
             route: '/app/pix',
-            icon: 'wallet',
+            icon: 'pix',
             roles: ['FINANCEIRO', 'ADMIN', 'BACKOFFICE'],
           },
         ],

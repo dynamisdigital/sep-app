@@ -13,6 +13,8 @@ import {
   signal,
 } from '@angular/core';
 
+import { PIX_COR, PIX_LOGO_PATH } from './pix-logo';
+
 /**
  * Arte HUD vetorial: os desenhos que os Mockups entregaram como PNG sobre fundo escuro.
  *
@@ -84,7 +86,7 @@ const TOM_PADRAO: Record<NomeArte, TomArte> = {
   'escudo-pix': 'verde',
   'pasta-alerta': 'vermelho',
   prancheta: 'ciano',
-  pix: 'ciano',
+  pix: 'verde',
 };
 
 const r = (n: number): number => Math.round(n * 10) / 10;
@@ -334,13 +336,10 @@ const D = {
           }
           @case ('pix') {
             <path
-              d="M24 6l6.5 6.5a4 4 0 0 0 2.8 1.2h1.4l7.3 7.3a4.2 4.2 0 0 1 0 6l-7.3 7.3h-1.4a4 4 0 0 0-2.8 1.2L24 42l-6.5-6.5a4 4 0 0 0-2.8-1.2h-1.4L6 27a4.2 4.2 0 0 1 0-6l7.3-7.3h1.4a4 4 0 0 0 2.8-1.2z"
-              class="preenchido"
-              stroke-width="2.2"
-            />
-            <path
-              d="M16 24l5.2-5.2a4 4 0 0 1 5.6 0L32 24l-5.2 5.2a4 4 0 0 1-5.6 0z"
-              stroke-width="2"
+              [attr.d]="pixPath"
+              transform="scale(0.09375)"
+              [attr.fill]="pixCor"
+              stroke="none"
             />
           }
         }
@@ -429,6 +428,8 @@ export class SepArteComponent {
   readonly tom = input<TomArte | null>(null);
 
   protected readonly d = D;
+  protected readonly pixPath = PIX_LOGO_PATH;
+  protected readonly pixCor = PIX_COR;
   protected readonly dentes = [0, 45, 90, 135, 180, 225, 270, 315];
 
   protected readonly tomFinal = computed(() => this.tom() ?? TOM_PADRAO[this.nome()]);

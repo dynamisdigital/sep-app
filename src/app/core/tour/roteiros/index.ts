@@ -43,7 +43,7 @@ export const MODULOS_TOUR: Record<string, { icone: string; tom: string }> = {
   Crédito: { icone: 'credit-card', tom: 'var(--sep-tint-violet)' },
   Formalização: { icone: 'file-check', tom: 'var(--sep-tint-pink)' },
   Cobrança: { icone: 'banknote', tom: 'var(--sep-tint-amber)' },
-  Pix: { icone: 'qr-code', tom: 'var(--sep-tint-teal)' },
+  Pix: { icone: 'pix', tom: 'var(--sep-tint-teal)' },
   Backoffice: { icone: 'briefcase', tom: 'var(--sep-tint-sky)' },
   Credora: { icone: 'building-2', tom: 'var(--sep-tint-emerald)' },
   Correspondentes: { icone: 'handshake', tom: 'var(--sep-tint-lime)' },
