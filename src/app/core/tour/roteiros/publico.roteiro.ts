@@ -1,8 +1,9 @@
 import { PassoRoteiro, Roteiro } from '../tour.model';
 import { emSecao, rotaExata } from './passos-comuns';
 
-// Tours assistidos do site institucional (sem login): pagina inicial, Credito PJ, Seguranca, Como
-// funciona, Sobre o SEP, Contato, Politica de privacidade e Termos de uso. Partem da pagina inicial e
+// Tours assistidos do site institucional (sem login): pagina inicial, login, Empresas, Investidores,
+// Seguranca, Como funciona, Transparencia, Blog (lista e texto), Sobre o SEP, Contato, Perguntas
+// frequentes, Antifraude, Politica de privacidade e Termos de uso. Partem da pagina inicial e
 // vao de uma pagina a outra pelo menu do cabecalho e pelos links do rodape, como um visitante. Nenhum
 // roteiro envia dados: o formulario de contato so e mostrado.
 
@@ -39,6 +40,17 @@ function ler(titulo: string, texto: string, alvo: PassoRoteiro['alvo']): PassoRo
   return { titulo, texto, alvo, acao: { tipo: 'observar' } };
 }
 
+/** Link do aviso antifraude da faixa superior (a pagina inicial e as demais tem faixas proprias). */
+const LINK_ANTIFRAUDE = '.landing-topbar a[href="/antifraude"], .site-topbar a[href="/antifraude"]';
+
+const ROTA_TEXTO_DO_BLOG = /^\/blog\/[^/?#]+(\?.*)?$/;
+
+/** Os botoes de colunas somem em tela estreita (abaixo de 760 px); o de tres colunas, abaixo de 1100 px. */
+function semBotao(seletor: string): boolean {
+  const el = document.querySelector(seletor);
+  return !el || getComputedStyle(el).display === 'none';
+}
+
 /** O tema escuro e a classe `dark` na raiz do documento. */
 function temaEscuroAtivo(): boolean {
   return document.documentElement.classList.contains('dark');
@@ -67,6 +79,11 @@ const inicio: Roteiro = {
       texto:
         'Este roteiro apresenta a página inicial do SEP, a Sociedade de Empréstimo entre Pessoas. Não é preciso estar logado.',
     },
+    ler(
+      'Faixa superior',
+      'Acima do cabeçalho, uma faixa lembra que o Dynamis SEP nunca pede pagamento antecipado para liberar crédito e não liga pedindo depósito, com o link Saiba como se proteger. Do outro lado, a Área do investidor leva ao login de quem financia.',
+      '.landing-topbar',
+    ),
     ler(
       'O cabeçalho',
       'No alto ficam a marca do SEP, o menu das páginas do site e os botões de tema, de ajuda e de entrada.',
@@ -283,9 +300,19 @@ const creditoPj: Roteiro = {
       pagina: '.px49-heading',
     }),
     ler(
+      'Seta de voltar',
+      'Nas páginas do site, a seta redonda, no alto e ao centro, volta uma tela. Na página inicial ela não aparece, porque não há para onde voltar. Quem chegou direto por um link vai para a página inicial.',
+      '.site-voltar',
+    ),
+    ler(
       'Para que serve',
       'A página explica que toda proposta passa pela mesma esteira: cadastro verificado, análise registrada, contrato assinado e desembolso rastreado.',
       '.px49-heading',
+    ),
+    ler(
+      'A foto do topo',
+      'Ao lado do texto, uma imagem ilustrativa mostra o tipo de empresa que busca capital de giro. Ela ilustra o público do SEP: não é uma pessoa real nem um depoimento.',
+      '.px49-hero-arte',
     ),
     ler(
       'Condições da operação',
@@ -362,6 +389,371 @@ const seguranca: Roteiro = {
       'Encontrou uma vulnerabilidade?',
       'Reportes de boa-fé são bem-vindos pelo canal de contato e não geram represália.',
       '.px50-chamada',
+    ),
+  ],
+};
+
+const investidores: Roteiro = {
+  ...BASE,
+  id: 'publico-investidores',
+  titulo: 'Investidores',
+  icone: 'wallet',
+  descricao:
+    'Como quem financia escolhe, aporta e acompanha, o que vê antes de decidir e onde fica o dinheiro.',
+  duracao: '≈ 3 min',
+  passos: () => [
+    {
+      titulo: 'Ponto de partida',
+      texto:
+        'Este roteiro percorre a página Investidores, a partir da página inicial. No sistema, quem financia é o credor; no site, aparece como investidor.',
+    },
+    irPara({
+      rota: '/investidores',
+      titulo: 'Menu Investidores',
+      texto: 'No menu do cabeçalho, Investidores abre a página de quem financia as operações.',
+      pagina: '.px60-heading',
+    }),
+    ler(
+      'Para que serve',
+      'A página explica como financiar empresas e acompanhar cada parcela, com o risco à vista. O retorno vem conforme as parcelas são pagas.',
+      '.px60-heading',
+    ),
+    ler(
+      'A foto do topo',
+      'Uma imagem ilustrativa mostra o perfil de quem financia. Ela ilustra o público do SEP: não é uma pessoa real nem um depoimento.',
+      '.px60-hero-arte',
+    ),
+    ler(
+      'Os dois caminhos',
+      'Criar conta de investidor abre o cadastro, e Como funciona leva à jornada completa da plataforma.',
+      '.px60-hero-acoes',
+    ),
+    ler(
+      'Antes de investir',
+      'O aviso vem logo no começo, e não escondido no rodapé: financiar crédito envolve risco, inclusive de inadimplência e de perda do capital. O SEP não garante o pagamento das operações, e o investimento não conta com a cobertura do FGC.',
+      '.px60-risco',
+    ),
+    ler(
+      'Como funciona para quem financia',
+      'Cinco etapas, da identificação ao retorno de cada parcela: cadastro e perfil, escolha, aporte, acompanhamento e retorno.',
+      { css: '.px60-secao', texto: 'Como funciona para quem financia' },
+    ),
+    ler(
+      'O que você vê antes de decidir',
+      'Antes de aportar, o investidor vê o score explicado, a faixa de risco de A a E, o prazo e a taxa, e a inadimplência por faixa.',
+      { css: '.px60-secao', texto: 'O que você vê antes de decidir' },
+    ),
+    ler(
+      'Quem pode financiar',
+      'Pessoas físicas, empresas e investidores qualificados podem financiar, cada um dentro das regras do seu perfil. Há um limite de exposição por tomador para quem não é investidor qualificado.',
+      { css: '.px60-secao', texto: 'Quem pode financiar' },
+    ),
+    ler(
+      'Onde fica o seu dinheiro',
+      'O dinheiro de quem financia fica separado do caixa da plataforma, tudo é registrado, e não há promessa de ganho. A ilustração ao lado mostra esse caminho.',
+      { css: '.px60-secao', texto: 'Onde fica o seu dinheiro' },
+    ),
+    ler(
+      'Pronto para conhecer as oportunidades?',
+      'No fim, atalhos para criar a conta, para as perguntas frequentes e para a página de transparência.',
+      '.px60-chamada',
+    ),
+  ],
+};
+
+const transparencia: Roteiro = {
+  ...BASE,
+  id: 'publico-transparencia',
+  titulo: 'Transparência',
+  icone: 'scale',
+  descricao: 'Identificação, tarifas, inadimplência por faixa de risco e os canais oficiais.',
+  duracao: '≈ 2,5 min',
+  passos: () => [
+    {
+      titulo: 'Ponto de partida',
+      texto: 'Este roteiro percorre a página Transparência, a partir da página inicial.',
+    },
+    irPara({
+      rota: '/transparencia',
+      titulo: 'Menu Transparência',
+      texto:
+        'No menu do cabeçalho, Transparência reúne quem somos, quanto cobramos e como estão as operações.',
+      pagina: '.px61-heading',
+    }),
+    ler(
+      'Para que serve',
+      'Uma sociedade de empréstimo entre pessoas lida com o dinheiro de terceiros, e por isso mostra a própria identificação, as tarifas e o desempenho da carteira em um lugar só.',
+      '.px61-heading',
+    ),
+    ler(
+      'Identificação',
+      'Os dados que permitem conferir quem responde pela plataforma: nome, CNPJ, sede, regulamentação e canal oficial. A autorização do Banco Central aparece como Em atualização até a referência estar disponível, e o link leva à lista pública do Banco Central.',
+      { css: '.px61-secao', texto: 'Identificação' },
+    ),
+    ler(
+      'Tarifas',
+      'O que cobramos, em linguagem simples. Itens sem custo aparecem na lista, e não ficam de fora. A recomendação é comparar sempre o Custo Efetivo Total.',
+      { css: '.px61-secao', texto: 'Tarifas' },
+    ),
+    ler(
+      'Inadimplência por faixa de risco',
+      'A regulamentação obriga a divulgar, todo mês, a inadimplência média dos últimos doze meses por classificação de risco. À direita, o gráfico de barras ilustra as faixas de A a E.',
+      '.px61-inad',
+    ),
+    ler(
+      'Por que aparece um traço',
+      'Ainda não há carteira com doze meses de histórico, então os indicadores aparecem como traço. A divulgação mensal começa quando houver operações a medir, e cada mês traz a sua data-base.',
+      '.px61-risco',
+    ),
+    ler(
+      'Reclamações e canais oficiais',
+      'O e-mail oficial, o horário de atendimento e o alerta para desconfiar de outros contatos: o SEP não pede senha, código do autenticador nem pagamento antecipado.',
+      { css: '.px61-secao', texto: 'Reclamações e canais oficiais' },
+    ),
+    ler(
+      'Ficou com dúvida?',
+      'No fim, atalhos para as perguntas frequentes e para falar com a equipe.',
+      '.px61-chamada',
+    ),
+  ],
+};
+
+const blog: Roteiro = {
+  ...BASE,
+  id: 'publico-blog',
+  titulo: 'Blog e leitura em áudio',
+  icone: 'book-open',
+  descricao: 'A lista de textos, a leitura em áudio acompanhada na tela e as colunas do texto.',
+  duracao: '≈ 4 min',
+  passos: () => [
+    {
+      titulo: 'Ponto de partida',
+      texto:
+        'Este roteiro percorre o blog, abre um texto e mostra a leitura em áudio e as colunas. A leitura em voz alta não é acionada durante o tour, para não competir com a narração.',
+    },
+    irPara({
+      rota: '/blog',
+      titulo: 'Menu Blog',
+      texto:
+        'No menu do cabeçalho, Blog abre os textos sobre a sociedade de empréstimo entre pessoas.',
+      pagina: '.px64-heading',
+    }),
+    ler(
+      'Para que serve',
+      'Textos informativos sobre como uma SEP funciona, como o risco é medido, como a empresa se prepara e como quem financia se protege. Sem promessa de ganho.',
+      '.px64-heading',
+    ),
+    ler(
+      'Filtros por categoria',
+      'Os botões filtram os textos por categoria e mostram quantos há em cada uma.',
+      '.px64-filtros',
+    ),
+    ler(
+      'Texto em destaque',
+      'O primeiro texto da lista vira destaque, com imagem, resumo, data e tempo de leitura.',
+      '.px64-destaque',
+    ),
+    ler(
+      'Os demais textos',
+      'Os outros entram em grade, cada um com a sua imagem, categoria e resumo.',
+      '.px64-grade',
+    ),
+    {
+      titulo: 'Abrir um texto',
+      texto: 'Um clique no texto em destaque abre a leitura.',
+      alvo: '.px64-destaque',
+      acao: { tipo: 'clicar' },
+      aguardarRota: ROTA_TEXTO_DO_BLOG,
+      aguardarAlvo: '.px65-heading',
+    },
+    ler(
+      'O texto',
+      'Título, resumo, autoria, data e tempo de leitura. A página sempre abre no topo.',
+      '.px65-heading',
+    ),
+    ler(
+      'Seta de voltar',
+      'A seta redonda, no alto e ao centro, volta para a lista do blog.',
+      '.site-voltar',
+    ),
+    ler(
+      'Ouvir este texto',
+      'A leitura usa a voz do aparelho e só começa quando a pessoa pede. O trecho lido fica marcado na própria página: uma tarja sobre o bloco em leitura e um destaque dourado que avança no ritmo da voz, com a página rolando junto. Dá para pausar, parar e escolher a velocidade.',
+      'sep-ouvir-texto',
+    ),
+    ler(
+      'Ao terminar a leitura',
+      'Quando a leitura termina sozinha, três segundos depois a página volta à lista do blog, no ponto do texto lido: a borda dele pisca em branco quatro vezes, o próximo texto ganha uma borda azul que também pisca quatro vezes, e a página posiciona nele. Se ninguém interagir em dez segundos, ela sobe ao cabeçalho.',
+      'sep-ouvir-texto',
+    ),
+    ler(
+      'Diagramação',
+      'Cada texto abre com uma diagramação diferente: o primeiro em uma coluna, o segundo em duas, o terceiro em três, e depois a sequência recomeça. Estes botões deixam a pessoa escolher a que prefere para o texto aberto.',
+      '.px65-diagramacao',
+    ),
+    {
+      titulo: 'Duas colunas',
+      texto: 'Vamos ver o texto em duas colunas.',
+      alvo: '.px65-col-2',
+      acao: { tipo: 'clicar' },
+      aguardarRota: ROTA_TEXTO_DO_BLOG,
+      aguardarAlvo: '.px65-corpo-2',
+      pularSe: () => semBotao('.px65-col-2'),
+    },
+    {
+      titulo: 'O texto em duas colunas',
+      texto:
+        'A página alarga, e só o texto corrido muda. Título, imagem, resumo e aviso ficam como estavam.',
+      alvo: '.px65-corpo',
+      acao: { tipo: 'observar' },
+      pularSe: () => semBotao('.px65-col-2'),
+    },
+    {
+      titulo: 'Três colunas',
+      texto:
+        'Agora, em três colunas. Em tela estreita, este botão some e o texto passa a duas colunas.',
+      alvo: '.px65-col-3',
+      acao: { tipo: 'clicar' },
+      aguardarRota: ROTA_TEXTO_DO_BLOG,
+      aguardarAlvo: '.px65-corpo-3',
+      pularSe: () => semBotao('.px65-col-3'),
+    },
+    {
+      titulo: 'O texto em três colunas',
+      texto:
+        'Três colunas variam a leitura em telas largas. Em textos longos, uma ou duas costumam cansar menos.',
+      alvo: '.px65-corpo',
+      acao: { tipo: 'observar' },
+      pularSe: () => semBotao('.px65-col-3'),
+    },
+    {
+      titulo: 'Voltar a uma coluna',
+      texto: 'Por fim, uma coluna, a diagramação clássica de leitura.',
+      alvo: '.px65-col-1',
+      acao: { tipo: 'clicar' },
+      aguardarRota: ROTA_TEXTO_DO_BLOG,
+      aguardarAlvo: '.px65-corpo:not(.px65-corpo-2):not(.px65-corpo-3)',
+      pularSe: () => semBotao('.px65-col-1'),
+    },
+    ler('Em resumo', 'No fim do texto, os pontos principais em poucas linhas.', '.px65-resumo'),
+    ler(
+      'Aviso do blog',
+      'Todo texto termina lembrando que o conteúdo é informativo, não é recomendação de investimento nem promessa de rendimento.',
+      '.px65-aviso',
+    ),
+    ler(
+      'Para continuar lendo',
+      'Textos relacionados sugerem a próxima leitura.',
+      '.px65-relacionados',
+    ),
+    {
+      titulo: 'Voltar à lista',
+      texto: 'A seta redonda leva de volta à lista do blog.',
+      alvo: '.site-voltar',
+      acao: { tipo: 'clicar' },
+      aguardarRota: rotaExata('/blog'),
+      aguardarAlvo: '.px64-heading',
+    },
+  ],
+};
+
+const perguntas: Roteiro = {
+  ...BASE,
+  id: 'publico-perguntas',
+  titulo: 'Perguntas frequentes',
+  icone: 'circle-help',
+  descricao: 'A busca, os quatro grupos de perguntas e como abrir uma resposta.',
+  duracao: '≈ 2 min',
+  passos: () => [
+    {
+      titulo: 'Ponto de partida',
+      texto:
+        'Este roteiro percorre as perguntas frequentes. Elas não estão no menu do cabeçalho: o caminho é o rodapé. Nada é digitado durante o tour.',
+    },
+    irPara({
+      rota: '/perguntas-frequentes',
+      titulo: 'Rodapé: Perguntas frequentes',
+      texto: 'No rodapé de qualquer página, o link Perguntas frequentes abre a página.',
+      pagina: '.px62-heading',
+      rodape: true,
+    }),
+    ler(
+      'Para que serve',
+      'As respostas diretas para o que mais perguntam sobre a sociedade de empréstimo entre pessoas, em linguagem simples.',
+      '.px62-heading',
+    ),
+    ler(
+      'Busca',
+      'A busca filtra as perguntas conforme se digita, por exemplo limite, Pix ou risco. Durante o tour o campo só é mostrado.',
+      '.px62-busca',
+    ),
+    ler('Quantas perguntas', 'Logo abaixo, a contagem de perguntas encontradas.', '.px62-contagem'),
+    ler(
+      'Os grupos',
+      'As perguntas se dividem em quatro grupos: sobre a SEP, para empresas que buscam crédito, para investidores e segurança e proteção de dados.',
+      '.px62-grupo',
+    ),
+    {
+      titulo: 'Abrir uma resposta',
+      texto: 'Um clique na pergunta abre a resposta, sem sair da página.',
+      alvo: '.px62-item summary',
+      acao: { tipo: 'clicar' },
+      aguardarRota: rotaExata('/perguntas-frequentes'),
+      aguardarAlvo: '.px62-item[open]',
+    },
+    ler('A resposta', 'A resposta aparece logo abaixo da pergunta.', '.px62-item[open]'),
+    ler(
+      'Ainda com dúvida?',
+      'No fim, o canal para falar com a equipe e um atalho para o blog.',
+      '.px62-chamada',
+    ),
+  ],
+};
+
+const antifraude: Roteiro = {
+  ...BASE,
+  id: 'publico-antifraude',
+  titulo: 'Antifraude',
+  icone: 'shield-alert',
+  descricao: 'O que o Dynamis SEP nunca faz, como reconhecer um golpe e o que fazer se acontecer.',
+  duracao: '≈ 2 min',
+  passos: () => [
+    {
+      titulo: 'Ponto de partida',
+      texto: 'Este roteiro percorre a página Antifraude, a partir da faixa no topo do site.',
+    },
+    {
+      titulo: 'Saiba como se proteger',
+      texto: 'Na faixa do topo, o link Saiba como se proteger abre a página Antifraude.',
+      alvo: LINK_ANTIFRAUDE,
+      acao: { tipo: 'clicar' },
+      aguardarRota: rotaExata('/antifraude'),
+      aguardarAlvo: '.px63-heading',
+    },
+    ler(
+      'Para que serve',
+      'Golpes com o nome de empresas de crédito são comuns. A página explica como o Dynamis SEP se comunica e como reconhecer o que não é dele.',
+      '.px63-heading',
+    ),
+    ler(
+      'O que o Dynamis SEP nunca faz',
+      'Nunca pede pagamento antecipado, nunca liga pedindo depósito, nunca pede senha ou códigos, e só atende pelos canais oficiais.',
+      { css: '.px63-secao', texto: 'O que o Dynamis SEP nunca faz' },
+    ),
+    ler(
+      'Como reconhecer um golpe',
+      'Uma lista de sinais de alerta, ao lado dos canais oficiais. Na dúvida sobre um contato, confirme pelo e-mail oficial antes de responder.',
+      { css: '.px63-secao', texto: 'Como reconhecer um golpe' },
+    ),
+    ler(
+      'Se aconteceu com você',
+      'Pare e não pague, guarde as provas, avise o canal oficial e, se já pagou, procure o banco e registre a ocorrência.',
+      { css: '.px63-secao', texto: 'Se aconteceu com você' },
+    ),
+    ler(
+      'Viu algo suspeito?',
+      'No fim, o canal para avisar a equipe e o atalho para a página Segurança.',
+      '.px63-chamada',
     ),
   ],
 };
@@ -625,16 +1017,21 @@ const completo: Roteiro = {
   id: 'publico-completo',
   titulo: 'Módulo completo',
   icone: 'list-checks',
-  descricao: 'Os nove roteiros em sequência: da página inicial aos termos de uso.',
-  duracao: '≈ 17 min',
+  descricao: 'Os quatorze roteiros em sequência: da página inicial aos termos de uso.',
+  duracao: '≈ 31 min',
   passos: (ctx) => [
     ...emSecao(inicio, ctx, { primeira: true }),
     ...emSecao(login, ctx),
     ...emSecao(creditoPj, ctx),
+    ...emSecao(investidores, ctx),
     ...emSecao(seguranca, ctx),
     ...emSecao(comoFunciona, ctx),
+    ...emSecao(transparencia, ctx),
+    ...emSecao(blog, ctx),
     ...emSecao(sobre, ctx),
     ...emSecao(contato, ctx),
+    ...emSecao(perguntas, ctx),
+    ...emSecao(antifraude, ctx),
     ...emSecao(privacidade, ctx),
     ...emSecao(termos, ctx),
   ],
@@ -645,10 +1042,15 @@ export const ROTEIROS_PUBLICO: Roteiro[] = [
   inicio,
   login,
   creditoPj,
+  investidores,
   seguranca,
   comoFunciona,
+  transparencia,
+  blog,
   sobre,
   contato,
+  perguntas,
+  antifraude,
   privacidade,
   termos,
 ];
