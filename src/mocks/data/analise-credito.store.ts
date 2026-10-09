@@ -5,6 +5,7 @@ import type {
   DecisaoSugerida,
   ExecutarAnaliseRequest,
   FaixaRisco,
+  AjusteScore,
   FatorScore,
   FonteBureau,
   ParametrosAnalise,
@@ -31,6 +32,8 @@ export interface PropostaParaAnalise {
   valorSolicitado: number;
   prazoMeses: number;
   valorParcelaEstimado?: number;
+  /** O tomador tem Pix Automático ativo em algum contrato: pagamento previsível. */
+  pixAutomaticoAtivo?: boolean;
 }
 
 const AGORA = '2026-10-07T10:00:00-03:00';
@@ -43,6 +46,7 @@ const PARAMETROS_INICIAIS: ParametrosAnalise = {
   corteAprovacao: 700,
   corteRecusa: 500,
   comprometimentoMaximoPct: 30,
+  bonusPixAutomatico: 30,
 };
 
 let parametros: ParametrosAnalise = clonarParametros(PARAMETROS_INICIAIS);
@@ -86,6 +90,9 @@ export function atualizarParametros(
       erro: 'O corte de recusa deve ficar abaixo do corte de aprovação (0 a 1000)',
       status: 422,
     };
+  }
+  if (proximo.bonusPixAutomatico < 0 || proximo.bonusPixAutomatico > 100) {
+    return { erro: 'O ajuste do Pix Automatico deve ficar entre 0 e 100 pontos', status: 422 };
   }
   if (proximo.comprometimentoMaximoPct < 5 || proximo.comprometimentoMaximoPct > 50) {
     return { erro: 'O comprometimento máximo da renda deve ficar entre 5% e 50%', status: 422 };
@@ -340,7 +347,25 @@ export function calcularAnalise(
     ),
   ];
 
-  const score = fatores.reduce((s, f) => s + f.contribuicao, 0);
+  // O Pix Automático ativo mostra pagamento previsível e entra como ajuste próprio, visível na análise, e
+  // não escondido dentro de um fator. O score continua limitado a 1.000.
+  const ajustes: AjusteScore[] =
+    proposta.pixAutomaticoAtivo && params.bonusPixAutomatico > 0
+      ? [
+          {
+            chave: 'PIX_AUTOMATICO',
+            nome: 'Pix Automático ativo',
+            pontos: params.bonusPixAutomatico,
+            explicacao:
+              'O tomador autorizou o débito automático das parcelas: o pagamento é previsível e o risco de esquecimento cai.',
+          },
+        ]
+      : [];
+  const somaFatores = fatores.reduce((s, f) => s + f.contribuicao, 0);
+  const score = Math.max(
+    0,
+    Math.min(1000, somaFatores + ajustes.reduce((s, a) => s + a.pontos, 0)),
+  );
 
   const regras: RegraDisparada[] = [];
   if (proposta.valorSolicitado > TETO_REGIMENTO) {
@@ -420,10 +445,11 @@ export function calcularAnalise(
     score,
     faixa: faixaDe(score),
     fatores,
+    ajustes,
     capacidade,
     decisaoSugerida,
     regras,
-    resumo,
+    resumo: ajustes.length ? `${resumo} Inclui +${ajustes[0].pontos} pelo Pix Automático.` : resumo,
     versaoModelo: VERSAO_MODELO,
   };
 }

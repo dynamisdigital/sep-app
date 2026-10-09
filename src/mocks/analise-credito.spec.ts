@@ -36,6 +36,12 @@ function analisar(p: PropostaParaAnalise) {
 }
 
 // Motor de analise de credito (mock): consulta bureaus, pontua fatores explicaveis e sugere a decisao.
+function reiniciarAnalisesMantendoParametros(): void {
+  const p = consultarParametros();
+  reiniciarAnalises();
+  atualizarParametros({ ...p });
+}
+
 describe('analise de credito (mock)', () => {
   beforeEach(() => reiniciarAnalises());
 
@@ -50,6 +56,8 @@ describe('analise de credito (mock)', () => {
     for (const status of ['APROVADA', 'EM_ANALISE', 'PENDENCIA', 'REJEITADA']) {
       const a = analisar(proposta(status));
       expect(a.fatores.reduce((s, f) => s + f.peso, 0)).toBe(100);
+      // Os ajustes (Pix Automático) entram na soma; nestes casos não há ajuste, então a soma é só dos fatores.
+      expect(a.ajustes).toEqual([]);
       expect(a.fatores.reduce((s, f) => s + f.contribuicao, 0)).toBe(a.score);
       expect(a.score).toBeGreaterThanOrEqual(0);
       expect(a.score).toBeLessThanOrEqual(1000);
@@ -160,5 +168,46 @@ describe('analise de credito (mock)', () => {
     );
     expect('parecer' in acata && acata.parecer?.divergeDoMotor).toBe(false);
     expect(consultarAnalise(p.id)?.parecer?.analista).toBe('ana');
+  });
+
+  describe('Pix Automático no score', () => {
+    const comPix = (status: string, id = `pix-${status}`) => ({
+      ...proposta(status, 1250, 12, id),
+      pixAutomaticoAtivo: true,
+    });
+
+    it('com Pix Automático ativo, soma o ajuste ao score e mostra a linha própria', () => {
+      const sem = analisar(proposta('EM_ANALISE', 1250, 12, 'sem'));
+      const com = analisar(comPix('EM_ANALISE', 'com'));
+
+      expect(com.ajustes).toHaveLength(1);
+      expect(com.ajustes[0]).toMatchObject({ chave: 'PIX_AUTOMATICO', pontos: 30 });
+      expect(com.score).toBe(sem.score + 30);
+      // A conta continua fechando: fatores + ajustes = score.
+      const somaFatores = com.fatores.reduce((s, f) => s + f.contribuicao, 0);
+      expect(somaFatores + com.ajustes[0].pontos).toBe(com.score);
+      expect(com.resumo).toMatch(/Inclui \+30 pelo Pix Autom/);
+    });
+
+    it('o ajuste nunca leva o score acima de 1.000 e pode ser desligado pelo administrador', () => {
+      atualizarParametros({ bonusPixAutomatico: 100 });
+      const topo = analisar(comPix('APROVADA', 'topo'));
+      expect(topo.score).toBeLessThanOrEqual(1000);
+
+      atualizarParametros({ bonusPixAutomatico: 0 });
+      reiniciarAnalisesMantendoParametros();
+      const desligado = analisar(comPix('EM_ANALISE', 'desligado'));
+      expect(desligado.ajustes).toEqual([]);
+    });
+
+    it('o ajuste respeita os limites de 0 a 100 pontos', () => {
+      expect(atualizarParametros({ bonusPixAutomatico: -1 })).toMatchObject({ status: 422 });
+      expect(atualizarParametros({ bonusPixAutomatico: 101 })).toMatchObject({ status: 422 });
+    });
+
+    it('o ajuste não esconde uma regra bloqueante: proposta com restrições segue recusada', () => {
+      const a = analisar(comPix('REJEITADA', 'bloqueada'));
+      expect(a.decisaoSugerida).toBe('RECUSAR');
+    });
   });
 });

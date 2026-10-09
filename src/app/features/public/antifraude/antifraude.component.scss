@@ -1,0 +1,96 @@
+// ============ ANTIFRAUDE ============
+
+@use "../shared/site-tema" as site;
+
+:host {
+  @include site.tokens;
+}
+
+@include site.base("px63");
+@include site.extras("px63");
+
+.px63-duas {
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: start;
+}
+
+.px63-duas-texto {
+  display: grid;
+  gap: 22px;
+}
+
+.px63-sinais {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.px63-sinais li {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 14px 18px;
+  color: var(--site-suave);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  border: 1px solid rgb(var(--lp-c-ambar) / 28%);
+  border-radius: 12px;
+  background: rgb(var(--lp-c-ambar) / 6%);
+}
+
+.px63-sinais lucide-icon {
+  display: grid;
+  color: rgb(var(--lp-c-ambar));
+  place-items: center;
+}
+
+.px63-canais {
+  display: grid;
+  gap: 12px;
+  padding: 24px;
+  border: 1px solid var(--site-linha);
+  border-radius: 16px;
+  background: var(--site-cartao);
+}
+
+.px63-canais h3 {
+  margin: 0;
+  font-size: 1.06rem;
+}
+
+.px63-canais dl {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+
+.px63-canais dt {
+  color: var(--site-ciano);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.px63-canais dd {
+  margin: 0 0 10px;
+  color: var(--site-texto);
+  font-size: 0.95rem;
+}
+
+.px63-canais p {
+  margin: 0;
+  color: var(--site-suave);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+@media (width <= 900px) {
+  .px63-duas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -52,6 +52,18 @@ export interface FatorScore {
   explicacao: string;
 }
 
+/**
+ * Ajuste ao score fora dos seis fatores. Hoje existe um: o Pix Automático ativo, que mostra pagamento
+ * previsível. O ajuste aparece em linha própria, com o motivo, e entra na soma que forma o score.
+ */
+export interface AjusteScore {
+  chave: 'PIX_AUTOMATICO';
+  nome: string;
+  /** Pontos somados ao score (o score final continua entre 0 e 1.000). */
+  pontos: number;
+  explicacao: string;
+}
+
 export type FaixaRisco = 'A' | 'B' | 'C' | 'D' | 'E';
 
 export type DecisaoSugerida = 'APROVAR' | 'ANALISE_MANUAL' | 'RECUSAR';
@@ -92,6 +104,8 @@ export interface AnaliseCreditoResponse {
   capacidade: CapacidadePagamento;
   decisaoSugerida: DecisaoSugerida;
   regras: RegraDisparada[];
+  /** Ajustes somados aos fatores; a soma das contribuições mais os ajustes é o score. */
+  ajustes: AjusteScore[];
   /** Resumo em linguagem simples do porque da sugestao. */
   resumo: string;
   versaoModelo: string;
@@ -118,4 +132,6 @@ export interface ParametrosAnalise {
   /** Score abaixo do qual o motor sugere recusar; entre os dois cortes, analise manual. */
   corteRecusa: number;
   comprometimentoMaximoPct: number;
+  /** Pontos somados ao score quando o tomador tem Pix Automático ativo (0 desliga o ajuste). */
+  bonusPixAutomatico: number;
 }

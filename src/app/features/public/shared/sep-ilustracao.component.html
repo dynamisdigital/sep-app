@@ -1,0 +1,207 @@
+<svg
+  class="ilu"
+  viewBox="0 0 400 240"
+  xmlns="http://www.w3.org/2000/svg"
+  [attr.role]="descricao() ? 'img' : null"
+  [attr.aria-label]="descricao() || null"
+  [attr.aria-hidden]="descricao() ? null : 'true'"
+  preserveAspectRatio="xMidYMid meet"
+>
+  <rect class="fundo" x="0" y="0" width="400" height="240" rx="18" />
+  <g class="grade">
+    <path d="M0 60H400M0 120H400M0 180H400M80 0V240M160 0V240M240 0V240M320 0V240" />
+  </g>
+
+  @switch (cena()) {
+    @case ('rede') {
+      <!-- Investidores à esquerda, empresas à direita, plataforma no centro -->
+      <g class="tr" fill="none">
+        <path
+          d="M70 60L172 112M70 120L172 120M70 180L172 128M330 60L228 112M330 120L228 120M330 180L228 128"
+        />
+      </g>
+      <g class="glow">
+        <circle class="no" cx="62" cy="60" r="18" />
+        <circle class="no" cx="62" cy="120" r="18" />
+        <circle class="no" cx="62" cy="180" r="18" />
+        <circle class="no nv" cx="338" cy="60" r="18" />
+        <circle class="no nv" cx="338" cy="120" r="18" />
+        <circle class="no nv" cx="338" cy="180" r="18" />
+        <rect class="miolo" x="168" y="86" width="64" height="68" rx="14" />
+        <path class="tv" fill="none" d="M200 100l22 8v14c0 14-9 24-22 30c-13-6-22-16-22-30v-14z" />
+        <path class="tv" fill="none" d="M190 126l7 7l14-15" />
+      </g>
+      <g class="tx">
+        <text x="62" y="30" text-anchor="middle">Investidores</text>
+        <text x="338" y="30" text-anchor="middle">Empresas</text>
+        <text x="200" y="182" text-anchor="middle">Dynamis SEP</text>
+      </g>
+      <g class="tr" fill="none">
+        <circle cx="62" cy="54" r="5" />
+        <path d="M52 70c2-8 18-8 20 0" />
+        <circle cx="62" cy="114" r="5" />
+        <path d="M52 130c2-8 18-8 20 0" />
+        <circle cx="62" cy="174" r="5" />
+        <path d="M52 190c2-8 18-8 20 0" />
+        <path d="M330 54h16v14h-16zM334 60h8M334 64h8" />
+        <path d="M330 114h16v14h-16zM334 120h8M334 124h8" />
+        <path d="M330 174h16v14h-16zM334 180h8M334 184h8" />
+      </g>
+    }
+    @case ('escudo') {
+      <g class="glow">
+        <path class="miolo" d="M200 34l72 26v48c0 46-30 80-72 98c-42-18-72-52-72-98V60z" />
+        <path class="tv" fill="none" d="M200 34l72 26v48c0 46-30 80-72 98c-42-18-72-52-72-98V60z" />
+        <path class="tv" fill="none" d="M168 118l22 22l44-46" />
+      </g>
+      <g class="tr" fill="none">
+        <rect x="52" y="150" width="62" height="44" rx="8" />
+        <path d="M66 150v-12a17 17 0 0 1 34 0v12" />
+        <circle cx="83" cy="172" r="5" />
+        <path d="M286 62h62M286 82h62M286 102h40" />
+        <path d="M286 150h62v8h-62zM286 166h62v8h-62zM286 182h62v8h-62z" />
+      </g>
+    }
+    @case ('fluxo') {
+      <g class="tr" fill="none">
+        <path d="M118 70H150M248 70H280M200 100V132" />
+        <path d="M144 64l8 6l-8 6M274 64l8 6l-8 6M194 126l6 8l6-8" />
+      </g>
+      <g class="glow">
+        <rect class="miolo" x="22" y="44" width="96" height="52" rx="12" />
+        <rect class="miolo" x="152" y="44" width="96" height="52" rx="12" />
+        <rect class="miolo nvm" x="282" y="44" width="96" height="52" rx="12" />
+        <rect class="miolo" x="152" y="136" width="96" height="52" rx="12" />
+      </g>
+      <g class="tx">
+        <text x="70" y="76" text-anchor="middle">Aporte</text>
+        <text x="200" y="76" text-anchor="middle">Conta segregada</text>
+        <text x="330" y="76" text-anchor="middle">Empresa</text>
+        <text x="200" y="168" text-anchor="middle">Parcela volta</text>
+      </g>
+      <path class="tv" fill="none" d="M330 96V162H248M152 162H70V96" stroke-dasharray="5 5" />
+    }
+    @case ('documento') {
+      <g class="glow">
+        <rect class="miolo" x="118" y="28" width="164" height="188" rx="12" />
+        <rect class="tr" fill="none" x="118" y="28" width="164" height="188" rx="12" />
+      </g>
+      <g class="tr" fill="none">
+        <path d="M142 62h116M142 82h116M142 102h84M142 122h116M142 142h60" />
+        <path d="M142 186c10-18 18 12 28-4c8-12 12 6 20 0" />
+      </g>
+      <g class="glow">
+        <circle class="tv" fill="none" cx="246" cy="178" r="24" />
+        <path class="tv" fill="none" d="M234 178l9 9l16-18" />
+      </g>
+      <g class="tr" fill="none">
+        <path d="M60 80l36 12M60 130l36-6M340 100l-36 4M340 150l-36-14" />
+        <circle cx="52" cy="78" r="8" />
+        <circle cx="52" cy="130" r="8" />
+        <circle cx="348" cy="98" r="8" />
+        <circle cx="348" cy="152" r="8" />
+      </g>
+    }
+    @case ('grafico') {
+      <g class="tr" fill="none">
+        <path d="M54 190H350M54 190V40" />
+      </g>
+      <g class="glow">
+        <rect class="barra" x="84" y="140" width="30" height="50" rx="5" />
+        <rect class="barra" x="134" y="112" width="30" height="78" rx="5" />
+        <rect class="barra" x="184" y="86" width="30" height="104" rx="5" />
+        <rect class="barra nvm" x="234" y="104" width="30" height="86" rx="5" />
+        <rect class="barra am" x="284" y="130" width="30" height="60" rx="5" />
+      </g>
+      <g class="tx">
+        <text x="99" y="210" text-anchor="middle">A</text>
+        <text x="149" y="210" text-anchor="middle">B</text>
+        <text x="199" y="210" text-anchor="middle">C</text>
+        <text x="249" y="210" text-anchor="middle">D</text>
+        <text x="299" y="210" text-anchor="middle">E</text>
+      </g>
+      <path class="tv" fill="none" d="M84 128L134 104L184 74L234 92L284 118" />
+    }
+    @case ('pix') {
+      <g class="glow">
+        <rect class="miolo" x="142" y="22" width="116" height="196" rx="20" />
+        <rect class="tr" fill="none" x="142" y="22" width="116" height="196" rx="20" />
+        <path class="tv" fill="none" d="M200 78l26 26l-26 26l-26-26z" />
+        <path class="tv" fill="none" d="M188 104h24" />
+      </g>
+      <g class="tr" fill="none">
+        <path d="M168 160h64M176 178h48" />
+        <path d="M70 100a40 40 0 0 1 70-26M70 100l-2-16M70 100l16-2" />
+        <path d="M330 140a40 40 0 0 1-70 26M330 140l2 16M330 140l-16 2" />
+        <rect x="52" y="150" width="56" height="48" rx="8" />
+        <path d="M52 166h56M66 150v-8M94 150v-8" />
+      </g>
+    }
+    @case ('pessoas') {
+      <g class="glow">
+        <circle class="no" cx="130" cy="86" r="26" />
+        <path class="miolo" d="M84 190c0-34 20-54 46-54s46 20 46 54z" />
+        <circle class="no nv" cx="270" cy="86" r="26" />
+        <path class="miolo" d="M224 190c0-34 20-54 46-54s46 20 46 54z" />
+      </g>
+      <g class="tr" fill="none">
+        <path d="M168 150l32-18l32 18" />
+        <path d="M176 164l24-12l24 12" />
+      </g>
+      <g class="glow">
+        <circle class="tv" fill="none" cx="200" cy="132" r="12" />
+        <path class="tv" fill="none" d="M194 132l4 4l8-9" />
+      </g>
+    }
+    @case ('alerta') {
+      <g class="glow">
+        <path class="miolo" d="M200 34l92 156H108z" />
+        <path class="am" fill="none" d="M200 34l92 156H108z" />
+        <path class="am" fill="none" d="M200 94v52M200 164v6" />
+      </g>
+      <g class="tr" fill="none">
+        <rect x="44" y="92" width="52" height="86" rx="10" />
+        <path d="M60 164h20" />
+        <path d="M312 110h44M312 134h44M312 158h28" />
+        <path d="M330 84l22 22M352 84l-22 22" class="am" />
+      </g>
+    }
+    @case ('analise') {
+      <g class="tr" fill="none">
+        <path d="M70 190a110 110 0 0 1 220 0" />
+        <path d="M82 190a98 98 0 0 1 196 0" stroke-dasharray="3 9" />
+      </g>
+      <g class="glow">
+        <path class="tv" fill="none" d="M180 190l-52-72" />
+        <circle class="miolo" cx="180" cy="190" r="10" />
+      </g>
+      <g class="tr" fill="none">
+        <circle cx="286" cy="86" r="34" />
+        <path d="M310 110l32 32" />
+        <path d="M274 86h24M286 74v24" />
+        <path d="M60 60h82M60 80h60M60 100h74" />
+      </g>
+      <g class="tx"><text x="180" y="218" text-anchor="middle">0 a 1.000</text></g>
+    }
+    @case ('cidade') {
+      <g class="glow">
+        <rect class="miolo" x="52" y="110" width="52" height="92" rx="6" />
+        <rect class="miolo" x="118" y="70" width="60" height="132" rx="6" />
+        <rect class="miolo" x="192" y="96" width="48" height="106" rx="6" />
+        <rect class="miolo" x="254" y="54" width="62" height="148" rx="6" />
+        <rect class="miolo" x="328" y="124" width="40" height="78" rx="6" />
+      </g>
+      <g class="tr" fill="none">
+        <path d="M44 202H376" />
+        <path
+          d="M130 90h12M154 90h12M130 112h12M154 112h12M130 134h12M154 134h12M266 74h12M290 74h12M266 96h12M290 96h12M266 118h12M290 118h12M64 128h12M82 128h12M64 150h12M82 150h12"
+        />
+      </g>
+      <g class="glow">
+        <ellipse class="tv" fill="none" cx="204" cy="40" rx="26" ry="8" />
+        <path class="tv" fill="none" d="M178 40v10c0 4.5 12 8 26 8s26-3.5 26-8V40" />
+        <path class="tv" fill="none" d="M178 50v10c0 4.5 12 8 26 8s26-3.5 26-8V50" />
+      </g>
+    }
+  }
+</svg>

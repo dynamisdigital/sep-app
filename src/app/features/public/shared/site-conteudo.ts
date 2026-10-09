@@ -41,5 +41,15 @@ export const CONTATO_SEP = {
 export const MAPA_EMBED =
   'https://www.google.com/maps?q=R.+Dr.+Gon%C3%A7alves+Guerra,+276+-+Caj%C3%A1,+Carpina+-+PE,+55810-000&output=embed';
 
+/**
+ * Autorização do Banco Central para funcionar como SEP. Enquanto a referência não for informada, o site
+ * mostra "em atualização" e não afirma que a plataforma está autorizada: só se publica a frase de
+ * autorização quando ela for verdadeira e revisada pelo jurídico.
+ */
+export const AUTORIZACAO_BC: { referencia: string | null; consultaPublica: string } = {
+  referencia: null,
+  consultaPublica: 'https://www.bcb.gov.br/estabilidadefinanceira/buscainstituicoes',
+};
+
 export const MAPA_LINK =
   'https://www.google.com/maps/search/?api=1&query=R.+Dr.+Gon%C3%A7alves+Guerra%2C+276+-+Caj%C3%A1%2C+Carpina+-+PE%2C+55810-000';

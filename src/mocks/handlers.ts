@@ -11,7 +11,7 @@ import { criarHandlersAnaliseCredito } from './analise-credito.handlers';
 import { criarHandlersRede } from './correspondentes-rede.handlers';
 import type { AgendaPagamentoResponse } from '../app/core/api/api.models';
 import { reiniciarAnalises } from './data/analise-credito.store';
-import { semearPix } from './data/pix-automatico.store';
+import { listarAutorizacoes, semearPix } from './data/pix-automatico.store';
 import { criarHandlersPixAutomatico } from './pix-automatico.handlers';
 import { criarHandlersGestao } from './correspondentes-gestao.handlers';
 import { qrDataUrl } from './qr';
@@ -1629,6 +1629,7 @@ for (const chave of Object.keys(CARTEIRA) as ChaveContrato[]) {
 }
 
 // Pix Automatico: uma autorizacao ativa e uma aguardando o aceite do pagador, sobre contratos da carteira.
+const temPixAutomaticoAtivo = () => listarAutorizacoes().some((a) => a.status === 'ATIVA');
 const agendaParaPix = (contratoId: string) =>
   agendasPorContrato.get(contratoId) as unknown as AgendaPagamentoResponse | undefined;
 const SEMENTES_PIX = {
@@ -3682,7 +3683,11 @@ export const handlers = [
     baseUrl,
     () => currentMockUser,
     errorResponse,
-    (id) => propostasFake[id],
+    (id) => {
+      const proposta = propostasFake[id];
+      // O mesmo tomador das propostas tem Pix Automatico ativo em algum contrato da carteira.
+      return proposta ? { ...proposta, pixAutomaticoAtivo: temPixAutomaticoAtivo() } : undefined;
+    },
   ),
   ...criarHandlersCorrespondentes(baseUrl, () => currentMockUser, errorResponse),
 

@@ -1,0 +1,206 @@
+// ============ BLOG ============
+
+@use "../shared/site-tema" as site;
+
+:host {
+  @include site.tokens;
+}
+
+@include site.base("px64");
+
+.px64-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 28px;
+}
+
+.px64-filtros button {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 16px;
+  color: var(--site-suave);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--site-linha);
+  border-radius: 999px;
+  background: var(--site-cartao);
+  transition:
+    border-color 180ms ease,
+    color 180ms ease,
+    background 180ms ease;
+}
+
+.px64-filtros button span {
+  color: var(--site-ciano);
+  font-size: 0.78rem;
+}
+
+.px64-filtros button:hover,
+.px64-filtros button.ativo {
+  color: var(--site-texto);
+  border-color: rgb(var(--lp-c-ciano) / 70%);
+  background: rgb(var(--lp-c-ciano) / 12%);
+}
+
+.px64-etiqueta {
+  justify-self: start;
+  padding: 3px 11px;
+  color: var(--site-ciano);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid var(--site-linha);
+  border-radius: 999px;
+  background: rgb(var(--lp-c-ciano) / 8%);
+}
+
+.px64-meta {
+  color: var(--site-suave);
+  font-size: 0.82rem;
+}
+
+// Texto em destaque: ilustração grande à esquerda, texto à direita.
+.px64-destaque {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(20px, 3vw, 44px);
+  align-items: center;
+  margin: 0 0 30px;
+  padding: clamp(18px, 2.4vw, 30px);
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid var(--site-linha);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 0% 0%, rgb(var(--lp-c-ciano) / 12%), transparent 55%),
+    var(--site-cartao);
+  transition:
+    border-color 240ms ease,
+    transform 240ms ease,
+    box-shadow 240ms ease;
+}
+
+.px64-destaque:hover,
+.px64-post:hover {
+  border-color: rgb(var(--lp-c-ciano) / 62%);
+  box-shadow: 0 18px 46px rgb(var(--lp-c-fundo) / 55%);
+  transform: translateY(-3px);
+}
+
+.px64-destaque-texto {
+  display: grid;
+  gap: 12px;
+}
+
+.px64-destaque-texto h2 {
+  margin: 0;
+  font-size: clamp(1.4rem, 2.4vw, 1.95rem);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.px64-destaque-texto p,
+.px64-post-texto p {
+  margin: 0;
+  color: var(--site-suave);
+  font-size: 0.96rem;
+  line-height: 1.62;
+}
+
+.px64-ler {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--site-ciano);
+  font-weight: 700;
+}
+
+.px64-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 20px;
+  margin: 0 0 34px;
+}
+
+.px64-post {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid var(--site-linha);
+  border-radius: 18px;
+  background: var(--site-cartao);
+  transition:
+    border-color 240ms ease,
+    transform 240ms ease,
+    box-shadow 240ms ease;
+}
+
+.px64-post-arte,
+.px64-destaque-arte {
+  min-width: 0;
+}
+
+.px64-post-arte img,
+.px64-destaque-arte img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+  object-fit: cover;
+}
+
+.px64-post-texto {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: 18px 20px 22px;
+}
+
+.px64-post-texto h3 {
+  margin: 0;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.32;
+}
+
+.px64-aviso {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  margin: 0;
+  padding: 16px 20px;
+  color: var(--site-suave);
+  font-size: 0.86rem;
+  line-height: 1.6;
+  border: 1px solid rgb(var(--lp-c-ambar) / 32%);
+  border-radius: 13px;
+  background: rgb(var(--lp-c-ambar) / 7%);
+}
+
+.px64-aviso lucide-icon {
+  display: grid;
+  color: rgb(var(--lp-c-ambar));
+  place-items: center;
+}
+
+@media (width <= 900px) {
+  .px64-destaque {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .px64-destaque,
+  .px64-post {
+    transition: none;
+  }
+}

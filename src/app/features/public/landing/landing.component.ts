@@ -1,12 +1,34 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 
-import { SepArteComponent } from '../../../shared/arte/sep-arte.component';
 import { SepLogoComponent } from '../../../shared/arte/sep-logo.component';
 import { LarguraTelaDirective } from '../../../core/layout/largura-tela.directive';
 import { ThemeService } from '../../../core/theme/theme.service';
 import { AcoesPublicasComponent } from '../../../shared/acoes-publicas/acoes-publicas.component';
+import { FotoBannerComponent } from './foto-banner.component';
+import {
+  BANNERS_HERO,
+  bannerAnterior,
+  DURACAO_TROCA_MS,
+  INTERVALO_BANNER_MS,
+  proximoBanner,
+} from './banners-hero';
+import {
+  AREA_DO_INVESTIDOR,
+  AVISO_ANTIFRAUDE,
+  AVISO_REGULATORIO,
+  NAV_RODAPE,
+  NAV_SITE,
+} from '../shared/site-navegacao';
 
 interface AssetItem {
   icon: string;
@@ -19,10 +41,10 @@ interface AssetItem {
   imports: [
     LucideAngularModule,
     RouterLink,
-    SepArteComponent,
     SepLogoComponent,
     LarguraTelaDirective,
     AcoesPublicasComponent,
+    FotoBannerComponent,
   ],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss',
@@ -30,6 +52,12 @@ interface AssetItem {
 })
 export class LandingComponent {
   protected readonly assetBase = '/image/sep_mockup_01_assets';
+
+  protected readonly navegacao = NAV_SITE;
+  protected readonly institucionais = NAV_RODAPE;
+  protected readonly areaDoInvestidor = AREA_DO_INVESTIDOR;
+  protected readonly avisoAntifraude = AVISO_ANTIFRAUDE;
+  protected readonly avisoRegulatorio = AVISO_REGULATORIO;
 
   private readonly tema = inject(ThemeService);
 
@@ -40,51 +68,83 @@ export class LandingComponent {
     this.tema.toggle();
   }
 
-  protected readonly trustBadges: AssetItem[] = [
-    {
-      icon: 'landmark',
-      title: 'Regulado pela',
-      description: 'CMN 4.656/2018',
-    },
-    {
-      icon: 'split',
-      title: 'Segregação',
-      description: 'Patrimonial escrow',
-    },
-    {
-      icon: 'shield-alert',
-      title: 'KYC e PLD',
-      description: 'Prevenção',
-    },
-  ];
+  // ============ BANNERS ROTATIVOS ============
+  // Os três banners vêm de `BANNERS_HERO` (o primeiro é o da plataforma). A cada 15 s o
+  // atual sai e o próximo entra, em ciclo sem fim. A rotação para com o mouse ou o foco sobre o banner, com
+  // a aba em segundo plano, com o botão de pausa e, por acessibilidade, nunca começa para quem pediu menos
+  // movimento no sistema (os pontos continuam servindo para trocar à mão).
 
-  protected readonly platformPills: AssetItem[] = [
-    {
-      icon: 'landmark',
-      title: 'Escrow',
-      description: 'Seguro',
-    },
-    {
-      icon: 'badge-check',
-      title: 'KYC/KYB',
-      description: 'Verificado',
-    },
-    {
-      icon: 'shield-alert',
-      title: 'PLD',
-      description: 'Prevenção',
-    },
-    {
-      icon: 'scroll-text',
-      title: 'Auditoria',
-      description: 'Completa',
-    },
-    {
-      icon: 'history',
-      title: 'Rastreabilidade',
-      description: 'Total',
-    },
-  ];
+  protected readonly banners = BANNERS_HERO;
+  protected readonly totalBanners = BANNERS_HERO.length;
+  protected readonly indices = Array.from({ length: BANNERS_HERO.length }, (_, i) => i);
+
+  protected readonly ativo = signal(0);
+  protected readonly saindo = signal<number | null>(null);
+  /** Só depois da primeira troca o banner anima a entrada: o primeiro já tem a abertura da página. */
+  protected readonly trocou = signal(false);
+  protected readonly pausado = signal(false);
+  protected readonly interagindo = signal(false);
+  protected readonly abaOculta = signal(false);
+  protected readonly semMovimento = signal(false);
+  protected readonly intervaloMs = INTERVALO_BANNER_MS;
+
+  private temporizador: ReturnType<typeof setInterval> | null = null;
+  private fimDaTroca: ReturnType<typeof setTimeout> | null = null;
+
+  constructor() {
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      if (typeof matchMedia === 'function') {
+        this.semMovimento.set(matchMedia('(prefers-reduced-motion: reduce)').matches);
+      }
+      const aoMudarAba = () => this.abaOculta.set(document.hidden);
+      document.addEventListener('visibilitychange', aoMudarAba);
+      destroyRef.onDestroy(() => document.removeEventListener('visibilitychange', aoMudarAba));
+    });
+
+    // O temporizador acompanha o estado: ligado só quando nada pede para esperar.
+    effect(() => {
+      this.ativo();
+      const parado =
+        this.pausado() || this.interagindo() || this.abaOculta() || this.semMovimento();
+      this.pararTemporizador();
+      if (!parado) {
+        this.temporizador = setInterval(() => this.avancar(), INTERVALO_BANNER_MS);
+      }
+    });
+
+    destroyRef.onDestroy(() => {
+      this.pararTemporizador();
+      if (this.fimDaTroca) clearTimeout(this.fimDaTroca);
+    });
+  }
+
+  protected avancar(): void {
+    this.irPara(proximoBanner(this.ativo(), this.totalBanners));
+  }
+
+  protected voltar(): void {
+    this.irPara(bannerAnterior(this.ativo(), this.totalBanners));
+  }
+
+  protected irPara(indice: number): void {
+    const atual = this.ativo();
+    if (indice === atual) return;
+    this.trocou.set(true);
+    this.saindo.set(atual);
+    this.ativo.set(indice);
+    if (this.fimDaTroca) clearTimeout(this.fimDaTroca);
+    this.fimDaTroca = setTimeout(() => this.saindo.set(null), DURACAO_TROCA_MS);
+  }
+
+  protected alternarPausa(): void {
+    this.pausado.update((p) => !p);
+  }
+
+  private pararTemporizador(): void {
+    if (this.temporizador) clearInterval(this.temporizador);
+    this.temporizador = null;
+  }
 
   protected readonly workflowSteps: AssetItem[] = [
     {
@@ -117,7 +177,7 @@ export class LandingComponent {
     {
       icon: 'landmark',
       title: '100%',
-      description: 'Ambiente regulado Resolução CMN 4.656/2018',
+      description: 'Ambiente regulado pelo Banco Central e pelo CMN',
     },
     {
       icon: 'shield-check',

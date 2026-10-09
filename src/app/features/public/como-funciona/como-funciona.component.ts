@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 
+import { EntradaDirective } from '../shared/entrada.directive';
 import { PublicShellComponent } from '../shared/public-shell.component';
 import { SiteCartao, SiteEtapa } from '../shared/site-conteudo';
 
@@ -10,7 +11,7 @@ import { SiteCartao, SiteEtapa } from '../shared/site-conteudo';
 // acompanhamento. Descrever outra jornada aqui criaria expectativa que o produto não cumpre.
 @Component({
   selector: 'sep-como-funciona-page',
-  imports: [RouterLink, LucideAngularModule, PublicShellComponent],
+  imports: [RouterLink, LucideAngularModule, PublicShellComponent, EntradaDirective],
   templateUrl: './como-funciona.component.html',
   styleUrl: './como-funciona.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -67,6 +68,50 @@ export class ComoFuncionaComponent {
     },
   ];
 
+  /** A jornada de quem financia, em paralelo à da empresa tomadora. */
+  protected readonly etapasInvestidor: SiteEtapa[] = [
+    {
+      passo: '01',
+      titulo: 'Cadastro e perfil',
+      descricao:
+        'O credor se identifica, passa por KYC e PLD e registra que entendeu os riscos de financiar operações de crédito.',
+      icone: 'user-check',
+      tom: 'green',
+    },
+    {
+      passo: '02',
+      titulo: 'Escolha da operação',
+      descricao:
+        'Vê as oportunidades com prazo, taxa e faixa de risco, e abre a explicação de cada fator do score antes de decidir.',
+      icone: 'list-checks',
+      tom: 'blue',
+    },
+    {
+      passo: '03',
+      titulo: 'Aporte em conta segregada',
+      descricao:
+        'O valor vai para a conta segregada da operação, e não para o caixa da plataforma. Nada é alocado sem a decisão do credor.',
+      icone: 'wallet',
+      tom: 'green',
+    },
+    {
+      passo: '04',
+      titulo: 'Acompanhamento',
+      descricao:
+        'Cada parcela aparece como paga, a vencer ou em atraso, com o histórico das ações de cobrança.',
+      icone: 'chart-column',
+      tom: 'blue',
+    },
+    {
+      passo: '05',
+      titulo: 'Retorno por parcela',
+      descricao:
+        'A cada parcela paga pelo tomador, o valor é repassado ao credor em prazo curto definido pela regulamentação.',
+      icone: 'banknote',
+      tom: 'green',
+    },
+  ];
+
   protected readonly papeis: SiteCartao[] = [
     {
       titulo: 'Empresa tomadora',
@@ -76,9 +121,9 @@ export class ComoFuncionaComponent {
       tom: 'blue',
     },
     {
-      titulo: 'Empresa credora',
+      titulo: 'Credor (investidor)',
       descricao:
-        'Quer aportar recursos. Cadastra-se, vê as oportunidades disponíveis e acompanha a carteira financiada operação a operação.',
+        'Pessoa física ou empresa que quer financiar operações. Cadastra-se, vê as oportunidades com o risco explicado e acompanha a carteira financiada operação a operação.',
       icone: 'briefcase',
       tom: 'green',
     },

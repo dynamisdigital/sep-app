@@ -1,20 +1,29 @@
 <main class="landing-page" sepLarguraTela>
+  <div class="landing-topbar">
+    <p class="landing-topbar-aviso">
+      <lucide-icon name="shield-alert" [size]="16" [strokeWidth]="2" aria-hidden="true" />
+      <span>{{ avisoAntifraude }}</span>
+      <a routerLink="/antifraude">Saiba como se proteger</a>
+    </p>
+    <a [routerLink]="areaDoInvestidor.route" class="landing-topbar-investidor">
+      <lucide-icon name="wallet" [size]="16" [strokeWidth]="2" aria-hidden="true" />
+      {{ areaDoInvestidor.label }}
+    </a>
+  </div>
   <div class="landing-shell">
     <header class="landing-header">
-      <a routerLink="/" class="landing-brand" aria-label="SEP - Página inicial">
+      <a routerLink="/" class="landing-brand" aria-label="Dynamis SEP - Página inicial">
         <sep-logo variante="simbolo" class="landing-brand-symbol" rotulo="" />
         <span class="landing-brand-text">
-          <strong>SEP</strong>
+          <strong>Dynamis SEP</strong>
           <span>Sociedade de Empréstimo<br />entre Pessoas</span>
         </span>
       </a>
 
       <nav class="landing-nav" aria-label="Navegação principal">
-        <a routerLink="/credito-pj">Crédito PJ</a>
-        <a routerLink="/seguranca">Segurança</a>
-        <a routerLink="/como-funciona">Como funciona</a>
-        <a routerLink="/sobre-o-sep">Sobre o SEP</a>
-        <a routerLink="/contato">Contato</a>
+        @for (item of navegacao; track item.route) {
+          <a [routerLink]="item.route">{{ item.label }}</a>
+        }
       </nav>
 
       <div class="landing-header-actions">
@@ -32,7 +41,16 @@
       </div>
     </header>
 
-    <section class="hero-section" id="credito-pj" aria-labelledby="hero-title">
+    <div
+      class="hero-carrossel"
+      role="region"
+      aria-roledescription="carrossel"
+      aria-label="Destaques do Dynamis SEP"
+      (mouseenter)="interagindo.set(true)"
+      (mouseleave)="interagindo.set(false)"
+      (focusin)="interagindo.set(true)"
+      (focusout)="interagindo.set(false)"
+    >
       <img
         [src]="assetBase + '/visuals/visual_globo_digital_lateral.png'"
         alt=""
@@ -40,69 +58,106 @@
         aria-hidden="true"
       />
 
-      <div class="hero-copy">
-        <p class="hero-kicker">Capital inteligente</p>
-        <h1 id="hero-title">
-          Capital de giro com <span>rastreabilidade,</span> segurança e experiência simples.
-        </h1>
-        <p class="hero-lead">
-          Uma base digital para conectar empresas que precisam de crédito a empresas que querem
-          aportar recursos com controle, auditoria e segregação patrimonial.
-        </p>
+      @for (banner of banners; track banner.id; let i = $index) {
+        <section
+          class="hero-section hero-slide"
+          [id]="i === 0 ? 'credito-pj' : 'banner-' + banner.id"
+          [attr.aria-labelledby]="i === 0 ? 'hero-title' : 'hero-titulo-' + banner.id"
+          role="group"
+          aria-roledescription="slide"
+          [attr.aria-label]="i + 1 + ' de ' + totalBanners"
+          [attr.aria-hidden]="ativo() === i ? null : 'true'"
+          [class.ativo]="ativo() === i"
+          [class.saindo]="saindo() === i"
+          [class.com-transicao]="trocou()"
+        >
+          <div class="hero-copy">
+            <p class="hero-kicker">{{ banner.kicker }}</p>
+            @if (i === 0) {
+              <h1 id="hero-title" class="hero-titulo">
+                {{ banner.titulo.antes }}<span>{{ banner.titulo.destaque }}</span
+                >{{ banner.titulo.depois }}
+              </h1>
+            } @else {
+              <h2 [id]="'hero-titulo-' + banner.id" class="hero-titulo">
+                {{ banner.titulo.antes }}<span>{{ banner.titulo.destaque }}</span
+                >{{ banner.titulo.depois }}
+              </h2>
+            }
+            <p class="hero-lead">{{ banner.lead }}</p>
 
-        <div class="hero-actions" aria-label="Ações principais">
-          <a routerLink="/register" class="action-primary">Criar conta</a>
-          <a routerLink="/login" class="action-secondary">Entrar na plataforma</a>
-        </div>
+            <div class="hero-actions" aria-label="Ações principais">
+              @for (acao of banner.acoes; track acao.rota + acao.rotulo) {
+                <a
+                  [routerLink]="acao.rota"
+                  [class.action-primary]="acao.primaria"
+                  [class.action-secondary]="!acao.primaria"
+                  >{{ acao.rotulo }}</a
+                >
+              }
+            </div>
 
-        <ul class="trust-badges" aria-label="Garantias institucionais">
-          @for (badge of trustBadges; track badge.title) {
-            <li>
-              <lucide-icon [name]="badge.icon" [size]="24" aria-hidden="true" [strokeWidth]="2" />
-              <span>
-                <strong>{{ badge.title }}</strong>
-                {{ badge.description }}
-              </span>
-            </li>
+            <ul class="trust-badges" aria-label="Destaques">
+              @for (selo of banner.selos; track selo.title) {
+                <li>
+                  <lucide-icon
+                    [name]="selo.icon"
+                    [size]="24"
+                    aria-hidden="true"
+                    [strokeWidth]="2"
+                  />
+                  <span
+                    ><strong>{{ selo.title }}</strong> {{ selo.description }}</span
+                  >
+                </li>
+              }
+            </ul>
+            <p class="hero-aviso">{{ banner.aviso }}</p>
+          </div>
+
+          <figure class="hero-midia">
+            <sep-foto-banner [banner]="banner" />
+          </figure>
+        </section>
+      }
+
+      <div class="hero-controles" role="group" aria-label="Controles do carrossel">
+        <button type="button" class="hero-seta" (click)="voltar()" aria-label="Banner anterior">
+          <lucide-icon name="arrow-left" [size]="16" [strokeWidth]="2.25" />
+        </button>
+        @for (i of indices; track i) {
+          <button
+            type="button"
+            class="hero-ponto"
+            [class.ativo]="ativo() === i"
+            [attr.aria-label]="'Ir para o banner ' + (i + 1) + ' de ' + totalBanners"
+            [attr.aria-current]="ativo() === i ? 'true' : null"
+            (click)="irPara(i)"
+          ></button>
+        }
+        <button type="button" class="hero-seta" (click)="avancar()" aria-label="Próximo banner">
+          <lucide-icon name="arrow-right" [size]="16" [strokeWidth]="2.25" />
+        </button>
+        <button
+          type="button"
+          class="hero-seta"
+          (click)="alternarPausa()"
+          [attr.aria-label]="pausado() ? 'Retomar a troca automática' : 'Pausar a troca automática'"
+          [attr.aria-pressed]="pausado()"
+        >
+          <lucide-icon [name]="pausado() ? 'play' : 'pause'" [size]="16" [strokeWidth]="2.25" />
+        </button>
+        @if (!pausado() && !interagindo() && !abaOculta() && !semMovimento()) {
+          @for (chave of [ativo()]; track chave) {
+            <span
+              class="hero-progresso"
+              aria-hidden="true"
+              [style.animation-duration.ms]="intervaloMs"
+            ></span>
           }
-        </ul>
+        }
       </div>
-
-      <aside class="platform-card" id="seguranca" aria-label="Plataforma SEP regulada">
-        <div class="regulated-label">
-          <span>Plataforma regulada</span>
-          <lucide-icon class="ic-ciano" name="shield-check" [size]="19" [strokeWidth]="2.25" />
-        </div>
-
-        <div class="platform-identity">
-          <div class="platform-logo" aria-label="SEP - Sociedade de Empréstimo entre Pessoas">
-            <sep-logo variante="simbolo" class="platform-logo-symbol" rotulo="" />
-            <span class="platform-logo-text">
-              <strong>SEP</strong>
-              <span>Sociedade de Empréstimo<br />entre Pessoas</span>
-            </span>
-          </div>
-          <div>
-            <p>Capital de giro PJ com rastreabilidade,</p>
-            <p>do cadastro à formalização.</p>
-          </div>
-        </div>
-
-        <sep-arte nome="escudo-check" tom="ciano" class="shield-hud" />
-
-        <ul class="platform-pills" aria-label="Controles da plataforma">
-          @for (pill of platformPills; track pill.title) {
-            <li>
-              <lucide-icon [name]="pill.icon" [size]="21" aria-hidden="true" [strokeWidth]="2.25" />
-              <span>
-                <strong>{{ pill.title }}</strong>
-                {{ pill.description }}
-              </span>
-            </li>
-          }
-        </ul>
-      </aside>
-    </section>
+    </div>
 
     <section class="workflow-section" id="como-funciona" aria-labelledby="workflow-title">
       <h2 id="workflow-title">Como funciona</h2>
@@ -135,21 +190,18 @@
     <footer class="landing-footer" id="contato">
       <div class="footer-brand">
         <sep-logo variante="simbolo" class="footer-logo" rotulo="" />
-        <strong>SEP</strong>
-        <p>SEP — Sociedade de Empréstimo entre Pessoas. Capital de giro PJ.</p>
+        <strong>Dynamis SEP</strong>
+        <p>Sociedade de Empréstimo entre Pessoas. Capital de giro para empresas.</p>
       </div>
 
       <nav class="footer-links" aria-label="Links institucionais">
-        <a routerLink="/sobre-o-sep">Sobre o SEP</a>
-        <a routerLink="/seguranca">Segurança</a>
-        <a routerLink="/politica-de-privacidade">Privacidade</a>
-        <a routerLink="/termos-de-uso">Termos de uso</a>
-        <a routerLink="/contato">Contato</a>
+        @for (item of institucionais; track item.route) {
+          <a [routerLink]="item.route">{{ item.label }}</a>
+        }
       </nav>
 
       <p class="legal-copy">
-        Regulado pela Resolução CMN 4.656/2018. Esta plataforma não oferece rendimento garantido nem
-        aprovação automática de crédito.
+        {{ avisoRegulatorio }} Regulamentação: Resolução CMN 5.050/2022 e alterações.
       </p>
     </footer>
   </div>

@@ -28,13 +28,16 @@ function hrefs(seletor: string): string[] {
 describe('PublicShellComponent', () => {
   // Antes o menu apontava para âncoras da própria landing, e "Privacidade" e "Termos de uso"
   // iam para `/` sem fragmento: dois links que não levavam a lugar nenhum.
-  it('o menu leva às cinco telas institucionais, e não a âncoras', async () => {
+  it('o menu leva às telas institucionais, e não a âncoras', async () => {
     await montar();
 
     expect(hrefs('.site-nav')).toEqual([
       '/credito-pj',
-      '/seguranca',
+      '/investidores',
       '/como-funciona',
+      '/seguranca',
+      '/transparencia',
+      '/blog',
       '/sobre-o-sep',
       '/contato',
     ]);
@@ -53,14 +56,36 @@ describe('PublicShellComponent', () => {
     await montar();
 
     expect(screen.getByRole('link', { name: 'Entrar' }).getAttribute('href')).toBe('/login');
-    expect(screen.getByLabelText('SEP - Página inicial').getAttribute('href')).toBe('/');
+    expect(screen.getByLabelText('Dynamis SEP - Página inicial').getAttribute('href')).toBe('/');
   });
 
   it('o rodapé declara o regime e o aviso de não garantia', async () => {
     await montar();
 
     const legal = document.querySelector('.site-legal')?.textContent ?? '';
-    expect(legal).toContain('4.656/2018');
-    expect(legal).toContain('não oferece rendimento garantido');
+    expect(legal).toContain('5.050/2022');
+    expect(legal).toContain('rendimento garantido');
+    expect(legal).toContain('FGC');
+  });
+
+  it('mostra no topo o aviso antifraude e a entrada da área do investidor', async () => {
+    await montar();
+
+    const topo = hrefs('.site-topbar');
+    expect(topo).toContain('/antifraude');
+    expect(topo).toContain('/login');
+    expect(document.querySelector('.site-topbar')?.textContent).toContain('Área do investidor');
+    expect(document.querySelector('.site-topbar')?.textContent).toContain(
+      'nunca pede pagamento antecipado',
+    );
+  });
+
+  it('o rodapé leva às páginas de confiança: perguntas, antifraude, transparência e blog', async () => {
+    await montar();
+
+    const links = hrefs('.site-footer-links');
+    for (const rota of ['/perguntas-frequentes', '/antifraude', '/transparencia', '/blog']) {
+      expect(links).toContain(rota);
+    }
   });
 });

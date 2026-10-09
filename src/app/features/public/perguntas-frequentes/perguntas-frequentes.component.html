@@ -1,0 +1,68 @@
+<sep-public-shell>
+  <section class="px62-page">
+    <header class="px62-heading" sepEntrada="esquerda">
+      <p class="px62-kicker"><lucide-icon name="circle-help" [size]="14" />Perguntas frequentes</p>
+      <h1>As dúvidas mais comuns sobre a <em>SEP</em>, respondidas sem rodeio.</h1>
+      <p class="px62-lead">
+        {{ total }} respostas sobre como funciona a sociedade de empréstimo entre pessoas, para
+        empresas, para investidores e sobre segurança. Não achou? Fale com a equipe.
+      </p>
+    </header>
+
+    <div class="px62-busca" sepEntrada="topo" role="search">
+      <lucide-icon name="search" [size]="18" aria-hidden="true" />
+      <input
+        type="search"
+        name="busca"
+        [value]="busca()"
+        (input)="buscar($event)"
+        placeholder="Buscar uma pergunta, ex.: limite, Pix, risco"
+        aria-label="Buscar nas perguntas frequentes"
+      />
+      @if (busca()) {
+        <button type="button" (click)="limpar()" aria-label="Limpar a busca">
+          <lucide-icon name="x" [size]="16" />
+        </button>
+      }
+    </div>
+    <p class="px62-contagem" role="status">
+      @if (busca()) {
+        {{ encontradas() }}
+        {{ encontradas() === 1 ? 'resposta encontrada' : 'respostas encontradas' }}
+      }
+    </p>
+
+    @for (grupo of grupos(); track grupo.id; let g = $index) {
+      <section class="px62-grupo" [attr.aria-labelledby]="'px62-' + grupo.id">
+        <h2 id="px62-{{ grupo.id }}" [sepEntrada]="g % 2 === 0 ? 'esquerda' : 'direita'">
+          <span class="px62-grupo-icone"><lucide-icon [name]="grupo.icone" [size]="20" /></span>
+          {{ grupo.titulo }}
+        </h2>
+        <div class="px62-lista">
+          @for (item of grupo.itens; track item.pergunta; let i = $index) {
+            <details class="px62-item" sepEntrada="base" [entradaAtraso]="i * 50">
+              <summary>{{ item.pergunta }}</summary>
+              <p>{{ item.resposta }}</p>
+            </details>
+          }
+        </div>
+      </section>
+    } @empty {
+      <p class="px62-vazio" role="status">
+        Nenhuma resposta para "{{ busca() }}". Tente outra palavra ou
+        <a routerLink="/contato">fale com a equipe</a>.
+      </p>
+    }
+
+    <div class="px62-chamada" sepEntrada="escala">
+      <h2>Ainda com dúvida?</h2>
+      <p>A equipe responde pelo canal oficial. Leia também os textos do blog sobre a SEP.</p>
+      <div class="px62-chamada-acoes">
+        <a class="px62-btn-primary" routerLink="/contato">
+          <lucide-icon name="mail" [size]="18" />Falar com a equipe
+        </a>
+        <a class="px62-btn-secondary" routerLink="/blog">Ler o blog</a>
+      </div>
+    </div>
+  </section>
+</sep-public-shell>

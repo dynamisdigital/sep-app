@@ -1,7 +1,19 @@
 <main class="site-page" sepLarguraTela>
   <div class="site-shell">
+    <div class="site-topbar">
+      <p class="site-topbar-aviso">
+        <lucide-icon name="shield-alert" [size]="16" [strokeWidth]="2" aria-hidden="true" />
+        <span>{{ avisoAntifraude }}</span>
+        <a routerLink="/antifraude">Saiba como se proteger</a>
+      </p>
+      <a [routerLink]="areaDoInvestidor.route" class="site-topbar-investidor">
+        <lucide-icon name="wallet" [size]="16" [strokeWidth]="2" aria-hidden="true" />
+        {{ areaDoInvestidor.label }}
+      </a>
+    </div>
+
     <header class="site-header">
-      <a routerLink="/" class="site-brand" aria-label="SEP - Página inicial">
+      <a routerLink="/" class="site-brand" aria-label="Dynamis SEP - Página inicial">
         <img
           [src]="assetBase + '/logos/logo_sep_simbolo_header.png'"
           alt=""
@@ -9,7 +21,7 @@
           aria-hidden="true"
         />
         <span class="site-brand-text">
-          <strong>SEP</strong>
+          <strong>Dynamis SEP</strong>
           <span>Sociedade de Empréstimo<br />entre Pessoas</span>
         </span>
       </a>
@@ -52,8 +64,8 @@
           class="site-footer-logo"
           aria-hidden="true"
         />
-        <strong>SEP</strong>
-        <p>SEP — Sociedade de Empréstimo entre Pessoas. Capital de giro PJ.</p>
+        <strong>Dynamis SEP</strong>
+        <p>Sociedade de Empréstimo entre Pessoas. Capital de giro para empresas.</p>
       </div>
 
       <nav class="site-footer-links" aria-label="Links institucionais">
@@ -63,8 +75,8 @@
       </nav>
 
       <p class="site-legal">
-        Regulado pela Resolução CMN 4.656/2018. Esta plataforma não oferece rendimento garantido nem
-        aprovação automática de crédito. © {{ ano }} SEP.
+        {{ avisoRegulatorio }} Regulamentação: Resolução CMN 5.050/2022 e alterações. ©
+        {{ ano }} Dynamis SEP.
       </p>
     </footer>
   </div>

@@ -1,0 +1,20 @@
+// ============ TRANSPARÊNCIA ============
+
+@use "../shared/site-tema" as site;
+
+:host {
+  @include site.tokens;
+}
+
+@include site.base("px61");
+@include site.extras("px61");
+
+.px61-legenda a,
+.px61-card a {
+  color: var(--site-ciano);
+  text-underline-offset: 3px;
+}
+
+.px61-risco {
+  margin: 18px 0 0;
+}

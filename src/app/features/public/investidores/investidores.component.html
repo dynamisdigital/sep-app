@@ -1,0 +1,162 @@
+<sep-public-shell>
+  <section class="px60-page">
+    <div class="px60-hero">
+      <header class="px60-heading" sepEntrada="esquerda">
+        <p class="px60-kicker"><lucide-icon name="wallet" [size]="14" />Para investidores</p>
+        <h1>Financie empresas e acompanhe <em>cada parcela</em>, com o risco à vista.</h1>
+        <p class="px60-lead">
+          No Dynamis SEP, quem financia é o credor, também chamado de investidor. Você escolhe as
+          operações de capital de giro em que quer aportar, vê a análise de risco de cada uma e
+          recebe o retorno conforme as parcelas são pagas.
+        </p>
+        <div class="px60-hero-acoes">
+          <a class="px60-btn-primary" routerLink="/register">
+            <lucide-icon name="user-plus" [size]="18" />Criar conta de investidor
+          </a>
+          <a class="px60-btn-secondary" routerLink="/como-funciona">Como funciona</a>
+        </div>
+      </header>
+      <div class="px60-hero-arte" sepEntrada="direita" [entradaAtraso]="120">
+        <sep-ilustracao
+          cena="rede"
+          descricao="Investidores, a plataforma Dynamis SEP e empresas conectados"
+        />
+      </div>
+    </div>
+
+    <div class="px60-risco" sepEntrada="topo" role="note">
+      <lucide-icon name="triangle-alert" [size]="22" />
+      <p>
+        <strong>Antes de investir:</strong> financiar operações de crédito envolve risco, inclusive
+        de inadimplência e de perda do capital. O Dynamis SEP não garante o pagamento das operações,
+        e o investimento não conta com a cobertura do FGC. Retornos passados não garantem retornos
+        futuros.
+      </p>
+    </div>
+
+    <!-- ============ ETAPAS ============ -->
+    <section class="px60-secao" aria-labelledby="px60-etapas">
+      <div class="px60-secao-topo" sepEntrada="esquerda">
+        <h2 id="px60-etapas">Como funciona para quem financia</h2>
+        <p>Cinco etapas, da identificação ao retorno de cada parcela.</p>
+      </div>
+      <ol class="px60-trilha">
+        @for (etapa of etapas; track etapa.passo; let i = $index) {
+          <li
+            class="px60-card"
+            [attr.data-tone]="etapa.tom"
+            [sepEntrada]="i % 2 === 0 ? 'esquerda' : 'direita'"
+            [entradaAtraso]="i * 70"
+          >
+            <span class="px60-passo">{{ etapa.passo }}</span>
+            <span class="px60-card-icone"><lucide-icon [name]="etapa.icone" [size]="22" /></span>
+            <h3>{{ etapa.titulo }}</h3>
+            <p>{{ etapa.descricao }}</p>
+          </li>
+        }
+      </ol>
+    </section>
+
+    <!-- ============ ANTES DE DECIDIR ============ -->
+    <section class="px60-secao" aria-labelledby="px60-decidir">
+      <div class="px60-secao-topo" sepEntrada="direita">
+        <h2 id="px60-decidir">O que você vê antes de decidir</h2>
+        <p>
+          A análise de risco não fica escondida: ela aparece na oportunidade, e você a usa para
+          escolher.
+        </p>
+      </div>
+      <div class="px60-grade">
+        @for (item of antesDeDecidir; track item.titulo; let i = $index) {
+          <article
+            class="px60-card"
+            [attr.data-tone]="item.tom"
+            sepEntrada="base"
+            [entradaAtraso]="i * 80"
+          >
+            <span class="px60-card-icone"><lucide-icon [name]="item.icone" [size]="22" /></span>
+            <h3>{{ item.titulo }}</h3>
+            <p>{{ item.descricao }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    <!-- ============ QUEM PODE ============ -->
+    <section class="px60-secao" aria-labelledby="px60-quem">
+      <div class="px60-secao-topo" sepEntrada="esquerda">
+        <h2 id="px60-quem">Quem pode financiar</h2>
+        <p>
+          Aceitamos pessoas físicas e empresas. Todas passam pelo cadastro, pela verificação e pela
+          análise de perfil.
+        </p>
+      </div>
+      <div class="px60-grade">
+        @for (item of quemPode; track item.titulo; let i = $index) {
+          <article
+            class="px60-card"
+            [attr.data-tone]="item.tom"
+            [sepEntrada]="i === 1 ? 'topo' : i === 0 ? 'esquerda' : 'direita'"
+          >
+            <span class="px60-card-icone"><lucide-icon [name]="item.icone" [size]="22" /></span>
+            <h3>{{ item.titulo }}</h3>
+            <p>{{ item.descricao }}</p>
+          </article>
+        }
+      </div>
+      <p class="px60-legenda" sepEntrada="base">
+        Para quem não é investidor qualificado, a regulamentação limita o valor que um credor pode
+        emprestar a um mesmo tomador pela mesma plataforma ({{ teto }}). O limite obriga a
+        diversificar: nenhuma operação sozinha deveria concentrar todo o capital.
+      </p>
+    </section>
+
+    <!-- ============ SEGURANÇA ============ -->
+    <section class="px60-secao px60-duas" aria-labelledby="px60-seguranca">
+      <div class="px60-duas-texto">
+        <div class="px60-secao-topo" sepEntrada="esquerda">
+          <h2 id="px60-seguranca">Onde fica o seu dinheiro</h2>
+          <p>
+            Uma SEP intermedeia: ela não é banco e não empresta recursos próprios. O que protege o
+            seu aporte é a regra, e não uma promessa.
+          </p>
+        </div>
+        <div class="px60-grade px60-grade-uma">
+          @for (item of seguranca; track item.titulo; let i = $index) {
+            <article
+              class="px60-card"
+              [attr.data-tone]="item.tom"
+              sepEntrada="base"
+              [entradaAtraso]="i * 90"
+            >
+              <span class="px60-card-icone"><lucide-icon [name]="item.icone" [size]="22" /></span>
+              <h3>{{ item.titulo }}</h3>
+              <p>{{ item.descricao }}</p>
+            </article>
+          }
+        </div>
+      </div>
+      <div class="px60-arte-lateral" sepEntrada="direita">
+        <sep-ilustracao
+          cena="fluxo"
+          descricao="O caminho do dinheiro: aporte, conta segregada, empresa e parcela de volta"
+        />
+      </div>
+    </section>
+
+    <div class="px60-chamada" sepEntrada="escala">
+      <h2>Pronto para conhecer as oportunidades?</h2>
+      <p>
+        O cadastro leva poucos minutos e não gera compromisso de aporte. Leia também as perguntas
+        frequentes e a página de transparência.
+      </p>
+      <div class="px60-chamada-acoes">
+        <a class="px60-btn-primary" routerLink="/register">
+          <lucide-icon name="arrow-right" [size]="18" />Criar conta de investidor
+        </a>
+        <a class="px60-btn-secondary" routerLink="/perguntas-frequentes">Perguntas frequentes</a>
+        <a class="px60-btn-secondary" routerLink="/transparencia">Transparência</a>
+      </div>
+    </div>
+  </section>
+</sep-public-shell>

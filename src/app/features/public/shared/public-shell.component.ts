@@ -15,15 +15,16 @@ import { LucideAngularModule } from 'lucide-angular';
 import { LarguraTelaDirective } from '../../../core/layout/largura-tela.directive';
 import { ThemeService } from '../../../core/theme/theme.service';
 import { AcoesPublicasComponent } from '../../../shared/acoes-publicas/acoes-publicas.component';
-
-/** Item do menu institucional. As rotas existem todas; nenhuma é âncora. */
-interface SiteNavItem {
-  label: string;
-  route: string;
-}
+import {
+  AREA_DO_INVESTIDOR,
+  AVISO_ANTIFRAUDE,
+  AVISO_REGULATORIO,
+  NAV_RODAPE,
+  NAV_SITE,
+} from './site-navegacao';
 
 /**
- * Cabeçalho e rodapé do site institucional, compartilhados pelas sete páginas públicas. Antes o
+ * Cabeçalho e rodapé do site institucional, compartilhados por todas as páginas públicas. Antes o
  * menu da landing apontava para âncoras da própria página, e "Privacidade" e "Termos de uso" iam
  * para `/` sem fragmento — dois links que não levavam a lugar nenhum.
  */
@@ -53,21 +54,11 @@ export class PublicShellComponent {
     this.tema.toggle();
   }
 
-  protected readonly navegacao: SiteNavItem[] = [
-    { label: 'Crédito PJ', route: '/credito-pj' },
-    { label: 'Segurança', route: '/seguranca' },
-    { label: 'Como funciona', route: '/como-funciona' },
-    { label: 'Sobre o SEP', route: '/sobre-o-sep' },
-    { label: 'Contato', route: '/contato' },
-  ];
-
-  protected readonly institucionais: SiteNavItem[] = [
-    { label: 'Sobre o SEP', route: '/sobre-o-sep' },
-    { label: 'Segurança', route: '/seguranca' },
-    { label: 'Política de privacidade', route: '/politica-de-privacidade' },
-    { label: 'Termos de uso', route: '/termos-de-uso' },
-    { label: 'Contato', route: '/contato' },
-  ];
+  protected readonly navegacao = NAV_SITE;
+  protected readonly institucionais = NAV_RODAPE;
+  protected readonly areaDoInvestidor = AREA_DO_INVESTIDOR;
+  protected readonly avisoAntifraude = AVISO_ANTIFRAUDE;
+  protected readonly avisoRegulatorio = AVISO_REGULATORIO;
 
   protected readonly ano = new Date().getFullYear();
 }

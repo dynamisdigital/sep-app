@@ -1,0 +1,63 @@
+<section class="ouvir" aria-label="Ouvir este texto">
+  @if (disponivel) {
+    <div class="ouvir-corpo">
+      <span class="ouvir-icone"><lucide-icon name="volume-2" [size]="20" /></span>
+      <div class="ouvir-texto">
+        <strong>Ouvir este texto</strong>
+        <span>A leitura usa a voz do seu aparelho e só começa quando você pedir.</span>
+      </div>
+
+      <div class="ouvir-controles">
+        @if (estado() === 'parado') {
+          <button type="button" class="ouvir-botao ouvir-principal" (click)="ouvir()">
+            <lucide-icon name="play" [size]="16" />Ouvir
+          </button>
+        } @else {
+          @if (estado() === 'falando') {
+            <button type="button" class="ouvir-botao" (click)="pausar()">
+              <lucide-icon name="pause" [size]="16" />Pausar
+            </button>
+          } @else {
+            <button type="button" class="ouvir-botao ouvir-principal" (click)="continuar()">
+              <lucide-icon name="play" [size]="16" />Continuar
+            </button>
+          }
+          <button type="button" class="ouvir-botao" (click)="parar()">
+            <lucide-icon name="x" [size]="16" />Parar
+          </button>
+        }
+
+        <label class="ouvir-velocidade">
+          <span>Velocidade</span>
+          <select [value]="velocidade()" (change)="mudarVelocidade($any($event.target).value)">
+            @for (v of velocidades; track v) {
+              <option [value]="v" [selected]="v === velocidade()">{{ v }}x</option>
+            }
+          </select>
+        </label>
+      </div>
+    </div>
+
+    @if (estado() !== 'parado') {
+      <div
+        class="ouvir-barra"
+        role="progressbar"
+        aria-label="Progresso da leitura"
+        [attr.aria-valuenow]="progresso()"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      >
+        <span [style.width.%]="progresso()"></span>
+      </div>
+      <p class="ouvir-estado" role="status">
+        {{ estado() === 'pausado' ? 'Leitura pausada' : 'Lendo' }} · trecho {{ indice() + 1 }} de
+        {{ segmentos().length }}
+      </p>
+    }
+  } @else {
+    <p class="ouvir-indisponivel">
+      <lucide-icon name="volume-x" [size]="18" />
+      Este navegador não oferece leitura em áudio. O texto completo está logo abaixo.
+    </p>
+  }
+</section>

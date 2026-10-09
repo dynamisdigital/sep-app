@@ -1,0 +1,70 @@
+<sep-public-shell>
+  <section class="px64-page">
+    <header class="px64-heading" sepEntrada="esquerda">
+      <p class="px64-kicker"><lucide-icon name="book-open" [size]="14" />Blog do Dynamis SEP</p>
+      <h1>Tudo sobre a <em>sociedade de empréstimo entre pessoas</em>, em linguagem clara.</h1>
+      <p class="px64-lead">
+        Como uma SEP funciona, como o risco é medido, como a empresa se prepara para pedir capital
+        de giro e como quem financia se protege. Textos informativos, sem promessa de ganho.
+      </p>
+    </header>
+
+    <div class="px64-filtros" sepEntrada="topo" role="group" aria-label="Filtrar por categoria">
+      @for (f of filtros; track f) {
+        <button
+          type="button"
+          [class.ativo]="filtro() === f"
+          [attr.aria-pressed]="filtro() === f"
+          (click)="escolher(f)"
+        >
+          {{ f }} <span>{{ contagem(f) }}</span>
+        </button>
+      }
+    </div>
+
+    @if (destaque(); as d) {
+      <a class="px64-destaque" [routerLink]="['/blog', d.slug]" sepEntrada="escala">
+        <div class="px64-destaque-arte">
+          <sep-imagem-post [post]="d" />
+        </div>
+        <div class="px64-destaque-texto">
+          <span class="px64-etiqueta">{{ d.categoria }}</span>
+          <h2>{{ d.titulo }}</h2>
+          <p>{{ d.resumo }}</p>
+          <span class="px64-meta">
+            {{ d.publicadoEm | date: 'dd/MM/yyyy' }} · {{ minutos(d) }} min de leitura
+          </span>
+          <span class="px64-ler">Ler o texto <lucide-icon name="arrow-right" [size]="16" /></span>
+        </div>
+      </a>
+    }
+
+    <div class="px64-grade">
+      @for (post of demais(); track post.slug; let i = $index) {
+        <a
+          class="px64-post"
+          [routerLink]="['/blog', post.slug]"
+          [sepEntrada]="i % 3 === 0 ? 'esquerda' : i % 3 === 1 ? 'base' : 'direita'"
+          [entradaAtraso]="(i % 3) * 70"
+        >
+          <div class="px64-post-arte">
+            <sep-imagem-post [post]="post" />
+          </div>
+          <div class="px64-post-texto">
+            <span class="px64-etiqueta">{{ post.categoria }}</span>
+            <h3>{{ post.titulo }}</h3>
+            <p>{{ post.resumo }}</p>
+            <span class="px64-meta">
+              {{ post.publicadoEm | date: 'dd/MM/yyyy' }} · {{ minutos(post) }} min
+            </span>
+          </div>
+        </a>
+      }
+    </div>
+
+    <p class="px64-aviso" sepEntrada="base">
+      <lucide-icon name="info" [size]="18" />
+      <span>{{ aviso }}</span>
+    </p>
+  </section>
+</sep-public-shell>

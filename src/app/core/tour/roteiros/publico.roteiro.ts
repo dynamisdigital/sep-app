@@ -74,7 +74,7 @@ const inicio: Roteiro = {
     ),
     ler(
       'Menu das páginas',
-      'O menu leva a Crédito PJ, Segurança, Como funciona, Sobre o SEP e Contato. Cada uma tem um roteiro próprio.',
+      'O menu leva a Empresas, Investidores, Como funciona, Segurança, Transparência, Blog, Sobre e Contato. As páginas principais têm um roteiro próprio.',
       '.landing-nav',
     ),
     {
@@ -115,7 +115,7 @@ const inicio: Roteiro = {
     ),
     ler(
       'A proposta',
-      'O SEP é uma base digital que conecta empresas que precisam de capital de giro a empresas que querem aportar recursos, com rastreabilidade, segurança e experiência simples.',
+      'O Dynamis SEP é uma sociedade de empréstimo entre pessoas: reúne empresas que buscam capital de giro e investidores dispostos a financiá-las, com a análise de risco explicada, o dinheiro em conta segregada e cada passo registrado.',
       '#hero-title',
     ),
     ler(
@@ -125,13 +125,18 @@ const inicio: Roteiro = {
     ),
     ler(
       'Selos de confiança',
-      'Os três selos resumem o essencial: regulação pela Resolução CMN 4.656/2018, segregação patrimonial em conta escrow, e verificação de identidade e prevenção à lavagem de dinheiro.',
-      '.trust-badges',
+      'Os três selos resumem o essencial de cada banner. No primeiro: regulação pelo Banco Central e pelo CMN, segregação patrimonial em conta escrow, e verificação de identidade e prevenção à lavagem de dinheiro.',
+      '.hero-slide.ativo .trust-badges',
     ),
     ler(
-      'A plataforma regulada',
-      'O cartão ao lado mostra o que a plataforma entrega: escrow seguro, KYC e KYB verificados, prevenção, auditoria completa e rastreabilidade total.',
-      '.platform-card',
+      'Os banners',
+      'O destaque da página troca sozinho a cada quinze segundos: a plataforma, o investidor que financia as operações, a empresa que busca capital de giro com parcelas no Pix Automático e a pessoa física que também pode pedir crédito. Cada um sai por um lado e o próximo entra pelo outro, no mesmo espaço.',
+      '.hero-carrossel',
+    ),
+    ler(
+      'Controles dos banners',
+      'As setas e os pontos trocam de banner à mão, e o botão de pausa para a troca automática. A troca também para sozinha enquanto o mouse está sobre o banner.',
+      '.hero-controles',
     ),
     ler(
       'Como funciona',
@@ -273,8 +278,8 @@ const creditoPj: Roteiro = {
     },
     irPara({
       rota: '/credito-pj',
-      titulo: 'Menu Crédito PJ',
-      texto: 'No menu do cabeçalho, Crédito PJ abre as condições do capital de giro para empresas.',
+      titulo: 'Menu Empresas',
+      texto: 'No menu do cabeçalho, Empresas abre as condições do capital de giro.',
       pagina: '.px49-heading',
     }),
     ler(
@@ -401,7 +406,7 @@ const comoFunciona: Roteiro = {
     ),
     ler(
       'Quer ver de perto?',
-      'Entrar na plataforma acompanha a operação, e Ver as condições do crédito abre a página Crédito PJ.',
+      'Entrar na plataforma acompanha a operação, e Para empresas abre as condições do crédito.',
       '.px51-chamada',
     ),
   ],
@@ -422,13 +427,13 @@ const sobre: Roteiro = {
     },
     irPara({
       rota: '/sobre-o-sep',
-      titulo: 'Menu Sobre o SEP',
-      texto: 'No menu do cabeçalho, Sobre o SEP explica o que a plataforma é.',
+      titulo: 'Menu Sobre',
+      texto: 'No menu do cabeçalho, Sobre explica o que a plataforma é.',
       pagina: '.px52-heading',
     }),
     ler(
       'O que é o SEP',
-      'A SEP é a figura criada pela Resolução CMN 4.656/2018 para que empresas emprestem umas às outras em ambiente regulado, com identificação das partes, contrato formal e registro de cada passo. Não é promessa de rendimento, e não é um banco.',
+      'Uma SEP é a instituição regulada que reúne quem precisa de crédito e quem quer financiá-lo, pessoas físicas ou empresas, em um ambiente com identificação das partes, contrato formal e registro de cada passo. O Dynamis SEP opera nesse modelo. Não é promessa de rendimento, e não é um banco.',
       '.px52-heading',
     ),
     ler(

@@ -1,0 +1,167 @@
+<sep-public-shell>
+  <section class="px61-page">
+    <div class="px61-hero">
+      <header class="px61-heading" sepEntrada="esquerda">
+        <p class="px61-kicker"><lucide-icon name="scale" [size]="14" />Transparência</p>
+        <h1>Quem somos, quanto <em>cobramos</em> e como estão as operações.</h1>
+        <p class="px61-lead">
+          Uma sociedade de empréstimo entre pessoas lida com o dinheiro de terceiros, e por isso
+          deve mostrar a própria identificação, as tarifas e o desempenho da carteira. Esta página
+          reúne tudo isso em um lugar só.
+        </p>
+      </header>
+      <div class="px61-hero-arte" sepEntrada="direita" [entradaAtraso]="120">
+        <sep-ilustracao
+          cena="grafico"
+          descricao="Gráfico de barras com a classificação de risco de A a E"
+        />
+      </div>
+    </div>
+
+    <!-- ============ IDENTIFICAÇÃO ============ -->
+    <section class="px61-secao" aria-labelledby="px61-id">
+      <div class="px61-secao-topo" sepEntrada="esquerda">
+        <h2 id="px61-id">Identificação</h2>
+        <p>Os dados que permitem conferir quem responde pela plataforma.</p>
+      </div>
+      <div class="px61-tabela-wrap" sepEntrada="base">
+        <table class="px61-tabela">
+          <tbody>
+            @for (linha of identificacao; track linha.rotulo) {
+              <tr>
+                <td>{{ linha.rotulo }}</td>
+                <td>{{ linha.valor }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="px61-legenda" sepEntrada="base">
+        A lista de instituições autorizadas pelo Banco Central é pública e pode ser consultada
+        <a [href]="consultaPublica" target="_blank" rel="noopener noreferrer"
+          >no site do Banco Central</a
+        >. A referência da autorização do Dynamis SEP será exibida aqui assim que estiver
+        disponível.
+      </p>
+    </section>
+
+    <!-- ============ TARIFAS ============ -->
+    <section class="px61-secao" aria-labelledby="px61-tarifas">
+      <div class="px61-secao-topo" sepEntrada="direita">
+        <h2 id="px61-tarifas">Tarifas</h2>
+        <p>
+          O que cobramos, em linguagem simples. Itens sem custo aparecem na lista, e não ficam de
+          fora.
+        </p>
+      </div>
+      <div class="px61-tabela-wrap" sepEntrada="base">
+        <table class="px61-tabela">
+          <thead>
+            <tr>
+              <th>Serviço</th>
+              <th>Valor</th>
+              <th>Observação</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (tarifa of tarifas; track tarifa.servico) {
+              <tr>
+                <td>{{ tarifa.servico }}</td>
+                <td>{{ tarifa.valor }}</td>
+                <td>{{ tarifa.observacao }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="px61-legenda" sepEntrada="base">
+        Última atualização: {{ ultimaAtualizacao }}. Compare sempre o Custo Efetivo Total, que reúne
+        juros, tarifas e encargos.
+      </p>
+    </section>
+
+    <!-- ============ INADIMPLÊNCIA ============ -->
+    <section class="px61-secao" aria-labelledby="px61-inad">
+      <div class="px61-secao-topo" sepEntrada="esquerda">
+        <h2 id="px61-inad">Inadimplência por faixa de risco</h2>
+        <p>
+          A regulamentação obriga a divulgar, todo mês, a inadimplência média das operações dos
+          últimos 12 meses, por classificação de risco.
+        </p>
+      </div>
+      <div class="px61-tabela-wrap" sepEntrada="base">
+        <table class="px61-tabela">
+          <thead>
+            <tr>
+              <th>Faixa de risco</th>
+              <th class="num">Inadimplência média, 12 meses</th>
+              <th class="num">Data-base</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (faixa of faixas; track faixa) {
+              <tr>
+                <td>Faixa {{ faixa }}</td>
+                <td class="num">—</td>
+                <td class="num">—</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="px61-risco" sepEntrada="base" role="note">
+        <lucide-icon name="info" [size]="22" />
+        <p>
+          Ainda não há carteira com 12 meses de histórico, então os indicadores aparecem como traço.
+          A divulgação mensal começa quando houver operações a medir, e cada mês publicado traz a
+          sua data-base.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ CANAIS ============ -->
+    <section class="px61-secao" aria-labelledby="px61-canais">
+      <div class="px61-secao-topo" sepEntrada="direita">
+        <h2 id="px61-canais">Reclamações e canais oficiais</h2>
+        <p>
+          Se algo não foi resolvido pelo atendimento, escreva para o canal oficial, informando o
+          número do contrato ou da proposta. O Dynamis SEP só atende pelos canais abaixo.
+        </p>
+      </div>
+      <div class="px61-grade">
+        <article class="px61-card" data-tone="blue" sepEntrada="esquerda">
+          <span class="px61-card-icone"><lucide-icon name="mail" [size]="22" /></span>
+          <h3>E-mail oficial</h3>
+          <p>{{ contato.email }}</p>
+        </article>
+        <article class="px61-card" data-tone="green" sepEntrada="base" [entradaAtraso]="80">
+          <span class="px61-card-icone"><lucide-icon name="clock" [size]="22" /></span>
+          <h3>Atendimento</h3>
+          <p>{{ contato.atendimento }}</p>
+        </article>
+        <article class="px61-card" data-tone="amber" sepEntrada="direita" [entradaAtraso]="160">
+          <span class="px61-card-icone"><lucide-icon name="shield-alert" [size]="22" /></span>
+          <h3>Desconfie de outros contatos</h3>
+          <p>
+            Não pedimos senha, código do autenticador nem pagamento antecipado.
+            <a routerLink="/antifraude">Veja como se proteger.</a>
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <div class="px61-chamada" sepEntrada="escala">
+      <h2>Ficou com dúvida?</h2>
+      <p>
+        As perguntas frequentes respondem o que mais nos perguntam, e a equipe atende pelo canal
+        oficial.
+      </p>
+      <div class="px61-chamada-acoes">
+        <a class="px61-btn-primary" routerLink="/perguntas-frequentes">
+          <lucide-icon name="circle-help" [size]="18" />Perguntas frequentes
+        </a>
+        <a class="px61-btn-secondary" routerLink="/contato">Falar com a equipe</a>
+      </div>
+    </div>
+  </section>
+</sep-public-shell>

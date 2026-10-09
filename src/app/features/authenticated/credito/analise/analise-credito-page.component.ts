@@ -129,6 +129,7 @@ export class AnaliseCreditoPageComponent implements OnInit {
     corteAprovacao: 700,
     corteRecusa: 500,
     comprometimentoMaximoPct: 30,
+    bonusPixAutomatico: 30,
     justificativa: '',
   };
 

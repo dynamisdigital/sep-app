@@ -1,0 +1,111 @@
+<sep-public-shell>
+  <article class="px65-page">
+    @if (post(); as p) {
+      <nav class="px65-trilha" aria-label="Navegação estrutural" sepEntrada="topo">
+        <a routerLink="/blog"><lucide-icon name="arrow-left" [size]="15" />Blog</a>
+        <span aria-hidden="true">›</span>
+        <span>{{ p.categoria }}</span>
+      </nav>
+
+      <header class="px65-heading" sepEntrada="esquerda">
+        <span class="px65-etiqueta">{{ p.categoria }}</span>
+        <h1>{{ p.titulo }}</h1>
+        <p class="px65-lead">{{ p.resumo }}</p>
+        <p class="px65-meta">
+          Equipe Dynamis SEP · {{ p.publicadoEm | date: 'dd/MM/yyyy' }} · {{ minutos(p) }} min de
+          leitura
+        </p>
+      </header>
+
+      <figure class="px65-capa" sepEntrada="direita" [entradaAtraso]="100">
+        <sep-imagem-post [post]="p" />
+      </figure>
+
+      <sep-ouvir-texto [segmentos]="leitura()" />
+
+      <div class="px65-corpo">
+        @for (b of p.blocos; track $index; let i = $index) {
+          @switch (b.t) {
+            @case ('h2') {
+              <h2 [sepEntrada]="i % 2 === 0 ? 'esquerda' : 'direita'">{{ b.v }}</h2>
+            }
+            @case ('p') {
+              <p sepEntrada="base">{{ b.v }}</p>
+            }
+            @case ('ul') {
+              <ul sepEntrada="base">
+                @for (item of b.v; track item) {
+                  <li>{{ item }}</li>
+                }
+              </ul>
+            }
+            @case ('ol') {
+              <ol sepEntrada="base">
+                @for (item of b.v; track item) {
+                  <li>{{ item }}</li>
+                }
+              </ol>
+            }
+            @case ('destaque') {
+              <blockquote sepEntrada="escala">{{ b.v }}</blockquote>
+            }
+          }
+        }
+      </div>
+
+      <aside class="px65-resumo" sepEntrada="base" aria-label="Em resumo">
+        <h2><lucide-icon name="list-checks" [size]="18" />Em resumo</h2>
+        <ul>
+          @for (item of p.emResumo; track item) {
+            <li>{{ item }}</li>
+          }
+        </ul>
+      </aside>
+
+      <p class="px65-aviso" sepEntrada="base">
+        <lucide-icon name="info" [size]="18" />
+        <span>{{ aviso }}</span>
+      </p>
+
+      @if (relacionados().length) {
+        <section class="px65-relacionados" aria-labelledby="px65-rel">
+          <h2 id="px65-rel" sepEntrada="esquerda">Para continuar lendo</h2>
+          <div class="px65-rel-grade">
+            @for (r of relacionados(); track r.slug; let i = $index) {
+              <a
+                class="px65-rel-card"
+                [routerLink]="['/blog', r.slug]"
+                sepEntrada="base"
+                [entradaAtraso]="i * 80"
+              >
+                <span class="px65-etiqueta">{{ r.categoria }}</span>
+                <strong>{{ r.titulo }}</strong>
+                <span class="px65-ler">Ler <lucide-icon name="arrow-right" [size]="15" /></span>
+              </a>
+            }
+          </div>
+        </section>
+      }
+
+      <div class="px65-chamada" sepEntrada="escala">
+        <h2>Quer ver como funciona na prática?</h2>
+        <p>Conheça as jornadas de quem busca crédito e de quem financia as operações.</p>
+        <div class="px65-chamada-acoes">
+          <a class="px65-btn-primary" routerLink="/como-funciona">
+            <lucide-icon name="arrow-right" [size]="18" />Como funciona
+          </a>
+          <a class="px65-btn-secondary" routerLink="/investidores">Para investidores</a>
+          <a class="px65-btn-secondary" routerLink="/credito-pj">Para empresas</a>
+        </div>
+      </div>
+    } @else {
+      <header class="px65-heading">
+        <h1>Texto não encontrado</h1>
+        <p class="px65-lead">
+          O endereço pode ter mudado ou o texto ainda não foi publicado.
+          <a routerLink="/blog">Ver todos os textos do blog.</a>
+        </p>
+      </header>
+    }
+  </article>
+</sep-public-shell>

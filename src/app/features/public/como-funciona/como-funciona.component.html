@@ -1,19 +1,54 @@
 <sep-public-shell>
   <section class="px51-page">
-    <header class="px51-heading">
+    <header class="px51-heading" sepEntrada="esquerda">
       <p class="px51-kicker"><lucide-icon name="activity" [size]="14" />Como funciona</p>
-      <h1>Do cadastro à quitação, <em>seis etapas</em> e nenhuma caixa-preta.</h1>
+      <h1>Do cadastro à quitação, <em>duas jornadas</em> e nenhuma caixa-preta.</h1>
       <p class="px51-lead">
         Esta é a jornada real da plataforma, na ordem em que acontece. Cada etapa deixa registro
         próprio, e em qualquer uma delas é possível ver em que ponto a operação está e por quê.
       </p>
     </header>
 
-    <!-- ============ ETAPAS ============ -->
+    <!-- ============ ETAPAS DA EMPRESA ============ -->
     <section class="px51-secao">
+      <div class="px51-secao-topo" sepEntrada="direita">
+        <h2>Para a empresa que busca crédito</h2>
+        <p>Seis etapas, do cadastro à quitação.</p>
+      </div>
       <ol class="px51-trilha">
-        @for (etapa of etapas; track etapa.passo) {
-          <li class="px51-card" [attr.data-tone]="etapa.tom">
+        @for (etapa of etapas; track etapa.passo; let i = $index) {
+          <li
+            class="px51-card"
+            [attr.data-tone]="etapa.tom"
+            [sepEntrada]="i % 2 === 0 ? 'esquerda' : 'direita'"
+            [entradaAtraso]="(i % 3) * 70"
+          >
+            <span class="px51-passo">{{ etapa.passo }}</span>
+            <span class="px51-card-icone"><lucide-icon [name]="etapa.icone" [size]="22" /></span>
+            <h3>{{ etapa.titulo }}</h3>
+            <p>{{ etapa.descricao }}</p>
+          </li>
+        }
+      </ol>
+    </section>
+
+    <!-- ============ ETAPAS DO INVESTIDOR ============ -->
+    <section class="px51-secao">
+      <div class="px51-secao-topo" sepEntrada="esquerda">
+        <h2>Para quem financia</h2>
+        <p>
+          Cinco etapas, da identificação ao retorno de cada parcela. O dinheiro fica em conta
+          segregada, e o risco de cada operação aparece antes do aporte.
+        </p>
+      </div>
+      <ol class="px51-trilha">
+        @for (etapa of etapasInvestidor; track etapa.passo; let i = $index) {
+          <li
+            class="px51-card"
+            [attr.data-tone]="etapa.tom"
+            [sepEntrada]="i % 2 === 0 ? 'direita' : 'esquerda'"
+            [entradaAtraso]="(i % 3) * 70"
+          >
             <span class="px51-passo">{{ etapa.passo }}</span>
             <span class="px51-card-icone"><lucide-icon [name]="etapa.icone" [size]="22" /></span>
             <h3>{{ etapa.titulo }}</h3>
@@ -25,7 +60,7 @@
 
     <!-- ============ PAPÉIS ============ -->
     <section class="px51-secao">
-      <div class="px51-secao-topo">
+      <div class="px51-secao-topo" sepEntrada="direita">
         <h2>Quem participa</h2>
         <p>
           Três lados, com telas próprias e permissões próprias. Ninguém enxerga a área do outro.
@@ -58,7 +93,8 @@
         <a class="px51-btn-primary" routerLink="/login">
           <lucide-icon name="arrow-right" [size]="18" />Entrar na plataforma
         </a>
-        <a class="px51-btn-secondary" routerLink="/credito-pj">Ver as condições do crédito</a>
+        <a class="px51-btn-secondary" routerLink="/credito-pj">Para empresas</a>
+        <a class="px51-btn-secondary" routerLink="/investidores">Para investidores</a>
       </div>
     </div>
   </section>

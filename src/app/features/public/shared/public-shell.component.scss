@@ -29,7 +29,7 @@ sep-public-shell {
 .site-shell {
   position: relative;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   width: min(100%, 1510px);
   min-height: calc(100vh - clamp(20px, 2vw, 36px));
   margin: 0 auto;
@@ -51,14 +51,81 @@ sep-public-shell {
     0 28px 80px rgb(var(--lp-c-fundo) / 75%);
 }
 
+// ============ FAIXA DO TOPO ============
+// Aviso antifraude à esquerda e a entrada do investidor (credor) à direita, em todas as páginas.
+
+.site-topbar {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 24px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px clamp(24px, 3vw, 42px);
+  color: rgb(var(--lp-c-suave) / 92%);
+  font-size: 0.78rem;
+  border-bottom: 1px solid rgb(var(--lp-c-azul) / 28%);
+  background: rgb(var(--lp-c-ciano) / 6%);
+}
+
+.site-topbar-aviso {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  align-items: center;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.site-topbar-aviso lucide-icon {
+  display: inline-grid;
+  color: rgb(var(--lp-c-ambar));
+}
+
+.site-topbar a {
+  color: rgb(var(--lp-c-rotulo));
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.site-topbar-aviso a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.site-topbar-investidor {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 14px;
+  border: 1px solid rgb(var(--lp-c-ciano) / 50%);
+  border-radius: 999px;
+  background: rgb(var(--lp-c-surf) / 60%);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.site-topbar-investidor:hover,
+.site-topbar-investidor:focus-visible {
+  border-color: rgb(var(--lp-c-ciano));
+  box-shadow: 0 0 18px rgb(var(--lp-c-ciano) / 30%);
+  outline: none;
+}
+
 // ============ CABEÇALHO ============
 
 .site-header {
   position: relative;
   z-index: 3;
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: clamp(22px, 3vw, 56px);
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "marca acoes"
+    "menu menu";
+  gap: clamp(16px, 2vw, 32px);
+  row-gap: 14px;
   align-items: center;
   min-height: 72px;
   padding: 18px clamp(24px, 3vw, 42px);
@@ -69,7 +136,7 @@ sep-public-shell {
   display: inline-flex;
   gap: 14px;
   align-items: center;
-  min-width: 322px;
+  min-width: 280px;
   text-decoration: none;
   color: inherit;
 }
@@ -96,10 +163,10 @@ sep-public-shell {
 }
 
 .site-brand-text span {
-  max-width: 172px;
+  max-width: 230px;
   padding-left: 14px;
   color: rgb(var(--lp-c-suave) / 92%);
-  font-size: 0.79rem;
+  font-size: 0.98rem;
   line-height: 1.2;
   border-left: 1px solid rgb(var(--lp-c-azul) / 55%);
 }
@@ -107,11 +174,11 @@ sep-public-shell {
 .site-nav {
   display: flex;
   flex-wrap: wrap;
-  gap: clamp(18px, 2.6vw, 42px);
+  gap: 8px clamp(14px, 1.5vw, 26px);
   align-items: center;
   justify-content: center;
   color: rgb(var(--lp-c-suave) / 88%);
-  font-size: 0.86rem;
+  font-size: 1.02rem;
 }
 
 .site-nav a,
@@ -365,4 +432,87 @@ sep-public-shell {
     grid-row: 1;
     grid-column: 3;
   }
+}
+
+// ============ ENTRADA EM CENA ============
+// O mesmo efeito de abertura da página inicial (`sep-enter-*`): cada bloco chega de um lado quando
+// aparece na tela. A diretiva `sepEntrada` só marca o momento; aqui ficam os lados e a curva.
+.sep-entrada {
+  --ex: 0;
+  --ey: 22px;
+
+  opacity: 0;
+}
+
+.sep-entrada[data-lado="esquerda"] {
+  --ex: -34px;
+  --ey: 0;
+}
+
+.sep-entrada[data-lado="direita"] {
+  --ex: 38px;
+  --ey: 0;
+}
+
+.sep-entrada[data-lado="topo"] {
+  --ex: 0;
+  --ey: -24px;
+}
+
+.sep-entrada[data-lado="base"] {
+  --ex: 0;
+  --ey: 26px;
+}
+
+.sep-entrada[data-lado="escala"] {
+  --ex: 0;
+  --ey: 0;
+}
+
+.sep-entrada.sep-entrou {
+  animation: sep-entrada-in 760ms cubic-bezier(0.16, 1, 0.3, 1) var(--entrada-atraso, 0ms) both;
+}
+
+@keyframes sep-entrada-in {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--ex), var(--ey), 0) scale(0.965);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sep-entrada,
+  .sep-entrada.sep-entrou {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+// ============ CABEÇALHO EM DUAS LINHAS ============
+// Marca e ações em cima; o menu, em letra maior, ocupa uma linha própria embaixo. Assim os oito itens cabem
+// numa linha só em qualquer largura comum, em vez de quebrar de forma desigual.
+.site-header .site-brand {
+  grid-area: marca;
+}
+
+.site-header .site-header-actions {
+  grid-area: acoes;
+}
+
+.site-header .site-nav {
+  grid-area: menu;
+  justify-self: stretch;
+  width: 100%;
+  grid-column: auto;
+  grid-row: auto;
+  gap: 8px clamp(20px, 2.6vw, 46px);
+  justify-content: center;
+  padding-top: 12px;
+  font-size: 1.04rem;
+  border-top: 1px solid rgb(var(--lp-c-azul) / 22%);
 }

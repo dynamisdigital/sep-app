@@ -32,6 +32,14 @@ Para cada proposta, o analista executa a análise e recebe:
 
 Faixas: A ≥ 800, B ≥ 700, C ≥ 600, D ≥ 500, E abaixo disso.
 
+### Ajuste do Pix Automático
+
+Fora dos seis fatores, quem tem o **Pix Automático ativo** em algum contrato recebe pontos a mais no score
+(padrão **+30**, parâmetro `bonusPixAutomatico`, de 0 a 100; 0 desliga). O ajuste aparece em **linha própria**,
+com o motivo, e a conta continua fechando: **fatores + ajustes = score** (limitado a 1.000). Ele não afeta as
+regras bloqueantes: uma proposta com restrições altas segue recusada. O site anuncia esse benefício, por
+isso o ajuste é parte do contrato com o backend (`ajustes[]` na resposta da análise).
+
 ## 3. Regras de decisão
 
 - **Bloqueantes → Recusar:** valor acima do teto do regimento (R$ 15.000); restrições acima de 30% do

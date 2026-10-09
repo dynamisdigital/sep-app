@@ -59,7 +59,7 @@ export class SobreOSepComponent {
   ];
 
   protected readonly identificacao: SiteLinha[] = [
-    { rotulo: 'Regime', valor: 'Resolução CMN 4.656/2018' },
+    { rotulo: 'Regime', valor: 'Resolução CMN 5.050/2022 e alterações' },
     { rotulo: 'CNPJ', valor: CONTATO_SEP.cnpj },
     { rotulo: 'Sede', valor: `${CONTATO_SEP.endereco} — ${CONTATO_SEP.cep}` },
     { rotulo: 'Canal oficial', valor: CONTATO_SEP.email },

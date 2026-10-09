@@ -89,6 +89,16 @@
             />
           </label>
           <label>
+            Ajuste do Pix Automático ativo (pontos)
+            <input
+              type="number"
+              min="0"
+              max="100"
+              name="bonus-pix"
+              [(ngModel)]="edicao.bonusPixAutomatico"
+            />
+          </label>
+          <label>
             Comprometimento máximo da renda (%)
             <input
               type="number"
@@ -297,6 +307,15 @@
                     <td class="num">
                       {{ f.contribuicao }} <small>de {{ f.peso * 10 }}</small>
                     </td>
+                  </tr>
+                }
+                @for (aj of a.ajustes; track aj.chave) {
+                  <tr>
+                    <td>
+                      {{ aj.nome }}<small>{{ aj.explicacao }}</small>
+                    </td>
+                    <td colspan="3">Ajuste somado aos fatores</td>
+                    <td class="num">+{{ aj.pontos }}</td>
                   </tr>
                 }
                 <tr>
