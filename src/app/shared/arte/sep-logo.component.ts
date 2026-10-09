@@ -31,7 +31,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
       <g
         class="simbolo-g"
         [attr.stroke]="'url(#' + idGradiente + ')'"
-        [attr.transform]="variante() === 'simbolo' ? null : 'translate(0 4) scale(0.84)'"
+        [attr.transform]="variante() === 'simbolo' ? null : 'translate(0 5.3) scale(0.78)'"
       >
         <path d="M5 9h38L24 42z" class="borda" />
         <path d="M10.5 12.5h27L24 36z" class="face" />
@@ -39,8 +39,8 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
       </g>
       @if (variante() !== 'simbolo') {
         <g class="palavra">
-          <text x="46" y="20" class="nome">Dynamis</text>
-          <text x="46" y="43" class="nome sigla">SEP</text>
+          <text x="41" y="21" class="nome">Dynamis</text>
+          <text x="41" y="43.5" class="nome sigla">SEP</text>
         </g>
       }
     </svg>
@@ -88,13 +88,13 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
       fill: currentcolor;
       stroke: none;
       font-family: inherit;
-      font-size: 17.5px;
+      font-size: 20px;
       font-weight: 800;
       letter-spacing: -0.01em;
     }
 
     .palavra .sigla {
-      font-size: 19px;
+      font-size: 20.5px;
       letter-spacing: 0.14em;
     }
 
