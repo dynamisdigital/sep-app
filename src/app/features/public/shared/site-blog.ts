@@ -39,7 +39,23 @@ export interface PostBlog {
  * passa a mostrar a foto depois de o slug entrar nesta lista; até lá o blog usa a ilustração da cena e não
  * faz pedido de arquivo que não existe. Os pedidos de imagem estão em `docs/proposta-site/IMAGENS_DO_SITE.md`.
  */
-export const FOTOS_DO_BLOG: ReadonlySet<string> = new Set<string>([]);
+export const FOTOS_DO_BLOG: ReadonlySet<string> = new Set<string>([
+  'o-que-e-uma-sep',
+  'como-funciona-a-sep-passo-a-passo',
+  'sep-nao-e-banco-nem-investimento-garantido',
+  'recursos-segregados-onde-fica-o-dinheiro',
+  'quem-pode-financiar-numa-sep-e-o-limite-por-tomador',
+  'score-explicado-analise-de-credito-em-uma-sep',
+  'classificacao-de-risco-a-a-e-como-ler',
+  'diversificar-em-emprestimo-entre-pessoas',
+  'como-preparar-a-empresa-para-pedir-capital-de-giro',
+  'custo-efetivo-total-como-comparar-uma-proposta',
+  'pix-automatico-nas-parcelas-o-que-muda',
+  'inadimplencia-o-que-e-e-como-a-sep-cobra',
+  'kyc-kyb-e-pld-por-que-pedimos-tantos-dados',
+  'golpe-do-emprestimo-com-pagamento-antecipado',
+  'lgpd-e-credito-seus-direitos',
+]);
 
 /** Caminho da foto do texto, ou `null` quando ele ainda usa a ilustração. */
 export function fotoDe(post: PostBlog): string | null {

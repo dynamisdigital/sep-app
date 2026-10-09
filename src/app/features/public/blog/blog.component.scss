@@ -205,8 +205,8 @@
   }
 }
 
-// Onde o leitor estava ao terminar de ouvir um texto: fio branco que pisca duas vezes no texto lido e fio azul
-// que pisca três vezes (e fica) no seguinte.
+// Onde o leitor estava ao terminar de ouvir um texto: fio branco que pisca quatro vezes no texto lido e fio azul
+// que pisca quatro vezes (e fica) no seguinte.
 .px64-marca-lido,
 .px64-marca-proximo {
   outline: 1px solid transparent;
@@ -214,12 +214,12 @@
 }
 
 .px64-marca-lido {
-  animation: px64-pisca-branco 650ms ease-in-out 2;
+  animation: px64-pisca-branco 650ms ease-in-out 4;
 }
 
 .px64-marca-proximo {
   outline-color: rgb(64 156 255);
-  animation: px64-pisca-azul 650ms ease-in-out 3;
+  animation: px64-pisca-azul 650ms ease-in-out 4;
 }
 
 @keyframes px64-pisca-branco {

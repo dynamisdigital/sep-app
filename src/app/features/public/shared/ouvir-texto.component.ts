@@ -281,7 +281,7 @@ export class OuvirTextoComponent {
   private posicionarTarja(): void {
     const tarja = this.tarja()?.nativeElement;
     if (!tarja) return;
-    const q = this.foco?.getBoundingClientRect();
+    const q = this.retanguloDoFoco();
     if (!q || !q.width || !q.height) {
       tarja.hidden = true;
       return;
@@ -303,6 +303,26 @@ export class OuvirTextoComponent {
       tarja.style.top = `${topo + dy}px`;
       tarja.style.left = `${esquerda + dx}px`;
     }
+  }
+
+  /**
+   * Retângulo do bloco em leitura. Num texto em colunas, um parágrafo pode se partir entre duas colunas; aí a tarja
+   * cobre só o pedaço onde a voz está (o que contém o fim do trecho já lido), e não as duas colunas de uma vez.
+   */
+  private retanguloDoFoco(): DOMRect | undefined {
+    const foco = this.foco;
+    if (!foco) return undefined;
+    const pedacos = Array.from(foco.getClientRects()).filter((r) => r.width && r.height);
+    if (pedacos.length < 2) return foco.getBoundingClientRect();
+    const ponta = this.destaque && ([...this.destaque][0] as Range | undefined)?.getClientRects();
+    const ultima = ponta && ponta.length ? ponta[ponta.length - 1] : undefined;
+    if (!ultima) return pedacos[0];
+    const cx = ultima.left + ultima.width / 2;
+    const cy = ultima.top + ultima.height / 2;
+    return (
+      pedacos.find((r) => cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) ??
+      pedacos[0]
+    );
   }
 
   private limparMarcas(): void {

@@ -57,9 +57,9 @@ export class BlogComponent {
 
   protected readonly minutos = minutosDeLeitura;
 
-  /** Texto que acabou de ser lido em áudio: a borda pisca em branco duas vezes. */
+  /** Texto que acabou de ser lido em áudio: a borda pisca em branco quatro vezes. */
   protected readonly lido = signal<string | null>(null);
-  /** Texto seguinte: borda azul fina, piscando três vezes, e a página posiciona nele. */
+  /** Texto seguinte: borda azul fina, piscando quatro vezes, e a página posiciona nele. */
   protected readonly proximo = signal<string | null>(null);
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -77,8 +77,8 @@ export class BlogComponent {
   }
 
   /**
-   * Mostra onde o leitor estava: posiciona no texto lido e pisca a borda em branco (2x), marca o seguinte com
-   * borda azul (3x) e posiciona nele; se em 7 segundos ninguém interagir, a página sobe ao cabeçalho.
+   * Mostra onde o leitor estava: posiciona no texto lido e pisca a borda em branco (4x), marca o seguinte com
+   * borda azul (4x) e posiciona nele; se em 10 segundos ninguém interagir, a página sobe ao cabeçalho.
    */
   private retomar(slug: string): void {
     const semMovimento =
@@ -97,8 +97,8 @@ export class BlogComponent {
       this.agendar(() => {
         this.proximo.set(null);
         window.scrollTo({ top: 0, behavior: comportamento });
-      }, 7000);
-    }, 500 + 1300);
+      }, 10000);
+    }, 500 + 2800);
 
     const interrompe = () => {
       this.encerrar();

@@ -6,6 +6,7 @@ import {
   DestroyRef,
   effect,
   inject,
+  signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
@@ -18,6 +19,17 @@ import { OuvirTextoComponent } from '../shared/ouvir-texto.component';
 import { PublicShellComponent } from '../shared/public-shell.component';
 import { ImagemPostComponent } from '../shared/imagem-post.component';
 import { AVISO_DO_BLOG, minutosDeLeitura, postPorSlug, PostBlog } from '../shared/site-blog';
+
+const CHAVE_COLUNAS = 'sep.blog.colunas';
+
+function lerColunas(): 1 | 2 | 3 {
+  try {
+    const n = Number(localStorage.getItem(CHAVE_COLUNAS));
+    return n === 2 || n === 3 ? n : 1;
+  } catch {
+    return 1;
+  }
+}
 
 // Um texto do blog. O endereço é /blog/<slug>: o componente acompanha o parâmetro, e não só o valor do
 // momento em que foi criado, para a navegação entre textos relacionados trocar o conteúdo na mesma tela.
@@ -62,6 +74,23 @@ export class BlogArtigoComponent {
     '.px65-resumo li',
     '.px65-aviso span',
   ].join(', ');
+  /** Diagramação do texto corrido: uma, duas ou três colunas, para variar a leitura. Lembrada neste aparelho. */
+  protected readonly opcoesDeColunas = [1, 2, 3] as const;
+  protected readonly colunas = signal<1 | 2 | 3>(lerColunas());
+
+  protected barras(n: number): number[] {
+    return Array.from({ length: n }, (_, i) => i);
+  }
+
+  protected escolherColunas(n: 1 | 2 | 3): void {
+    this.colunas.set(n);
+    try {
+      localStorage.setItem(CHAVE_COLUNAS, String(n));
+    } catch {
+      // Sem armazenamento (janela privada): vale só nesta visita.
+    }
+  }
+
   protected readonly minutos = minutosDeLeitura;
   protected readonly aviso = AVISO_DO_BLOG;
 

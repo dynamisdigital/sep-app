@@ -1,5 +1,10 @@
 <sep-public-shell>
-  <article #artigo class="px65-page">
+  <article
+    #artigo
+    class="px65-page"
+    [class.px65-page-2]="colunas() === 2"
+    [class.px65-page-3]="colunas() === 3"
+  >
     @if (post(); as p) {
       <nav class="px65-trilha" aria-label="Navegação estrutural" sepEntrada="topo">
         <a routerLink="/blog"><lucide-icon name="arrow-left" [size]="15" />Blog</a>
@@ -29,7 +34,31 @@
         (concluida)="leituraConcluida()"
       />
 
-      <div class="px65-corpo">
+      <div class="px65-diagramacao" role="group" aria-label="Diagramação do texto">
+        <span>Diagramação</span>
+        @for (n of opcoesDeColunas; track n) {
+          <button
+            type="button"
+            class="px65-col-{{ n }}"
+            [class.ativo]="colunas() === n"
+            [attr.aria-pressed]="colunas() === n"
+            (click)="escolherColunas(n)"
+          >
+            <span class="px65-col-icone" aria-hidden="true">
+              @for (c of barras(n); track c) {
+                <i></i>
+              }
+            </span>
+            {{ n === 1 ? '1 coluna' : n + ' colunas' }}
+          </button>
+        }
+      </div>
+
+      <div
+        class="px65-corpo"
+        [class.px65-corpo-2]="colunas() === 2"
+        [class.px65-corpo-3]="colunas() === 3"
+      >
         @for (b of p.blocos; track $index; let i = $index) {
           @switch (b.t) {
             @case ('h2') {

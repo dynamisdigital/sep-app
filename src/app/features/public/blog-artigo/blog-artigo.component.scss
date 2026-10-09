@@ -61,6 +61,119 @@
   border-radius: 18px;
 }
 
+// Diagramação: o texto corrido pode correr em uma, duas ou três colunas; só ele muda (título, imagem, resumo e
+// aviso ficam como estão). A página alarga para as colunas terem largura de leitura, e em tela estreita o texto
+// volta a uma coluna, sem os botões.
+.px65-diagramacao {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  align-items: center;
+  margin: 0 0 22px;
+  color: var(--site-suave);
+  font-size: 0.82rem;
+}
+
+.px65-diagramacao button {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  color: var(--site-texto);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--site-linha);
+  border-radius: 10px;
+  background: var(--site-cartao);
+}
+
+.px65-diagramacao button:hover,
+.px65-diagramacao button:focus-visible,
+.px65-diagramacao button.ativo {
+  border-color: rgb(var(--lp-c-ciano) / 70%);
+  background: rgb(var(--lp-c-ciano) / 12%);
+  outline: none;
+}
+
+.px65-col-icone {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.px65-col-icone i {
+  display: block;
+  width: 5px;
+  height: 14px;
+  border-radius: 1px;
+  background: currentcolor;
+  opacity: 0.7;
+}
+
+.px65-page-2 {
+  max-width: 1040px;
+}
+
+.px65-page-3 {
+  max-width: 1240px;
+}
+
+.px65-corpo.px65-corpo-2,
+.px65-corpo.px65-corpo-3 {
+  max-width: none;
+  column-gap: clamp(32px, 4vw, 56px);
+  column-rule: 1px solid var(--site-linha);
+}
+
+.px65-corpo.px65-corpo-2 {
+  column-count: 2;
+}
+
+.px65-corpo.px65-corpo-3 {
+  column-count: 3;
+}
+
+.px65-corpo.px65-corpo-2 h2,
+.px65-corpo.px65-corpo-3 h2 {
+  margin-top: 0;
+  break-after: avoid;
+}
+
+.px65-corpo.px65-corpo-2 p:first-child,
+.px65-corpo.px65-corpo-3 p:first-child {
+  margin-top: 0;
+}
+
+.px65-corpo.px65-corpo-2 blockquote,
+.px65-corpo.px65-corpo-3 blockquote,
+.px65-corpo.px65-corpo-2 li,
+.px65-corpo.px65-corpo-3 li {
+  break-inside: avoid;
+}
+
+@media (width <= 1100px) {
+  .px65-col-3 {
+    display: none;
+  }
+
+  .px65-corpo.px65-corpo-3 {
+    column-count: 2;
+  }
+}
+
+@media (width <= 760px) {
+  .px65-diagramacao {
+    display: none;
+  }
+
+  .px65-corpo.px65-corpo-2,
+  .px65-corpo.px65-corpo-3 {
+    column-count: 1;
+    column-rule: none;
+  }
+}
+
 // Texto corrido: coluna estreita, para a leitura não cansar.
 .px65-corpo {
   max-width: 760px;

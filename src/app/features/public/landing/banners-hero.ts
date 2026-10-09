@@ -138,7 +138,12 @@ export const BANNERS_HERO: BannerHero[] = [
  * e o site não faz pedido de arquivo que não existe. Pedidos de imagem: `docs/proposta-site/IMAGENS_DO_SITE.md`.
  * Foto gerada por IA com pessoas deve ir com o rótulo "imagem ilustrativa" (o componente o mostra).
  */
-export const FOTOS_DOS_BANNERS: ReadonlySet<string> = new Set<string>([]);
+export const FOTOS_DOS_BANNERS: ReadonlySet<string> = new Set<string>([
+  'plataforma',
+  'investidores',
+  'empresas',
+  'pessoas-fisicas',
+]);
 
 export function fotoDoBanner(id: string): string | null {
   return FOTOS_DOS_BANNERS.has(id) ? `/image/banners/${id}.jpg` : null;
