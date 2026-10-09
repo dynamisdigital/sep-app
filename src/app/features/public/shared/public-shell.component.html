@@ -13,6 +13,16 @@
     </div>
 
     <header class="site-header">
+      @if (!naInicial()) {
+        <button
+          type="button"
+          class="site-voltar"
+          aria-label="Voltar para a tela anterior"
+          (click)="voltar()"
+        >
+          <lucide-icon name="arrow-left" [size]="20" [strokeWidth]="2.25" />
+        </button>
+      }
       <a routerLink="/" class="site-brand" aria-label="Dynamis SEP - Página inicial">
         <img
           [src]="assetBase + '/logos/logo_sep_simbolo_header.png'"

@@ -8,8 +8,11 @@
  * 2026
  */
 
+import { Location } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, ViewEncapsulation } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter, map } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 
 import { LarguraTelaDirective } from '../../../core/layout/largura-tela.directive';
@@ -52,6 +55,25 @@ export class PublicShellComponent {
 
   protected alternarTema(): void {
     this.tema.toggle();
+  }
+
+  private readonly router = inject(Router);
+  private readonly location = inject(Location);
+
+  /** A seta de voltar aparece em toda página pública, menos na inicial. */
+  protected readonly naInicial = toSignal(
+    this.router.events.pipe(
+      filter((e) => e instanceof NavigationEnd),
+      map(() => this.router.url.split(/[?#]/)[0] === '/'),
+    ),
+    { initialValue: this.router.url.split(/[?#]/)[0] === '/' },
+  );
+
+  /** Volta uma tela; quem chegou direto pelo link (sem tela anterior no app) vai para a página inicial. */
+  protected voltar(): void {
+    const navegouNoApp = (history.state?.navigationId ?? 1) > 1;
+    if (navegouNoApp) this.location.back();
+    else void this.router.navigateByUrl('/');
   }
 
   protected readonly navegacao = NAV_SITE;

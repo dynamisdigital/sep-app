@@ -132,6 +132,37 @@ sep-public-shell {
   border-bottom: 1px solid rgb(var(--lp-c-azul) / 35%);
 }
 
+// Seta redonda de voltar, no topo e centralizada na página, como nas telas internas; a inicial não a mostra.
+.site-voltar {
+  position: absolute;
+  top: 19px;
+  left: 50%;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  color: rgb(var(--lp-c-ciano) / 85%);
+  cursor: pointer;
+  border: 1px solid rgb(var(--lp-c-ciano) / 40%);
+  border-radius: 50%;
+  background: rgb(var(--lp-c-surf) / 62%);
+  transform: translateX(-50%);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.site-voltar:hover,
+.site-voltar:focus-visible {
+  border-color: rgb(var(--lp-c-ciano));
+  box-shadow: 0 0 18px rgb(var(--lp-c-ciano) / 30%);
+  outline: none;
+  transform: translateX(-50%) translateY(-1px);
+}
+
 .site-brand {
   display: inline-flex;
   gap: 14px;
@@ -528,4 +559,16 @@ html:not(.dark) ::highlight(sep-lido) {
   padding-top: 12px;
   font-size: 1.04rem;
   border-top: 1px solid rgb(var(--lp-c-azul) / 22%);
+}
+
+// Em tela estreita o menu quebra em várias linhas: a seta ganha uma faixa própria, abaixo dele.
+@media (width <= 900px) {
+  .site-header:has(.site-voltar) {
+    padding-bottom: 66px;
+  }
+
+  .site-voltar {
+    top: auto;
+    bottom: 16px;
+  }
 }

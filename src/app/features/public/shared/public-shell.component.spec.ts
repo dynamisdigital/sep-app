@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
-import { importProvidersFrom } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { Component, importProvidersFrom } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 
 import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
@@ -87,5 +88,22 @@ describe('PublicShellComponent', () => {
     for (const rota of ['/perguntas-frequentes', '/antifraude', '/transparencia', '/blog']) {
       expect(links).toContain(rota);
     }
+  });
+
+  it('a seta de voltar não aparece na inicial e aparece nas demais páginas', async () => {
+    @Component({ template: '' })
+    class Vazia {}
+    const { fixture } = await render(PublicShellComponent, {
+      providers: [
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+        provideRouter([{ path: 'blog', component: Vazia }]),
+        provideHttpClient(),
+      ],
+    });
+    expect(screen.queryByRole('button', { name: 'Voltar para a tela anterior' })).toBeNull();
+
+    await TestBed.inject(Router).navigateByUrl('/blog');
+    fixture.detectChanges();
+    expect(screen.getByRole('button', { name: 'Voltar para a tela anterior' })).toBeTruthy();
   });
 });
