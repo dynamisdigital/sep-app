@@ -20,13 +20,10 @@ import { PublicShellComponent } from '../shared/public-shell.component';
 import { ImagemPostComponent } from '../shared/imagem-post.component';
 import { AVISO_DO_BLOG, minutosDeLeitura, postPorSlug, PostBlog, POSTS } from '../shared/site-blog';
 
-/**
- * A diagramação padrão varia de um texto para o outro: uma, duas e três colunas, em sequência. A contagem segue
- * os cartões da grade do blog; o texto em destaque (o primeiro da lista) fica em uma coluna, fora da sequência.
- */
+/** A diagramação padrão varia de um texto para o outro: uma, duas e três colunas, em sequência. */
 function colunasPadrao(slug: string): 1 | 2 | 3 {
   const i = POSTS.findIndex((p) => p.slug === slug);
-  return i <= 0 ? 1 : ([1, 2, 3] as const)[(i - 1) % 3];
+  return ([1, 2, 3] as const)[Math.max(0, i) % 3];
 }
 
 // Um texto do blog. O endereço é /blog/<slug>: o componente acompanha o parâmetro, e não só o valor do
