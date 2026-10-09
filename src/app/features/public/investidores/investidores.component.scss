@@ -66,3 +66,12 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+// Foto do topo, com o mesmo acabamento dos banners da página inicial.
+.px60-foto {
+  height: clamp(260px, 32vw, 400px);
+  overflow: hidden;
+  border: 1px solid var(--site-linha);
+  border-radius: 20px;
+  background: var(--site-cartao);
+}

@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 
+import { BANNERS_HERO } from '../landing/banners-hero';
+import { FotoBannerComponent } from '../landing/foto-banner.component';
 import { PublicShellComponent } from '../shared/public-shell.component';
 import { SiteCartao, SiteLinha, TETO_EMPRESTIMO } from '../shared/site-conteudo';
 
@@ -9,13 +11,15 @@ import { SiteCartao, SiteLinha, TETO_EMPRESTIMO } from '../shared/site-conteudo'
 // e os prazos são os parâmetros operacionais do catálogo, e as etapas são as do motor de crédito.
 @Component({
   selector: 'sep-credito-pj-page',
-  imports: [RouterLink, LucideAngularModule, PublicShellComponent],
+  imports: [RouterLink, LucideAngularModule, PublicShellComponent, FotoBannerComponent],
   templateUrl: './credito-pj.component.html',
   styleUrl: './credito-pj.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreditoPjComponent {
   protected readonly teto = TETO_EMPRESTIMO;
+  /** Foto do topo: a mesma do banner de empresas da página inicial (ou a ilustração, se faltar). */
+  protected readonly bannerEmpresas = BANNERS_HERO.find((b) => b.id === 'empresas')!;
 
   /** Condições. Cada linha declara o parâmetro operacional de onde sai o número. */
   protected readonly condicoes: SiteLinha[] = [

@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 
+import { BANNERS_HERO } from '../landing/banners-hero';
+import { FotoBannerComponent } from '../landing/foto-banner.component';
 import { EntradaDirective } from '../shared/entrada.directive';
 import { PublicShellComponent } from '../shared/public-shell.component';
 import { SepIlustracaoComponent } from '../shared/sep-ilustracao.component';
@@ -18,6 +20,7 @@ import { SiteCartao, SiteEtapa, TETO_EMPRESTIMO } from '../shared/site-conteudo'
     PublicShellComponent,
     SepIlustracaoComponent,
     EntradaDirective,
+    FotoBannerComponent,
   ],
   templateUrl: './investidores.component.html',
   styleUrl: './investidores.component.scss',
@@ -25,6 +28,8 @@ import { SiteCartao, SiteEtapa, TETO_EMPRESTIMO } from '../shared/site-conteudo'
 })
 export class InvestidoresComponent {
   protected readonly teto = TETO_EMPRESTIMO;
+  /** Foto do topo: a mesma do banner de investidores da página inicial (ou a ilustração, se faltar). */
+  protected readonly bannerInvestidores = BANNERS_HERO.find((b) => b.id === 'investidores')!;
 
   protected readonly etapas: SiteEtapa[] = [
     {
