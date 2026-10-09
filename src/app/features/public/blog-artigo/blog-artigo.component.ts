@@ -7,7 +7,6 @@ import { LucideAngularModule } from 'lucide-angular';
 import { map } from 'rxjs';
 
 import { EntradaDirective } from '../shared/entrada.directive';
-import { textoParaLeitura } from '../shared/leitura-audio';
 import { OuvirTextoComponent } from '../shared/ouvir-texto.component';
 import { PublicShellComponent } from '../shared/public-shell.component';
 import { ImagemPostComponent } from '../shared/imagem-post.component';
@@ -42,11 +41,18 @@ export class BlogArtigoComponent {
   protected readonly relacionados = computed(() =>
     (this.post()?.relacionados ?? []).map((s) => postPorSlug(s)).filter((p): p is PostBlog => !!p),
   );
-  /** O texto como a voz vai lê-lo, em trechos curtos. */
-  protected readonly leitura = computed(() => {
-    const p = this.post();
-    return p ? textoParaLeitura(p, AVISO_DO_BLOG) : [];
-  });
+  /** O que a voz lê, na ordem da página: título, abertura, corpo, "em resumo" e o aviso. */
+  protected readonly seletorLeitura = [
+    '.px65-heading h1',
+    '.px65-heading .px65-lead',
+    '.px65-corpo h2',
+    '.px65-corpo p',
+    '.px65-corpo li',
+    '.px65-corpo blockquote',
+    '.px65-resumo h2',
+    '.px65-resumo li',
+    '.px65-aviso span',
+  ].join(', ');
   protected readonly minutos = minutosDeLeitura;
   protected readonly aviso = AVISO_DO_BLOG;
 

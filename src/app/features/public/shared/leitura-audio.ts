@@ -1,5 +1,3 @@
-import type { PostBlog } from './site-blog';
-
 // Preparo do texto do blog para a leitura em áudio. A voz é a do próprio navegador (Web Speech API), que
 // lê melhor trechos curtos: um parágrafo longo pode ser cortado no meio em alguns navegadores. Por isso o
 // texto vira uma lista de segmentos, cada um com no máximo ~220 caracteres, quebrados em fim de frase.
@@ -65,42 +63,4 @@ export function limparParaVoz(texto: string): string {
     .replace(/\bCMN\b/g, 'C M N')
     .replace(/\s+/g, ' ')
     .trim();
-}
-
-/**
- * Lista de segmentos para ler em voz alta: título, resumo, o corpo na ordem, o "em resumo" e o aviso.
- * Listas numeradas ganham "primeiro, segundo..." para a voz marcar a ordem, e títulos de seção viram
- * uma frase própria, com pausa.
- */
-export function textoParaLeitura(post: PostBlog, aviso: string): string[] {
-  const ordinais = [
-    'Primeiro',
-    'Segundo',
-    'Terceiro',
-    'Quarto',
-    'Quinto',
-    'Sexto',
-    'Sétimo',
-    'Oitavo',
-  ];
-  const bruto: string[] = [post.titulo, post.resumo];
-  for (const bloco of post.blocos) {
-    switch (bloco.t) {
-      case 'h2':
-        bruto.push(`${bloco.v}.`);
-        break;
-      case 'p':
-      case 'destaque':
-        bruto.push(bloco.v);
-        break;
-      case 'ul':
-        bruto.push(...bloco.v);
-        break;
-      case 'ol':
-        bruto.push(...bloco.v.map((item, i) => `${ordinais[i] ?? `Item ${i + 1}`}: ${item}`));
-        break;
-    }
-  }
-  bruto.push('Em resumo.', ...post.emResumo, aviso);
-  return bruto.flatMap((t) => segmentar(limparParaVoz(t)));
 }

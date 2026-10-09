@@ -12,6 +12,7 @@ interface FalaFalsa {
   text: string;
   lang: string;
   rate: number;
+  onboundary: ((e: { charIndex: number }) => void) | null;
   onend: (() => void) | null;
   onerror: ((e: { error: string }) => void) | null;
 }
@@ -21,6 +22,8 @@ function instalarVozFalsa() {
   class Utterance implements FalaFalsa {
     lang = '';
     rate = 1;
+    pitch = 1;
+    onboundary: ((e: { charIndex: number }) => void) | null = null;
     voice: unknown = null;
     onend: (() => void) | null = null;
     onerror: ((e: { error: string }) => void) | null = null;
@@ -44,14 +47,21 @@ function remover() {
   delete (globalThis as unknown as Record<string, unknown>)['SpeechSynthesisUtterance'];
 }
 
-const montar = (segmentos: string[]) =>
-  render(OuvirTextoComponent, {
-    inputs: { segmentos },
+const montar = (textos: string[]) => {
+  const escopo = document.createElement('article');
+  escopo.innerHTML = textos.map((t) => `<p>${t}</p>`).join('');
+  document.body.appendChild(escopo);
+  return render(OuvirTextoComponent, {
+    inputs: { escopo, seletor: 'p', chave: 'a' },
     providers: [importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS))],
   });
+};
 
 describe('OuvirTextoComponent', () => {
-  afterEach(remover);
+  afterEach(() => {
+    remover();
+    document.body.innerHTML = '';
+  });
 
   describe('com voz disponível', () => {
     let voz: ReturnType<typeof instalarVozFalsa>;
@@ -115,11 +125,11 @@ describe('OuvirTextoComponent', () => {
     it('trocar a velocidade relê o trecho atual na nova velocidade', async () => {
       await montar(['Um.', 'Dois.']);
       fireEvent.click(screen.getByRole('button', { name: /Ouvir/ }));
-      expect(voz.faladas[0].rate).toBe(1);
+      expect(voz.faladas[0].rate).toBeCloseTo(1.02, 5);
 
       fireEvent.change(screen.getByLabelText('Velocidade'), { target: { value: '1.3' } });
       expect(voz.faladas[1].text).toBe('Um.');
-      expect(voz.faladas[1].rate).toBe(1.3);
+      expect(voz.faladas[1].rate).toBeCloseTo(1.326, 5);
     });
   });
 

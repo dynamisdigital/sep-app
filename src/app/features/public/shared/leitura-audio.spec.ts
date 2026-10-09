@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { limparParaVoz, segmentar, textoParaLeitura } from './leitura-audio';
-import { AVISO_DO_BLOG, POSTS } from './site-blog';
+import { limparParaVoz, segmentar } from './leitura-audio';
 
 describe('leitura em áudio: preparo do texto', () => {
   it('quebra em fim de frase e nunca passa do limite de um trecho', () => {
@@ -29,25 +28,5 @@ describe('leitura em áudio: preparo do texto', () => {
     expect(limparParaVoz('Tarifa de 4% do valor.')).toContain('4 por cento');
     expect(limparParaVoz('Uma SEP e o FGC.')).toBe('Uma S E P e o F G C.');
     expect(limparParaVoz('R$ 1.162,50')).toBe('1162 reais e 50 centavos');
-  });
-
-  it('todo texto do blog vira uma leitura que começa pelo título e termina no aviso', () => {
-    for (const post of POSTS) {
-      const trechos = textoParaLeitura(post, AVISO_DO_BLOG);
-      expect(trechos[0], post.slug).toContain(limparParaVoz(post.titulo).split(' ')[0]);
-      expect(
-        trechos.some((t) => t === 'Em resumo.'),
-        post.slug,
-      ).toBe(true);
-      expect(trechos[trechos.length - 1], post.slug).toMatch(/risco/i);
-      for (const t of trechos) expect(t.length, `${post.slug}: ${t}`).toBeLessThanOrEqual(360);
-    }
-  });
-
-  it('listas numeradas ganham a ordem falada', () => {
-    const post = POSTS.find((p) => p.blocos.some((b) => b.t === 'ol'))!;
-    const trechos = textoParaLeitura(post, AVISO_DO_BLOG).join(' ');
-    expect(trechos).toContain('Primeiro:');
-    expect(trechos).toContain('Segundo:');
   });
 });

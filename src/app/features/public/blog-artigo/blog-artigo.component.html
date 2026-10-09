@@ -1,5 +1,5 @@
 <sep-public-shell>
-  <article class="px65-page">
+  <article #artigo class="px65-page">
     @if (post(); as p) {
       <nav class="px65-trilha" aria-label="Navegação estrutural" sepEntrada="topo">
         <a routerLink="/blog"><lucide-icon name="arrow-left" [size]="15" />Blog</a>
@@ -21,7 +21,7 @@
         <sep-imagem-post [post]="p" />
       </figure>
 
-      <sep-ouvir-texto [segmentos]="leitura()" />
+      <sep-ouvir-texto [escopo]="artigo" [seletor]="seletorLeitura" [chave]="p.slug" />
 
       <div class="px65-corpo">
         @for (b of p.blocos; track $index; let i = $index) {

@@ -1,10 +1,16 @@
 <section class="ouvir" aria-label="Ouvir este texto">
+  <!-- Tarja sobre o bloco em leitura: posicionada pelo componente, acompanha a rolagem. -->
+  <div #tarja class="ouvir-tarja" hidden aria-hidden="true"></div>
+
   @if (disponivel) {
     <div class="ouvir-corpo">
       <span class="ouvir-icone"><lucide-icon name="volume-2" [size]="20" /></span>
       <div class="ouvir-texto">
         <strong>Ouvir este texto</strong>
-        <span>A leitura usa a voz do seu aparelho e só começa quando você pedir.</span>
+        <span
+          >A leitura usa a voz do seu aparelho, destaca na página o que está sendo lido e só começa
+          quando você pedir.</span
+        >
       </div>
 
       <div class="ouvir-controles">
@@ -51,7 +57,7 @@
       </div>
       <p class="ouvir-estado" role="status">
         {{ estado() === 'pausado' ? 'Leitura pausada' : 'Lendo' }} · trecho {{ indice() + 1 }} de
-        {{ segmentos().length }}
+        {{ total() }}
       </p>
     }
   } @else {

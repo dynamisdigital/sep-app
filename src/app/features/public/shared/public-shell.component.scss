@@ -434,6 +434,19 @@ sep-public-shell {
   }
 }
 
+// ============ LEITURA EM ÁUDIO ============
+// Destaque do que a voz já leu (API de destaque de texto, sem mexer no DOM): fundo dourado translúcido. No tema
+// claro o fundo é mais forte, para o texto escuro continuar legível; no escuro, o texto lido vira ouro.
+::highlight(sep-lido) {
+  color: rgb(255 214 77);
+  background-color: rgb(255 196 0 / 14%);
+}
+
+html:not(.dark) ::highlight(sep-lido) {
+  color: rgb(60 40 0);
+  background-color: rgb(255 214 0 / 42%);
+}
+
 // ============ ENTRADA EM CENA ============
 // O mesmo efeito de abertura da página inicial (`sep-enter-*`): cada bloco chega de um lado quando
 // aparece na tela. A diretiva `sepEntrada` só marca o momento; aqui ficam os lados e a curva.

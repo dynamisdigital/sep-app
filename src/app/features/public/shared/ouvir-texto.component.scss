@@ -138,3 +138,24 @@
     transition: none;
   }
 }
+
+// Tarja sobre o bloco em leitura: translúcida, só um fio de luz à esquerda, para o texto continuar legível.
+.ouvir-tarja {
+  position: fixed;
+  z-index: 55;
+  pointer-events: none;
+  border-radius: 8px;
+  background: rgb(255 214 0 / 7%);
+  box-shadow: inset 3px 0 0 rgb(255 196 0 / 45%);
+  transition:
+    top 250ms ease,
+    left 250ms ease,
+    width 250ms ease,
+    height 250ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ouvir-tarja {
+    transition: none;
+  }
+}
