@@ -68,7 +68,11 @@ export class BlogArtigoComponent {
   /** Terminada a leitura, a página espera 3 segundos e volta para a lista do blog. */
   protected leituraConcluida(): void {
     this.cancelarVolta();
-    this.voltaParaOBlog = window.setTimeout(() => void this.router.navigateByUrl('/blog'), 3000);
+    const slug = this.slug();
+    this.voltaParaOBlog = window.setTimeout(
+      () => void this.router.navigateByUrl('/blog', { state: { lido: slug } }),
+      3000,
+    );
   }
 
   protected cancelarVolta(): void {

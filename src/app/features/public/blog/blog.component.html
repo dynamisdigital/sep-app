@@ -23,7 +23,14 @@
     </div>
 
     @if (destaque(); as d) {
-      <a class="px64-destaque" [routerLink]="['/blog', d.slug]" sepEntrada="escala">
+      <a
+        class="px64-destaque"
+        [attr.data-slug]="d.slug"
+        [class.px64-marca-lido]="lido() === d.slug"
+        [class.px64-marca-proximo]="proximo() === d.slug"
+        [routerLink]="['/blog', d.slug]"
+        sepEntrada="escala"
+      >
         <div class="px64-destaque-arte">
           <sep-imagem-post [post]="d" />
         </div>
@@ -43,6 +50,9 @@
       @for (post of demais(); track post.slug; let i = $index) {
         <a
           class="px64-post"
+          [attr.data-slug]="post.slug"
+          [class.px64-marca-lido]="lido() === post.slug"
+          [class.px64-marca-proximo]="proximo() === post.slug"
           [routerLink]="['/blog', post.slug]"
           [sepEntrada]="i % 3 === 0 ? 'esquerda' : i % 3 === 1 ? 'base' : 'direita'"
           [entradaAtraso]="(i % 3) * 70"

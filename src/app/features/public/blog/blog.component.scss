@@ -204,3 +204,53 @@
     transition: none;
   }
 }
+
+// Onde o leitor estava ao terminar de ouvir um texto: fio branco que pisca duas vezes no texto lido e fio azul
+// que pisca três vezes (e fica) no seguinte.
+.px64-marca-lido,
+.px64-marca-proximo {
+  outline: 1px solid transparent;
+  outline-offset: 4px;
+}
+
+.px64-marca-lido {
+  animation: px64-pisca-branco 650ms ease-in-out 2;
+}
+
+.px64-marca-proximo {
+  outline-color: rgb(64 156 255);
+  animation: px64-pisca-azul 650ms ease-in-out 3;
+}
+
+@keyframes px64-pisca-branco {
+  0%,
+  100% {
+    outline-color: transparent;
+  }
+
+  50% {
+    outline-color: var(--site-texto);
+  }
+}
+
+@keyframes px64-pisca-azul {
+  0%,
+  100% {
+    outline-color: rgb(64 156 255);
+  }
+
+  50% {
+    outline-color: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .px64-marca-lido {
+    outline-color: var(--site-texto);
+    animation: none;
+  }
+
+  .px64-marca-proximo {
+    animation: none;
+  }
+}
