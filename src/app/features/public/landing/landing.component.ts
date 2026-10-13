@@ -24,7 +24,6 @@ import {
 } from './banners-hero';
 import {
   AREA_DO_INVESTIDOR,
-  AVISO_ANTIFRAUDE,
   AVISO_REGULATORIO,
   NAV_RODAPE,
   NAV_SITE,
@@ -56,7 +55,6 @@ export class LandingComponent {
   protected readonly navegacao = NAV_SITE;
   protected readonly institucionais = NAV_RODAPE;
   protected readonly areaDoInvestidor = AREA_DO_INVESTIDOR;
-  protected readonly avisoAntifraude = AVISO_ANTIFRAUDE;
   protected readonly avisoRegulatorio = AVISO_REGULATORIO;
 
   private readonly tema = inject(ThemeService);

@@ -1,15 +1,4 @@
 <main class="landing-page" sepLarguraTela>
-  <div class="landing-topbar">
-    <p class="landing-topbar-aviso">
-      <lucide-icon name="shield-alert" [size]="16" [strokeWidth]="2" aria-hidden="true" />
-      <span>{{ avisoAntifraude }}</span>
-      <a routerLink="/antifraude">Saiba como se proteger</a>
-    </p>
-    <a [routerLink]="areaDoInvestidor.route" class="landing-topbar-investidor">
-      <lucide-icon name="wallet" [size]="16" [strokeWidth]="2" aria-hidden="true" />
-      {{ areaDoInvestidor.label }}
-    </a>
-  </div>
   <div class="landing-shell">
     <header class="landing-header">
       <a routerLink="/" class="landing-brand" aria-label="Dynamis SEP - Página inicial">
@@ -27,17 +16,25 @@
       </nav>
 
       <div class="landing-header-actions">
-        <button
-          type="button"
-          class="landing-theme"
-          [attr.aria-label]="temaEscuro() ? 'Mudar para o tema claro' : 'Mudar para o tema escuro'"
-          [attr.aria-pressed]="!temaEscuro()"
-          (click)="alternarTema()"
-        >
-          <lucide-icon [name]="temaEscuro() ? 'sun' : 'moon'" [size]="20" [strokeWidth]="2" />
-        </button>
-        <sep-acoes-publicas />
-        <a routerLink="/login" class="landing-login">Entrar</a>
+        <div class="landing-header-linha">
+          <button
+            type="button"
+            class="landing-theme"
+            [attr.aria-label]="
+              temaEscuro() ? 'Mudar para o tema claro' : 'Mudar para o tema escuro'
+            "
+            [attr.aria-pressed]="!temaEscuro()"
+            (click)="alternarTema()"
+          >
+            <lucide-icon [name]="temaEscuro() ? 'sun' : 'moon'" [size]="20" [strokeWidth]="2" />
+          </button>
+          <sep-acoes-publicas />
+          <a routerLink="/login" class="landing-login">Entrar</a>
+        </div>
+        <a [routerLink]="areaDoInvestidor.route" class="landing-investidor">
+          <lucide-icon name="wallet" [size]="16" [strokeWidth]="2" aria-hidden="true" />
+          {{ areaDoInvestidor.label }}
+        </a>
       </div>
     </header>
 

@@ -260,9 +260,6 @@ a {
 }
 
 .landing-page {
-  // Altura da faixa do topo (aviso antifraude e área do investidor), descontada da altura do quadro.
-  --landing-topbar-h: 43px;
-
   min-height: 100vh;
   padding: clamp(10px, 1vw, 18px);
   overflow-x: hidden;
@@ -277,74 +274,10 @@ a {
     );
 }
 
-// Faixa do topo: aviso antifraude e a entrada do investidor (credor). Fica acima do quadro, com a mesma
-// largura dele, para nao entrar nas linhas da grade panoramica.
-.landing-topbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 24px;
-  align-items: center;
-  justify-content: space-between;
-  width: min(100%, 1510px);
-  box-sizing: border-box;
-  min-height: var(--landing-topbar-h);
-  margin: 0 auto 8px;
-  padding: 6px clamp(20px, 2.4vw, 34px);
-  color: rgb(var(--lp-c-suave) / 92%);
-  font-size: 0.78rem;
-  border: 1px solid rgb(var(--lp-c-azul) / 40%);
-  border-radius: 12px;
-  background: rgb(var(--lp-c-ciano) / 6%);
-}
-
-.landing-topbar-aviso {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 4px 10px;
-  align-items: center;
-  margin: 0;
-  line-height: 1.4;
-}
-
-.landing-topbar-aviso lucide-icon {
-  display: inline-grid;
-  color: rgb(var(--lp-c-ambar));
-}
-
-.landing-topbar a {
-  color: rgb(var(--lp-c-rotulo));
-  font-weight: 700;
-}
-
-.landing-topbar-aviso a {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.landing-topbar-investidor {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-  padding: 4px 14px;
-  border: 1px solid rgb(var(--lp-c-ciano) / 50%);
-  border-radius: 999px;
-  background: rgb(var(--lp-c-surf) / 60%);
-  transition:
-    border-color 180ms ease,
-    box-shadow 180ms ease;
-}
-
-.landing-topbar-investidor:hover,
-.landing-topbar-investidor:focus-visible {
-  border-color: rgb(var(--lp-c-ciano));
-  box-shadow: 0 0 18px rgb(var(--lp-c-ciano) / 30%);
-  outline: none;
-}
-
 .landing-shell {
   position: relative;
   width: min(100%, 1510px);
-  min-height: calc(100vh - clamp(20px, 2vw, 36px) - var(--landing-topbar-h) - 8px);
+  min-height: calc(100vh - clamp(20px, 2vw, 36px));
   margin: 0 auto;
   overflow: hidden;
   background:
@@ -459,9 +392,40 @@ a {
 // O botao de tema e a entrada ficam juntos na ponta direita do cabecalho.
 .landing-header-actions {
   display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-end;
+  justify-self: end;
+}
+
+.landing-header-linha {
+  display: flex;
   gap: 12px;
   align-items: center;
-  justify-self: end;
+}
+
+// A entrada do investidor (credor) fica logo abaixo do botao Entrar.
+.landing-investidor {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 14px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgb(var(--lp-c-rotulo));
+  border: 1px solid rgb(var(--lp-c-ciano) / 50%);
+  border-radius: 999px;
+  background: rgb(var(--lp-c-surf) / 60%);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.landing-investidor:hover,
+.landing-investidor:focus-visible {
+  border-color: rgb(var(--lp-c-ciano));
+  box-shadow: 0 0 18px rgb(var(--lp-c-ciano) / 30%);
+  outline: none;
 }
 
 .landing-theme {
@@ -1323,7 +1287,7 @@ a {
     align-content: space-between;
 
     // Altura mínima, e não exata: numa janela baixa demais a tela rola um pouco em vez de espremer e cortar o conteúdo.
-    min-height: calc(100vh - clamp(20px, 2vw, 36px) - var(--landing-topbar-h) - 8px);
+    min-height: calc(100vh - clamp(20px, 2vw, 36px));
   }
 
   .landing-header {
