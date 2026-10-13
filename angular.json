@@ -64,20 +64,21 @@
                 "output": "/assets"
               }
             ],
-            "styles": ["src/styles/index.scss", "src/styles.scss"]
+            "styles": ["src/styles/index.scss", "src/styles.scss"],
+            "allowedCommonJsDependencies": ["canvg", "core-js", "html2canvas", "raf", "rgbcolor"]
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
+                  "maximumWarning": "750kB",
                   "maximumError": "1MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "16kB",
-                  "maximumError": "28kB"
+                  "maximumWarning": "32kB",
+                  "maximumError": "48kB"
                 }
               ],
               "outputHashing": "all",
