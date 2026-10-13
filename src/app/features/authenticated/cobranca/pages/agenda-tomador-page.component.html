@@ -404,7 +404,7 @@
         <section class="px32-card px32-actions">
           <h2>Ações rápidas</h2>
           <div class="px32-actions-grid">
-            @if (parcelasEmAtraso()[0] ?? proximasParcelas()[0]; as alvo) {
+            @if (alvoAcaoRapida(); as alvo) {
               <button
                 type="button"
                 class="px32-btn-acao green"

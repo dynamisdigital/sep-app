@@ -183,6 +183,11 @@ export class AgendaTomadorPageComponent implements OnInit {
       .slice(0, 2),
   );
 
+  // Alvo das ações rápidas: a parcela mais atrasada ou, sem atraso, a próxima a vencer.
+  protected readonly alvoAcaoRapida = computed(
+    () => this.parcelasEmAtraso().at(0) ?? this.proximasParcelas().at(0),
+  );
+
   // Dias até o vencimento de uma parcela ainda não vencida, medidos da própria agenda:
   // a referência é a maior data já paga ou vencida da lista, nunca o relógio do browser.
   protected readonly referencia = computed(() => {
