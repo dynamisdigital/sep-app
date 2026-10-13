@@ -59,7 +59,7 @@ A pesquisa usou resumos de fontes secundárias, e os pontos **a confirmar** est�
 2. Rodar `npx vitest run --testTimeout=60000` e o verificador do roteiro de sub-correspondentes.
 3. Se o relatório da Diretoria citar a duração ou os passos do roteiro de sub-correspondentes, atualizar
    (o roteiro ganhou os passos do preenchimento do formulário; duração ≈ 5 min). O resto do relatório não muda.
-4. **Módulo do credor: o desenvolvimento continua no escritório, a pedido do Daniel.** Em Casa só foi feita
+4. **[SUPERADO em 12/10: o módulo do credor foi feito em Casa; ver `2026-10-12-casa-credores-escrow.md`. Não refazer no escritório.]** ~~Módulo do credor: o desenvolvimento continua no escritório, a pedido do Daniel.~~ Em Casa só foi feita
    a análise (`docs/analise-credor/GESTAO_DO_CREDOR_2026-10-08.md`), sem código. Ponto de partida:
    - Perguntar ao Daniel as decisões da seção 4 do documento antes de implementar: credor pessoa física ou
      só PJ; investidor qualificado (isenção do limite por devedor); captação própria ou com terceiros;

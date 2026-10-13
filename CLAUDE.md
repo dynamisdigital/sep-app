@@ -14,6 +14,7 @@ agir e siga o que ele diz.** Não carregue por conta própria: só quando for so
 | "carregar o handoff de correspondentes de 07/10"                                       | `docs/handoff/2026-10-07-correspondentes.md`                |
 | "carregar o handoff de casa de 08/10" (tour e análise do credor)                       | `docs/handoff/2026-10-08-casa-tour-e-credor.md`             |
 | "carregar o handoff do site de 09/10" (site público, blog, marca e Pix)                | `docs/handoff/2026-10-09-site-publico.md`                   |
+| "carregar o handoff de casa de 12/10" (credores e conta escrow)                        | `docs/handoff/2026-10-12-casa-credores-escrow.md`           |
 
 Ao criar um handoff novo, acrescente uma linha nesta tabela com a frase que o Daniel vai usar.
 
