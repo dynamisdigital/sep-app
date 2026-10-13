@@ -1,0 +1,203 @@
+<sep-operational-shell>
+  <section class="pxe-page">
+    <header class="pxe-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/credora">Credora</a><span>›</span><strong>Saques</strong>
+      </nav>
+      <div class="pxe-heading-row">
+        <div class="pxe-titulo-wrap">
+          <span class="pxe-titulo-icone" data-tone="purple">
+            <lucide-icon name="banknote" [size]="24" />
+          </span>
+          <div>
+            <h1>Saques</h1>
+            <p class="pxe-subtitulo">
+              Retire saldo disponível para uma conta sua, cadastrada previamente.
+            </p>
+          </div>
+        </div>
+        <a class="pxe-btn-sec" routerLink="/app/credora/conta">
+          <lucide-icon name="landmark" [size]="16" />Conta escrow
+        </a>
+      </div>
+    </header>
+
+    @if (loading()) {
+      <p class="pxe-estado" role="status">Carregando saques...</p>
+    } @else if (errorMessage(); as msg) {
+      <div class="pxe-estado pxe-erro" role="alert">
+        <lucide-icon name="triangle-alert" [size]="18" />
+        <p>{{ msg }}</p>
+        <button type="button" class="pxe-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
+      </div>
+    } @else {
+      <div class="pxe-grade">
+        <article class="pxe-card pxe-bloco">
+          <h2>Solicitar saque</h2>
+          <p>
+            Disponível para saque:
+            <strong>{{ formatarMoeda(disponivel()) }}</strong>
+          </p>
+          <form class="pxe-form" (submit)="$event.preventDefault(); sacar()">
+            <div class="pxe-campo">
+              <label for="pxe-saque-destino">Conta de destino</label>
+              <select
+                id="pxe-saque-destino"
+                [value]="destinatarioId()"
+                (change)="escolherDestinatario($event)"
+              >
+                @if (destinatarios().length === 0) {
+                  <option value="">Nenhuma conta cadastrada</option>
+                }
+                @for (d of destinatarios(); track d.id) {
+                  <option [value]="d.id" [selected]="d.id === destinatarioId()">
+                    {{ d.banco }} • ag. {{ d.agencia }} • {{ d.contaMascarada }}
+                  </option>
+                }
+              </select>
+            </div>
+            <div class="pxe-campo">
+              <label for="pxe-saque-valor">Valor (R$)</label>
+              <input
+                id="pxe-saque-valor"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                placeholder="0,00"
+                [value]="valorTexto()"
+                (input)="digitar('valor', $event)"
+              />
+            </div>
+            @if (saqueErro(); as erro) {
+              <p class="pxe-erro-form" role="alert">{{ erro }}</p>
+            }
+            @if (saqueMsg(); as ok) {
+              <p class="pxe-ok-form" role="status">{{ ok }}</p>
+            }
+            <button type="submit" class="pxe-btn-primary" [disabled]="saqueEnviando()">
+              <lucide-icon name="banknote" [size]="16" />Solicitar saque
+            </button>
+          </form>
+        </article>
+
+        <article class="pxe-card pxe-bloco">
+          <h2>Contas de destino</h2>
+          <div class="pxe-aviso" role="note">
+            <lucide-icon name="info" [size]="16" />
+            <span>
+              Só é possível sacar para conta de mesma titularidade, e apenas para contas já
+              cadastradas aqui.
+            </span>
+          </div>
+          @if (destinatarios().length > 0) {
+            <ul class="pxe-lista">
+              @for (d of destinatarios(); track d.id) {
+                <li class="pxe-item">
+                  <div>
+                    <strong>{{ d.banco }}</strong>
+                    <small>
+                      Ag. {{ d.agencia }} • {{ d.contaMascarada }} •
+                      {{ tipoContaLabel[d.tipoConta] }}
+                    </small>
+                    <small>{{ d.titularNome }} • {{ d.titularDocumentoMascarado }}</small>
+                  </div>
+                  <button type="button" class="pxe-btn-mini" (click)="removerDestinatario(d)">
+                    Remover
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+          <form class="pxe-form" (submit)="$event.preventDefault(); cadastrarDestinatario()">
+            <div class="pxe-campo">
+              <label for="pxe-dest-banco">Banco</label>
+              <input
+                id="pxe-dest-banco"
+                type="text"
+                autocomplete="off"
+                placeholder="Ex.: Nubank (260)"
+                [value]="banco()"
+                (input)="digitar('banco', $event)"
+              />
+            </div>
+            <div class="pxe-campos-2">
+              <div class="pxe-campo">
+                <label for="pxe-dest-agencia">Agência</label>
+                <input
+                  id="pxe-dest-agencia"
+                  type="text"
+                  autocomplete="off"
+                  [value]="agencia()"
+                  (input)="digitar('agencia', $event)"
+                />
+              </div>
+              <div class="pxe-campo">
+                <label for="pxe-dest-conta">Conta</label>
+                <input
+                  id="pxe-dest-conta"
+                  type="text"
+                  autocomplete="off"
+                  [value]="numeroConta()"
+                  (input)="digitar('numeroConta', $event)"
+                />
+              </div>
+            </div>
+            <div class="pxe-campo">
+              <label for="pxe-dest-tipo">Tipo de conta</label>
+              <select id="pxe-dest-tipo" (change)="escolherTipoConta($event)">
+                @for (tipo of tiposConta; track tipo) {
+                  <option [value]="tipo" [selected]="tipo === tipoConta()">
+                    {{ tipoContaLabel[tipo] }}
+                  </option>
+                }
+              </select>
+            </div>
+            @if (destErro(); as erro) {
+              <p class="pxe-erro-form" role="alert">{{ erro }}</p>
+            }
+            <button type="submit" class="pxe-btn-sec" [disabled]="destEnviando()">
+              <lucide-icon name="plus" [size]="16" />Cadastrar conta de destino
+            </button>
+          </form>
+        </article>
+      </div>
+
+      <article class="pxe-card pxe-tabela-card">
+        <h2>Histórico de saques</h2>
+        @if (saques().length === 0) {
+          <p class="pxe-vazio">Você ainda não solicitou saques.</p>
+        } @else {
+          <div class="pxe-tabela-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Destino</th>
+                  <th>Situação</th>
+                  <th class="pxe-num">Valor</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (s of saques(); track s.id) {
+                  <tr>
+                    <td>{{ formatarData(s.dataCriacao) }}</td>
+                    <td>{{ nomeDestinatario(s.destinatarioId) }}</td>
+                    <td>
+                      <span class="pxe-selo" [attr.data-tone]="saqueTom[s.status]">{{
+                        saqueLabel[s.status]
+                      }}</span>
+                    </td>
+                    <td class="pxe-num pxe-valor">{{ formatarMoeda(s.valor) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </article>
+    }
+  </section>
+</sep-operational-shell>

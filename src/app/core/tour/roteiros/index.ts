@@ -3,6 +3,7 @@ import { ROTEIROS_BACKOFFICE } from './backoffice.roteiro';
 import { ROTEIROS_CORRESPONDENTES } from './correspondentes.roteiro';
 import { ROTEIROS_CREDITO } from './credito.roteiro';
 import { ROTEIROS_CREDORA } from './credora.roteiro';
+import { ROTEIROS_ESCROW_CREDOR, ROTEIROS_ESCROW_OPERACAO } from './escrow.roteiro';
 import { ROTEIROS_COBRANCA } from './cobranca.roteiro';
 import { ROTEIROS_FORMALIZACAO } from './formalizacao.roteiro';
 import { ROTEIROS_ONBOARDING } from './onboarding.roteiro';
@@ -24,7 +25,9 @@ export const ROTEIROS: Roteiro[] = [
   ...ROTEIROS_COBRANCA,
   ...ROTEIROS_PIX,
   ...ROTEIROS_BACKOFFICE,
+  ...ROTEIROS_ESCROW_OPERACAO,
   ...ROTEIROS_CREDORA,
+  ...ROTEIROS_ESCROW_CREDOR,
   ...ROTEIROS_CORRESPONDENTES,
   ...ROTEIROS_USUARIOS,
   ...ROTEIROS_PARAMETROS,

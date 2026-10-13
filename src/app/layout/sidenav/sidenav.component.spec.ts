@@ -286,7 +286,7 @@ describe('SidenavComponent', () => {
     expect(screen.getByText('Credora').closest('a')?.getAttribute('href')).toBe('/app/credora');
   });
 
-  it('ADMIN: nao ve o menu Credora (persona e CLIENTE)', async () => {
+  it('ADMIN: ve o menu Credora (acesso total)', async () => {
     const result = await render(SidenavComponent, {
       providers: [
         provideRouter([]),
@@ -303,7 +303,7 @@ describe('SidenavComponent', () => {
     });
     result.fixture.detectChanges();
 
-    expect(screen.queryByText('Credora')).toBeNull();
+    expect(screen.getByText('Credora')).toBeTruthy();
   });
 
   it('link Meu perfil aponta para /app/profile e Administracao para /app/admin', async () => {

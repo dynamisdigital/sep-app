@@ -453,7 +453,7 @@ export class OperationalShellComponent implements OnDestroy {
       lucide: 'briefcase',
       tom: 'var(--sep-tint-emerald)',
       section: 'jornadas',
-      roles: ['CLIENTE'],
+      roles: ['CLIENTE', 'ADMIN'],
       children: [
         {
           label: 'Cadastro',
@@ -481,6 +481,27 @@ export class OperationalShellComponent implements OnDestroy {
           tom: 'var(--sep-tint-emerald)',
           exact: true,
         },
+        {
+          label: 'Conta escrow',
+          route: '/app/credora/conta',
+          lucide: 'landmark',
+          tom: 'var(--sep-tint-emerald)',
+          exact: true,
+        },
+        {
+          label: 'Alocações',
+          route: '/app/credora/alocacoes',
+          lucide: 'chart-column',
+          tom: 'var(--sep-tint-emerald)',
+          exact: true,
+        },
+        {
+          label: 'Saques',
+          route: '/app/credora/saques',
+          lucide: 'banknote',
+          tom: 'var(--sep-tint-emerald)',
+          exact: true,
+        },
       ],
     },
     {
@@ -489,7 +510,7 @@ export class OperationalShellComponent implements OnDestroy {
       lucide: 'briefcase-business',
       tom: 'var(--sep-tint-lime)',
       section: 'jornadas',
-      roles: ['CORRESPONDENTE'],
+      roles: ['CORRESPONDENTE', 'ADMIN'],
       children: [
         {
           label: 'Painel',
@@ -607,6 +628,19 @@ export class OperationalShellComponent implements OnDestroy {
           label: 'Fila operacional',
           route: '/app/backoffice/fila',
           lucide: 'inbox',
+          tom: 'var(--sep-tint-sky)',
+          exact: true,
+        },
+        {
+          label: 'Credores',
+          route: '/app/backoffice/credores',
+          lucide: 'users',
+          tom: 'var(--sep-tint-sky)',
+        },
+        {
+          label: 'Tesouraria',
+          route: '/app/backoffice/tesouraria',
+          lucide: 'landmark',
           tom: 'var(--sep-tint-sky)',
           exact: true,
         },
@@ -730,6 +764,7 @@ export class OperationalShellComponent implements OnDestroy {
     { username: 'backoffice@empresa.com', rotulo: 'Backoffice', papel: 'BACKOFFICE' },
     { username: 'credora@empresa.com', rotulo: 'Credora ativa', papel: 'CLIENTE' },
     { username: 'credora-novo@empresa.com', rotulo: 'Credora sem cadastro', papel: 'CLIENTE' },
+    { username: 'credora-pf@empresa.com', rotulo: 'Credora pessoa física', papel: 'CLIENTE' },
     { username: 'credora-inelegivel@empresa.com', rotulo: 'Credora inelegível', papel: 'CLIENTE' },
     { username: 'cliente@empresa.com', rotulo: 'Cliente', papel: 'CLIENTE' },
     {

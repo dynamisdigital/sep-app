@@ -1,0 +1,255 @@
+<sep-operational-shell>
+  <section class="pxe-page">
+    <header class="pxe-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/backoffice">Backoffice</a><span>›</span><strong>Tesouraria</strong>
+      </nav>
+      <div class="pxe-heading-row">
+        <div class="pxe-titulo-wrap">
+          <span class="pxe-titulo-icone" data-tone="green">
+            <lucide-icon name="landmark" [size]="24" />
+          </span>
+          <div>
+            <h1>Tesouraria da escrow</h1>
+            <p class="pxe-subtitulo">
+              Formação das operações, repasse das parcelas aos credores e aprovação de saques.
+            </p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    @if (loading()) {
+      <p class="pxe-estado" role="status">Carregando tesouraria...</p>
+    } @else if (errorMessage(); as msg) {
+      <div class="pxe-estado pxe-erro" role="alert">
+        <lucide-icon name="triangle-alert" [size]="18" />
+        <p>{{ msg }}</p>
+        <button type="button" class="pxe-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
+      </div>
+    } @else {
+      @if (resumo(); as r) {
+        <div class="pxe-metricas">
+          <article class="pxe-card pxe-metrica" data-tone="green">
+            <small>Total custodiado</small>
+            <strong>{{ formatarMoeda(r.totalCustodiado) }}</strong>
+            <em>{{ r.credoresAtivos }} credores ativos</em>
+          </article>
+          <article class="pxe-card pxe-metrica" data-tone="blue">
+            <small>Disponível dos credores</small>
+            <strong>{{ formatarMoeda(r.totalDisponivel) }}</strong>
+            <em>aportes pendentes: {{ r.aportesPendentes }}</em>
+          </article>
+          <article class="pxe-card pxe-metrica" data-tone="amber">
+            <small>Reservado</small>
+            <strong>{{ formatarMoeda(r.totalReservado) }}</strong>
+            <em>aguardando formação</em>
+          </article>
+          <article class="pxe-card pxe-metrica" data-tone="purple">
+            <small>Em operação</small>
+            <strong>{{ formatarMoeda(r.totalEmOperacao) }}</strong>
+            <em>saques pendentes: {{ r.saquesPendentes }}</em>
+          </article>
+        </div>
+      }
+
+      @if (acaoErro(); as erro) {
+        <p class="pxe-erro-form" role="alert">{{ erro }}</p>
+      }
+      @if (acaoMsg(); as ok) {
+        <p class="pxe-ok-form" role="status">{{ ok }}</p>
+      }
+
+      <article class="pxe-card pxe-tabela-card">
+        <h2>Oportunidades e formação</h2>
+        @if (podeOperar()) {
+          <div class="pxe-campo">
+            <label for="pxe-motivo">Motivo (obrigatório para encerrar sem formar)</label>
+            <input
+              id="pxe-motivo"
+              type="text"
+              autocomplete="off"
+              [value]="motivo()"
+              (input)="digitarMotivo($event)"
+            />
+          </div>
+        }
+        @if (oportunidades().length === 0) {
+          <p class="pxe-vazio">Não há oportunidades.</p>
+        } @else {
+          <div class="pxe-tabela-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Devedor</th>
+                  <th class="pxe-num">Valor</th>
+                  <th class="pxe-num">Reservado</th>
+                  <th>Situação</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (o of oportunidades(); track o.id) {
+                  <tr>
+                    <td>{{ o.devedorNome }}</td>
+                    <td class="pxe-num pxe-valor">{{ formatarMoeda(o.valor) }}</td>
+                    <td class="pxe-num">{{ formatarMoeda(o.alocado) }}</td>
+                    <td>
+                      @if (!o.disponivel) {
+                        <span class="pxe-selo" data-tone="blue">Formada</span>
+                      } @else if (o.pronta) {
+                        <span class="pxe-selo" data-tone="green">Pronta para desembolso</span>
+                      } @else {
+                        <span class="pxe-selo" data-tone="amber"
+                          >Falta {{ formatarMoeda(o.faltante) }}</span
+                        >
+                      }
+                    </td>
+                    <td>
+                      @if (podeOperar() && o.disponivel) {
+                        <div class="pxe-item-acoes">
+                          <button
+                            type="button"
+                            class="pxe-btn-mini"
+                            [disabled]="!o.pronta || ocupado()"
+                            (click)="desembolsar(o)"
+                          >
+                            Desembolsar
+                          </button>
+                          <button
+                            type="button"
+                            class="pxe-btn-mini"
+                            [disabled]="o.reservas === 0 || ocupado()"
+                            (click)="encerrar(o)"
+                          >
+                            Encerrar sem formar
+                          </button>
+                        </div>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </article>
+
+      <article class="pxe-card pxe-tabela-card">
+        <h2>Operações e repasse das parcelas</h2>
+        @if (operacoes().length === 0) {
+          <p class="pxe-vazio">Nenhuma operação formada.</p>
+        } @else {
+          <div class="pxe-tabela-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Devedor</th>
+                  <th class="pxe-num">Credores</th>
+                  <th class="pxe-num">Parcelas</th>
+                  <th class="pxe-num">Em operação</th>
+                  <th>Próxima parcela</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (op of operacoes(); track op.operacaoId) {
+                  <tr>
+                    <td>{{ op.devedorNome }}</td>
+                    <td class="pxe-num">{{ op.credores }}</td>
+                    <td class="pxe-num">{{ op.parcelasRepassadas }}/{{ op.parcelasTotal }}</td>
+                    <td class="pxe-num pxe-valor">{{ formatarMoeda(op.saldoEmOperacao) }}</td>
+                    <td>
+                      @if (op.proximaParcela; as p) {
+                        {{ p.numero }}ª • {{ formatarData(p.vencimento) }} •
+                        {{ formatarMoeda(p.total) }}
+                      } @else {
+                        <span class="pxe-selo" data-tone="green">Liquidada</span>
+                      }
+                    </td>
+                    <td>
+                      @if (podeOperar() && op.proximaParcela; as p) {
+                        <button
+                          type="button"
+                          class="pxe-btn-mini"
+                          [disabled]="ocupado()"
+                          (click)="repassar(op)"
+                        >
+                          Repassar parcela {{ p.numero }}
+                        </button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </article>
+
+      <div class="pxe-grade">
+        <article class="pxe-card pxe-bloco">
+          <h2>Saques aguardando aprovação</h2>
+          @if (saques().length === 0) {
+            <p class="pxe-vazio">Nenhum saque pendente.</p>
+          } @else {
+            <ul class="pxe-lista">
+              @for (s of saques(); track s.id) {
+                <li class="pxe-item">
+                  <div>
+                    <strong>{{ formatarMoeda(s.valor) }}</strong>
+                    <small>Solicitado em {{ formatarData(s.dataCriacao) }}</small>
+                  </div>
+                  @if (podeOperar()) {
+                    <div class="pxe-item-acoes">
+                      <button
+                        type="button"
+                        class="pxe-btn-mini"
+                        [disabled]="ocupado()"
+                        (click)="aprovar(s)"
+                      >
+                        Aprovar
+                      </button>
+                      <button
+                        type="button"
+                        class="pxe-btn-mini"
+                        [disabled]="ocupado()"
+                        (click)="rejeitar(s)"
+                      >
+                        Rejeitar
+                      </button>
+                    </div>
+                  }
+                </li>
+              }
+            </ul>
+          }
+        </article>
+
+        <article class="pxe-card pxe-bloco">
+          <h2>Divergências de conciliação</h2>
+          @if (divergencias().length === 0) {
+            <p class="pxe-vazio">Nenhuma divergência.</p>
+          } @else {
+            <ul class="pxe-lista">
+              @for (d of divergencias(); track d.id) {
+                <li class="pxe-item">
+                  <div>
+                    <strong>{{ d.descricao }}</strong>
+                    <small>
+                      Esperado {{ formatarMoeda(d.valorEsperado) }} • recebido
+                      {{ formatarMoeda(d.valorRecebido) }} • {{ formatarData(d.data) }}
+                    </small>
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+        </article>
+      </div>
+    }
+  </section>
+</sep-operational-shell>

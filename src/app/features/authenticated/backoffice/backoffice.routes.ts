@@ -33,6 +33,26 @@ export const BACKOFFICE_ROUTES: Routes = [
       import('./pages/item-fila-detail-page.component').then((m) => m.ItemFilaDetailPageComponent),
     data: { breadcrumb: 'Item da fila', immersive: true },
   },
+  // Gestao dos credores (investidores): fila de cadastros, detalhe e decisoes.
+  {
+    path: 'credores',
+    loadComponent: () =>
+      import('./pages/credores-page.component').then((m) => m.CredoresPageComponent),
+    data: { breadcrumb: 'Credores', immersive: true },
+  },
+  {
+    path: 'credores/:id',
+    loadComponent: () =>
+      import('./pages/credor-detail-page.component').then((m) => m.CredorDetailPageComponent),
+    data: { breadcrumb: 'Detalhe do credor', immersive: true },
+  },
+  // Tesouraria da conta escrow dos credores: formacao das operacoes, repasse das parcelas e saques.
+  {
+    path: 'tesouraria',
+    loadComponent: () =>
+      import('./pages/tesouraria-page.component').then((m) => m.TesourariaPageComponent),
+    data: { breadcrumb: 'Tesouraria', immersive: true },
+  },
   {
     path: 'correspondentes',
     loadComponent: () =>

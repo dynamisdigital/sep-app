@@ -96,7 +96,7 @@ export const AUTHENTICATED_ROUTES: Routes = [
         // por isso o papel nao entra nas listas de credito, formalizacao, cobranca ou Pix.
         path: 'meu-backoffice',
         canActivate: [roleGuard],
-        data: { roles: ['CORRESPONDENTE'], breadcrumb: 'Meu Back Office' },
+        data: { roles: ['CORRESPONDENTE', 'ADMIN'], breadcrumb: 'Meu Back Office' },
         children: [
           {
             path: '',

@@ -210,8 +210,12 @@ describe('TourService', () => {
       'Tratar uma ocorrência',
       'Histórico de reprocessos',
       'Disparar um reprocesso',
+      'Credores',
+      'Tesouraria da escrow',
     ]);
     expect(motivo('Dashboard operacional')).toBeNull();
+    expect(motivo('Credores')).toBeNull();
+    expect(motivo('Tesouraria da escrow')).toBeNull();
     expect(motivo('Fila operacional')).toBeNull();
     expect(motivo('Histórico de reprocessos')).toBeNull();
     expect(motivo('Tratar uma ocorrência')).toContain('TOTP');
@@ -247,6 +251,9 @@ describe('TourService', () => {
       'Perfil e elegibilidade',
       'Oportunidades e interesse',
       'Carteira de operações',
+      'Conta escrow e extrato',
+      'Alocar recursos',
+      'Sacar saldo',
     ]);
     const motivo = (titulo: string) =>
       tour.impedimento(grupo.roteiros.find((r) => r.titulo === titulo)!);
@@ -271,6 +278,11 @@ describe('TourService', () => {
       'credora-novo@empresa.com',
     );
     expect(cadastro.impedimento?.(ctx)).toBeNull();
+
+    // Os roteiros da escrow rodam com o credor pessoa fisica, que tem conta e saldo no mock.
+    const escrow = ROTEIROS.find((r) => r.id === 'credora-escrow-conta')!;
+    expect(escrow.impedimento?.(ctx)).toContain('credora-pf@empresa.com');
+    expect(escrow.impedimento?.({ ...ctx, usuario: 'credora-pf@empresa.com' })).toBeNull();
   });
 
   it('em Perfil, todos os papeis veem os roteiros e nenhum exige TOTP nem grava credencial', () => {

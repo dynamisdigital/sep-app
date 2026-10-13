@@ -112,5 +112,25 @@
         </div>
       </div>
     }
+    @if (!loading() && !errorMessage()) {
+      <!-- ============ CONTA ESCROW DO INVESTIDOR ============ -->
+      <section class="px35-motivos" aria-labelledby="px35-investidor-titulo">
+        <h2 id="px35-investidor-titulo">Conta escrow do investidor</h2>
+        <div class="px35-atalhos">
+          @for (item of linksInvestidor; track item.label) {
+            <a [routerLink]="item.route" class="px35-card px35-atalho" [attr.data-tone]="item.tom">
+              <span class="px35-atalho-icone"
+                ><lucide-icon [name]="$any(item.icone)" [size]="20"
+              /></span>
+              <div>
+                <strong>{{ item.label }}</strong>
+                <small>{{ item.description }}</small>
+              </div>
+              <lucide-icon name="arrow-right" [size]="16" class="px35-atalho-seta" />
+            </a>
+          }
+        </div>
+      </section>
+    }
   </section>
 </sep-operational-shell>

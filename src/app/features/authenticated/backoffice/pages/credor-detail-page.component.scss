@@ -1,0 +1,21 @@
+// Reaproveita o tema e os blocos da conta escrow (mesma linguagem visual).
+@use "../../credora/escrow/escrow-telas";
+
+.pxe-dados {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 12px 18px;
+  margin: 0;
+
+  dt {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  dd {
+    margin: 2px 0 0;
+    color: var(--sep-text);
+    font-size: 14px;
+    font-weight: 600;
+  }
+}

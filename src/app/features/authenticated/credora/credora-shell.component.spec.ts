@@ -54,16 +54,23 @@ describe('CredoraShellComponent — Mockup 35', () => {
     expect(screen.getByText(/cumprimento regulatório/)).toBeTruthy();
   });
 
-  it('sem credora, não oferece os atalhos da jornada', async () => {
+  it('sem credora, não oferece os atalhos da empresa, só os da conta escrow', async () => {
     await renderShell(() =>
       throwError(() => new HttpErrorResponse({ status: 404, statusText: 'Not Found' })),
     );
 
-    expect(document.querySelector('.px35-atalhos')).toBeNull();
+    const atalhos = Array.from(document.querySelectorAll('.px35-atalho')).map((a) =>
+      a.getAttribute('href'),
+    );
+    expect(atalhos).toEqual([
+      '/app/credora/conta',
+      '/app/credora/alocacoes',
+      '/app/credora/saques',
+    ]);
     expect(screen.queryByRole('link', { name: /Oportunidades/ })).toBeNull();
   });
 
-  it('com credora, mostra a empresa e libera os três atalhos', async () => {
+  it('com credora, mostra a empresa e libera os atalhos da jornada e da conta escrow', async () => {
     await renderShell(() => of(CREDORA));
 
     expect(screen.getByText('Credora Exemplo Ltda')).toBeTruthy();
@@ -77,6 +84,9 @@ describe('CredoraShellComponent — Mockup 35', () => {
       '/app/credora/perfil',
       '/app/credora/oportunidades',
       '/app/credora/carteira',
+      '/app/credora/conta',
+      '/app/credora/alocacoes',
+      '/app/credora/saques',
     ]);
     expect(document.querySelector('.px35-vazio')).toBeNull();
   });

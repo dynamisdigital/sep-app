@@ -95,6 +95,31 @@ export class CredoraShellComponent implements OnInit {
     },
   ];
 
+  // Conta escrow do investidor: vale para credor pessoa fisica ou juridica, com ou sem credora PJ.
+  protected readonly linksInvestidor: CredoraLink[] = [
+    {
+      label: 'Conta escrow',
+      description: 'Saldo, aporte por Pix e extrato da sua conta vinculada.',
+      route: '/app/credora/conta',
+      icone: 'landmark',
+      tom: 'green',
+    },
+    {
+      label: 'Alocações',
+      description: 'Reserve saldo em oportunidades, respeitando o limite por devedor.',
+      route: '/app/credora/alocacoes',
+      icone: 'chart-column',
+      tom: 'blue',
+    },
+    {
+      label: 'Saques',
+      description: 'Retire saldo disponível para uma conta sua cadastrada.',
+      route: '/app/credora/saques',
+      icone: 'banknote',
+      tom: 'purple',
+    },
+  ];
+
   ngOnInit(): void {
     this.carregar();
   }

@@ -57,4 +57,24 @@ export const CREDORA_ROUTES: Routes = [
       ),
     data: { breadcrumb: 'Detalhe da operacao', immersive: true },
   },
+  // Conta escrow do credor (aporte, alocacao e saque). O servidor responde 404 a quem ainda nao tem
+  // cadastro de credor; as telas tratam isso e nao exigem credora PJ (o credor pode ser pessoa fisica).
+  {
+    path: 'conta',
+    loadComponent: () =>
+      import('./escrow/conta-escrow-page.component').then((m) => m.ContaEscrowPageComponent),
+    data: { breadcrumb: 'Conta escrow', immersive: true },
+  },
+  {
+    path: 'alocacoes',
+    loadComponent: () =>
+      import('./escrow/alocacoes-page.component').then((m) => m.AlocacoesPageComponent),
+    data: { breadcrumb: 'Alocações', immersive: true },
+  },
+  {
+    path: 'saques',
+    loadComponent: () =>
+      import('./escrow/saques-page.component').then((m) => m.SaquesPageComponent),
+    data: { breadcrumb: 'Saques', immersive: true },
+  },
 ];

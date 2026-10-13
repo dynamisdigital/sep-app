@@ -14,6 +14,8 @@ import { reiniciarAnalises } from './data/analise-credito.store';
 import { listarAutorizacoes, semearPix } from './data/pix-automatico.store';
 import { criarHandlersPixAutomatico } from './pix-automatico.handlers';
 import { criarHandlersGestao } from './correspondentes-gestao.handlers';
+import { criarHandlersCredoresEscrow, resetIdempotenciaEscrow } from './credores-escrow.handlers';
+import { resetCredoresEscrowState } from './data/credores-escrow.store';
 import { qrDataUrl } from './qr';
 import { codigoTotpValido } from './totp';
 
@@ -164,6 +166,18 @@ const credoraNovoUsuario = {
   modificadoPor: 'system',
 };
 
+const credoraPfUsuario = {
+  id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771030',
+  username: 'credora-pf@empresa.com',
+  role: 'CLIENTE',
+  precisaRedefinirSenha: false,
+  mfaHabilitado: false,
+  dataCriacao: now,
+  dataModificacao: now,
+  criadoPor: 'system',
+  modificadoPor: 'system',
+};
+
 // Personas do modulo de Correspondentes. Ficam fora de `usuariosFake` de proposito: sao contas de
 // demonstracao do modulo e nao entram na contagem da governanca de usuarios.
 const correspondenteUsuario = {
@@ -230,6 +244,7 @@ const loginUsuarios: Record<string, typeof adminUsuario> = {
   'credora@empresa.com': credoraUsuario,
   'credora-inelegivel@empresa.com': credoraInelegivelUsuario,
   'credora-novo@empresa.com': credoraNovoUsuario,
+  'credora-pf@empresa.com': credoraPfUsuario,
   'correspondente@empresa.com': correspondenteUsuario,
   'correspondente-vencido@empresa.com': correspondenteVencidoUsuario,
   'sub-correspondente@empresa.com': subCorrespondenteUsuario,
@@ -3490,6 +3505,8 @@ export function resetCredoraState(): void {
   carteiraPorUsuario = seedCarteiraPorUsuario();
   interessesAtivos = new Set<string>();
   credoraSeq = 200;
+  resetCredoresEscrowState();
+  resetIdempotenciaEscrow();
 }
 
 function credoraAtual(): Record<string, unknown> | undefined {
@@ -3678,6 +3695,7 @@ export const handlers = [
   // A rede vem antes da gestao: `/correspondentes/me/rede/...` nao pode cair nas rotas `/me/...` genericas.
   ...criarHandlersRede(baseUrl, () => currentMockUser, errorResponse),
   ...criarHandlersGestao(baseUrl, () => currentMockUser, errorResponse),
+  ...criarHandlersCredoresEscrow(baseUrl, () => currentMockUser, errorResponse),
   ...criarHandlersPixAutomatico(baseUrl, () => currentMockUser, errorResponse, agendaParaPix),
   ...criarHandlersAnaliseCredito(
     baseUrl,

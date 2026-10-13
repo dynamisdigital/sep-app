@@ -1,0 +1,107 @@
+<sep-operational-shell>
+  <section class="pxe-page">
+    <header class="pxe-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/backoffice">Backoffice</a><span>›</span><strong>Credores</strong>
+      </nav>
+      <div class="pxe-heading-row">
+        <div class="pxe-titulo-wrap">
+          <span class="pxe-titulo-icone" data-tone="blue">
+            <lucide-icon name="users" [size]="24" />
+          </span>
+          <div>
+            <h1>Credores</h1>
+            <p class="pxe-subtitulo">
+              Cadastro, aprovação e acompanhamento dos investidores da plataforma.
+            </p>
+          </div>
+        </div>
+        <a class="pxe-btn-sec" routerLink="/app/backoffice/tesouraria">
+          <lucide-icon name="landmark" [size]="16" />Tesouraria
+        </a>
+      </div>
+    </header>
+
+    @if (loading()) {
+      <p class="pxe-estado" role="status">Carregando credores...</p>
+    } @else if (errorMessage(); as msg) {
+      <div class="pxe-estado pxe-erro" role="alert">
+        <lucide-icon name="triangle-alert" [size]="18" />
+        <p>{{ msg }}</p>
+        <button type="button" class="pxe-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
+      </div>
+    } @else {
+      @if (emAnalise() > 0) {
+        <div class="pxe-aviso" role="status">
+          <lucide-icon name="clock" [size]="16" />
+          <span>
+            <strong>{{ emAnalise() }}</strong>
+            {{ emAnalise() === 1 ? 'cadastro aguarda' : 'cadastros aguardam' }} análise.
+          </span>
+        </div>
+      }
+
+      <div class="pxe-filtros" role="group" aria-label="Filtrar por situação">
+        @for (f of filtros; track f.valor) {
+          <button
+            type="button"
+            class="pxe-filtro"
+            [attr.aria-pressed]="filtro() === f.valor"
+            (click)="filtrar(f.valor)"
+          >
+            {{ f.rotulo }} ({{ contar(f.valor) }})
+          </button>
+        }
+      </div>
+
+      <article class="pxe-card pxe-tabela-card">
+        <h2>Credores</h2>
+        @if (visiveis().length === 0) {
+          <p class="pxe-vazio">Nenhum credor nesta situação.</p>
+        } @else {
+          <div class="pxe-tabela-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Credor</th>
+                  <th>Tipo</th>
+                  <th>Categoria</th>
+                  <th>Perfil</th>
+                  <th>Situação</th>
+                  <th class="pxe-num">Posição total</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (c of visiveis(); track c.id) {
+                  <tr>
+                    <td>
+                      {{ c.nome }}<br /><small>{{ c.documentoMascarado }}</small>
+                    </td>
+                    <td>{{ c.tipoPessoa === 'PF' ? 'Pessoa física' : 'Pessoa jurídica' }}</td>
+                    <td>{{ categoriaLabel[c.categoria] }}</td>
+                    <td>{{ c.perfilRisco ? perfilLabel[c.perfilRisco] : '—' }}</td>
+                    <td>
+                      <span class="pxe-selo" [attr.data-tone]="statusTom[c.status]">{{
+                        statusLabel[c.status]
+                      }}</span>
+                    </td>
+                    <td class="pxe-num pxe-valor">{{ formatarMoeda(c.saldo.patrimonio) }}</td>
+                    <td>
+                      <a class="pxe-btn-mini" [routerLink]="['/app/backoffice/credores', c.id]"
+                        >Abrir</a
+                      >
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </article>
+    }
+  </section>
+</sep-operational-shell>

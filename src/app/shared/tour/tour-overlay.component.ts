@@ -53,6 +53,9 @@ interface Caixa {
 })
 export class TourOverlayComponent implements OnDestroy {
   protected readonly tour = inject(TourService);
+
+  // Titulo do passo atual, vazio enquanto nao ha passo (evita `?.` direto no template).
+  protected readonly tituloAtual = computed(() => this.tour.passoAtual()?.titulo ?? '');
   protected readonly narrador = inject(NarradorService);
   protected readonly musica = inject(MusicaService);
   private readonly zone = inject(NgZone);
