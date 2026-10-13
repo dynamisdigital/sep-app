@@ -48,6 +48,16 @@ const CASOS = [
     roteiros: ['Análise de crédito', 'Pix Automático das parcelas'],
   },
   { conta: 'backoffice@empresa.com', roteiros: ['Validar envios de correspondentes'] },
+  {
+    conta: 'credora-pf@empresa.com',
+    modulo: 'Credora',
+    roteiros: ['Conta escrow e extrato', 'Alocar recursos', 'Sacar saldo'],
+  },
+  {
+    conta: 'admin@empresa.com',
+    modulo: 'Backoffice',
+    roteiros: ['Credores', 'Tesouraria da escrow'],
+  },
 ];
 
 async function entrar(browser, email) {

@@ -40,9 +40,6 @@ function ler(titulo: string, texto: string, alvo: PassoRoteiro['alvo']): PassoRo
   return { titulo, texto, alvo, acao: { tipo: 'observar' } };
 }
 
-/** Link do aviso antifraude da faixa superior (a pagina inicial e as demais tem faixas proprias). */
-const LINK_ANTIFRAUDE = '.landing-topbar a[href="/antifraude"], .site-topbar a[href="/antifraude"]';
-
 const ROTA_TEXTO_DO_BLOG = /^\/blog\/[^/?#]+(\?.*)?$/;
 
 /** Os botoes de colunas somem em tela estreita (abaixo de 760 px); o de tres colunas, abaixo de 1100 px. */
@@ -80,9 +77,9 @@ const inicio: Roteiro = {
         'Este roteiro apresenta a página inicial do SEP, a Sociedade de Empréstimo entre Pessoas. Não é preciso estar logado.',
     },
     ler(
-      'Faixa superior',
-      'Acima do cabeçalho, uma faixa lembra que o Dynamis SEP nunca pede pagamento antecipado para liberar crédito e não liga pedindo depósito, com o link Saiba como se proteger. Do outro lado, a Área do investidor leva ao login de quem financia.',
-      '.landing-topbar',
+      'Área do investidor',
+      'No cabeçalho, o link Área do investidor leva ao login de quem financia. No sistema essa pessoa é o credor.',
+      '.landing-investidor',
     ),
     ler(
       'O cabeçalho',
@@ -720,12 +717,13 @@ const antifraude: Roteiro = {
   passos: () => [
     {
       titulo: 'Ponto de partida',
-      texto: 'Este roteiro percorre a página Antifraude, a partir da faixa no topo do site.',
+      texto: 'Este roteiro percorre a página Antifraude, a partir do rodapé do site.',
     },
     {
-      titulo: 'Saiba como se proteger',
-      texto: 'Na faixa do topo, o link Saiba como se proteger abre a página Antifraude.',
-      alvo: LINK_ANTIFRAUDE,
+      titulo: 'Rodapé: Antifraude',
+      texto:
+        'No rodapé de qualquer página, o link Antifraude abre a página. Nas demais páginas, a faixa do topo também leva a ela.',
+      alvo: linkRodape('/antifraude'),
       acao: { tipo: 'clicar' },
       aguardarRota: rotaExata('/antifraude'),
       aguardarAlvo: '.px63-heading',
