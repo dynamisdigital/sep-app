@@ -51,12 +51,31 @@ const CASOS = [
   {
     conta: 'credora-pf@empresa.com',
     modulo: 'Credora',
-    roteiros: ['Conta escrow e extrato', 'Alocar recursos', 'Sacar saldo'],
+    roteiros: [
+      'Conta escrow e extrato',
+      'Alocar recursos',
+      'Sacar saldo',
+      'Módulo completo da conta escrow',
+    ],
   },
+  ...['Pix', 'Cobrança', 'Usuários', 'Parâmetros', 'Perfil', 'Plataforma', 'Onboarding'].map(
+    (modulo) => ({ conta: 'admin@empresa.com', modulo, roteiros: ['Módulo completo'] }),
+  ),
+  { conta: 'credora-pf@empresa.com', modulo: 'Credora', roteiros: ['Módulo completo'] },
+  { conta: 'cliente@empresa.com', modulo: 'Credora', roteiros: ['Primeiros passos como credora'] },
+  ...['admin@empresa.com', 'cliente@empresa.com', 'backoffice@empresa.com'].map((conta) => ({ conta, modulo: 'Plataforma', roteiros: ['Dashboard'] })),
+  { conta: 'credora-inelegivel@empresa.com', modulo: 'Credora', roteiros: ['Credora inelegível'] },
   {
     conta: 'admin@empresa.com',
     modulo: 'Backoffice',
-    roteiros: ['Credores', 'Tesouraria da escrow'],
+    roteiros: [
+      'Credores',
+      'Tesouraria da escrow',
+      'Módulo completo da escrow',
+      'Disparar um reprocesso',
+      'Reprocessar por webhook',
+      'Módulo completo',
+    ],
   },
 ];
 
@@ -98,7 +117,9 @@ async function rodar(page, titulo, modulo) {
   return { ok: tom === 'green', texto, passo };
 }
 
-(async () => {
+module.exports = { CASOS, BASE, entrar, comecaCom };
+
+if (require.main === module) (async () => {
   const browser = await chromium.launch({ headless: true });
   let falhas = 0;
   for (const caso of CASOS) {

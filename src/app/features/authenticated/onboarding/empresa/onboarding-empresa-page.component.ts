@@ -24,6 +24,7 @@ import { OnboardingDocumentUploadComponent } from '../shared/onboarding-document
 import { mensagemOnboardingErro } from '../shared/onboarding-error';
 import { OnboardingStatusComponent } from '../shared/onboarding-status.component';
 import { SepMaskDirective } from '../../../../shared/forms/sep-mask.directive';
+import { SepMascaraPipe } from '../../../../shared/forms/sep-mascara.pipe';
 
 // Tipos aceitos para PJ. PF tem os seus; nao oferecer tipos PF nesta tela.
 const TIPOS_DOCUMENTO_PJ: TipoDocumento[] = ['CONTRATO_SOCIAL', 'CCMEI', 'COMPROVANTE_ENDERECO'];
@@ -45,6 +46,7 @@ const PORTES_EMPRESA: PorteEmpresa[] = ['MEI', 'ME', 'EPP', 'MEDIO', 'GRANDE'];
     ReactiveFormsModule,
     RouterLink,
     SepMaskDirective,
+    SepMascaraPipe,
   ],
   templateUrl: './onboarding-empresa-page.component.html',
   styleUrl: './onboarding-empresa-page.component.scss',

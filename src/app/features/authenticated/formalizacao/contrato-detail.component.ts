@@ -31,13 +31,14 @@ import {
   idCurto,
   mensagemFormalizacaoErro,
 } from './shared/formalizacao-format';
+import { SepLogoComponent } from '../../../shared/arte/sep-logo.component';
 
 // Leitura somente do contrato gerado: status, metadados, conteudo da versao,
 // clausulas e historico de versoes. Selecionar uma versao apenas troca a
 // visualizacao local; nao muta o contrato nem a versao vigente do backend.
 @Component({
   selector: 'sep-contrato-detail',
-  imports: [LucideAngularModule, OperationalShellComponent, RouterLink],
+  imports: [LucideAngularModule, OperationalShellComponent, RouterLink, SepLogoComponent],
   templateUrl: './contrato-detail.component.html',
   styleUrl: './contrato-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -186,7 +187,7 @@ export class ContratoDetailComponent implements OnInit {
       this.baixando.set(true);
       this.documentoErro.set(null);
       try {
-        const blob = await this.gerarDocumentoPdf(contratoAtual);
+        const blob = this.gerarDocumentoPdf(contratoAtual);
         const nome = `contrato-${idCurto(contratoAtual.propostaId)}.pdf`;
         await salvarDocumento(blob, nome, 'Documento PDF', 'application/pdf', ['.pdf']);
       } catch {
@@ -219,7 +220,7 @@ export class ContratoDetailComponent implements OnInit {
     });
   }
 
-  private async gerarDocumentoPdf(contrato: ContratoResponse): Promise<Blob> {
+  private gerarDocumentoPdf(contrato: ContratoResponse): Blob {
     const proposta = this.proposta();
     const valor = proposta ? formatarMoeda(proposta.valorSolicitado, proposta.moeda) : '—';
     const prazo = proposta?.prazoMeses ?? '—';
@@ -227,18 +228,7 @@ export class ContratoDetailComponent implements OnInit {
     const margem = 20;
     const largura = 170;
     let y = 22;
-    try {
-      const logo = await imagemComoDataUrl(
-        // A folha do PDF e branca em qualquer tema: o original tem a palavra branca e sumia.
-        '/image/sep_mockup_03_assets/logos/logo_sep_header_completo_claro.png',
-      );
-      pdf.addImage(logo, 'PNG', margem, 13, 30, 11);
-    } catch {
-      pdf.setTextColor(0, 145, 210);
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(18);
-      pdf.text('SEP', margem, 21);
-    }
+    desenharLogoSep(pdf, margem, 13);
     pdf.setTextColor(55, 65, 78);
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(9);
@@ -363,14 +353,42 @@ async function salvarDocumento(
   dispararDownload(blob, nome);
 }
 
-async function imagemComoDataUrl(url: string): Promise<string> {
-  const resposta = await fetch(url);
-  if (!resposta.ok) throw new Error('Logo indisponivel');
-  const blob = await resposta.blob();
-  return await new Promise<string>((resolve, reject) => {
-    const leitor = new FileReader();
-    leitor.onload = () => resolve(String(leitor.result));
-    leitor.onerror = () => reject(leitor.error);
-    leitor.readAsDataURL(blob);
-  });
+/**
+ * A marca do sistema (`sep-logo`) desenhada em vetor na folha do PDF: o simbolo azul e a palavra em
+ * grafite, que e a cor do texto sobre o branco. Mesmas medidas do componente (caixa de 122 x 48,
+ * simbolo a 78% e deslocado 5,3), na escala `K` mm por unidade. Sem imagem, nao borra.
+ */
+function desenharLogoSep(pdf: jsPDF, x: number, y: number): void {
+  const K = 0.2;
+  const S = 0.78;
+  const ponto = (px: number, py: number): [number, number] => [
+    x + px * S * K,
+    y + (5.3 + py * S) * K,
+  ];
+  const [a1, a2] = ponto(5, 9);
+  const [b1, b2] = ponto(43, 9);
+  const [c1, c2] = ponto(24, 42);
+  const [d1, d2] = ponto(10.5, 12.5);
+  const [e1, e2] = ponto(37.5, 12.5);
+  const [f1, f2] = ponto(24, 36);
+  const [g1, g2] = ponto(24, 21.5);
+
+  pdf.setLineCap('round');
+  pdf.setLineJoin('round');
+  pdf.setFillColor(222, 246, 253);
+  pdf.setDrawColor(25, 160, 235);
+  pdf.setLineWidth(1.2 * S * K);
+  pdf.triangle(d1, d2, e1, e2, f1, f2, 'FD');
+  pdf.setLineWidth(3.2 * S * K);
+  pdf.triangle(a1, a2, b1, b2, c1, c2, 'S');
+  pdf.setLineWidth(2.2 * S * K);
+  pdf.line(g1, g2, a1, a2);
+  pdf.line(g1, g2, b1, b2);
+  pdf.line(g1, g2, c1, c2);
+
+  pdf.setTextColor(17, 24, 39);
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(20 * K * 2.835);
+  pdf.text('Dynamis', x + 41 * K, y + 21 * K);
+  pdf.text('SEP', x + 41 * K, y + 43.5 * K, { charSpace: 0.14 * 20.5 * K * 2.835 });
 }

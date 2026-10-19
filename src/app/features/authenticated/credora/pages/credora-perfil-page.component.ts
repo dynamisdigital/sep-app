@@ -18,6 +18,7 @@ import {
 import { CredoraService } from '../../../../core/credora/credora.service';
 import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
 import { TIPO_CREDORA_LABEL, formatarMoeda, mensagemCredoraErro } from '../shared/credora-format';
+import { SepMascaraPipe } from '../../../../shared/forms/sep-mascara.pipe';
 
 interface Situacao {
   tom: 'green' | 'amber' | 'red' | 'blue';
@@ -36,7 +37,7 @@ interface Situacao {
 // propria implementacao, nao arte de designer.
 @Component({
   selector: 'sep-credora-perfil-page',
-  imports: [RouterLink, LucideAngularModule, OperationalShellComponent],
+  imports: [RouterLink, LucideAngularModule, OperationalShellComponent, SepMascaraPipe],
   templateUrl: './credora-perfil-page.component.html',
   styleUrl: './credora-perfil-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

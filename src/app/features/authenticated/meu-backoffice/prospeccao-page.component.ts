@@ -24,13 +24,20 @@ import {
   moedaCurta,
   ROTULO_ETAPA,
 } from '../correspondentes/correspondentes.format';
+import { SepMaskDirective } from '../../../shared/forms/sep-mask.directive';
 
 // Funil de prospeccao (CORRESPONDENTE): do prospectado ao cliente ativo. O correspondente organiza
 // o que ainda nao virou contrato; a analise de credito e a aprovacao seguem sendo do SEP, entao o
 // avancar de etapa e um registro comercial, e nao uma decisao.
 @Component({
   selector: 'sep-prospeccao-page',
-  imports: [OperationalShellComponent, RouterLink, FormsModule, LucideAngularModule],
+  imports: [
+    OperationalShellComponent,
+    RouterLink,
+    FormsModule,
+    LucideAngularModule,
+    SepMaskDirective,
+  ],
   templateUrl: './prospeccao-page.component.html',
   styleUrl: '../correspondentes/correspondentes.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

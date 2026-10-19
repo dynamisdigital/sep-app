@@ -508,7 +508,7 @@ const minhaRede: Roteiro = {
     {
       titulo: 'CPF',
       texto:
-        'O CPF identifica o sub no cadastro. Na demonstração, um número de exemplo, sem relação com pessoa real.',
+        'O CPF identifica o sub no cadastro. O campo coloca pontos e traço sozinho enquanto se digita. Na demonstração, um número de exemplo, sem relação com pessoa real.',
       alvo: 'section[aria-labelledby="cor-novo-sub"] input[name="cpf"]',
       acao: { tipo: 'digitar', texto: () => '000.000.000-00', limpar: true },
     },

@@ -15,6 +15,7 @@ import { LucideAngularModule } from 'lucide-angular';
 
 import { MusicaService } from '../../core/tour/musica.service';
 import { NarradorService } from '../../core/tour/narrador.service';
+import { formatarEstimativa, formatarRelogio } from '../../core/tour/tempo-tour';
 import { TourService } from '../../core/tour/tour.service';
 import { acaoDaTecla } from './tecla-pausa';
 
@@ -59,6 +60,17 @@ export class TourOverlayComponent implements OnDestroy {
   protected readonly narrador = inject(NarradorService);
   protected readonly musica = inject(MusicaService);
   private readonly zone = inject(NgZone);
+
+  protected readonly estimativa = formatarEstimativa;
+
+  /** "Restante ≈ 2 min · total ≈ 5 min"; concluido, o tempo real da apresentacao. */
+  protected readonly textoTempo = computed(() => {
+    const real = this.tour.duracaoReal();
+    if (this.tour.estado() === 'concluido' && real !== null) {
+      return `Duração ${formatarRelogio(real)} · estimado ${formatarEstimativa(this.tour.totalMs())}`;
+    }
+    return `Restante ${formatarEstimativa(this.tour.restanteMs())} · total ${formatarEstimativa(this.tour.totalMs())}`;
+  });
 
   protected readonly caixa = signal<Caixa | null>(null);
   private quadro = 0;

@@ -241,9 +241,10 @@
                         <label>
                           CPF ou CNPJ
                           <input
+                            sepMask="cpf-cnpj"
                             name="p-doc"
                             [(ngModel)]="pagador.documento"
-                            placeholder="Somente números"
+                            placeholder="000.000.000-00 ou 00.000.000/0000-00"
                           />
                         </label>
                         <label>

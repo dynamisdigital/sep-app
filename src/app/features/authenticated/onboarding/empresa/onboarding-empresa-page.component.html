@@ -207,7 +207,7 @@
         @if (status(); as s) {
           <sep-onboarding-status [status]="s.status" [resultado]="s.resultado" />
           <h3>Dados da empresa</h3>
-          <p>{{ s.dadosEmpresa.razaoSocial }} · {{ s.dadosEmpresa.cnpj }}</p>
+          <p>{{ s.dadosEmpresa.razaoSocial }} · {{ s.dadosEmpresa.cnpj | sepMascara: 'cnpj' }}</p>
           @for (rep of s.representantes; track rep.cpfMascarado) {
             <p>
               <span>{{ rep.nome }}</span> · <span>{{ rep.cpfMascarado }}</span> ·

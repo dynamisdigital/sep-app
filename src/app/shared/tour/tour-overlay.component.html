@@ -52,9 +52,18 @@
       </button>
     </header>
 
+    @if (tour.estado() !== 'concluido') {
+      <p class="sep-tour-modulo">
+        Módulo: <b>{{ tour.roteiro()?.modulo }}</b>
+        @if (tour.secaoAtual(); as secao) {
+          <span aria-hidden="true"> › </span><b>{{ secao }}</b>
+        }
+      </p>
+    }
     <div class="sep-tour-barra" aria-hidden="true">
       <span [style.width.%]="progresso()"></span>
     </div>
+    <p class="sep-tour-tempo">{{ textoTempo() }}</p>
     <div class="sep-tour-linha">
       <p class="sep-tour-contagem">
         Passo {{ tour.indice() + 1 }} de {{ tour.passos().length }}
@@ -71,7 +80,9 @@
                 class="sep-tour-secao"
                 [attr.data-situacao]="tour.situacaoDasSecoes()[i]"
                 [attr.aria-current]="tour.situacaoDasSecoes()[i] === 'atual' ? 'step' : null"
-                [attr.title]="'Recomeçar em: ' + secao.titulo"
+                [attr.title]="
+                  'Recomeçar em: ' + secao.titulo + ' · ' + estimativa(tour.duracaoDasSecoes()[i])
+                "
                 (click)="tour.irParaSecao(i)"
               >
                 @if (tour.situacaoDasSecoes()[i] === 'feita') {
@@ -184,14 +195,30 @@
             type="button"
             class="sep-tour-btn sep-tour-btn-icone"
             [class.sep-tour-btn-ligado]="narrador.ativo()"
-            [attr.aria-pressed]="narrador.ativo()"
-            [attr.aria-label]="narrador.ativo() ? 'Desligar narração' : 'Ligar narração'"
-            [title]="narrador.ativo() ? 'Narração ligada' : 'Narração desligada'"
+            [class.sep-tour-btn-mudo]="!narrador.ativo()"
+            [attr.aria-pressed]="!narrador.ativo()"
+            [attr.aria-label]="
+              narrador.ativo() ? 'Silenciar a voz do tour' : 'Reativar a voz do tour'
+            "
+            [title]="
+              narrador.ativo()
+                ? 'Silenciar a voz (o tour continua)'
+                : 'Voz silenciada: clique para reativar'
+            "
             (click)="narrador.alternar()"
           >
             <lucide-icon [name]="narrador.ativo() ? 'volume-2' : 'volume-x'" [size]="16" />
           </button>
         }
+        <button
+          type="button"
+          class="sep-tour-btn sep-tour-btn-icone sep-tour-btn-ligado"
+          aria-label="Encerrar o teste"
+          title="Encerrar o teste"
+          (click)="sair()"
+        >
+          <lucide-icon name="volume-off" [size]="16" />
+        </button>
       }
     </footer>
   </section>

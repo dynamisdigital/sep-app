@@ -423,11 +423,19 @@ const temBotao = (texto: string) => () =>
 
 const SEM_FORMULARIO_PAGADOR = () => !document.querySelector('input[name="p-nome"]');
 
-/** Campo do formulário de pagador: digita o valor de demonstração, e some se o formulário não abriu. */
-function campoPagador(nome: string, rotulo: string, valor: string): PassoRoteiro {
+/**
+ * Campo do formulário de pagador: digita o valor de demonstração, e some se o formulário não abriu.
+ * O aviso de que os dados são de demonstração vale para todos os campos: so o primeiro o fala.
+ */
+function campoPagador(
+  nome: string,
+  rotulo: string,
+  valor: string,
+  avisarDemonstracao = false,
+): PassoRoteiro {
   return {
     titulo: rotulo,
-    texto: `Aqui entra ${rotulo.toLowerCase()}. Os dados são de demonstração.`,
+    texto: `Aqui entra ${rotulo.toLowerCase()}.${avisarDemonstracao ? ' Os dados de todos os campos são de demonstração.' : ''}`,
     alvo: `input[name="${nome}"]`,
     acao: { tipo: 'digitar', texto: () => valor },
     pularSe: SEM_FORMULARIO_PAGADOR,
@@ -477,8 +485,8 @@ const pixAutomatico: Roteiro = {
       aguardarAlvo: 'input[name="p-nome"]',
       pularSe: () => !temBotao('Habilitar')(),
     },
-    campoPagador('p-nome', 'Nome do pagador', 'Mercearia Boa Vista Ltda'),
-    campoPagador('p-doc', 'CPF ou CNPJ', '11222333000181'),
+    campoPagador('p-nome', 'Nome do pagador', 'Mercearia Boa Vista Ltda', true),
+    campoPagador('p-doc', 'CPF ou CNPJ', '11.222.333/0001-81'),
     campoPagador('p-banco', 'Banco', 'Banco do Brasil S.A.'),
     campoPagador('p-ispb', 'ISPB do banco', '00000000'),
     campoPagador('p-ag', 'Agência', '0001'),

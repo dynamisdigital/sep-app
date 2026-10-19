@@ -67,7 +67,12 @@
           </label>
           <label>
             Telefone
-            <input name="telefone" [(ngModel)]="novo.telefone" placeholder="(00) 00000-0000" />
+            <input
+              sepMask="telefone"
+              name="telefone"
+              [(ngModel)]="novo.telefone"
+              placeholder="(00) 00000-0000"
+            />
           </label>
           <label>
             Produto de interesse

@@ -11,6 +11,8 @@ const PAPEIS: Roteiro['papeis'] = ['ADMIN', 'FINANCEIRO', 'BACKOFFICE'];
 const ROTA_ITEM = /^\/app\/backoffice\/fila\/[^/?]+(\?.*)?$/;
 const ROTA_PROVIDER = rotaExata('/app/backoffice/reprocessos/provider');
 
+const ROTA_WEBHOOK = rotaExata('/app/backoffice/reprocessos/webhook');
+
 const MENU_BACKOFFICE = {
   rota: '/app/backoffice',
   titulo: 'Menu Backoffice',
@@ -100,6 +102,11 @@ function preencherResolucao(retomada: boolean): PassoRoteiro[] {
 /** Identificador de entidade unico por execucao: o reprocesso e limitado a tres por entidade em 24h. */
 function entidadeDaExecucao(carimbo: string): string {
   return `e0000000-0000-4000-8000-${carimbo.replace(/\D/g, '').padStart(12, '0').slice(-12)}`;
+}
+
+/** Evento de webhook unico por execucao: o reenvio tambem e limitado a tres por evento em 24h. */
+function eventoDaExecucao(carimbo: string): string {
+  return `d0000000-0000-4000-8000-${carimbo.replace(/\D/g, '').padStart(12, '0').slice(-12)}`;
 }
 
 // ============ ROTEIROS ============
@@ -763,13 +770,112 @@ const reprocessar: Roteiro = {
   ],
 };
 
+const reprocessarWebhook: Roteiro = {
+  id: 'backoffice-reprocessar-webhook',
+  modulo: MODULO,
+  titulo: 'Reprocessar por webhook',
+  icone: 'zap',
+  descricao: 'Reenviar um evento de webhook que falhou, com a confirmação por TOTP e o resultado.',
+  duracao: '≈ 3 min',
+  papeis: PAPEIS,
+  impedimento: IMPEDIMENTO_TOTP,
+  passos: () => [
+    {
+      titulo: 'Reprocessar por webhook',
+      texto:
+        'Vamos reenviar um evento de webhook que falhou no processamento. É uma operação sensível, e o sistema a audita.',
+    },
+    ...peloMenu(MENU_BACKOFFICE, MENU_REPROCESSOS),
+    {
+      titulo: 'Novo reprocesso',
+      texto: 'O botão Novo reprocesso abre o formulário de disparo.',
+      alvo: '.bo18-new',
+      acao: { tipo: 'clicar' },
+      aguardarRota: ROTA_PROVIDER,
+      aguardarAlvo: '.bo19-form',
+    },
+    {
+      titulo: 'Canal Webhook',
+      texto:
+        'O formulário abre no canal provider. A aba Webhook troca para o reenvio de eventos recebidos.',
+      alvo: { css: '.bo19-tabs button', texto: 'Webhook' },
+      acao: { tipo: 'clicar' },
+      aguardarRota: ROTA_WEBHOOK,
+      aguardarAlvo: '#bo19-evento',
+    },
+    {
+      titulo: 'ID do evento',
+      texto:
+        'O identificador do evento vem do log de webhooks, geralmente da ocorrência de webhook que falhou na fila. O sistema limita a três reprocessos por evento em vinte e quatro horas.',
+      alvo: '#bo19-evento',
+      acao: { tipo: 'digitar', texto: (ctx) => eventoDaExecucao(ctx.carimbo) },
+    },
+    {
+      titulo: 'Item da fila',
+      texto:
+        'O item da fila é opcional, e liga o reenvio à ocorrência que o motivou, para o rastreamento.',
+      alvo: '#bo19-item-wh',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Aviso',
+      texto:
+        'O aviso lembra que o reenvio reentrega o evento ao processador de origem, e que o resultado depende do estado atual da entidade.',
+      alvo: '.bo19-warning',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Reprocessar webhook',
+      texto:
+        'O botão dispara o reenvio. Como altera o estado de uma operação financeira, pede a segunda confirmação.',
+      alvo: '.bo19-submit',
+      acao: { tipo: 'clicar', efeito: true },
+      aguardarRota: ROTA_STEP_UP,
+    },
+    ...confirmarComTotp({
+      motivo:
+        'Reenviar um webhook pode refazer uma operação financeira. O sistema pede o código do autenticador antes de executar.',
+      aoConfirmar:
+        'Confirmado o código, o sistema volta ao formulário vazio. O identificador do evento entra outra vez.',
+      destino: ROTA_WEBHOOK,
+    }),
+    {
+      titulo: 'ID do evento, de novo',
+      texto: 'O mesmo identificador é informado outra vez.',
+      alvo: '#bo19-evento',
+      acao: { tipo: 'digitar', texto: (ctx) => eventoDaExecucao(ctx.carimbo) },
+    },
+    {
+      titulo: 'Reprocessar de novo',
+      texto: 'Agora, com a confirmação válida, o evento é reenviado.',
+      alvo: '.bo19-submit',
+      acao: { tipo: 'clicar', efeito: true },
+      aguardarAlvo: '.bo19-resultado',
+    },
+    {
+      titulo: 'Resultado',
+      texto: 'O resultado mostra o protocolo, a situação e a mensagem retornada pelo reenvio.',
+      alvo: '.bo19-resultado',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Histórico recente',
+      texto:
+        'O histórico dos disparos recentes registra quando, o canal, o evento, quem disparou, o resultado e o tempo.',
+      alvo: '.bo19-history',
+      acao: { tipo: 'observar' },
+    },
+  ],
+};
+
 const completo: Roteiro = {
   id: 'backoffice-completo',
   modulo: MODULO,
   titulo: 'Módulo completo',
   icone: 'list-checks',
-  descricao: 'Os seis roteiros em sequência, dos dashboards ao reprocesso.',
-  duracao: '≈ 20 min',
+  descricao:
+    'Os sete roteiros em sequência, dos dashboards ao reprocesso por provider e por webhook.',
+  duracao: '≈ 23 min',
   papeis: PAPEIS,
   impedimento: IMPEDIMENTO_TOTP,
   passos: (ctx) => {
@@ -780,6 +886,7 @@ const completo: Roteiro = {
       ...emSecao(tratar, ctx),
       ...emSecao(reprocessos, ctx),
       ...emSecao(reprocessar, ctx),
+      ...emSecao(reprocessarWebhook, ctx),
     ];
   },
 };
@@ -792,4 +899,5 @@ export const ROTEIROS_BACKOFFICE: Roteiro[] = [
   tratar,
   reprocessos,
   reprocessar,
+  reprocessarWebhook,
 ];

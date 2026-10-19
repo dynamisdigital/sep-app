@@ -124,7 +124,7 @@
             </label>
             <label>
               CPF
-              <input name="cpf" [(ngModel)]="novo.cpf" placeholder="000.000.000-00" />
+              <input sepMask="cpf" name="cpf" [(ngModel)]="novo.cpf" placeholder="000.000.000-00" />
             </label>
             <label>
               E-mail
@@ -132,7 +132,12 @@
             </label>
             <label>
               Telefone
-              <input name="telefone" [(ngModel)]="novo.telefone" placeholder="(00) 00000-0000" />
+              <input
+                sepMask="telefone"
+                name="telefone"
+                [(ngModel)]="novo.telefone"
+                placeholder="(00) 00000-0000"
+              />
             </label>
             @for (t of r.tetos; track t.produto) {
               <label>

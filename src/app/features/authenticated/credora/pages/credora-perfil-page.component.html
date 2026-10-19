@@ -22,7 +22,7 @@
             <span class="px43-titulo-icone"><lucide-icon name="building-2" [size]="24" /></span>
             <div>
               <h1>{{ e.razaoSocial }}</h1>
-              <p class="px43-subtitulo">CNPJ {{ e.cnpj }}</p>
+              <p class="px43-subtitulo">CNPJ {{ e.cnpj | sepMascara: 'cnpj' }}</p>
             </div>
           </div>
           <div class="px43-selos">
@@ -67,7 +67,7 @@
           </div>
           <div>
             <dt>CNPJ</dt>
-            <dd>{{ e.cnpj }}</dd>
+            <dd>{{ e.cnpj | sepMascara: 'cnpj' }}</dd>
           </div>
           <div>
             <dt>Tipo de credora</dt>

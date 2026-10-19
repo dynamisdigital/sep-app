@@ -22,6 +22,7 @@ import { CreditoService } from '../../../../core/credito/credito.service';
 import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
 import { mensagemCreditoErro } from '../shared/credito-error';
 import { formatarData, formatarMoeda } from '../shared/credito-format';
+import { SepMascaraPipe } from '../../../../shared/forms/sep-mascara.pipe';
 
 type TomStatus = 'green' | 'blue' | 'orange' | 'red';
 
@@ -69,7 +70,7 @@ const ROTULO_ETAPA: Record<string, string> = {
 // viram travessão quando ausentes.
 @Component({
   selector: 'sep-proposta-detail-page',
-  imports: [RouterLink, LucideAngularModule, OperationalShellComponent],
+  imports: [RouterLink, LucideAngularModule, OperationalShellComponent, SepMascaraPipe],
   templateUrl: './proposta-detail-page.component.html',
   styleUrl: './proposta-detail-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

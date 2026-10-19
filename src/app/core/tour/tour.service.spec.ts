@@ -54,6 +54,7 @@ describe('TourService', () => {
     auth.currentUserState.set(usuario('ADMIN', true));
     const grupos = tour.catalogo();
     expect(grupos.map((g) => g.modulo)).toEqual([
+      'Plataforma',
       'Onboarding',
       'Crédito',
       'Formalização',
@@ -64,7 +65,6 @@ describe('TourService', () => {
       'Usuários',
       'Parâmetros',
       'Perfil',
-      'Plataforma',
     ]);
     const usuarios = grupos.find((g) => g.modulo === 'Usuários')!;
     expect(usuarios.roteiros.map((r) => r.titulo)).toEqual([
@@ -78,6 +78,7 @@ describe('TourService', () => {
     // O backoffice alcanca Onboarding, Credito e Formalizacao, mas nao a Administracao.
     auth.currentUserState.set(usuario('BACKOFFICE', true));
     expect(tour.catalogo().map((g) => g.modulo)).toEqual([
+      'Plataforma',
       'Onboarding',
       'Crédito',
       'Formalização',
@@ -86,12 +87,11 @@ describe('TourService', () => {
       'Backoffice',
       'Correspondentes',
       'Perfil',
-      'Plataforma',
     ]);
 
     // O cliente so alcanca a jornada da Credora; nenhum dos modulos operacionais.
     auth.currentUserState.set(usuario('CLIENTE', true));
-    expect(tour.catalogo().map((g) => g.modulo)).toEqual(['Credora', 'Perfil', 'Plataforma']);
+    expect(tour.catalogo().map((g) => g.modulo)).toEqual(['Plataforma', 'Credora', 'Perfil']);
 
     // O correspondente so alcanca o proprio modulo, sem nenhum roteiro de decisao de credito.
     auth.currentUserState.set(usuario('CORRESPONDENTE', true));
@@ -210,16 +210,20 @@ describe('TourService', () => {
       'Tratar uma ocorrência',
       'Histórico de reprocessos',
       'Disparar um reprocesso',
+      'Reprocessar por webhook',
+      'Módulo completo da escrow',
       'Credores',
       'Tesouraria da escrow',
     ]);
     expect(motivo('Dashboard operacional')).toBeNull();
+    expect(motivo('Módulo completo da escrow')).toBeNull();
     expect(motivo('Credores')).toBeNull();
     expect(motivo('Tesouraria da escrow')).toBeNull();
     expect(motivo('Fila operacional')).toBeNull();
     expect(motivo('Histórico de reprocessos')).toBeNull();
     expect(motivo('Tratar uma ocorrência')).toContain('TOTP');
     expect(motivo('Disparar um reprocesso')).toContain('TOTP');
+    expect(motivo('Reprocessar por webhook')).toContain('TOTP');
     expect(motivo('Módulo completo')).toContain('TOTP');
   });
 
@@ -247,10 +251,13 @@ describe('TourService', () => {
     expect(grupo.roteiros.map((r) => r.titulo)).toEqual([
       'Módulo completo',
       'Visão geral da jornada',
+      'Primeiros passos como credora',
       'Cadastrar a empresa credora',
       'Perfil e elegibilidade',
       'Oportunidades e interesse',
       'Carteira de operações',
+      'Credora inelegível',
+      'Módulo completo da conta escrow',
       'Conta escrow e extrato',
       'Alocar recursos',
       'Sacar saldo',
@@ -495,6 +502,7 @@ describe('TourService', () => {
     auth.currentUserState.set(usuario('ADMIN', true));
     const grupos = tour.catalogo();
     expect(grupos.map((g) => g.icone)).toEqual([
+      'layout-dashboard',
       'user-plus',
       'credit-card',
       'file-check',
@@ -505,7 +513,6 @@ describe('TourService', () => {
       'users',
       'settings',
       'user-round',
-      'layout-dashboard',
     ]);
     expect(grupos.every((g) => g.tom.startsWith('var(--sep-'))).toBe(true);
   });
@@ -620,7 +627,14 @@ describe('TourService', () => {
         expect(
           grupo.roteiros.map((r) => r.titulo),
           papel,
-        ).toEqual(['Módulo completo', 'Menu lateral', 'Barra superior', 'Conta e sessão']);
+        ).toEqual([
+          'Módulo completo',
+          'Dashboard',
+          'Menu lateral',
+          'Barra superior',
+          'Conta e sessão',
+          'Glossário técnico',
+        ]);
         expect(
           grupo.roteiros.every((r) => !tour.impedimento(r)),
           papel,
@@ -740,7 +754,7 @@ describe('TourService', () => {
       auth.currentUserState.set(usuario('ADMIN', true));
       tour.iniciar('backoffice-completo');
       const secoes = tour.secoes();
-      expect(secoes.length).toBe(6);
+      expect(secoes.length).toBe(7);
       expect(secoes[0].inicio).toBe(0);
       for (let i = 1; i < secoes.length; i += 1) {
         expect(secoes[i].inicio).toBe(secoes[i - 1].fim + 1);
@@ -752,6 +766,7 @@ describe('TourService', () => {
         'feita',
         'feita',
         'atual',
+        'pendente',
         'pendente',
         'pendente',
         'pendente',

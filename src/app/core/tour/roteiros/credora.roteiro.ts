@@ -11,6 +11,8 @@ const PAPEIS: Roteiro['papeis'] = ['CLIENTE'];
 
 const CONTA_CREDORA = 'credora@empresa.com';
 const CONTA_NOVA = 'credora-novo@empresa.com';
+const CONTA_CLIENTE = 'cliente@empresa.com';
+const CONTA_INELEGIVEL = 'credora-inelegivel@empresa.com';
 const ID_ONBOARDING_PJ = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78a001';
 
 const ROTA_OPORTUNIDADE = /^\/app\/credora\/oportunidades\/[^/?]+(\?.*)?$/;
@@ -29,6 +31,16 @@ const IMPEDIMENTO_CREDORA = soComConta(
 const IMPEDIMENTO_CADASTRO = soComConta(
   CONTA_NOVA,
   `Requer uma conta que ainda não tem credora. Entre como ${CONTA_NOVA}.`,
+);
+
+const IMPEDIMENTO_PRIMEIROS_PASSOS = soComConta(
+  CONTA_CLIENTE,
+  `Requer uma conta que ainda não tem credora nem onboarding PJ. Entre como ${CONTA_CLIENTE}.`,
+);
+
+const IMPEDIMENTO_INELEGIVEL = soComConta(
+  CONTA_INELEGIVEL,
+  `Requer uma credora cadastrada e inelegível. Entre como ${CONTA_INELEGIVEL}.`,
 );
 
 const MENU_CREDORA = {
@@ -214,6 +226,88 @@ const cadastro: Roteiro = {
   ],
 };
 
+const primeirosPassos: Roteiro = {
+  id: 'credora-primeiros-passos',
+  modulo: MODULO,
+  titulo: 'Primeiros passos como credora',
+  icone: 'sparkles',
+  descricao:
+    'Para quem ainda não tem credora: o que a Credora oferece, o que o cadastro exige e o que fica liberado depois dele.',
+  duracao: '≈ 2 min',
+  papeis: PAPEIS,
+  impedimento: IMPEDIMENTO_PRIMEIROS_PASSOS,
+  passos: () => [
+    {
+      titulo: 'Primeiros passos',
+      texto:
+        'Este roteiro é para quem acabou de entrar e ainda não tem empresa credora. Vamos ver o que a Credora oferece e o que falta para começar.',
+    },
+    ...peloMenu(MENU_CREDORA),
+    {
+      titulo: 'Ainda sem credora',
+      texto:
+        'Sem credora cadastrada, a tela convida ao cadastro. Enquanto ele não existe, perfil, oportunidades e carteira ficam fechados, e o sistema leva direto ao cadastro.',
+      alvo: '.px35-vazio',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Por que cadastrar',
+      texto:
+        'Os cartões dizem o que a credora ganha: receber propostas, acompanhar oportunidades, ver a carteira de contratos e operar com segurança.',
+      alvo: '.px35-motivos',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'O que se deve ter em mãos',
+      texto:
+        'O aviso lembra que o cadastro pede os dados da empresa e que a informação é importante para a segurança das operações e o cumprimento regulatório.',
+      alvo: '.px35-aviso',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Conta escrow do investidor',
+      texto:
+        'Abaixo ficam os atalhos da conta escrow, onde os recursos do investidor são guardados. Eles também dependem do cadastro: sem ele, a tela avisa que ainda não há conta.',
+      alvo: '[aria-labelledby="px35-investidor-titulo"]',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Abrir o cadastro',
+      texto: 'O botão Cadastrar credora leva ao formulário.',
+      alvo: '.px35-vazio a.px35-btn-primary',
+      acao: { tipo: 'clicar' },
+      aguardarRota: rotaExata(MENU_CADASTRO.rota),
+      aguardarAlvo: '.px36-form',
+    },
+    {
+      titulo: 'De onde vêm os dados',
+      texto:
+        'A razão social e o CNPJ não são digitados: vêm do onboarding da empresa, e não podem ser alterados aqui.',
+      alvo: '.px36-form',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Onboarding PJ aprovado',
+      texto:
+        'O campo pede o identificador de um onboarding de empresa já aprovado. Sem ele, o cadastro não avança.',
+      alvo: '#onboardingId',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Requisitos',
+      texto:
+        'À direita, os requisitos: onboarding PJ aprovado, empresa ativa na Receita Federal, CNPJ regular e dados atualizados.',
+      alvo: '.px36-requisitos',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Depois do cadastro',
+      texto:
+        'Com a credora cadastrada e elegível, o perfil, as oportunidades e a carteira se abrem. Para ver o cadastro de uma empresa preenchido do começo ao fim, use o roteiro Cadastrar a empresa credora.',
+    },
+  ],
+};
+
 const perfil: Roteiro = {
   id: 'credora-perfil',
   modulo: MODULO,
@@ -380,6 +474,90 @@ const oportunidades: Roteiro = {
   ],
 };
 
+const inelegivel: Roteiro = {
+  id: 'credora-inelegivel',
+  modulo: MODULO,
+  titulo: 'Credora inelegível',
+  icone: 'triangle-alert',
+  descricao:
+    'O que a credora vê quando o cadastro está inelegível: o motivo, o que fica bloqueado e como seguir.',
+  duracao: '≈ 2 min',
+  papeis: PAPEIS,
+  impedimento: IMPEDIMENTO_INELEGIVEL,
+  passos: () => [
+    {
+      titulo: 'Credora inelegível',
+      texto:
+        'Este roteiro explica o que acontece quando o cadastro da credora fica inelegível: onde ver o motivo, o que fica bloqueado e o que fazer.',
+    },
+    ...peloMenu(MENU_CREDORA, MENU_PERFIL),
+    {
+      titulo: 'Os selos',
+      texto:
+        'No alto do perfil, os selos dizem a situação do cadastro e a elegibilidade. Aqui, a elegibilidade aparece como inelegível.',
+      alvo: '.px43-heading',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'O aviso de situação',
+      texto:
+        'O cartão em vermelho avisa que a credora está inelegível e não pode manifestar interesse em oportunidades. Ele aparece sozinho, sem a credora precisar procurar.',
+      alvo: '.px43-situacao',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'O motivo',
+      texto:
+        'Logo abaixo do aviso vem o motivo da inelegibilidade, como uma pendência na verificação do onboarding da empresa. É por ele que a regularização começa.',
+      alvo: '.px43-situacao small',
+      acao: { tipo: 'observar' },
+      pularSe: () => !document.querySelector('.px43-situacao small'),
+    },
+    {
+      titulo: 'O que define a elegibilidade',
+      texto:
+        'O último cartão lista as condições: onboarding da empresa aprovado, cadastro ativo e sem suspensão, e verificações de conformidade concluídas. A decisão é sempre do sistema, nunca da tela.',
+      alvo: '.px43-explicacao',
+      acao: { tipo: 'observar' },
+    },
+    ...peloMenu(MENU_CREDORA, MENU_OPORTUNIDADES),
+    {
+      titulo: 'As oportunidades continuam visíveis',
+      texto:
+        'A credora inelegível ainda pode consultar as oportunidades publicadas. O que ela não pode é manifestar interesse.',
+      alvo: '.px44-tabela-card',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Abrir uma oportunidade',
+      texto: 'Abrindo uma oportunidade, o bloqueio aparece no lugar do botão de interesse.',
+      alvo: '.px44-btn-linha[aria-label^="Abrir oportunidade"]',
+      acao: { tipo: 'clicar' },
+      aguardarRota: ROTA_OPORTUNIDADE,
+      aguardarAlvo: '.px45-dados',
+    },
+    {
+      titulo: 'Sua credora',
+      texto: 'O cartão da credora repete a situação e a elegibilidade, com o motivo registrado.',
+      alvo: '.px45-credora',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Interesse bloqueado',
+      texto:
+        'Em vez do botão Manifestar interesse, a tela avisa que a credora precisa estar ativa e elegível. Nenhum aporte ou alocação é feito enquanto isso durar.',
+      alvo: '.px45-bloqueio',
+      acao: { tipo: 'observar' },
+      pularSe: () => !document.querySelector('.px45-bloqueio'),
+    },
+    {
+      titulo: 'Como seguir',
+      texto:
+        'Para voltar a investir, a pendência indicada no motivo precisa ser resolvida. Em caso de dúvida, fale com o suporte, informando o motivo que aparece no perfil.',
+    },
+  ],
+};
+
 const carteira: Roteiro = {
   id: 'credora-carteira',
   modulo: MODULO,
@@ -487,12 +665,15 @@ const completo: Roteiro = {
   },
 };
 
-// O cadastro fica de fora do completo: ele so existe para quem ainda nao tem credora.
+// O cadastro e o roteiro da credora inelegivel ficam de fora do completo: o primeiro so existe para
+// quem ainda nao tem credora, o segundo so para quem esta inelegivel.
 export const ROTEIROS_CREDORA: Roteiro[] = [
   completo,
   visaoGeral,
+  primeirosPassos,
   cadastro,
   perfil,
   oportunidades,
   carteira,
+  inelegivel,
 ];

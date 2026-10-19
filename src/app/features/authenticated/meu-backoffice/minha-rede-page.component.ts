@@ -21,6 +21,7 @@ import {
 } from '../../../core/correspondentes/correspondentes-rede.models';
 import { CorrespondentesRedeService } from '../../../core/correspondentes/correspondentes-rede.service';
 import { OperationalShellComponent } from '../../../layout/operational-shell/operational-shell.component';
+import { SepMaskDirective } from '../../../shared/forms/sep-mask.directive';
 import {
   formatarMoeda,
   formatarPercentual,
@@ -44,7 +45,13 @@ const TOM_STATUS_SUB: Record<StatusSub, string> = {
 // O sub abre a mesma rota e ve so a propria posicao: quem e o majoritario e quanto recebe por produto.
 @Component({
   selector: 'sep-minha-rede-page',
-  imports: [OperationalShellComponent, RouterLink, LucideAngularModule, FormsModule],
+  imports: [
+    OperationalShellComponent,
+    RouterLink,
+    LucideAngularModule,
+    FormsModule,
+    SepMaskDirective,
+  ],
   templateUrl: './minha-rede-page.component.html',
   styleUrl: '../correspondentes/correspondentes.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

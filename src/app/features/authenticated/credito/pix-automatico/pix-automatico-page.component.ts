@@ -26,6 +26,7 @@ import {
 } from '../../../../core/pix-automatico/pix-automatico.models';
 import { PixAutomaticoService } from '../../../../core/pix-automatico/pix-automatico.service';
 import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
+import { SepMaskDirective } from '../../../../shared/forms/sep-mask.directive';
 import { formatarData, formatarMoeda } from '../../correspondentes/correspondentes.format';
 
 interface ContratoPix {
@@ -79,7 +80,13 @@ const CONTRATOS_DA_CARTEIRA = [
 // liquidacao sao da instituicao participante. Nada de senha, token ou saldo passa por esta tela.
 @Component({
   selector: 'sep-pix-automatico-page',
-  imports: [OperationalShellComponent, RouterLink, LucideAngularModule, FormsModule],
+  imports: [
+    OperationalShellComponent,
+    RouterLink,
+    LucideAngularModule,
+    FormsModule,
+    SepMaskDirective,
+  ],
   templateUrl: './pix-automatico-page.component.html',
   styleUrl: '../../correspondentes/correspondentes.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -149,7 +149,7 @@ const inicio: Roteiro = {
     ),
     ler(
       'Controles dos banners',
-      'As setas e os pontos trocam de banner à mão, e o botão de pausa para a troca automática. A troca também para sozinha enquanto o mouse está sobre o banner.',
+      'As setas e os pontos trocam de banner à mão, e o botão de pausa para a troca automática. A troca também para sozinha enquanto o mouse está sobre o banner e durante este tour, para o texto do banner em exibição ser lido sem mudar.',
       '.hero-controles',
     ),
     ler(

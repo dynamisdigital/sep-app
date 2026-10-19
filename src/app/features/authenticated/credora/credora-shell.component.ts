@@ -6,6 +6,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { EmpresaCredoraResponse } from '../../../core/api/api.models';
 import { CredoraService } from '../../../core/credora/credora.service';
 import { OperationalShellComponent } from '../../../layout/operational-shell/operational-shell.component';
+import { SepMascaraPipe } from '../../../shared/forms/sep-mascara.pipe';
 
 interface CredoraLink {
   label: string;
@@ -57,7 +58,7 @@ const MOTIVOS: Motivo[] = [
 // o shell apenas navega.
 @Component({
   selector: 'sep-credora-shell',
-  imports: [RouterLink, LucideAngularModule, OperationalShellComponent],
+  imports: [RouterLink, LucideAngularModule, OperationalShellComponent, SepMascaraPipe],
   templateUrl: './credora-shell.component.html',
   styleUrl: './credora-shell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

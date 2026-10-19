@@ -13,6 +13,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { SepLogoComponent } from '../../../shared/arte/sep-logo.component';
 import { LarguraTelaDirective } from '../../../core/layout/largura-tela.directive';
 import { ThemeService } from '../../../core/theme/theme.service';
+import { TourService } from '../../../core/tour/tour.service';
 import { AcoesPublicasComponent } from '../../../shared/acoes-publicas/acoes-publicas.component';
 import { FotoBannerComponent } from './foto-banner.component';
 import {
@@ -58,6 +59,7 @@ export class LandingComponent {
   protected readonly avisoRegulatorio = AVISO_REGULATORIO;
 
   private readonly tema = inject(ThemeService);
+  private readonly tour = inject(TourService);
 
   /** O botao do topo troca o tema da tela publica; o escuro e o padrao do projeto. */
   protected readonly temaEscuro = this.tema.isDark;
@@ -100,11 +102,16 @@ export class LandingComponent {
       destroyRef.onDestroy(() => document.removeEventListener('visibilitychange', aoMudarAba));
     });
 
-    // O temporizador acompanha o estado: ligado só quando nada pede para esperar.
+    // O temporizador acompanha o estado: ligado só quando nada pede para esperar. Com um tour em
+    // andamento o banner fica onde está, para a narração ler o texto do banner que já estava na tela.
     effect(() => {
       this.ativo();
       const parado =
-        this.pausado() || this.interagindo() || this.abaOculta() || this.semMovimento();
+        this.pausado() ||
+        this.interagindo() ||
+        this.abaOculta() ||
+        this.semMovimento() ||
+        this.tour.ativo();
       this.pararTemporizador();
       if (!parado) {
         this.temporizador = setInterval(() => this.avancar(), INTERVALO_BANNER_MS);

@@ -95,6 +95,37 @@ export function confirmarComTotp(opcoes: {
 }
 
 /**
+ * Tira a repeticao de um "Modulo completo", que junta roteiros com o mesmo caminho de menu e a mesma
+ * confirmacao por TOTP. Passo cujo texto ja foi dito antes: se so observa, sai; se age (clica,
+ * digita), a acao fica e a fala encurta para o titulo ("Menu credito."). O primeiro passo de cada
+ * secao nunca sai, porque ele marca o inicio dela e guarda a `entrada` do salto.
+ */
+export function enxugarRepeticoes(passos: PassoRoteiro[]): PassoRoteiro[] {
+  const vistos = new Set<string>();
+  const saida: PassoRoteiro[] = [];
+  passos.forEach((passo, i) => {
+    // Texto em funcao depende do que os passos anteriores gravam ao rodar: nao da para comparar agora.
+    if (typeof passo.texto === 'function') {
+      saida.push(passo);
+      return;
+    }
+    const chave = passo.texto.replace(/\s+/g, ' ').trim().toLowerCase();
+    const repetido = vistos.has(chave);
+    vistos.add(chave);
+    if (!repetido) {
+      saida.push(passo);
+      return;
+    }
+    const inicioDeSecao = i === 0 || passos[i - 1].secao !== passo.secao;
+    const soObserva =
+      (!passo.acao || passo.acao.tipo === 'observar') && !passo.aguardarRota && !passo.aguardarAlvo;
+    if (soObserva && !inicioDeSecao) return;
+    saida.push({ ...passo, texto: `${passo.titulo}.` });
+  });
+  return saida;
+}
+
+/**
  * Passos de um sub-roteiro como uma secao do "Modulo completo". O primeiro roteiro entra inteiro; os
  * seguintes sem a apresentacao do inicio (`primeira: false` e o padrao). `manter` filtra os passos
  * que a secao anterior ja deixou prontos. O que ficou de fora antes do primeiro passo mantido e que

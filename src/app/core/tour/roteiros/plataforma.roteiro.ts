@@ -44,6 +44,64 @@ function painel(opcoes: {
 
 // ============ ROTEIROS ============
 
+const dashboard: Roteiro = {
+  id: 'plataforma-dashboard',
+  modulo: MODULO,
+  titulo: 'Dashboard',
+  icone: 'house',
+  descricao:
+    'A tela inicial depois do login: os atalhos do seu papel, os totais e o aviso regulatório.',
+  duracao: '≈ 1 min',
+  papeis: PAPEIS,
+  passos: () => [
+    {
+      titulo: 'A tela inicial',
+      texto:
+        'O Dashboard é a primeira tela depois do login. Ele reúne, num só lugar, os acessos que o seu papel alcança.',
+    },
+    ler(
+      'Quem está logado',
+      'No alto, a saudação com o nome da conta e o selo do papel. É o papel que decide tudo o que aparece abaixo.',
+      '.px48-heading',
+    ),
+    ler(
+      'Jornadas',
+      'À esquerda ficam as jornadas liberadas ao seu papel. Clicar em um cartão abre a tela inicial daquele módulo.',
+      '.px48-lado-esq',
+    ),
+    {
+      ...ler(
+        'Operação',
+        'À direita, as áreas de operação, para os papéis que trabalham com elas. Quem não tem acesso a nenhuma não vê este grupo.',
+        '.px48-lado-dir',
+      ),
+      pularSe: () =>
+        !Array.from(document.querySelectorAll('.px48-lado-titulo')).some(
+          (t) => t.textContent?.trim() === 'Operação',
+        ),
+    },
+    ler('Conta', 'O grupo Conta traz o seu perfil e a troca de senha, que todo papel alcança.', {
+      css: '.px48-no',
+      texto: 'Meu perfil',
+    }),
+    ler(
+      'Os totais',
+      'No centro, a marca e dois totais: quantos acessos estão liberados e quantas jornadas. Os números mudam de um papel para outro.',
+      '.px48-nucleo-rodape',
+    ),
+    ler(
+      'O mesmo caminho no menu',
+      'Cada atalho do Dashboard também está no menu lateral. O Dashboard é o ponto de partida; o menu é o caminho de volta de qualquer tela.',
+      '.op-sidebar',
+    ),
+    ler(
+      'Ambiente regulado',
+      'Por fim, o aviso: o ambiente segue a Resolução 4.656 do Conselho Monetário, todas as ações ficam registradas na trilha de auditoria, e o acesso depende do papel da conta.',
+      '.px48-aviso',
+    ),
+  ],
+};
+
 const menu: Roteiro = {
   id: 'plataforma-menu',
   modulo: MODULO,
@@ -209,14 +267,15 @@ const completo: Roteiro = {
   modulo: MODULO,
   titulo: 'Módulo completo',
   icone: 'list-checks',
-  descricao: 'Os três roteiros em sequência: menu lateral, barra superior e conta.',
-  duracao: '≈ 6 min',
+  descricao: 'Os quatro roteiros em sequência: dashboard, menu lateral, barra superior e conta.',
+  duracao: '≈ 7 min',
   papeis: PAPEIS,
   passos: (ctx) => [
-    ...emSecao(menu, ctx, { primeira: true }),
+    ...emSecao(dashboard, ctx, { primeira: true }),
+    ...emSecao(menu, ctx),
     ...emSecao(topo, ctx),
     ...emSecao(conta, ctx),
   ],
 };
 
-export const ROTEIROS_PLATAFORMA: Roteiro[] = [completo, menu, topo, conta];
+export const ROTEIROS_PLATAFORMA: Roteiro[] = [completo, dashboard, menu, topo, conta];

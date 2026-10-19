@@ -50,7 +50,7 @@
           type="text"
           disabled
           placeholder="12.345.678/0001-90"
-          [value]="cnpj() ?? ''"
+          [value]="cnpj() | sepMascara: 'cnpj'"
         />
       </label>
 

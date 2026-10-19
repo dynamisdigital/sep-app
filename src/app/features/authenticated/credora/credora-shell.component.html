@@ -35,7 +35,7 @@
           </span>
           <div>
             <strong>{{ credora.razaoSocial }}</strong>
-            <small>{{ credora.cnpj }}</small>
+            <small>{{ credora.cnpj | sepMascara: 'cnpj' }}</small>
           </div>
           <span class="px35-selo" [attr.data-tone]="credora.status === 'ATIVA' ? 'green' : 'amber'">
             {{ credora.status }}

@@ -1,11 +1,12 @@
 import { ContextoRoteiro, Roteiro } from '../tour.model';
-import { peloMenu } from './passos-comuns';
+import { emSecao, peloMenu } from './passos-comuns';
 
 // Tours assistidos da conta escrow: a face do credor (Credora) e a da operacao (Backoffice). Os
 // dados sao ficticios (MSW). Nenhum passo pede TOTP: o mock nao implementa step-up para estas
 // telas, e os cliques que gravam (aporte, desembolso, repasse) so executam em demonstracao.
 // Ficam fora dos "Modulo completo" de Credora e Backoffice de proposito: os dois modulos tem
-// jornadas proprias, e a escrow e um assunto a parte.
+// jornadas proprias, e a escrow e um assunto a parte. O credor com conta escrow tem o seu proprio
+// completo (conta e extrato, alocacoes e saques), e a operacao tambem (credores e tesouraria).
 
 const CONTA_CREDOR_ESCROW = 'credora-pf@empresa.com';
 
@@ -214,7 +215,23 @@ const saques: Roteiro = {
   ],
 };
 
-export const ROTEIROS_ESCROW_CREDOR: Roteiro[] = [conta, alocacoes, saques];
+const completoCredor: Roteiro = {
+  id: 'credora-escrow-completo',
+  modulo: MODULO_CREDORA,
+  titulo: 'Módulo completo da conta escrow',
+  icone: 'layers',
+  descricao: 'A conta do credor de ponta a ponta: saldos e extrato, alocação de recursos e saques.',
+  duracao: '≈ 6 min',
+  papeis: PAPEIS_CREDOR,
+  impedimento: IMPEDIMENTO_CREDOR,
+  passos: (ctx) => [
+    ...emSecao(conta, ctx, { primeira: true }),
+    ...emSecao(alocacoes, ctx),
+    ...emSecao(saques, ctx),
+  ],
+};
+
+export const ROTEIROS_ESCROW_CREDOR: Roteiro[] = [completoCredor, conta, alocacoes, saques];
 
 // ============ BACKOFFICE ============
 
@@ -359,4 +376,15 @@ const tesouraria: Roteiro = {
   ],
 };
 
-export const ROTEIROS_ESCROW_OPERACAO: Roteiro[] = [credores, tesouraria];
+const completoOperacao: Roteiro = {
+  id: 'backoffice-escrow-completo',
+  modulo: MODULO_BACKOFFICE,
+  titulo: 'Módulo completo da escrow',
+  icone: 'layers',
+  descricao: 'A escrow na visão da operação: análise dos credores e tesouraria.',
+  duracao: '≈ 5 min',
+  papeis: PAPEIS_OPERACAO,
+  passos: (ctx) => [...emSecao(credores, ctx, { primeira: true }), ...emSecao(tesouraria, ctx)],
+};
+
+export const ROTEIROS_ESCROW_OPERACAO: Roteiro[] = [completoOperacao, credores, tesouraria];

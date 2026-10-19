@@ -14,6 +14,7 @@ import { OnboardingService } from '../../../../core/onboarding/onboarding.servic
 import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
 import { TIPO_CREDORA_LABEL, mensagemCredoraErro } from '../shared/credora-format';
 import { SepMaskDirective } from '../../../../shared/forms/sep-mask.directive';
+import { SepMascaraPipe } from '../../../../shared/forms/sep-mascara.pipe';
 
 const TIPOS_CREDORA: TipoCredora[] = ['EMPRESA', 'INSTITUICAO_FINANCEIRA'];
 
@@ -67,6 +68,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     LucideAngularModule,
     OperationalShellComponent,
     SepMaskDirective,
+    SepMascaraPipe,
   ],
   templateUrl: './credora-cadastro-page.component.html',
   styleUrl: './credora-cadastro-page.component.scss',

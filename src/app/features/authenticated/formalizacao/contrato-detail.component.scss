@@ -334,42 +334,14 @@ dd.cyan {
   cursor: pointer;
 }
 
+// Imprimir, baixar e tela cheia: o icone no centro exato do botao, na cor do texto e do mesmo
+// tamanho nos tres. Sem posicionamento absoluto nem filtro, que eram do tempo dos icones em PNG.
 .document-tools lucide-icon {
-  display: block;
-  width: 31px;
-  height: 31px;
-  object-position: center;
-  filter: brightness(0) invert(1);
-  opacity: 0.96;
-}
-
-.document-tools button:nth-of-type(n + 3) lucide-icon {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 38px;
-  height: 38px;
-  transform-origin: center;
-}
-
-.document-tools button:nth-of-type(3) img {
-  top: 50%;
-  transform: translate(-50%, -50%) translateY(9px) scale(1.12);
-}
-
-.document-tools button:nth-of-type(4) img {
-  top: 50%;
-  transform: translate(-50%, -50%) translateY(6px) scale(1.12);
-}
-
-.document-tools button:nth-of-type(5) img {
-  top: 50%;
-  transform: translate(-50%, -50%) translateY(7px) scale(1.12);
-}
-
-.document-tools button:nth-of-type(n + 3) {
-  position: relative;
-  overflow: hidden;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  color: inherit;
 }
 
 .document-tools button:nth-of-type(1),
@@ -414,9 +386,6 @@ dd.cyan {
   background:
     radial-gradient(circle at 48% 28%, rgb(var(--sep-c-muted) / 58%), transparent 54%),
     linear-gradient(145deg, rgb(var(--sep-c-surf3) / 98%), rgb(var(--sep-c-canvas) / 99%) 72%);
-}
-
-.document-viewer {
   scrollbar-width: thin;
 }
 
@@ -463,10 +432,9 @@ dd.cyan {
   padding-bottom: 9px;
 }
 
-.document-sheet > header img {
-  width: 126px;
-  height: 44px;
-  object-fit: contain;
+// A marca vetorial do sistema, no tamanho nativo; a palavra segue a cor do texto da folha.
+.document-sheet > header sep-logo {
+  color: var(--sep-text-strong);
 }
 
 .document-sheet > header span {

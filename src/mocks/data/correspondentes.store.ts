@@ -659,7 +659,7 @@ export function criarSub(
   },
 ): SubBase {
   seqSub += 1;
-  const digitos = dados.cpf.replace(/D/g, '');
+  const digitos = dados.cpf.replace(/\D/g, '');
   const novo: CorrespondenteBase = {
     id: `c1000000-0000-4000-8000-0000000001${String(seqSub).padStart(2, '0')}`,
     nome: dados.nome.trim(),

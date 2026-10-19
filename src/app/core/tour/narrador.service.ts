@@ -36,7 +36,11 @@ export class NarradorService {
     } catch {
       // Preferencia de conveniencia: sem storage, vale so nesta sessao.
     }
-    if (!proximo) this.parar();
+    if (!proximo) {
+      this.parar();
+      // Algumas vozes sinteticas (as online do Edge) ignoram o primeiro cancel e seguem falando.
+      window.setTimeout(() => !this.ativo() && this.parar(), 150);
+    }
   }
 
   /** Fala o texto e resolve quando termina. Com a narracao desligada, resolve na hora. */

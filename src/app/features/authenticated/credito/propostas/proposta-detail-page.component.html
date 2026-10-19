@@ -164,7 +164,7 @@
             <div class="px28-campo">
               <dt>CNPJ</dt>
               <dd class="px28-quebra">
-                <span>{{ texto(p.cnpj) }}</span>
+                <span>{{ texto(p.cnpj | sepMascara: 'cnpj') }}</span>
                 @if (p.cnpj) {
                   <button
                     type="button"

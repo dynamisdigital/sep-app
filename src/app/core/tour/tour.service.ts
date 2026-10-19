@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 import { ehAmbienteDemo } from '../env/ambiente';
 import { MusicaService } from './musica.service';
+import { estimarPassos, formatarEstimativa } from './tempo-tour';
 import { NarradorService } from './narrador.service';
 import { MODULOS_TOUR, MODULO_PADRAO, ROTEIROS } from './roteiros';
 import { AlvoPasso, ContextoRoteiro, PassoRoteiro, Roteiro } from './tour.model';
@@ -101,6 +102,27 @@ export class TourService {
     );
   });
 
+  /** Submodulo do passo atual (so nos roteiros "Modulo completo"), para o cartao dizer o que esta no ar. */
+  readonly secaoAtual = computed(() => this.passoAtual()?.secao ?? null);
+
+  /** Tempo estimado do tour inteiro na velocidade escolhida, em ms. */
+  readonly totalMs = computed(() => estimarPassos(this.passos(), this.contexto, this.velocidade()));
+
+  /** Tempo estimado do passo atual ao fim. */
+  readonly restanteMs = computed(() =>
+    estimarPassos(this.passos(), this.contexto, this.velocidade(), this.indice()),
+  );
+
+  /** Tempo estimado de cada submodulo, na ordem de `secoes()`. */
+  readonly duracaoDasSecoes = computed(() =>
+    this.secoes().map((s) =>
+      estimarPassos(this.passos(), this.contexto, this.velocidade(), s.inicio, s.fim + 1),
+    ),
+  );
+
+  /** Tempo real de apresentacao (sem pausas), fixado quando o tour conclui. */
+  readonly duracaoReal = signal<number | null>(null);
+
   private contexto: ContextoRoteiro = novoContexto(false, null, false, null);
   /**
    * Relogio do tour: tempo de apresentacao sem as pausas. `marcas[i]` e o relogio quando o passo i
@@ -140,6 +162,28 @@ export class TourService {
     return [{ modulo, ...(MODULOS_TOUR[modulo] ?? MODULO_PADRAO), roteiros }];
   });
 
+  private readonly duracoes = new Map<string, string>();
+
+  /**
+   * Duracao do roteiro na velocidade normal, calculada dos proprios passos (como o painel de Ajuda
+   * mostra). Guardada por roteiro e papel, porque os passos dependem da conta; se montar falhar,
+   * vale o texto fixo do roteiro.
+   */
+  duracaoDe(roteiro: Roteiro): string {
+    const ctx = this.contextoDaSessao();
+    const chave = `${roteiro.id}|${ctx.papel}|${ctx.demo}`;
+    let texto = this.duracoes.get(chave);
+    if (texto === undefined) {
+      try {
+        texto = formatarEstimativa(estimarPassos(roteiro.passos(ctx), ctx));
+      } catch {
+        texto = roteiro.duracao;
+      }
+      this.duracoes.set(chave, texto);
+    }
+    return texto;
+  }
+
   /** Motivo de um roteiro nao poder rodar agora (papel, MFA), ou null. */
   impedimento(roteiro: Roteiro): string | null {
     return roteiro.impedimento?.(this.contextoDaSessao()) ?? null;
@@ -154,6 +198,7 @@ export class TourService {
     this.passos.set(roteiro.passos(this.contexto));
     this.indice.set(0);
     this.mensagem.set(null);
+    this.duracaoReal.set(null);
     this.marcas = [];
     this.base = 0;
     this.acumulado = 0;
@@ -263,6 +308,7 @@ export class TourService {
     this.roteiro.set(null);
     this.passos.set([]);
     this.mensagem.set(null);
+    this.duracaoReal.set(null);
     this.marcas = [];
     this.base = 0;
     this.congelar();
@@ -389,6 +435,8 @@ export class TourService {
     if (!vivo()) return;
     this.destacar(null);
     this.cursor.set(null);
+    this.congelar();
+    this.duracaoReal.set(this.relogio());
     this.estado.set('concluido');
     // A musica sai depois da frase final; se o tour foi reiniciado nesse meio-tempo, fica.
     window.setTimeout(() => {
@@ -570,6 +618,9 @@ export class TourService {
       entrada.dispatchEvent(new Event('input', { bubbles: true }));
     }
     this.digitando.set(true);
+    // Campo com mascara (CPF, CNPJ, telefone...) reescreve o que recebe: o proximo caractere vai
+    // sobre o texto ja mascarado, como no teclado, e o espectador ve a mascara se formar.
+    const mascarado = entrada.hasAttribute('sepmask');
     let escrito = entrada.value;
     for (const letra of texto) {
       if (!vivo()) break;
@@ -582,10 +633,11 @@ export class TourService {
       }
       entrada.value = escrito;
       entrada.dispatchEvent(new Event('input', { bubbles: true }));
+      if (mascarado) escrito = entrada.value;
       await this.esperar(70);
     }
     // Termina com o texto inteiro, mesmo que o ultimo caractere tenha sido adiado.
-    if (vivo() && entrada.value !== escrito) {
+    if (vivo() && !mascarado && entrada.value !== escrito) {
       entrada.value = escrito;
       entrada.dispatchEvent(new Event('input', { bubbles: true }));
     }

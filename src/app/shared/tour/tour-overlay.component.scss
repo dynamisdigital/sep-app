@@ -218,6 +218,24 @@
   }
 }
 
+.sep-tour-modulo,
+.sep-tour-tempo {
+  margin: 0;
+  font-size: 11.5px;
+}
+
+.sep-tour-modulo {
+  color: var(--sep-glow);
+
+  b {
+    font-weight: 800;
+  }
+}
+
+.sep-tour-tempo {
+  color: var(--sep-text-muted);
+}
+
 // Contagem de passos a esquerda e, a direita, os submodulos do tour completo.
 .sep-tour-linha {
   display: flex;
@@ -388,6 +406,12 @@
 .sep-tour-btn-ligado {
   color: var(--sep-glow);
   border-color: rgb(var(--sep-c-cyan) / 55%);
+}
+
+/* Voz silenciada: so a narracao fica muda, o tour e a musica seguem. */
+.sep-tour-btn-mudo {
+  color: var(--sep-warning, #ff9f1c);
+  border-color: color-mix(in srgb, var(--sep-warning, #ff9f1c) 55%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {

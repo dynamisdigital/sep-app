@@ -142,7 +142,10 @@ export class MusicaService {
   }
 
   private async escolherFonte(): Promise<void> {
-    if (await existeFaixa()) {
+    const existe = await existeFaixa();
+    // Desligada durante a espera: nao liga a faixa nem o piano depois do pedido de parar.
+    if (!this.tocando()) return;
+    if (existe) {
       this.tocarFaixa();
       return;
     }

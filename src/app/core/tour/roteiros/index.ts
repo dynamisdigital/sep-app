@@ -6,6 +6,7 @@ import { ROTEIROS_CREDORA } from './credora.roteiro';
 import { ROTEIROS_ESCROW_CREDOR, ROTEIROS_ESCROW_OPERACAO } from './escrow.roteiro';
 import { ROTEIROS_COBRANCA } from './cobranca.roteiro';
 import { ROTEIROS_FORMALIZACAO } from './formalizacao.roteiro';
+import { ROTEIROS_GLOSSARIO } from './glossario.roteiro';
 import { ROTEIROS_ONBOARDING } from './onboarding.roteiro';
 import { ROTEIROS_PIX } from './pix.roteiro';
 import { ROTEIROS_PARAMETROS } from './parametros.roteiro';
@@ -13,12 +14,16 @@ import { ROTEIROS_PLATAFORMA } from './plataforma.roteiro';
 import { ROTEIROS_PERFIL } from './perfil.roteiro';
 import { ROTEIROS_PUBLICO } from './publico.roteiro';
 import { ROTEIROS_USUARIOS } from './usuarios.roteiro';
+import { enxugarRepeticoes } from './passos-comuns';
 
 // Um arquivo por modulo. Para um modulo novo: criar `<modulo>.roteiro.ts` no molde do de
 // Usuarios ou do de Credito (os passos de menu e de TOTP estao em `passos-comuns.ts`) e
 // acrescentar aqui; o painel de Ajuda agrupa pelo campo `modulo`, na ordem desta lista.
-// Ordem do painel: a da jornada do cliente (onboarding, credito) e depois a administracao.
-export const ROTEIROS: Roteiro[] = [
+// Ordem do painel: a plataforma primeiro (menu, topo e conta, o que se usa antes de qualquer modulo),
+// depois a jornada do cliente (onboarding, credito) e por fim a administracao.
+const TODOS: Roteiro[] = [
+  ...ROTEIROS_PLATAFORMA,
+  ...ROTEIROS_GLOSSARIO,
   ...ROTEIROS_ONBOARDING,
   ...ROTEIROS_CREDITO,
   ...ROTEIROS_FORMALIZACAO,
@@ -32,9 +37,13 @@ export const ROTEIROS: Roteiro[] = [
   ...ROTEIROS_USUARIOS,
   ...ROTEIROS_PARAMETROS,
   ...ROTEIROS_PERFIL,
-  ...ROTEIROS_PLATAFORMA,
   ...ROTEIROS_PUBLICO,
 ];
+
+/** Os "Modulo completo" juntam roteiros e repetiriam menu e TOTP a cada secao: aqui saem as repeticoes. */
+export const ROTEIROS: Roteiro[] = TODOS.map((r) =>
+  /completo/.test(r.id) ? { ...r, passos: (ctx) => enxugarRepeticoes(r.passos(ctx)) } : r,
+);
 
 /**
  * Icone e cor de cada modulo no painel de Ajuda. A cor e a do proprio modulo no menu lateral

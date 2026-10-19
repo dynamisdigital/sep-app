@@ -95,14 +95,14 @@
                       +
                     </button>
                     <button type="button" aria-label="Imprimir" (click)="imprimir()">
-                      <lucide-icon name="printer" [size]="28" [strokeWidth]="1.75" />
+                      <lucide-icon name="printer" [size]="22" [strokeWidth]="1.75" />
                     </button>
                     <button
                       type="button"
                       aria-label="Baixar contrato"
                       (click)="baixarDocumento(c.id)"
                     >
-                      <lucide-icon name="download" [size]="16" [strokeWidth]="2.25" />
+                      <lucide-icon name="download" [size]="22" [strokeWidth]="1.75" />
                     </button>
                     <button
                       type="button"
@@ -111,18 +111,13 @@
                       [attr.aria-pressed]="documentoExpandido()"
                       (click)="alternarTelaCheia()"
                     >
-                      <lucide-icon name="maximize" [size]="34" [strokeWidth]="1.5" />
+                      <lucide-icon name="maximize" [size]="22" [strokeWidth]="1.75" />
                     </button>
                   </div>
                 </header>
                 <article class="document-viewer">
                   <div class="document-sheet" [style.zoom]="zoomDocumento() / 100">
-                    <header>
-                      <img
-                        src="/image/sep_mockup_03_assets/logos/logo_sep_header_completo_claro.png"
-                        alt="SEP"
-                      /><span>Página 1 de 12</span>
-                    </header>
+                    <header><sep-logo /><span>Página 1 de 12</span></header>
                     <h3>CONTRATO DE MÚTUO<br />Nº {{ idCurto(c.propostaId) }}</h3>
                     <p class="contract-introduction">
                       Pelo presente instrumento particular de contrato de mútuo, as partes abaixo
