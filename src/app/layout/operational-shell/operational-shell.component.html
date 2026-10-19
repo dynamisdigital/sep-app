@@ -410,6 +410,14 @@
                   </section>
                 }
 
+                <!-- ============ GLOSSÁRIO ============ -->
+                <section class="op-ajuda-links">
+                  <p class="op-ajuda-titulo">Glossário</p>
+                  <a routerLink="/app/glossario" (click)="fecharAjuda()">
+                    <lucide-icon name="book-open" [size]="15" />Glossário técnico
+                  </a>
+                </section>
+
                 <!-- ============ TOURS ASSISTIDOS ============ -->
                 @if (tour.catalogo().length) {
                   <section class="op-ajuda-testes">
@@ -446,7 +454,7 @@
                               <strong>{{ roteiro.titulo }}</strong>
                               <small>{{ tour.impedimento(roteiro) ?? roteiro.descricao }}</small>
                             </span>
-                            <em>{{ roteiro.duracao }}</em>
+                            <em>{{ tour.duracaoDe(roteiro) }}</em>
                           </button>
                         }
                       </details>

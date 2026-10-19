@@ -40,6 +40,12 @@ export const AUTHENTICATED_ROUTES: Routes = [
         data: { breadcrumb: 'Habilitar MFA (TOTP)', immersive: true },
       },
       {
+        path: 'glossario',
+        loadComponent: () =>
+          import('./glossario/glossario-page.component').then((m) => m.GlossarioPageComponent),
+        data: { breadcrumb: 'Glossário técnico', immersive: true },
+      },
+      {
         path: 'step-up',
         loadComponent: () => import('./step-up/step-up.component').then((m) => m.StepUpComponent),
         data: { breadcrumb: 'Confirmação adicional', immersive: true },
