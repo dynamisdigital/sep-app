@@ -75,7 +75,9 @@ describe('CreditoService', () => {
     it('listarPropostas() retorna pagina com os status do tomador', async () => {
       const page = await awaitObservable(service.listarPropostas());
 
-      expect(page.content.length).toBe(8);
+      // Cada proposta criada na sessao entra na lista (antes a nova apagava a anterior): sao as 8 da
+      // semente mais as que os testes anteriores deste arquivo criaram.
+      expect(page.content.length).toBeGreaterThanOrEqual(8);
       expect(page.content.map((p) => p.status)).toContain('PRE_APROVADA');
       expect(page.empty).toBe(false);
     });

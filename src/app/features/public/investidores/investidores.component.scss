@@ -70,7 +70,7 @@
 // Foto do topo, com o mesmo acabamento dos banners da página inicial.
 .px60-foto {
   height: clamp(260px, 32vw, 400px);
-  overflow: hidden;
+  margin-bottom: 1.7rem;
   border: 1px solid var(--site-linha);
   border-radius: 20px;
   background: var(--site-cartao);

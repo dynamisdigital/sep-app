@@ -1540,8 +1540,7 @@ a {
   position: relative;
   align-self: center;
   height: clamp(340px, 46vh, 470px);
-  margin: 0;
-  overflow: hidden;
+  margin: 0 0 1.7rem;
   background:
     linear-gradient(rgb(var(--lp-c-azul) / 8%) 1px, transparent 1px),
     linear-gradient(90deg, rgb(var(--lp-c-azul) / 7%) 1px, transparent 1px),
@@ -1720,4 +1719,23 @@ a {
   .hero-aviso {
     margin-top: clamp(4px, 0.8vh, 12px);
   }
+}
+
+// Acesso à jornada pública, sem alterar os banners já homologados.
+// Só no ambiente de demonstração: a jornada usa as telas reais com dados fictícios.
+.landing-jornada {
+  margin: 0 0 16px;
+}
+
+.landing-jornada button {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 14px;
+  color: var(--site-ciano);
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid var(--site-linha);
+  border-radius: 10px;
+  background: transparent;
 }

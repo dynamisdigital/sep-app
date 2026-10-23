@@ -13,6 +13,7 @@ import { ROTEIROS_PARAMETROS } from './parametros.roteiro';
 import { ROTEIROS_PLATAFORMA } from './plataforma.roteiro';
 import { ROTEIROS_PERFIL } from './perfil.roteiro';
 import { ROTEIROS_PUBLICO } from './publico.roteiro';
+import { ROTEIROS_JORNADA } from './jornada.roteiro';
 import { ROTEIROS_USUARIOS } from './usuarios.roteiro';
 import { enxugarRepeticoes } from './passos-comuns';
 
@@ -38,6 +39,7 @@ const TODOS: Roteiro[] = [
   ...ROTEIROS_PARAMETROS,
   ...ROTEIROS_PERFIL,
   ...ROTEIROS_PUBLICO,
+  ...ROTEIROS_JORNADA,
 ];
 
 /** Os "Modulo completo" juntam roteiros e repetiriam menu e TOTP a cada secao: aqui saem as repeticoes. */
@@ -64,6 +66,7 @@ export const MODULOS_TOUR: Record<string, { icone: string; tom: string }> = {
   Perfil: { icone: 'user-round', tom: 'var(--sep-tint-slate)' },
   Plataforma: { icone: 'layout-dashboard', tom: 'var(--sep-glow)' },
   'Site institucional': { icone: 'globe', tom: 'var(--sep-tint-coral)' },
+  'Jornadas práticas': { icone: 'network', tom: 'var(--sep-accent)' },
 };
 
 export const MODULO_PADRAO = { icone: 'monitor-play', tom: 'var(--sep-glow)' };

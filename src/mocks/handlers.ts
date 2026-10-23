@@ -15,7 +15,28 @@ import { listarAutorizacoes, semearPix } from './data/pix-automatico.store';
 import { criarHandlersPixAutomatico } from './pix-automatico.handlers';
 import { criarHandlersGestao } from './correspondentes-gestao.handlers';
 import { criarHandlersCredoresEscrow, resetIdempotenciaEscrow } from './credores-escrow.handlers';
-import { resetCredoresEscrowState } from './data/credores-escrow.store';
+import {
+  alocar,
+  confirmarAporte,
+  criarAporte,
+  desembolsarOperacao,
+  ID_CREDOR_HELENA,
+  listarOperacoesEscrow,
+  registrarOportunidade,
+  repassarParcela,
+  resetCredoresEscrowState,
+} from './data/credores-escrow.store';
+import {
+  credenciarSub,
+  ID_CORRESPONDENTE_CARLA,
+  registrarEnvio,
+  resetCorrespondentesState,
+  subPorEmail,
+  validarEnvio,
+  vincularProspect,
+} from './data/correspondentes.store';
+import { criarSubNaRede, tetos } from './data/correspondentes-rede.store';
+import { criarProspect, moverEtapa, resetGestaoState } from './data/correspondentes-gestao.store';
 import { qrDataUrl } from './qr';
 import { codigoTotpValido } from './totp';
 
@@ -204,6 +225,12 @@ const subCorrespondenteUsuario = {
   username: 'sub-correspondente@empresa.com',
 };
 
+/** Sub-correspondente credenciado nesta sessao do mock: entra com a conta que a rede acabou de criar. */
+function usuarioDeSubCriado(username: string): typeof subCorrespondenteUsuario | undefined {
+  const sub = subPorEmail(username);
+  return sub ? { ...subCorrespondenteUsuario, id: sub.id, username: sub.email } : undefined;
+}
+
 const usuariosFake = [
   devUsuario,
   adminUsuario,
@@ -272,7 +299,6 @@ function errorResponse(status: number, error: string, message: string, path: str
 // - CPF/CNPJ "sentinela" 999... simula solicitacao ativa (409).
 // - id "...ff03" simula recurso de outro dono (403 ownership).
 const PESSOA_ID = '2f0799c0-98b9-6d9d-bc4a-7d6f5b771f01';
-const EMPRESA_ID = '2f0799c0-98b9-6d9d-bc4a-7d6f5b771f02';
 const ID_SEM_OWNERSHIP = '2f0799c0-98b9-6d9d-bc4a-7d6f5b771ff03';
 const CPF_COM_ONBOARDING_ATIVO = '99999999999';
 const CNPJ_COM_ONBOARDING_ATIVO = '99999999999999';
@@ -292,6 +318,28 @@ const representantesFake = [
     pld: { statusPld: 'LIMPO', dataConsulta: now },
   },
 ];
+
+// Empresas cadastradas pelo onboarding nesta sessao do mock. O cadastro grava de verdade: o que foi digitado
+// volta no acompanhamento, o documento enviado entra na lista e a verificacao aprova. A proposta de credito
+// nasce do ultimo onboarding aprovado (ver `ultimaEmpresaAprovada`).
+interface EmpresaOnboarding {
+  id: string;
+  cnpj: string;
+  razaoSocial: string;
+  nomeFantasia: string | null;
+  tipoSocietario: string | null;
+  porte: string | null;
+  status: string;
+  criadoEm: string;
+  modificadoEm: string;
+  documentos: { id: string; tipo: string; dataEnvio: string; sha256: string }[];
+}
+const empresasOnboarding = new Map<string, EmpresaOnboarding>();
+let seqEmpresaOnboarding = 0;
+
+function ultimaEmpresaAprovada(): EmpresaOnboarding | undefined {
+  return [...empresasOnboarding.values()].reverse().find((e) => e.status === 'APROVADO_FINAL');
+}
 
 const onboardingHandlers = [
   http.post(`${baseUrl}/onboarding/pessoa`, async ({ request }) => {
@@ -382,12 +430,31 @@ const onboardingHandlers = [
       );
     }
 
+    seqEmpresaOnboarding += 1;
+    const dados = body as {
+      nomeFantasia?: string;
+      tipoSocietario?: string;
+      porte?: string;
+    };
+    const nova: EmpresaOnboarding = {
+      id: `2f0799c0-98b9-6d9d-bc4a-7d6f5b7720${String(seqEmpresaOnboarding).padStart(2, '0')}`,
+      cnpj: body.cnpj ?? '',
+      razaoSocial: body.razaoSocial ?? '',
+      nomeFantasia: dados.nomeFantasia ?? null,
+      tipoSocietario: dados.tipoSocietario ?? null,
+      porte: dados.porte ?? null,
+      status: 'INICIADO',
+      criadoEm: now,
+      modificadoEm: now,
+      documentos: [],
+    };
+    empresasOnboarding.set(nova.id, nova);
     return HttpResponse.json(
       {
-        id: EMPRESA_ID,
-        status: 'INICIADO',
-        cnpj: body.cnpj ?? '',
-        razaoSocial: body.razaoSocial ?? '',
+        id: nova.id,
+        status: nova.status,
+        cnpj: nova.cnpj,
+        razaoSocial: nova.razaoSocial,
         dataCriacao: now,
         dataModificacao: now,
       },
@@ -414,13 +481,25 @@ const onboardingHandlers = [
         `/api/v1/onboarding/empresa/${params['id']}/documentos`,
       );
     }
+    const empresa = empresasOnboarding.get(params['id'] as string);
+    if (empresa) {
+      empresa.documentos.push({
+        id: `3f0799c0-98b9-6d9d-bc4a-7d6f5b7721${String(empresa.documentos.length + 1).padStart(2, '0')}`,
+        tipo,
+        dataEnvio: now,
+        sha256: 'c1d2e3f4a5b6',
+      });
+      empresa.status = 'DOCUMENTOS_RECEBIDOS';
+    }
     return new HttpResponse(null, { status: 204 });
   }),
 
-  http.post(
-    `${baseUrl}/onboarding/empresa/:id/verificar`,
-    () => new HttpResponse(null, { status: 202 }),
-  ),
+  http.post(`${baseUrl}/onboarding/empresa/:id/verificar`, ({ params }) => {
+    // Demonstracao: a verificacao KYB/PLD conclui na hora e aprova o cadastro.
+    const empresa = empresasOnboarding.get(params['id'] as string);
+    if (empresa) empresa.status = 'APROVADO_FINAL';
+    return new HttpResponse(null, { status: 202 });
+  }),
 
   http.get(`${baseUrl}/onboarding/empresa/:id`, ({ params }) => {
     const id = params['id'] as string;
@@ -431,6 +510,28 @@ const onboardingHandlers = [
         'solicitacao pertence a outro usuario',
         `/api/v1/onboarding/empresa/${id}`,
       );
+    }
+    const gravada = empresasOnboarding.get(id);
+    if (gravada) {
+      return HttpResponse.json({
+        id,
+        status: gravada.status,
+        dataCriacao: gravada.criadoEm,
+        dataModificacao: gravada.modificadoEm,
+        dadosEmpresa: {
+          cnpj: gravada.cnpj,
+          razaoSocial: gravada.razaoSocial,
+          nomeFantasia: gravada.nomeFantasia,
+          tipoSocietario: gravada.tipoSocietario,
+          porte: gravada.porte,
+        },
+        documentosEnviados: gravada.documentos,
+        representantes: representantesFake,
+        resultado:
+          gravada.status === 'APROVADO_FINAL'
+            ? { statusFinal: 'APROVADO_FINAL', motivo: null, dataResultado: now }
+            : null,
+      });
     }
     return HttpResponse.json({
       id,
@@ -638,6 +739,66 @@ const propostasFake: Record<string, ReturnType<typeof propostaFake>> = {
   [PROPOSTA_REJEITADA_ID]: propostaFake(PROPOSTA_REJEITADA_ID, 'REJEITADA', null, null, 1500),
 };
 
+// Propostas criadas nesta sessao (mais recente primeiro). Antes havia um unico slot, e a segunda proposta
+// apagava a primeira; agora cada pedido vira uma proposta propria, que o restante da jornada acompanha.
+const propostasCriadas: string[] = [];
+let seqPropostaCriada = 0;
+
+/** Cria a proposta da sessao; nasce do ultimo onboarding aprovado, e a empresa cadastrada e a que pede o credito. */
+function registrarPropostaDaSessao(
+  valor: number,
+  prazoMeses: number,
+  tipoOperacao: string,
+  solicitacaoOnboardingId: string,
+): ReturnType<typeof propostaFake> {
+  seqPropostaCriada += 1;
+  const novoId = `3f0799c0-98b9-6d9d-bc4a-7d6f5b7722${String(seqPropostaCriada).padStart(2, '0')}`;
+  const proposta = propostaFake(novoId, 'EM_ANALISE', null, null, valor, prazoMeses, tipoOperacao);
+  proposta.solicitacaoOnboardingId = solicitacaoOnboardingId;
+  const empresa = ultimaEmpresaAprovada();
+  if (empresa) {
+    proposta.solicitacaoOnboardingId = empresa.id;
+    proposta.empresaNome = empresa.razaoSocial;
+    proposta.cnpj = mascararCnpj(empresa.cnpj);
+  }
+  propostasFake[novoId] = proposta;
+  propostasCriadas.unshift(novoId);
+  return proposta;
+}
+
+function mascararCnpj(valor: string): string {
+  const d = valor.replace(/\D/g, '');
+  return d.length === 14
+    ? `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`
+    : valor;
+}
+
+/**
+ * Parecer do analista sobre a proposta: a decisao muda a situacao dela. Aprovar gera o contrato, que passa a
+ * aguardar o aceite na formalizacao. Antes o parecer so era guardado, e a proposta nunca andava.
+ */
+function aplicarParecerNaProposta(id: string, decisao: string): void {
+  const proposta = propostasFake[id];
+  if (!proposta) return;
+  const status =
+    decisao === 'APROVAR' ? 'APROVADA' : decisao === 'REJEITAR' ? 'REJEITADA' : 'PENDENCIA';
+  proposta.status = status;
+  proposta.percentualAnalise = PERCENTUAL_ANALISE[status] ?? 0;
+  proposta.etapas = etapasProposta(status, proposta.dataCriacao, now);
+  proposta.dataModificacao = now;
+  if (status === 'APROVADA') {
+    criarContratoDaProposta(proposta);
+    registrarOportunidade({
+      id: proposta.id,
+      devedorId: `devedor-${proposta.id}`,
+      devedorNome: proposta.empresaNome,
+      valor: proposta.valorSolicitado,
+      taxaJurosMensal: TAXA_MENSAL_PADRAO,
+      prazoMeses: proposta.prazoMeses,
+    });
+  }
+}
+
 function pageOf<T>(content: T[]) {
   return {
     content,
@@ -670,24 +831,19 @@ const creditoHandlers = [
       );
     }
 
-    const propostaCriada = propostaFake(
-      PROPOSTA_CRIADA_ID,
-      'EM_ANALISE',
-      null,
-      null,
+    const propostaCriada = registrarPropostaDaSessao(
       Number(body.valorSolicitado ?? 0),
       Number(body.prazoMeses ?? 0),
       body.tipoOperacao ?? 'CAPITAL_GIRO',
+      body.solicitacaoOnboardingId ?? '',
     );
-    propostaCriada.solicitacaoOnboardingId = body.solicitacaoOnboardingId ?? '';
-    propostasFake[PROPOSTA_CRIADA_ID] = propostaCriada;
-
     return HttpResponse.json(propostaCriada, { status: 201 });
   }),
 
   http.get(`${baseUrl}/credito/propostas`, ({ request }) => {
     const status = new URL(request.url).searchParams.get('status');
     const todas = [
+      ...propostasCriadas.map((id) => propostasFake[id]),
       propostasFake[PROPOSTA_CRIADA_ID],
       propostasFake[PROPOSTA_EM_ANALISE_ID],
       propostasFake[PROPOSTA_PRE_APROVADA_ID],
@@ -959,6 +1115,37 @@ const statusAssinaturaPorContrato: Record<
     idEnvelopeExterno: 'env-ext-0004',
   },
 };
+
+// Contratos gerados a partir de propostas aprovadas nesta sessao.
+let seqContratoCriado = 0;
+const PREFIXO_CONTRATO_DA_JORNADA = '6f0799c0-98b9-6d9d-bc4a-7d6f5b7723';
+
+function ehContratoDaJornada(id: string): boolean {
+  return id.startsWith(PREFIXO_CONTRATO_DA_JORNADA);
+}
+
+function criarContratoDaProposta(proposta: ReturnType<typeof propostaFake>): void {
+  if (Object.values(contratosFake).some((c) => c.propostaId === proposta.id)) return;
+  seqContratoCriado += 1;
+  const n = String(seqContratoCriado).padStart(2, '0');
+  const id = `${PREFIXO_CONTRATO_DA_JORNADA}${n}`;
+  const versao = {
+    ...versaoFake(`8f0799c0-98b9-6d9d-bc4a-7d6f5b7724${n}`, 1, DOCUMENTO_HASH_SHA256),
+    conteudoTexto: `CONTRATO DE MUTUO
+
+Tomador: ${proposta.empresaNome} (CNPJ ${proposta.cnpj}).
+Valor: ${moedaBr(proposta.valorSolicitado)} em ${proposta.prazoMeses} parcelas mensais (tabela Price).
+Clausula 1 - Objeto.
+Clausula 2 - Prazo.`,
+  };
+  contratosFake[id] = contratoFake(id, proposta.id, 'AGUARDANDO_ACEITE', versao, null);
+  versoesPorContrato[id] = [versao];
+  statusAssinaturaPorContrato[id] = {
+    statusContrato: 'AGUARDANDO_ACEITE',
+    statusEnvelope: null,
+    idEnvelopeExterno: null,
+  };
+}
 
 const formalizacaoHandlers = [
   http.get(`${baseUrl}/contratos/proposta/:propostaId`, ({ params }) => {
@@ -3210,12 +3397,23 @@ const pixHandlers = [
         path,
       );
     }
+    // Contrato criado pela jornada de demonstracao: so desembolsa depois de assinado.
+    const daJornada = contratosFake[body.contratoId ?? ''];
+    if (daJornada && ehContratoDaJornada(daJornada.id) && daJornada.status !== 'ASSINADO') {
+      return errorResponse(
+        422,
+        'Unprocessable Entity',
+        'Contrato inelegivel para desembolso (nao assinado, sem agenda ou escrow inoperante)',
+        path,
+      );
+    }
     pixSeq += 1;
     const transferenciaId = novoId('e0000000', pixSeq);
     const novo: DesembolsoMockState = {
       transferenciaId,
       contratoId: body.contratoId ?? '',
-      status: 'CRIADA',
+      // Contrato da jornada: a transferencia ja segue ao provider e conclui na proxima reconsulta.
+      status: daJornada && ehContratoDaJornada(daJornada.id) ? 'PROCESSANDO' : 'CRIADA',
       valor: body.valor ?? 0,
       chaveDestinoMascara: mascararChavePix(body.chavePixDestino ?? ''),
     };
@@ -3690,6 +3888,171 @@ const credoraHandlers = [
   }),
 ];
 
+// ============ JORNADA DE DEMONSTRACAO: REINICIO E PREPARO ============
+
+function reiniciarDemo(): void {
+  resetCorrespondentesState();
+  resetGestaoState();
+  resetCobrancaState();
+  resetPixState();
+  resetCredoraState();
+  resetGovernancaState();
+  resetSenhasDev();
+  resetCredoresEscrowState();
+  resetIdempotenciaEscrow();
+  empresasOnboarding.clear();
+  seqEmpresaOnboarding = 0;
+  for (const id of propostasCriadas) delete propostasFake[id];
+  propostasCriadas.length = 0;
+  seqPropostaCriada = 0;
+  for (const c of Object.values(contratosFake)) {
+    if (ehContratoDaJornada(c.id)) {
+      delete contratosFake[c.id];
+      delete versoesPorContrato[c.id];
+      delete statusAssinaturaPorContrato[c.id];
+    }
+  }
+  seqContratoCriado = 0;
+}
+
+const DEMO_SUB = {
+  nome: 'Mariana Duarte Correspondências',
+  cpf: '000.000.000-00',
+  email: 'mariana.exemplo@empresa.com',
+  telefone: '(11) 90000-0000',
+};
+const DEMO_CLIENTE = 'Padaria Boa Massa Ltda';
+const DEMO_CNPJ = '11222333000181';
+
+/**
+ * Pontos de partida dos capitulos da jornada, em ordem: cada um inclui tudo o que o anterior ja fez.
+ * `sub`: o sub existe. `envio`: + cliente captado e documento enviado. `cadastro`: + envio validado e tomador
+ * aprovado. `proposta`: + pedido de credito. `aprovada`: + parecer, contrato e oportunidade. `alocada`: + credor
+ * financiou. `assinado`: + contrato assinado. `quitada`: + operacao formada, desembolsada e paga.
+ */
+const ETAPAS_DO_PREPARO = [
+  'sub',
+  'envio',
+  'cadastro',
+  'proposta',
+  'aprovada',
+  'alocada',
+  'assinado',
+  'quitada',
+] as const;
+
+function prepararJornada(ate: string): void {
+  reiniciarDemo();
+  const limite = ETAPAS_DO_PREPARO.indexOf(ate as (typeof ETAPAS_DO_PREPARO)[number]);
+  if (limite < 0) return;
+  const ate_ = (etapa: (typeof ETAPAS_DO_PREPARO)[number]) =>
+    limite >= ETAPAS_DO_PREPARO.indexOf(etapa);
+
+  // sub
+  criarSubNaRede(ID_CORRESPONDENTE_CARLA, {
+    ...DEMO_SUB,
+    percentuais: tetos().map((t) => ({ produto: t.produto, percentualSub: 0 })),
+  });
+  credenciarSub(DEMO_SUB.email);
+  const subId = subPorEmail(DEMO_SUB.email)?.id ?? '';
+  if (!ate_('envio')) return;
+
+  // envio
+  const prospect = criarProspect(subId, {
+    nome: DEMO_CLIENTE,
+    tipoPessoa: 'PJ',
+    telefone: '(11) 98888-7777',
+    produtoInteresse: 'Capital de giro',
+    valorEstimado: 6000,
+  });
+  moverEtapa(subId, prospect.id, 'DOCUMENTACAO');
+  vincularProspect(subId, DEMO_CLIENTE);
+  const envio = registrarEnvio(subId, {
+    clienteNome: DEMO_CLIENTE,
+    documentos: [{ tipo: 'Documento de identidade', nomeArquivo: 'documento-exemplo.pdf' }],
+    atestoConferencia: true,
+  });
+  if (!ate_('cadastro')) return;
+
+  // cadastro
+  validarEnvio(envio.id, { decisao: 'VALIDAR', observacao: '' });
+  seqEmpresaOnboarding += 1;
+  const empresa: EmpresaOnboarding = {
+    id: `2f0799c0-98b9-6d9d-bc4a-7d6f5b7720${String(seqEmpresaOnboarding).padStart(2, '0')}`,
+    cnpj: DEMO_CNPJ,
+    razaoSocial: DEMO_CLIENTE,
+    nomeFantasia: 'Boa Massa',
+    tipoSocietario: 'LTDA',
+    porte: 'ME',
+    status: 'APROVADO_FINAL',
+    criadoEm: now,
+    modificadoEm: now,
+    documentos: [
+      {
+        id: '3f0799c0-98b9-6d9d-bc4a-7d6f5b772101',
+        tipo: 'CONTRATO_SOCIAL',
+        dataEnvio: now,
+        sha256: 'c1d2e3f4a5b6',
+      },
+    ],
+  };
+  empresasOnboarding.set(empresa.id, empresa);
+  if (!ate_('proposta')) return;
+
+  // proposta
+  const proposta = registrarPropostaDaSessao(6000, 12, 'CAPITAL_GIRO', empresa.id);
+  if (!ate_('aprovada')) return;
+
+  // aprovada: o parecer gera o contrato e a oportunidade do credor
+  aplicarParecerNaProposta(proposta.id, 'APROVAR');
+  if (!ate_('alocada')) return;
+
+  // alocada: aporte confirmado e valor reservado pela credora
+  const aporte = criarAporte(ID_CREDOR_HELENA, 6000);
+  if (aporte.ok) confirmarAporte(ID_CREDOR_HELENA, aporte.valor.id);
+  alocar(ID_CREDOR_HELENA, { oportunidadeId: proposta.id, valor: 6000, cienciaRisco: true });
+  if (!ate_('assinado')) return;
+
+  // assinado
+  const contrato = Object.values(contratosFake).find((c) => c.propostaId === proposta.id);
+  if (contrato) {
+    contrato.status = 'ASSINADO';
+    contrato.aceite = aceiteFake(contrato.versaoVigente?.id ?? '');
+    statusAssinaturaPorContrato[contrato.id] = {
+      statusContrato: 'ASSINADO',
+      statusEnvelope: 'ASSINADO',
+      idEnvelopeExterno: 'env-ext-jornada',
+    };
+  }
+  if (!ate_('quitada')) return;
+
+  // quitada: desembolso da tesouraria, Pix concluido e as doze parcelas repassadas
+  const operacaoId = `op-${proposta.id}`;
+  desembolsarOperacao(proposta.id, operacaoId);
+  pixSeq += 1;
+  const transferenciaId = novoId('e0000000', pixSeq);
+  transferenciasPix[transferenciaId] = {
+    transferenciaId,
+    contratoId: contrato?.id ?? '',
+    status: 'CONCLUIDA',
+    valor: 6000,
+    chaveDestinoMascara: mascararChavePix(DEMO_CNPJ),
+    etapas: etapasDesembolso('CONCLUIDA'),
+    nsu: '000123456790',
+    codigoRetorno: '00 - Sucesso',
+  };
+  for (let i = 0; i < 12; i += 1) {
+    const proxima = listarOperacoesEscrow().find(
+      (o) => o.operacaoId === operacaoId,
+    )?.proximaParcela;
+    if (!proxima) break;
+    repassarParcela(operacaoId, proxima.numero, {
+      principal: proxima.principal,
+      juros: proxima.juros,
+    });
+  }
+}
+
 export const handlers = [
   // A gestao vem antes: `/correspondentes/:id` casaria rotas como /comissoes e /auditoria.
   // A rede vem antes da gestao: `/correspondentes/me/rede/...` nao pode cair nas rotas `/me/...` genericas.
@@ -3706,18 +4069,20 @@ export const handlers = [
       // O mesmo tomador das propostas tem Pix Automatico ativo em algum contrato da carteira.
       return proposta ? { ...proposta, pixAutomaticoAtivo: temPixAutomaticoAtivo() } : undefined;
     },
+    aplicarParecerNaProposta,
   ),
   ...criarHandlersCorrespondentes(baseUrl, () => currentMockUser, errorResponse),
 
   http.post(`${baseUrl}/auth/login`, async ({ request }) => {
     const body = (await request.json()) as { username?: string; password?: string };
-    const candidato = loginUsuarios[body.username ?? ''];
+    const candidato = loginUsuarios[body.username ?? ''] ?? usuarioDeSubCriado(body.username ?? '');
     const usuario =
       candidato && body.password === senhaDe(body.username ?? '') ? candidato : undefined;
     if (!usuario) {
       return errorResponse(401, 'Unauthorized', 'Credenciais invalidas', '/api/v1/auth/login');
     }
     currentMockUser = usuario;
+    credenciarSub(usuario.username);
     return HttpResponse.json({
       accessToken: 'mock-jwt-token',
       tokenType: 'Bearer',
@@ -3928,6 +4293,36 @@ export const handlers = [
     }
     if (dono) {
       senhasPorUsuario[dono] = body.novaSenha!;
+    }
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // Controle da jornada de demonstracao: devolve todos os stores ao ponto de partida, para cada execucao
+  // do tour comecar do mesmo jeito (o e-mail do sub, por exemplo, nao colide com o da rodada anterior).
+  http.post(`${baseUrl}/__demo/reset`, () => {
+    reiniciarDemo();
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // Prepara os registros de uma jornada ate o ponto em que um capitulo comeca, para o tour poder saltar para
+  // ele sem passar pelos anteriores. Reinicia tudo e refaz, direto nos stores, o que os capitulos fariam.
+  http.post(`${baseUrl}/__demo/preparar`, ({ request }) => {
+    prepararJornada(new URL(request.url).searchParams.get('ate') ?? '');
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // Na demonstracao o provedor de assinatura digital e simulado: este endpoint faz o papel do aviso que ele
+  // enviaria ao sistema quando todos assinaram. O contrato sai de "em assinatura" e fica assinado.
+  http.post(`${baseUrl}/__demo/assinatura-concluida`, () => {
+    for (const contrato of Object.values(contratosFake)) {
+      if (ehContratoDaJornada(contrato.id) && contrato.status === 'EM_ASSINATURA') {
+        contrato.status = 'ASSINADO';
+        statusAssinaturaPorContrato[contrato.id] = {
+          statusContrato: 'ASSINADO',
+          statusEnvelope: 'ASSINADO',
+          idEnvelopeExterno: 'env-ext-jornada',
+        };
+      }
     }
     return new HttpResponse(null, { status: 204 });
   }),

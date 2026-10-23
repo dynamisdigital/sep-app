@@ -114,6 +114,8 @@
                           <button
                             type="button"
                             class="pxe-btn-mini"
+                            data-acao="desembolsar"
+                            [attr.data-devedor]="o.devedorNome"
                             [disabled]="!o.pronta || ocupado()"
                             (click)="desembolsar(o)"
                           >
@@ -157,7 +159,10 @@
               </thead>
               <tbody>
                 @for (op of operacoes(); track op.operacaoId) {
-                  <tr>
+                  <tr
+                    [attr.data-devedor]="op.devedorNome"
+                    [attr.data-parcelas]="op.parcelasRepassadas"
+                  >
                     <td>{{ op.devedorNome }}</td>
                     <td class="pxe-num">{{ op.credores }}</td>
                     <td class="pxe-num">{{ op.parcelasRepassadas }}/{{ op.parcelasTotal }}</td>
@@ -175,6 +180,8 @@
                         <button
                           type="button"
                           class="pxe-btn-mini"
+                          data-acao="repassar"
+                          [attr.data-devedor]="op.devedorNome"
                           [disabled]="ocupado()"
                           (click)="repassar(op)"
                         >

@@ -13,6 +13,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { SepLogoComponent } from '../../../shared/arte/sep-logo.component';
 import { LarguraTelaDirective } from '../../../core/layout/largura-tela.directive';
 import { ThemeService } from '../../../core/theme/theme.service';
+import { ehAmbienteDemo } from '../../../core/env/ambiente';
 import { TourService } from '../../../core/tour/tour.service';
 import { AcoesPublicasComponent } from '../../../shared/acoes-publicas/acoes-publicas.component';
 import { FotoBannerComponent } from './foto-banner.component';
@@ -60,6 +61,13 @@ export class LandingComponent {
 
   private readonly tema = inject(ThemeService);
   private readonly tour = inject(TourService);
+
+  /** A operação completa nas telas reais só existe no ambiente de demonstração (mocks no navegador). */
+  protected readonly demo = ehAmbienteDemo();
+
+  protected iniciarJornada(): void {
+    this.tour.iniciar('jornada-real');
+  }
 
   /** O botao do topo troca o tema da tela publica; o escuro e o padrao do projeto. */
   protected readonly temaEscuro = this.tema.isDark;

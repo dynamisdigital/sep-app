@@ -11,7 +11,6 @@ import { PropostaCreatePageComponent } from './proposta-create-page.component';
 import { LucideAngularModule } from 'lucide-angular';
 import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 
-const PROPOSTA_CRIADA_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c07';
 const ONBOARDING_APROVADO = '2f0799c0-98b9-6d9d-bc4a-7d6f5b771f01';
 
 async function flush(times = 5): Promise<void> {
@@ -84,7 +83,11 @@ describe('PropostaCreatePageComponent', () => {
     fireEvent.click(screen.getByText('Enviar proposta'));
     await estabilizar(fixture);
 
-    expect(navigateSpy).toHaveBeenCalledWith(['/app/credito/propostas', PROPOSTA_CRIADA_ID]);
+    // O mock gera um id novo por proposta criada, no padrao 3f0799c0-...-7722NN.
+    expect(navigateSpy).toHaveBeenCalledWith([
+      '/app/credito/propostas',
+      expect.stringMatching(/^3f0799c0-98b9-6d9d-bc4a-7d6f5b7722\d{2}$/),
+    ]);
   });
 
   it('mostra pre-condicao de onboarding pendente em 422', async () => {

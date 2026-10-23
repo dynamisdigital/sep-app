@@ -39,6 +39,7 @@ export function criarHandlersAnaliseCredito(
   usuarioAtual: () => UsuarioMock,
   erro: ErroFn,
   propostaDe: (id: string) => PropostaParaAnalise | undefined,
+  aoRegistrarParecer?: (propostaId: string, decisao: string) => void,
 ) {
   const url = `${baseUrl}/credito`;
 
@@ -101,7 +102,9 @@ export function criarHandlersAnaliseCredito(
       if (!propostaDe(id)) return erro(404, 'Not Found', 'Proposta não encontrada', path);
       const body = (await request.json()) as RegistrarParecerRequest;
       const res = registrarParecer(id, body, usuarioAtual().username);
-      return 'erro' in res ? falha(res, path) : HttpResponse.json(res);
+      if ('erro' in res) return falha(res, path);
+      aoRegistrarParecer?.(id, body.decisao);
+      return HttpResponse.json(res);
     }),
   ];
 }

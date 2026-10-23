@@ -36,18 +36,21 @@ import { BannerHero, fotoDoBanner } from './banners-hero';
       width: 100%;
       height: 100%;
       min-height: 0;
+      border-radius: inherit;
     }
 
     img {
       display: block;
       width: 100%;
       height: 100%;
+      border-radius: inherit;
       object-fit: cover;
     }
 
     .arte {
       --ilu-h: 100%;
 
+      border-radius: inherit;
       display: grid;
       width: 100%;
       height: 100%;
@@ -55,17 +58,16 @@ import { BannerHero, fotoDoBanner } from './banners-hero';
       place-items: center;
     }
 
+    /* Fora da moldura, logo abaixo da imagem e alinhado à sua esquerda. O recipiente da imagem deixa
+       esta faixa livre (margin-bottom) e não corta o que passa da sua borda. */
     .rotulo {
       position: absolute;
-      bottom: 12px;
-      left: 14px;
-      padding: 3px 10px;
-      color: rgb(var(--lp-c-texto));
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      border-radius: 99px;
-      background: rgb(var(--lp-c-fundo) / 62%);
+      top: calc(100% + 6px);
+      left: 0;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      opacity: 0.72;
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -578,6 +578,14 @@ export function auditoriaDe(credorId: string): EventoAuditoriaCredor[] {
     .sort((a, b) => b.data.localeCompare(a.data));
 }
 
+/**
+ * Proposta aprovada vira oportunidade de financiamento: a escrow passa a oferece-la para alocacao. A
+ * jornada de demonstracao usa isto para a proposta recem-aprovada aparecer para o credor.
+ */
+export function registrarOportunidade(nova: Omit<OportunidadeEscrow, 'disponivel'>): void {
+  oportunidades[nova.id] = { ...nova, disponivel: true };
+}
+
 export function listarOportunidadesEscrow(): OportunidadeEscrow[] {
   return Object.values(oportunidades);
 }

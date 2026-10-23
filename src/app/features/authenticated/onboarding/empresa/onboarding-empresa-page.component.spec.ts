@@ -66,7 +66,11 @@ describe('OnboardingEmpresaPageComponent', () => {
 
     await estabilizar(fixture);
 
-    expect(navigateSpy).toHaveBeenCalledWith(['/app/onboarding/empresa', EMPRESA_ID]);
+    // O mock gera um id novo por cadastro, no padrao 2f0799c0-...-7720NN.
+    expect(navigateSpy).toHaveBeenCalledWith([
+      '/app/onboarding/empresa',
+      expect.stringMatching(/^2f0799c0-98b9-6d9d-bc4a-7d6f5b7720\d{2}$/),
+    ]);
   });
 
   it('mostra estado de conflito quando o CNPJ ja tem onboarding ativo (409)', async () => {

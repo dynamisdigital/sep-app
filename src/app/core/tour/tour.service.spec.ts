@@ -564,7 +564,9 @@ describe('TourService', () => {
       expect(tour.catalogo().some((g) => g.modulo === 'Site institucional')).toBe(false);
 
       const publico = tour.catalogoPublico();
-      expect(publico.length).toBe(1);
+      expect(publico.length).toBe(2);
+      expect(publico[1].modulo).toBe('Jornadas práticas');
+      expect(publico[1].roteiros).toHaveLength(1);
       expect(publico[0].modulo).toBe('Site institucional');
       expect(publico[0].roteiros.map((r) => r.titulo)).toEqual([
         'Módulo completo',
@@ -590,7 +592,7 @@ describe('TourService', () => {
 
     it('partem da pagina inicial e so apontam elementos, sem gravar nada', () => {
       const ctx = { demo: true, papel: null, mfa: false, carimbo: '000000', dados: {} };
-      for (const roteiro of ROTEIROS.filter((r) => r.area === 'publica')) {
+      for (const roteiro of ROTEIROS.filter((r) => r.modulo === 'Site institucional')) {
         expect(roteiro.rotaInicial, roteiro.id).toBe('/');
         const passos = roteiro.passos(ctx);
         // Nenhum passo grava: o formulario de contato e so mostrado, e nada e digitado.
@@ -714,7 +716,11 @@ describe('TourService', () => {
     it('todo "Modulo completo" marca cada passo com o roteiro a que pertence, em ordem', () => {
       const completos = ROTEIROS.filter((r) => r.titulo === 'Módulo completo');
       // Todo modulo tem o seu; Correspondentes tem dois, um por face (correspondente e administracao).
-      expect(new Set(completos.map((c) => c.modulo)).size).toBe(Object.keys(MODULOS_TOUR).length);
+      expect([...new Set(completos.map((c) => c.modulo))].sort()).toEqual(
+        Object.keys(MODULOS_TOUR)
+          .filter((m) => m !== 'Jornadas práticas')
+          .sort(),
+      );
       for (const completo of completos) {
         const passos = completo.passos(ctx);
         expect(

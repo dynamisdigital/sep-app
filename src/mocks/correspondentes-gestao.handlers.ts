@@ -24,7 +24,7 @@ import {
   moverEtapa,
   registrarAuditoria,
 } from './data/correspondentes-gestao.store';
-import { correspondentePorEmail } from './data/correspondentes.store';
+import { correspondentePorEmail, vincularProspect } from './data/correspondentes.store';
 
 interface UsuarioMock {
   username: string;
@@ -114,6 +114,8 @@ export function criarHandlersGestao(
       }
       const res = moverEtapa(r.proprio!.id, String(params['id']), body.etapa, body.motivoPerda);
       if (!res) return erro(404, 'Not Found', 'Prospect nao encontrado', path);
+      // Na documentacao o prospect ja e cliente da base: o envio de documentos passa a oferece-lo.
+      if (body.etapa === 'DOCUMENTACAO') vincularProspect(r.proprio!.id, res.prospect.nome);
       auditar(
         'PROSPECT_MOVIDO',
         'Prospect',

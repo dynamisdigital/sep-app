@@ -27,6 +27,80 @@ export interface EtapaMenu {
   css?: string;
 }
 
+/**
+ * Marca como `entrada` do primeiro passo de uma secao os passos que levam a tela ao ponto certo (a conta
+ * certa, a tela certa). Rodam so quando o operador salta direto para a secao, sem passar pelas anteriores.
+ */
+export function comEntrada(passos: PassoRoteiro[], entrada: PassoRoteiro[]): PassoRoteiro[] {
+  return passos.map((p, i) => (i === 0 ? { ...p, entrada } : p));
+}
+
+/** Senha das contas do modo demonstracao (a mesma que o login do mock aceita). */
+export const SENHA_DEMO = '123456';
+
+const ESTA_NO_LOGIN = () => window.location.pathname.startsWith('/login');
+const MENU_DA_CONTA = 'button[aria-label="Menu da conta"]';
+
+/** Encerra a sessao pelo menu da conta, como o usuario faria, e chega a tela de login. */
+export function sairDaConta(): PassoRoteiro[] {
+  return [
+    {
+      titulo: 'Ir para a entrada',
+      texto: 'Estamos na página inicial. O botão Entrar leva ao login.',
+      alvo: '.landing-login',
+      acao: { tipo: 'clicar' },
+      aguardarRota: /^\/(login|app\/)/,
+      pularSe: () => !document.querySelector('.landing-login'),
+    },
+    {
+      titulo: 'Abrir o menu da conta',
+      texto: 'Para trocar de perfil, o menu da conta, no canto superior direito, é aberto.',
+      alvo: MENU_DA_CONTA,
+      acao: { tipo: 'clicar' },
+      aguardarAlvo: '.op-conta-menu',
+      pularSe: () => ESTA_NO_LOGIN() || !!document.querySelector('.op-conta-menu'),
+    },
+    {
+      titulo: 'Sair da conta',
+      texto: 'Sair encerra a sessão deste perfil e volta para a tela de login.',
+      alvo: '.op-conta-sair',
+      acao: { tipo: 'clicar', efeito: true },
+      aguardarRota: /^\/login/,
+      pularSe: ESTA_NO_LOGIN,
+    },
+  ];
+}
+
+/** Entra pela tela de login, digitando as credenciais de uma conta de demonstracao. */
+export function entrarComo(email: string, quem: string): PassoRoteiro[] {
+  return [
+    {
+      titulo: `Entrar como ${quem}`,
+      texto: `Na tela de login, o e-mail do ${quem} é digitado.`,
+      alvo: '#login-username',
+      acao: { tipo: 'digitar', texto: () => email, limpar: true },
+    },
+    {
+      titulo: 'Senha',
+      texto: 'A senha da conta de demonstração é preenchida. Ela fica oculta na tela.',
+      alvo: '#login-password',
+      acao: { tipo: 'digitar', texto: () => SENHA_DEMO, limpar: true },
+    },
+    {
+      titulo: 'Acessar a plataforma',
+      texto: `Entrar na plataforma abre o sistema com o perfil de ${quem}.`,
+      alvo: '.login-submit',
+      acao: { tipo: 'clicar', efeito: true },
+      aguardarRota: /^\/app\//,
+    },
+  ];
+}
+
+/** Troca de perfil como no uso real: sair da conta atual e entrar na outra pelo login. */
+export function trocarDeConta(email: string, quem: string): PassoRoteiro[] {
+  return [...sairDaConta(), ...entrarComo(email, quem)];
+}
+
 /** Abre o menu quando ele esta recolhido a uma barra de icones; senao, nao faz nada. */
 export function abrirMenu(): PassoRoteiro {
   return {

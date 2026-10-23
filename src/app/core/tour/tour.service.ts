@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 
 import { AuthService } from '../auth/auth.service';
 import { ehAmbienteDemo } from '../env/ambiente';
+import { environment } from '../../../environments/environment';
 import { MusicaService } from './musica.service';
 import { estimarPassos, formatarEstimativa } from './tempo-tour';
 import { NarradorService } from './narrador.service';
@@ -158,8 +159,12 @@ export class TourService {
   readonly catalogoPublico = computed(() => {
     const roteiros = ROTEIROS.filter((r) => r.area === 'publica');
     if (!roteiros.length) return [];
-    const modulo = roteiros[0].modulo;
-    return [{ modulo, ...(MODULOS_TOUR[modulo] ?? MODULO_PADRAO), roteiros }];
+    const modulos = [...new Set(roteiros.map((r) => r.modulo))];
+    return modulos.map((modulo) => ({
+      modulo,
+      ...(MODULOS_TOUR[modulo] ?? MODULO_PADRAO),
+      roteiros: roteiros.filter((r) => r.modulo === modulo),
+    }));
   });
 
   private readonly duracoes = new Map<string, string>();
@@ -207,7 +212,22 @@ export class TourService {
     this.descongelar();
     // Chamado dentro do clique que abriu o tour: e o gesto que o navegador exige para ter audio.
     this.musica.tocar();
-    void this.executar(++this.execucao);
+    const execucao = ++this.execucao;
+    void this.prepararDemo(roteiro).then(() => {
+      // Cancelado ou trocado por outro roteiro enquanto os dados eram reiniciados: nao executa.
+      if (execucao === this.execucao) void this.executar(execucao);
+    });
+  }
+
+  /** Reinicia os stores do mock quando o roteiro pede (so no ambiente de demonstracao). */
+  private async prepararDemo(roteiro: Roteiro, ate?: string): Promise<void> {
+    if (!roteiro.reiniciarDemo || !ehAmbienteDemo()) return;
+    const caminho = ate ? `/__demo/preparar?ate=${encodeURIComponent(ate)}` : '/__demo/reset';
+    try {
+      await fetch(`${environment.apiBaseUrl}${caminho}`, { method: 'POST' });
+    } catch {
+      // Sem o endpoint do mock o roteiro segue com os dados que houver.
+    }
   }
 
   pausar(): void {
@@ -262,7 +282,19 @@ export class TourService {
    */
   irParaSecao(posicao: number): void {
     const secao = this.secoes()[posicao];
-    if (!secao) return;
+    const roteiro = this.roteiro();
+    if (!secao || !roteiro) return;
+    if (roteiro.reiniciarDemo) {
+      // Os registros dos capitulos anteriores precisam existir: para a execucao em curso, prepara os dados
+      // do ponto de partida do capitulo e so entao salta.
+      const execucao = ++this.execucao;
+      this.narrador.parar();
+      this.pularEspera?.();
+      void this.prepararDemo(roteiro, roteiro.prepararSecao?.[secao.titulo] ?? '').then(() => {
+        if (execucao === this.execucao) this.saltar(secao.inicio, secao.entrada, true, true);
+      });
+      return;
+    }
     this.saltar(secao.inicio, secao.entrada, true, true);
   }
 
@@ -394,6 +426,8 @@ export class TourService {
     // Salto para um submodulo: os cliques de navegacao que o completo omitia rodam antes dele.
     for (const passo of entrada) {
       if (!vivo()) return;
+      // Os passos de entrada tambem se pulam quando a tela ja esta no ponto (ex.: ja na tela de login).
+      if (passo.pularSe?.(this.contexto)) continue;
       try {
         if (await this.executarPasso(passo, inicio, vivo, false)) return;
       } catch {
@@ -469,6 +503,7 @@ export class TourService {
     vivo: () => boolean,
     registrar = true,
   ): Promise<boolean> {
+    this.atualizarContexto();
     const texto = typeof passo.texto === 'function' ? passo.texto(this.contexto) : passo.texto;
     this.focoAceso.set(false);
     // Passo so de leitura cujo alvo nao apareceu (a tela mudou de estado): segue sem destaque, em vez de
@@ -502,7 +537,10 @@ export class TourService {
     const narracao = this.narrador.falar(texto, this.velocidade());
     const acao = passo.acao;
 
-    if (acao?.tipo === 'clicar' && acao.efeito && !this.contexto.demo) {
+    if (
+      ((acao?.tipo === 'clicar' && acao.efeito) || acao?.tipo === 'demo') &&
+      !this.contexto.demo
+    ) {
       // Fora do ambiente de demonstracao o clique gravaria dado real: aponta e para.
       await narracao;
       this.estado.set('interrompido');
@@ -520,6 +558,12 @@ export class TourService {
     }
     if (acao?.tipo === 'anexar' && alvo) {
       await this.anexar(alvo, acao.nome, acao.tipoMime, vivo);
+    }
+    if (acao?.tipo === 'navegar') {
+      await this.router.navigateByUrl(acao.rota).catch(() => false);
+    }
+    if (acao?.tipo === 'demo') {
+      await fetch(`${environment.apiBaseUrl}${acao.caminho}`, { method: 'POST' }).catch(() => null);
     }
 
     await Promise.all([narracao, this.lerSemPressa(texto, acao?.tipo === 'observar' || !acao)]);
@@ -772,6 +816,17 @@ export class TourService {
     }
   }
 
+  /**
+   * Relê a conta logada antes de cada passo. Um roteiro que troca de conta no meio (jornada com varios
+   * perfis) precisa que `pularSe` e os textos em funcao vejam o papel de agora, e nao o do inicio.
+   */
+  private atualizarContexto(): void {
+    const usuario = this.auth.currentUser();
+    this.contexto.papel = usuario?.role ?? null;
+    this.contexto.mfa = !!usuario?.mfaHabilitado;
+    this.contexto.usuario = usuario?.username ?? null;
+  }
+
   private contextoDaSessao(): ContextoRoteiro {
     const usuario = this.auth.currentUser();
     return novoContexto(
@@ -816,10 +871,14 @@ export function criarArquivoDemo(nome: string, tipoMime: string): File {
 /** A opcao de um `<select>` pelo texto exibido (sem acento nem caixa) ou pelo `value`. */
 export function escolherOpcao(lista: HTMLSelectElement, opcao: string): HTMLOptionElement | null {
   const desejada = normalizar(opcao);
+  const opcoes = Array.from(lista.options);
   return (
-    Array.from(lista.options).find(
-      (o) => normalizar(o.textContent ?? '') === desejada || o.value === opcao,
-    ) ?? null
+    opcoes.find((o) => normalizar(o.textContent ?? '') === desejada || o.value === opcao) ??
+    // Opcao com texto composto ("Empresa • valor • prazo"): serve o comeco, desde que seja unico.
+    (opcoes.filter((o) => normalizar(o.textContent ?? '').startsWith(desejada)).length === 1
+      ? opcoes.find((o) => normalizar(o.textContent ?? '').startsWith(desejada))
+      : undefined) ??
+    null
   );
 }
 

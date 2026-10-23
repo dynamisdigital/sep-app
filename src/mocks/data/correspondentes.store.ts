@@ -693,6 +693,23 @@ export function suspenderSub(subId: string, suspenso: boolean): SubBase | undefi
   return subDe(c);
 }
 
+/**
+ * Sub-correspondente criado na rede pelo majoritario, localizado pelo e-mail. A jornada de demonstracao
+ * usa isto para o sub recem-credenciado poder entrar no sistema com a conta que acabou de ser criada.
+ */
+export function subPorEmail(
+  email: string,
+): { id: string; nome: string; email: string } | undefined {
+  const c = correspondentes.find((x) => x.nivel === 'SUB' && x.email === email.trim());
+  return c ? { id: c.id, nome: c.nome, email: c.email } : undefined;
+}
+
+/** Na demonstracao a validacao do cadastro pelo SEP acontece no primeiro acesso do sub. */
+export function credenciarSub(email: string): void {
+  const c = correspondentes.find((x) => x.nivel === 'SUB' && x.email === email.trim());
+  if (c) c.pendente = false;
+}
+
 export function correspondentePorEmail(email: string): CorrespondenteResponse | undefined {
   const c = correspondentes.find((x) => x.email === email);
   return c ? montar(c) : undefined;
@@ -813,6 +830,33 @@ export function reatribuirVinculo(
   }
   vinculos.push(novo);
   return comNome(novo);
+}
+
+/**
+ * Prospect que chega a etapa de documentacao passa a ser cliente da base do correspondente (vinculo
+ * vigente), e entao aparece para o envio de documentos. Idempotente por nome.
+ */
+export function vincularProspect(correspondenteId: string, nome: string): VinculoResponse {
+  const existente = vinculos.find(
+    (v) =>
+      v.correspondenteId === correspondenteId && v.clienteNome === nome && v.status === 'VIGENTE',
+  );
+  if (existente) return { ...existente };
+  seqVinculo += 1;
+  const novo: VinculoResponse = {
+    id: `v1000000-0000-4000-8000-0000000001${String(seqVinculo).padStart(2, '0')}`,
+    correspondenteId,
+    correspondenteNome: null,
+    clienteNome: nome,
+    clienteDocumentoMascarado: '***.000.000-**',
+    status: 'VIGENTE',
+    inicio: HOJE_DEMO,
+    fim: null,
+    motivoFim: null,
+    ultimaPropostaCitaCorrespondente: null,
+  };
+  vinculos.push(novo);
+  return { ...novo };
 }
 
 export function registrarEnvio(

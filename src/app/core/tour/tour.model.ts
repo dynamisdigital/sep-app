@@ -30,7 +30,18 @@ export type AcaoPasso =
    * nasce na hora, minusculo e sem dado real. So anexar nao envia nada: o envio e o clique seguinte,
    * que leva `efeito: true`. Servir tambem para mostrar a recusa de um formato proibido.
    */
-  | { tipo: 'anexar'; nome: string; tipoMime: string };
+  | { tipo: 'anexar'; nome: string; tipoMime: string }
+  /**
+   * Faz o papel de um evento externo que nao tem tela: o aviso do provedor de assinatura, o do banco. So
+   * existe no modo demonstracao (chama o endpoint de controle do mock) e, fora dele, o roteiro para antes,
+   * como num clique que grava.
+   */
+  | { tipo: 'demo'; caminho: string }
+  /**
+   * Abre um endereco digitando-o, como quem tenta entrar por uma porta que o menu nao oferece. Serve a
+   * verificacao de acesso: o sistema precisa barrar o perfil sem permissao mesmo quando nao ha link.
+   */
+  | { tipo: 'navegar'; rota: string };
 
 export interface PassoRoteiro {
   titulo: string;
@@ -74,6 +85,17 @@ export interface Roteiro {
   area?: 'publica';
   /** Tela de onde o roteiro parte. Por padrao, o Dashboard do sistema; os do site partem da inicial. */
   rotaInicial?: string;
+  /**
+   * Devolve os dados do modo demonstracao ao ponto de partida antes de rodar (so la existe). As jornadas com
+   * varias contas criam registros que se encadeiam, e uma segunda execucao precisa recomecar do zero.
+   */
+  reiniciarDemo?: boolean;
+  /**
+   * Ao saltar para um capitulo (secao) de um roteiro com `reiniciarDemo`, prepara os registros que os capitulos
+   * anteriores teriam criado: associa o titulo da secao ao ponto de partida aceito pelo mock. Secao fora do
+   * mapa so reinicia os dados.
+   */
+  prepararSecao?: Record<string, string>;
   /** Tela propria do roteiro: a ajuda dessa tela lista so os roteiros que a declaram. */
   tela?: string;
   /** Condicao para o roteiro rodar; devolve o motivo quando nao pode. */
