@@ -347,3 +347,11 @@ dados de outro registro.
 O exemplo homologado do mockup pode continuar completo, porque é o único caso
 cujos dados existem fora dos DTOs. Ele é o estado inicial da tela, não o piso
 dos resultados seguintes.
+
+## Imagens no build
+
+O `angular.json` copia `image/` para o `dist`, mas ignora `*.zip`, `*.md`, `*.txt`, `*.ps1`, `*.json` e
+`.gitkeep`, além dos pacotes `sep_mockup_24`, `26` a `29` e `30` a `49`, que não são usados pelo
+aplicativo. Os pacotes `sep_mockup_24`, `26` a `42` e `10` (sem sufixo) foram removidos em 26/10/2026; os
+ZIPs de entrega também (o histórico do git os preserva). Ao começar uma tela nova que usa um pacote
+`sep_mockup_XX_assets`, confira se o número não cai nessas exclusões do `angular.json`.

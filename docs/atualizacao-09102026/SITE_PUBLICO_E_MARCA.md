@@ -141,7 +141,7 @@ As páginas Como funciona, Segurança, Sobre, Contato e Transparência e o paine
 foto de fundo, escura, só no tema escuro: mixin `fundo-foto` em `public/shared/_site-tema.scss` e bloco
 próprio em `dashboard.component.scss`. Arquivos em `image/fundos/` (`como-funciona`, `contato`, `seguranca`,
 `sobre`, `transparencia`, `painel`). Os cartões ficam mais translúcidos sobre a foto. Pedido de arquivo
-inexistente quebra a imagem: a página só chama o mixin quando o JPG existe.
+inexistente quebra a imagem: a página só chama o mixin quando o arquivo `.webp` existe (convertidos de JPG em 26/10/2026).
 
 ## 9. Análise de crédito: ajuste do Pix Automático
 
