@@ -10,7 +10,7 @@ As fotos dos **4 banners** (`image/banners/`) e dos **15 textos do blog** (`imag
 colocadas nas pastas e registradas em `FOTOS_DOS_BANNERS` e `FOTOS_DO_BLOG`. As mesmas fotos de banner
 (`empresas` e `investidores`) também abrem as páginas Empresas e Investidores. Há ainda seis fotos de fundo
 em `image/fundos/` (`como-funciona`, `contato`, `seguranca`, `sobre`, `transparencia`, `painel`), usadas
-pelo mixin `fundo-foto` e pelo dashboard; não fazem parte dos pedidos abaixo.
+pelo mixin `fundo-foto` e pelo dashboard, em WebP (qualidade 90); não fazem parte dos pedidos abaixo.
 
 Todas são geradas por IA e levam o rótulo "Imagem ilustrativa". Para trocar uma foto, substitua o arquivo
 mantendo o nome; para uma foto nova, siga os passos abaixo.
