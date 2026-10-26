@@ -4,12 +4,12 @@
  * Pedi-las em segundo plano, assim que o app sobe, deixa o arquivo no cache quando a tela abre.
  */
 export const IMAGENS_PRECARREGADAS: readonly string[] = [
-  '/image/fundos/painel.jpg',
-  '/image/fundos/contato.jpg',
-  '/image/fundos/como-funciona.jpg',
-  '/image/fundos/seguranca.jpg',
-  '/image/fundos/sobre.jpg',
-  '/image/fundos/transparencia.jpg',
+  '/image/fundos/painel.webp',
+  '/image/fundos/contato.webp',
+  '/image/fundos/como-funciona.webp',
+  '/image/fundos/seguranca.webp',
+  '/image/fundos/sobre.webp',
+  '/image/fundos/transparencia.webp',
 ];
 
 export function precarregarImagens(urls: readonly string[] = IMAGENS_PRECARREGADAS): void {

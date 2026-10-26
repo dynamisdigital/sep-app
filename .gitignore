@@ -80,3 +80,15 @@ sep-app_16062026-*/
 sep-app 16062026-*/
 sep-app-16062026-*/
 sep-app_16062026-*/
+
+# Artefatos locais de diagnóstico e ferramentas de IA
+/nul
+/diag.json
+/fp.json
+/m26.json
+/_tour.mjs
+/tour_demo/
+/.agents/
+/.codex/
+/.qwen/
+/image/*.zip
