@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "project": "Dynamis SEP — Sociedade de Empréstimo entre Pessoas",
+  "package": "Demonstração interativa",
+  "carousel": {
+    "durationMs": 15000,
+    "pauseOnHover": true,
+    "pauseOnFocus": true,
+    "pauseWhenPageHidden": true,
+    "respectReducedMotion": true,
+    "autoAdvance": true
+  },
+  "assetPrefix": "image/demonstracao/",
+  "note": "Dados fictícios. Nenhuma operação financeira real é realizada pelos tours. O caminho de cada tour deve ser descoberto no projeto; routePath=null não é uma rota.",
+  "slides": [
+    {
+      "id": "operacao_completa",
+      "label": "Operação completa",
+      "headline": "Do primeiro contato à quitação",
+      "description": "Acompanhe as etapas de uma operação demonstrativa com perfis conectados.",
+      "callToAction": "Assistir operação completa",
+      "banner": {
+        "webp": "assets/operacao_completa/00_operacao_completa_banner.webp",
+        "png": "assets/operacao_completa/00_operacao_completa_banner.png",
+        "alt": "Fotografia ilustrativa do perfil operação completa da Dynamis SEP"
+      },
+      "steps": [],
+      "referenceMockup": "mockups/operacao_completa.png",
+      "existingTourRoute": null,
+      "linkResolution": "Localizar a rota REAL no código Angular do SEP. Não inventar caminhos."
+    },
+    {
+      "id": "correspondente",
+      "label": "Correspondente",
+      "headline": "Conectando pessoas a novas oportunidades",
+      "description": "Conheça o atendimento, a originação e o acompanhamento das solicitações.",
+      "callToAction": "Ver demonstração do correspondente",
+      "banner": {
+        "webp": "assets/correspondente/00_correspondente_banner.webp",
+        "png": "assets/correspondente/00_correspondente_banner.png",
+        "alt": "Fotografia ilustrativa do perfil correspondente da Dynamis SEP"
+      },
+      "steps": [
+        {
+          "imageWebp": "assets/correspondente/01_cadastro_cliente.webp",
+          "imagePng": "assets/correspondente/01_cadastro_cliente.png",
+          "title": "Cadastro do cliente"
+        },
+        {
+          "imageWebp": "assets/correspondente/02_proposta_analise.webp",
+          "imagePng": "assets/correspondente/02_proposta_analise.png",
+          "title": "Proposta e análise"
+        },
+        {
+          "imageWebp": "assets/correspondente/03_acompanhamento.webp",
+          "imagePng": "assets/correspondente/03_acompanhamento.png",
+          "title": "Acompanhamento"
+        },
+        {
+          "imageWebp": "assets/correspondente/04_formalizacao_liberacao.webp",
+          "imagePng": "assets/correspondente/04_formalizacao_liberacao.png",
+          "title": "Formalização e liberação"
+        },
+        {
+          "imageWebp": "assets/correspondente/05_comissao_resultados.webp",
+          "imagePng": "assets/correspondente/05_comissao_resultados.png",
+          "title": "Comissões e resultados"
+        }
+      ],
+      "referenceMockup": "mockups/correspondente.png",
+      "existingTourRoute": null,
+      "linkResolution": "Localizar a rota REAL no código Angular do SEP. Não inventar caminhos."
+    },
+    {
+      "id": "subcorrespondente",
+      "label": "Subcorrespondente",
+      "headline": "Presença local e atendimento próximo",
+      "description": "Entenda o trabalho em rede, o atendimento e a evolução das propostas.",
+      "callToAction": "Ver demonstração do subcorrespondente",
+      "banner": {
+        "webp": "assets/subcorrespondente/00_subcorrespondente_banner.webp",
+        "png": "assets/subcorrespondente/00_subcorrespondente_banner.png",
+        "alt": "Fotografia ilustrativa do perfil subcorrespondente da Dynamis SEP"
+      },
+      "steps": [
+        {
+          "imageWebp": "assets/subcorrespondente/01_ativacao_na_rede.webp",
+          "imagePng": "assets/subcorrespondente/01_ativacao_na_rede.png",
+          "title": "Ativação na rede"
+        },
+        {
+          "imageWebp": "assets/subcorrespondente/02_atendimento_e_cadastro.webp",
+          "imagePng": "assets/subcorrespondente/02_atendimento_e_cadastro.png",
+          "title": "Atendimento e cadastro"
+        },
+        {
+          "imageWebp": "assets/subcorrespondente/03_propostas_e_acompanhamento.webp",
+          "imagePng": "assets/subcorrespondente/03_propostas_e_acompanhamento.png",
+          "title": "Propostas e acompanhamento"
+        },
+        {
+          "imageWebp": "assets/subcorrespondente/04_formalizacao.webp",
+          "imagePng": "assets/subcorrespondente/04_formalizacao.png",
+          "title": "Formalização"
+        },
+        {
+          "imageWebp": "assets/subcorrespondente/05_carteira_e_comissoes.webp",
+          "imagePng": "assets/subcorrespondente/05_carteira_e_comissoes.png",
+          "title": "Carteira e comissões"
+        }
+      ],
+      "referenceMockup": "mockups/subcorrespondente.png",
+      "existingTourRoute": null,
+      "linkResolution": "Localizar a rota REAL no código Angular do SEP. Não inventar caminhos."
+    },
+    {
+      "id": "cliente",
+      "label": "Cliente",
+      "headline": "Seu projeto merece novas possibilidades",
+      "description": "Veja a solicitação de crédito, as condições, a contratação e a quitação.",
+      "callToAction": "Ver jornada do cliente",
+      "banner": {
+        "webp": "assets/cliente/00_cliente_banner.webp",
+        "png": "assets/cliente/00_cliente_banner.png",
+        "alt": "Fotografia ilustrativa do perfil cliente da Dynamis SEP"
+      },
+      "steps": [
+        {
+          "imageWebp": "assets/cliente/01_cadastro_verificacao.webp",
+          "imagePng": "assets/cliente/01_cadastro_verificacao.png",
+          "title": "Cadastro e verificação"
+        },
+        {
+          "imageWebp": "assets/cliente/02_solicitacao_credito.webp",
+          "imagePng": "assets/cliente/02_solicitacao_credito.png",
+          "title": "Solicitação de crédito"
+        },
+        {
+          "imageWebp": "assets/cliente/03_analise_proposta.webp",
+          "imagePng": "assets/cliente/03_analise_proposta.png",
+          "title": "Análise e proposta"
+        },
+        {
+          "imageWebp": "assets/cliente/04_contratacao_liberacao.webp",
+          "imagePng": "assets/cliente/04_contratacao_liberacao.png",
+          "title": "Contratação e liberação"
+        },
+        {
+          "imageWebp": "assets/cliente/05_acompanhamento_quitacao.webp",
+          "imagePng": "assets/cliente/05_acompanhamento_quitacao.png",
+          "title": "Acompanhamento e quitação"
+        }
+      ],
+      "referenceMockup": "mockups/cliente.png",
+      "existingTourRoute": null,
+      "linkResolution": "Localizar a rota REAL no código Angular do SEP. Não inventar caminhos."
+    },
+    {
+      "id": "backoffice",
+      "label": "Backoffice",
+      "headline": "Controle operacional e rastreabilidade",
+      "description": "Explore a triagem, a conferência, a gestão e o acompanhamento das operações.",
+      "callToAction": "Ver demonstração do backoffice",
+      "banner": {
+        "webp": "assets/backoffice/06_backoffice_banner.webp",
+        "png": "assets/backoffice/06_backoffice_banner.png",
+        "alt": "Fotografia ilustrativa do perfil backoffice da Dynamis SEP"
+      },
+      "steps": [
+        {
+          "imageWebp": "assets/backoffice/01_triagem_cadastral.webp",
+          "imagePng": "assets/backoffice/01_triagem_cadastral.png",
+          "title": "Triagem cadastral"
+        },
+        {
+          "imageWebp": "assets/backoffice/02_conferencia_documental.webp",
+          "imagePng": "assets/backoffice/02_conferencia_documental.png",
+          "title": "Conferência documental"
+        },
+        {
+          "imageWebp": "assets/backoffice/03_gestao_operacoes.webp",
+          "imagePng": "assets/backoffice/03_gestao_operacoes.png",
+          "title": "Gestão de operações"
+        },
+        {
+          "imageWebp": "assets/backoffice/04_conciliacao_acompanhamento.webp",
+          "imagePng": "assets/backoffice/04_conciliacao_acompanhamento.png",
+          "title": "Conciliação e acompanhamento"
+        },
+        {
+          "imageWebp": "assets/backoffice/05_indicadores_auditoria.webp",
+          "imagePng": "assets/backoffice/05_indicadores_auditoria.png",
+          "title": "Indicadores e auditoria"
+        }
+      ],
+      "referenceMockup": "mockups/backoffice.png",
+      "existingTourRoute": null,
+      "linkResolution": "Localizar a rota REAL no código Angular do SEP. Não inventar caminhos."
+    },
+    {
+      "id": "financiador",
+      "label": "Financiador",
+      "headline": "Seu capital pode apoiar novas histórias",
+      "description": "Conheça critérios, condições, formalização e acompanhamento de operações de crédito.",
+      "callToAction": "Ver demonstração do financiador",
+      "banner": {
+        "webp": "assets/financiador/00_financiador_banner.webp",
+        "png": "assets/financiador/00_financiador_banner.png",
+        "alt": "Fotografia ilustrativa do perfil financiador da Dynamis SEP"
+      },
+      "steps": [
+        {
+          "imageWebp": "assets/financiador/01_cadastro_financiador.webp",
+          "imagePng": "assets/financiador/01_cadastro_financiador.png",
+          "title": "Cadastro do financiador"
+        },
+        {
+          "imageWebp": "assets/financiador/02_selecao_oportunidades.webp",
+          "imagePng": "assets/financiador/02_selecao_oportunidades.png",
+          "title": "Seleção de oportunidades"
+        },
+        {
+          "imageWebp": "assets/financiador/03_analise_riscos_condicoes.webp",
+          "imagePng": "assets/financiador/03_analise_riscos_condicoes.png",
+          "title": "Análise de riscos e condições"
+        },
+        {
+          "imageWebp": "assets/financiador/04_formalizacao_participacao.webp",
+          "imagePng": "assets/financiador/04_formalizacao_participacao.png",
+          "title": "Formalização da participação"
+        },
+        {
+          "imageWebp": "assets/financiador/05_carteira_recebimentos.webp",
+          "imagePng": "assets/financiador/05_carteira_recebimentos.png",
+          "title": "Carteira e recebimentos"
+        }
+      ],
+      "referenceMockup": "mockups/financiador.png",
+      "existingTourRoute": null,
+      "linkResolution": "Localizar a rota REAL no código Angular do SEP. Não inventar caminhos."
+    }
+  ]
+}

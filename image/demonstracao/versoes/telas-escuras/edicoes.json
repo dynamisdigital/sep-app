@@ -1,0 +1,64 @@
+{
+  "data": "2026-10-24",
+  "ferramenta": "image_gen integrado",
+  "originais": "../../assets (preservados)",
+  "referencias": "output/imagegen/dynamis-telas/referencias",
+  "instrucoes": "Alterar apenas o conteúdo visível das telas; usar capturas reais do sistema em tema escuro, preservando pessoas, ambiente, enquadramento e perspectiva.",
+  "imagens": [
+    {
+      "key": "backoffice/00_backoffice_banner",
+      "refs": ["documentos", "backoffice"],
+      "detail": "Substitua ambas as telas grandes do primeiro plano: monitor esquerdo com Envios de correspondentes, direito com Dashboard de backoffice. Monitores distantes no fundo recebem apenas brilho azul-marinho desfocado."
+    },
+    {
+      "key": "backoffice/01_triagem_cadastral",
+      "refs": ["documentos"],
+      "detail": "Substitua a área interna do monitor por Envios de correspondentes, uma lista de documentos em validação."
+    },
+    {
+      "key": "backoffice/05_indicadores_auditoria",
+      "refs": ["documentos", "backoffice"],
+      "detail": "Substitua as duas telas: esquerda por Envios de correspondentes, direita pelo Dashboard de backoffice."
+    },
+    {
+      "key": "cliente/01_cadastro_verificacao",
+      "refs": ["cadastro"],
+      "detail": "Substitua a tela do notebook pelo cadastro Onboarding Empresa (KYB), etapa de identificação."
+    },
+    {
+      "key": "correspondente/03_acompanhamento",
+      "refs": ["rede-painel", "rede-contratos"],
+      "detail": "Substitua TODOS os painéis visíveis: tela central por Contratos, tela esquerda por Meu Back Office com indicadores, direita por visão da lista de contratos. Mantenha a cabeça do homem ocultando as áreas que já oculta."
+    },
+    {
+      "key": "correspondente/05_comissao_resultados",
+      "refs": ["rede-comissoes-celular"],
+      "detail": "Substitua apenas a tela interna do smartphone pela captura mobile Minhas comissões. Remova integralmente a mensagem fictícia Crédito liberado da tela antiga. Preserve mão, dedos e bordas do celular."
+    },
+    {
+      "key": "financiador/01_cadastro_financiador",
+      "refs": ["financiador-cadastro"],
+      "detail": "Substitua a tela do notebook pelo Perfil do financiador com seus dados cadastrais."
+    },
+    {
+      "key": "financiador/03_analise_riscos_condicoes",
+      "refs": ["financiador-oportunidades"],
+      "detail": "Substitua a tela do notebook pelas Oportunidades reais do Dynamis SEP. Retire o gráfico de trading da tela antiga."
+    },
+    {
+      "key": "financiador/05_carteira_recebimentos",
+      "refs": ["financiador-carteira"],
+      "detail": "Substitua o monitor pela Carteira real do financiador. Preserve a moldura branca externa já presente na fotografia sem ampliá-la."
+    },
+    {
+      "key": "subcorrespondente/01_ativacao_na_rede",
+      "refs": ["rede-painel"],
+      "detail": "Substitua a tela do notebook pelo painel Meu Back Office, com cadastro ativo e carteira da rede."
+    },
+    {
+      "key": "subcorrespondente/05_carteira_e_comissoes",
+      "refs": ["rede-comissoes"],
+      "detail": "Substitua a tela do notebook por Minhas comissões, com indicadores e histórico. Preserve a borda branca externa já existente na fotografia."
+    }
+  ]
+}

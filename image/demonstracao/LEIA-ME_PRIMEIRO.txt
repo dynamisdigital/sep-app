@@ -1,0 +1,53 @@
+DYNAMIS SEP — PACOTE VISUAL + PROMPT PARA O CODEX
+==================================================
+
+ARQUIVO DE DOWNLOAD NO WINDOWS
+C:\Users\fabio\Downloads\Dynamis_SEP_Demonstracao_Completa.zip
+
+EXTRAIR DIRETAMENTE EM
+C:\Pastas\PROJETOS\Projeto Dynamis SEP\sep-app 16062026\image\demonstracao
+
+ATENÇÃO: o ZIP não contém uma pasta-raiz extra. Extraia seu conteúdo no
+caminho acima (não crie outra subpasta 'Dynamis_SEP_Demonstracao_Pacote').
+
+ORGANIZAÇÃO
+- mockups/                6 referências de layout, não inserir como página pronta.
+- assets/                 fotos reais em aparência, geradas por IA; PNG e WebP,
+                          sem legendas ou textos artificiais na imagem.
+- manifesto_demonstracao.json  6 perfis/etapas, cópias, paths e rotação 15000ms.
+- documentacao/PROMPT_CODEX_MOLLMANN_STUDIO_IDE.md
+                          comando detalhado para implementação na base existente.
+- documentacao/CRITERIOS_DE_ACEITE.md
+                          testes objetivos antes do merge.
+- documentacao/INVENTARIO_SHA256.txt
+                          hashes dos arquivos do pacote.
+
+PERFIS E ORDEM DA ROTA /DEMONSTRACAO (ROTA FINAL A CONFIRMAR NO PROJETO)
+01. Operação completa
+02. Correspondente
+03. Subcorrespondente
+04. Cliente
+05. Backoffice
+06. Financiador
+
+NOMENCLATURA OBRIGATÓRIA: exibir 'Financiador', jamais o termo vetado
+pelo proprietário. Evitar também 'investimento'/'rentabilidade garantida'
+na UI; as operações simuladas são CRÉDITO entre pessoas, não produto de
+investimento ofertado. Não modificar silenciosamente APIs, enums de banco,
+contratos ou rotas internas que ainda dependam de identificadores legados.
+
+RECOMENDAÇÃO TÉCNICA
+Não publicar o PNG integral dos mockups como banner final: ele contém
+interface, ícones e textos rasterizados. Use as FOTOS em 'assets/' e
+renderize títulos, navegação e botões reais por Angular/HTML/SCSS. Os PNGs
+'mockups/' são apenas os guias de composição. Isso evita duplicação do
+cabeçalho SEP e possibilita responsividade, temas, cliques e acessibilidade.
+
+INSTALAÇÃO (APENAS ARQUIVOS VISUAIS, NÃO APLICA CÓDIGO ANGULAR)
+1. Baixe o ZIP para a pasta Downloads informada.
+2. Extraia usando o Explorer ou o comando PowerShell abaixo:
+   Expand-Archive -LiteralPath 'C:\Users\fabio\Downloads\Dynamis_SEP_Demonstracao_Completa.zip' -DestinationPath 'C:\Pastas\PROJETOS\Projeto Dynamis SEP\sep-app 16062026\image\demonstracao' -Force
+3. Inicie o MÖLLMANN Studio IDE/CODEX com a pasta raiz do SEP aberta.
+4. Cole integralmente o conteúdo de documentacao/PROMPT_CODEX_MOLLMANN_STUDIO_IDE.md.
+5. Não existe integração executada neste pacote: o CODEX trabalhará no
+   repositório local após sua abertura, verificando rotas e testes.
