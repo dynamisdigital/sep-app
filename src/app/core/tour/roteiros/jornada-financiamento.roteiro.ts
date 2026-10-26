@@ -237,23 +237,62 @@ function preencherDesembolso(retomada: boolean): PassoRoteiro[] {
 }
 
 export function desembolsoEQuitacao(): PassoRoteiro[] {
-  const repasses: PassoRoteiro[] = Array.from({ length: PARCELAS }, (_, i) => ({
-    titulo: `Parcela ${i + 1} de ${PARCELAS}`,
-    texto:
-      i === 0
-        ? 'O primeiro mês passa e a padaria paga a parcela. A tesouraria repassa aos credores: o principal reduz o saldo em operação, e os juros viram saldo disponível.'
-        : i === PARCELAS - 1
-          ? 'A última parcela é paga e repassada. A operação chega ao fim.'
-          : `Parcela ${i + 1} paga e repassada.`,
+  // O tour mostra a primeira parcela e a ultima. As do meio seguem o mesmo caminho e sao adiantadas pelo mock;
+  // antes da ultima, o credor confere na propria conta a entrada de credito do que ja foi repassado.
+  const repasse = (numero: number, texto: string): PassoRoteiro => ({
+    titulo: `Parcela ${numero} de ${PARCELAS}`,
+    texto,
     alvo: BOTAO_DA_PADARIA('repassar'),
     acao: { tipo: 'clicar', efeito: true },
-    // Só segue quando a tabela mostra a parcela repassada e o botão da próxima já está habilitado: ele fica
-    // desabilitado enquanto o repasse anterior grava, e um clique nele não faria nada.
+    // Só segue quando a tabela mostra a parcela repassada e, se houver outra, o botão dela já está habilitado:
+    // ele fica desabilitado enquanto o repasse anterior grava, e um clique nele não faria nada.
     aguardarAlvo:
-      i + 1 < PARCELAS
-        ? `${LINHA_DA_OPERACAO}[data-parcelas="${i + 1}"] ${BOTAO_DA_PADARIA('repassar')}:not([disabled])`
+      numero < PARCELAS
+        ? `${LINHA_DA_OPERACAO}[data-parcelas="${numero}"] ${BOTAO_DA_PADARIA('repassar')}:not([disabled])`
         : `${LINHA_DA_OPERACAO}[data-parcelas="${PARCELAS}"]`,
-  }));
+  });
+  const primeiraParcela = repasse(
+    1,
+    'O primeiro mês passa e a padaria paga a parcela. A tesouraria repassa aos credores: o principal reduz o saldo em operação, e os juros viram saldo disponível.',
+  );
+  const ultimaParcela = repasse(
+    PARCELAS,
+    'A última parcela é paga e repassada. A operação chega ao fim.',
+  );
+  const parcelasDoMeio: PassoRoteiro = {
+    titulo: `Parcelas 2 a ${PARCELAS - 1}`,
+    texto: `Os meses seguintes se repetem do mesmo jeito: a padaria paga, a tesouraria repassa. Aqui as parcelas de 2 a ${PARCELAS - 1} são adiantadas, sem repetir cada clique.`,
+    alvo: `${LINHA_DA_OPERACAO}`,
+    acao: { tipo: 'demo', caminho: `/__demo/repassar-parcelas?ate=${PARCELAS - 1}` },
+  };
+  const credorConfere: PassoRoteiro[] = [
+    ...trocarDeConta(CREDOR.email, CREDOR.quem),
+    ...peloMenu(MENU_CREDORA, {
+      rota: '/app/credora/conta',
+      titulo: 'Submenu Conta escrow',
+      texto: 'Antes da última parcela, a Helena confere a própria conta escrow.',
+      aguardarAlvo: '.pxe-metricas',
+    }),
+    ler(
+      'Saldo em operação e disponível',
+      `Com ${PARCELAS - 1} parcelas repassadas, o principal já voltou quase todo: o saldo em operação encolheu, e os juros recebidos estão no disponível.`,
+      '.pxe-metricas',
+    ),
+    ler(
+      'A entrada de crédito de cada parcela',
+      'No extrato, cada parcela repassada aparece como duas entradas de crédito: o retorno do principal e o retorno dos juros. É assim que o credor confere que o dinheiro realmente chegou.',
+      '.pxe-tabela-card',
+    ),
+  ];
+  const voltaATesouraria: PassoRoteiro[] = [
+    ...trocarDeConta(ADMIN.email, ADMIN.quem),
+    ...peloMenu(MENU_BACKOFFICE, {
+      rota: '/app/backoffice/tesouraria',
+      titulo: 'Submenu Tesouraria',
+      texto: 'De volta à tesouraria, para repassar a última parcela e encerrar a operação.',
+      aguardarAlvo: '.pxe-metricas',
+    }),
+  ];
 
   return secao(
     'Desembolso e parcelas',
@@ -347,7 +386,11 @@ export function desembolsoEQuitacao(): PassoRoteiro[] {
           texto: 'De volta à tesouraria, para acompanhar o pagamento das parcelas.',
           aguardarAlvo: '.pxe-metricas',
         }),
-        ...repasses,
+        primeiraParcela,
+        parcelasDoMeio,
+        ...credorConfere,
+        ...voltaATesouraria,
+        ultimaParcela,
         ler(
           'Operação liquidada',
           'Doze de doze parcelas repassadas: a operação está liquidada, e o saldo em operação voltou a zero.',

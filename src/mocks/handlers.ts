@@ -3941,6 +3941,20 @@ const ETAPAS_DO_PREPARO = [
   'quitada',
 ] as const;
 
+/** Repassa, em ordem, as parcelas da operacao que faltam ate a de numero `ate` (a demonstracao as adianta). */
+function repassarParcelasAte(operacaoId: string, ate: number): void {
+  for (let i = 0; i < 12; i += 1) {
+    const proxima = listarOperacoesEscrow().find(
+      (o) => o.operacaoId === operacaoId,
+    )?.proximaParcela;
+    if (!proxima || proxima.numero > ate) break;
+    repassarParcela(operacaoId, proxima.numero, {
+      principal: proxima.principal,
+      juros: proxima.juros,
+    });
+  }
+}
+
 function prepararJornada(ate: string): void {
   reiniciarDemo();
   const limite = ETAPAS_DO_PREPARO.indexOf(ate as (typeof ETAPAS_DO_PREPARO)[number]);
@@ -4041,16 +4055,7 @@ function prepararJornada(ate: string): void {
     nsu: '000123456790',
     codigoRetorno: '00 - Sucesso',
   };
-  for (let i = 0; i < 12; i += 1) {
-    const proxima = listarOperacoesEscrow().find(
-      (o) => o.operacaoId === operacaoId,
-    )?.proximaParcela;
-    if (!proxima) break;
-    repassarParcela(operacaoId, proxima.numero, {
-      principal: proxima.principal,
-      juros: proxima.juros,
-    });
-  }
+  repassarParcelasAte(operacaoId, 12);
 }
 
 export const handlers = [
@@ -4308,6 +4313,16 @@ export const handlers = [
   // ele sem passar pelos anteriores. Reinicia tudo e refaz, direto nos stores, o que os capitulos fariam.
   http.post(`${baseUrl}/__demo/preparar`, ({ request }) => {
     prepararJornada(new URL(request.url).searchParams.get('ate') ?? '');
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // As parcelas do meio da operacao: o tour mostra a primeira e a ultima, e este endpoint adianta as outras,
+  // repassando-as como a tesouraria faria, uma a uma, ate a de numero `ate`.
+  http.post(`${baseUrl}/__demo/repassar-parcelas`, ({ request }) => {
+    const ate = Number(new URL(request.url).searchParams.get('ate') ?? '0');
+    for (const operacao of listarOperacoesEscrow()) {
+      repassarParcelasAte(operacao.operacaoId, ate);
+    }
     return new HttpResponse(null, { status: 204 });
   }),
 

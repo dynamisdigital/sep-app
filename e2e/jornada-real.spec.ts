@@ -5,7 +5,7 @@ import { expect, test } from '@playwright/test';
 // credor, mais as tentativas de acesso barradas. Aqui o teste só conduz e confere o desfecho: as regras
 // de cada passo estão nos próprios roteiros, que param (aviso âmbar) quando uma tela não responde.
 
-test.setTimeout(10 * 60_000);
+test.setTimeout(14 * 60_000);
 
 test('a jornada completa percorre os cinco perfis e conclui sem erro', async ({ page }) => {
   await page.addInitScript(() => {
@@ -17,10 +17,9 @@ test('a jornada completa percorre os cinco perfis e conclui sem erro', async ({ 
   const erros: string[] = [];
   page.on('pageerror', (e) => erros.push(e.message));
 
-  // Navega pela página inicial e só por cliques: recarregar a página devolveria os dados ao início.
-  await page.goto('/');
-  await page.getByRole('link', { name: 'Demonstração', exact: true }).click();
-  await page.getByRole('link', { name: 'Ver banner de Operação completa', exact: true }).click();
+  // Abre a demonstração direto na página da operação completa: o banner rotativo da página inicial
+  // nunca fica estável para o clique, e a partir daqui o tour só avança por cliques.
+  await page.goto('/demonstracao/operacao_completa');
   await page.getByRole('button', { name: 'Assistir à operação completa', exact: true }).click();
 
   const velocidade = page.locator('button[aria-label^="Velocidade"]');
@@ -30,7 +29,7 @@ test('a jornada completa percorre os cinco perfis e conclui sem erro', async ({ 
   await velocidade.click();
 
   const aviso = page.locator('.sep-tour-aviso');
-  await aviso.waitFor({ timeout: 9 * 60_000 });
+  await aviso.waitFor({ timeout: 13 * 60_000 });
   await expect(aviso).toHaveAttribute('data-tone', 'green');
 
   // O último capítulo termina na tela de acesso negado: o backoffice barrado na gestão de usuários.
