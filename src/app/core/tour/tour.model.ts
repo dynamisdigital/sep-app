@@ -85,6 +85,10 @@ export interface Roteiro {
   area?: 'publica';
   /** Tela de onde o roteiro parte. Por padrao, o Dashboard do sistema; os do site partem da inicial. */
   rotaInicial?: string;
+  /** Destino após concluir; quando omitido, retorna à tela inicial do roteiro. */
+  rotaFinal?: string;
+  /** Dados anteriores já preparados no mock, sem apresentar os outros cenários. */
+  prepararAte?: string;
   /**
    * Devolve os dados do modo demonstracao ao ponto de partida antes de rodar (so la existe). As jornadas com
    * varias contas criam registros que se encadeiam, e uma segunda execucao precisa recomecar do zero.

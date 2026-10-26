@@ -24,7 +24,12 @@
               <lucide-icon name="pause" [size]="16" />Pausar
             </button>
           } @else {
-            <button type="button" class="ouvir-botao ouvir-principal" (click)="continuar()">
+            <button
+              type="button"
+              class="ouvir-botao ouvir-principal"
+              title="Retoma cerca de 2 segundos antes da pausa"
+              (click)="continuar()"
+            >
               <lucide-icon name="play" [size]="16" />Continuar
             </button>
           }
@@ -56,7 +61,12 @@
         <span [style.width.%]="progresso()"></span>
       </div>
       <p class="ouvir-estado" role="status">
-        {{ estado() === 'pausado' ? 'Leitura pausada' : 'Lendo' }} · trecho {{ indice() + 1 }} de
+        {{
+          estado() === 'pausado'
+            ? 'Leitura pausada — ao continuar, recua cerca de 2 segundos'
+            : 'Lendo'
+        }}
+        · trecho {{ indice() + 1 }} de
         {{ total() }}
       </p>
     }

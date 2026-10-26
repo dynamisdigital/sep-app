@@ -13,7 +13,6 @@ import { LucideAngularModule } from 'lucide-angular';
 import { SepLogoComponent } from '../../../shared/arte/sep-logo.component';
 import { LarguraTelaDirective } from '../../../core/layout/largura-tela.directive';
 import { ThemeService } from '../../../core/theme/theme.service';
-import { ehAmbienteDemo } from '../../../core/env/ambiente';
 import { TourService } from '../../../core/tour/tour.service';
 import { AcoesPublicasComponent } from '../../../shared/acoes-publicas/acoes-publicas.component';
 import { FotoBannerComponent } from './foto-banner.component';
@@ -61,13 +60,6 @@ export class LandingComponent {
 
   private readonly tema = inject(ThemeService);
   private readonly tour = inject(TourService);
-
-  /** A operação completa nas telas reais só existe no ambiente de demonstração (mocks no navegador). */
-  protected readonly demo = ehAmbienteDemo();
-
-  protected iniciarJornada(): void {
-    this.tour.iniciar('jornada-real');
-  }
 
   /** O botao do topo troca o tema da tela publica; o escuro e o padrao do projeto. */
   protected readonly temaEscuro = this.tema.isDark;
@@ -164,7 +156,7 @@ export class LandingComponent {
       icon: 'user-plus',
       title: 'Cadastro e Verificação',
       description:
-        'Empresas e investidores se cadastram na plataforma e passam por validações KYC/KYB e checagens regulatórias.',
+        'Empresas e financiadores se cadastram na plataforma e passam por validações KYC/KYB e checagens regulatórias.',
     },
     {
       icon: 'file-search',
@@ -205,7 +197,7 @@ export class LandingComponent {
     {
       icon: 'lock',
       title: 'Conexão segura',
-      description: 'Empresas que precisam e investidores que confiam',
+      description: 'Empresas que precisam e financiadores que confiam',
     },
     {
       icon: 'clipboard-check',

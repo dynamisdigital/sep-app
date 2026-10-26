@@ -9,7 +9,8 @@ export interface SiteNavItem {
 /** Menu do cabeçalho. Todas as rotas existem; nenhuma é âncora. */
 export const NAV_SITE: SiteNavItem[] = [
   { label: 'Empresas', route: '/credito-pj' },
-  { label: 'Investidores', route: '/investidores' },
+  { label: 'Financiador', route: '/investidores' },
+  { label: 'Demonstração', route: '/demonstracao' },
   { label: 'Como funciona', route: '/como-funciona' },
   { label: 'Segurança', route: '/seguranca' },
   { label: 'Transparência', route: '/transparencia' },
@@ -32,11 +33,11 @@ export const NAV_RODAPE: SiteNavItem[] = [
 ];
 
 /** Entrada do credor (investidor) no topo do site. Leva ao login; o perfil vem da conta. */
-export const AREA_DO_INVESTIDOR = { label: 'Área do investidor', route: '/login' } as const;
+export const AREA_DO_INVESTIDOR = { label: 'Área do Financiador', route: '/login' } as const;
 
 /** Texto do rodapé regulatório, igual em todas as páginas. */
 export const AVISO_REGULATORIO =
-  'O Dynamis SEP é uma sociedade de empréstimo entre pessoas (SEP) e não é banco. Não garantimos o pagamento das operações nem oferecemos rendimento garantido ou aprovação automática de crédito, e o investimento em crédito não conta com a cobertura do FGC. Investir em crédito envolve risco, inclusive de perda do capital.';
+  'O Dynamis SEP é uma sociedade de empréstimo entre pessoas (SEP) e não é banco. Não garantimos o pagamento das operações nem oferecemos rendimento garantido ou aprovação automática de crédito. O financiamento de operações de crédito não conta com a cobertura do FGC e envolve risco, inclusive de perda do capital.';
 
 /** Faixa fixa do topo: o golpe do pagamento antecipado é o maior risco de reputação do setor. */
 export const AVISO_ANTIFRAUDE =

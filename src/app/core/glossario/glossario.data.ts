@@ -438,7 +438,7 @@ export const GLOSSARIO: Verbete[] = [
     resumo:
       'Fundo Garantidor de Créditos. Os investimentos em crédito no SEP não têm cobertura do FGC, e o aviso aparece nos banners e nas telas do credor.',
     modulos: ['Credora', 'Site público'],
-    usadoEm: 'Credora › Oportunidades e página Investidores.',
+    usadoEm: 'Credora › Oportunidades e página Financiadores.',
   },
   {
     termo: 'Tour assistido',

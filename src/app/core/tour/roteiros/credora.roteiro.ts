@@ -47,7 +47,7 @@ const MENU_CREDORA = {
   rota: '/app/credora',
   titulo: 'Menu Credora',
   texto:
-    'No menu lateral, em Jornadas, fica a Credora. Ela aparece só para clientes, que podem investir como credora.',
+    'No menu lateral, em Jornadas, fica a Credora. Ela aparece só para clientes, que podem financiar como credora.',
   aguardarAlvo: '.px35-page',
 };
 
@@ -68,7 +68,7 @@ const MENU_OPORTUNIDADES = {
 const MENU_CARTEIRA = {
   rota: '/app/credora/carteira',
   titulo: 'Submenu Carteira',
-  texto: 'E o submenu Carteira abre as operações em que a credora já investiu.',
+  texto: 'E o submenu Carteira abre as operações em que a credora já financiou.',
   aguardarAlvo: '.px46-tabela-card',
 };
 
@@ -135,7 +135,7 @@ const cadastro: Roteiro = {
     {
       titulo: 'Cadastrar a credora',
       texto:
-        'Vamos cadastrar uma empresa como credora, do convite até o perfil criado. É o primeiro passo de quem quer investir.',
+        'Vamos cadastrar uma empresa como credora, do convite até o perfil criado. É o primeiro passo de quem quer financiar.',
     },
     ...peloMenu(MENU_CREDORA),
     {
@@ -155,7 +155,7 @@ const cadastro: Roteiro = {
     {
       titulo: 'Aviso',
       texto:
-        'O aviso lembra que investir é uma atividade regulada e que o cadastro depende de um onboarding de empresa já aprovado.',
+        'O aviso lembra que o financiamento de operações é uma atividade regulada e que o cadastro depende de um onboarding de empresa já aprovado.',
       alvo: '.px35-aviso',
       acao: { tipo: 'observar' },
     },
@@ -198,7 +198,7 @@ const cadastro: Roteiro = {
     {
       titulo: 'Capacidade de aporte',
       texto:
-        'A capacidade de aporte é opcional: quanto a empresa pretende investir. Aqui, quinhentos mil reais.',
+        'A capacidade de aporte é opcional: quanto a empresa pretende financiar. Aqui, quinhentos mil reais.',
       alvo: '#capacidadeAporte',
       acao: { tipo: 'digitar', texto: () => '50000000' },
     },
@@ -265,9 +265,9 @@ const primeirosPassos: Roteiro = {
       acao: { tipo: 'observar' },
     },
     {
-      titulo: 'Conta escrow do investidor',
+      titulo: 'Conta escrow do financiador',
       texto:
-        'Abaixo ficam os atalhos da conta escrow, onde os recursos do investidor são guardados. Eles também dependem do cadastro: sem ele, a tela avisa que ainda não há conta.',
+        'Abaixo ficam os atalhos da conta escrow, onde os recursos do financiador são guardados. Eles também dependem do cadastro: sem ele, a tela avisa que ainda não há conta.',
       alvo: '[aria-labelledby="px35-investidor-titulo"]',
       acao: { tipo: 'observar' },
     },
@@ -320,7 +320,7 @@ const perfil: Roteiro = {
   passos: () => [
     {
       titulo: 'Perfil da credora',
-      texto: 'Este roteiro mostra o perfil da credora e a elegibilidade para investir.',
+      texto: 'Este roteiro mostra o perfil da credora e a elegibilidade para financiar.',
     },
     ...peloMenu(MENU_CREDORA, MENU_PERFIL),
     {
@@ -553,7 +553,7 @@ const inelegivel: Roteiro = {
     {
       titulo: 'Como seguir',
       texto:
-        'Para voltar a investir, a pendência indicada no motivo precisa ser resolvida. Em caso de dúvida, fale com o suporte, informando o motivo que aparece no perfil.',
+        'Para voltar a financiar, a pendência indicada no motivo precisa ser resolvida. Em caso de dúvida, fale com o suporte, informando o motivo que aparece no perfil.',
     },
   ],
 };
@@ -570,7 +570,7 @@ const carteira: Roteiro = {
   passos: () => [
     {
       titulo: 'Carteira',
-      texto: 'Este roteiro mostra as operações em que a credora já investiu.',
+      texto: 'Este roteiro mostra as operações em que a credora já financiou.',
     },
     ...peloMenu(MENU_CREDORA, MENU_CARTEIRA),
     {
@@ -583,7 +583,7 @@ const carteira: Roteiro = {
     {
       titulo: 'Resumo da carteira',
       texto:
-        'Os cartões somam o valor investido, o já recebido, o que está a receber e o estado geral da carteira.',
+        'Os cartões somam o valor financiado, o já recebido, o que está a receber e o estado geral da carteira.',
       alvo: '.px46-metricas',
       acao: { tipo: 'observar' },
     },
@@ -618,7 +618,7 @@ const carteira: Roteiro = {
     {
       titulo: 'Métricas da operação',
       texto:
-        'Os cartões mostram o valor investido, o recebido, o a receber e a situação do recebimento.',
+        'Os cartões mostram o valor financiado, o recebido, o a receber e a situação do recebimento.',
       alvo: '.px47-metricas',
       acao: { tipo: 'observar' },
     },

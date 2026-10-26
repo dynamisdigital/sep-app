@@ -1,3 +1,4 @@
+import { escalaDoLayout } from '../../../core/layout/escala-layout';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -15,6 +16,7 @@ import { LucideAngularModule } from 'lucide-angular';
 
 import {
   caracteresLidos,
+  completarPalavraLida,
   extrairItens,
   faixaLida,
   mapearTexto,
@@ -29,6 +31,8 @@ const VELOCIDADES = [0.9, 1, 1.15, 1.3] as const;
 const NOME_DESTAQUE = 'sep-lido';
 /** Caracteres por segundo da voz a 1x, antes de os eventos da própria voz calibrarem o ritmo. */
 const RITMO_INICIAL = 14.5;
+/** Mesmo recuo de contexto utilizado na retomada dos tours. */
+const RETOMAR_ANTES_MS = 2000;
 
 /**
  * Leitura em áudio sincronizada de um texto do blog. A voz é a do próprio navegador (Web Speech API), e a
@@ -82,6 +86,7 @@ export class OuvirTextoComponent {
   private foco: HTMLElement | null = null;
   private lidoAte = -1;
   private destaque: Highlight | null = null;
+  private retomada: { indice: number; caractere: number } | null = null;
 
   /** Andamento do trecho em fala: posição conhecida (`base`, em caracteres) e o instante em que foi medida. */
   private ritmo = {
@@ -117,6 +122,7 @@ export class OuvirTextoComponent {
     this.cancelarVoz();
     this.limparMarcas();
     this.total.set(this.partes.length);
+    this.retomada = null;
     this.indice.set(0);
     this.estado.set('falando');
     this.iniciada.emit();
@@ -126,17 +132,21 @@ export class OuvirTextoComponent {
 
   protected pausar(): void {
     if (this.estado() !== 'falando') return;
-    // Congela a posição estimada: ao continuar, a contagem parte dela.
+    // Registra antes de cancelar: pause/resume nativos podem perder o ponto nas vozes online.
+    this.retomada = this.pontoDeRetomada();
     this.ritmo.base = this.posicaoEstimada();
-    window.speechSynthesis.pause();
+    this.geracao++;
     this.estado.set('pausado');
+    this.cancelarVoz();
   }
 
   protected continuar(): void {
     if (this.estado() !== 'pausado') return;
-    this.ritmo.medidoEm = performance.now();
-    window.speechSynthesis.resume();
+    const ponto = this.retomada;
+    if (!ponto) return;
+    this.retomada = null;
     this.estado.set('falando');
+    this.falarDe(ponto.indice, ++this.geracao, ponto.caractere);
   }
 
   protected parar(): void {
@@ -144,20 +154,42 @@ export class OuvirTextoComponent {
     this.cancelarVoz();
     this.cancelarQuadro();
     this.limparMarcas();
+    this.retomada = null;
     this.estado.set('parado');
     this.indice.set(0);
   }
 
   protected mudarVelocidade(valor: string): void {
-    this.velocidade.set(Number(valor));
-    // A nova velocidade vale já: relê o trecho atual nela.
+    const velocidade = Number(valor);
+    if (!VELOCIDADES.some((v) => v === velocidade)) return;
+    const caractere = this.posicaoEstimada();
+    this.velocidade.set(velocidade);
+    // Troca a voz sem perder a posição já lida. Pausada, aguarda o clique em Continuar.
     if (this.estado() === 'falando') {
+      const geracao = ++this.geracao;
       this.cancelarVoz();
-      this.falarDe(this.indice(), ++this.geracao);
+      this.falarDe(this.indice(), geracao, this.inicioDaPalavra(this.indice(), caractere));
     }
   }
 
-  private falarDe(posicao: number, geracao: number): void {
+  private pontoDeRetomada(): { indice: number; caractere: number } {
+    let indice = this.indice();
+    let caractere = this.posicaoEstimada() - (RETOMAR_ANTES_MS / 1000) * this.ritmo.vel;
+    while (caractere < 0 && indice > 0) {
+      indice--;
+      caractere += this.partes[indice].texto.length;
+    }
+    return { indice, caractere: this.inicioDaPalavra(indice, caractere) };
+  }
+
+  private inicioDaPalavra(indice: number, caractere: number): number {
+    const texto = this.partes[indice]?.texto ?? '';
+    let inicio = Math.max(0, Math.min(texto.length, Math.floor(caractere)));
+    while (inicio > 0 && !/\s/.test(texto[inicio - 1])) inicio--;
+    return inicio;
+  }
+
+  private falarDe(posicao: number, geracao: number, deslocamento = 0): void {
     if (geracao !== this.geracao) return;
     if (posicao >= this.partes.length) {
       this.concluir();
@@ -171,14 +203,15 @@ export class OuvirTextoComponent {
     this.ritmo = {
       parte,
       inicio: agora,
-      base: 0,
+      base: deslocamento,
       medidoEm: agora,
       vel: RITMO_INICIAL * 1.02 * this.velocidade(),
       tamanho: Math.max(1, parte.texto.length),
     };
-    this.marcar(parte, 0);
+    this.lidoAte = -1;
+    this.marcar(parte, deslocamento);
 
-    const fala = new SpeechSynthesisUtterance(parte.texto);
+    const fala = new SpeechSynthesisUtterance(parte.texto.slice(deslocamento));
     fala.lang = 'pt-BR';
     fala.rate = Math.min(1.8, 1.02 * this.velocidade());
     if (this.voz.voz) {
@@ -190,12 +223,15 @@ export class OuvirTextoComponent {
     fala.onboundary = (e) => {
       if (geracao !== this.geracao) return;
       const t = performance.now();
-      const ci = e.charIndex || 0;
-      if (ci > 8 && t > this.ritmo.inicio) {
-        this.ritmo.vel = Math.max(6, Math.min(40, ci / ((t - this.ritmo.inicio) / 1000)));
+      const relativo = e.charIndex || 0;
+      const ci = deslocamento + relativo;
+      if (relativo > 8 && t > this.ritmo.inicio) {
+        this.ritmo.vel = Math.max(6, Math.min(40, relativo / ((t - this.ritmo.inicio) / 1000)));
       }
       this.ritmo.base = ci;
       this.ritmo.medidoEm = t;
+      // A fronteira aponta o começo da palavra; a cobertura inclui a palavra inteira e sua pontuação.
+      this.marcar(parte, Math.min(parte.texto.length, ci + (e.charLength || 1)));
     };
     fala.onend = () => {
       if (geracao !== this.geracao) return;
@@ -204,6 +240,7 @@ export class OuvirTextoComponent {
     };
     // Um erro de voz pula o trecho, mas um cancelamento proposital (pausa, parar) não deve avançar.
     fala.onerror = (e) => {
+      if (geracao !== this.geracao) return;
       if (e.error === 'canceled' || e.error === 'interrupted') return;
       this.falarDe(posicao + 1, geracao);
     };
@@ -211,6 +248,7 @@ export class OuvirTextoComponent {
   }
 
   private concluir(): void {
+    this.retomada = null;
     this.cancelarQuadro();
     this.limparMarcas();
     this.estado.set('parado');
@@ -239,8 +277,11 @@ export class OuvirTextoComponent {
 
   /** Destaca, dentro do bloco do trecho, o que a voz já leu: `falados` caracteres do texto falado do trecho. */
   private marcar(parte: ParteLeitura, falados: number): void {
-    const total = mapearTexto(parte.el).texto.length;
-    const n = caracteresLidos(parte, falados, total);
+    const texto = mapearTexto(parte.el).texto;
+    const n = Math.max(
+      this.lidoAte,
+      completarPalavraLida(texto, caracteresLidos(parte, falados, texto.length)),
+    );
     if (n === this.lidoAte) return;
     this.lidoAte = n;
     if (!this.suportaDestaque) return;
@@ -256,7 +297,7 @@ export class OuvirTextoComponent {
   private posicaoEstimada(): number {
     const r = this.ritmo;
     const decorrido = (performance.now() - r.medidoEm) / 1000;
-    return Math.min(r.tamanho * 0.985, r.base + decorrido * r.vel);
+    return Math.min(r.tamanho, r.base + decorrido * r.vel);
   }
 
   private iniciarQuadro(): void {
@@ -286,13 +327,14 @@ export class OuvirTextoComponent {
       tarja.hidden = true;
       return;
     }
+    const escala = escalaDoLayout(tarja);
     const lado = q.height > 90 ? 2 : 8;
     const topo = q.top - 5;
     const esquerda = q.left - lado;
-    tarja.style.top = `${topo}px`;
-    tarja.style.left = `${esquerda}px`;
-    tarja.style.width = `${q.width + 2 * lado}px`;
-    tarja.style.height = `${q.height + 10}px`;
+    tarja.style.top = `${topo / escala}px`;
+    tarja.style.left = `${esquerda / escala}px`;
+    tarja.style.width = `${(q.width + 2 * lado) / escala}px`;
+    tarja.style.height = `${(q.height + 10) / escala}px`;
     tarja.hidden = false;
     // O contêiner do conteúdo do site usa contenção de layout, e com ela `position: fixed` deixa de ser
     // relativo à janela. Mede onde a tarja foi parar e corrige a diferença, para ela cobrir o bloco lido.
@@ -300,8 +342,8 @@ export class OuvirTextoComponent {
     const dy = topo - onde.top;
     const dx = esquerda - onde.left;
     if (Math.abs(dy) > 0.5 || Math.abs(dx) > 0.5) {
-      tarja.style.top = `${topo + dy}px`;
-      tarja.style.left = `${esquerda + dx}px`;
+      tarja.style.top = `${(topo + dy) / escala}px`;
+      tarja.style.left = `${(esquerda + dx) / escala}px`;
     }
   }
 

@@ -62,16 +62,32 @@ export function partesDe(itens: ItemLeitura[]): ParteLeitura[] {
   const partes: ParteLeitura[] = [];
   for (const item of itens) {
     const trechos = segmentar(item.falado);
-    const total = trechos.reduce((soma, t) => soma + t.length, 0) || 1;
-    let acumulado = 0;
-    for (const texto of trechos) {
+    const faladoVisivel = limparParaVoz(item.visivel);
+    const prefixo = Math.max(0, item.falado.indexOf(faladoVisivel));
+    // O ponto visual da frase precisa ser exato: valores e siglas têm mais letras na fala.
+    const finais = new Map<string, number>();
+    for (const pontuacao of item.visivel.matchAll(/[.!?;:,]/g)) {
+      const fim = pontuacao.index + 1;
+      finais.set(limparParaVoz(item.visivel.slice(0, fim)), fim);
+    }
+    let busca = 0;
+    let inicioVisual = 0;
+    for (const [indice, texto] of trechos.entries()) {
+      const inicioFalado = item.falado.indexOf(texto, busca);
+      const fimFalado = inicioFalado + texto.length;
+      const fimExato = finais.get(item.falado.slice(prefixo, fimFalado));
+      const fimVisual =
+        indice === trechos.length - 1
+          ? item.visivel.length
+          : (fimExato ?? Math.round((fimFalado / item.falado.length) * item.visivel.length));
       partes.push({
         el: item.el,
         texto,
-        f0: acumulado / total,
-        f1: (acumulado + texto.length) / total,
+        f0: inicioVisual / Math.max(1, item.visivel.length),
+        f1: fimVisual / Math.max(1, item.visivel.length),
       });
-      acumulado += texto.length;
+      inicioVisual = fimVisual;
+      busca = fimFalado;
     }
   }
   return partes;
@@ -133,6 +149,14 @@ export function faixaLida(el: Element, ate: number): Range | null {
   faixa.setStart(pontos[0].no, pontos[0].indice);
   faixa.setEnd(pontos[n - 1].no, pontos[n - 1].indice + 1);
   return faixa;
+}
+
+/** Fecha a palavra em leitura, incluindo a pontuação ligada a ela, sem entrar na palavra seguinte. */
+export function completarPalavraLida(texto: string, ate: number): number {
+  let fim = Math.max(0, Math.min(texto.length, Math.ceil(ate)));
+  if (fim === 0) return 0;
+  while (fim < texto.length && !/\s/u.test(texto[fim])) fim++;
+  return fim;
 }
 
 /**

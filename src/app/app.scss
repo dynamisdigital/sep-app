@@ -1,6 +1,9 @@
 :host {
   display: block;
   min-height: 100vh;
+
+  --sep-escala-inicial: 1;
+  --sep-altura-janela: 100dvh;
 }
 
 // ============ SESSÃO ENTREGUE À JANELA PRÓPRIA ============
@@ -86,4 +89,18 @@
 .sep-entregue-primaria {
   border-color: rgb(var(--sep-c-cyan) / 60%);
   background: rgb(var(--sep-c-blue) / 26%);
+}
+
+// Todas as rotas usam a mesma escala. O tour fica fora deste quadro para preservar
+// getBoundingClientRect, cliques e posição do cursor.
+.sep-viewport {
+  min-height: var(--sep-altura-janela);
+  zoom: var(--sep-escala-inicial);
+}
+
+@media print {
+  .sep-viewport {
+    --sep-escala-inicial: 1;
+    --sep-altura-janela: auto;
+  }
 }

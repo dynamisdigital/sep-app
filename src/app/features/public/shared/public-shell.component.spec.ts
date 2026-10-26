@@ -35,6 +35,7 @@ describe('PublicShellComponent', () => {
     expect(hrefs('.site-nav')).toEqual([
       '/credito-pj',
       '/investidores',
+      '/demonstracao',
       '/como-funciona',
       '/seguranca',
       '/transparencia',
@@ -69,13 +70,13 @@ describe('PublicShellComponent', () => {
     expect(legal).toContain('FGC');
   });
 
-  it('mostra no topo o aviso antifraude e a entrada da área do investidor', async () => {
+  it('mostra no topo o aviso antifraude e a entrada da área do financiador', async () => {
     await montar();
 
     const topo = hrefs('.site-topbar');
     expect(topo).toContain('/antifraude');
     expect(topo).toContain('/login');
-    expect(document.querySelector('.site-topbar')?.textContent).toContain('Área do investidor');
+    expect(document.querySelector('.site-topbar')?.textContent).toContain('Área do Financiador');
     expect(document.querySelector('.site-topbar')?.textContent).toContain(
       'nunca pede pagamento antecipado',
     );

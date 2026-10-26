@@ -1,4 +1,5 @@
 import type { CenaIlustracao } from './sep-ilustracao.component';
+import { POSTS_DEMONSTRACAO } from './site-blog-demonstracao';
 
 // Blog do Dynamis SEP. Todo o conteúdo gira em torno da sociedade de empréstimo entre pessoas (SEP):
 // o que é, como funciona para quem toma e para quem financia, como o risco é medido e como se proteger.
@@ -10,7 +11,7 @@ import type { CenaIlustracao } from './sep-ilustracao.component';
 //    curtos"), e a revisão do jurídico precede cada publicação;
 //  - cada texto traz o aviso de risco quando fala de financiar operações.
 
-export type CategoriaBlog = 'SEP na prática' | 'Para empresas' | 'Para investidores' | 'Segurança';
+export type CategoriaBlog = 'SEP na prática' | 'Para empresas' | 'Para financiadores' | 'Segurança';
 
 export type BlocoTexto =
   | { t: 'p'; v: string }
@@ -29,6 +30,9 @@ export interface PostBlog {
   cena: CenaIlustracao;
   /** Texto alternativo da imagem, descrevendo o que ela mostra. */
   imagemAlt?: string;
+  /** Foto já disponível no módulo Demonstração e acesso ao cenário descrito. */
+  imagem?: string;
+  demonstracao?: string;
   blocos: BlocoTexto[];
   emResumo: string[];
   relacionados: string[];
@@ -59,7 +63,7 @@ export const FOTOS_DO_BLOG: ReadonlySet<string> = new Set<string>([
 
 /** Caminho da foto do texto, ou `null` quando ele ainda usa a ilustração. */
 export function fotoDe(post: PostBlog): string | null {
-  return FOTOS_DO_BLOG.has(post.slug) ? `/image/blog/${post.slug}.jpg` : null;
+  return post.imagem ?? (FOTOS_DO_BLOG.has(post.slug) ? `/image/blog/${post.slug}.jpg` : null);
 }
 
 export const AVISO_DO_BLOG =
@@ -68,6 +72,7 @@ export const AVISO_DO_BLOG =
 const DATA = '2026-10-09';
 
 export const POSTS: PostBlog[] = [
+  ...POSTS_DEMONSTRACAO,
   {
     slug: 'o-que-e-uma-sep',
     titulo: 'O que é uma SEP, a sociedade de empréstimo entre pessoas',
@@ -85,7 +90,7 @@ export const POSTS: PostBlog[] = [
       },
       {
         t: 'p',
-        v: 'A ideia é simples. Uma plataforma reúne duas pontas. De um lado, quem precisa de crédito, o tomador. Do outro, quem quer financiá-lo e aceita o risco de fazê-lo, o credor, também chamado de investidor. A SEP faz a ponte, analisa o crédito, formaliza o contrato e cobra as parcelas.',
+        v: 'A ideia é simples. Uma plataforma reúne duas pontas. De um lado, quem precisa de crédito, o tomador. Do outro, quem quer financiá-lo e aceita o risco de fazê-lo, o credor, também chamado de financiador. A SEP faz a ponte, analisa o crédito, formaliza o contrato e cobra as parcelas.',
       },
       { t: 'h2', v: 'O que a SEP faz e o que ela não faz' },
       {
@@ -169,10 +174,10 @@ export const POSTS: PostBlog[] = [
     titulo: 'SEP não é banco e não é investimento garantido: as diferenças que importam',
     resumo:
       'Confundir empréstimo entre pessoas com aplicação garantida é o mal-entendido mais caro do mercado. Veja o que muda.',
-    categoria: 'Para investidores',
+    categoria: 'Para financiadores',
     publicadoEm: DATA,
     cena: 'escudo',
-    imagemAlt: 'Investidor lendo com atenção os riscos de uma operação de crédito em um tablet',
+    imagemAlt: 'Financiador lendo com atenção os riscos de uma operação de crédito em um tablet',
     blocos: [
       {
         t: 'p',
@@ -218,7 +223,7 @@ export const POSTS: PostBlog[] = [
     titulo: 'Onde fica o dinheiro numa SEP: por que a conta segregada importa',
     resumo:
       'O dinheiro de quem financia não pode se misturar com o caixa da plataforma. Veja como isso protege e o que não protege.',
-    categoria: 'Para investidores',
+    categoria: 'Para financiadores',
     publicadoEm: DATA,
     cena: 'escudo',
     imagemAlt: 'Cofre digital simbolizando conta segregada para o dinheiro das operações',
@@ -260,7 +265,7 @@ export const POSTS: PostBlog[] = [
     titulo: 'Quem pode financiar operações numa SEP, e o limite por tomador',
     resumo:
       'Pessoas físicas e empresas podem ser credores, com regras de perfil e um limite de exposição para quem não é investidor qualificado.',
-    categoria: 'Para investidores',
+    categoria: 'Para financiadores',
     publicadoEm: DATA,
     cena: 'pessoas',
     imagemAlt:
@@ -362,7 +367,7 @@ export const POSTS: PostBlog[] = [
     titulo: 'Classificação de risco de A a E: como ler antes de financiar uma operação',
     resumo:
       'A faixa de risco resume a análise, mas não substitui a leitura dos fatores. Veja como usá-la e por que a inadimplência por faixa é divulgada todo mês.',
-    categoria: 'Para investidores',
+    categoria: 'Para financiadores',
     publicadoEm: DATA,
     cena: 'grafico',
     imagemAlt: 'Gráfico de barras com a inadimplência por faixa de risco em uma tela de computador',
@@ -406,7 +411,7 @@ export const POSTS: PostBlog[] = [
     titulo: 'Diversificar em empréstimo entre pessoas: por que não colocar tudo em uma operação',
     resumo:
       'Uma única operação em atraso pode comprometer boa parte do capital. A diversificação reduz esse efeito, e a conta é simples.',
-    categoria: 'Para investidores',
+    categoria: 'Para financiadores',
     publicadoEm: DATA,
     cena: 'grafico',
     imagemAlt: 'Mãos separando moedas em diferentes grupos sobre uma mesa',
@@ -605,7 +610,7 @@ export const POSTS: PostBlog[] = [
     titulo: 'Inadimplência numa SEP: o que é, como é cobrada e por que é divulgada',
     resumo:
       'Atrasos acontecem. O que importa é como são medidos, cobrados e informados a quem financia a operação.',
-    categoria: 'Para investidores',
+    categoria: 'Para financiadores',
     publicadoEm: DATA,
     cena: 'grafico',
     imagemAlt:
@@ -803,7 +808,7 @@ export const POSTS: PostBlog[] = [
 export const CATEGORIAS: CategoriaBlog[] = [
   'SEP na prática',
   'Para empresas',
-  'Para investidores',
+  'Para financiadores',
   'Segurança',
 ];
 

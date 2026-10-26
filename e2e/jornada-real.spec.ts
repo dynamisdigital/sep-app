@@ -19,10 +19,13 @@ test('a jornada completa percorre os cinco perfis e conclui sem erro', async ({ 
 
   // Navega pela página inicial e só por cliques: recarregar a página devolveria os dados ao início.
   await page.goto('/');
-  await page.locator('[data-jornada-acesso]').click();
+  await page.getByRole('link', { name: 'Demonstração', exact: true }).click();
+  await page.getByRole('link', { name: 'Ver banner de Operação completa', exact: true }).click();
+  await page.getByRole('button', { name: 'Assistir à operação completa', exact: true }).click();
 
   const velocidade = page.locator('button[aria-label^="Velocidade"]');
   await velocidade.waitFor();
+  await velocidade.click();
   await velocidade.click();
   await velocidade.click();
 

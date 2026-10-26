@@ -260,7 +260,7 @@ a {
 }
 
 .landing-page {
-  min-height: 100vh;
+  min-height: var(--sep-altura-janela, 100vh);
   padding: clamp(10px, 1vw, 18px);
   overflow-x: hidden;
   background:
@@ -277,7 +277,7 @@ a {
 .landing-shell {
   position: relative;
   width: min(100%, 1510px);
-  min-height: calc(100vh - clamp(20px, 2vw, 36px));
+  min-height: calc(var(--sep-altura-janela, 100vh) - clamp(20px, 2vw, 36px));
   margin: 0 auto;
   overflow: hidden;
   background:
@@ -1070,7 +1070,7 @@ a {
   }
 
   .landing-shell {
-    min-height: 100vh;
+    min-height: var(--sep-altura-janela, 100vh);
     border-right: 0;
     border-left: 0;
     border-radius: 0;
@@ -1287,7 +1287,7 @@ a {
     align-content: space-between;
 
     // Altura mínima, e não exata: numa janela baixa demais a tela rola um pouco em vez de espremer e cortar o conteúdo.
-    min-height: calc(100vh - clamp(20px, 2vw, 36px));
+    min-height: calc(var(--sep-altura-janela, 100vh) - clamp(20px, 2vw, 36px));
   }
 
   .landing-header {
@@ -1687,7 +1687,7 @@ a {
   width: 100%;
   grid-column: auto;
   grid-row: auto;
-  gap: 8px clamp(20px, 2.6vw, 46px);
+  gap: 8px clamp(14px, 1.7vw, 30px);
   justify-content: center;
   padding-top: 12px;
   font-size: 1.04rem;
@@ -1719,23 +1719,4 @@ a {
   .hero-aviso {
     margin-top: clamp(4px, 0.8vh, 12px);
   }
-}
-
-// Acesso à jornada pública, sem alterar os banners já homologados.
-// Só no ambiente de demonstração: a jornada usa as telas reais com dados fictícios.
-.landing-jornada {
-  margin: 0 0 16px;
-}
-
-.landing-jornada button {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-  padding: 10px 14px;
-  color: var(--site-ciano);
-  font: inherit;
-  cursor: pointer;
-  border: 1px solid var(--site-linha);
-  border-radius: 10px;
-  background: transparent;
 }

@@ -26,7 +26,7 @@ function hrefs(): string[] {
 }
 
 describe('páginas novas do site', () => {
-  it('Para investidores: abre com o aviso de risco e leva ao cadastro', async () => {
+  it('Para financiadores: abre com o aviso de risco e leva ao cadastro', async () => {
     await render(InvestidoresComponent, { providers: base });
 
     expect(

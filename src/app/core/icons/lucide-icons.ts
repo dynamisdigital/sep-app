@@ -1,6 +1,7 @@
 import {
   Activity,
   Music,
+  ChevronLeft,
   ChevronRight,
   CirclePlay,
   MonitorPlay,
@@ -190,6 +191,7 @@ export const LUCIDE_ICONS = {
   Pix,
   Activity,
   Music,
+  ChevronLeft,
   ChevronRight,
   CirclePlay,
   MonitorPlay,

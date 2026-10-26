@@ -71,7 +71,7 @@ export const ROTULO_SECAO: Record<string, string> = {
   'publico-inicio': 'Início',
   'publico-login': 'Login',
   'publico-credito-pj': 'Crédito PJ',
-  'publico-investidores': 'Investidores',
+  'publico-investidores': 'Financiadores',
   'publico-seguranca': 'Segurança',
   'publico-transparencia': 'Transparência',
   'publico-blog': 'Blog',

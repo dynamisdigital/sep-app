@@ -1,16 +1,18 @@
-<main class="site-page" sepLarguraTela>
+<main class="site-page" [class.site-apresentacao]="apresentacao()" sepLarguraTela>
   <div class="site-shell">
-    <div class="site-topbar">
-      <p class="site-topbar-aviso">
-        <lucide-icon name="shield-alert" [size]="16" [strokeWidth]="2" aria-hidden="true" />
-        <span>{{ avisoAntifraude }}</span>
-        <a routerLink="/antifraude">Saiba como se proteger</a>
-      </p>
-      <a [routerLink]="areaDoInvestidor.route" class="site-topbar-investidor">
-        <lucide-icon name="wallet" [size]="16" [strokeWidth]="2" aria-hidden="true" />
-        {{ areaDoInvestidor.label }}
-      </a>
-    </div>
+    @if (!apresentacao()) {
+      <div class="site-topbar">
+        <p class="site-topbar-aviso">
+          <lucide-icon name="shield-alert" [size]="16" [strokeWidth]="2" aria-hidden="true" />
+          <span>{{ avisoAntifraude }}</span>
+          <a routerLink="/antifraude">Saiba como se proteger</a>
+        </p>
+        <a [routerLink]="areaDoInvestidor.route" class="site-topbar-investidor">
+          <lucide-icon name="wallet" [size]="16" [strokeWidth]="2" aria-hidden="true" />
+          {{ areaDoInvestidor.label }}
+        </a>
+      </div>
+    }
 
     <header class="site-header">
       @if (!naInicial()) {
@@ -59,6 +61,12 @@
         </button>
         <sep-acoes-publicas />
         <a routerLink="/login" class="site-login">Entrar</a>
+        @if (apresentacao()) {
+          <a [routerLink]="areaDoInvestidor.route" class="site-area-financiador">
+            <lucide-icon name="wallet" [size]="16" [strokeWidth]="2" aria-hidden="true" />
+            {{ areaDoInvestidor.label }}
+          </a>
+        }
       </div>
     </header>
 

@@ -1,3 +1,4 @@
+import { escalaDoLayout } from '../../../../core/layout/escala-layout';
 import { DOCUMENT } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
@@ -263,7 +264,9 @@ export class PropostasListPageComponent implements OnInit {
       rolavel = rolavel.parentElement;
     }
     if (!tabela || !rolavel) return;
-    const topo = tabela.getBoundingClientRect().top - rolavel.getBoundingClientRect().top;
+    const topo =
+      (tabela.getBoundingClientRect().top - rolavel.getBoundingClientRect().top) /
+      escalaDoLayout(rolavel);
     if (topo >= 0 && topo < rolavel.clientHeight * 0.6) return;
     rolavel.scrollTo?.({ top: rolavel.scrollTop + topo - 16, behavior: 'smooth' });
   }

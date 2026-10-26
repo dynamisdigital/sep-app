@@ -82,7 +82,7 @@ export class CredoraShellComponent implements OnInit {
     },
     {
       label: 'Oportunidades',
-      description: 'Operações disponíveis para investimento.',
+      description: 'Operações disponíveis para financiamento.',
       route: '/app/credora/oportunidades',
       icone: 'chart-column',
       tom: 'green',

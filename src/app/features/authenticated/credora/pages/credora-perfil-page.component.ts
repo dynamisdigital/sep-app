@@ -94,7 +94,7 @@ export class CredoraPerfilPageComponent implements OnInit {
       return {
         tom: 'green',
         icone: 'circle-check',
-        titulo: 'Apta a investir',
+        titulo: 'Apta a financiar',
         mensagem: 'Sua credora está apta a manifestar interesse em oportunidades disponíveis.',
       };
     }

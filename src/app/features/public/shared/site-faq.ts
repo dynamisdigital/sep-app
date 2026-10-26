@@ -81,7 +81,7 @@ export const FAQ: GrupoFaq[] = [
   },
   {
     id: 'investidores',
-    titulo: 'Para investidores (credores)',
+    titulo: 'Para financiadores (credores)',
     icone: 'wallet',
     itens: [
       {

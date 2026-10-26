@@ -9,7 +9,9 @@
  */
 
 import { Component, inject, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map } from 'rxjs';
 
 import { ThemeService } from './core/theme/theme.service';
 import { TourOverlayComponent } from './shared/tour/tour-overlay.component';
@@ -30,6 +32,16 @@ export class App {
    * isso não aparecia; com tokens, a moldura saía no tema errado.
    */
   private readonly theme = inject(ThemeService);
+
+  private readonly router = inject(Router);
+
+  protected readonly demonstracao = toSignal(
+    this.router.events.pipe(
+      filter((evento): evento is NavigationEnd => evento instanceof NavigationEnd),
+      map((evento) => /^\/demonstracao(?:[/?#]|$)/.test(evento.urlAfterRedirects)),
+    ),
+    { initialValue: /^\/demonstracao(?:[/?#]|$)/.test(this.router.url) },
+  );
 
   protected readonly title = signal('sep-app');
 }

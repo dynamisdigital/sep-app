@@ -9,7 +9,13 @@
  */
 
 import { Location } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, ViewEncapsulation } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+  ViewEncapsulation,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter, map } from 'rxjs';
@@ -46,6 +52,7 @@ import {
   encapsulation: ViewEncapsulation.None,
 })
 export class PublicShellComponent {
+  readonly apresentacao = input(false);
   protected readonly assetBase = '/image/sep_mockup_01_assets';
 
   private readonly tema = inject(ThemeService);

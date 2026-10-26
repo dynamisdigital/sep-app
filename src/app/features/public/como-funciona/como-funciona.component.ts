@@ -121,7 +121,7 @@ export class ComoFuncionaComponent {
       tom: 'blue',
     },
     {
-      titulo: 'Credor (investidor)',
+      titulo: 'Credor (financiador)',
       descricao:
         'Pessoa física ou empresa que quer financiar operações. Cadastra-se, vê as oportunidades com o risco explicado e acompanha a carteira financiada operação a operação.',
       icone: 'briefcase',

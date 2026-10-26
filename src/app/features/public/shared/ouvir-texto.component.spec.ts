@@ -60,6 +60,7 @@ const montar = (textos: string[], on: Record<string, () => void> = {}) => {
 
 describe('OuvirTextoComponent', () => {
   afterEach(() => {
+    vi.restoreAllMocks();
     remover();
     document.body.innerHTML = '';
   });
@@ -111,17 +112,100 @@ describe('OuvirTextoComponent', () => {
       expect(concluida).toHaveBeenCalledTimes(1);
     });
 
-    it('pausa e continua pelo navegador, sem recomeçar do início', async () => {
-      await montar(['Um.', 'Dois.']);
+    it('pausa cancelando a voz e retoma dois segundos antes, sem contar o tempo pausado', async () => {
+      let agora = 1000;
+      vi.spyOn(performance, 'now').mockImplementation(() => agora);
+      const texto =
+        Array.from({ length: 24 }, (_, i) => `palavra${String(i).padStart(2, '0')}`).join(' ') +
+        '.';
+      await montar([texto, 'Próximo parágrafo.']);
       fireEvent.click(screen.getByRole('button', { name: /Ouvir/ }));
-
+      agora = 9000;
+      voz.faladas[0].onboundary?.({ charIndex: 120 });
       fireEvent.click(screen.getByRole('button', { name: /Pausar/ }));
-      expect(voz.synth.pause).toHaveBeenCalled();
+      expect(voz.synth.cancel).toHaveBeenCalled();
+      expect(voz.synth.pause).not.toHaveBeenCalled();
       expect(screen.getByRole('status').textContent).toContain('pausada');
-
-      fireEvent.click(screen.getByRole('button', { name: /Continuar/ }));
-      expect(voz.synth.resume).toHaveBeenCalled();
+      // Eventos atrasados do motor cancelado não alteram a posição nem avançam a fila.
+      voz.faladas[0].onboundary?.({ charIndex: 220 });
+      voz.faladas[0].onend?.();
+      voz.faladas[0].onerror?.({ error: 'network' });
       expect(voz.faladas).toHaveLength(1);
+      agora = 69_000;
+      fireEvent.click(screen.getByRole('button', { name: /Continuar/ }));
+      expect(voz.faladas).toHaveLength(2);
+      expect(voz.faladas[1].text).toBe(texto.slice(90));
+      expect(voz.synth.resume).not.toHaveBeenCalled();
+      voz.faladas[1].onend?.();
+      expect(voz.faladas[2].text).toBe('Próximo parágrafo.');
+    });
+
+    it('retomadas sucessivas mantêm o deslocamento no texto original', async () => {
+      let agora = 1000;
+      vi.spyOn(performance, 'now').mockImplementation(() => agora);
+      const texto =
+        Array.from({ length: 24 }, (_, i) => `palavra${String(i).padStart(2, '0')}`).join(' ') +
+        '.';
+      await montar([texto]);
+      fireEvent.click(screen.getByRole('button', { name: /Ouvir/ }));
+      agora = 9000;
+      voz.faladas[0].onboundary?.({ charIndex: 120 });
+      fireEvent.click(screen.getByRole('button', { name: /Pausar/ }));
+      fireEvent.click(screen.getByRole('button', { name: /Continuar/ }));
+      expect(voz.faladas[1].text).toBe(texto.slice(90));
+      agora = 13_000;
+      voz.faladas[1].onboundary?.({ charIndex: 60 });
+      fireEvent.click(screen.getByRole('button', { name: /Pausar/ }));
+      fireEvent.click(screen.getByRole('button', { name: /Continuar/ }));
+      expect(voz.faladas[2].text).toBe(texto.slice(120));
+    });
+
+    it('sem eventos de palavra, estima o ponto e recua sem reiniciar o artigo', async () => {
+      let agora = 1000;
+      vi.spyOn(performance, 'now').mockImplementation(() => agora);
+      const texto =
+        Array.from({ length: 24 }, (_, i) => `palavra${String(i).padStart(2, '0')}`).join(' ') +
+        '.';
+      await montar([texto]);
+      fireEvent.click(screen.getByRole('button', { name: /Ouvir/ }));
+      agora = 9000;
+      fireEvent.click(screen.getByRole('button', { name: /Pausar/ }));
+      fireEvent.click(screen.getByRole('button', { name: /Continuar/ }));
+      expect(voz.faladas[1].text).toBe(texto.slice(80));
+    });
+
+    it('o recuo pode alcançar o trecho anterior e depois seguir normalmente', async () => {
+      vi.spyOn(performance, 'now').mockReturnValue(1000);
+      const texto =
+        Array.from({ length: 24 }, (_, i) => `palavra${String(i).padStart(2, '0')}`).join(' ') +
+        '.';
+      const { fixture } = await montar([texto, 'Segundo parágrafo.']);
+      fireEvent.click(screen.getByRole('button', { name: /Ouvir/ }));
+      voz.faladas[0].onend?.();
+      fixture.detectChanges();
+      fireEvent.click(screen.getByRole('button', { name: /Pausar/ }));
+      fireEvent.click(screen.getByRole('button', { name: /Continuar/ }));
+      expect(voz.faladas[2].text).toBe(texto.slice(210));
+      voz.faladas[2].onend?.();
+      expect(voz.faladas[3].text).toBe('Segundo parágrafo.');
+    });
+
+    it('a velocidade pode mudar na pausa sem iniciar a voz nem perder o ponto', async () => {
+      let agora = 1000;
+      vi.spyOn(performance, 'now').mockImplementation(() => agora);
+      const texto =
+        Array.from({ length: 24 }, (_, i) => `palavra${String(i).padStart(2, '0')}`).join(' ') +
+        '.';
+      await montar([texto]);
+      fireEvent.click(screen.getByRole('button', { name: /Ouvir/ }));
+      agora = 9000;
+      voz.faladas[0].onboundary?.({ charIndex: 120 });
+      fireEvent.click(screen.getByRole('button', { name: /Pausar/ }));
+      fireEvent.change(screen.getByLabelText('Velocidade'), { target: { value: '1.3' } });
+      expect(voz.faladas).toHaveLength(1);
+      fireEvent.click(screen.getByRole('button', { name: /Continuar/ }));
+      expect(voz.faladas[1].text).toBe(texto.slice(90));
+      expect(voz.faladas[1].rate).toBeCloseTo(1.326, 5);
     });
 
     it('parar cancela a voz, volta ao início e um trecho cancelado não avança a fila', async () => {

@@ -9,7 +9,7 @@ import { PublicShellComponent } from '../shared/public-shell.component';
 import { SepIlustracaoComponent } from '../shared/sep-ilustracao.component';
 import { SiteCartao, SiteEtapa, TETO_EMPRESTIMO } from '../shared/site-conteudo';
 
-// Página "Para investidores": a metade do negócio que o site não explicava. Em uma SEP o investidor é o
+// Página "Para financiadores": a metade do negócio que o site não explicava. Em uma SEP o investidor é o
 // credor, quem financia as operações. A página diz como se entra, o que se vê antes de decidir, onde o
 // dinheiro fica e, sempre perto de qualquer fala sobre financiar, que há risco e não há garantia.
 @Component({

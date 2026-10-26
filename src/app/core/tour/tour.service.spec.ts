@@ -50,6 +50,32 @@ describe('TourService', () => {
     document.body.innerHTML = '';
   });
 
+  it('alterna entre as cinco velocidades e retorna ao início do ciclo', () => {
+    expect(tour.velocidade()).toBe(1);
+    for (const velocidade of [1.25, 1.5, 2, 0.9, 1, 1.25]) {
+      tour.alternarVelocidade();
+      expect(tour.velocidade()).toBe(velocidade);
+    }
+  });
+
+  it('inicia o capítulo solicitado usando o salto que prepara os dados da demonstração', () => {
+    vi.spyOn(tour, 'impedimento').mockReturnValue(null);
+    const salto = vi.spyOn(tour, 'irParaSecao').mockImplementation(() => undefined);
+    tour.iniciar('jornada-real', 'Credor');
+    const posicao = tour.secoes().findIndex((s) => s.titulo === 'Credor');
+    expect(posicao).toBeGreaterThanOrEqual(0);
+    expect(salto).toHaveBeenCalledExactlyOnceWith(posicao);
+    salto.mockRestore();
+  });
+
+  it('repetir preserva o roteiro local da etapa, sem procurar um cenário maior no catálogo', () => {
+    const local = { ...ROTEIROS[0], id: 'etapa-local', passos: () => [] };
+    tour.roteiro.set(local);
+    const iniciar = vi.spyOn(tour, 'iniciarRoteiro').mockImplementation(() => undefined);
+    tour.repetir();
+    expect(iniciar).toHaveBeenCalledExactlyOnceWith(local);
+  });
+
   it('agrupa os roteiros por modulo e so mostra os do papel corrente', () => {
     auth.currentUserState.set(usuario('ADMIN', true));
     const grupos = tour.catalogo();
@@ -564,16 +590,18 @@ describe('TourService', () => {
       expect(tour.catalogo().some((g) => g.modulo === 'Site institucional')).toBe(false);
 
       const publico = tour.catalogoPublico();
-      expect(publico.length).toBe(2);
+      expect(publico.length).toBe(3);
+      expect(publico[2].modulo).toBe('Demonstração');
+      expect(publico[2].roteiros.map((r) => r.id)).toEqual(['publico-demonstracao']);
       expect(publico[1].modulo).toBe('Jornadas práticas');
-      expect(publico[1].roteiros).toHaveLength(1);
+      expect(publico[1].roteiros).toHaveLength(6);
       expect(publico[0].modulo).toBe('Site institucional');
       expect(publico[0].roteiros.map((r) => r.titulo)).toEqual([
         'Módulo completo',
         'Página inicial',
         'Tela de login',
         'Crédito PJ',
-        'Investidores',
+        'Financiadores',
         'Segurança',
         'Como funciona',
         'Transparência',
@@ -718,7 +746,8 @@ describe('TourService', () => {
       // Todo modulo tem o seu; Correspondentes tem dois, um por face (correspondente e administracao).
       expect([...new Set(completos.map((c) => c.modulo))].sort()).toEqual(
         Object.keys(MODULOS_TOUR)
-          .filter((m) => m !== 'Jornadas práticas')
+          // Os catálogos de jornadas têm um roteiro único, sem composição de submódulos.
+          .filter((m) => !['Jornadas práticas', 'Demonstração'].includes(m))
           .sort(),
       );
       for (const completo of completos) {

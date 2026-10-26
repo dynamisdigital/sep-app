@@ -104,7 +104,7 @@
      entrava em acao. Limitada, a barra fica na altura da janela e o menu rola por dentro. */
   grid-template-rows: minmax(0, 1fr);
   width: calc(100% - 8px);
-  height: calc(100vh - 8px);
+  height: calc(var(--sep-altura-janela, 100vh) - 8px);
   min-height: 0;
   margin: 4px;
   overflow: hidden;
@@ -1010,7 +1010,7 @@ $janela-meia-tela: 1716px;
     display: grid;
     grid-template-columns: 68px minmax(0, 1fr);
     height: auto;
-    min-height: 100vh;
+    min-height: var(--sep-altura-janela, 100vh);
     overflow: visible;
   }
 
@@ -1025,7 +1025,7 @@ $janela-meia-tela: 1716px;
     grid-template-rows: 74px minmax(0, 1fr) 76px 58px;
     position: sticky;
     top: 0;
-    height: 100vh;
+    height: var(--sep-altura-janela, 100vh);
     min-height: 0;
   }
 
@@ -1684,7 +1684,7 @@ $janela-meia-tela: 1716px;
   width: 292px;
 
   // Em janela baixa (meia tela) a lista de contas rola por dentro: antes, as ultimas ficavam abaixo da borda.
-  max-height: calc(100vh - 100px);
+  max-height: calc(var(--sep-altura-janela, 100vh) - 100px);
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 10px;
@@ -2116,7 +2116,7 @@ a.op-alerta:hover {
 
   // O painel base para em 660px; a Ajuda tem a lista dos tours e usa quase toda a altura livre
   // abaixo do cabecalho, parando perto da secao Documentacao.
-  max-height: calc(100vh - 230px);
+  max-height: calc(var(--sep-altura-janela, 100vh) - 230px);
 }
 
 .op-ajuda-contexto {

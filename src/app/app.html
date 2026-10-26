@@ -1,3 +1,5 @@
-<router-outlet />
-<!-- Fora do shell: o tour assistido atravessa as trocas de tela sem perder o passo. -->
+<div class="sep-viewport" [class.sep-viewport-demo]="demonstracao()">
+  <router-outlet />
+</div>
+<!-- Sem escala: as coordenadas do tour são medidas em pixels da janela. -->
 <sep-tour-overlay />

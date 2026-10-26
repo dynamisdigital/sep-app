@@ -77,8 +77,8 @@ const inicio: Roteiro = {
         'Este roteiro apresenta a página inicial do SEP, a Sociedade de Empréstimo entre Pessoas. Não é preciso estar logado.',
     },
     ler(
-      'Área do investidor',
-      'No cabeçalho, o link Área do investidor leva ao login de quem financia. No sistema essa pessoa é o credor.',
+      'Área do financiador',
+      'No cabeçalho, o link Área do financiador leva ao login de quem financia. No sistema essa pessoa é o credor.',
       '.landing-investidor',
     ),
     ler(
@@ -88,7 +88,7 @@ const inicio: Roteiro = {
     ),
     ler(
       'Menu das páginas',
-      'O menu leva a Empresas, Investidores, Como funciona, Segurança, Transparência, Blog, Sobre e Contato. As páginas principais têm um roteiro próprio.',
+      'O menu leva a Empresas, Financiador, Demonstração, Como funciona, Segurança, Transparência, Blog, Sobre e Contato. A ajuda inclui um tour para conhecer os cenários da demonstração.',
       '.landing-nav',
     ),
     {
@@ -129,7 +129,7 @@ const inicio: Roteiro = {
     ),
     ler(
       'A proposta',
-      'O Dynamis SEP é uma sociedade de empréstimo entre pessoas: reúne empresas que buscam capital de giro e investidores dispostos a financiá-las, com a análise de risco explicada, o dinheiro em conta segregada e cada passo registrado.',
+      'O Dynamis SEP é uma sociedade de empréstimo entre pessoas: reúne empresas que buscam capital de giro e financiadores dispostos a financiá-las, com a análise de risco explicada, o dinheiro em conta segregada e cada passo registrado.',
       '#hero-title',
     ),
     ler(
@@ -144,7 +144,7 @@ const inicio: Roteiro = {
     ),
     ler(
       'Os banners',
-      'O destaque da página troca sozinho a cada quinze segundos: a plataforma, o investidor que financia as operações, a empresa que busca capital de giro com parcelas no Pix Automático e a pessoa física que também pode pedir crédito. Cada um sai por um lado e o próximo entra pelo outro, no mesmo espaço.',
+      'O destaque da página troca sozinho a cada quinze segundos: a plataforma, o financiador que financia as operações, a empresa que busca capital de giro com parcelas no Pix Automático e a pessoa física que também pode pedir crédito. Cada um sai por um lado e o próximo entra pelo outro, no mesmo espaço.',
       '.hero-carrossel',
     ),
     ler(
@@ -393,7 +393,7 @@ const seguranca: Roteiro = {
 const investidores: Roteiro = {
   ...BASE,
   id: 'publico-investidores',
-  titulo: 'Investidores',
+  titulo: 'Financiadores',
   icone: 'wallet',
   descricao:
     'Como quem financia escolhe, aporta e acompanha, o que vê antes de decidir e onde fica o dinheiro.',
@@ -402,12 +402,12 @@ const investidores: Roteiro = {
     {
       titulo: 'Ponto de partida',
       texto:
-        'Este roteiro percorre a página Investidores, a partir da página inicial. No sistema, quem financia é o credor; no site, aparece como investidor.',
+        'Este roteiro percorre a página Financiadores, a partir da página inicial. No sistema, quem financia é o credor; no site, aparece como financiador.',
     },
     irPara({
       rota: '/investidores',
-      titulo: 'Menu Investidores',
-      texto: 'No menu do cabeçalho, Investidores abre a página de quem financia as operações.',
+      titulo: 'Menu Financiadores',
+      texto: 'No menu do cabeçalho, Financiadores abre a página de quem financia as operações.',
       pagina: '.px60-heading',
     }),
     ler(
@@ -422,11 +422,11 @@ const investidores: Roteiro = {
     ),
     ler(
       'Os dois caminhos',
-      'Criar conta de investidor abre o cadastro, e Como funciona leva à jornada completa da plataforma.',
+      'Criar conta de financiador abre o cadastro, e Como funciona leva à jornada completa da plataforma.',
       '.px60-hero-acoes',
     ),
     ler(
-      'Antes de investir',
+      'Antes de financiar',
       'O aviso vem logo no começo, e não escondido no rodapé: financiar crédito envolve risco, inclusive de inadimplência e de perda do capital. O SEP não garante o pagamento das operações, e o investimento não conta com a cobertura do FGC.',
       '.px60-risco',
     ),
@@ -437,7 +437,7 @@ const investidores: Roteiro = {
     ),
     ler(
       'O que você vê antes de decidir',
-      'Antes de aportar, o investidor vê o score explicado, a faixa de risco de A a E, o prazo e a taxa, e a inadimplência por faixa.',
+      'Antes de aportar, o financiador vê o score explicado, a faixa de risco de A a E, o prazo e a taxa, e a inadimplência por faixa.',
       { css: '.px60-secao', texto: 'O que você vê antes de decidir' },
     ),
     ler(
@@ -687,7 +687,7 @@ const perguntas: Roteiro = {
     ler('Quantas perguntas', 'Logo abaixo, a contagem de perguntas encontradas.', '.px62-contagem'),
     ler(
       'Os grupos',
-      'As perguntas se dividem em quatro grupos: sobre a SEP, para empresas que buscam crédito, para investidores e segurança e proteção de dados.',
+      'As perguntas se dividem em quatro grupos: sobre a SEP, para empresas que buscam crédito, para financiadores e segurança e proteção de dados.',
       '.px62-grupo',
     ),
     {

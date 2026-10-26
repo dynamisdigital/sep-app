@@ -2,6 +2,18 @@ import { Routes } from '@angular/router';
 
 export const PUBLIC_ROUTES: Routes = [
   {
+    path: 'demonstracao',
+    loadComponent: () =>
+      import('./demonstracao/demonstracao.component').then((m) => m.DemonstracaoComponent),
+    title: 'Demonstração — Dynamis SEP',
+  },
+  {
+    path: 'demonstracao/:perfil',
+    loadComponent: () =>
+      import('./demonstracao/demonstracao.component').then((m) => m.DemonstracaoComponent),
+    title: 'Demonstração por perfil — Dynamis SEP',
+  },
+  {
     path: '',
     loadComponent: () => import('./landing/landing.component').then((m) => m.LandingComponent),
   },
@@ -18,7 +30,7 @@ export const PUBLIC_ROUTES: Routes = [
     path: 'investidores',
     loadComponent: () =>
       import('./investidores/investidores.component').then((m) => m.InvestidoresComponent),
-    title: 'Para investidores — Dynamis SEP',
+    title: 'Para financiadores — Dynamis SEP',
   },
   {
     path: 'transparencia',

@@ -38,7 +38,7 @@ export const BANNERS_HERO: BannerHero[] = [
       destaque: 'Crédito com regra',
       depois: ' para quem financia.',
     },
-    lead: 'O Dynamis SEP é uma sociedade de empréstimo entre pessoas: reunimos empresas que buscam capital de giro e investidores dispostos a financiá-las, com a análise de risco explicada, o dinheiro em conta segregada e cada passo registrado.',
+    lead: 'O Dynamis SEP é uma sociedade de empréstimo entre pessoas: reunimos empresas que buscam capital de giro e financiadores dispostos a financiá-las, com a análise de risco explicada, o dinheiro em conta segregada e cada passo registrado.',
     acoes: [
       { rotulo: 'Criar conta', rota: '/register', primaria: true },
       { rotulo: 'Entrar na plataforma', rota: '/login', primaria: false },
@@ -51,12 +51,12 @@ export const BANNERS_HERO: BannerHero[] = [
     aviso: 'Esta plataforma não oferece rendimento garantido nem aprovação automática de crédito.',
     midia: {
       cena: 'rede',
-      descricao: 'Empreendedores e investidores conectados pela plataforma Dynamis SEP',
+      descricao: 'Empreendedores e financiadores conectados pela plataforma Dynamis SEP',
     },
   },
   {
     id: 'investidores',
-    kicker: 'Dynamis SEP · Para investidores',
+    kicker: 'Dynamis SEP · Para financiadores',
     titulo: {
       antes: 'Financie empresas e veja o ',
       destaque: 'risco antes',
@@ -64,7 +64,7 @@ export const BANNERS_HERO: BannerHero[] = [
     },
     lead: 'Você escolhe as operações de capital de giro, vê a faixa de risco de A a E com cada fator do score explicado e acompanha as parcelas, com o dinheiro em conta segregada.',
     acoes: [
-      { rotulo: 'Quero investir', rota: '/investidores', primaria: true },
+      { rotulo: 'Quero financiar', rota: '/investidores', primaria: true },
       { rotulo: 'Como funciona', rota: '/como-funciona', primaria: false },
     ],
     selos: [
@@ -76,7 +76,7 @@ export const BANNERS_HERO: BannerHero[] = [
       'Investir em crédito envolve risco, inclusive de perda do capital. Não há garantia de retorno nem cobertura do FGC.',
     midia: {
       cena: 'grafico',
-      descricao: 'Investidora analisando a classificação de risco de uma operação no notebook',
+      descricao: 'Financiadora analisando a classificação de risco de uma operação no notebook',
     },
   },
   {

@@ -113,9 +113,9 @@
       </div>
     }
     @if (!loading() && !errorMessage()) {
-      <!-- ============ CONTA ESCROW DO INVESTIDOR ============ -->
+      <!-- ============ CONTA ESCROW DO FINANCIADOR ============ -->
       <section class="px35-motivos" aria-labelledby="px35-investidor-titulo">
-        <h2 id="px35-investidor-titulo">Conta escrow do investidor</h2>
+        <h2 id="px35-investidor-titulo">Conta escrow do financiador</h2>
         <div class="px35-atalhos">
           @for (item of linksInvestidor; track item.label) {
             <a [routerLink]="item.route" class="px35-card px35-atalho" [attr.data-tone]="item.tom">

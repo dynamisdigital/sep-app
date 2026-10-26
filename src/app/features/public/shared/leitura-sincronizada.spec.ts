@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import {
   caracteresLidos,
+  completarPalavraLida,
   extrairItens,
   faixaLida,
   mapearTexto,
@@ -60,6 +61,25 @@ describe('leitura sincronizada: texto da página', () => {
     for (let i = 1; i < doPrimeiro.length; i++)
       expect(doPrimeiro[i].f0).toBeCloseTo(doPrimeiro[i - 1].f1, 10);
   });
+
+  it('os trechos terminam na pontuação visível mesmo quando siglas e valores mudam a fala', () => {
+    const texto =
+      'A SEP apresenta R$ 15.000,00 para análise, respeitando as etapas e os documentos informados. ' +
+      'O cliente acompanha a proposta e conhece as condições antes de decidir pela contratação. ' +
+      'A operação tem seu histórico registrado e segue até a quitação, com informações disponíveis na plataforma. ' +
+      'Os dados deste exemplo são fictícios e a consulta serve apenas para conhecer o sistema.';
+    const raiz = montar(`<p>${texto}</p>`);
+    const partes = partesDe(extrairItens(raiz, 'p'));
+    expect(partes.length).toBeGreaterThan(1);
+    for (const parte of partes) {
+      const fim = Math.round(parte.f1 * texto.length);
+      expect(texto[fim - 1]).toMatch(/[.!?;:,]/);
+      const visivel = texto.slice(0, fim);
+      expect(
+        faixaLida(parte.el, caracteresLidos(parte, parte.texto.length, texto.length))?.toString(),
+      ).toBe(visivel);
+    }
+  });
 });
 
 describe('leitura sincronizada: ponto exato de cada caractere', () => {
@@ -85,6 +105,34 @@ describe('leitura sincronizada: ponto exato de cada caractere', () => {
     const raiz = montar('<h2><svg><text>ícone</text></svg>Em resumo</h2>');
     const h2 = raiz.firstElementChild as HTMLElement;
     expect(mapearTexto(h2).texto).toBe('Em resumo');
+  });
+
+  it('cobre as letras finais de jornada e o ponto sem avançar para a frase seguinte', () => {
+    const texto = 'O cartão abre o banner da jornada. O botão inicia o cenário.';
+    const fim = texto.indexOf('. O') + 1;
+    for (const falta of [1, 2, 3]) {
+      expect(completarPalavraLida(texto, fim - falta)).toBe(fim);
+    }
+    expect(texto.slice(completarPalavraLida(texto, fim - 2))).toBe(' O botão inicia o cenário.');
+  });
+
+  it('completa pontuação e palavras atravessando elementos internos, inclusive no fim do parágrafo', () => {
+    const raiz = montar('<p>Confira o <strong>financia</strong>dor!”</p>');
+    const p = raiz.firstElementChild!;
+    const texto = mapearTexto(p).texto;
+    const fim = completarPalavraLida(texto, texto.length - 4);
+    expect(faixaLida(p, fim)?.toString()).toBe('Confira o financiador!”');
+    expect(completarPalavraLida(texto, 0)).toBe(0);
+    expect(completarPalavraLida(texto, 9999)).toBe(texto.length);
+  });
+
+  it('o fim estimado do trecho fecha o ponto mesmo sem o evento final da voz', () => {
+    const raiz = montar('<p>A operação segue até a quitação.</p>');
+    const p = raiz.firstElementChild as HTMLElement;
+    const texto = mapearTexto(p).texto;
+    const parte = { el: p, texto, f0: 0, f1: 1 };
+    const parcial = caracteresLidos(parte, texto.length * 0.985, texto.length);
+    expect(faixaLida(p, completarPalavraLida(texto, parcial))?.toString()).toBe(texto);
   });
 
   it('caracteres lidos acompanham o avanço dentro do trecho e nunca passam do fim do bloco', () => {

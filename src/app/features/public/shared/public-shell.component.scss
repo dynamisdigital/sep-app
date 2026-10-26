@@ -12,7 +12,7 @@ sep-public-shell {
 }
 
 .site-page {
-  min-height: 100vh;
+  min-height: var(--sep-altura-janela, 100vh);
   padding: clamp(10px, 1vw, 18px);
   overflow-x: hidden;
   background:
@@ -31,7 +31,7 @@ sep-public-shell {
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr) auto;
   width: min(100%, 1510px);
-  min-height: calc(100vh - clamp(20px, 2vw, 36px));
+  min-height: calc(var(--sep-altura-janela, 100vh) - clamp(20px, 2vw, 36px));
   margin: 0 auto;
   overflow: hidden;
   background:
@@ -49,6 +49,10 @@ sep-public-shell {
   box-shadow:
     0 0 0 1px rgb(var(--lp-c-fundo) / 80%),
     0 28px 80px rgb(var(--lp-c-fundo) / 75%);
+}
+
+.site-apresentacao .site-shell {
+  grid-template-rows: auto minmax(0, 1fr) auto;
 }
 
 // ============ FAIXA DO TOPO ============
@@ -432,7 +436,7 @@ sep-public-shell {
   // documento legal virava uma coluna de 3.500px. Se uma janela baixa nao comportar o conteudo, a
   // faixa rola por dentro em vez de recortar.
   .site-shell {
-    height: calc(100vh - clamp(20px, 2vw, 36px));
+    height: calc(var(--sep-altura-janela, 100vh) - clamp(20px, 2vw, 36px));
   }
 
   // A linha declarada e o que limita a pagina: a implicita e `auto` e crescia com o conteudo.
@@ -445,7 +449,7 @@ sep-public-shell {
 
     // Tamanho (e nao so largura): a altura da faixa vira `cqh` para as paginas se diagramarem
     // dentro dela. A altura ja vem da linha do quadro, entao a contencao nao muda nada.
-    container-type: size;
+    container-type: inline-size;
   }
 
   .site-footer {
@@ -554,7 +558,7 @@ html:not(.dark) ::highlight(sep-lido) {
   width: 100%;
   grid-column: auto;
   grid-row: auto;
-  gap: 8px clamp(20px, 2.6vw, 46px);
+  gap: 8px clamp(14px, 1.7vw, 30px);
   justify-content: center;
   padding-top: 12px;
   font-size: 1.04rem;
@@ -571,4 +575,81 @@ html:not(.dark) ::highlight(sep-lido) {
     top: auto;
     bottom: 16px;
   }
+}
+
+// A demonstração é uma apresentação na janela, com a faixa central medida em cqh.
+// Nos demais conteúdos institucionais permanece a composição existente.
+@media (width >= 1080px) {
+  .site-apresentacao {
+    padding: 12px;
+  }
+
+  .site-apresentacao .site-shell {
+    width: 100%;
+    min-height: calc(var(--sep-altura-janela, 100dvh) - 24px);
+    height: auto;
+  }
+
+  .site-apresentacao .site-content {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+    container-type: inline-size;
+    overflow: visible;
+  }
+
+  .site-apresentacao .site-header {
+    padding-block: 12px;
+    row-gap: 10px;
+  }
+
+  .site-apresentacao .site-nav {
+    padding-top: 8px;
+  }
+
+  .site-apresentacao .site-footer {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px 24px;
+    padding-block: 10px;
+  }
+
+  .site-apresentacao .site-footer-brand p {
+    display: none;
+  }
+
+  .site-apresentacao .site-legal {
+    grid-column: 1 / -1;
+    font-size: 0.72rem;
+  }
+}
+
+// Mesmo alinhamento da home: acesso do Financiador abaixo de Entrar.
+.site-apresentacao .site-header-actions {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  gap: 8px 12px;
+}
+
+.site-area-financiador {
+  grid-column: 1 / -1;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 14px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgb(var(--lp-c-rotulo));
+  border: 1px solid rgb(var(--lp-c-ciano) / 50%);
+  border-radius: 999px;
+  background: rgb(var(--lp-c-surf) / 60%);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.site-area-financiador:hover,
+.site-area-financiador:focus-visible {
+  border-color: rgb(var(--lp-c-ciano));
+  box-shadow: 0 0 18px rgb(var(--lp-c-ciano) / 30%);
+  outline: none;
 }

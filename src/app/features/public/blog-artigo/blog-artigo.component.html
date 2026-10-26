@@ -126,10 +126,15 @@
         <h2>Quer ver como funciona na prática?</h2>
         <p>Conheça as jornadas de quem busca crédito e de quem financia as operações.</p>
         <div class="px65-chamada-acoes">
+          @if (p.demonstracao) {
+            <a class="px65-btn-primary" [routerLink]="['/demonstracao', p.demonstracao]">
+              <lucide-icon name="monitor-play" [size]="18" />Ver cenário da demonstração
+            </a>
+          }
           <a class="px65-btn-primary" routerLink="/como-funciona">
             <lucide-icon name="arrow-right" [size]="18" />Como funciona
           </a>
-          <a class="px65-btn-secondary" routerLink="/investidores">Para investidores</a>
+          <a class="px65-btn-secondary" routerLink="/investidores">Para financiadores</a>
           <a class="px65-btn-secondary" routerLink="/credito-pj">Para empresas</a>
         </div>
       </div>

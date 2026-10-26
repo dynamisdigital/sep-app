@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { escalaDoLayout } from '../layout/escala-layout';
 import { AuthService } from '../auth/auth.service';
 import { ehAmbienteDemo } from '../env/ambiente';
 import { environment } from '../../../environments/environment';
@@ -38,6 +39,7 @@ export interface PosicaoCursor {
 
 const CLASSE_ALVO = 'sep-tour-alvo';
 const ESPERA_MAXIMA_MS = 12_000;
+const VELOCIDADES = [0.9, 1, 1.25, 1.5, 2] as const;
 
 /**
  * Motor dos tours assistidos. Vive na raiz da aplicacao (o shell e recriado a cada tela), entao
@@ -70,7 +72,7 @@ export class TourService {
    */
   readonly focoAceso = signal(false);
   readonly digitando = signal(false);
-  readonly velocidade = signal<1 | 1.5 | 2>(1);
+  readonly velocidade = signal<(typeof VELOCIDADES)[number]>(1);
 
   readonly ativo = computed(() => this.estado() !== 'parado');
   readonly passoAtual = computed(() => this.passos()[this.indice()] ?? null);
@@ -194,9 +196,14 @@ export class TourService {
     return roteiro.impedimento?.(this.contextoDaSessao()) ?? null;
   }
 
-  iniciar(id: string): void {
+  iniciar(id: string, secaoInicial?: string): void {
     const roteiro = ROTEIROS.find((r) => r.id === id);
-    if (!roteiro || this.impedimento(roteiro)) return;
+    if (roteiro) this.iniciarRoteiro(roteiro, secaoInicial);
+  }
+
+  /** Roteiros locais de uma tela lazy, como as etapas individuais da demonstração. */
+  iniciarRoteiro(roteiro: Roteiro, secaoInicial?: string): void {
+    if (this.impedimento(roteiro)) return;
     this.encerrar();
     this.contexto = this.contextoDaSessao();
     this.roteiro.set(roteiro);
@@ -213,7 +220,14 @@ export class TourService {
     // Chamado dentro do clique que abriu o tour: e o gesto que o navegador exige para ter audio.
     this.musica.tocar();
     const execucao = ++this.execucao;
-    void this.prepararDemo(roteiro).then(() => {
+    if (secaoInicial) {
+      const posicao = this.secoes().findIndex((s) => s.titulo === secaoInicial);
+      if (posicao >= 0) {
+        this.irParaSecao(posicao);
+        return;
+      }
+    }
+    void this.prepararDemo(roteiro, roteiro.prepararAte).then(() => {
       // Cancelado ou trocado por outro roteiro enquanto os dados eram reiniciados: nao executa.
       if (execucao === this.execucao) void this.executar(execucao);
     });
@@ -273,7 +287,7 @@ export class TourService {
 
   repetir(): void {
     const roteiro = this.roteiro();
-    if (roteiro) this.iniciar(roteiro.id);
+    if (roteiro) this.iniciarRoteiro(roteiro);
   }
 
   /**
@@ -290,7 +304,10 @@ export class TourService {
       const execucao = ++this.execucao;
       this.narrador.parar();
       this.pularEspera?.();
-      void this.prepararDemo(roteiro, roteiro.prepararSecao?.[secao.titulo] ?? '').then(() => {
+      void this.prepararDemo(
+        roteiro,
+        roteiro.prepararAte ?? roteiro.prepararSecao?.[secao.titulo] ?? '',
+      ).then(() => {
         if (execucao === this.execucao) this.saltar(secao.inicio, secao.entrada, true, true);
       });
       return;
@@ -321,7 +338,7 @@ export class TourService {
   }
 
   alternarVelocidade(): void {
-    this.velocidade.update((v) => (v === 1 ? 1.5 : v === 1.5 ? 2 : 1));
+    this.velocidade.update((v) => VELOCIDADES[(VELOCIDADES.indexOf(v) + 1) % VELOCIDADES.length]);
   }
 
   /** Sai do roteiro e devolve a tela como estava, sem destaque. */
@@ -479,7 +496,9 @@ export class TourService {
     this.mensagem.set('Roteiro concluído. Você pode repetir ou escolher outro no painel de Ajuda.');
     void this.narrador.falar('Roteiro concluído.', this.velocidade());
     const telaInicial =
-      roteiro?.rotaInicial ?? (roteiro?.area === 'publica' ? '/' : '/app/dashboard');
+      roteiro?.rotaFinal ??
+      roteiro?.rotaInicial ??
+      (roteiro?.area === 'publica' ? '/' : '/app/dashboard');
     this.fecharDepoisDeConcluir(execucao, telaInicial);
   }
 
@@ -758,7 +777,9 @@ export class TourService {
     const caixa = rolavel.getBoundingClientRect();
     const r = elemento.getBoundingClientRect();
     if (r.top >= caixa.top + 40 && r.bottom <= caixa.bottom - 40) return;
-    rolavel.scrollTo({ top: rolavel.scrollTop + r.top - caixa.top - caixa.height / 3 });
+    rolavel.scrollTo({
+      top: rolavel.scrollTop + (r.top - caixa.top - caixa.height / 3) / escalaDoLayout(rolavel),
+    });
   }
 
   // ============ TEMPO ============

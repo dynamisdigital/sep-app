@@ -69,7 +69,7 @@ export class SepLayoutModeDirective implements OnDestroy {
         return;
       }
       const alvo = this.elemento.nativeElement;
-      this.medido.set(sepModoPorLargura(alvo.getBoundingClientRect().width));
+      this.medido.set(sepModoPorLargura(alvo.clientWidth));
       try {
         const observador = new ResizeObserver((entradas) => {
           for (const entrada of entradas) {

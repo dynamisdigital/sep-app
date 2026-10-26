@@ -2,10 +2,22 @@ import { describe, expect, it } from 'vitest';
 
 import { FAQ, totalDePerguntas } from './site-faq';
 import { CATEGORIAS, minutosDeLeitura, POSTS, postPorSlug } from './site-blog';
+import { EXPERIENCIAS_VISUAIS } from '../demonstracao/demonstracao-apresentacao';
 
 // O conteúdo do blog e do FAQ é dado, e dado errado só aparece em produção: um relacionado que não existe
 // vira link quebrado, e uma promessa de ganho vira problema com o regulador. Estes testes seguram os dois.
 describe('conteúdo do blog', () => {
+  it('cada cenário da demonstração tem artigo próprio, foto e acesso à prévia', () => {
+    const novos = POSTS.filter((p) => p.demonstracao);
+    expect(novos).toHaveLength(6);
+    for (const experiencia of EXPERIENCIAS_VISUAIS) {
+      const post = novos.find((p) => p.demonstracao === experiencia.id)!;
+      expect(post, experiencia.id).toBeDefined();
+      expect(post.imagem).toContain(experiencia.banner.webp);
+      expect(post.blocos.some((b) => b.t === 'ol' && b.v.length === 5)).toBe(true);
+    }
+  });
+
   it('cada texto tem um endereço próprio e todos os textos relacionados existem', () => {
     const slugs = POSTS.map((p) => p.slug);
     expect(new Set(slugs).size).toBe(slugs.length);
@@ -78,7 +90,7 @@ describe('conteúdo do blog', () => {
   });
 
   it('toda menção a financiar operações traz o aviso de risco no texto ou no aviso da página', () => {
-    const doInvestidor = POSTS.filter((p) => p.categoria === 'Para investidores');
+    const doInvestidor = POSTS.filter((p) => p.categoria === 'Para financiadores');
     expect(doInvestidor.length).toBeGreaterThanOrEqual(5);
   });
 });

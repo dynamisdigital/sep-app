@@ -210,7 +210,7 @@ input {
   position: relative;
   display: grid;
   grid-template-columns: minmax(650px, 1.42fr) minmax(470px, 1fr);
-  min-height: 100vh;
+  min-height: var(--sep-altura-janela, 100vh);
   overflow-x: hidden;
   background:
     linear-gradient(rgb(var(--lp-c-azul) / 5%) 1px, transparent 1px),
@@ -312,7 +312,7 @@ input {
 }
 
 .login-institutional {
-  min-height: 100vh;
+  min-height: var(--sep-altura-janela, 100vh);
   padding: clamp(28px, 3.4cqw, 48px) clamp(42px, 6cqw, 90px) 122px;
   overflow: hidden;
   border-right: 1px solid rgb(var(--lp-c-azul) / 30%);
@@ -684,7 +684,7 @@ input {
   display: grid;
   grid-template-rows: 1fr auto;
   place-items: center;
-  min-height: 100vh;
+  min-height: var(--sep-altura-janela, 100vh);
   padding: clamp(24px, 3cqw, 44px) clamp(28px, 5cqw, 70px);
 }
 
@@ -1089,7 +1089,7 @@ a:focus-visible {
 
 @include resp.larga-e-baixa(resp.$altura-curta) {
   .login-page {
-    height: 100vh;
+    height: var(--sep-altura-janela, 100vh);
     min-height: 720px;
     overflow: hidden;
   }
@@ -1358,7 +1358,7 @@ a:focus-visible {
 
 @include resp.larga-e-folgada {
   .login-page {
-    height: 100vh;
+    height: var(--sep-altura-janela, 100vh);
     overflow: hidden;
   }
 
@@ -1429,7 +1429,7 @@ a:focus-visible {
 
 @include resp.larga-e-baixa($ate: resp.$altura-densa, $de: resp.$altura-curta) {
   .login-page {
-    height: 100vh;
+    height: var(--sep-altura-janela, 100vh);
     overflow: hidden;
   }
 
