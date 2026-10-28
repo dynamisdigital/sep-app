@@ -60,11 +60,11 @@ test('financeiro: painel de inadimplencia lista parcelas em atraso', async ({ pa
   await page.goto('/app/cobranca/financeiro/inadimplencia');
   await expect(page.getByRole('heading', { name: 'Parcelas inadimplentes' })).toBeVisible();
   // As cinco parcelas em atraso dos dois contratos atrasados da carteira somam os
-  // R$ 2.012,50 que a Cobranca e a agenda do contrato tambem mostram.
+  // R$ 2.287,60 (com juros) que a Cobranca e a agenda do contrato tambem mostram.
   await expect(page.locator('.px30-tabela-wrap tbody tr')).toHaveCount(5);
   await expect(page.getByRole('link', { name: 'Parcela 7/10' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Parcela 9/10' }).first()).toBeVisible();
-  await expect(page.locator('.px30-metrica strong').first()).toHaveText(/R\$\s2\.012,50/);
+  await expect(page.locator('.px30-metrica strong').first()).toHaveText(/R\$\s2\.287,60/);
 });
 
 test('tomador: parcela EM_NEGOCIACAO leva aos termos completos da proposta', async ({ page }) => {

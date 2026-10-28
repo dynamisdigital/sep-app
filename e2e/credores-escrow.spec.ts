@@ -68,7 +68,9 @@ test('credora cadastra a conta de destino e solicita um saque', async ({ page })
   await page.getByLabel('Agência').fill('0001');
   await page.getByLabel('Conta', { exact: true }).fill('12345-6');
   await page.getByRole('button', { name: /cadastrar conta de destino/i }).click();
-  await expect(page.getByText(/ag\. 0001/i).first()).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByLabel('Conta de destino')).toContainText(/ag\. 0001/i, {
+    timeout: 10_000,
+  });
 
   await page.getByLabel(/valor \(r\$\)/i).fill('100,00');
   await page.getByRole('button', { name: /solicitar saque/i }).click();

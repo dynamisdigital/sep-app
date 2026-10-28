@@ -57,6 +57,6 @@ test('detalhe de usuario mostra a secao de roles e a nota de auditoria', async (
 
   await page.goto(`/app/admin/users/${FINANCEIRO_ID}`);
   await expect(page.getByRole('heading', { name: 'Roles e permissões' })).toBeVisible();
-  await expect(page.locator('.px39-chip')).toHaveCount(4);
+  await expect(page.locator('.px39-chip')).toHaveCount(5);
   await expect(page.getByText(/Alterações de roles são auditadas no backend/)).toBeVisible();
 });

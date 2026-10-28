@@ -53,7 +53,7 @@ test('o menu da landing leva às telas, e não a âncoras', async ({ page }) => 
   await page.setViewportSize({ width: 1449, height: 1086 });
   await page.goto('/');
 
-  await page.locator('.landing-nav a', { hasText: 'Crédito PJ' }).click();
+  await page.locator('.landing-nav a', { hasText: 'Empresas' }).click();
   await expect(page).toHaveURL(/\/credito-pj/);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Capital de giro');
 });
