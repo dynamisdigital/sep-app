@@ -45,7 +45,8 @@ publicar em produção**:
 
 - Na saída do `git push`, o GitHub avisou **24 vulnerabilidades na `develop`** (2 críticas, 6 altas, 15
   moderadas, 1 baixa). O PR #190 atualiza as dependências do front e a auditoria online dele retorna zero.
-  **Depois do merge, conferir o painel do Dependabot** e repetir `npm run audit`.
+  Depois do merge na `develop` (28/10/2026), o painel do Dependabot não tinha alertas abertos. Vale repetir
+  `npm run audit` quando o backend mexer em dependências.
 - A configuração local do npm estava com `offline=true`, o que fazia a auditoria dar "zero" sem consultar nada.
   O script `npm run audit` agora força a consulta online. Detalhes em [08-correcao-ci.md](08-correcao-ci.md).
 
@@ -56,10 +57,12 @@ publicar em produção**:
 - O bundle inicial está em 760,42 kB para uma meta de 750 kB (abaixo do limite de erro de 1 MB).
 - O override de `@angular/build > vitest` deve ser revisto se o projeto passar a usar o `ng test`.
 
-## 6. Ordem de merge
+## 6. Ordem de merge (concluída em 28/10/2026)
+
+Os três PRs foram mesclados na `develop`, nesta ordem, com merge commit.
 
 1. [PR #190](https://github.com/dynamisdigital/sep-app/pull/190): convergência MVP × front atual.
 2. [PR #191](https://github.com/dynamisdigital/sep-app/pull/191): corrige 5 specs e2e desatualizadas (base: a branch do #190).
 3. [PR #192](https://github.com/dynamisdigital/sep-app/pull/192): refaz as 29 capturas do relatório de 07/10 com a marca Dynamis SEP.
 
-Depois do merge do #190, conferir se o GitHub redirecionou o #191 e o #192 para a `develop`.
+O #191 e o #192 foram redirecionados para a `develop` antes do merge.
