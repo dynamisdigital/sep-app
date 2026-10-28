@@ -78,6 +78,13 @@ unitários verdes. O e2e achou o que o merge deixou desalinhado, já corrigido:
   seções). `politica-privacidade/` (MVP) continua no repositório, sem rota: decidir se o texto sobre cookies
   e as seções pendentes de redação jurídica migram para a página atual ou se a pasta é removida.
 - **Specs do MVP** ajustadas ao menu em cascata e a nomes acentuados.
+- **Segundo merge (`origin/develop`, sprints 26 a 28 do MVP).** O `develop` do `origin` tinha andado 37 commits
+  depois do primeiro merge (códigos de erro, central de notificações, contract-check com typecheck, Angular
+  20.3.31). Entrou na mesma branch. O `typecheck:spec` agora é exigido pelo CI e pelo pre-push; os 56 erros de
+  tipo dos specs foram corrigidos.
+- **Central de notificações.** A página `/app/notificacoes` e o contador de não lidas vieram do MVP, mas só tinham
+  porta no cabeçalho antigo. O shell operacional ganhou o link com a contagem na barra de ícones, distinto do sino
+  de alertas (que são recortes dos dados da tela).
 
 Cinco specs e2e já falhavam **antes** do merge, na `escritorio-2026-10-26`, e seguem pendentes (não são do
 merge): `cobranca` (painel de inadimplência), `credores-escrow` (conta de destino e saque), `governanca`
