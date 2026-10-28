@@ -12,14 +12,16 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   NgZone,
   OnDestroy,
   signal,
+  untracked,
   ViewEncapsulation,
 } from '@angular/core';
 import { Location } from '@angular/common';
-import { NavigationEnd, Router, RouterLink } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { Subscription, filter } from 'rxjs';
 
@@ -28,6 +30,8 @@ import { AuthService } from '../../core/auth/auth.service';
 import { ehAmbienteDemo } from '../../core/env/ambiente';
 import { LarguraTelaDirective } from '../../core/layout/largura-tela.directive';
 import { LarguraTelaService } from '../../core/layout/largura-tela.service';
+import { marcadorDaCentral, rotuloDaCentral } from '../../core/notificacoes/central-rotulos';
+import { NotificacoesNaoLidasStore } from '../../core/notificacoes/notificacoes-nao-lidas.store';
 import { NotificacoesService } from '../../core/notificacoes/notificacoes.service';
 import { PROJECT_INFO, RESPONSAVEIS_TECNICOS } from '../../core/project-info';
 import { ThemeService } from '../../core/theme/theme.service';
@@ -289,6 +293,7 @@ interface OperationalFooterItem {
     SepLogoComponent,
     SepArteComponent,
     RouterLink,
+    RouterLinkActive,
     LucideAngularModule,
     LarguraTelaDirective,
   ],
@@ -302,6 +307,18 @@ export class OperationalShellComponent implements OnDestroy {
   private readonly auth = inject(AuthService);
   private readonly theme = inject(ThemeService);
   protected readonly notificacoes = inject(NotificacoesService);
+  // Central de notificacoes do usuario (backend Sprint 38): distinta dos alertas do sino, que sao
+  // recortes dos dados da tela. O link mostra a contagem de nao lidas da central.
+  private readonly naoLidas = inject(NotificacoesNaoLidasStore);
+  protected readonly rotuloCentral = computed(() => rotuloDaCentral(this.naoLidas.contagem()));
+  protected readonly marcadorCentral = computed(() => marcadorDaCentral(this.naoLidas.contagem()));
+  // Pelo id, e nao pelo objeto: recarregar o perfil troca o objeto do usuario e nao pode reconsultar.
+  protected readonly usuarioReal = computed(() => this.auth.currentUser()?.id);
+  private readonly carregarCentral = effect(() => {
+    if (this.usuarioReal()) {
+      untracked(() => this.naoLidas.carregar());
+    }
+  });
   protected readonly tour = inject(TourService);
   private readonly location = inject(Location);
   private readonly router = inject(Router);

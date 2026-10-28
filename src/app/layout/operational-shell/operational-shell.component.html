@@ -277,6 +277,22 @@
             ></button>
           }
         </div>
+        <!-- ============ CENTRAL DE NOTIFICACOES ============ -->
+        @if (usuarioReal()) {
+          <a
+            class="op-icon-button op-notification"
+            routerLink="/app/notificacoes"
+            routerLinkActive="op-icon-button-aberto"
+            ariaCurrentWhenActive="page"
+            [attr.aria-label]="rotuloCentral()"
+            title="A contagem atualiza ao abrir a central e ao marcar um aviso como lido"
+          >
+            <lucide-icon name="inbox" [size]="24" [strokeWidth]="2" />
+            @if (marcadorCentral(); as marcador) {
+              <span class="op-badge" aria-hidden="true">{{ marcador }}</span>
+            }
+          </a>
+        }
         <!-- ============ ALERTAS ============ -->
         <div class="op-painel-ancora">
           <button

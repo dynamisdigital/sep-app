@@ -66,6 +66,15 @@ describe('OperationalShellComponent', () => {
     expect(rotas).toContain('/app/backoffice/reprocessos/webhook');
   });
 
+  // A central do MVP so tinha porta no cabecalho antigo; sem este link a tela ficaria orfa.
+  it('a barra de icones leva a central de notificacoes, com rotulo que diz o que e', async () => {
+    await montar('CLIENTE');
+    const link = document.querySelector('.op-topbar-actions a[href="/app/notificacoes"]');
+
+    expect(link).not.toBeNull();
+    expect(link?.getAttribute('aria-label')).toMatch(/^Notificacoes, /);
+  });
+
   it('ADMIN alcanca os dois modulos de Administracao', async () => {
     await montar('ADMIN', '/app/admin/users');
     const rotas = rotasDoMenu();
