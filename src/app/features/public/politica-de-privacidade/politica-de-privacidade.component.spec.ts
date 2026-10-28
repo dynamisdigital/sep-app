@@ -56,6 +56,14 @@ describe('PoliticaDePrivacidadeComponent', () => {
     }
   });
 
+  it('cita o art. 18 e o direito de petição à ANPD (art. 9, VII, da LGPD)', async () => {
+    const { container } = await renderizar();
+    const texto = container.textContent ?? '';
+
+    expect(texto).toContain('art. 18');
+    expect(texto).toContain('ANPD');
+  });
+
   it('não cita a chave que só existe em desenvolvimento', async () => {
     const { container } = await renderizar();
 

@@ -27,7 +27,7 @@ interface TratamentoDado {
 })
 export class PoliticaDePrivacidadeComponent {
   protected readonly contato = CONTATO_SEP;
-  protected readonly vigencia = '21 de agosto de 2026';
+  protected readonly vigencia = '28 de outubro de 2026';
 
   protected readonly secoes: SecaoLegal[] = [
     { id: 'quem', titulo: '1. Quem trata seus dados' },
