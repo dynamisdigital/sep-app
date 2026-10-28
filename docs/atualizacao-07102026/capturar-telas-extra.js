@@ -16,7 +16,11 @@ fs.mkdirSync(saida, { recursive: true });
 
 async function entrar(browser, email) {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 1250 }, deviceScaleFactor: 1 });
-  await ctx.addInitScript(() => window.localStorage.setItem('NG_APP_USE_MSW', 'true'));
+  await ctx.addInitScript(() => {
+    window.localStorage.setItem('NG_APP_USE_MSW', 'true');
+    // O aviso de cookies cobriria o rodape das capturas.
+    window.localStorage.setItem('SEP_AVISO_COOKIES', '1');
+  });
   const page = await ctx.newPage();
   await page.goto(`${BASE}/login`);
   await page.locator('#login-username').fill(email);
