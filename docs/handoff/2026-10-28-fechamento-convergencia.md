@@ -41,11 +41,11 @@ relatório, o texto de WhatsApp e o prompt para a MÖLLMANN Studio IDE. As pend�
 
 ### Pull requests
 
-1. [#190](https://github.com/dynamisdigital/sep-app/pull/190): convergência MVP × front atual, com revisão pedida.
-2. [#191](https://github.com/dynamisdigital/sep-app/pull/191): corrige as 5 specs e2e (base: a branch do #190).
-3. [#192](https://github.com/dynamisdigital/sep-app/pull/192): refaz as 29 capturas com a marca nova (base: a branch do #190).
+1. [#190](https://github.com/dynamisdigital/sep-app/pull/190): convergência MVP × front atual.
+2. [#191](https://github.com/dynamisdigital/sep-app/pull/191): corrige as 5 specs e2e.
+3. [#192](https://github.com/dynamisdigital/sep-app/pull/192): refaz as 29 capturas com a marca nova.
 
-Ordem de merge: #190, #191, #192. Nada foi mesclado em `develop` ou `main`.
+Os três foram mesclados na `develop` em 28/10/2026, na ordem #190, #191, #192. Nada foi mesclado em `main`.
 
 ### Fica registrado como observação (não é do front)
 
