@@ -560,7 +560,8 @@ $janela-meia-tela: 1716px;
   background: var(--op-green);
 }
 
-.op-notification {
+.op-notification,
+.op-central {
   position: relative;
 }
 
@@ -1898,7 +1899,8 @@ $janela-meia-tela: 1716px;
 }
 
 /* O contador substitui o "6" impresso no ícone; o PNG segue como moldura. */
-.op-badge {
+.op-badge,
+.op-central-badge {
   position: absolute;
   top: 4px;
   right: 4px;

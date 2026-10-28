@@ -280,7 +280,7 @@
         <!-- ============ CENTRAL DE NOTIFICACOES ============ -->
         @if (usuarioReal()) {
           <a
-            class="op-icon-button op-notification"
+            class="op-icon-button op-central"
             routerLink="/app/notificacoes"
             routerLinkActive="op-icon-button-aberto"
             ariaCurrentWhenActive="page"
@@ -289,7 +289,7 @@
           >
             <lucide-icon name="inbox" [size]="24" [strokeWidth]="2" />
             @if (marcadorCentral(); as marcador) {
-              <span class="op-badge" aria-hidden="true">{{ marcador }}</span>
+              <span class="op-central-badge" aria-hidden="true">{{ marcador }}</span>
             }
           </a>
         }
