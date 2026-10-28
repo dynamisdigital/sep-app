@@ -6,7 +6,9 @@
 // suporta roles cumulativas (Set), mas expoe ao web apenas a de maior precedencia
 // (ADMIN > FINANCEIRO > BACKOFFICE > CLIENTE). FINANCEIRO/BACKOFFICE sao perfis
 // operacionais internos usados a partir da jornada de cobranca (F-Sprint 9).
-export type UsuarioRole = 'ADMIN' | 'CLIENTE' | 'FINANCEIRO' | 'BACKOFFICE';
+// CORRESPONDENTE capta clientes e envia documentos; nao decide credito. Proposta de contrato ate o
+// backend publicar o papel (ver docs/atualizacao-07102026).
+export type UsuarioRole = 'ADMIN' | 'CLIENTE' | 'FINANCEIRO' | 'BACKOFFICE' | 'CORRESPONDENTE';
 
 export interface UsuarioResponse {
   id: string;
@@ -72,6 +74,14 @@ export interface StepUpCompleteRequest {
 
 export interface StepUpCompleteResponse {
   stepUpToken: string;
+}
+
+export interface UsuarioCreateRequest {
+  username: string;
+  password: string;
+  // Cadastro sempre cria CLIENTE; o role e ignorado pelo backend mesmo quando enviado. Mantido
+  // opcional para compat com chamadas legadas. Usado pelo "Novo usuario" da administracao.
+  role?: UsuarioRole;
 }
 
 export interface UsuarioSenhaUpdateRequest {
@@ -273,6 +283,29 @@ export interface ParecerCreditoResponse {
   dataParecer: string;
 }
 
+// Etapa da linha do tempo da proposta (Mockup 28). `em` só existe quando o status garante
+// a etapa; sem ela a etapa aparece aguardando, nunca concluída.
+export interface PropostaEtapa {
+  titulo: string;
+  em?: string;
+  situacao: 'CONCLUIDO' | 'EM_ANDAMENTO' | 'AGUARDANDO';
+}
+
+// Documento anexado à proposta (Mockup 28). `url` ausente = sem download disponível.
+export interface PropostaDocumento {
+  nome: string;
+  tipo?: string;
+  tamanho?: string;
+  enviadoEm?: string;
+}
+
+// Evento do histórico da proposta (Mockup 28).
+export interface PropostaEvento {
+  titulo: string;
+  em?: string;
+  autor?: string;
+}
+
 export interface PropostaResponse {
   id: string;
   tomadorId: string;
@@ -286,6 +319,24 @@ export interface PropostaResponse {
   dataModificacao: string;
   score: ScoreInternoResponse | null;
   parecer: ParecerCreditoResponse | null;
+  // Campos de apresentação do Mockup 28, opcionais: quando o backend não os envia, a tela
+  // mostra travessão. Nenhum deles participa de decisão de crédito ou de cálculo.
+  finalidade?: string;
+  carenciaMeses?: number;
+  valorParcelaEstimado?: number;
+  empresaNome?: string;
+  cnpj?: string;
+  porte?: string;
+  setor?: string;
+  taxaEstimada?: string;
+  garantia?: string;
+  canalOrigem?: string;
+  analista?: string;
+  observacoes?: string;
+  percentualAnalise?: number;
+  etapas?: PropostaEtapa[];
+  documentos?: PropostaDocumento[];
+  historico?: PropostaEvento[];
 }
 
 // Trilha auditavel de regras do motor — exibida apenas a FINANCEIRO/ADMIN.
@@ -446,8 +497,15 @@ export interface ParcelaResponse {
   total: number;
   dataVencimento: string;
   status: StatusParcela;
+  // --- Campos de apresentacao do Mockup 32, opcionais e sem efeito em calculo ---
+  diasAtraso?: number;
+  dataPagamento?: string | null;
+  meioPagamento?: string | null;
 }
 
+// Agenda de pagamento do contrato. Os campos abaixo de `parcelas` sao de apresentacao
+// (Mockup 32) e opcionais: quando o backend nao os envia, a tela mostra travessao. Nenhum
+// participa de calculo — composicao, status e dias de atraso continuam vindo prontos.
 export interface AgendaPagamentoResponse {
   id: string;
   contratoId: string;
@@ -455,9 +513,73 @@ export interface AgendaPagamentoResponse {
   valorTotal: number;
   dataGeracao: string;
   parcelas: ParcelaResponse[];
+  contratoCurto?: string;
+  produto?: string;
+  tomador?: string;
+  valorContratado?: number;
+  valorLiberado?: number;
+  vencimentoFinal?: string;
+  statusContrato?: string;
+  parcelasPagas?: number;
+  parcelasEmAberto?: number;
+  parcelasInadimplentes?: number;
+  proximoVencimento?: string | null;
+  documentos?: ParcelaDocumento[];
+}
+
+// Resumo do contrato ao qual a parcela pertence, para o painel lateral do detalhe.
+export interface ParcelaContratoResumo {
+  contratoId: string;
+  numero: string;
+  status: string;
+  valorTotal: number;
+  parcelasTotais: number;
+  parcelasPagas: number;
+  parcelasEmAberto: number;
+  proximoVencimento: string;
+}
+
+// Dados de cobranca da parcela (boleto/Pix), exibidos no cartao de status.
+export interface ParcelaCobrancaDetalhe {
+  tipoCobranca: string;
+  formaPagamento: string;
+  bancoRecebedor: string;
+  nossoNumero: string;
+  linhaDigitavel: string;
+}
+
+// Classificacao gerencial da parcela, sem efeito sobre calculo ou status.
+export interface ParcelaComplementares {
+  categoria: string;
+  finalidade: string;
+  centroCusto: string;
+  observacoes: string | null;
+  tags: string[];
+}
+
+// Documento relacionado a parcela (Mockup 31). Apresentacao pura: a tela lista o que o
+// backend enviar e nao gera arquivo nenhum.
+export interface ParcelaDocumento {
+  nome: string;
+  tipo?: string;
+  tamanho?: string;
+  url?: string;
+}
+
+// Marco da trilha da parcela. `origem` identifica quem registrou (Sistema, operador, provider).
+export interface ParcelaEvento {
+  rotulo: string;
+  dataHora: string;
+  origem: string;
+  // Linha de apoio do marco (Mockup 31), opcional: sem ela a trilha mostra só o rótulo.
+  detalhe?: string;
 }
 
 // Snapshot do valor atualizado da parcela contra 'agora', calculado no backend.
+//
+// Os campos abaixo de `valorEmAberto` sao de apresentacao (Mockup 24) e opcionais: quando o
+// backend nao os envia, a tela mostra travessao no lugar. Nenhum deles participa de calculo —
+// composicao, mora, multa e status continuam vindo prontos do backend.
 export interface ValorAtualizadoParcelaResponse {
   parcelaId: string;
   numero: number;
@@ -470,6 +592,22 @@ export interface ValorAtualizadoParcelaResponse {
   valorDevidoAtualizado: number;
   totalRecebido: number;
   valorEmAberto: number;
+  desconto?: number;
+  propostaNumero?: string;
+  tomador?: string;
+  periodicidade?: string;
+  dataEmissao?: string;
+  criadoEm?: string;
+  criadoPor?: string;
+  atualizadoEm?: string;
+  contrato?: ParcelaContratoResumo;
+  cobranca?: ParcelaCobrancaDetalhe;
+  complementares?: ParcelaComplementares;
+  eventos?: ParcelaEvento[];
+  // --- Campos de apresentacao do Mockup 31 ---
+  // `diasAtraso` vem pronto do backend: a tela nao calcula atraso.
+  diasAtraso?: number;
+  documentos?: ParcelaDocumento[];
 }
 
 export interface RegistrarRecebimentoRequest {
@@ -491,6 +629,14 @@ export interface RecebimentoResponse {
   identificadorExterno: string | null;
   movimentacaoEscrowId: string | null;
   novo: boolean;
+  // Campos de apresentação do Mockup 29, opcionais: quando o backend não os envia, a tela
+  // mostra travessão. Nenhum deles participa de conciliação ou de cálculo de saldo — os
+  // agregados da tela são somados a partir desta própria lista.
+  contrato?: string;
+  recebedor?: string;
+  vencimento?: string;
+  dataPagamento?: string | null;
+  valorParcela?: number;
 }
 
 export interface InadimplenciaResponse {
@@ -503,6 +649,14 @@ export interface InadimplenciaResponse {
   dataVencimento: string;
   diasAtraso: number;
   valorOriginal: number;
+  // Campos de apresentação do Mockup 30, opcionais: quando o backend não os envia, a tela
+  // mostra travessão. Os agregados da tela são somados desta própria lista.
+  codigoParcela?: string;
+  totalParcelas?: number;
+  contratoCurto?: string;
+  contratoTipo?: string;
+  tomadorNome?: string;
+  tomadorDocumento?: string;
 }
 
 export interface RegistrarContatoRequest {
@@ -715,6 +869,119 @@ export interface DashboardResponse {
   geradoEm: string;
 }
 
+// Contrato do painel operacional visual (mockup 03). Ele e complementar ao DashboardResponse:
+// o endpoint legado acima representa a fila de backoffice, enquanto este snapshot agrega as
+// jornadas de onboarding, credito, formalizacao, cobranca e Pix. No laboratorio, o MSW calcula
+// o snapshot a partir de registros normalizados; o backend real podera implementar o mesmo
+// contrato sem exigir mudancas nos componentes.
+export type DominioOperacional = 'ONBOARDING' | 'CREDITO' | 'FORMALIZACAO' | 'COBRANCA' | 'PIX';
+
+export interface IndicadorOperacional {
+  dominio: DominioOperacional;
+  valor: number;
+  unidade: string;
+  subtitulo: string;
+  variacaoPercentual: number;
+  comparacao: string;
+}
+
+export interface VolumeOperacional {
+  valor: number;
+  moeda: 'BRL';
+  periodoDias: number;
+  variacaoPercentual: number;
+}
+
+export interface JornadaOperacional {
+  dominio: Exclude<DominioOperacional, 'PIX'>;
+  pendencias: number;
+  total: number;
+  unidade: string;
+  status: string;
+}
+
+export interface ResumoOperacionalItem {
+  id:
+    | 'NOVOS_CADASTROS'
+    | 'PROPOSTAS_RECEBIDAS'
+    | 'CONTRATOS_ASSINADOS'
+    | 'PAGAMENTOS_PIX'
+    | 'ALERTAS_CRITICOS';
+  valor: number;
+  variacaoPercentual: number | null;
+}
+
+export interface DesempenhoOperacionalItem {
+  id: 'CONVERSAO_CREDITO' | 'CONTRATOS_FINALIZADOS' | 'DOCUMENTOS_VALIDOS' | 'SLA_MEDIO';
+  percentual: number;
+  variacaoPercentual: number | null;
+  contexto: string;
+}
+
+export interface AtividadeOperacional {
+  id: string;
+  tipo:
+    | 'CADASTRO_INICIADO'
+    | 'PROPOSTA_RECEBIDA'
+    | 'DOCUMENTO_ENVIADO'
+    | 'PAGAMENTO_PIX'
+    | 'ALERTA_INADIMPLENCIA';
+  titulo: string;
+  detalhe: string;
+  status: string;
+  severidade: 'INFO' | 'SUCESSO' | 'PERIGO';
+  ocorridaEm: string;
+}
+
+export interface SaudeServicoOperacional {
+  id: string;
+  nome: string;
+  status: 'ONLINE' | 'DEGRADADO' | 'INDISPONIVEL';
+}
+
+export interface DashboardOperacionalResponse {
+  indicadores: IndicadorOperacional[];
+  volume: VolumeOperacional;
+  jornadas: JornadaOperacional[];
+  resumo: ResumoOperacionalItem[];
+  desempenho: DesempenhoOperacionalItem[];
+  atividades: AtividadeOperacional[];
+  saudeServicos: SaudeServicoOperacional[];
+  geradoEm: string;
+}
+
+export interface PreferenciasPerfil {
+  idioma: string;
+  fusoHorario: string;
+  tema: 'ESCURO' | 'CLARO' | 'SISTEMA';
+  notificacoesAtivas: boolean;
+  canalComunicacao: string;
+}
+
+export interface PerfilOperacionalResponse {
+  statusConta: 'ATIVA' | 'BLOQUEADA' | 'PENDENTE';
+  contaVerificada: boolean;
+  nivelAcesso: string;
+  ultimoAcesso: string;
+  ultimaAutenticacao: string;
+  tentativasLogin24h: number;
+  dispositivosAutorizados: number;
+  sessoesAtivas: number;
+  senhaForte: boolean;
+  auditoriaAtiva: boolean;
+  armazenamentoSincronizado: boolean;
+  preferencias: PreferenciasPerfil;
+  atualizadoEm: string;
+}
+
+export interface AtualizarPreferenciasPerfilRequest {
+  idioma: string;
+  fusoHorario: string;
+  tema: 'ESCURO' | 'CLARO' | 'SISTEMA';
+  notificacoesAtivas: boolean;
+  canalComunicacao: string;
+}
+
 // --- Governanca: roles cumulativas + parametros operacionais (F-Sprint 12 / backend Sprint 18) ---
 // Toda a area e ADMIN-only no backend. Precedencia de role, validacao de tipo, versionamento
 // e auditoria ficam no backend; estes sao DTOs de borda, sem regra de negocio.
@@ -809,6 +1076,14 @@ export interface PixDesembolsoResponse {
 // Resposta de GET /pix/desembolsos/{id} (leitura local) e de POST /pix/desembolsos/{id}/status
 // (reconciliacao no provider). providerIndisponivel=true quando o provider foi consultado mas
 // falhou e o status local foi devolvido — nao e sucesso.
+// Etapa da linha do tempo do desembolso (Mockup 27). `origem` é quem carimbou a etapa
+// (Sistema ou o provider). Etapa sem `em` aparece como pendente, nunca como concluída.
+export interface PixEtapaDesembolso {
+  titulo: string;
+  em?: string;
+  origem?: string;
+}
+
 export interface PixStatusDesembolsoResponse {
   transferenciaId: string;
   contratoId: string;
@@ -816,6 +1091,42 @@ export interface PixStatusDesembolsoResponse {
   valor: number;
   chaveDestinoMascara: string;
   providerIndisponivel: boolean;
+  // Campos de apresentação do Mockup 27, opcionais: quando o backend não os envia, a tela
+  // mostra travessão. Nenhum deles participa de conciliação ou de cálculo.
+  criadoEm?: string;
+  tipoOperacao?: string;
+  canal?: string;
+  descricao?: string;
+  nsu?: string;
+  endToEndId?: string;
+  idempotencyKey?: string;
+  nomeRecebedor?: string;
+  bancoRecebedor?: string;
+  agenciaRecebedor?: string;
+  contaRecebedor?: string;
+  cpfRecebedorMascara?: string;
+  tipoChave?: string;
+  propostaId?: string;
+  // UUID da proposta, usado só na rota: `propostaId` é o identificador curto exibido na tela.
+  propostaUuid?: string;
+  tarifa?: number;
+  valorLiquido?: number;
+  situacaoProvider?: string;
+  provedor?: string;
+  codigoRetorno?: string;
+  origemRecursos?: string;
+  finalidade?: string;
+  centroCusto?: string;
+  observacoes?: string;
+  tags?: string[];
+  contratoValor?: number;
+  contratoAssinadoEm?: string;
+  contratoVencimentoFinal?: string;
+  propostaTomador?: string;
+  propostaEm?: string;
+  propostaValorSolicitado?: number;
+  hashIntegridade?: string;
+  etapas?: PixEtapaDesembolso[];
 }
 
 // POST /pix/recebimentos/referencias: gera/reaproveita a referencia Pix de uma parcela.
@@ -825,6 +1136,8 @@ export interface GerarReferenciaRecebimentoPixRequest {
 
 // Resposta de POST /pix/recebimentos/referencias e GET /referencias/{id}. novo=false quando
 // reaproveitada/consultada. codigoCopiaCola e o Pix copia-cola exposto pelo backend.
+// Os campos de apresentacao do Mockup 26 sao opcionais: quando o backend nao os envia, a tela
+// mostra travessao. Nenhum deles participa de conciliacao ou de calculo.
 export interface PixReferenciaRecebimentoResponse {
   referenciaId: string;
   parcelaId: string;
@@ -833,11 +1146,79 @@ export interface PixReferenciaRecebimentoResponse {
   valorEsperado: number;
   status: StatusPixReferenciaRecebimento;
   novo: boolean;
+  // Campos de apresentacao do Mockup 26, opcionais:
+  chavePix?: string;
+  tipoChave?: string;
+  canal?: string;
+  instituicaoRecebedora?: string;
+  descricao?: string;
+  criadaEm?: string;
+  atualizadaEm?: string;
+  expiracao?: string;
+  periodicidade?: string;
+  finalidade?: string;
+  contrato?: string;
+  proposta?: string;
+  tomador?: string;
+  observacoes?: string | null;
+  tags?: string[];
+  hashIntegridade?: string;
+  recebidoTotal?: number;
+  quantidadeRecebimentos?: number;
+  primeiroRecebimento?: string;
+  ultimoRecebimento?: string;
+  recebimentosVinculados?: PixRecebimentoVinculado[];
+  eventos?: ParcelaEvento[];
+}
+
+// Resumo de um recebimento vinculado a uma referencia, para a tabela do Mockup 26.
+export interface PixRecebimentoVinculado {
+  recebimentoId: string;
+  valor: number;
+  recebidoEm: string;
+  status: StatusPixRecebimento;
+  nsu?: string;
+  metodo?: string;
 }
 
 // GET /pix/recebimentos/{id}: recebimento conciliado ou divergente, exposto a papeis internos.
 // Campos de vinculo/divergencia sao nullable: um recebimento NAO_IDENTIFICADO nao tem
 // referencia/parcela/baixa, e motivoDivergencia so vem quando ha divergencia.
+// Resumo da conciliacao do recebimento, para o painel lateral do detalhe (Mockup 25).
+export interface PixConciliacaoResumo {
+  dataHora: string;
+  metodo: string;
+  responsavel: string;
+  protocolo: string;
+}
+
+// Parcela a que o recebimento foi vinculado, resumida para o cartao de detalhe.
+export interface PixParcelaVinculada {
+  contrato: string;
+  proposta: string;
+  numero: string;
+  vencimento: string;
+  valorOriginal: number;
+  valorPago: number;
+}
+
+// Dados tecnicos do Pix exibidos no detalhe do recebimento.
+export interface PixDadosAdicionais {
+  versaoPix: string;
+  tipoChave: string;
+  valorTarifa: number;
+  iniciadorPagamento: string;
+  localizacao: string;
+  ipOrigem: string;
+}
+
+export interface PixComprovante {
+  arquivo: string;
+  tamanho: string;
+  geradoEm: string;
+  documentoId: string;
+}
+
 export interface PixRecebimentoResponse {
   recebimentoId: string;
   status: StatusPixRecebimento;
@@ -848,6 +1229,22 @@ export interface PixRecebimentoResponse {
   recebimentoCobrancaId: string | null;
   motivoDivergencia: string | null;
   recebidoEm: string;
+  // Campos de apresentacao do Mockup 25, opcionais: quando o backend nao os envia, a tela
+  // mostra travessao. Nenhum deles participa de conciliacao ou de calculo.
+  chavePix?: string;
+  instituicaoRecebedora?: string;
+  canal?: string;
+  nsu?: string;
+  tipoRecebimento?: string;
+  formaPagamento?: string;
+  hashIntegridade?: string;
+  conciliacao?: PixConciliacaoResumo;
+  parcela?: PixParcelaVinculada;
+  adicionais?: PixDadosAdicionais;
+  // Mesma forma da classificacao gerencial e da trilha usadas na jornada de cobranca.
+  complementares?: ParcelaComplementares;
+  comprovante?: PixComprovante;
+  eventos?: ParcelaEvento[];
 }
 
 // --- Chaves Pix da conta operacional (F-Sprint 20 / backend Sprint 31) ---

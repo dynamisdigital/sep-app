@@ -11,5 +11,18 @@
     "no-descending-specificity": null,
     "scss/dollar-variable-pattern": "^[a-z][a-zA-Z0-9-]*$"
   },
+  "overrides": [
+    {
+      "files": [
+        "src/app/features/authenticated/backoffice/pages/backoffice-dashboard-page.component.scss",
+        "src/app/features/authenticated/backoffice/pages/backoffice-operational-dashboard-page.component.scss",
+        "src/app/features/authenticated/cobranca/cobranca-shell.component.scss",
+        "src/app/features/authenticated/cobranca/pages/agenda-financeira-page.component.scss"
+      ],
+      "rules": {
+        "no-duplicate-selectors": null
+      }
+    }
+  ],
   "ignoreFiles": ["dist/**/*", ".angular/**/*", "coverage/**/*", "node_modules/**/*"]
 }

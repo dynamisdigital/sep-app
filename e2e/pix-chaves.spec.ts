@@ -35,6 +35,8 @@ async function login(page: Page, username: string): Promise<void> {
 
 // Navegacao SPA (sem page.goto): um full reload reinicia o estado do MSW no bundle.
 async function abrirChavesPix(page: Page): Promise<void> {
+  // Menu em cascata do shell operacional: o filho so existe no DOM com o grupo Pix expandido.
+  await page.getByRole('button', { name: 'Expandir Pix' }).click();
   await page.getByRole('link', { name: 'Chaves Pix' }).click();
   await page.waitForURL(/\/app\/pix\/chaves$/, { timeout: 10_000 });
 }
@@ -134,7 +136,9 @@ test('admin: remocao confirma e navega ao step-up sem remover no retorno', async
 test('backoffice e cliente: nao veem o menu de chaves Pix', async ({ page }) => {
   // BACKOFFICE entra no Pix operacional, mas o backend restringe as chaves a FINANCEIRO/ADMIN.
   await login(page, 'backoffice@empresa.com');
-  await expect(page.getByRole('link', { name: 'Pix' })).toBeVisible();
+  const menu = page.getByRole('complementary', { name: 'Navegação operacional' });
+  await expect(menu.getByRole('link', { name: /^Pix/ })).toBeVisible();
+  await page.getByRole('button', { name: 'Expandir Pix' }).click();
   await expect(page.getByRole('link', { name: 'Chaves Pix' })).toHaveCount(0);
 
   await login(page, 'credora@empresa.com');

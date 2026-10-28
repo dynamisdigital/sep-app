@@ -1,82 +1,1057 @@
-@use "../../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../../styles/sep-ds-components" as sepDs;
+// ============ MOCKUP 10 — PROPOSTAS ============
+// Tela legada: nasceu com largura fixa de 1167px e `zoom` para reproduzir o mockup. A largura
+// fixa continua sendo a **preferida** (o estado `full` homologado), mas deixou de ser um piso:
+// abaixo dela a pagina encolhe em vez de empurrar o conteudo para fora da area util.
 
-.sep-propostas-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-24);
-  max-width: 1200px;
+@use "../../../../../styles/tela-operacional-tema" as tema;
+
+/* `.op-content` pertence ao shell operacional (ViewEncapsulation.None), por isso o ::ng-deep.
+   E esta area que recebe o espaco restante depois da barra lateral: e ela que a pagina mede. */
+/* stylelint-disable-next-line selector-pseudo-element-no-unknown -- ::ng-deep e do Angular */
+:host ::ng-deep .op-content:has(> .proposals-page) {
+  container: sep-conteudo / inline-size;
+}
+
+.proposals-page {
+  /* Sem teto de largura: a tela acompanha a area util, como as demais do sistema. O valor
+     de projeto era 1167px, e num monitor largo isso deixava o resto do espaco vazio. */
+  width: 100%;
+  min-width: 0;
   margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+  padding: 18px 0;
+  color: var(--sep-text);
+  font-family: Inter, "Segoe UI", sans-serif;
+  box-sizing: border-box;
+
+  // Compensa a redução do viewport operacional (aprox. 15%) e restaura as
+  // dimensões visuais do mockup 10 sem redimensionar o shell compartilhado.
+  zoom: 1.15;
 }
 
-.sep-propostas-list-header {
+.proposals-page *,
+.proposals-page *::before,
+.proposals-page *::after {
+  box-sizing: border-box;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.proposals-heading {
+  height: 104px;
+}
+
+.proposals-heading nav {
   display: flex;
+  gap: 10px;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--sep-space-16);
+  margin-bottom: 12px;
+  color: var(--sep-text-muted);
+  font-size: 12px;
 }
 
-.sep-propostas-list-title {
-  @include sepType.sep-type-page-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
-}
-
-.sep-propostas-list-new {
-  @include sepDs.sep-button-primary;
-
+.proposals-heading nav a {
+  color: inherit;
   text-decoration: none;
 }
 
-.sep-propostas-list-state {
-  @include sepType.sep-type-body;
-
-  color: hsl(var(--muted-foreground));
+.proposals-heading nav strong {
+  color: var(--sep-text);
+  font-weight: 500;
 }
 
-.sep-propostas-list-error {
+.proposals-heading h1 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  font-size: 25px;
+  line-height: 31px;
+  letter-spacing: -0.3px;
+}
+
+.proposals-heading h1 lucide-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.proposals-heading p {
+  margin: 3px 0 0;
+  color: var(--sep-text-secondary);
+  font-size: 13px;
+}
+
+.proposal-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 237px), 1fr));
+  gap: 10px;
+  height: 152px;
+}
+
+.proposal-metrics article {
+  --card-accent: var(--sep-accent);
+
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-8);
-  align-items: flex-start;
-  color: hsl(var(--warning));
+  justify-content: space-between;
+  padding: 13px 10px 11px;
+  border: 1px solid var(--sep-accent);
+  border-radius: 9px;
+  background: linear-gradient(
+    135deg,
+    rgb(var(--sep-c-surf3) / 80%),
+    rgb(var(--sep-c-sunken) / 92%)
+  );
+  box-shadow: inset 0 0 25px rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha)));
+  overflow: hidden;
+  transition:
+    border-color 190ms ease,
+    box-shadow 190ms ease,
+    transform 190ms ease;
 }
 
-.sep-propostas-list-retry {
-  @include sepDs.sep-button-outline;
+.proposal-metrics article:hover {
+  border-color: var(--card-accent);
+  box-shadow:
+    inset 0 0 28px color-mix(in srgb, var(--card-accent) 14%, transparent),
+    0 0 16px color-mix(in srgb, var(--card-accent) 14%, transparent);
+  transform: translateY(-1px);
 }
 
-.sep-propostas-list-empty {
+.proposal-metrics article[data-tone="green"] {
+  --card-accent: var(--sep-success);
+
+  border-color: var(--sep-success);
+}
+
+// Borda no proprio tom, como os outros tres cartoes: com a borda neutra o ambar parecia inativo.
+.proposal-metrics article[data-tone="amber"] {
+  --card-accent: var(--sep-warning);
+
+  border-color: var(--sep-warning);
+}
+
+.metric-content {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr) 56px;
+
+  // Centralizado: o icone tem de ficar na meia altura do rotulo mais o valor, nao no topo.
+  align-items: center;
+  min-height: 78px;
+}
+
+.metric-icon {
+  width: 58px;
+  height: 58px;
+}
+
+.metric-content span {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-8);
-  align-items: flex-start;
+  min-width: 0;
+  padding-top: 7px;
 }
 
-.sep-propostas-list-table {
+/* O rotulo quebra em vez de ser cortado: com a pagina deixando de ter largura minima fixa, os
+   quatro cartoes passam a caber na area util, e cabe ao texto se acomodar. */
+.metric-content small {
+  color: var(--sep-text);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.metric-content strong {
+  margin: 4px 0 5px;
+  color: var(--sep-accent);
+  font-size: 23px;
+  line-height: 24px;
+}
+
+.proposal-metrics article:first-child .metric-content strong {
+  font-size: 20px;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+}
+
+[data-tone="green"] .metric-content strong {
+  color: var(--sep-success);
+}
+
+[data-tone="amber"] .metric-content strong {
+  color: var(--sep-warning);
+}
+
+.metric-content em {
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+  font-style: normal;
+  white-space: nowrap;
+}
+
+.metric-percent {
+  --metric-color: var(--sep-accent);
+
+  position: relative;
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  margin-top: 2px;
+  border-radius: 50%;
+  color: var(--metric-color);
+  background: conic-gradient(
+    from 0deg,
+    var(--metric-color) 0 var(--metric-progress),
+    rgb(var(--sep-c-muted) / 28%) var(--metric-progress) 100%
+  );
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--metric-color) 42%, transparent));
+}
+
+.metric-percent::before {
+  position: absolute;
+  inset: 5px;
+  content: "";
+  border-radius: 50%;
+  background: var(--sep-surface);
+  box-shadow: inset 0 0 9px rgb(var(--sep-c-shadow) / 55%);
+}
+
+.metric-percent span {
+  position: relative;
+  z-index: 1;
+  padding: 0;
+  color: var(--sep-text-strong);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+[data-tone="green"] .metric-percent {
+  --metric-color: var(--sep-success);
+}
+
+[data-tone="amber"] .metric-percent {
+  --metric-color: var(--sep-warning);
+}
+
+.proposal-metrics article > .metric-action {
   width: 100%;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  border: 1px solid var(--sep-accent);
+  border-radius: 6px;
+  color: var(--sep-accent);
+  font-size: 11px;
+  text-decoration: none;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.proposal-metrics article[data-tone="green"] > .metric-action {
+  border-color: var(--sep-border-strong);
+  color: var(--sep-success);
+}
+
+.proposal-metrics article[data-tone="amber"] > .metric-action {
+  border-color: var(--sep-border-strong);
+  color: var(--sep-warning);
+}
+
+.proposal-metrics article > .metric-action:hover,
+.proposal-metrics article > .metric-action:focus-visible,
+.proposal-metrics article > .metric-action-ativa {
+  border-color: var(--card-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--card-accent) 24%, transparent);
+  outline: none;
+}
+
+.proposal-metrics article > .metric-action b {
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.proposals-table-card {
+  height: 500px;
+  margin-top: 20px;
+  padding: 17px 17px 11px;
+  border: 1px solid var(--sep-accent);
+  border-radius: 10px;
+  background: linear-gradient(
+    140deg,
+    rgb(var(--sep-c-surf2) / 90%),
+    rgb(var(--sep-c-sunken) / 94%)
+  );
+  box-shadow: inset 0 0 34px rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha)));
+  overflow: hidden;
+}
+
+.proposal-filters {
+  display: grid;
+
+  /* Faixas com teto, e nao com tamanho travado: na largura homologada elas atingem o mesmo
+     valor de sempre; sem espaco, encolhem juntas. Trocar por `auto-fit` aqui igualaria as
+     seis colunas e mudaria o visual aceito. */
+  grid-template-columns:
+    minmax(0, 250px) minmax(0, 120px) minmax(0, 150px)
+    minmax(0, 175px) minmax(0, 175px) minmax(0, 208px);
+  gap: 11px;
+  align-items: end;
+  height: 60px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgb(var(--sep-c-edge) / 16%);
+}
+
+.proposal-filters label {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  gap: 3px;
+  min-width: 0;
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+}
+
+.proposal-filters input,
+.proposal-filters select {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 7px;
+  outline: none;
+  color: var(--sep-text);
+  background: rgb(var(--sep-c-sunken) / 88%);
+  font: inherit;
+  font-size: 12px;
+  color-scheme: inherit;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.proposal-filters input:hover,
+.proposal-filters select:hover,
+.table-footer select:hover {
+  border-color: var(--sep-accent);
+  background-color: var(--sep-surface-2);
+  box-shadow: 0 0 10px rgb(var(--sep-c-blue) / calc(12% * var(--sep-glow-alpha)));
+}
+
+.proposal-filters select option,
+.proposal-filters select optgroup {
+  color: var(--sep-text);
+  background: var(--sep-surface);
+}
+
+.date-field > input {
+  padding-right: 38px;
+}
+
+.date-field > input::-webkit-calendar-picker-indicator {
+  opacity: 0;
+}
+
+.date-field > button {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 29px;
+  height: 29px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-left: 1px solid rgb(var(--sep-c-edge) / 25%);
+  color: var(--sep-text-muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+.date-field > button span {
+  position: relative;
+  width: 14px;
+  height: 13px;
+  border: 1px solid currentcolor;
+  border-radius: 2px;
+}
+
+.date-field > button span::before {
+  position: absolute;
+  top: 3px;
+  left: 0;
+  width: 100%;
+  content: "";
+  border-top: 1px solid currentcolor;
+}
+
+.date-field > button:hover,
+.date-field > button:focus-visible {
+  color: var(--sep-accent);
+  outline: none;
+}
+
+.proposal-filters input:focus,
+.proposal-filters select:focus {
+  border-color: var(--sep-accent);
+  box-shadow: 0 0 10px rgb(var(--sep-c-blue) / calc(15% * var(--sep-glow-alpha)));
+}
+
+.proposal-filters .search-field input {
+  padding-right: 34px;
+}
+
+.search-field b {
+  position: absolute;
+  right: 12px;
+  bottom: 7px;
+  color: var(--sep-text);
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.new-proposal {
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: 7px;
+  font-size: 12px;
+  color: var(--sep-on-solid);
+  border: 1px solid var(--sep-accent);
+  text-decoration: none;
+  background:
+    radial-gradient(circle at 82% 35%, rgb(var(--sep-c-blue) / 34%), transparent 34%),
+    linear-gradient(
+      105deg,
+      var(--sep-accent) 0%,
+      var(--sep-accent) 48%,
+      var(--sep-accent) 72%,
+      var(--sep-accent) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 rgb(var(--sep-c-secondary) / 35%),
+    inset 0 -8px 18px rgb(var(--sep-c-surf3) / 24%),
+    0 0 14px rgb(var(--sep-c-blue) / calc(26% * var(--sep-glow-alpha)));
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.new-proposal:hover,
+.new-proposal:focus-visible {
+  border-color: var(--sep-accent);
+  box-shadow:
+    inset 0 1px 0 rgb(var(--sep-c-fg) / 46%),
+    inset 0 -8px 18px rgb(var(--sep-c-surf3) / 18%),
+    0 0 20px rgb(var(--sep-c-blue) / calc(38% * var(--sep-glow-alpha)));
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.new-proposal-plus {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+}
+
+.new-proposal-plus::before,
+.new-proposal-plus::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 15px;
+  height: 1.5px;
+  content: "";
+  border-radius: 2px;
+  background: var(--sep-surface-active);
+  box-shadow: 0 0 6px rgb(var(--sep-c-shadow) / 55%);
+  transform: translate(-50%, -50%);
+}
+
+.new-proposal-plus::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+/* Rola desde sempre, e nao so em espaco estreito: entre a largura homologada e o limiar de meia
+   area a tabela de colunas fixas ja nao cabia, e o recorte escondia coluna sem aviso. Na largura
+   homologada a tabela cabe e nenhuma barra aparece — o visual aceito nao muda. */
+.table-scroll {
+  height: 330px;
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
+}
 
-  th,
-  td {
-    @include sepType.sep-type-body;
+th,
+td {
+  height: 36px;
+  padding: 0 11px;
+  border-bottom: 1px solid rgb(var(--sep-c-edge) / 19%);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 11px;
+}
 
-    padding: var(--sep-space-8) var(--sep-space-12);
-    text-align: left;
-    border-bottom: 1px solid hsl(var(--border));
-    color: hsl(var(--foreground));
+th {
+  height: 40px;
+  color: var(--sep-text-secondary);
+  background: linear-gradient(180deg, rgb(var(--sep-c-surf2) / 88%), rgb(var(--sep-c-surf) / 74%));
+  font-weight: 500;
+}
+
+th:nth-child(1) {
+  width: 106px;
+}
+
+th:nth-child(2) {
+  width: 180px;
+}
+
+th:nth-child(3) {
+  width: 137px;
+}
+
+th:nth-child(4) {
+  width: 122px;
+}
+
+th:nth-child(5) {
+  width: 136px;
+}
+
+th:nth-child(6),
+th:nth-child(7) {
+  width: 154px;
+}
+
+th:last-child {
+  width: 110px;
+}
+
+tbody tr {
+  transition:
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+tbody tr:hover {
+  background: rgb(var(--sep-c-blue) / 12%);
+  box-shadow: inset 2px 0 var(--sep-accent);
+}
+
+td {
+  color: var(--sep-text);
+  font-size: 11px;
+}
+
+td > a {
+  color: var(--sep-accent);
+  text-decoration: none;
+}
+
+.requested-value span {
+  color: var(--sep-text-muted);
+  letter-spacing: 1px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 4px;
+}
+
+.actions a,
+.actions button {
+  width: 27px;
+  height: 27px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 5px;
+  transition:
+    background-color 180ms ease,
+    box-shadow 180ms ease,
+    translate 180ms ease;
+}
+
+.actions a:hover,
+.actions a:focus-visible,
+.actions button:hover,
+.actions button:focus-visible {
+  background: rgb(var(--sep-c-blue) / 10%);
+  box-shadow: 0 0 9px rgb(var(--sep-c-blue) / calc(16% * var(--sep-glow-alpha)));
+  outline: none;
+  translate: 0 -1px;
+}
+
+.actions lucide-icon {
+  width: 27px;
+  height: 27px;
+}
+
+.actions button.value-hidden {
+  opacity: 1;
+  background: transparent;
+  box-shadow: none;
+  transform: translate(3px, 1px);
+}
+
+.hidden-eye-icon {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: var(--sep-danger);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+  filter: drop-shadow(0 0 3px rgb(var(--sep-c-red) / calc(48% * var(--sep-glow-alpha))));
+}
+
+.table-footer {
+  height: 78px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+}
+
+.table-footer > label {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.table-footer select {
+  width: 80px;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 6px;
+  color: var(--sep-text);
+  background: var(--sep-surface);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.pagination {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.pagination button,
+.pagination b {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 6px;
+  color: var(--sep-text-muted);
+  background: var(--sep-surface);
+  font-size: 15px;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease,
+    translate 180ms ease;
+}
+
+.pagination button:hover,
+.pagination button:focus-visible {
+  border-color: var(--sep-accent);
+  color: var(--sep-text);
+  box-shadow: 0 0 10px rgb(var(--sep-c-blue) / calc(18% * var(--sep-glow-alpha)));
+  outline: none;
+  translate: 0 -1px;
+}
+
+.pagination b {
+  color: var(--sep-on-solid);
+  border-color: var(--sep-accent);
+  background: linear-gradient(135deg, var(--sep-accent), var(--sep-accent));
+  box-shadow: 0 0 11px rgb(var(--sep-c-blue) / calc(28% * var(--sep-glow-alpha)));
+}
+
+.table-state {
+  height: 376px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--sep-text-secondary);
+  font-size: 13px;
+}
+
+.table-state button {
+  padding: 8px 15px;
+  border: 1px solid var(--sep-accent);
+  border-radius: 6px;
+  color: var(--sep-accent);
+  background: var(--sep-surface-2);
+  cursor: pointer;
+}
+
+.table-state.error {
+  color: var(--sep-warning);
+}
+
+.proposal-summaries {
+  height: 112px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 244px), 1fr));
+  margin-top: 19px;
+  padding: 12px 0;
+  border: 1px solid var(--sep-accent);
+  border-radius: 10px;
+  background: linear-gradient(
+    135deg,
+    rgb(var(--sep-c-surf3) / 80%),
+    rgb(var(--sep-c-sunken) / 93%)
+  );
+  overflow: hidden;
+}
+
+.proposal-summaries article {
+  display: grid;
+  grid-template-columns: 70px 1fr 80px;
+  align-items: start;
+  padding: 0 8px;
+  border-right: 1px solid rgb(var(--sep-c-edge) / 18%);
+  transition:
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.proposal-summaries article:hover {
+  background: rgb(var(--sep-c-blue) / 8%);
+  box-shadow: inset 0 0 18px rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha)));
+}
+
+.proposal-summaries article:last-child {
+  border-right: 0;
+}
+
+.summary-icon {
+  width: 70px;
+  height: 70px;
+  color: var(--sep-accent);
+}
+
+// O icone da metrica assume o tom que o cartao ja aplicava ao numero.
+[data-tone="green"] .metric-icon {
+  color: var(--sep-success);
+}
+
+[data-tone="blue"] .metric-icon {
+  color: var(--sep-accent);
+}
+
+[data-tone="amber"] .metric-icon {
+  color: var(--sep-warning);
+}
+
+.proposal-summaries span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding-top: 7px;
+}
+
+.proposal-summaries small {
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+}
+
+.proposal-summaries strong {
+  margin: 5px 0 3px;
+  font-size: 19px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.proposal-summaries em {
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+  font-style: normal;
+}
+
+.sparkline {
+  width: 80px;
+  height: 34px;
+  align-self: end;
+  margin-bottom: 5px;
+  color: var(--sep-success);
+
+  polyline {
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
+
+[data-tone="blue"] .sparkline {
+  color: var(--sep-accent);
+}
+
+@include tema.resp-half {
+  .proposals-page {
+    padding: 16px;
+    zoom: 1;
   }
 
-  th {
-    @include sepType.sep-type-caption;
-
-    color: hsl(var(--muted-foreground));
+  .proposal-metrics {
+    height: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  a {
-    color: hsl(var(--primary));
-    text-decoration: none;
+  .proposal-filters {
+    height: auto;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* Tabela larga rola no proprio eixo: é a leitura correta de uma grade de colunas fixas em
+     espaco estreito, e nao um recorte que esconde coluna. */
+  .proposals-table-card {
+    height: auto;
+    min-height: 455px;
+  }
+
+  /* Quem rola e a caixa da tabela, nao o cartao: a tabela tem colunas fixas e em espaco estreito
+     a leitura correta e rolar no proprio eixo — recortar esconderia coluna sem aviso. */
+  .table-scroll {
+    height: auto;
+    min-height: 330px;
+  }
+
+  table {
+    min-width: 860px;
+  }
+
+  .proposal-summaries {
+    height: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@include tema.resp-third {
+  .proposal-metrics,
+  .proposal-summaries,
+  .proposal-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .proposal-summaries article {
+    border-right: 0;
+    border-bottom: 1px solid rgb(var(--sep-c-edge) / 18%);
+  }
+}
+
+/* ============ PAINEL DO LIMITE ============ */
+.limit-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--sep-overlay);
+}
+
+.limit-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 61;
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  padding: 20px;
+  border: 1px solid var(--sep-success);
+  border-radius: 10px;
+  color: var(--sep-text);
+  background: linear-gradient(
+    140deg,
+    rgb(var(--sep-c-surf3) / 98%),
+    rgb(var(--sep-c-sunken) / 99%)
+  );
+  box-shadow:
+    inset 0 0 28px color-mix(in srgb, var(--sep-success) 10%, transparent),
+    0 18px 48px rgb(var(--sep-c-shadow) / 45%);
+  transform: translate(-50%, -50%);
+}
+
+.limit-dialog header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.limit-dialog h2 {
+  margin: 0;
+  font-size: 17px;
+  color: var(--sep-text-strong);
+}
+
+.limit-dialog header p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--sep-text-secondary);
+}
+
+.limit-close {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 6px;
+  color: var(--sep-text-secondary);
+  background: transparent;
+  cursor: pointer;
+}
+
+.limit-close:hover,
+.limit-close:focus-visible {
+  border-color: var(--sep-success);
+  color: var(--sep-text);
+  outline: none;
+}
+
+.limit-dialog dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+  margin: 18px 0 14px;
+}
+
+.limit-dialog dl div {
+  padding: 10px 12px;
+  border: 1px solid rgb(var(--sep-c-edge) / 18%);
+  border-radius: 8px;
+  background: rgb(var(--sep-c-sunken) / 70%);
+}
+
+.limit-dialog dt {
+  font-size: 11px;
+  color: var(--sep-text-secondary);
+}
+
+.limit-dialog dd {
+  margin: 4px 0 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--sep-text-strong);
+}
+
+.limit-dialog dd.tone-green {
+  color: var(--sep-success);
+}
+
+.limit-dialog ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  color: var(--sep-text-secondary);
+}
+
+.limit-dialog li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.limit-dialog li lucide-icon {
+  flex: none;
+  margin-top: 1px;
+  color: var(--sep-success);
+}
+
+.limit-dialog footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.limit-secondary,
+.limit-primary {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 16px;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.limit-secondary {
+  border: 1px solid var(--sep-border-strong);
+  color: var(--sep-text);
+  background: transparent;
+}
+
+.limit-primary {
+  border: 1px solid var(--sep-success);
+  color: var(--sep-success);
+  background: color-mix(in srgb, var(--sep-success) 12%, transparent);
+}
+
+.limit-secondary:hover,
+.limit-secondary:focus-visible,
+.limit-primary:hover,
+.limit-primary:focus-visible {
+  box-shadow: 0 0 12px color-mix(in srgb, var(--sep-success) 24%, transparent);
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .proposals-page * {
+    transition: none !important;
   }
 }

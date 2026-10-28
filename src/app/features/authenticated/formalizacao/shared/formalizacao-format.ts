@@ -17,6 +17,31 @@ export function formatarData(iso: string): string {
   return formatarDataIso(iso, { dateStyle: 'short' });
 }
 
+export function formatarDataHora(iso: string): string {
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+    .format(new Date(iso))
+    .replace(',', '');
+}
+
+export function formatarDataHoraSegundos(iso: string): string {
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  })
+    .format(new Date(iso))
+    .replace(',', '');
+}
+
 // Sufixo do UUID para identificacao curta em listas (o id completo permanece no link).
 export function idCurto(id: string): string {
   return id.slice(-8);
@@ -45,7 +70,7 @@ export const STATUS_ENVELOPE_LABEL: Record<StatusEnvelope, string> = {
   EXPIRADO: 'Expirado',
 };
 
-// Extrai a mensagem amigavel do corpo de erro padronizado da API, com fallback.
+// Extrai a mensagem amigavel do corpo de erro padronizado da API, com fallback e sanitizacao.
 // 401/403/423 sao tratados pelo errorInterceptor global (redirecionamento); aqui
 // cobrimos 404/409/422/5xx e servem de fallback defensivo.
 export function mensagemFormalizacaoErro(err: HttpErrorResponse, padrao: string): string {

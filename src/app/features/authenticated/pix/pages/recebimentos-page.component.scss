@@ -1,98 +1,1778 @@
-@use "../../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../../styles/sep-ds-components" as sepDs;
+@use "../../../../../styles/sep-responsivo" as resp;
 
-.sep-recebimentos {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-24);
-  max-width: 720px;
-  margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+:host {
+  --blue: var(--sep-accent);
+  --green: var(--sep-success);
+  --orange: var(--sep-warning);
+  --red: var(--sep-danger);
+  --purple: var(--sep-purple);
+  --muted: var(--sep-text-secondary);
+  --muted-forte: var(--sep-text-secondary);
+  --linha: var(--sep-text-muted);
+
+  display: block;
+  color: var(--sep-text-strong);
 }
 
-.sep-recebimentos-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
+* {
+  box-sizing: border-box;
 }
 
-.sep-recebimentos-title {
-  @include sepType.sep-type-page-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
+button,
+input {
+  font: inherit;
 }
 
-.sep-recebimentos-subtitle {
-  @include sepType.sep-type-body;
+/* stylelint-disable selector-pseudo-element-no-unknown -- Angular ::ng-deep */
 
-  margin: 0;
-  color: hsl(var(--muted-foreground));
+:host ::ng-deep .op-content:has(> .px22-page) {
+  display: block;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
-.sep-recebimentos-card {
-  @include sepDs.sep-card;
-
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-16);
-  padding: var(--sep-space-24);
+:host ::ng-deep .op-main:has(.px22-page) {
+  grid-template-rows: 70px minmax(0, 1fr) 80px;
 }
 
-.sep-recebimentos-card .sep-recebimentos-subtitle {
-  @include sepType.sep-type-card-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
+:host ::ng-deep .op-main:has(.px22-page) > .op-footer {
+  min-height: 80px;
 }
 
-.sep-recebimentos-aviso {
-  @include sepType.sep-type-caption;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
+:host ::ng-deep .op-dashboard:has(.px22-page) > .op-sidebar {
+  grid-template-rows: 70px minmax(0, 1fr) 130px 80px;
 }
 
-.sep-recebimentos-field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-6);
+/* stylelint-enable selector-pseudo-element-no-unknown */
 
-  span {
-    @include sepType.sep-type-caption;
+// ============ GRADE ============
+// No mockup a coluna lateral acompanha a página inteira, começando na altura do breadcrumb.
 
-    color: hsl(var(--muted-foreground));
+.px22-page {
+  display: grid;
+  grid-template:
+    "heading side" auto
+    "consultas side" auto
+    "resultado side" 1fr / minmax(0, 2.62fr) minmax(336px, 0.9fr);
+  gap: 14px 18px;
+  width: 100%;
+  height: 100%;
+  padding: 10px 18px 14px;
+  background: radial-gradient(circle at 46% 26%, rgb(var(--sep-c-blue) / 6%), transparent 42%);
+}
+
+/* Largura natural deste layout: 1137px. Abaixo disso a coluna lateral desce para baixo do
+   conteudo principal, em vez de ser cortada. O numero e a medida do proprio widget. */
+@container (max-width: 1133px) {
+  .px22-page {
+    grid-template:
+      "heading"
+      "consultas"
+      "resultado"
+      "side"
+      / minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto;
+    height: auto;
   }
+}
 
-  input {
-    padding: var(--sep-space-11) var(--sep-space-12);
-    color: hsl(var(--foreground));
-    background: hsl(var(--background));
-    border: 1px solid hsl(var(--input));
-    border-radius: var(--sep-radius-sm);
-    font-size: 15px;
+// ============ TONS ============
+
+[data-tone="green"] {
+  --tone: var(--green);
+  --tone-borda: rgb(var(--sep-c-green) / 55%);
+  --tone-fundo: rgb(var(--sep-c-green) / 12%);
+}
+
+[data-tone="orange"] {
+  --tone: var(--orange);
+  --tone-borda: rgb(var(--sep-c-amber) / 55%);
+  --tone-fundo: rgb(var(--sep-c-amber) / 12%);
+}
+
+[data-tone="red"] {
+  --tone: var(--red);
+  --tone-borda: rgb(var(--sep-c-red) / 55%);
+  --tone-fundo: rgb(var(--sep-c-red) / 12%);
+}
+
+[data-tone="blue"] {
+  --tone: var(--blue);
+  --tone-borda: rgb(var(--sep-c-blue) / 55%);
+  --tone-fundo: rgb(var(--sep-c-blue) / 12%);
+}
+
+[data-tone="purple"] {
+  --tone: var(--purple);
+  --tone-borda: rgb(var(--sep-c-purple) / 55%);
+  --tone-fundo: rgb(var(--sep-c-purple) / 12%);
+}
+
+// ============ BASES REUTILIZADAS ============
+
+.px22-card {
+  border: 1px solid var(--linha);
+  border-radius: 9px;
+  background: linear-gradient(
+    145deg,
+    rgb(var(--sep-c-sunken) / 96%),
+    rgb(var(--sep-c-sunken) / 94%)
+  );
+  box-shadow: inset 0 1px rgb(var(--sep-c-blue) / calc(4% * var(--sep-glow-alpha)));
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.px22-card:hover {
+  border-color: rgb(var(--sep-c-blue) / 42%);
+  box-shadow:
+    0 0 18px rgb(var(--sep-c-blue) / calc(7% * var(--sep-glow-alpha))),
+    inset 0 1px rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha)));
+}
+
+.px22-selo {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 10px;
+  color: var(--tone, var(--blue));
+  font-size: 11.5px;
+
+  // Sem isto o selo herda a entrelinha do h3/h2 que o contém (~21px), a caixa de texto estoura a
+  // altura de 22px e o rótulo desce alguns décimos fora do centro.
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 55%));
+  border-radius: 6px;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+  transition: filter 0.18s;
+}
+
+// Efeito associativo: o selo acende junto com o bloco que o contém.
+.px22-status:hover .px22-selo,
+.px22-bottom article:hover .px22-selo,
+.px22-recentes li:hover .px22-selo,
+.px22-selo:hover {
+  filter: brightness(1.2)
+    drop-shadow(
+      0 0 5px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+    );
+}
+
+.px22-copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  color: var(--sep-text-muted);
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  cursor: pointer;
+  transition:
+    color 0.16s,
+    background 0.16s;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--blue);
+    background: rgb(var(--sep-c-blue) / 12%);
   }
 }
 
-.sep-recebimentos-cta {
-  align-self: flex-start;
-  padding: var(--sep-space-11) var(--sep-space-17);
-  border-radius: var(--sep-radius-md);
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  border: none;
+.green {
+  color: var(--green);
+}
+
+// ============ CABEÇALHO ============
+
+.px22-heading {
+  grid-area: heading;
+  padding: 2px 2px 0;
+}
+
+.px22-heading nav {
+  display: flex;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.px22-heading nav a {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--blue);
+  }
+}
+
+.px22-heading nav strong {
+  color: var(--sep-text-strong);
+}
+
+.px22-heading-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 6px;
+}
+
+.px22-heading h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 5px;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.px22-title-icon {
+  color: var(--green);
+  filter: drop-shadow(0 0 8px rgb(var(--sep-c-green) / calc(40% * var(--sep-glow-alpha))));
+}
+
+.px22-heading p {
+  margin: 0;
+  color: var(--sep-text-secondary);
+  font-size: 13.5px;
+}
+
+.px22-btn-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  height: 40px;
+  margin-top: 6px;
+  padding: 0 18px;
+  color: var(--blue);
+  font-size: 13.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  border: 1px solid rgb(var(--sep-c-blue) / 70%);
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--sep-surface-2), var(--sep-surface-hover));
+  cursor: pointer;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s,
+    transform 0.18s;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--blue);
+    box-shadow: 0 0 16px rgb(var(--sep-c-blue) / calc(18% * var(--sep-glow-alpha)));
+    transform: translateY(-2px);
+  }
+}
+
+// ============ CONSULTAS ============
+
+.px22-consultas {
+  grid-area: consultas;
+}
+
+.px22-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.px22-tabs button {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 250px;
+  height: 52px;
+  padding: 0 16px;
+  color: var(--sep-text-secondary);
+  text-align: left;
+  border: 1px solid var(--sep-border);
+  border-bottom: 0;
+  border-radius: 9px 9px 0 0;
+  background: linear-gradient(180deg, var(--sep-surface), var(--sep-surface-sunken));
+  cursor: pointer;
+  transition:
+    color 0.18s,
+    border-color 0.18s,
+    background 0.18s;
+}
+
+.px22-tabs button lucide-icon {
+  color: var(--sep-text-muted);
+  flex-shrink: 0;
+  transition: color 0.18s;
+}
+
+.px22-tabs button span {
+  display: block;
+  font-size: 13.5px;
   font-weight: 600;
+  line-height: 1.2;
+}
+
+.px22-tabs button small {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.px22-tabs button:hover {
+  color: var(--sep-text-strong);
+  border-color: var(--sep-accent);
+}
+
+.px22-tabs button.ativo {
+  color: var(--sep-text-strong);
+  border-color: var(--sep-accent);
+  background: linear-gradient(180deg, var(--sep-surface-hover), var(--sep-surface));
+  box-shadow: inset 0 2px var(--sep-accent);
+}
+
+.px22-tabs button.ativo lucide-icon {
+  color: var(--blue);
+  filter: drop-shadow(0 0 6px rgb(var(--sep-c-blue) / calc(55% * var(--sep-glow-alpha))));
+}
+
+.px22-query-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 391px), 1fr));
+  gap: 14px;
+  margin-top: -1px;
+}
+
+.px22-query-grid form {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 150px;
+  padding: 14px 17px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    opacity 0.2s;
+}
+
+// Seleção associativa: a aba acende o cartão correspondente e recolhe o outro.
+.px22-query-grid form.ativa {
+  border-color: var(--sep-accent);
+  box-shadow:
+    0 0 20px rgb(var(--sep-c-blue) / calc(12% * var(--sep-glow-alpha))),
+    inset 0 1px rgb(var(--sep-c-blue) / calc(10% * var(--sep-glow-alpha)));
+}
+
+// O painel inativo recua pela cor do texto, nao por `opacity` no painel: opacidade tira o
+// antialias de subpixel do texto e os rotulos (e o botao) saiam cinza-desfocados.
+.px22-query-grid form:not(.ativa) {
+  border-color: var(--sep-border);
+}
+
+.px22-query-grid form:not(.ativa) h2,
+.px22-query-grid form:not(.ativa) label,
+.px22-query-grid form:not(.ativa) small {
+  color: var(--sep-text-muted);
+}
+
+.px22-query-grid h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 13px;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.px22-query-grid h2 lucide-icon {
+  color: var(--blue);
+}
+
+.px22-query-grid label {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--muted-forte);
+  font-size: 12.5px;
+}
+
+.px22-query-grid label b {
+  color: var(--red);
+}
+
+.px22-query-grid form > small {
+  display: block;
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.px22-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 9px;
+}
+
+.px22-input {
+  position: relative;
+  min-width: 0;
+}
+
+.px22-input input {
+  width: 100%;
+  height: 38px;
+  padding: 0 32px 0 13px;
+  color: var(--sep-text-strong);
+  font-size: 13px;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 7px;
+  background: var(--sep-surface);
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+}
+
+.px22-input input::placeholder {
+  color: var(--sep-text-muted);
+}
+
+.px22-input input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgb(var(--sep-c-blue) / calc(14% * var(--sep-glow-alpha)));
+}
+
+.px22-limpa-campo {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  color: var(--sep-text-muted);
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 50%;
+  background: var(--sep-surface-2);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition:
+    color 0.16s,
+    border-color 0.16s;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sep-text-strong);
+    border-color: var(--blue);
+  }
+}
+
+.px22-btn-primary,
+.px22-btn-sec {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 16px;
+  font-size: 13.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  border-radius: 7px;
+  cursor: pointer;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s,
+    transform 0.18s;
+}
+
+.px22-btn-primary {
+  // Acento cheio com o texto do par `on-accent`: o degrade superficie -> acento deixava o rotulo
+  // (na cor do acento) sumir na metade escura do botao.
+  color: var(--sep-on-accent);
+  border: 1px solid var(--sep-accent);
+  background: var(--sep-accent);
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--blue);
+    box-shadow: 0 0 16px rgb(var(--sep-c-blue) / calc(22% * var(--sep-glow-alpha)));
+    transform: translateY(-2px);
+  }
+}
+
+.px22-btn-sec {
+  color: var(--sep-text);
+  border: 1px solid var(--sep-border-strong);
+  background: var(--sep-surface-sunken);
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--sep-border-strong);
+    box-shadow: 0 0 14px rgb(var(--sep-c-blue) / calc(12% * var(--sep-glow-alpha)));
+    transform: translateY(-2px);
+  }
+}
+
+// ============ ERRO ============
+
+.px22-error {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  grid-area: resultado;
+  align-self: start;
+  margin: 0;
+  padding: 11px 15px;
+  color: var(--sep-text-secondary);
+  font-size: 13px;
+  border: 1px solid rgb(var(--sep-c-red) / 40%);
+  border-radius: 8px;
+  background: rgb(var(--sep-c-red) / 9%);
+}
+
+.px22-error lucide-icon {
+  color: var(--red);
+}
+
+// ============ RESULTADO ============
+
+.px22-resultado {
+  display: flex;
+  flex-direction: column;
+  grid-area: resultado;
+  min-height: 0;
+  padding: 8px 14px 7px;
+  overflow: hidden auto;
+}
+
+.px22-resultado.loading {
+  opacity: 0.55;
+}
+
+.px22-resultado > h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.px22-resultado > h2 lucide-icon {
+  color: var(--blue);
+}
+
+// Marca de qual aba originou o resultado exibido. Precisa vencer `.px22-status > span`.
+.px22-status > .px22-origem {
+  display: inline-flex;
+  margin-left: auto;
+  align-items: center;
+  gap: 5px;
+  height: 20px;
+  padding: 0 9px;
+  color: var(--sep-accent);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  border: 1px solid rgb(var(--sep-c-blue) / 55%);
+  border-radius: 6px;
+  background: rgb(var(--sep-c-blue) / 10%);
+}
+
+.px22-status {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--sep-border);
+}
+
+.px22-status > span {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.px22-summary {
+  display: grid;
+  grid-template-columns: 1.2fr 0.85fr 1.15fr 1fr 1fr;
+  margin: 0;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--sep-border);
+}
+
+/* Largura natural desta fileira: 767px. Ate ai as colunas mantem a proporcao do
+   mockup; abaixo disso passam a caber quantas couberem, e o que sobra desce. */
+@container (max-width: 763px) {
+  .px22-summary {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
+  }
+}
+
+.px22-summary > div {
+  padding: 0 13px;
+  border-right: 1px solid rgb(var(--sep-c-edge) / 40%);
+
+  &:first-child {
+    padding-left: 0;
+  }
+
+  &:last-child {
+    border-right: 0;
+  }
+}
+
+dt {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+dd {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 3px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+// ============ PARCELA + LINHA DO TEMPO ============
+
+.px22-middle {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: 216px minmax(0, 1fr);
+  gap: 10px;
+  padding: 3px 0 4px;
+}
+
+/* Largura natural deste layout: 767px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 763px) {
+  .px22-middle {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.px22-middle-direita {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.px22-middle-direita .px22-timeline {
+  flex: 1 1 auto;
+}
+
+// A chave Pix tem grade própria (valor + botão em coluna fixa); os demais cartões viram coluna
+// flex para distribuir o conteúdo na altura.
+.px22-middle article:not(.px22-chave),
+.px22-bottom article {
+  display: flex;
+  flex-direction: column;
+}
+
+.px22-middle article,
+.px22-bottom article {
+  padding: 8px 13px;
+  border: 1px solid var(--sep-border);
+  border-radius: 8px;
+  background: rgb(var(--sep-c-sunken) / 70%);
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+}
+
+.px22-middle article:hover,
+.px22-bottom article:hover {
+  border-color: rgb(var(--sep-c-blue) / 45%);
+  box-shadow: inset 0 0 20px rgb(var(--sep-c-blue) / calc(6% * var(--sep-glow-alpha)));
+}
+
+h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 9px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+h3 lucide-icon {
+  color: var(--blue);
+  flex-shrink: 0;
+}
+
+.px22-parcela dl,
+.px22-bottom dl,
+.px22-resumo dl {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+}
+
+.px22-parcela dl > div,
+.px22-bottom dl > div,
+.px22-resumo dl > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.px22-parcela dt,
+.px22-parcela dd,
+.px22-bottom dt,
+.px22-bottom dd,
+.px22-resumo dt,
+.px22-resumo dd {
+  font-size: 12.5px;
+}
+
+.px22-parcela dd,
+.px22-bottom dd,
+.px22-resumo dd {
+  margin: 0;
+  text-align: right;
+}
+
+// Linha do tempo: marcos ligados por uma trilha contínua, como no mockup.
+// Os marcos ficam centrados na altura do widget, e não presos logo abaixo do título.
+.px22-timeline ol {
+  position: relative;
+  display: grid;
+  flex: 1 1 auto;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  align-content: center;
+  margin: 0;
+  padding: 2px 0 0;
+  list-style: none;
+}
+
+.px22-timeline ol::before {
+  position: absolute;
+  top: 17px;
+  right: 10%;
+  left: 10%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    rgb(var(--sep-c-green) / 30%),
+    var(--green),
+    rgb(var(--sep-c-green) / 30%)
+  );
+  content: "";
+}
+
+.px22-timeline li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.px22-marco {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--green);
+  border: 1.5px solid var(--green);
+  border-radius: 50%;
+  background: var(--sep-surface-sunken);
+  box-shadow: 0 0 12px rgb(var(--sep-c-green) / calc(22% * var(--sep-glow-alpha)));
+  transition:
+    box-shadow 0.18s,
+    transform 0.18s;
+}
+
+.px22-timeline li:hover .px22-marco {
+  box-shadow: 0 0 18px rgb(var(--sep-c-green) / calc(55% * var(--sep-glow-alpha)));
+  transform: scale(1.06);
+}
+
+// Etapa que o status consultado ainda não garante: marco apagado, sem o verde de concluído.
+.px22-timeline li.pendente .px22-marco {
+  color: var(--muted);
+  border-color: rgb(var(--sep-c-edge) / 90%);
+  border-style: dashed;
+  box-shadow: none;
+}
+
+.px22-timeline li.pendente strong {
+  color: var(--muted-forte);
+}
+
+.px22-timeline li.pendente:hover .px22-marco {
+  box-shadow: 0 0 14px rgb(var(--sep-c-blue) / calc(20% * var(--sep-glow-alpha)));
+}
+
+.px22-timeline li strong {
+  margin-top: 2px;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.px22-timeline li small {
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.2;
+}
+
+.px22-chave {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 10px;
+  align-items: center;
+}
+
+.px22-chave strong {
+  grid-column: 1;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.px22-chave span {
+  grid-column: 1;
+  color: var(--muted-forte);
+  font-size: 11px;
+  line-height: 1.25;
+  word-break: break-all;
+}
+
+.px22-chave .px22-copy {
+  grid-row: 1 / 3;
+  grid-column: 2;
+  width: 26px;
+  height: 26px;
+}
+
+// ============ BASE: CONCILIAÇÃO / INFORMAÇÕES / COMPROVANTE ============
+
+// Larguras do mockup: conciliação e informações precisam de mais trilha para o protocolo e o
+// end-to-end caberem em uma linha; o comprovante é o bloco com folga.
+.px22-bottom {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: 1.24fr 1.06fr 0.7fr;
+  gap: 10px;
+}
+
+/* Largura natural deste layout: 767px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 763px) {
+  .px22-bottom {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.px22-bottom h3 {
+  gap: 9px;
+  font-size: 14.5px;
+}
+
+.px22-bottom dt {
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.px22-bottom dd {
+  font-size: 11.5px;
+}
+
+.px22-bottom h3 .px22-selo {
+  margin-left: auto;
+}
+
+.px22-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  color: var(--sep-on-solid);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 700;
+  border-radius: 50%;
+  background: linear-gradient(140deg, var(--sep-purple), var(--sep-accent));
+}
+
+.px22-e2e {
+  font-size: 11.5px !important;
+  word-break: break-all;
+}
+
+.px22-vazio {
+  color: var(--muted);
+}
+
+.px22-comprovante-corpo {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 11px;
+  align-items: center;
+}
+
+.px22-comprovante-corpo img {
+  width: 74px;
+  height: 90px;
+  object-fit: contain;
+  flex-shrink: 0;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 5px;
+  background: var(--sep-surface-active);
+}
+
+.px22-comprovante-corpo p {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
+  height: 100%;
+  margin: 0;
+}
+
+.px22-comprovante-corpo strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.px22-comprovante-corpo span {
+  color: var(--muted-forte);
+  font-size: 12.5px;
+}
+
+.px22-comprovante-corpo small {
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.3;
+}
+
+.px22-comprovante footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.px22-comprovante footer .px22-btn-sec {
+  height: 32px;
+  padding: 0 8px;
+  font-size: 12.5px;
+}
+
+// ============ COLUNA LATERAL ============
+
+.px22-side {
+  display: flex;
+  flex-direction: column;
+  grid-area: side;
+
+  // Pouco espaço entre os widgets: a altura da coluna é devolvida para dentro deles, onde vira
+  // respiro entre título, linhas e ações.
+  gap: 5px;
+  min-height: 0;
+  overflow: hidden auto;
+}
+
+// O provider mantém a própria grade; os demais viram coluna flex para distribuir o conteúdo.
+.px22-side > section:not(.px22-provider) {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+.px22-side h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  // 9px é o teto medido: com 10px os quatro títulos da coluna somam 2px além da área útil de
+  // 1536x1024 e a lateral passa a rolar.
+  margin: 0 0 9px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.px22-side h2 lucide-icon {
+  color: var(--blue);
+}
+
+// ---- Provider ----
+
+.px22-provider {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 3px 12px;
+  align-content: space-evenly;
+  align-items: center;
+  flex: 0 0 auto;
+  padding: 12px 15px;
+}
+
+.px22-provider-escudo {
+  grid-row: 1 / 3;
+  color: var(--green);
+  filter: drop-shadow(0 0 10px rgb(var(--sep-c-green) / calc(40% * var(--sep-glow-alpha))));
+  transition: filter 0.18s;
+}
+
+.px22-provider:hover .px22-provider-escudo {
+  filter: brightness(1.1)
+    drop-shadow(0 0 14px rgb(var(--sep-c-green) / calc(65% * var(--sep-glow-alpha))));
+}
+
+.px22-provider-texto strong {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.px22-provider-texto em {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 4px;
+  color: var(--green);
+  font-size: 13.5px;
+  font-style: normal;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgb(var(--sep-c-green) / calc(40% * var(--sep-glow-alpha)));
+}
+
+.px22-led {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  transition:
+    box-shadow 0.18s,
+    transform 0.18s;
+}
+
+.px22-provider:hover .px22-led {
+  box-shadow: 0 0 12px var(--green);
+  transform: scale(1.2);
+}
+
+.px22-provider-tempo {
+  display: flex;
+  grid-column: 1 / -1;
+  gap: 9px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.px22-provider-tempo span {
+  color: var(--muted);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.px22-provider-tempo b {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.px22-provider-tempo svg {
+  width: 100%;
+  min-width: 0;
+  height: 24px;
+  margin-left: auto;
+}
+
+.px22-provider-tempo polyline {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 3px rgb(var(--sep-c-blue) / calc(60% * var(--sep-glow-alpha))));
+  transition:
+    stroke-width 0.18s,
+    filter 0.18s;
+}
+
+.px22-provider:hover polyline {
+  stroke-width: 1.4;
+  filter: drop-shadow(0 0 6px rgb(var(--sep-c-blue) / calc(85% * var(--sep-glow-alpha))));
+}
+
+// ---- Status da conciliação ----
+
+.px22-conciliacao {
+  padding: 12px 15px;
+}
+
+// Linha de procedencia do painel: diz sobre quantos recebimentos o anel foi calculado, para o
+// numero grande nao parecer um agregado de origem desconhecida.
+.px22-conciliacao-nota {
+  display: block;
+  margin-top: 8px;
+  color: var(--sep-text-muted);
+  font-size: 11.5px;
+}
+
+.px22-conciliacao-corpo {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 16px;
+  align-items: center;
+}
+
+// Anel desenhado com conic-gradient, como no Mockup 20.
+.px22-donut {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 94px;
+  height: 94px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 10px rgb(var(--sep-c-green) / calc(25% * var(--sep-glow-alpha))));
+  transition: filter 0.2s;
+}
+
+.px22-donut::after {
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background: var(--sep-surface-sunken);
+  content: "";
+}
+
+.px22-donut span {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.px22-donut strong {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.px22-donut small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.px22-conciliacao:hover .px22-donut {
+  filter: drop-shadow(0 0 16px rgb(var(--sep-c-green) / calc(45% * var(--sep-glow-alpha))));
+}
+
+.px22-conciliacao ul {
+  display: flex;
+  flex-direction: column;
+
+  // As três faixas ficam centradas na altura do anel, agrupadas em vez de espalhadas por ela.
+  justify-content: center;
+  gap: 9px;
+  flex: 1 1 auto;
+  align-self: stretch;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.px22-conciliacao li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+}
+
+// O ponto usa a mesma cor que a fatia recebeu no anel (`--legenda`, ligado no template).
+.px22-conciliacao li i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--legenda, var(--tone, var(--blue)));
+  box-shadow: 0 0 7px var(--legenda, var(--tone, var(--blue)));
+  flex-shrink: 0;
+}
+
+.px22-conciliacao li span {
+  color: var(--muted-forte);
+}
+
+.px22-conciliacao li strong {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.px22-conciliacao > a {
+  display: block;
+  margin-top: 8px;
+  padding-top: 7px;
+  color: var(--sep-accent);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  border-top: 1px solid rgb(var(--sep-c-edge) / 55%);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sep-accent);
+    text-decoration: underline;
+  }
+}
+
+// ---- Resumo ----
+
+.px22-resumo {
+  padding: 12px 15px;
+}
+
+// A sobra de altura vira espaçamento entre as linhas, mas `space-around` guarda meia folga nas
+// pontas: as linhas ficam mais próximas entre si e o bloco descola do título, em vez de a primeira
+// linha nascer colada nele e a última no rodapé do widget.
+.px22-resumo dl,
+.px22-recentes ul,
+.px22-parcela dl,
+.px22-bottom article dl {
+  flex: 1 1 auto;
+  justify-content: space-around;
+}
+
+// Nove linhas em uma coluna estreita: a trilha do mockup só cabe com a lista compacta.
+.px22-resumo dl {
+  gap: 3px;
+}
+
+.px22-resumo dt,
+.px22-resumo dd {
+  line-height: 1.35;
+}
+
+// Rótulo e valor sempre na mesma linha: em coluna estreita a quebra do rótulo custava altura.
+.px22-resumo dt {
+  white-space: nowrap;
+}
+
+.px22-resumo dd {
+  overflow: hidden;
+  max-width: 62%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ---- Ações rápidas ----
+
+.px22-actions {
+  padding: 12px 15px;
+}
+
+// Os botões têm altura própria: a sobra da coluna vai para os widgets vizinhos, que a espalham
+// entre suas linhas, em vez de esticar estes quatro atalhos.
+.px22-side > section.px22-actions {
+  flex: 0 0 auto;
+}
+
+.px22-actions > div {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.px22-actions button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px 4px;
+  color: var(--muted-forte);
+  font-size: 11px;
+  line-height: 1.15;
+  text-align: center;
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-edge) / 60%));
+  border-radius: 8px;
+  background: linear-gradient(
+    150deg,
+    var(--tone-fundo, rgb(var(--sep-c-surf) / 70%)),
+    rgb(var(--sep-c-sunken) / 85%)
+  );
+  cursor: pointer;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s,
+    transform 0.18s;
+}
+
+.px22-actions button lucide-icon {
+  color: var(--tone, var(--blue));
+  transition: filter 0.18s;
+}
+
+.px22-actions button:hover,
+.px22-actions button:focus-visible {
+  color: var(--sep-text-strong);
+  border-color: var(--tone, var(--blue));
+  box-shadow: 0 0 16px var(--tone-fundo, rgb(var(--sep-c-blue) / calc(12% * var(--sep-glow-alpha))));
+  transform: translateY(-2px);
+}
+
+.px22-actions button:hover lucide-icon {
+  filter: brightness(1.15) drop-shadow(0 0 7px var(--tone, var(--blue)));
+}
+
+// ---- Últimas consultas ----
+
+.px22-recentes {
+  padding: 12px 15px;
+}
+
+.px22-recentes h2 {
+  justify-content: space-between;
+}
+
+.px22-recentes h2 button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+  color: var(--sep-accent);
+  font-size: 12.5px;
+  font-weight: 500;
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    text-decoration: underline;
+  }
+}
+
+.px22-recentes ul {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// O item inteiro e o botao que refaz a consulta; a caixa continua a mesma do mockup.
+.px22-recentes li > button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  color: inherit;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.px22-recentes li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 1px 8px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  transition:
+    background 0.18s,
+    border-color 0.18s,
+    transform 0.18s;
+}
+
+.px22-recentes li:hover {
+  border-color: rgb(var(--sep-c-edge) / 80%);
+  background: rgb(var(--sep-c-surf) / 80%);
+  transform: translateX(3px);
+}
+
+.px22-recentes li > button > span {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.px22-recentes li small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+// ============ COMPROVANTE EM MODAL ============
+
+.px22-overlay {
+  position: fixed;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inset: 0;
+  padding: 24px;
+  background: rgb(var(--sep-c-canvas) / 78%);
+  backdrop-filter: blur(3px);
+}
+
+.px22-overlay article {
+  position: relative;
+  width: min(430px, 100%);
+  padding: 26px 28px;
+  text-align: center;
+  border: 1px solid var(--linha);
+  border-radius: 12px;
+  background: linear-gradient(160deg, var(--sep-surface-2), var(--sep-surface-sunken));
+  box-shadow: 0 24px 60px rgb(var(--sep-c-shadow) / 55%);
+}
+
+// Historico das consultas: lista, e nao o recibo centralizado do comprovante.
+.px22-overlay .px22-historico {
+  text-align: left;
+}
+
+.px22-historico p {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.px22-historico ul {
+  display: grid;
+  gap: 4px;
+  max-height: min(420px, 60vh);
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.px22-historico li button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 10px;
+  color: var(--sep-text);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  &:hover,
+  &:focus-visible {
+    border-color: rgb(var(--sep-c-edge) / 80%);
+    background: rgb(var(--sep-c-surf) / 80%);
+    outline: none;
   }
 }
 
-.sep-recebimentos-error {
-  @include sepType.sep-type-body;
+.px22-historico li span {
+  display: grid;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
+.px22-historico li small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.px22-historico li lucide-icon {
+  flex: none;
+  color: var(--blue);
+}
+
+.px22-overlay .close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: var(--muted-forte);
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 7px;
+  background: var(--sep-surface);
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sep-text-strong);
+    border-color: var(--blue);
+  }
+}
+
+.px22-overlay header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-bottom: 16px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.px22-overlay header b {
+  color: var(--blue);
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+
+.px22-overlay h2 {
+  margin: 0 0 10px;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.px22-overlay h1 {
+  margin: 14px 0 18px;
+  color: var(--green);
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.px22-overlay dl {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 0 20px;
+  text-align: left;
+}
+
+.px22-overlay dl > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid rgb(var(--sep-c-edge) / 45%);
+}
+
+.px22-overlay dd {
+  overflow: hidden;
+  max-width: 240px;
   margin: 0;
-  color: hsl(var(--destructive));
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.px22-overlay .px22-btn-primary {
+  width: 100%;
+  height: 42px;
+}
+
+// ============ RESPIRO EM TELAS ALTAS ============
+// A base fecha sem rolagem em 1536x1024. Onde a coluna tem altura sobrando (cerca de 56 px em
+// 1080p), a área útil vira espaçamento — entre widgets, entre título e conteúdo e entre as linhas
+// de cada lista — em vez de um vazio no rodapé. Os incrementos somam a folga medida, não mais.
+
+@include resp.altura-folgada {
+  .px22-page {
+    gap: 16px 18px;
+  }
+
+  .px22-side {
+    gap: 9px;
+  }
+
+  .px22-side h2 {
+    margin-bottom: 10px;
+  }
+
+  .px22-resumo dl {
+    gap: 4px;
+  }
+
+  .px22-actions button {
+    gap: 6px;
+    padding: 6px 5px;
+  }
+
+  .px22-recentes ul {
+    gap: 5px;
+  }
+
+  .px22-recentes li {
+    padding: 3px 9px;
+  }
+
+  .px22-recentes li > span {
+    gap: 2px;
+  }
+
+  // Conteúdo central: mesmas trilhas, mais respiro entre os blocos.
+  .px22-resultado {
+    padding: 13px 16px 12px;
+  }
+
+  .px22-resultado > h2 {
+    margin-bottom: 10px;
+  }
+
+  .px22-status {
+    padding-bottom: 10px;
+  }
+
+  .px22-summary {
+    padding: 10px 0;
+  }
+
+  .px22-middle {
+    gap: 12px;
+    padding: 7px 0;
+  }
+
+  .px22-middle-direita {
+    gap: 11px;
+  }
+
+  .px22-middle article,
+  .px22-bottom article {
+    padding: 11px 14px;
+  }
+
+  .px22-bottom {
+    gap: 13px;
+  }
+
+  .px22-parcela dl,
+  .px22-bottom dl {
+    gap: 7px;
+  }
+
+  h3 {
+    margin-bottom: 10px;
+  }
+}
+
+// ============ ACESSIBILIDADE ============
+
+:focus-visible {
+  outline: 2px solid rgb(var(--sep-c-blue) / 70%);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+
+  .px22-btn-export:hover,
+  .px22-btn-primary:hover,
+  .px22-btn-sec:hover,
+  .px22-actions button:hover,
+  .px22-recentes li:hover,
+  .px22-timeline li:hover .px22-marco {
+    transform: none;
+  }
+}
+
+// Atalho sem destino: recebimento sem parcela vinculada não navega para lugar nenhum.
+.px22-actions button:disabled {
+  color: var(--sep-text-muted);
+  cursor: not-allowed;
+}
+
+.px22-actions button:disabled lucide-icon {
+  color: var(--sep-text-muted);
+}
+
+// O ID do recebimento leva ao detalhe (Mockup 25). Herda a métrica da linha para não alterar a
+// altura do resumo, que fecha no limite da coluna em 1536x1024.
+.px22-link-detalhe {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 170px;
+  min-width: 0;
+  color: var(--sep-accent);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--sep-c-blue) / 45%);
+  text-underline-offset: 3px;
+  transition:
+    color 0.16s,
+    text-decoration-color 0.16s;
+
+  span {
+    overflow: hidden;
+    min-width: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  lucide-icon {
+    flex-shrink: 0;
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sep-accent);
+    text-decoration: underline;
+    text-decoration-color: var(--sep-accent);
+  }
+}
+
+// ============ JANELA MAXIMIZADA ============
+// Acima de 1440 as medidas homologadas viram piso e o layout acompanha o espaco. Nada aqui vale de
+// 1440 para baixo: a forma original fica intacta.
+@include resp.maximizada {
+  // 216px viram piso: 28.34% da faixa de 762px (1440) dao o mesmo, e a parcela acompanha a
+  // linha do tempo em vez de ficar travada.
+  @container (min-width: 764px) {
+    .px22-middle {
+      grid-template-columns: max(216px, 28.34%) minmax(0, 1fr);
+    }
+  }
 }

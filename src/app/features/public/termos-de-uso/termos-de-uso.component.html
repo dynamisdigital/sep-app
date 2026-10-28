@@ -1,0 +1,182 @@
+<sep-public-shell>
+  <section class="px54-page">
+    <header class="px54-heading">
+      <p class="px54-kicker"><lucide-icon name="file-text" [size]="14" />Documento legal</p>
+      <h1>Termos de <em>uso</em></h1>
+      <p class="px54-lead">
+        Estas condições regem o uso da plataforma SEP. Ao criar uma conta ou operar no ambiente,
+        você declara que leu e concorda com o que está aqui.
+      </p>
+      <p class="px54-vigencia">
+        <lucide-icon name="calendar-days" [size]="15" />
+        Vigente desde {{ vigencia }}
+      </p>
+    </header>
+
+    <div class="px54-corpo">
+      <!-- ============ ÍNDICE ============ -->
+      <nav class="px54-indice" aria-label="Índice do documento">
+        <p>Nesta página</p>
+        <ol>
+          @for (secao of secoes; track secao.id) {
+            <li>
+              <a [href]="'#' + secao.id">{{ secao.titulo }}</a>
+            </li>
+          }
+        </ol>
+      </nav>
+
+      <!-- ============ TEXTO ============ -->
+      <article class="px54-prosa">
+        <h2 id="aceite">1. Aceite dos termos</h2>
+        <p>
+          Ao acessar a plataforma SEP, criar conta ou participar de qualquer operação, você aceita
+          integralmente estes termos e a
+          <a routerLink="/politica-de-privacidade">política de privacidade</a>. Se não concordar com
+          alguma condição, não utilize a plataforma.
+        </p>
+        <p>
+          Quando o acesso é feito em nome de uma empresa, quem aceita declara ter poderes para
+          obrigá-la e responde pela veracidade dessa declaração.
+        </p>
+
+        <h2 id="plataforma">2. O que a plataforma é</h2>
+        <p>
+          A SEP é uma Sociedade de Empréstimo entre Pessoas, na forma da Resolução CMN 4.656/2018.
+          Sua função é aproximar empresas que buscam capital de giro de empresas que desejam aportar
+          recursos, cuidando de cadastro, formalização, liquidação e registro das operações.
+        </p>
+        <p><strong>A plataforma não:</strong></p>
+        <ul>
+          <li>capta depósitos nem mantém conta corrente para os usuários;</li>
+          <li>garante rendimento, retorno ou recuperação de valores aportados;</li>
+          <li>garante aprovação de crédito, nem prazo certo de resposta;</li>
+          <li>assume, como intermediária, o risco de crédito das operações.</li>
+        </ul>
+
+        <h2 id="cadastro">3. Cadastro e verificação</h2>
+        <p>
+          O cadastro exige informações verdadeiras, completas e atualizadas. A empresa passa por
+          verificação cadastral (KYB) e o representante por verificação de identidade (KYC), além de
+          consulta de prevenção à lavagem de dinheiro.
+        </p>
+        <p>
+          A plataforma pode recusar, suspender ou encerrar um cadastro quando houver inconsistência,
+          impossibilidade de verificação ou indício de fraude, sem que isso gere direito a
+          indenização.
+        </p>
+
+        <h2 id="conta">4. Conta e segurança</h2>
+        <p>
+          As credenciais são pessoais e intransferíveis. O titular responde por tudo que for feito
+          com sua conta, inclusive por atos de terceiros a quem tenha dado acesso.
+        </p>
+        <ul>
+          <li>Habilite a segunda etapa de autenticação e mantenha-a ativa.</li>
+          <li>Não compartilhe senha nem códigos do aplicativo autenticador com ninguém.</li>
+          <li>
+            Comunique imediatamente, por {{ contato.email }}, qualquer suspeita de acesso indevido.
+          </li>
+        </ul>
+        <p>
+          Operações sensíveis exigem confirmação adicional de identidade no momento da ação. Esse
+          controle não substitui o cuidado do titular com as próprias credenciais.
+        </p>
+
+        <h2 id="operacoes">5. Operações de crédito</h2>
+        <p>
+          Cada proposta observa os parâmetros operacionais vigentes, entre eles o teto de
+          <strong>{{ teto }}</strong> por proposta, fixado no regimento. A análise considera dados
+          cadastrais, score e, quando autorizado pelo usuário, informações de Open Finance.
+        </p>
+        <p>
+          A pré-aprovação é resultado de avaliação automatizada e <strong>não</strong> constitui
+          crédito concedido: a operação só existe depois de conferência, aceite das condições e
+          assinatura do contrato.
+        </p>
+        <p>
+          As condições financeiras — valor, prazo, encargos e vencimentos — constam do contrato
+          específico de cada operação, que prevalece sobre qualquer material informativo.
+        </p>
+
+        <h2 id="pagamentos">6. Pagamentos e inadimplência</h2>
+        <p>
+          O desembolso ocorre por Pix, na chave indicada e verificada, após a assinatura. A agenda
+          de parcelas é gerada com o contrato e fica disponível na conta do tomador.
+        </p>
+        <p>
+          O atraso sujeita o devedor aos encargos previstos em contrato e às medidas de cobrança
+          cabíveis, incluindo negativação, sempre com registro de cada contato realizado.
+        </p>
+
+        <h2 id="condutas">7. Condutas vedadas</h2>
+        <ul>
+          <li>Prestar informação falsa ou usar documento de terceiro.</li>
+          <li>Usar a plataforma para lavagem de dinheiro ou qualquer finalidade ilícita.</li>
+          <li>Tentar burlar controles de acesso, limites ou mecanismos de verificação.</li>
+          <li>Automatizar acesso, raspar dados ou sobrecarregar a infraestrutura.</li>
+          <li>Reproduzir, revender ou explorar comercialmente conteúdo da plataforma.</li>
+        </ul>
+
+        <h2 id="propriedade">8. Propriedade intelectual</h2>
+        <p>
+          Marca, identidade visual, textos, código e bases de dados da plataforma pertencem à SEP ou
+          a seus licenciantes. O uso da plataforma não transfere nenhum desses direitos. Os
+          documentos das suas operações continuam seus e ficam disponíveis para download.
+        </p>
+
+        <h2 id="responsabilidade">9. Limitação de responsabilidade</h2>
+        <p>
+          A plataforma é fornecida no estado em que se encontra. Empregamos esforços razoáveis para
+          mantê-la disponível e íntegra, mas não respondemos por indisponibilidades decorrentes de
+          caso fortuito, força maior, falha de terceiros ou da conexão do usuário.
+        </p>
+        <p>
+          A SEP não responde pelo inadimplemento de uma parte perante a outra, nem por decisões
+          econômicas tomadas por usuários com base em informações da plataforma.
+        </p>
+
+        <h2 id="encerramento">10. Suspensão e encerramento</h2>
+        <p>
+          A conta pode ser suspensa ou encerrada em caso de descumprimento destes termos,
+          determinação legal ou indício de fraude. O encerramento não extingue obrigações
+          financeiras já assumidas: contratos vigentes continuam válidos até a quitação.
+        </p>
+        <p>
+          Você pode solicitar o encerramento a qualquer tempo, desde que não haja saldo em aberto.
+        </p>
+
+        <h2 id="gerais">11. Disposições gerais</h2>
+        <p>
+          Estes termos podem ser alterados para refletir mudanças regulatórias ou do produto. A
+          versão vigente fica sempre nesta página, com a data de vigência no topo. Alterações
+          relevantes são comunicadas com antecedência razoável.
+        </p>
+        <p>
+          A invalidade de uma cláusula não afeta as demais. Aplica-se a lei brasileira, e fica
+          eleito o foro da comarca de Carpina, Pernambuco, com renúncia a qualquer outro.
+        </p>
+
+        <h2 id="contato">12. Contato</h2>
+        <p>
+          Dúvidas sobre estes termos:
+          <a [href]="'mailto:' + contato.email">{{ contato.email }}</a> ou
+          {{ contato.telefone }}.<br />
+          {{ contato.endereco }} — {{ contato.cep }}.<br />
+          CNPJ {{ contato.cnpj }}.
+        </p>
+      </article>
+    </div>
+
+    <div class="px54-chamada">
+      <h2>Leia também a política de privacidade</h2>
+      <p>Ela detalha quais dados tratamos, com que base legal e por quanto tempo.</p>
+      <div class="px54-chamada-acoes">
+        <a class="px54-btn-primary" routerLink="/politica-de-privacidade">
+          <lucide-icon name="shield" [size]="18" />Política de privacidade
+        </a>
+        <a class="px54-btn-secondary" routerLink="/contato">Falar com a equipe</a>
+      </div>
+    </div>
+  </section>
+</sep-public-shell>

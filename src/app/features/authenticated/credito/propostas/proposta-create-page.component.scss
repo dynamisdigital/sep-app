@@ -1,89 +1,783 @@
-@use "../../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../../styles/sep-ds-components" as sepDs;
+@use "../../../../../styles/sep-responsivo" as resp;
 
-.sep-proposta-create {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-24);
-  max-width: 640px;
+.proposal-create-page {
+  /* Largura preferida, e nao piso — ver `.credit-page`. As duas faixas ganham teto em vez de
+     tamanho travado: com espaco, ficam nos 890 e 325 do mockup; sem espaco, encolhem juntas. */
+
+  /* Sem teto de largura: a tela acompanha a area util, como as demais do sistema. O valor
+     de projeto era 1245px, e num monitor largo isso deixava o resto do espaco vazio. */
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 325px);
+  gap: 30px;
   margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+  padding: 8px 0 12px;
+  color: var(--sep-text);
+  font-family: Inter, "Segoe UI", sans-serif;
+  box-sizing: border-box;
+  zoom: 1.08;
 }
 
-.sep-proposta-create-header {
+/* Largura natural deste layout: 1245px. Abaixo disso o formulario e a coluna de apoio deixam de
+   dividir a linha, e a segunda desce — em vez de o conteudo ser cortado na lateral. */
+@container (max-width: 1000px) {
+  .proposal-create-page {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Largura natural deste layout: 1245px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 1241px) {
+  .proposal-create-page {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.proposal-create-page *,
+.proposal-create-page *::before,
+.proposal-create-page *::after {
+  box-sizing: border-box;
+}
+
+.page-heading {
+  height: 118px;
+  padding: 0 6px;
+}
+
+.page-heading nav {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sep-space-16);
+  gap: 9px;
+  margin-bottom: 15px;
+  color: var(--sep-text-muted);
+  font-size: 12px;
 }
 
-.sep-proposta-create-title {
-  @include sepType.sep-type-page-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
-}
-
-.sep-proposta-create-back {
-  @include sepType.sep-type-body;
-
-  color: hsl(var(--primary));
+.page-heading nav a {
+  color: inherit;
   text-decoration: none;
 }
 
-.sep-proposta-create-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-16);
+.page-heading nav strong {
+  color: var(--sep-text);
+  font-weight: 600;
 }
 
-.sep-proposta-create-field {
+.page-heading h1 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  font-size: 29px;
+  line-height: 34px;
+  letter-spacing: -0.4px;
+}
+
+.page-heading h1 lucide-icon {
+  color: var(--sep-glow);
+  width: 50px;
+  height: 50px;
+}
+
+.page-heading p {
+  margin: 4px 0 0;
+  color: var(--sep-text-secondary);
+  font-size: 15px;
+}
+
+.analysis-alert {
+  height: 54px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 0 14px;
+  border: 1px solid var(--sep-accent);
+  border-radius: 7px;
+  color: var(--sep-text-secondary);
+  background: linear-gradient(90deg, rgb(var(--sep-c-hover) / 88%), rgb(var(--sep-c-surf) / 88%));
+  font-size: 12px;
+}
+
+.analysis-alert lucide-icon {
+  color: var(--sep-glow);
+  width: 44px;
+  height: 44px;
+}
+
+form {
+  margin: 0;
+  border: 1px solid var(--sep-accent);
+  border-radius: 9px;
+  background: linear-gradient(
+    145deg,
+    rgb(var(--sep-c-surf3) / 96%),
+    rgb(var(--sep-c-sunken) / 98%)
+  );
+  box-shadow: inset 0 0 34px rgb(var(--sep-c-blue) / calc(7% * var(--sep-glow-alpha)));
+  overflow: hidden;
+}
+
+.form-section {
+  padding: 14px 18px 0;
+}
+
+.form-section h2,
+.simulation-section h2 {
+  margin: 0 0 17px;
+  color: var(--sep-accent);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.origin-section {
+  min-height: 132px;
+}
+
+.details-section {
+  min-height: 352px;
+  border-top: 1px solid rgb(var(--sep-c-edge) / 13%);
+}
+
+.two-columns {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 26px;
+}
+
+/* Largura natural deste layout: 852px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 848px) {
+  .two-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.operation-row {
+  grid-template-columns: 1fr 1.05fr;
+  margin-bottom: 18px;
+}
+
+.three-columns {
+  display: grid;
+  grid-template-columns: 1.05fr 0.88fr 0.88fr;
+  gap: 22px;
+  margin-bottom: 18px;
+}
+
+/* Largura natural deste layout: 852px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 848px) {
+  .three-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+label {
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-6);
+  gap: 7px;
+  color: var(--sep-text);
+  font-size: 13px;
+}
 
-  label {
-    @include sepType.sep-type-caption;
+label > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
 
-    color: hsl(var(--muted-foreground));
+label i {
+  width: 16px;
+  height: 16px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--sep-accent);
+  border-radius: 50%;
+  color: var(--sep-accent);
+  font-size: 11px;
+  font-style: normal;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 6px;
+  outline: none;
+  color: var(--sep-text);
+  background: var(--sep-surface);
+  font: inherit;
+  color-scheme: inherit;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+input,
+select {
+  height: 45px;
+  padding: 0 13px;
+}
+
+select option {
+  color: var(--sep-text);
+  background: var(--sep-surface);
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: var(--sep-accent);
+  background-color: var(--sep-surface-2);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--sep-accent);
+  box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(16% * var(--sep-glow-alpha)));
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--sep-text-muted);
+}
+
+.control {
+  position: relative;
+  display: block;
+}
+
+.control.with-icon lucide-icon {
+  position: absolute;
+  z-index: 1;
+  top: 5px;
+  left: 7px;
+  width: 42px;
+  height: 42px;
+  pointer-events: none;
+}
+
+.origin-fields label:last-child .control lucide-icon {
+  width: 35px;
+  height: 35px;
+}
+
+.control.with-icon input,
+.control.with-icon select,
+.control.with-icon output {
+  padding-left: 48px;
+}
+
+.control.with-icon output {
+  width: 100%;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 6px;
+  color: var(--sep-text-secondary);
+  background: var(--sep-surface);
+}
+
+.onboarding-control select {
+  padding-right: 112px;
+  appearance: none;
+}
+
+.control b {
+  position: absolute;
+  top: 11px;
+  right: 42px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  color: var(--sep-success);
+  background: rgb(var(--sep-c-active) / 25%);
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid currentcolor;
+}
+
+.select-arrow {
+  position: absolute;
+  top: 17px;
+  right: 14px;
+  width: 9px;
+  height: 9px;
+  border-right: 2.5px solid var(--sep-border-strong);
+  border-bottom: 2.5px solid var(--sep-border-strong);
+  pointer-events: none;
+  transform: rotate(45deg);
+}
+
+.readonly input {
+  color: var(--sep-text-secondary);
+}
+
+.money-control {
+  position: relative;
+  display: block;
+}
+
+.money-control b {
+  position: absolute;
+  top: 13px;
+  left: 14px;
+  font-size: 12px;
+}
+
+.money-control input {
+  padding-left: 44px;
+}
+
+.description-field {
+  position: relative;
+}
+
+.description-field textarea {
+  height: 72px;
+  padding: 12px 14px;
+  resize: none;
+}
+
+.description-field small {
+  position: absolute;
+  right: 3px;
+  bottom: -20px;
+  color: var(--sep-text-secondary);
+}
+
+.field-error {
+  margin-top: -3px;
+  color: var(--sep-warning);
+  font-size: 11px;
+  font-style: normal;
+}
+
+.simulation-section {
+  padding: 15px 16px 0;
+  border-top: 1px solid rgb(var(--sep-c-edge) / 16%);
+}
+
+.simulation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 202px), 1fr));
+  gap: 14px;
+}
+
+.simulation-grid article {
+  height: 84px;
+  display: grid;
+  grid-template-columns: 68px 1fr;
+  align-items: center;
+  padding: 4px 8px;
+  border: 1px solid var(--sep-accent);
+  border-radius: 7px;
+  background: linear-gradient(135deg, rgb(var(--sep-c-hover) / 86%), rgb(var(--sep-c-surf2) / 95%));
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.simulation-grid article:hover {
+  border-color: var(--sep-accent);
+  box-shadow: 0 0 13px rgb(var(--sep-c-blue) / calc(14% * var(--sep-glow-alpha)));
+  transform: translateY(-1px);
+}
+
+.simulation-grid lucide-icon {
+  width: 66px;
+  height: 66px;
+}
+
+.simulation-grid span {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  transform: translateX(-20px);
+}
+
+.simulation-grid small {
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.simulation-grid strong {
+  color: var(--sep-text-strong);
+  font-size: 20px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.conditions-note {
+  height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-top: 16px;
+  padding: 0 12px;
+  border-radius: 7px;
+  color: var(--sep-text-secondary);
+  background: linear-gradient(90deg, var(--sep-surface-hover), var(--sep-surface-2));
+  font-size: 11px;
+}
+
+.conditions-note lucide-icon {
+  color: var(--sep-text-secondary);
+  width: 58px;
+  height: 58px;
+}
+
+.conditions-note span {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.conditions-note strong {
+  color: var(--sep-text);
+}
+
+.form-feedback {
+  display: flex;
+  gap: 12px;
+  margin: 10px 16px 0;
+  padding: 9px 12px;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 6px;
+  color: var(--sep-warning);
+  background: rgb(var(--sep-c-active) / 22%);
+  font-size: 11px;
+}
+
+.form-feedback a {
+  color: var(--sep-accent);
+}
+
+.form-actions {
+  height: 74px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+
+.form-actions button {
+  height: 40px;
+  border-radius: 6px;
+  color: var(--sep-text-strong);
+  cursor: pointer;
+  font: inherit;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.clear-button {
+  width: 128px;
+  height: 35px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--sep-border-strong);
+  background: var(--sep-surface);
+  font-size: 11px !important;
+  line-height: 1;
+}
+
+.clear-button span {
+  margin-right: 0;
+  font-size: 16px;
+}
+
+.submit-button {
+  width: 350px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--sep-accent);
+  color: var(--sep-on-solid) !important;
+  font-weight: 700 !important;
+  background:
+    radial-gradient(circle at 20% 12%, rgb(var(--sep-c-blue) / 50%), transparent 34%),
+    radial-gradient(circle at 86% 20%, rgb(var(--sep-c-green) / 34%), transparent 32%),
+    linear-gradient(
+      100deg,
+      var(--sep-accent) 0%,
+      var(--sep-accent) 46%,
+      var(--sep-accent) 68%,
+      var(--sep-success) 100%
+    );
+  box-shadow:
+    inset 0 1px rgb(var(--sep-c-fg) / 42%),
+    inset 0 -8px 17px rgb(var(--sep-c-surf3) / 27%),
+    0 0 20px rgb(var(--sep-c-blue) / calc(34% * var(--sep-glow-alpha)));
+  text-shadow: 0 0 7px rgb(var(--sep-c-shadow) / 70%);
+}
+
+.submit-button svg {
+  width: 20px;
+  height: 20px;
+  margin-left: 15px;
+  fill: none;
+  stroke: var(--sep-text-strong);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+  filter: drop-shadow(0 0 4px rgb(var(--sep-c-fg) / 65%));
+}
+
+.form-actions button:hover:not(:disabled),
+.form-actions button:focus-visible {
+  border-color: var(--sep-accent);
+  box-shadow: 0 0 16px rgb(var(--sep-c-blue) / calc(25% * var(--sep-glow-alpha)));
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.form-actions button:disabled {
+  opacity: 0.82;
+  cursor: not-allowed;
+}
+
+.proposal-sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-self: stretch;
+  padding-top: 8px;
+}
+
+.side-card {
+  margin-bottom: 0;
+  padding: 15px 18px;
+  border: 1px solid var(--sep-accent);
+  border-radius: 9px;
+  background: linear-gradient(
+    145deg,
+    rgb(var(--sep-c-surf3) / 94%),
+    rgb(var(--sep-c-sunken) / 97%)
+  );
+  box-shadow: inset 0 0 26px rgb(var(--sep-c-blue) / calc(7% * var(--sep-glow-alpha)));
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.side-card:hover {
+  border-color: var(--sep-accent);
+  box-shadow:
+    inset 0 0 28px rgb(var(--sep-c-blue) / calc(10% * var(--sep-glow-alpha))),
+    0 0 14px rgb(var(--sep-c-blue) / calc(10% * var(--sep-glow-alpha)));
+  transform: translateY(-1px);
+}
+
+.side-card h2 {
+  position: relative;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  padding-left: 65px;
+  margin: 0 0 2px;
+  font-size: 15px;
+}
+
+.side-card h2 lucide-icon {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 44px;
+  height: 44px;
+  transform: translateY(-50%);
+}
+
+.summary-card {
+  min-height: 380px;
+}
+
+.summary-card dl {
+  margin: 0;
+}
+
+.summary-card dl div {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.summary-card dt {
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+}
+
+.summary-card dd {
+  max-width: 145px;
+  margin: 0;
+  color: var(--sep-text);
+  font-size: 13px;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.summary-card hr {
+  border: 0;
+  border-top: 1px solid rgb(var(--sep-c-edge) / 22%);
+}
+
+.rules-card {
+  min-height: 185px;
+}
+
+.rules-card ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rules-card li {
+  position: relative;
+  padding-left: 22px;
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+}
+
+.rules-card li::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 15px;
+  height: 15px;
+  display: grid;
+  place-items: center;
+  content: "✓";
+  border-radius: 50%;
+  border: 1px solid currentcolor;
+  color: var(--sep-success);
+  background: rgb(var(--sep-c-active) / 22%);
+  font-family: Arial, sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+}
+
+.security-card {
+  min-height: 155px;
+}
+
+.security-card p,
+.help-card p {
+  margin: -2px 0 12px 49px;
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.security-card > strong {
+  display: block;
+  width: max-content;
+  margin-left: 49px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  color: var(--sep-success);
+  background: rgb(var(--sep-c-active) / 19%);
+  border: 1px solid currentcolor;
+  font-size: 11px;
+}
+
+.help-card {
+  min-height: 155px;
+}
+
+.help-card .help-link {
+  text-decoration: none;
+  width: calc(100% - 49px);
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 19px;
+  margin-left: 49px;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 6px;
+  color: var(--sep-success);
+  background: rgb(var(--sep-c-hover) / 28%);
+  cursor: pointer;
+}
+
+.help-card .help-link:hover,
+.help-card .help-link:focus-visible {
+  border-color: var(--sep-success);
+  box-shadow: 0 0 12px rgb(var(--sep-c-green) / calc(13% * var(--sep-glow-alpha)));
+}
+
+@include resp.ate-media {
+  .proposal-create-page {
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: 1fr;
+    padding: 16px;
+    zoom: 1;
   }
 
-  input,
-  select {
-    @include sepDs.sep-input;
+  .proposal-sidebar {
+    padding-top: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .side-card {
+    margin: 0;
   }
 }
 
-.sep-proposta-create-error {
-  @include sepType.sep-type-caption;
+@include resp.ate-compacta {
+  .two-columns,
+  .three-columns,
+  .simulation-grid,
+  .proposal-sidebar {
+    grid-template-columns: 1fr;
+  }
 
-  margin: 0;
-  color: hsl(var(--warning));
+  .origin-section,
+  .details-section {
+    min-height: 0;
+    padding-bottom: 20px;
+  }
+
+  .form-actions {
+    gap: 10px;
+  }
+
+  .form-actions button {
+    width: 50%;
+  }
 }
 
-.sep-proposta-create-feedback {
-  @include sepType.sep-type-body;
-
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-  align-items: flex-start;
-  margin: 0;
-}
-
-.sep-proposta-create-feedback-error {
-  color: hsl(var(--warning));
-}
-
-.sep-proposta-create-actions {
-  display: flex;
-}
-
-.sep-proposta-create-submit {
-  @include sepDs.sep-button-primary;
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+@media (prefers-reduced-motion: reduce) {
+  .proposal-create-page * {
+    transition: none !important;
   }
 }

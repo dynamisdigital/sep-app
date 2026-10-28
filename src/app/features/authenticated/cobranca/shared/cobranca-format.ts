@@ -19,6 +19,11 @@ export function formatarData(iso: string): string {
   return formatarDataIso(iso, { dateStyle: 'short' });
 }
 
+// Data com hora e minuto, como a trilha e o "ultima atualizacao" do Mockup 31 exibem.
+export function formatarDataHora(iso: string): string {
+  return formatarDataIso(iso, { dateStyle: 'short', timeStyle: 'short' });
+}
+
 // Datas sem horario (LocalDate 'yyyy-MM-dd', ex.: vencimento). Nao usa `Date` — e portanto
 // nao usa o `formatarDataIso` — porque `new Date('2026-09-14')` e lido como UTC e volta um
 // dia num fuso a oeste. Mesmo contrato da FMF-4.1 com outra tecnica: so o formato exato

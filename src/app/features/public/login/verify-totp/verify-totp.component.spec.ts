@@ -1,12 +1,15 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { importProvidersFrom } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { http, HttpResponse } from 'msw';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { VerifyTotpComponent } from './verify-totp.component';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { authInterceptor } from '../../../../core/interceptors/auth.interceptor';
 import { errorInterceptor } from '../../../../core/interceptors/error.interceptor';
 import { server } from '../../../../../mocks/server';
@@ -75,6 +78,7 @@ async function setup(opts: { comInterceptors?: boolean; comAuth?: boolean } = {}
       // navegacao de verdade acontecer e mascararia um stub de navigateByUrl faltando.
       provideRouter([]),
       interceptors.length ? provideHttpClient(withInterceptors(interceptors)) : provideHttpClient(),
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
     ],
   });
 }

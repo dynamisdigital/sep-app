@@ -1,0 +1,564 @@
+{
+  "source": "/mnt/data/Mockup_06.png",
+  "source_size_px": [1436, 1095],
+  "assets": [
+    {
+      "category": "logos",
+      "filename": "logo_sep_header_completo.png",
+      "source_box_xyxy": [24, 18, 294, 58],
+      "output_size_px": [290, 60],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/logos/logo_sep_header_completo.png",
+      "notes": "Logo completo do topo com símbolo, SEP e texto institucional."
+    },
+    {
+      "category": "logos",
+      "filename": "logo_sep_simbolo_header.png",
+      "source_box_xyxy": [24, 18, 64, 58],
+      "output_size_px": [60, 60],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/logos/logo_sep_simbolo_header.png",
+      "notes": ""
+    },
+    {
+      "category": "logos",
+      "filename": "logo_sep_wordmark_header.png",
+      "source_box_xyxy": [74, 22, 143, 52],
+      "output_size_px": [85, 85],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/logos/logo_sep_wordmark_header.png",
+      "notes": ""
+    },
+    {
+      "category": "logos",
+      "filename": "logo_sep_texto_extenso_header.png",
+      "source_box_xyxy": [160, 24, 294, 55],
+      "output_size_px": [146, 146],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/logos/logo_sep_texto_extenso_header.png",
+      "notes": ""
+    },
+    {
+      "category": "logos",
+      "filename": "logo_sep_footer_completo.png",
+      "source_box_xyxy": [24, 1040, 134, 1074],
+      "output_size_px": [130, 130],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/logos/logo_sep_footer_completo.png",
+      "notes": ""
+    },
+    {
+      "category": "logos",
+      "filename": "logo_sep_simbolo_footer.png",
+      "source_box_xyxy": [24, 1040, 55, 1072],
+      "output_size_px": [52, 52],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/logos/logo_sep_simbolo_footer.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_topbar_ambiente_regulado.png",
+      "source_box_xyxy": [321, 24, 358, 59],
+      "output_size_px": [57, 57],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_topbar_ambiente_regulado.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_topbar_horario_sistema.png",
+      "source_box_xyxy": [477, 22, 515, 61],
+      "output_size_px": [59, 59],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_topbar_horario_sistema.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_topbar_search.png",
+      "source_box_xyxy": [978, 22, 1020, 60],
+      "output_size_px": [60, 60],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_topbar_search.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_topbar_bell_notification.png",
+      "source_box_xyxy": [1030, 10, 1080, 64],
+      "output_size_px": [78, 78],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_topbar_bell_notification.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_topbar_help.png",
+      "source_box_xyxy": [1088, 22, 1130, 61],
+      "output_size_px": [61, 61],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_topbar_help.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_topbar_user_avatar.png",
+      "source_box_xyxy": [1158, 16, 1210, 66],
+      "output_size_px": [72, 72],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_topbar_user_avatar.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_topbar_theme_sun.png",
+      "source_box_xyxy": [1367, 20, 1416, 65],
+      "output_size_px": [63, 63],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_topbar_theme_sun.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_sidebar_dashboard.png",
+      "source_box_xyxy": [25, 104, 56, 136],
+      "output_size_px": [50, 50],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_sidebar_dashboard.png",
+      "notes": " Ajustado V2 com crop mais limpo e margem segura."
+    },
+    {
+      "category": "icons",
+      "filename": "icon_sidebar_onboarding.png",
+      "source_box_xyxy": [25, 190, 56, 222],
+      "output_size_px": [52, 52],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_sidebar_onboarding.png",
+      "notes": " Ajustado V2 com crop mais limpo e margem segura."
+    },
+    {
+      "category": "icons",
+      "filename": "icon_sidebar_credito.png",
+      "source_box_xyxy": [25, 238, 56, 270],
+      "output_size_px": [51, 51],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_sidebar_credito.png",
+      "notes": " Ajustado V2 com crop mais limpo e margem segura."
+    },
+    {
+      "category": "icons",
+      "filename": "icon_sidebar_formalizacao.png",
+      "source_box_xyxy": [25, 286, 56, 318],
+      "output_size_px": [50, 50],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_sidebar_formalizacao.png",
+      "notes": " Ajustado V2 com crop mais limpo e margem segura."
+    },
+    {
+      "category": "icons",
+      "filename": "icon_sidebar_cobranca.png",
+      "source_box_xyxy": [25, 334, 56, 366],
+      "output_size_px": [47, 47],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_sidebar_cobranca.png",
+      "notes": " Ajustado V2 com crop mais limpo e margem segura."
+    },
+    {
+      "category": "icons",
+      "filename": "icon_sidebar_backoffice.png",
+      "source_box_xyxy": [25, 410, 56, 444],
+      "output_size_px": [53, 53],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_sidebar_backoffice.png",
+      "notes": " Ajustado V2 com crop mais limpo e margem segura."
+    },
+    {
+      "category": "icons",
+      "filename": "icon_sidebar_pix.png",
+      "source_box_xyxy": [25, 460, 56, 492],
+      "output_size_px": [50, 50],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_sidebar_pix.png",
+      "notes": " Ajustado V2 com crop mais limpo e margem segura."
+    },
+    {
+      "category": "icons",
+      "filename": "icon_sidebar_perfil.png",
+      "source_box_xyxy": [24, 538, 56, 570],
+      "output_size_px": [52, 52],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_sidebar_perfil.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_sidebar_help.png",
+      "source_box_xyxy": [35, 928, 66, 960],
+      "output_size_px": [52, 52],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_sidebar_help.png",
+      "notes": ""
+    },
+    {
+      "category": "visuals",
+      "filename": "visual_kyc_pessoa_fisica_hud.png",
+      "source_box_xyxy": [318, 235, 508, 424],
+      "output_size_px": [218, 217],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/visuals/visual_kyc_pessoa_fisica_hud.png",
+      "notes": "HUD grande do card Pessoa Física/KYC com usuário e check."
+    },
+    {
+      "category": "visuals",
+      "filename": "visual_kyb_empresa_hud.png",
+      "source_box_xyxy": [858, 236, 1030, 424],
+      "output_size_px": [200, 216],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/visuals/visual_kyb_empresa_hud.png",
+      "notes": "HUD grande do card Empresa/KYB com prédio e check."
+    },
+    {
+      "category": "icons",
+      "filename": "icon_kyc_user_check.png",
+      "source_box_xyxy": [382, 288, 472, 384],
+      "output_size_px": [124, 124],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_kyc_user_check.png",
+      "notes": " Ajustado V2 com crop mais limpo e margem segura."
+    },
+    {
+      "category": "icons",
+      "filename": "icon_kyb_company_check.png",
+      "source_box_xyxy": [914, 288, 1008, 384],
+      "output_size_px": [124, 124],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_kyb_company_check.png",
+      "notes": " Ajustado V2 com crop mais limpo e margem segura."
+    },
+    {
+      "category": "icons",
+      "filename": "icon_pf_dados_pessoais.png",
+      "source_box_xyxy": [535, 372, 553, 392],
+      "output_size_px": [36, 36],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_pf_dados_pessoais.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_pf_validacao_documentos.png",
+      "source_box_xyxy": [535, 398, 553, 418],
+      "output_size_px": [36, 36],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_pf_validacao_documentos.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_pf_verificacao_identidade.png",
+      "source_box_xyxy": [535, 424, 553, 444],
+      "output_size_px": [36, 36],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_pf_verificacao_identidade.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_pf_auditoria_rastreabilidade.png",
+      "source_box_xyxy": [535, 450, 553, 470],
+      "output_size_px": [36, 36],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_pf_auditoria_rastreabilidade.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_empresa_dados_empresa.png",
+      "source_box_xyxy": [1088, 372, 1108, 392],
+      "output_size_px": [36, 36],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_empresa_dados_empresa.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_empresa_representantes_socios.png",
+      "source_box_xyxy": [1088, 398, 1108, 418],
+      "output_size_px": [36, 36],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_empresa_representantes_socios.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_empresa_documentos_societarios.png",
+      "source_box_xyxy": [1088, 424, 1108, 444],
+      "output_size_px": [36, 36],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_empresa_documentos_societarios.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_empresa_verificacao_compliance.png",
+      "source_box_xyxy": [1088, 450, 1108, 470],
+      "output_size_px": [36, 36],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_empresa_verificacao_compliance.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_card_pf_rapido_seguro.png",
+      "source_box_xyxy": [315, 500, 374, 559],
+      "output_size_px": [83, 83],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_card_pf_rapido_seguro.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_card_pf_privacidade.png",
+      "source_box_xyxy": [555, 500, 615, 559],
+      "output_size_px": [84, 84],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_card_pf_privacidade.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_card_empresa_compliance_total.png",
+      "source_box_xyxy": [860, 500, 920, 559],
+      "output_size_px": [84, 84],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_card_empresa_compliance_total.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_card_empresa_seguranca_juridica.png",
+      "source_box_xyxy": [1130, 500, 1190, 559],
+      "output_size_px": [84, 84],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_card_empresa_seguranca_juridica.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_arrow_cta_pf.png",
+      "source_box_xyxy": [640, 610, 665, 638],
+      "output_size_px": [44, 44],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_arrow_cta_pf.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_arrow_cta_empresa.png",
+      "source_box_xyxy": [1182, 610, 1208, 638],
+      "output_size_px": [44, 44],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_arrow_cta_empresa.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_motivo_plataforma_regulada.png",
+      "source_box_xyxy": [322, 748, 374, 800],
+      "output_size_px": [76, 76],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_motivo_plataforma_regulada.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_motivo_segregacao_patrimonial.png",
+      "source_box_xyxy": [525, 748, 578, 800],
+      "output_size_px": [77, 77],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_motivo_segregacao_patrimonial.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_motivo_rastreabilidade_total.png",
+      "source_box_xyxy": [750, 742, 810, 804],
+      "output_size_px": [86, 86],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_motivo_rastreabilidade_total.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_motivo_seguranca_ponta.png",
+      "source_box_xyxy": [975, 742, 1035, 804],
+      "output_size_px": [86, 86],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_motivo_seguranca_ponta.png",
+      "notes": ""
+    },
+    {
+      "category": "icons",
+      "filename": "icon_motivo_processo_digital.png",
+      "source_box_xyxy": [1208, 744, 1262, 800],
+      "output_size_px": [80, 80],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_motivo_processo_digital.png",
+      "notes": " Ajustado V2 com crop mais limpo e margem segura."
+    },
+    {
+      "category": "visuals",
+      "filename": "visual_escudo_regulado_auditavel_hud.png",
+      "source_box_xyxy": [315, 875, 470, 1000],
+      "output_size_px": [187, 187],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/visuals/visual_escudo_regulado_auditavel_hud.png",
+      "notes": "Escudo grande do painel Ambiente seguro, regulado e auditável."
+    },
+    {
+      "category": "icons",
+      "filename": "icon_badge_cmn.png",
+      "source_box_xyxy": [875, 918, 918, 960],
+      "output_size_px": [63, 63],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_badge_cmn.png",
+      "notes": " Ajustado V2 com crop mais limpo e margem segura."
+    },
+    {
+      "category": "icons",
+      "filename": "icon_badge_pld_ft.png",
+      "source_box_xyxy": [1008, 918, 1052, 960],
+      "output_size_px": [64, 64],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_badge_pld_ft.png",
+      "notes": " Ajustado V2 com crop mais limpo e margem segura."
+    },
+    {
+      "category": "icons",
+      "filename": "icon_badge_kyc_kyb.png",
+      "source_box_xyxy": [1142, 918, 1185, 960],
+      "output_size_px": [63, 63],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_badge_kyc_kyb.png",
+      "notes": " Ajustado V2 com crop mais limpo e margem segura."
+    },
+    {
+      "category": "icons",
+      "filename": "icon_badge_auditoria.png",
+      "source_box_xyxy": [1276, 918, 1322, 960],
+      "output_size_px": [66, 66],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_badge_auditoria.png",
+      "notes": " Ajustado V2 com crop mais limpo e margem segura."
+    },
+    {
+      "category": "icons",
+      "filename": "icon_toast_jornada_digital.png",
+      "source_box_xyxy": [1165, 120, 1210, 165],
+      "output_size_px": [65, 65],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/icons/icon_toast_jornada_digital.png",
+      "notes": ""
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_topbar_shell.png",
+      "source_box_xyxy": [0, 0, 1436, 76],
+      "output_size_px": [1436, 76],
+      "kind": "raw",
+      "public_path": "/image/sep_mockup_06_assets/ui-groups/ui_topbar_shell.png",
+      "notes": ""
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_sidebar_shell.png",
+      "source_box_xyxy": [0, 76, 254, 1028],
+      "output_size_px": [254, 952],
+      "kind": "raw",
+      "public_path": "/image/sep_mockup_06_assets/ui-groups/ui_sidebar_shell.png",
+      "notes": ""
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_card_pessoa_fisica.png",
+      "source_box_xyxy": [285, 210, 810, 667],
+      "output_size_px": [525, 457],
+      "kind": "raw",
+      "public_path": "/image/sep_mockup_06_assets/ui-groups/ui_card_pessoa_fisica.png",
+      "notes": ""
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_card_empresa.png",
+      "source_box_xyxy": [830, 210, 1395, 667],
+      "output_size_px": [565, 457],
+      "kind": "raw",
+      "public_path": "/image/sep_mockup_06_assets/ui-groups/ui_card_empresa.png",
+      "notes": ""
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_section_motivos_cadastro.png",
+      "source_box_xyxy": [285, 700, 1395, 850],
+      "output_size_px": [1110, 150],
+      "kind": "raw",
+      "public_path": "/image/sep_mockup_06_assets/ui-groups/ui_section_motivos_cadastro.png",
+      "notes": ""
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_panel_ambiente_seguro_auditavel.png",
+      "source_box_xyxy": [285, 874, 1395, 1002],
+      "output_size_px": [1110, 128],
+      "kind": "raw",
+      "public_path": "/image/sep_mockup_06_assets/ui-groups/ui_panel_ambiente_seguro_auditavel.png",
+      "notes": ""
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_toast_jornada_digital.png",
+      "source_box_xyxy": [1148, 108, 1397, 174],
+      "output_size_px": [249, 66],
+      "kind": "raw",
+      "public_path": "/image/sep_mockup_06_assets/ui-groups/ui_toast_jornada_digital.png",
+      "notes": ""
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_footer_publico.png",
+      "source_box_xyxy": [0, 1025, 1436, 1095],
+      "output_size_px": [1436, 70],
+      "kind": "raw",
+      "public_path": "/image/sep_mockup_06_assets/ui-groups/ui_footer_publico.png",
+      "notes": ""
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_page_main_content.png",
+      "source_box_xyxy": [254, 76, 1436, 1025],
+      "output_size_px": [1182, 949],
+      "kind": "raw",
+      "public_path": "/image/sep_mockup_06_assets/ui-groups/ui_page_main_content.png",
+      "notes": ""
+    },
+    {
+      "category": "visuals",
+      "filename": "visual_fundo_grid_circuitos_direita.png",
+      "source_box_xyxy": [1070, 145, 1430, 760],
+      "output_size_px": [376, 631],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/visuals/visual_fundo_grid_circuitos_direita.png",
+      "notes": "Partículas/circuitos do fundo direito para composição visual."
+    },
+    {
+      "category": "visuals",
+      "filename": "visual_fundo_grid_central.png",
+      "source_box_xyxy": [255, 76, 1436, 1025],
+      "output_size_px": [1178, 949],
+      "kind": "icon",
+      "public_path": "/image/sep_mockup_06_assets/visuals/visual_fundo_grid_central.png",
+      "notes": "Recorte amplo do fundo tecnológico da área principal."
+    }
+  ]
+}

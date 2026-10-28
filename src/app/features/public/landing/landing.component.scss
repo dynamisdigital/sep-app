@@ -1,335 +1,1722 @@
-@use "../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../styles/sep-ds-components" as sepDs;
+@use "../../../../styles/sep-responsivo" as resp;
 
 :host {
   display: block;
-  color: hsl(var(--foreground));
-  background: hsl(var(--background));
+
+  --sep-enter-left: -30px;
+  --sep-enter-right: 34px;
+  --sep-enter-top: -20px;
+  --sep-enter-bottom: 24px;
+
+  color: rgb(var(--lp-c-suave));
+  background: rgb(var(--lp-c-fundo));
 }
 
-// ===== Nav (sticky translucido) =====
+// O globo e a atmosfera do tema escuro: e um bitmap desenhado sobre fundo escuro e, no claro,
+// aparece como um retangulo acinzentado sobre o branco.
+:host-context(html:not(.dark)) .hero-globe {
+  display: none;
+}
+
+@keyframes sep-shell-boot {
+  from {
+    opacity: 0.78;
+    transform: scale(0.997);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes sep-enter-left {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--sep-enter-left), 0, 0) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes sep-enter-right {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--sep-enter-right), 0, 0) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes sep-enter-top {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--sep-enter-top), 0) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes sep-enter-bottom {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--sep-enter-bottom), 0) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes sep-enter-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes sep-edge-breathe {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 rgb(var(--lp-c-ciano) / 0%));
+  }
+
+  50% {
+    filter: drop-shadow(0 0 10px rgb(var(--lp-c-ciano) / 20%));
+  }
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:where(.landing-shell),
+:where(.landing-header),
+:where(.hero-globe),
+:where(.hero-kicker),
+:where(.hero-copy h1),
+:where(.hero-copy .hero-titulo),
+:where(.hero-lead),
+:where(.hero-actions),
+:where(.trust-badges),
+:where(.trust-badges li),
+:where(.workflow-section h2),
+:where(.workflow-card),
+:where(.indicators-section),
+:where(.indicator-item),
+:where(.landing-footer) {
+  animation-duration: 720ms;
+  animation-fill-mode: backwards;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+:where(.landing-shell) {
+  animation-name: sep-shell-boot;
+  animation-duration: 620ms;
+}
+
+:where(.landing-header) {
+  animation-name: sep-enter-top;
+  animation-delay: 130ms;
+}
+
+:where(.hero-globe) {
+  animation-name: sep-enter-left;
+  animation-delay: 280ms;
+  animation-duration: 860ms;
+}
+
+:where(.hero-kicker),
+:where(.hero-copy h1),
+:where(.hero-copy .hero-titulo) {
+  animation-name: sep-enter-left;
+}
+
+:where(.hero-kicker) {
+  animation-delay: 390ms;
+  animation-duration: 580ms;
+}
+
+:where(.hero-copy h1),
+:where(.hero-copy .hero-titulo) {
+  animation-delay: 470ms;
+  animation-duration: 780ms;
+}
+
+:where(.hero-lead) {
+  animation-name: sep-enter-left;
+  animation-delay: 610ms;
+  animation-duration: 680ms;
+}
+
+:where(.hero-actions) {
+  animation-name: sep-enter-bottom;
+  animation-delay: 720ms;
+  animation-duration: 620ms;
+}
+
+:where(.trust-badges) {
+  animation-name: sep-enter-bottom;
+  animation-delay: 840ms;
+  animation-duration: 620ms;
+}
+
+:where(.trust-badges li) {
+  animation-name: sep-enter-scale;
+  animation-duration: 520ms;
+}
+
+:where(.trust-badges li):nth-child(1) {
+  animation-delay: 940ms;
+}
+
+:where(.trust-badges li):nth-child(2) {
+  animation-delay: 1030ms;
+}
+
+:where(.trust-badges li):nth-child(3) {
+  animation-delay: 1120ms;
+}
+
+:where(.workflow-section h2) {
+  animation-name: sep-enter-bottom;
+  animation-delay: 1120ms;
+  animation-duration: 600ms;
+}
+
+:where(.workflow-card) {
+  animation-name: sep-enter-bottom;
+  animation-duration: 620ms;
+}
+
+:where(.workflow-card):nth-child(1) {
+  animation-delay: 1220ms;
+}
+
+:where(.workflow-card):nth-child(2) {
+  animation-delay: 1320ms;
+}
+
+:where(.workflow-card):nth-child(3) {
+  animation-delay: 1420ms;
+}
+
+:where(.workflow-card):nth-child(4) {
+  animation-delay: 1520ms;
+}
+
+:where(.indicators-section) {
+  animation-name: sep-enter-bottom;
+  animation-delay: 1480ms;
+  animation-duration: 700ms;
+}
+
+:where(.indicator-item) {
+  animation-name: sep-enter-scale;
+  animation-duration: 520ms;
+}
+
+:where(.indicator-item):nth-child(1) {
+  animation-delay: 1540ms;
+}
+
+:where(.indicator-item):nth-child(2) {
+  animation-delay: 1620ms;
+}
+
+:where(.indicator-item):nth-child(3) {
+  animation-delay: 1700ms;
+}
+
+:where(.indicator-item):nth-child(4) {
+  animation-delay: 1780ms;
+}
+
+:where(.indicator-item):nth-child(5) {
+  animation-delay: 1860ms;
+}
+
+:where(.landing-footer) {
+  animation-name: sep-enter-bottom;
+  animation-delay: 1620ms;
+  animation-duration: 620ms;
+}
+
+.landing-page {
+  min-height: var(--sep-altura-janela, 100vh);
+  padding: clamp(10px, 1vw, 18px);
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 17% 25%, rgb(var(--lp-c-azul) / 18%), transparent 22rem),
+    radial-gradient(circle at 88% 82%, rgb(var(--lp-c-verde) / 12%), transparent 24rem),
+    linear-gradient(
+      135deg,
+      rgb(var(--lp-c-surf)) 0%,
+      rgb(var(--lp-c-fundo)) 52%,
+      rgb(var(--lp-c-surf)) 100%
+    );
+}
+
+.landing-shell {
+  position: relative;
+  width: min(100%, 1510px);
+  min-height: calc(var(--sep-altura-janela, 100vh) - clamp(20px, 2vw, 36px));
+  margin: 0 auto;
+  overflow: hidden;
+  background:
+    linear-gradient(rgb(var(--lp-c-azul) / 5%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--lp-c-azul) / 5%) 1px, transparent 1px),
+    radial-gradient(circle at 52% 4%, rgb(var(--lp-c-ciano) / 10%), transparent 13rem),
+    linear-gradient(180deg, rgb(var(--lp-c-surf) / 96%), rgb(var(--lp-c-fundo) / 98%));
+  background-size:
+    40px 40px,
+    40px 40px,
+    auto,
+    auto;
+  border: 1px solid rgb(var(--lp-c-azul) / 55%);
+  border-radius: 18px;
+  box-shadow:
+    0 0 0 1px rgb(var(--lp-c-fundo) / 80%),
+    0 28px 80px rgb(var(--lp-c-fundo) / 75%);
+}
+
+.landing-shell::before,
+.landing-shell::after {
+  position: absolute;
+  inset: 70px 0 auto;
+  height: 1px;
+  pointer-events: none;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgb(var(--lp-c-azul) / 45%), transparent);
+}
+
+.landing-shell::after {
+  inset: auto 0 86px;
+  background: linear-gradient(90deg, transparent, rgb(var(--lp-c-verde) / 45%), transparent);
+}
+
+.landing-header {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "marca acoes"
+    "menu menu";
+  gap: clamp(16px, 2vw, 32px);
+  row-gap: 14px;
+  align-items: center;
+  min-height: 72px;
+  padding: 18px clamp(24px, 3vw, 42px);
+  border-bottom: 1px solid rgb(var(--lp-c-azul) / 35%);
+}
+
+.landing-brand {
+  display: inline-flex;
+  gap: 14px;
+  align-items: center;
+  min-width: 280px;
+}
+
+.landing-brand-symbol {
+  display: block;
+  width: 46px;
+  min-width: 46px;
+  height: auto;
+}
+
+.landing-brand-text {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0 14px;
+  align-items: center;
+}
+
+.landing-brand-text strong {
+  font-size: clamp(1.85rem, 2.4vw, 2.3rem);
+  font-weight: 800;
+  line-height: 1;
+  color: rgb(var(--lp-c-texto));
+}
+
+.landing-brand-text span {
+  max-width: 230px;
+  padding-left: 14px;
+  font-size: 0.98rem;
+  line-height: 1.2;
+  color: rgb(var(--lp-c-suave) / 92%);
+  border-left: 1px solid rgb(var(--lp-c-azul) / 55%);
+}
 
 .landing-nav {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  display: flex;
-  gap: var(--sep-space-24);
-  align-items: center;
-  width: 100%;
-  min-height: var(--header-height);
-  padding: 0 var(--sep-space-24);
-  background: color-mix(in srgb, hsl(var(--card)) 92%, transparent);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid hsl(var(--border));
-}
-
-.landing-nav-brand {
-  @include sepType.sep-type-section-title;
-
-  color: hsl(var(--primary));
-  text-decoration: none;
-}
-
-.landing-nav-list {
-  display: flex;
-  flex: 1;
-  gap: var(--sep-space-24);
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-
-.landing-nav-link {
-  @include sepType.sep-type-button;
-
-  color: hsl(var(--muted-foreground));
-  text-decoration: none;
-
-  &:hover {
-    color: hsl(var(--foreground));
-  }
-}
-
-.landing-nav-cta {
-  @include sepDs.sep-button-gradient;
-  @include sepDs.sep-button-size-sm;
-
-  text-decoration: none;
-}
-
-// ===== Hero (band com wash + 2 colunas) =====
-
-.landing-hero-band {
-  background: var(--gradient-hero);
-}
-
-.landing-hero {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: var(--sep-space-48);
-  align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--sep-space-80) var(--sep-space-32);
-}
-
-.landing-hero-text {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-17);
-}
-
-.landing-hero-headline {
-  @include sepType.sep-type-page-title;
-
-  max-width: 540px;
-  margin: 0;
-  font-size: 48px;
-  line-height: 1.1;
-  color: hsl(var(--foreground));
-}
-
-.landing-hero-lead {
-  @include sepType.sep-type-body;
-
-  max-width: 540px;
-  margin: 0;
-  font-size: 20px;
-  line-height: 1.5;
-  color: hsl(var(--muted-foreground));
-}
-
-.landing-hero-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--sep-space-12);
-  margin-top: var(--sep-space-8);
+  gap: 8px clamp(14px, 1.5vw, 26px);
+  align-items: center;
+  justify-content: center;
+  font-size: 1.02rem;
+  color: rgb(var(--lp-c-suave) / 88%);
 }
 
-.landing-cta-primary {
-  @include sepDs.sep-button-gradient;
-  @include sepDs.sep-button-size-lg;
-
-  text-decoration: none;
+.landing-nav a,
+.footer-links a {
+  transition:
+    color 0.2s ease,
+    text-shadow 0.2s ease;
 }
 
-.landing-cta-secondary {
-  @include sepDs.sep-button-outline;
-  @include sepDs.sep-button-size-lg;
-
-  text-decoration: none;
+.landing-nav a:hover,
+.footer-links a:hover {
+  color: rgb(var(--lp-c-rotulo));
+  text-shadow: 0 0 16px rgb(var(--lp-c-ciano) / 45%);
+  transform: translateY(-1px);
 }
 
-.landing-hero-trust {
+// O botao de tema e a entrada ficam juntos na ponta direita do cabecalho.
+.landing-header-actions {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-8);
+  gap: 16px;
+  align-items: flex-end;
+  justify-self: end;
+}
+
+.landing-header-linha {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+// A entrada do investidor (credor) fica logo abaixo do botao Entrar.
+.landing-investidor {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 14px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgb(var(--lp-c-rotulo));
+  border: 1px solid rgb(var(--lp-c-ciano) / 50%);
+  border-radius: 999px;
+  background: rgb(var(--lp-c-surf) / 60%);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.landing-investidor:hover,
+.landing-investidor:focus-visible {
+  border-color: rgb(var(--lp-c-ciano));
+  box-shadow: 0 0 18px rgb(var(--lp-c-ciano) / 30%);
+  outline: none;
+}
+
+.landing-theme {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
   padding: 0;
-  margin: var(--sep-space-8) 0 0;
-  list-style: none;
+  color: rgb(var(--lp-c-rotulo));
+  cursor: pointer;
+  border: 1px solid rgb(var(--lp-c-ciano) / 45%);
+  border-radius: 11px;
+  background: rgb(var(--lp-c-surf) / 72%);
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
 
-  li {
-    @include sepType.sep-type-caption;
+.landing-theme:hover,
+.landing-theme:focus-visible {
+  border-color: rgb(var(--lp-c-ciano));
+  background: rgb(var(--lp-c-ciano) / 14%);
+  outline: none;
+  transform: translateY(-1px);
+}
 
-    display: flex;
-    gap: var(--sep-space-8);
-    align-items: center;
-    color: hsl(var(--foreground));
+.landing-login {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 108px;
+  min-height: 38px;
+  padding: 0 24px;
+  font-weight: 700;
+  color: rgb(var(--lp-c-texto));
+  background: linear-gradient(135deg, rgb(var(--lp-c-surf) / 82%), rgb(var(--lp-c-verde) / 42%));
+  border: 1px solid rgb(var(--lp-c-ciano));
+  border-radius: 13px;
+  box-shadow:
+    inset 0 1px 0 rgb(var(--lp-c-texto) / 12%),
+    0 0 24px rgb(var(--lp-c-verde) / 18%);
+}
+
+.hero-section {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(520px, 590px) minmax(0, 1fr);
+  gap: clamp(30px, 3vw, 42px);
+  align-items: center;
+  padding: 30px clamp(44px, 4vw, 60px) 34px;
+}
+
+/* Largura natural deste layout: 1302px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 1298px) {
+  .hero-section {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
-.landing-trust-icon {
-  flex-shrink: 0;
-  color: hsl(var(--secondary));
+.hero-globe {
+  position: absolute;
+  top: 76px;
+  left: -4px;
+  z-index: -1;
+  width: clamp(170px, 16vw, 235px);
+  height: auto;
+  opacity: 0.95;
 }
 
-// ===== Painel de marca (gradiente) =====
-
-.landing-hero-brand {
-  @include sepDs.sep-auth-brand-panel;
-
-  min-height: 320px;
-  border-radius: var(--sep-radius-xl);
-  box-shadow: var(--shadow-elegant);
+.hero-copy {
+  max-width: 560px;
+  margin-left: clamp(70px, 8vw, 128px);
+  padding: 4px 0 0;
 }
 
-.landing-hero-brand-inner {
+.hero-kicker {
+  margin: 0 0 12px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: rgb(var(--lp-c-rotulo));
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.hero-copy h1,
+.hero-copy .hero-titulo {
+  max-width: 550px;
+  margin: 0;
+  font-size: clamp(2.45rem, 3.35vw, 3.35rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+.hero-copy h1 span,
+.hero-copy .hero-titulo span {
+  display: block;
+  color: rgb(var(--lp-c-rotulo));
+}
+
+.hero-lead {
+  max-width: 560px;
+  margin: 16px 0 0;
+  font-size: clamp(1rem, 1.15vw, 1.12rem);
+  line-height: 1.62;
+  color: rgb(var(--lp-c-suave) / 88%);
+}
+
+.hero-actions {
   display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-12);
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 22px 0 14px;
 }
 
-.landing-hero-brand-mark {
-  @include sepType.sep-type-page-title;
-
-  font-size: 44px;
-  line-height: 1;
-  color: hsl(var(--gradient-foreground));
+.action-primary,
+.action-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 176px;
+  min-height: 44px;
+  padding: 0 28px;
+  font-weight: 800;
+  border-radius: 9px;
 }
 
-.landing-hero-brand-tagline {
-  @include sepType.sep-type-body-medium;
+.action-primary {
+  color: rgb(var(--lp-c-branco));
 
+  /* A ponta verde escurece de 48% para 34% de luminosidade: o branco lia a 1,7:1 sobre ela, e o
+     AA para texto de botao pede 4,5:1. */
+  background: linear-gradient(135deg, rgb(var(--lp-c-azul)), rgb(var(--lp-c-verde)));
+  border: 1px solid rgb(var(--lp-c-ciano) / 75%);
+  box-shadow:
+    0 0 28px rgb(var(--lp-c-azul) / 42%),
+    0 0 24px rgb(var(--lp-c-verde) / 28%);
+}
+
+.action-secondary {
+  color: rgb(var(--lp-c-texto));
+  background: rgb(var(--lp-c-surf) / 70%);
+  border: 1px solid rgb(var(--lp-c-azul) / 62%);
+}
+
+.trust-badges {
+  display: grid;
+  padding: 0;
   margin: 0;
-  color: hsl(var(--gradient-foreground) / 90%);
+  list-style: none;
+  position: relative;
+  isolation: isolate;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(560px, calc(100vw - 250px));
+  max-width: 560px;
+  overflow: hidden;
+  background: linear-gradient(90deg, rgb(var(--lp-c-surf) / 54%), rgb(var(--lp-c-surf) / 64%));
+  border: 1px solid rgb(var(--lp-c-azul) / 14%);
+  border-radius: 12px;
+  box-shadow:
+    inset 0 1px 0 rgb(var(--lp-c-texto) / 5%),
+    -10px 0 28px rgb(var(--lp-c-azul) / 10%),
+    10px 0 28px rgb(var(--lp-c-verde) / 8%);
 }
 
-.landing-hero-brand-text {
-  @include sepType.sep-type-caption;
-
-  margin: 0;
-  color: hsl(var(--gradient-foreground) / 80%);
+.trust-badges::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 0% 50%, rgb(var(--lp-c-azul) / 24%), transparent 9rem),
+    radial-gradient(circle at 100% 50%, rgb(var(--lp-c-verde) / 22%), transparent 9rem);
+  opacity: 0.72;
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease;
 }
 
-// ===== Features (grid de cards com icon-chip) =====
+.trust-badges:hover::after {
+  opacity: 1;
+  transform: scaleX(1.015);
+}
 
-.landing-features {
+.trust-badges li {
   display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-24);
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--sep-space-80) var(--sep-space-32);
+  gap: 10px;
+  align-items: center;
+  min-height: 48px;
+  padding: 7px 14px;
+  color: rgb(var(--lp-c-suave));
+  transition:
+    background 0.22s ease,
+    box-shadow 0.22s ease,
+    transform 0.22s ease;
 }
 
-.landing-features-title {
-  @include sepType.sep-type-section-title;
+.trust-badges li:hover {
+  background: rgb(var(--lp-c-ciano) / 8%);
+  box-shadow: inset 0 0 18px rgb(var(--lp-c-ciano) / 9%);
+  transform: translateY(-2px);
+}
 
-  margin: 0;
-  color: hsl(var(--foreground));
+.trust-badges li + li {
+  border-left: 1px solid rgb(var(--lp-c-azul) / 18%);
+}
+
+.trust-badges lucide-icon {
+  width: 32px;
+  min-width: 32px;
+  height: 31px;
+}
+
+.trust-badges span {
+  display: grid;
+  gap: 2px;
+  font-size: 0.78rem;
+  line-height: 1.16;
+}
+
+.trust-badges strong {
+  font-size: 0.82rem;
+  color: rgb(var(--lp-c-texto));
+}
+
+.workflow-card::before,
+.indicators-section::before,
+.trust-badges::before {
+  position: absolute;
+  pointer-events: none;
+  content: "";
+}
+
+.workflow-section {
+  position: relative;
+  z-index: 2;
+  padding: 0 clamp(44px, 4vw, 60px) 36px;
+}
+
+.workflow-section h2 {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0 16px;
+  font-size: clamp(1.35rem, 2vw, 1.62rem);
+  line-height: 1.2;
   text-align: center;
 }
 
-.landing-features-grid {
+.workflow-section h2::before,
+.workflow-section h2::after {
+  width: min(300px, 24vw);
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgb(var(--lp-c-ciano) / 42%));
+}
+
+.workflow-section h2::after {
+  background: linear-gradient(90deg, rgb(var(--lp-c-verde) / 42%), transparent);
+}
+
+.workflow-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--sep-space-16);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 312px), 1fr));
+  gap: 16px;
 }
 
-.landing-feature {
-  @include sepDs.sep-card;
-
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-12);
-  padding: var(--sep-space-24);
+.workflow-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 18px;
+  align-items: center;
+  min-height: 134px;
+  padding: 22px 20px 20px;
+  background: linear-gradient(135deg, rgb(var(--lp-c-surf2) / 82%), rgb(var(--lp-c-surf) / 84%));
+  border: 1px solid rgb(var(--lp-c-azul) / 26%);
+  border-radius: 10px;
+  box-shadow:
+    inset 0 1px 0 rgb(var(--lp-c-texto) / 12%),
+    -8px -8px 22px rgb(var(--lp-c-azul) / 8%),
+    8px 8px 22px rgb(var(--lp-c-verde) / 6%);
   transition:
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
-
-  &:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-  }
+    background 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    transform 0.22s ease;
 }
 
-.landing-feature--primary .landing-feature-icon {
-  @include sepDs.sep-icon-chip(--primary);
+.workflow-card::before {
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 0% 0%, rgb(var(--lp-c-azul) / 22%), transparent 5.5rem),
+    radial-gradient(circle at 100% 100%, rgb(var(--lp-c-verde) / 14%), transparent 5.5rem);
+  opacity: 0.74;
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease;
 }
 
-.landing-feature--secondary .landing-feature-icon {
-  @include sepDs.sep-icon-chip(--secondary);
+.workflow-card:hover {
+  background: linear-gradient(135deg, rgb(var(--lp-c-surf2) / 88%), rgb(var(--lp-c-surf) / 88%));
+  border-color: rgb(var(--lp-c-ciano) / 44%);
+  box-shadow:
+    inset 0 1px 0 rgb(var(--lp-c-texto) / 14%),
+    -10px -10px 26px rgb(var(--lp-c-azul) / 12%),
+    10px 10px 26px rgb(var(--lp-c-verde) / 10%);
+  transform: translateY(-4px);
 }
 
-.landing-feature--devolutiva .landing-feature-icon {
-  @include sepDs.sep-icon-chip(--devolutiva);
+.workflow-card:hover::before {
+  opacity: 1;
+  transform: scale(1.012);
 }
 
-.landing-feature-title {
-  @include sepType.sep-type-card-title;
+.workflow-card::after {
+  position: absolute;
+  top: 50%;
+  right: -13px;
+  width: 10px;
+  height: 10px;
+  content: "";
+  border-top: 2px solid rgb(var(--lp-c-ciano) / 80%);
+  border-right: 2px solid rgb(var(--lp-c-ciano) / 80%);
+  transform: translateY(-50%) rotate(45deg);
+}
 
+.workflow-card:last-child::after {
+  content: none;
+}
+
+.workflow-card lucide-icon {
+  width: 80px;
+  max-width: 100%;
+  height: auto;
+}
+
+.step-number {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 0.63rem;
+  color: rgb(var(--lp-c-rotulo));
+}
+
+.workflow-card h3 {
+  margin: 0 0 8px;
+  font-size: 1.04rem;
+  line-height: 1.25;
+}
+
+.workflow-card p,
+.indicator-item p,
+.footer-brand p,
+.legal-copy {
   margin: 0;
-  color: hsl(var(--foreground));
+  color: rgb(var(--lp-c-suave) / 86%);
 }
 
-.landing-feature-desc {
-  @include sepType.sep-type-caption;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
+.workflow-card p {
+  font-size: 0.86rem;
+  line-height: 1.48;
 }
 
-// ===== Footer =====
+.indicators-section {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 258px), 1fr));
+  gap: 0;
+  margin: 0 clamp(44px, 4vw, 60px) 22px;
+  overflow: hidden;
+  background: linear-gradient(90deg, rgb(var(--lp-c-surf2) / 68%), rgb(var(--lp-c-surf2) / 48%));
+  border: 1px solid rgb(var(--lp-c-verde) / 32%);
+  border-radius: 10px;
+  box-shadow:
+    inset 0 1px 0 rgb(var(--lp-c-texto) / 12%),
+    -12px 0 32px rgb(var(--lp-c-azul) / 9%),
+    12px 0 32px rgb(var(--lp-c-verde) / 12%);
+}
+
+.indicators-section::before {
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 0% 0%, rgb(var(--lp-c-azul) / 18%), transparent 7rem),
+    radial-gradient(circle at 100% 0%, rgb(var(--lp-c-verde) / 17%), transparent 7rem),
+    radial-gradient(circle at 100% 100%, rgb(var(--lp-c-verde) / 15%), transparent 7rem);
+  opacity: 0.76;
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease;
+}
+
+.indicator-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 18px;
+  align-items: center;
+  min-height: 110px;
+  padding: 20px 26px;
+  transition:
+    background 0.22s ease,
+    transform 0.22s ease;
+}
+
+.indicator-item:hover {
+  background: rgb(var(--lp-c-verde) / 6%);
+  transform: translateY(-3px);
+}
+
+.indicators-section:hover {
+  border-color: rgb(var(--lp-c-verde) / 46%);
+}
+
+.indicators-section:hover::before {
+  opacity: 1;
+  transform: scaleX(1.01);
+}
+
+.indicator-item + .indicator-item {
+  border-left: 1px solid rgb(var(--lp-c-azul) / 18%);
+}
+
+.indicator-item lucide-icon {
+  width: 58px;
+  max-width: 100%;
+  height: auto;
+}
+
+.indicator-item h3 {
+  margin: 0 0 4px;
+  font-size: 1.18rem;
+  line-height: 1.18;
+}
+
+.indicator-item:first-child h3 {
+  color: rgb(var(--lp-c-rotulo));
+  font-size: 1.54rem;
+}
+
+.indicator-item p {
+  font-size: 0.91rem;
+  line-height: 1.42;
+}
 
 .landing-footer {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-17);
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(320px, 1.2fr) auto minmax(320px, 0.9fr);
+  gap: 28px;
   align-items: center;
-  padding: var(--sep-space-48) var(--sep-space-24);
-  color: hsl(var(--muted-foreground));
-  text-align: center;
-  background: hsl(var(--muted) / 40%);
-  border-top: 1px solid hsl(var(--border));
+  min-height: 88px;
+  padding: 20px clamp(42px, 4vw, 60px) 24px;
+  border-top: 1px solid rgb(var(--lp-c-azul) / 22%);
 }
 
-.landing-footer-copy {
-  @include sepType.sep-type-caption;
-
-  margin: 0;
+/* Largura natural deste layout: 1279px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 1275px) {
+  .landing-footer {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
-.landing-footer-links {
+.footer-brand {
   display: flex;
-  gap: var(--sep-space-24);
+  gap: 10px;
+  align-items: center;
 }
 
-.landing-footer-link {
-  @include sepType.sep-type-button;
+.footer-logo {
+  width: 36px;
+  min-width: 36px;
+  height: auto;
+}
 
-  color: hsl(var(--primary));
-  text-decoration: none;
+.footer-brand strong {
+  margin-right: 14px;
+  font-size: 1.45rem;
+  line-height: 1;
+  color: rgb(var(--lp-c-texto));
+}
 
-  &:hover {
-    text-decoration: underline;
+.footer-brand p,
+.legal-copy,
+.footer-links {
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 26px;
+  justify-content: center;
+  color: rgb(var(--lp-c-suave));
+}
+
+.legal-copy {
+  max-width: 410px;
+}
+
+@include resp.ate-ampla {
+  .hero-section {
+    grid-template-columns: minmax(405px, 0.96fr) minmax(400px, 1.04fr);
+    align-items: flex-start;
+    padding-right: clamp(36px, 5vw, 72px);
+    padding-left: clamp(36px, 5vw, 72px);
   }
-}
 
-.landing-footer-fine {
-  @include sepType.sep-type-micro;
-
-  max-width: 720px;
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-// ===== Responsivo =====
-
-@media (width <= 1068px) {
-  .landing-hero-headline {
-    font-size: 40px;
+  .hero-copy {
+    max-width: 500px;
+    margin-left: clamp(40px, 6vw, 70px);
   }
-}
 
-@media (width <= 860px) {
-  .landing-hero {
+  .trust-badges {
+    width: min(820px, calc(100vw - 185px));
+    min-width: 0;
+    max-width: 820px;
+  }
+
+  .action-primary,
+  .action-secondary {
+    min-width: 156px;
+    min-height: 38px;
+    padding: 0 18px;
+    font-size: 0.82rem;
+  }
+
+  .workflow-grid,
+  .indicators-section {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workflow-card:nth-child(2)::after {
+    content: none;
+  }
+
+  .indicator-item:nth-child(odd) {
+    border-left: 0;
+  }
+
+  .landing-footer {
     grid-template-columns: 1fr;
-    gap: var(--sep-space-32);
-    padding: var(--sep-space-48) var(--sep-space-24);
+  }
+}
+
+@include resp.ate-estreita {
+  .landing-header {
+    gap: 14px;
+    padding-right: 26px;
+    padding-left: 26px;
   }
 
-  .landing-hero-brand {
-    min-height: 220px;
+  .landing-brand {
+    gap: 11px;
+    min-width: 270px;
   }
 
-  .landing-nav-list {
+  .landing-brand-symbol {
+    width: 40px;
+    min-width: 40px;
+  }
+
+  .landing-brand-text strong {
+    font-size: 1.8rem;
+  }
+
+  .landing-brand-text span {
+    max-width: 144px;
+    padding-left: 11px;
+    font-size: 0.68rem;
+  }
+
+  .landing-nav {
+    gap: 18px;
+    font-size: 0.78rem;
+  }
+
+  .landing-login {
+    min-width: 102px;
+    padding: 0 18px;
+  }
+}
+
+@include resp.ate-tablet {
+  .hero-section {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-copy {
+    max-width: 760px;
+  }
+
+  .trust-badges {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .landing-header {
+    grid-template-columns: auto 1fr auto;
+    gap: 18px;
+  }
+
+  .landing-brand {
+    min-width: 270px;
+  }
+
+  .landing-brand-text span {
+    max-width: 164px;
+    font-size: 0.74rem;
+  }
+
+  .landing-nav {
+    gap: 18px;
+    font-size: 0.8rem;
+  }
+}
+
+@include resp.ate-compacta {
+  :host {
+    --sep-enter-left: -14px;
+    --sep-enter-right: 14px;
+    --sep-enter-top: -12px;
+    --sep-enter-bottom: 14px;
+  }
+
+  .landing-page {
+    padding: 0;
+  }
+
+  .landing-shell {
+    min-height: var(--sep-altura-janela, 100vh);
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+  }
+
+  .landing-header,
+  .hero-section,
+  .workflow-section,
+  .landing-footer {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+
+  .landing-nav {
     display: none;
   }
 
-  .landing-features {
-    padding: var(--sep-space-48) var(--sep-space-24);
+  .landing-brand {
+    min-width: 0;
+  }
+
+  .landing-brand-symbol {
+    width: 34px;
+    min-width: 34px;
+  }
+
+  .landing-brand-text {
+    gap: 0 9px;
+  }
+
+  .landing-brand-text strong {
+    font-size: 1.1rem;
+  }
+
+  .landing-brand-text span {
+    max-width: 110px;
+    padding-left: 9px;
+    font-size: 0.52rem;
+  }
+
+  .landing-login {
+    min-width: 86px;
+    padding: 0 16px;
+  }
+
+  .hero-section {
+    padding-top: 28px;
+  }
+
+  .hero-globe {
+    top: 92px;
+    width: 165px;
+    opacity: 0.35;
+  }
+
+  .hero-copy {
+    margin-left: 0;
+  }
+
+  .hero-copy h1 span {
+    display: inline;
+  }
+
+  .hero-actions,
+  .trust-badges,
+  .workflow-grid,
+  .indicators-section {
+    grid-template-columns: 1fr;
+  }
+
+  .trust-badges {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .hero-actions {
+    display: grid;
+  }
+
+  .trust-badges li + li,
+  .indicator-item + .indicator-item {
+    border-top: 1px solid rgb(var(--lp-c-azul) / 18%);
+    border-left: 0;
+  }
+
+  .workflow-card {
+    grid-template-columns: 76px 1fr;
+  }
+
+  .workflow-card::after {
+    content: none;
+  }
+
+  .workflow-card lucide-icon {
+    width: 70px;
+  }
+
+  .indicators-section {
+    margin-right: 20px;
+    margin-left: 20px;
+  }
+
+  .indicator-item {
+    min-height: 96px;
+  }
+
+  .footer-brand {
+    align-items: flex-start;
   }
 }
 
-@media (width <= 640px) {
-  .landing-hero-headline {
-    font-size: 36px;
+@include resp.ate-telefone {
+  .landing-header {
+    gap: 12px;
+  }
+
+  .landing-brand-text span {
+    display: none;
+  }
+
+  .hero-copy h1 {
+    font-size: 2.12rem;
+  }
+
+  .footer-brand {
+    flex-direction: column;
+    gap: 12px;
   }
 }
 
-@media (width <= 419px) {
-  .landing-hero-headline {
-    font-size: 30px;
+@media (prefers-reduced-motion: reduce) {
+  .landing-shell,
+  .landing-header,
+  .hero-globe,
+  .hero-kicker,
+  .hero-copy h1,
+  .hero-lead,
+  .hero-actions,
+  .trust-badges,
+  .trust-badges li,
+  .workflow-section h2,
+  .workflow-card,
+  .indicators-section,
+  .indicator-item,
+  .landing-footer {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+    will-change: auto;
+  }
+}
+
+// ============ JANELA MAXIMIZADA ============
+// Mesmo quadro do site institucional: o teto de 1510px deixava ate 520px vazios de cada lado. Ate
+// 1440 o quadro ja ocupa 100% da janela, entao soltar o teto aqui continua o desenho sem salto.
+@include resp.maximizada {
+  .landing-shell {
+    width: 100%;
+  }
+
+  // A 1440 as duas colunas do hero saem quase iguais (620 e 632px) e o texto ocupa a coluna
+  // inteira. Acima disso a primeira coluna ficava com toda a sobra enquanto texto (560), titulo
+  // (550) e cartao (690) paravam — um vao de ate 1000px no meio. As colunas mantem a proporcao de
+  // 1440 e o texto e os selos acompanham a propria coluna.
+  .hero-section {
+    grid-template-columns: minmax(620px, 1fr) minmax(560px, 1.02fr);
+  }
+
+  .hero-copy,
+  .hero-copy h1,
+  .hero-lead {
+    max-width: none;
+  }
+
+  // A faixa tem 560px a 1440 — mais larga que o texto (505) —, entao 560 e piso, e nao 100%: logo
+  // acima de 1440 ela encolheria, os selos quebrariam linha e a faixa ficaria mais alta.
+  .trust-badges {
+    width: max(560px, 100%);
+    max-width: none;
+  }
+
+  // O selo desenhado na base do globo envolve o icone "Regulado pela" a 1440. O globo e ancorado
+  // pelo topo, entao quando o titulo quebra em menos linhas a faixa sobe e o selo desgarra (ja
+  // acontecia a 1920 antes). Aqui a posicao sai do proprio icone: o texto vai para a base do hero
+  // (a 1440 ele ja e o item mais alto, entao nada muda), o icone fica a 59px do fundo (34 de
+  // respiro + 25 do centro na faixa) e a 31px da borda do texto, e o centro do selo esta a 90.19%
+  // da largura e 94.04% da altura da arte (227x420). As duas contas dao -4px e 33.6px a 1440 — os
+  // valores de hoje.
+  .hero-copy {
+    align-self: end;
+  }
+
+  .hero-globe {
+    // A mesma largura que o globo ja declara (`clamp(170px, 16vw, 235px)`).
+    --globo: clamp(170px, 16vw, 235px);
+
+    top: auto;
+    bottom: calc(59px - 0.1102 * var(--globo));
+    left: calc(clamp(44px, 4vw, 60px) + clamp(70px, 8vw, 128px) + 31px - 0.9019 * var(--globo));
+  }
+}
+
+// ============ JANELA PANORAMICA ============
+// A tela inteira cabe na janela, sem rolagem. No ultrawide a 100% (945px de altura) faltavam 110px:
+// cada respiro vertical passa a acompanhar a altura da janela, com o valor de hoje como teto — o
+// fator e o proprio valor dividido por 1260 (a altura do ultrawide a 75%), entao la nada muda e a
+// 945 todos cedem 25% juntos. So espacamento e altura minima de cartao; fonte nao muda.
+@include resp.panoramica {
+  // A sobra de altura vira respiro **entre** as faixas, em vez de uma faixa morta no rodape: o
+  // quadro tem a altura da janela e distribui o que sobra nos vaos.
+  .landing-shell {
+    display: grid;
+    grid-template-rows: auto auto auto auto auto;
+    align-content: space-between;
+
+    // Altura mínima, e não exata: numa janela baixa demais a tela rola um pouco em vez de espremer e cortar o conteúdo.
+    min-height: calc(var(--sep-altura-janela, 100vh) - clamp(20px, 2vw, 36px));
+  }
+
+  .landing-header {
+    padding-block: clamp(10px, 1.15vh, 18px);
+  }
+
+  .hero-section {
+    padding-top: clamp(16px, 1.7vh, 30px);
+    padding-bottom: clamp(18px, 2vh, 34px);
+  }
+
+  .hero-kicker {
+    margin-bottom: clamp(8px, 0.95vh, 12px);
+  }
+
+  .hero-lead {
+    margin-top: clamp(11px, 1.27vh, 16px);
+  }
+
+  .hero-actions {
+    margin-top: clamp(15px, 1.75vh, 22px);
+    margin-bottom: clamp(9px, 1.11vh, 14px);
+  }
+
+  // A fileira de selos era ancorada na base com `position: absolute`, entao o cartao precisava de
+  // altura minima grande para a linha de apoio da marca nao passar por baixo dela — e a 945 as duas
+  // se sobrepunham 28px. No panoramico a fileira entra no fluxo e a propria grade a prende na base:
+  // a sobreposicao deixa de ser possivel e a altura pode ceder com a janela.
+  // O respiro do topo tambem acompanha a altura, como o bloco da marca logo abaixo.
+  // O bloco da marca dentro do cartao: simbolo e respiros acompanham a altura da janela (o fator e
+  // o valor de hoje dividido por 1260), o que devolve ~45px em janela baixa. O tamanho do "SEP" e
+  // da assinatura nao muda.
+  // O escudo tem altura igual a largura: com o cartao em 40vh ele passava 12px da base a 945. A
+  // largura passa a respeitar tambem a altura da janela (30vh = 333px a 1260, o valor de hoje).
+  .workflow-section {
+    padding-bottom: clamp(20px, 2.4vh, 36px);
+  }
+
+  .workflow-section h2 {
+    margin-bottom: clamp(11px, 1.27vh, 16px);
+  }
+
+  // Entre 2400 e 3000px as duas faixas continuam uma sobre a outra, mas com largura de leitura: sem
+  // teto, os quatro cartoes ficavam com 592 a 676px para uma linha de texto. Com 1900px a fileira
+  // da cartoes de ~465px e indicadores de ~380px, e o que sobra vira respiro nas laterais.
+  .workflow-grid,
+  .indicators-section {
+    width: min(100%, 1900px);
+    margin-inline: auto;
+  }
+
+  .workflow-grid {
+    gap: clamp(11px, 1.27vh, 16px);
+  }
+
+  .workflow-card {
+    min-height: min(134px, 10.6vh);
+    padding: clamp(15px, 1.75vh, 22px) 20px clamp(14px, 1.59vh, 20px);
+  }
+
+  // `grid-auto-rows: min-content` porque a linha da faixa passa a ser medida pelo conteudo: com a
+  // altura minima reduzida em janela baixa, o primeiro indicador (tres linhas) ficava 2px alem da
+  // propria caixa. Assim os cinco continuam com a mesma altura, agora a do texto mais o respiro.
+  .indicators-section {
+    grid-auto-rows: min-content;
+    margin-bottom: clamp(15px, 1.75vh, 22px);
+  }
+
+  .indicator-item {
+    min-height: min(110px, 8.7vh);
+    padding-block: clamp(14px, 1.59vh, 20px);
+  }
+
+  .landing-footer {
+    padding-top: clamp(12px, 1.3vh, 20px);
+    padding-bottom: clamp(14px, 1.5vh, 24px);
+  }
+}
+
+// ============ PANORAMICA LARGA (acima de 3000px) ============
+// Ate 3000px cada faixa sozinha ainda le bem (cartao de ~590px). Acima disso ela estica o cartao
+// para mais de 700px com uma linha de texto. Entao "Como funciona" e os indicadores passam a
+// dividir a mesma linha: os nove blocos ficam com ~350px, a largura de leitura que tem a 1440, e o
+// vao entre os grupos separa os assuntos. As bases dos dois coincidem, e cada grupo fica numa
+// linha so — quebrar em 3 + 1 desalinharia a composicao.
+@include resp.panoramica-larga {
+  .landing-shell {
+    grid-template-rows: auto auto auto auto;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+  }
+
+  .landing-header,
+  .hero-section,
+  .hero-carrossel,
+  .landing-footer {
+    grid-column: 1 / -1;
+  }
+
+  .workflow-section {
+    grid-row: 3;
+    grid-column: 1;
+    padding-right: clamp(14px, 1.2vw, 28px);
+    padding-bottom: 0;
+  }
+
+  // Aqui os grupos ja estao lado a lado, entao o teto de 1900px da faixa unica nao vale mais.
+  .workflow-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  // A margem direita continua sendo a do quadro; so a esquerda vira o vao entre os dois grupos.
+  // `width: auto` porque o bloco e item de grade: com 100% mais margens ele passava da moldura.
+  .indicators-section {
+    grid-row: 3;
+    grid-column: 2;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-self: end;
+    width: auto;
+    margin: 0 clamp(44px, 4vw, 60px) 0 clamp(14px, 1.2vw, 28px);
+  }
+}
+
+// ============ BANNERS ROTATIVOS ============
+// Os banners ficam empilhados na mesma célula da grade, então o carrossel tem sempre a altura do maior
+// deles e nada abaixo se mexe quando um troca pelo outro. O que sai desliza para a esquerda e o que entra
+// chega pela direita, devagar; dentro do que entra, o texto repete a abertura da página (cada bloco de
+// um lado). O texto e o título têm sempre o mesmo tamanho: só a imagem se ajusta ao espaço que sobra.
+
+.hero-carrossel {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  min-width: 0;
+
+  // A troca desliza de lado dentro do próprio quadro: o que passa da borda é recortado na horizontal, sem
+  // barra de rolagem. O eixo vertical fica livre.
+  overflow-x: clip;
+}
+
+.hero-slide {
+  grid-area: 1 / 1;
+  min-width: 0;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hero-slide.ativo,
+.hero-slide.saindo {
+  visibility: visible;
+}
+
+.hero-slide.ativo {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hero-slide.com-transicao.ativo {
+  animation: hero-slide-in 1400ms cubic-bezier(0.22, 1, 0.36, 1) 600ms both;
+}
+
+.hero-slide.saindo {
+  animation: hero-slide-out 1100ms cubic-bezier(0.45, 0, 0.55, 1) both;
+}
+
+// Sem isto, os blocos de um banner parado ficariam "já animados" e não repetiriam a entrada quando o
+// banner voltasse: sem animação enquanto parado, e a regra deixa de valer no instante em que ele entra.
+.hero-slide:not(.ativo, .saindo) * {
+  animation: none !important;
+}
+
+@keyframes hero-slide-in {
+  from {
+    opacity: 0;
+    transform: translate3d(72px, 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes hero-slide-out {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  65% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(-72px, 0, 0);
+  }
+}
+
+// A abertura da página tem atrasos de até 1,5 s; num banner que entra por rotação o texto não pode esperar
+// tanto. O banner que sai desaparece primeiro; os blocos do que entra chegam depois, um após o outro, de lados
+// diferentes.
+.hero-slide.com-transicao.ativo .hero-kicker {
+  animation-delay: 760ms;
+}
+
+.hero-slide.com-transicao.ativo .hero-copy .hero-titulo {
+  animation-delay: 860ms;
+}
+
+.hero-slide.com-transicao.ativo .hero-lead {
+  animation-delay: 980ms;
+}
+
+.hero-slide.com-transicao.ativo .hero-actions {
+  animation-delay: 1080ms;
+}
+
+.hero-slide.com-transicao.ativo .trust-badges {
+  animation-delay: 1160ms;
+}
+
+.hero-slide.com-transicao.ativo .trust-badges li:nth-child(n) {
+  animation-delay: 1240ms;
+}
+
+.hero-aviso {
+  max-width: 560px;
+  margin: 12px 0 0;
+  color: rgb(var(--lp-c-suave) / 72%);
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+// O título ocupa sempre quatro linhas, para os três banners terem o mesmo tamanho de letra e a mesma altura de
+// bloco. Só no layout de duas colunas: na coluna única do celular o título volta a ter a altura do próprio texto.
+@container (min-width: 1299px) {
+  .hero-copy .hero-titulo {
+    min-height: calc(1.1em * 4);
+  }
+}
+
+// ============ IMAGEM DO BANNER ============
+// Uma moldura única para os três banners: foto de pessoas no trabalho ou, enquanto ela não existe, a ilustração
+// da cena. A moldura é a parte elástica do banner: encolhe quando a janela estreita e o texto continua do mesmo
+// tamanho.
+
+.hero-midia {
+  position: relative;
+  align-self: center;
+  height: clamp(340px, 46vh, 470px);
+  margin: 0 0 1.7rem;
+  background:
+    linear-gradient(rgb(var(--lp-c-azul) / 8%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--lp-c-azul) / 7%) 1px, transparent 1px),
+    linear-gradient(135deg, rgb(var(--lp-c-azul) / 30%), rgb(var(--lp-c-surf) / 92%) 60%);
+  background-size:
+    42px 42px,
+    42px 42px,
+    auto;
+  border: 1px solid rgb(var(--lp-c-azul) / 30%);
+  border-radius: 16px;
+  box-shadow:
+    inset 0 1px 0 rgb(var(--lp-c-texto) / 14%),
+    -12px -12px 34px rgb(var(--lp-c-azul) / 12%),
+    12px 12px 34px rgb(var(--lp-c-verde) / 10%);
+  animation: sep-enter-right 880ms cubic-bezier(0.16, 1, 0.3, 1) 680ms backwards;
+}
+
+.hero-slide.com-transicao.ativo .hero-midia {
+  animation-delay: 900ms;
+}
+
+// ============ CONTROLES DO CARROSSEL ============
+// Discretos de propósito: quase transparentes enquanto ninguém mexe, e só ganham corpo com o mouse ou o foco.
+
+.hero-controles {
+  position: absolute;
+  right: clamp(30px, 4vw, 60px);
+  bottom: 2px;
+  z-index: 4;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 5px 8px;
+  border: 1px solid rgb(var(--lp-c-ciano) / 12%);
+  border-radius: 999px;
+  background: rgb(var(--lp-c-surf2) / 22%);
+  opacity: 0.45;
+  transition:
+    opacity 320ms ease,
+    background 320ms ease,
+    border-color 320ms ease;
+}
+
+.hero-controles:hover,
+.hero-controles:focus-within {
+  border-color: rgb(var(--lp-c-ciano) / 30%);
+  background: rgb(var(--lp-c-surf2) / 62%);
+  opacity: 1;
+}
+
+.hero-seta {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  color: rgb(var(--lp-c-rotulo));
+  cursor: pointer;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  place-items: center;
+  transition: background 180ms ease;
+}
+
+.hero-seta:hover,
+.hero-seta:focus-visible {
+  background: rgb(var(--lp-c-ciano) / 16%);
+  outline: none;
+}
+
+.hero-ponto {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  cursor: pointer;
+  border: 1px solid rgb(var(--lp-c-ciano) / 70%);
+  border-radius: 99px;
+  background: transparent;
+  transition:
+    width 260ms ease,
+    background 260ms ease;
+}
+
+.hero-ponto.ativo {
+  width: 26px;
+  background: rgb(var(--lp-c-ciano));
+}
+
+.hero-ponto:focus-visible {
+  outline: 2px solid rgb(var(--lp-c-rotulo));
+  outline-offset: 2px;
+}
+
+.hero-progresso {
+  position: absolute;
+  right: 12px;
+  bottom: -1px;
+  left: 12px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgb(var(--lp-c-ciano)), rgb(var(--lp-c-verde)));
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: hero-progresso linear forwards;
+}
+
+@keyframes hero-progresso {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide.com-transicao.ativo,
+  .hero-slide.saindo {
+    animation: none;
+  }
+
+  .hero-slide.saindo {
+    visibility: hidden;
+  }
+
+  .hero-seta,
+  .hero-ponto,
+  .hero-controles {
+    transition: none;
+  }
+}
+
+// ============ CABEÇALHO EM DUAS LINHAS ============
+// Marca e ações em cima; o menu, em letra maior, ocupa uma linha própria embaixo. Assim os oito itens cabem
+// numa linha só em qualquer largura comum, em vez de quebrar de forma desigual.
+.landing-header .landing-brand {
+  grid-area: marca;
+}
+
+.landing-header .landing-header-actions {
+  grid-area: acoes;
+}
+
+.landing-header .landing-nav {
+  grid-area: menu;
+  justify-self: stretch;
+  width: 100%;
+  grid-column: auto;
+  grid-row: auto;
+  gap: 8px clamp(14px, 1.7vw, 30px);
+  justify-content: center;
+  padding-top: 12px;
+  font-size: 1.04rem;
+  border-top: 1px solid rgb(var(--lp-c-azul) / 22%);
+}
+
+// Janela panoramica: o menu em duas linhas custa altura, e a tela inteira precisa caber na janela. O respiro
+// do cabeçalho acompanha a altura da janela, como os demais (o valor de hoje é o teto).
+@include resp.panoramica {
+  .landing-header {
+    row-gap: clamp(4px, 0.8vh, 14px);
+    padding-block: clamp(6px, 0.9vh, 14px);
+  }
+
+  .landing-header .landing-nav {
+    padding-top: clamp(4px, 0.8vh, 12px);
+    font-size: clamp(0.92rem, 1.5vh, 1.04rem);
+  }
+
+  .hero-midia {
+    height: clamp(280px, 40vh, 470px);
+  }
+
+  .hero-section {
+    padding-top: clamp(8px, 1vh, 30px);
+    padding-bottom: clamp(10px, 1.2vh, 34px);
+  }
+
+  .hero-aviso {
+    margin-top: clamp(4px, 0.8vh, 12px);
   }
 }

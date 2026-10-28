@@ -5,24 +5,27 @@
 
   align-self: flex-start;
 
+  // O selo vive nas telas operacionais, entao usa os tokens de estado da superficie operacional,
+  // que passaram por auditoria de contraste. Com os tokens do New Design System o texto ficava
+  // entre 1,9:1 e 4,3:1 sobre o proprio fundo de 12%.
   &.is-andamento,
   &.is-pre {
-    color: hsl(var(--primary));
-    background: hsl(var(--primary) / 12%);
+    color: var(--sep-accent);
+    background: color-mix(in srgb, var(--sep-accent) 12%, transparent);
   }
 
   &.is-aprovado {
-    color: hsl(var(--success));
-    background: hsl(var(--success) / 12%);
+    color: var(--sep-success);
+    background: color-mix(in srgb, var(--sep-success) 12%, transparent);
   }
 
   &.is-reprovado {
-    color: hsl(var(--destructive));
-    background: hsl(var(--destructive) / 12%);
+    color: var(--sep-danger);
+    background: color-mix(in srgb, var(--sep-danger) 12%, transparent);
   }
 
   &.is-pendente {
-    color: hsl(var(--warning));
-    background: hsl(var(--warning) / 10%);
+    color: var(--sep-warning);
+    background: color-mix(in srgb, var(--sep-warning) 10%, transparent);
   }
 }

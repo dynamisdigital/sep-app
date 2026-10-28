@@ -1,0 +1,147 @@
+// ============ PERGUNTAS FREQUENTES ============
+
+@use "../shared/site-tema" as site;
+
+:host {
+  @include site.tokens;
+}
+
+@include site.base("px62");
+
+.px62-busca {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  max-width: 640px;
+  margin: 0 0 8px;
+  padding: 0 16px;
+  color: var(--site-suave);
+  border: 1px solid var(--site-linha);
+  border-radius: 14px;
+  background: var(--site-cartao);
+  transition: border-color 200ms ease;
+}
+
+.px62-busca:focus-within {
+  border-color: rgb(var(--lp-c-ciano) / 70%);
+}
+
+.px62-busca input {
+  flex: 1;
+  min-width: 0;
+  min-height: 48px;
+  color: var(--site-texto);
+  font: inherit;
+  background: transparent;
+  border: 0;
+  outline: none;
+}
+
+.px62-busca button {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  color: var(--site-suave);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  place-items: center;
+}
+
+.px62-contagem {
+  min-height: 22px;
+  margin: 0 0 24px;
+  color: var(--site-suave);
+  font-size: 0.86rem;
+}
+
+.px62-grupo {
+  margin: 0 0 40px;
+}
+
+.px62-grupo h2 {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 0 0 16px;
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.px62-grupo-icone {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  color: var(--site-ciano);
+  border: 1px solid var(--site-linha);
+  border-radius: 11px;
+  background: rgb(var(--lp-c-ciano) / 10%);
+  place-items: center;
+}
+
+.px62-lista {
+  display: grid;
+  gap: 10px;
+  max-width: 900px;
+}
+
+.px62-item {
+  border: 1px solid var(--site-linha);
+  border-radius: 14px;
+  background: var(--site-cartao);
+  transition: border-color 200ms ease;
+}
+
+.px62-item[open],
+.px62-item:hover {
+  border-color: rgb(var(--lp-c-ciano) / 55%);
+}
+
+.px62-item summary {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  font-weight: 700;
+  line-height: 1.4;
+  cursor: pointer;
+  list-style: none;
+}
+
+.px62-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.px62-item summary::after {
+  color: var(--site-ciano);
+  font-size: 1.3rem;
+  font-weight: 400;
+  content: "+";
+}
+
+.px62-item[open] summary::after {
+  content: "−";
+}
+
+.px62-item p {
+  margin: 0;
+  padding: 0 20px 18px;
+  color: var(--site-suave);
+  font-size: 0.96rem;
+  line-height: 1.68;
+}
+
+.px62-vazio {
+  padding: 28px;
+  color: var(--site-suave);
+  text-align: center;
+  border: 1px dashed var(--site-linha);
+  border-radius: 14px;
+}
+
+.px62-vazio a {
+  color: var(--site-ciano);
+}

@@ -1,0 +1,336 @@
+<sep-operational-shell>
+  <main class="px20-page op-pagina-rolavel">
+    <header class="px20-heading">
+      <p>
+        <a routerLink="/app/dashboard">Início</a>　›　<span>Pix</span>　›　<strong
+          >Pix Operacional</strong
+        >
+      </p>
+      <h1 id="px20-title">
+        Pix operacional
+        <sep-arte nome="pix" />
+      </h1>
+      <span>Gerencie desembolsos, recebimentos e conciliações Pix em tempo real.</span>
+    </header>
+
+    <section class="px20-card px20-provider" [attr.data-online]="provider().online">
+      <lucide-icon class="ic-verde" name="shield-check" [size]="41" [strokeWidth]="1.25" />
+      <small>{{ provider().nome }}</small>
+      <strong>{{ provider().estado }}</strong>
+      <p>
+        Tempo de resposta: <b>{{ provider().tempoRespostaMs }}ms</b>
+      </p>
+      <svg viewBox="0 0 120 30" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="px20-provider-area" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" style="stop-color: var(--sep-accent)" stop-opacity=".2" />
+            <stop offset="1" style="stop-color: var(--sep-accent)" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        <polygon
+          class="px20-provider-area"
+          [attr.points]="'0,30 ' + sparkline(provider().serie) + ' 120,30'"
+        />
+        <polyline [attr.points]="sparkline(provider().serie)" />
+      </svg>
+    </section>
+
+    <section class="px20-metrics" aria-label="Resumo operacional Pix">
+      @for (metrica of metricas(); track metrica.chave) {
+        <a class="px20-metric" [attr.data-tone]="metrica.tom" [routerLink]="metrica.rota">
+          <header>
+            <lucide-icon [name]="metrica.icone" [size]="24" [strokeWidth]="2" />
+            <h2>{{ metrica.rotulo }}</h2>
+          </header>
+          <div class="px20-metric-valor">
+            <strong>{{ numero(metrica.total) }}</strong>
+            <span
+              ><small>{{ metrica.rotuloHoje }}</small
+              ><b>{{ metrica.hoje }}</b></span
+            >
+          </div>
+          <p class="px20-metric-legenda">{{ metrica.legendaTotal }}</p>
+          <p class="px20-metric-variacao">
+            <i>{{ metrica.variacaoSobe ? '▲' : '▼' }} {{ metrica.variacao }}</i> vs. mês anterior
+          </p>
+          <footer>
+            <small>{{ metrica.rotuloValor }}</small>
+            <strong>{{ moeda(metrica.valor) }}</strong>
+          </footer>
+        </a>
+      }
+    </section>
+
+    <section class="px20-card px20-volume" aria-label="Volume Pix nas últimas 24 horas">
+      <h2>Volume Pix (24h)</h2>
+      <div class="px20-volume-corpo">
+        <div class="px20-donut" [style.background]="donutVolume()">
+          <span
+            ><strong>{{ totalVolume() }}</strong
+            ><small>Total</small></span
+          >
+        </div>
+        <ul>
+          @for (faixa of volume(); track faixa.rotulo) {
+            <li [attr.data-tone]="faixa.tom">
+              <i></i><span>{{ faixa.rotulo }}</span>
+              <b>{{ faixa.valor }} ({{ faixa.percentual }})</b>
+            </li>
+          }
+        </ul>
+      </div>
+      <a routerLink="/app/pix/recebimentos">Ver analytics detalhado　→</a>
+    </section>
+
+    <section class="px20-card px20-conciliacao" aria-label="Conciliação operacional">
+      <h2>
+        <lucide-icon class="ic-azul" name="shield-check" [size]="18" [strokeWidth]="2.25" />
+        Conciliação operacional
+      </h2>
+      <div class="px20-gauges">
+        @for (item of conciliacao(); track item.chave) {
+          <article [attr.data-tone]="item.tom" [attr.data-indicator]="item.chave">
+            <small>{{ item.rotulo }}</small>
+            <svg viewBox="0 0 80 46" role="img" [attr.aria-label]="item.rotulo + ': ' + item.valor">
+              <defs>
+                <linearGradient
+                  [attr.id]="'px20-gauge-' + item.chave"
+                  x1="6"
+                  y1="0"
+                  x2="74"
+                  y2="0"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop offset="0" [attr.stop-color]="cor(item.tom)" stop-opacity=".68" />
+                  <stop offset=".52" [attr.stop-color]="cor(item.tom)" stop-opacity="1" />
+                  <stop offset="1" [attr.stop-color]="cor(item.tom)" stop-opacity=".58" />
+                </linearGradient>
+              </defs>
+              <path class="px20-trilha" d="M 6 40 A 34 34 0 0 1 74 40" />
+              <path
+                class="px20-arco"
+                [attr.d]="arco(item.percentual)"
+                [attr.stroke]="'url(#px20-gauge-' + item.chave + ')'"
+              />
+            </svg>
+            <strong>{{ item.valor }}</strong>
+            <em>{{ item.unidade }}</em>
+            <span>{{ item.nota }}</span>
+          </article>
+        }
+      </div>
+      <a routerLink="/app/pix/divergencias">Acessar conciliação detalhada　→</a>
+    </section>
+
+    <section class="px20-card px20-alertas" aria-label="Alertas e divergências">
+      <header>
+        <h2>Alertas e divergências</h2>
+        <a routerLink="/app/pix/divergencias">Ver todas　→</a>
+      </header>
+      <ol>
+        @for (alerta of alertas(); track alerta.id) {
+          <li>
+            <lucide-icon [name]="iconeAlerta(alerta.severidade)" [size]="16" [strokeWidth]="2.25" />
+            <div>
+              <strong>{{ alerta.titulo }}</strong>
+              <small>
+                {{ alerta.referencia }}
+                @if (alerta.valor !== null) {
+                  • {{ moeda(alerta.valor) }}
+                }
+              </small>
+            </div>
+            <b class="px20-selo" [attr.data-tone]="tomSeveridade(alerta.severidade)">
+              {{ severidadeLabel[alerta.severidade] }}
+            </b>
+            <span>{{ alerta.hora }}</span>
+          </li>
+        }
+      </ol>
+      <a routerLink="/app/pix/divergencias">Ir para divergências　→</a>
+    </section>
+
+    <div class="px20-inferior">
+      <section class="px20-card px20-chart" aria-label="Transferências dos últimos 7 dias">
+        <header>
+          <h2>Transferências (últimos 7 dias)</h2>
+          <ul class="px20-legenda">
+            @for (serie of series(); track serie.chave) {
+              <li [attr.data-tone]="serie.tom"><i></i>{{ serie.rotulo }}</li>
+            }
+          </ul>
+        </header>
+        <div class="px20-plot">
+          <span class="px20-eixo">
+            @for (marca of escala; track marca) {
+              <b>{{ marca }}</b>
+            }
+          </span>
+          <div class="px20-tela">
+            <svg
+              viewBox="0 0 420 140"
+              preserveAspectRatio="none"
+              role="img"
+              aria-label="Desembolsos, recebimentos e divergências dos últimos sete dias"
+              (mouseleave)="limparDia()"
+            >
+              <defs>
+                @for (serie of linhas(); track serie.chave) {
+                  <linearGradient
+                    [attr.id]="'px20-area-' + serie.chave"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop offset="0" [attr.stop-color]="cor(serie.tom)" stop-opacity=".14" />
+                    <stop offset="1" [attr.stop-color]="cor(serie.tom)" stop-opacity="0" />
+                  </linearGradient>
+                }
+              </defs>
+              <g class="px20-grade">
+                @for (linha of linhasGrade(); track $index) {
+                  <line x1="0" [attr.y1]="linha.y" x2="420" [attr.y2]="linha.y" />
+                }
+              </g>
+              @for (barra of barras(); track barra.indice) {
+                <rect
+                  class="px20-barra"
+                  [attr.x]="barra.x"
+                  [attr.y]="barra.y"
+                  [attr.width]="barra.largura"
+                  [attr.height]="barra.altura"
+                  rx="2"
+                />
+              }
+              @for (serie of linhas(); track serie.chave) {
+                <polygon
+                  [attr.fill]="'url(#px20-area-' + serie.chave + ')'"
+                  [attr.points]="'0,128 ' + serie.pontos + ' 420,128'"
+                />
+              }
+              @for (serie of linhas(); track serie.chave) {
+                <polyline
+                  class="px20-linha"
+                  [attr.stroke]="cor(serie.tom)"
+                  [attr.points]="serie.pontos"
+                />
+              }
+              @for (serie of linhas(); track serie.chave) {
+                <g [attr.fill]="cor(serie.tom)">
+                  @for (marca of serie.marcas; track $index) {
+                    <circle [attr.cx]="marca.x" [attr.cy]="marca.y" r="3" />
+                  }
+                </g>
+              }
+              <g class="px20-alvos">
+                @for (dia of dias; track dia; let i = $index) {
+                  <rect
+                    [attr.x]="i * 70 - 35"
+                    y="0"
+                    width="70"
+                    height="140"
+                    tabindex="0"
+                    role="button"
+                    [attr.aria-label]="'Valores de ' + dia"
+                    (mouseenter)="destacarDia(i)"
+                    (focus)="destacarDia(i)"
+                    (blur)="limparDia()"
+                  />
+                }
+              </g>
+            </svg>
+
+            @if (detalheDia(); as detalhe) {
+              <aside class="px20-balao" [style.left.%]="detalhe.posicao" role="status">
+                <strong>{{ detalhe.dia }}</strong>
+                @for (valor of detalhe.valores; track valor.rotulo) {
+                  <p [attr.data-tone]="valor.tom">
+                    <i></i>{{ valor.rotulo }}: <b>{{ valor.valor }}</b>
+                  </p>
+                }
+              </aside>
+            }
+          </div>
+          <div class="px20-datas">
+            @for (dia of dias; track dia) {
+              <span>{{ dia }}</span>
+            }
+          </div>
+        </div>
+        <a routerLink="/app/pix/desembolsos">Ver relatório completo　→</a>
+      </section>
+
+      <section class="px20-card px20-atividade" aria-label="Atividade recente">
+        <header>
+          <h2>Atividade recente</h2>
+          <a routerLink="/app/pix/recebimentos">Ver todas　→</a>
+        </header>
+        <ol>
+          @for (item of atividades(); track item.id) {
+            <li>
+              <lucide-icon [name]="iconeAtividade(item.tipo)" [size]="23" [strokeWidth]="2" />
+              <div>
+                <strong>{{ item.titulo }}</strong>
+                <small>{{ item.referencia }} • {{ moeda(item.valor) }}</small>
+              </div>
+              <span>{{ item.hora }}</span>
+              <i [attr.data-tone]="tomAtividade(item)"></i>
+            </li>
+          }
+        </ol>
+        <a routerLink="/app/pix/recebimentos">Ver histórico completo　→</a>
+      </section>
+    </div>
+
+    <div class="px20-direita">
+      <section class="px20-card px20-quick" aria-label="Ações rápidas">
+        <h2>Ações rápidas</h2>
+        <div>
+          <button type="button" data-tone="blue" (click)="novoDesembolso()">
+            <lucide-icon name="send" [size]="24" [strokeWidth]="2" />
+            <span>Novo desembolso Pix</span>
+          </button>
+          <a data-tone="green" routerLink="/app/pix/recebimentos">
+            <lucide-icon class="ic-verde" name="search" [size]="19" [strokeWidth]="2.25" />
+            <span>Consultar recebimento</span>
+          </a>
+          <a data-tone="orange" routerLink="/app/pix/divergencias">
+            <lucide-icon class="ic-ambar" name="file-search" [size]="21" [strokeWidth]="2.25" />
+            <span>Verificar divergências</span>
+          </a>
+          <button type="button" data-tone="purple" (click)="exportarRelatorio()">
+            <lucide-icon class="ic-roxo" name="file-down" [size]="24" [strokeWidth]="2" />
+            <span>Exportar relatório</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="px20-card px20-integracoes" aria-label="Integrações ativas">
+        <header>
+          <h2>Integrações ativas</h2>
+          <a routerLink="/app/backoffice/reprocessos">Ver integrações　→</a>
+        </header>
+        <div>
+          @for (integracao of integracoes(); track integracao.nome) {
+            <article>
+              <lucide-icon [name]="integracao.icone" [size]="31" [strokeWidth]="1.5" />
+              <div>
+                <strong>{{ integracao.nome }}</strong>
+                <small>{{ integracao.detalhe }}</small>
+              </div>
+              <span>
+                <small>{{ integracao.rotuloEstado }}</small>
+                <b [class.ativa]="integracao.ativa">{{ integracao.estado }}</b>
+              </span>
+            </article>
+          }
+        </div>
+      </section>
+    </div>
+
+    @if (aviso(); as mensagem) {
+      <p class="px20-toast" role="status">{{ mensagem }}</p>
+    }
+  </main>
+</sep-operational-shell>

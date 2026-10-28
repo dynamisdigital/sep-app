@@ -1,52 +1,117 @@
-<section class="sep-dashboard">
-  <header class="sep-dashboard-header">
-    @if (currentUser(); as user) {
-      <div class="sep-dashboard-heading">
-        <h1 class="sep-dashboard-title">Ola, {{ user.username }}</h1>
-        <span class="sep-dashboard-badge">{{ user.role }}</span>
-      </div>
-      <p class="sep-dashboard-subtitle">Bem-vindo ao painel da SEP.</p>
-    } @else {
-      <h1 class="sep-dashboard-title">Dashboard</h1>
-    }
-  </header>
-
-  <div class="sep-dashboard-section">
-    <h2 class="sep-dashboard-section-title">Acesso rapido</h2>
-    <div class="sep-quick-grid">
-      @for (shortcut of shortcuts(); track shortcut.route) {
-        <a
-          [routerLink]="shortcut.route"
-          [class]="'sep-quick-tile sep-quick-tile--' + shortcut.tone"
-        >
-          <lucide-icon
-            [name]="shortcut.icon"
-            [size]="24"
-            class="sep-tile-icon"
-            aria-hidden="true"
-          />
-          <span class="sep-quick-tile-label">{{ shortcut.label }}</span>
-          <span class="sep-quick-tile-desc">{{ shortcut.description }}</span>
-        </a>
-      }
-    </div>
-  </div>
-
-  <div class="sep-dashboard-section">
-    <h2 class="sep-dashboard-section-title">Proximas jornadas</h2>
-    <div class="sep-journey-grid">
-      @for (placeholder of placeholders; track placeholder.label) {
-        <article class="sep-journey-card" aria-disabled="true">
-          <span [class]="'sep-journey-icon sep-journey-icon--' + placeholder.tone">
-            <lucide-icon [name]="placeholder.icon" [size]="20" aria-hidden="true" />
-          </span>
-          <div class="sep-journey-body">
-            <span class="sep-journey-title">{{ placeholder.label }}</span>
-            <span class="sep-journey-desc">{{ placeholder.description }}</span>
-            <span class="sep-journey-tag">Em preparacao</span>
+<sep-operational-shell>
+  <section class="px48-page">
+    <!-- ============ CABEÇALHO: entra por cima ============ -->
+    <header class="px48-heading">
+      <div class="px48-heading-row">
+        <div class="px48-titulo-wrap">
+          <div>
+            <span class="px48-boas-vindas">{{ saudacao() }},</span>
+            <h1>{{ nomeUsuario() }}</h1>
+            <p class="px48-subtitulo">
+              Bem-vindo ao painel da SEP. Os acessos abaixo seguem o seu papel na plataforma.
+            </p>
           </div>
-        </article>
-      }
+          @if (currentUser(); as user) {
+            <span class="px48-selo" data-tone="blue">{{ user.role }}</span>
+          }
+        </div>
+      </div>
+    </header>
+
+    <!-- ============ CONSTELAÇÃO DE ACESSOS ============ -->
+    <div class="px48-constelacao">
+      <!-- Coluna esquerda: entra pela esquerda -->
+      <div class="px48-lado px48-lado-esq">
+        <p class="px48-lado-titulo">Jornadas</p>
+        @for (atalho of jornadas(); track atalho.route; let i = $index) {
+          <a
+            class="px48-no"
+            [attr.data-tone]="atalho.tone"
+            [routerLink]="atalho.route"
+            [style.--ordem]="i"
+          >
+            <span class="px48-no-hex">
+              <lucide-icon [name]="atalho.icon" [size]="22" />
+            </span>
+            <strong>{{ atalho.label }}</strong>
+            <small>{{ atalho.description }}</small>
+            <i class="px48-no-haste" aria-hidden="true"></i>
+          </a>
+        }
+      </div>
+
+      <!-- Núcleo: a composição converge para cá -->
+      <div class="px48-nucleo">
+        <div class="px48-nucleo-aneis" aria-hidden="true">
+          <span class="px48-anel px48-anel-1"></span>
+          <span class="px48-anel px48-anel-2"></span>
+          <span class="px48-anel px48-anel-3"></span>
+        </div>
+        <div class="px48-nucleo-centro">
+          <!-- Marca oficial do cabeçalho. O arquivo tem 113x48 e é o único completo com fundo
+               transparente, então é exibido perto do tamanho nativo: ampliar mais serrilha. -->
+          <sep-logo class="px48-nucleo-logo" />
+          <span>Sociedade de Empréstimo entre Pessoas</span>
+        </div>
+        <div class="px48-nucleo-rodape">
+          <span>
+            <strong>{{ totalAcessos() }}</strong>
+            <small>acessos liberados</small>
+          </span>
+          <span>
+            <strong>{{ jornadas().length }}</strong>
+            <small>jornadas</small>
+          </span>
+        </div>
+      </div>
+
+      <!-- Coluna direita: entra pela direita -->
+      <div class="px48-lado px48-lado-dir">
+        @if (operacoes().length) {
+          <p class="px48-lado-titulo">Operação</p>
+          @for (atalho of operacoes(); track atalho.route; let i = $index) {
+            <a
+              class="px48-no"
+              [attr.data-tone]="atalho.tone"
+              [routerLink]="atalho.route"
+              [style.--ordem]="i"
+            >
+              <span class="px48-no-hex">
+                <lucide-icon [name]="atalho.icon" [size]="22" />
+              </span>
+              <strong>{{ atalho.label }}</strong>
+              <small>{{ atalho.description }}</small>
+              <i class="px48-no-haste" aria-hidden="true"></i>
+            </a>
+          }
+        }
+
+        <p class="px48-lado-titulo">Conta</p>
+        @for (atalho of conta; track atalho.route; let i = $index) {
+          <a
+            class="px48-no"
+            [attr.data-tone]="atalho.tone"
+            [routerLink]="atalho.route"
+            [style.--ordem]="operacoes().length + i"
+          >
+            <span class="px48-no-hex">
+              <lucide-icon [name]="atalho.icon" [size]="22" />
+            </span>
+            <strong>{{ atalho.label }}</strong>
+            <small>{{ atalho.description }}</small>
+            <i class="px48-no-haste" aria-hidden="true"></i>
+          </a>
+        }
+      </div>
     </div>
-  </div>
-</section>
+
+    <!-- ============ AVISO: entra por baixo ============ -->
+    <aside class="px48-card px48-aviso">
+      <span class="px48-aviso-icone"><lucide-icon name="shield-check" [size]="22" /></span>
+      <p>
+        Ambiente regulado pela Resolução CMN 4.656/2018. Todas as ações ficam registradas na trilha
+        de auditoria, e o acesso a cada jornada depende do papel atribuído à sua conta.
+      </p>
+    </aside>
+  </section>
+</sep-operational-shell>

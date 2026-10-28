@@ -1,3 +1,4 @@
+import { importProvidersFrom } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
@@ -5,6 +6,8 @@ import { fireEvent, render, screen } from '@testing-library/angular';
 import { describe, expect, it, vi } from 'vitest';
 
 import { OnboardingPessoaPageComponent } from './onboarding-pessoa-page.component';
+import { LucideAngularModule } from 'lucide-angular';
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { estabilizar } from '../../../../../testing/estabilizar';
 
 const PESSOA_ID = '2f0799c0-98b9-6d9d-bc4a-7d6f5b771f01';
@@ -16,6 +19,7 @@ function activatedRoute(id?: string) {
 function renderPagina(id?: string) {
   return render(OnboardingPessoaPageComponent, {
     providers: [
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
       provideHttpClient(),
       provideRouter([]),
       { provide: ActivatedRoute, useValue: activatedRoute(id) },
@@ -45,7 +49,7 @@ describe('OnboardingPessoaPageComponent', () => {
 
     preencherFormulario('529.982.247-25');
     fixture.detectChanges();
-    fireEvent.click(screen.getByText('Iniciar onboarding'));
+    fireEvent.click(screen.getByText('Continuar para documentos'));
 
     await estabilizar(fixture);
 
@@ -57,7 +61,7 @@ describe('OnboardingPessoaPageComponent', () => {
 
     preencherFormulario('999.999.999-99');
     fixture.detectChanges();
-    fireEvent.click(screen.getByText('Iniciar onboarding'));
+    fireEvent.click(screen.getByText('Continuar para documentos'));
 
     await estabilizar(fixture);
 
@@ -70,5 +74,15 @@ describe('OnboardingPessoaPageComponent', () => {
     await estabilizar(fixture);
 
     expect(screen.getByText('APROVADO_FINAL')).toBeTruthy();
+  });
+
+  it('reutiliza o shell operacional e os assets oficiais do mockup 07', async () => {
+    await renderPagina();
+
+    expect(screen.getByRole('region', { name: /área operacional sep/i })).toBeTruthy();
+    expect(screen.getByText('Resumo da jornada')).toBeTruthy();
+    // O simbolo do cartao de dados pessoais e vetor; o selo de ambiente regulado, ao lado,
+    // continua em PNG por ser marca.
+    expect(document.querySelector('.kyc-form-card > header > lucide-icon svg')).toBeTruthy();
   });
 });

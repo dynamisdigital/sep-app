@@ -3,30 +3,35 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  computed,
+  inject,
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 
+import { AuthService } from '../../core/auth/auth.service';
+import { OperationalShellComponent } from '../../layout/operational-shell/operational-shell.component';
+
+// Mockup 42 — Acesso negado. A tela é o destino do `roleGuard` e do 403 do errorInterceptor:
+// quem chega aqui está autenticado, mas o papel dele não alcança a área pedida. Por isso a tela
+// diz **qual** é o papel corrente e para onde ir, em vez de só recusar — sem essa informação o
+// operador não sabe se pediu a tela errada ou se falta permissão na conta dele.
 @Component({
   selector: 'sep-access-denied',
-  imports: [RouterLink],
-  template: `
-    <main class="access-denied">
-      <section class="access-denied-panel" aria-labelledby="access-denied-title">
-        <p class="access-denied-badge">403</p>
-        <h1 #titulo id="access-denied-title" class="access-denied-title" tabindex="-1">
-          Acesso negado
-        </h1>
-        <p class="access-denied-body">Seu perfil nao possui permissao para acessar esta area.</p>
-        <a routerLink="/app/dashboard" class="access-denied-link">Voltar ao dashboard</a>
-      </section>
-    </main>
-  `,
+  imports: [RouterLink, LucideAngularModule, OperationalShellComponent],
+  templateUrl: './access-denied.component.html',
   styleUrl: './access-denied.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccessDeniedComponent implements AfterViewInit {
+  private readonly auth = inject(AuthService);
   private readonly titulo = viewChild.required<ElementRef<HTMLHeadingElement>>('titulo');
+
+  protected readonly usuario = this.auth.currentUser;
+
+  /** O papel corrente, quando há sessão. É o dado que explica a recusa. */
+  protected readonly papel = computed(() => this.usuario()?.role ?? null);
 
   ngAfterViewInit(): void {
     // Destino de redirect automatico por dois caminhos: o 403 do errorInterceptor e o roleGuard.

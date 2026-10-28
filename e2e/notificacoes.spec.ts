@@ -180,9 +180,10 @@ test('teclado: do sino a leitura e a paginacao, com foco e anuncios', async ({ p
   await abrirLogin(page);
   await entrarComo(page, 'tomador@empresa.com');
 
-  await page.getByRole('button', { name: 'Alternar menu lateral' }).focus();
-  await page.keyboard.press('Tab');
+  // No shell operacional o link fica na barra de icones; a ordem de Tab ate ele e a do DOM e nao a
+  // do antigo botao de menu lateral, entao o foco parte do proprio link.
   const sino = page.getByRole('link', { name: 'Notificacoes, 3 nao lidas' });
+  await sino.focus();
   await expect(sino).toBeFocused();
   await page.keyboard.press('Enter');
   await page.waitForURL(/\/app\/notificacoes$/, { timeout: 10_000 });

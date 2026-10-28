@@ -1,0 +1,284 @@
+// ============ CONTA ESCROW DO CREDOR ============
+// Estilos compartilhados das telas de conta, alocacao e saque. Mesma linguagem das demais telas
+// operacionais (tema `tela-operacional-tema`).
+
+@use "../shared/credora-tema" as tema;
+
+:host {
+  @include tema.tokens;
+}
+
+@include tema.base("pxe");
+@include tema.tabela("pxe");
+
+.pxe-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  height: 100%;
+  padding: 16px 26px 18px;
+  overflow: hidden auto;
+  background: radial-gradient(circle at 45% 14%, rgb(var(--sep-c-blue) / 6%), transparent 48%);
+}
+
+.pxe-metricas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  gap: 14px;
+  min-width: 0;
+}
+
+.pxe-metrica {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 15px 18px;
+
+  small {
+    color: var(--muted);
+    font-size: 12.5px;
+  }
+
+  strong {
+    color: var(--sep-text);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    white-space: nowrap;
+  }
+
+  em {
+    color: var(--tone, var(--blue));
+    font-style: normal;
+    font-size: 12px;
+  }
+}
+
+.pxe-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.pxe-bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 18px 20px;
+
+  h2 {
+    margin: 0;
+    color: var(--sep-text);
+    font-size: 16px;
+  }
+
+  p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+}
+
+.pxe-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pxe-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+
+  label {
+    color: var(--muted-forte);
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+
+  input,
+  select {
+    height: 42px;
+    padding: 0 12px;
+    color: var(--sep-text);
+    font: inherit;
+    border: 1px solid rgb(var(--sep-c-blue) / 30%);
+    border-radius: 10px;
+    background: rgb(var(--sep-c-active) / 60%);
+
+    &:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 1px;
+    }
+  }
+}
+
+.pxe-campos-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  gap: 12px;
+}
+
+.pxe-check {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  color: var(--muted-forte);
+  font-size: 13px;
+  line-height: 1.45;
+
+  input {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+  }
+}
+
+.pxe-aviso {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  color: var(--muted-forte);
+  font-size: 13px;
+  line-height: 1.45;
+  border: 1px solid rgb(var(--sep-c-blue) / 30%);
+  border-radius: 10px;
+  background: rgb(var(--sep-c-blue) / 8%);
+}
+
+.pxe-erro-form {
+  margin: 0;
+  color: var(--red-forte);
+  font-size: 13px;
+}
+
+.pxe-ok-form {
+  margin: 0;
+  color: var(--green-forte, var(--green));
+  font-size: 13px;
+}
+
+.pxe-pix {
+  display: block;
+  padding: 10px 12px;
+  overflow-wrap: anywhere;
+  color: var(--sep-text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  border-radius: 8px;
+  background: rgb(var(--sep-c-active) / 80%);
+}
+
+.pxe-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pxe-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border: 1px solid rgb(var(--sep-c-blue) / 20%);
+  border-radius: 10px;
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  strong {
+    color: var(--sep-text);
+    font-size: 14px;
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 12px;
+  }
+}
+
+.pxe-item-acoes {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.pxe-btn-mini {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  text-decoration: none;
+  padding: 0 12px;
+  color: var(--sep-text);
+  font-size: 12.5px;
+  font-weight: 600;
+  border: 1px solid rgb(var(--sep-c-blue) / 40%);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    border-color: var(--blue);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.pxe-limite {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  color: var(--muted-forte);
+  font-size: 13px;
+  border: 1px solid rgb(var(--sep-c-blue) / 25%);
+  border-radius: 10px;
+
+  strong {
+    color: var(--sep-text);
+  }
+}
+
+.pxe-tabela-wrap {
+  max-height: 42vh;
+}
+
+.pxe-valor {
+  color: var(--sep-text);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.pxe-vazio {
+  margin: 0;
+  padding: 14px 0;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+@media (width <= 640px) {
+  .pxe-page {
+    padding: 12px 14px 16px;
+  }
+}

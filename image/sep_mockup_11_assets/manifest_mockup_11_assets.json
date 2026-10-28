@@ -1,0 +1,380 @@
+[
+  {
+    "name": "logo_sep_footer_completo.png",
+    "category": "logos",
+    "relative_path": "logos/logo_sep_footer_completo.png",
+    "public_path": "/image/sep_mockup_11_assets/logos/logo_sep_footer_completo.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "logo_sep_header_completo.png",
+    "category": "logos",
+    "relative_path": "logos/logo_sep_header_completo.png",
+    "public_path": "/image/sep_mockup_11_assets/logos/logo_sep_header_completo.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "logo_sep_simbolo_footer.png",
+    "category": "logos",
+    "relative_path": "logos/logo_sep_simbolo_footer.png",
+    "public_path": "/image/sep_mockup_11_assets/logos/logo_sep_simbolo_footer.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "logo_sep_simbolo_header.png",
+    "category": "logos",
+    "relative_path": "logos/logo_sep_simbolo_header.png",
+    "public_path": "/image/sep_mockup_11_assets/logos/logo_sep_simbolo_header.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "logo_sep_texto_extenso_header.png",
+    "category": "logos",
+    "relative_path": "logos/logo_sep_texto_extenso_header.png",
+    "public_path": "/image/sep_mockup_11_assets/logos/logo_sep_texto_extenso_header.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "logo_sep_wordmark_header.png",
+    "category": "logos",
+    "relative_path": "logos/logo_sep_wordmark_header.png",
+    "public_path": "/image/sep_mockup_11_assets/logos/logo_sep_wordmark_header.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_conditions_shield.png",
+    "category": "icons",
+    "relative_path": "icons/icon_conditions_shield.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_conditions_shield.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_footer_ambiente_regulado.png",
+    "category": "icons",
+    "relative_path": "icons/icon_footer_ambiente_regulado.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_footer_ambiente_regulado.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_footer_rastreabilidade_total.png",
+    "category": "icons",
+    "relative_path": "icons/icon_footer_rastreabilidade_total.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_footer_rastreabilidade_total.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_footer_segregacao_patrimonial.png",
+    "category": "icons",
+    "relative_path": "icons/icon_footer_segregacao_patrimonial.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_footer_segregacao_patrimonial.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_footer_seguranca.png",
+    "category": "icons",
+    "relative_path": "icons/icon_footer_seguranca.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_footer_seguranca.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_form_data_aprovacao_calendar.png",
+    "category": "icons",
+    "relative_path": "icons/icon_form_data_aprovacao_calendar.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_form_data_aprovacao_calendar.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_form_onboarding_aprovado.png",
+    "category": "icons",
+    "relative_path": "icons/icon_form_onboarding_aprovado.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_form_onboarding_aprovado.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_info_alerta_analise.png",
+    "category": "icons",
+    "relative_path": "icons/icon_info_alerta_analise.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_info_alerta_analise.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_menu_hamburger.png",
+    "category": "icons",
+    "relative_path": "icons/icon_menu_hamburger.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_menu_hamburger.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_operation_capital_giro.png",
+    "category": "icons",
+    "relative_path": "icons/icon_operation_capital_giro.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_operation_capital_giro.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_precisa_ajuda_headset.png",
+    "category": "icons",
+    "relative_path": "icons/icon_precisa_ajuda_headset.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_precisa_ajuda_headset.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_profile_avatar_b.png",
+    "category": "icons",
+    "relative_path": "icons/icon_profile_avatar_b.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_profile_avatar_b.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_regras_check_green.png",
+    "category": "icons",
+    "relative_path": "icons/icon_regras_check_green.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_regras_check_green.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_regras_credito_shield.png",
+    "category": "icons",
+    "relative_path": "icons/icon_regras_credito_shield.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_regras_credito_shield.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_resumo_proposta_calculadora.png",
+    "category": "icons",
+    "relative_path": "icons/icon_resumo_proposta_calculadora.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_resumo_proposta_calculadora.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_seguranca_conformidade_lock.png",
+    "category": "icons",
+    "relative_path": "icons/icon_seguranca_conformidade_lock.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_seguranca_conformidade_lock.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_sidebar_backoffice.png",
+    "category": "icons",
+    "relative_path": "icons/icon_sidebar_backoffice.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_sidebar_backoffice.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_sidebar_cobranca.png",
+    "category": "icons",
+    "relative_path": "icons/icon_sidebar_cobranca.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_sidebar_cobranca.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_sidebar_credito.png",
+    "category": "icons",
+    "relative_path": "icons/icon_sidebar_credito.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_sidebar_credito.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_sidebar_dashboard.png",
+    "category": "icons",
+    "relative_path": "icons/icon_sidebar_dashboard.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_sidebar_dashboard.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_sidebar_formalizacao.png",
+    "category": "icons",
+    "relative_path": "icons/icon_sidebar_formalizacao.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_sidebar_formalizacao.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_sidebar_help.png",
+    "category": "icons",
+    "relative_path": "icons/icon_sidebar_help.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_sidebar_help.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_sidebar_onboarding.png",
+    "category": "icons",
+    "relative_path": "icons/icon_sidebar_onboarding.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_sidebar_onboarding.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_sidebar_perfil.png",
+    "category": "icons",
+    "relative_path": "icons/icon_sidebar_perfil.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_sidebar_perfil.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_sidebar_pix.png",
+    "category": "icons",
+    "relative_path": "icons/icon_sidebar_pix.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_sidebar_pix.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_simulacao_parcela_estimada.png",
+    "category": "icons",
+    "relative_path": "icons/icon_simulacao_parcela_estimada.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_simulacao_parcela_estimada.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_simulacao_prazo_calendar.png",
+    "category": "icons",
+    "relative_path": "icons/icon_simulacao_prazo_calendar.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_simulacao_prazo_calendar.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_simulacao_taxa_percent.png",
+    "category": "icons",
+    "relative_path": "icons/icon_simulacao_taxa_percent.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_simulacao_taxa_percent.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_simulacao_valor_solicitado.png",
+    "category": "icons",
+    "relative_path": "icons/icon_simulacao_valor_solicitado.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_simulacao_valor_solicitado.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_title_nova_proposta_shield.png",
+    "category": "icons",
+    "relative_path": "icons/icon_title_nova_proposta_shield.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_title_nova_proposta_shield.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_topbar_ambiente_regulado.png",
+    "category": "icons",
+    "relative_path": "icons/icon_topbar_ambiente_regulado.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_topbar_ambiente_regulado.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_topbar_avatar_user_b.png",
+    "category": "icons",
+    "relative_path": "icons/icon_topbar_avatar_user_b.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_topbar_avatar_user_b.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_topbar_bell_notification.png",
+    "category": "icons",
+    "relative_path": "icons/icon_topbar_bell_notification.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_topbar_bell_notification.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_topbar_help.png",
+    "category": "icons",
+    "relative_path": "icons/icon_topbar_help.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_topbar_help.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_topbar_horario_sistema.png",
+    "category": "icons",
+    "relative_path": "icons/icon_topbar_horario_sistema.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_topbar_horario_sistema.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_topbar_search.png",
+    "category": "icons",
+    "relative_path": "icons/icon_topbar_search.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_topbar_search.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "icon_topbar_theme_sun.png",
+    "category": "icons",
+    "relative_path": "icons/icon_topbar_theme_sun.png",
+    "public_path": "/image/sep_mockup_11_assets/icons/icon_topbar_theme_sun.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "ui_alerta_analise.png",
+    "category": "ui-groups",
+    "relative_path": "ui-groups/ui_alerta_analise.png",
+    "public_path": "/image/sep_mockup_11_assets/ui-groups/ui_alerta_analise.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "ui_footer_regulatorio.png",
+    "category": "ui-groups",
+    "relative_path": "ui-groups/ui_footer_regulatorio.png",
+    "public_path": "/image/sep_mockup_11_assets/ui-groups/ui_footer_regulatorio.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "ui_form_nova_proposta_card.png",
+    "category": "ui-groups",
+    "relative_path": "ui-groups/ui_form_nova_proposta_card.png",
+    "public_path": "/image/sep_mockup_11_assets/ui-groups/ui_form_nova_proposta_card.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "ui_main_content.png",
+    "category": "ui-groups",
+    "relative_path": "ui-groups/ui_main_content.png",
+    "public_path": "/image/sep_mockup_11_assets/ui-groups/ui_main_content.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "ui_page_header.png",
+    "category": "ui-groups",
+    "relative_path": "ui-groups/ui_page_header.png",
+    "public_path": "/image/sep_mockup_11_assets/ui-groups/ui_page_header.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "ui_right_precisa_ajuda_card.png",
+    "category": "ui-groups",
+    "relative_path": "ui-groups/ui_right_precisa_ajuda_card.png",
+    "public_path": "/image/sep_mockup_11_assets/ui-groups/ui_right_precisa_ajuda_card.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "ui_right_regras_credito_card.png",
+    "category": "ui-groups",
+    "relative_path": "ui-groups/ui_right_regras_credito_card.png",
+    "public_path": "/image/sep_mockup_11_assets/ui-groups/ui_right_regras_credito_card.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "ui_right_resumo_proposta_card.png",
+    "category": "ui-groups",
+    "relative_path": "ui-groups/ui_right_resumo_proposta_card.png",
+    "public_path": "/image/sep_mockup_11_assets/ui-groups/ui_right_resumo_proposta_card.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "ui_right_seguranca_conformidade_card.png",
+    "category": "ui-groups",
+    "relative_path": "ui-groups/ui_right_seguranca_conformidade_card.png",
+    "public_path": "/image/sep_mockup_11_assets/ui-groups/ui_right_seguranca_conformidade_card.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "ui_sidebar.png",
+    "category": "ui-groups",
+    "relative_path": "ui-groups/ui_sidebar.png",
+    "public_path": "/image/sep_mockup_11_assets/ui-groups/ui_sidebar.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  },
+  {
+    "name": "ui_topbar.png",
+    "category": "ui-groups",
+    "relative_path": "ui-groups/ui_topbar.png",
+    "public_path": "/image/sep_mockup_11_assets/ui-groups/ui_topbar.png",
+    "extraction_method": "centro visual do ícone definido primeiro; expansão simétrica do centro para fora; margem transparente segura; imagem centralizada no canvas"
+  }
+]

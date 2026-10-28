@@ -1,0 +1,496 @@
+<sep-operational-shell>
+  <main class="bo19-page">
+    <section class="bo19-main" aria-labelledby="bo19-title">
+      <header class="bo19-heading">
+        <p>
+          <a routerLink="/app/dashboard">Início</a>　›　<a routerLink="/app/backoffice"
+            >Backoffice</a
+          >　›　<a routerLink="/app/backoffice/reprocessos">Reprocessos</a>　›　<strong>{{
+            canal() === 'provider' ? 'Provider' : 'Webhook'
+          }}</strong>
+        </p>
+        <h1 id="bo19-title">
+          Reprocessar via {{ canal() === 'provider' ? 'Provider' : 'Webhook' }}
+          <lucide-icon class="ic-azul" name="refresh-cw" [size]="34" [strokeWidth]="1.5" />
+        </h1>
+        <span>
+          @if (canal() === 'provider') {
+            Reenvio manual de chamadas para o provider.
+          } @else {
+            Reenvio manual de eventos de webhook.
+          }
+        </span>
+      </header>
+
+      <div class="bo19-tabs" role="tablist" aria-label="Canal de reprocessamento">
+        <button
+          type="button"
+          role="tab"
+          [class.ativa]="canal() === 'webhook'"
+          [attr.aria-selected]="canal() === 'webhook'"
+          (click)="trocarCanal('webhook')"
+        >
+          <lucide-icon name="zap" [size]="20" aria-hidden="true" />Webhook
+        </button>
+        <button
+          type="button"
+          role="tab"
+          [class.ativa]="canal() === 'provider'"
+          [attr.aria-selected]="canal() === 'provider'"
+          (click)="trocarCanal('provider')"
+        >
+          <lucide-icon name="cloud" [size]="20" aria-hidden="true" />Provider
+        </button>
+      </div>
+
+      <section class="bo19-card bo19-form-card" aria-label="Dados para reprocessamento">
+        <h2>Dados para reprocessamento</h2>
+
+        @if (canal() === 'provider') {
+          <form class="bo19-form" [formGroup]="providerForm" (ngSubmit)="disparar()">
+            <div class="bo19-field">
+              <label for="bo19-tipo">Tipo de chamada <b aria-hidden="true">*</b></label>
+              <select id="bo19-tipo" formControlName="tipoChamada" required>
+                @for (t of tiposChamada; track t) {
+                  <option [value]="t">{{ chamadaLabel[t] }}</option>
+                }
+              </select>
+            </div>
+
+            <aside class="bo19-hint">
+              <h3>
+                <lucide-icon name="circle-alert" [size]="15" aria-hidden="true" />Sobre o tipo de
+                chamada
+              </h3>
+              <p>Selecione o tipo exato da informação que deseja reprocessar no provider.</p>
+            </aside>
+
+            <div class="bo19-field bo19-wide">
+              <label for="bo19-entidade">ID da entidade <b aria-hidden="true">*</b></label>
+              <div class="bo19-combo">
+                <input
+                  id="bo19-entidade"
+                  type="text"
+                  formControlName="entidadeId"
+                  placeholder="Ex.: 123e4567-e89b-12d3-a456-426614174000"
+                  role="combobox"
+                  autocomplete="off"
+                  aria-controls="bo19-lista-entidade"
+                  [attr.aria-expanded]="comboAberto() === 'entidade'"
+                  required
+                  (focus)="abrirCombo('entidade')"
+                  (blur)="fecharCombo('entidade')"
+                  (keydown)="navegarCombo('entidade', $event)"
+                />
+                <lucide-icon name="chevron-down" [size]="16" aria-hidden="true" />
+                @if (comboAberto() === 'entidade' && sugestoesEntidade().length) {
+                  <ul id="bo19-lista-entidade" class="bo19-combo-lista" role="listbox">
+                    <li class="bo19-combo-titulo" role="presentation">Já reprocessadas</li>
+                    @for (opcao of sugestoesEntidade(); track opcao; let i = $index) {
+                      <li role="presentation">
+                        <button
+                          type="button"
+                          role="option"
+                          [attr.aria-selected]="i === comboIndice()"
+                          [class.ativa]="i === comboIndice()"
+                          (mousedown)="escolherSugestao('entidade', opcao)"
+                        >
+                          {{ opcao }}
+                        </button>
+                      </li>
+                    }
+                  </ul>
+                }
+              </div>
+              <small>
+                Informe o identificador da entidade (contrato, proposta, usuário, etc.) ou escolha
+                uma das já reprocessadas.
+              </small>
+            </div>
+
+            <div class="bo19-field bo19-wide">
+              <label for="bo19-item">ID do item da fila (opcional)</label>
+              <div class="bo19-combo">
+                <input
+                  id="bo19-item"
+                  type="text"
+                  formControlName="itemId"
+                  placeholder="Ex.: 5b771e05"
+                  role="combobox"
+                  autocomplete="off"
+                  aria-controls="bo19-lista-item"
+                  [attr.aria-expanded]="comboAberto() === 'item'"
+                  (focus)="abrirCombo('item')"
+                  (blur)="fecharCombo('item')"
+                  (keydown)="navegarCombo('item', $event)"
+                />
+                <lucide-icon name="chevron-down" [size]="16" aria-hidden="true" />
+                @if (comboAberto() === 'item' && sugestoesItem().length) {
+                  <ul id="bo19-lista-item" class="bo19-combo-lista" role="listbox">
+                    <li class="bo19-combo-titulo" role="presentation">Itens da fila recentes</li>
+                    @for (opcao of sugestoesItem(); track opcao; let i = $index) {
+                      <li role="presentation">
+                        <button
+                          type="button"
+                          role="option"
+                          [attr.aria-selected]="i === comboIndice()"
+                          [class.ativa]="i === comboIndice()"
+                          (mousedown)="escolherSugestao('item', opcao)"
+                        >
+                          {{ opcao }}
+                        </button>
+                      </li>
+                    }
+                  </ul>
+                }
+              </div>
+              <small
+                >Informe o ID do item da fila para rastreamento específico desta ocorrência.</small
+              >
+            </div>
+
+            <footer class="bo19-warning bo19-wide">
+              <lucide-icon name="circle-alert" [size]="22" aria-hidden="true" />
+              <p>
+                Apenas {{ chamadaLabel['PIX_TRANSFERENCIA'] }} possui reconsulta real de status no
+                provider.<br />Os demais tipos podem não apresentar retorno efetivo no backend.
+              </p>
+              <button type="submit" class="bo19-submit" [disabled]="enviando()">
+                <lucide-icon name="cloud" [size]="17" aria-hidden="true" />
+                {{ enviando() ? 'Enviando...' : 'Reprocessar provider' }}
+              </button>
+            </footer>
+          </form>
+        } @else {
+          <form class="bo19-form" [formGroup]="webhookForm" (ngSubmit)="disparar()">
+            <div class="bo19-field bo19-wide">
+              <label for="bo19-evento">ID do evento de webhook <b aria-hidden="true">*</b></label>
+              <input
+                id="bo19-evento"
+                type="text"
+                formControlName="webhookEventId"
+                placeholder="Ex.: 123e4567-e89b-12d3-a456-426614174000"
+                required
+              />
+              <small>Informe o identificador do evento registrado no log de webhooks.</small>
+            </div>
+
+            <div class="bo19-field bo19-wide">
+              <label for="bo19-item-wh">ID do item da fila (opcional)</label>
+              <input
+                id="bo19-item-wh"
+                type="text"
+                formControlName="itemId"
+                placeholder="Ex.: 5b771e05"
+              />
+              <small
+                >Informe o ID do item da fila para rastreamento específico desta ocorrência.</small
+              >
+            </div>
+
+            <footer class="bo19-warning bo19-wide">
+              <lucide-icon name="circle-alert" [size]="22" aria-hidden="true" />
+              <p>
+                O reenvio reentrega o evento ao processador de origem.<br />O resultado depende do
+                estado atual da entidade referenciada.
+              </p>
+              <button type="submit" class="bo19-submit" [disabled]="enviando()">
+                <lucide-icon name="zap" [size]="17" aria-hidden="true" />
+                {{ enviando() ? 'Enviando...' : 'Reprocessar webhook' }}
+              </button>
+            </footer>
+          </form>
+        }
+
+        @if (semReconsulta()) {
+          <p class="bo19-nota" role="status">
+            {{ chamadaLabel[providerForm.controls.tipoChamada.value] }} pode não ter retentativa
+            efetiva no backend; o resultado será apresentado como o provider retornar.
+          </p>
+        }
+
+        @if (erro(); as msg) {
+          <p class="bo19-erro" role="alert">
+            <lucide-icon name="circle-x" [size]="16" aria-hidden="true" />{{ msg }}
+            <button type="button" (click)="limparResultado()" aria-label="Descartar erro">
+              <lucide-icon name="x" [size]="14" />
+            </button>
+          </p>
+        }
+
+        @if (resultado(); as r) {
+          <section class="bo19-resultado">
+            <header>
+              <h3>Resultado</h3>
+              <button type="button" (click)="limparResultado()" aria-label="Descartar resultado">
+                <lucide-icon name="x" [size]="14" />
+              </button>
+            </header>
+            <sep-reprocesso-resultado [reprocesso]="r" />
+          </section>
+        }
+      </section>
+
+      <section class="bo19-card bo19-history" aria-label="Histórico de reprocessamentos recentes">
+        <header>
+          <h2>Histórico de reprocessamentos recentes</h2>
+          <a routerLink="/app/backoffice/reprocessos">Ver todos　→</a>
+        </header>
+
+        <div class="bo19-table-head">
+          <span>Data/Hora</span><span>Tipo de chamada</span><span>Entidade</span>
+          <span>Item da fila</span><span>Usuário</span><span>Resultado</span><span>Tempo</span>
+          <span class="sr-only">Ações</span>
+        </div>
+
+        <div class="bo19-rows">
+          @if (linhasHistorico().length === 0) {
+            <p class="bo19-vazio">Nenhum reprocessamento manual registrado no período.</p>
+          } @else {
+            @for (linha of linhasHistorico(); track linha.id) {
+              <article class="bo19-row">
+                <span class="bo19-quando">{{ dataHora(linha.dataHora) }}</span>
+                <span>{{ linha.tipoChamada }}</span>
+                <span class="bo19-mono">{{ linha.entidade }}</span>
+                <span class="bo19-mono">{{ linha.itemFila }}</span>
+                <span class="bo19-user">
+                  <i [style.background]="corDoAvatar(linha.usuario)" aria-hidden="true">{{
+                    iniciais(linha.usuario)
+                  }}</i>
+                  {{ linha.usuario }}
+                </span>
+                <span class="bo19-celula-selo">
+                  <b class="bo19-selo" [attr.data-tone]="tomResultado(linha.resultado)">{{
+                    resultadoLabel[linha.resultado]
+                  }}</b>
+                </span>
+                <span class="bo19-tempo">{{ duracao(linha.duracaoSegundos) }}</span>
+                <span>
+                  <a
+                    class="bo19-ver"
+                    [routerLink]="['/app/backoffice/fila', linha.itemFilaId]"
+                    [attr.aria-label]="'Ver item da fila ' + linha.itemFila"
+                    [title]="'Abrir o item ' + linha.itemFila + ' na fila operacional'"
+                  >
+                    <lucide-icon name="eye" [size]="17" />
+                  </a>
+                </span>
+              </article>
+            }
+          }
+        </div>
+      </section>
+    </section>
+
+    <aside class="bo19-side">
+      <section class="bo19-card bo19-manual">
+        <sep-arte nome="engrenagem" />
+        <div>
+          <h2>Reprocessamento manual</h2>
+          <p>
+            Utilize esta funcionalidade apenas em casos excepcionais e com autorização da área
+            responsável.
+          </p>
+        </div>
+      </section>
+
+      <section class="bo19-card bo19-security">
+        <header>
+          <h2>Segurança &amp; conformidade</h2>
+          <button type="button" (click)="abrirRegras()">VER REGRAS　→</button>
+        </header>
+        <dl>
+          <div>
+            <dt><lucide-icon name="shield" [size]="18" aria-hidden="true" />Ambiente</dt>
+            <dd [attr.data-tone]="ambiente().tom">{{ ambiente().rotulo }}</dd>
+          </div>
+          <div>
+            <dt><lucide-icon name="user-check" [size]="18" aria-hidden="true" />Perfil atual</dt>
+            <dd>{{ perfil() }}</dd>
+          </div>
+          <div>
+            <dt><lucide-icon name="fingerprint" [size]="18" aria-hidden="true" />Permissão</dt>
+            <dd>{{ permissao() }}</dd>
+          </div>
+          <div>
+            <dt><lucide-icon name="zap" [size]="18" aria-hidden="true" />Autenticação</dt>
+            <dd>Token JWT <lucide-icon name="circle-check" [size]="17" data-ok /></dd>
+          </div>
+          <div>
+            <dt>
+              <lucide-icon name="clipboard-check" [size]="18" aria-hidden="true" />Registro de
+              auditoria
+            </dt>
+            <dd>Ativo <lucide-icon name="circle-check" [size]="17" data-ok /></dd>
+          </div>
+          <div>
+            <dt><lucide-icon name="lock" [size]="18" aria-hidden="true" />Criptografia TLS</dt>
+            <dd>1.3 <lucide-icon name="circle-check" [size]="17" data-ok /></dd>
+          </div>
+        </dl>
+        <footer>
+          <sep-arte nome="escudo-monitorado" />
+          <div>
+            <strong>Operação monitorada e registrada</strong>
+            <p>
+              <span class="bo19-mono">ID da sessão: {{ sessaoId }}</span>
+              <button type="button" (click)="copiarSessao()" aria-label="Copiar ID da sessão">
+                <lucide-icon [name]="$any(sessaoCopiada() ? 'circle-check' : 'copy')" [size]="13" />
+              </button>
+            </p>
+          </div>
+        </footer>
+      </section>
+
+      <section class="bo19-card bo19-risk">
+        <h2>Risco operacional</h2>
+        <div class="bo19-risk-body">
+          <div
+            class="bo19-gauge"
+            [attr.data-tone]="risco().tom"
+            [style.--pct]="riscoPercentual()"
+            role="img"
+            [attr.aria-label]="'Risco operacional ' + risco().nivel"
+          >
+            <span>
+              <strong>{{ risco().nivel }}</strong>
+              <lucide-icon name="triangle-alert" [size]="19" aria-hidden="true" />
+            </span>
+          </div>
+          <div>
+            <strong [attr.data-tone]="risco().tom">{{ risco().titulo }}</strong>
+            <p>Evite reprocessamentos excessivos para o mesmo item em curto período.</p>
+          </div>
+        </div>
+        <button type="button" (click)="abrirRegras()">Boas práticas de reprocessamento　→</button>
+      </section>
+
+      <section class="bo19-card bo19-support">
+        <h2>Suporte técnico</h2>
+        <div class="bo19-support-body">
+          <lucide-icon class="bo19-support-icone" name="headset" [size]="12" [strokeWidth]="2.25" />
+          <div>
+            <strong>Precisa de ajuda?</strong>
+            <p>Entre em contato com o time de integrações.</p>
+          </div>
+          <sep-arte class="bo19-support-hud" nome="headset" />
+        </div>
+        <button type="button" (click)="abrirSuporte()">Abrir chamado de suporte</button>
+      </section>
+    </aside>
+
+    @if (regrasAbertas()) {
+      <div class="bo19-overlay">
+        <button
+          type="button"
+          class="bo19-backdrop"
+          (click)="fecharRegras()"
+          aria-label="Fechar regras"
+        ></button>
+        <article
+          class="bo19-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="bo19-regras-title"
+          (keydown.escape)="fecharRegras()"
+        >
+          <header>
+            <h2 id="bo19-regras-title">Regras e boas práticas de reprocessamento</h2>
+            <button type="button" (click)="fecharRegras()" aria-label="Fechar">
+              <lucide-icon name="x" [size]="17" />
+            </button>
+          </header>
+          <ul class="bo19-regras">
+            <li>
+              <strong>Confirmação adicional obrigatória.</strong> O disparo exige step-up: o backend
+              responde 403 quando o token de confirmação não acompanha a requisição.
+            </li>
+            <li>
+              <strong>Limite de 3 reprocessos por entidade em 24 horas.</strong> Acima disso o
+              backend responde 429 e não há retentativa automática.
+            </li>
+            <li>
+              <strong>Reconsulta real só em {{ chamadaLabel['PIX_TRANSFERENCIA'] }}.</strong> Os
+              demais tipos de chamada podem não ter retentativa efetiva; a tela apresenta o retorno
+              como veio, sem compensar.
+            </li>
+            <li>
+              <strong>Vincule o item da fila quando existir.</strong> O campo opcional liga o
+              disparo à ocorrência e mantém a rastreabilidade da trilha de auditoria.
+            </li>
+            <li>
+              <strong>Toda operação é registrada.</strong> Usuário, entidade, tipo e resultado ficam
+              na trilha de auditoria do backend, associados ao ID da sessão.
+            </li>
+          </ul>
+          <footer>
+            <a
+              class="bo19-secondary"
+              routerLink="/app/backoffice/reprocessos"
+              (click)="fecharRegras()"
+            >
+              Ver todos os reprocessos
+            </a>
+            <button type="button" class="bo19-primary" (click)="fecharRegras()">Entendi</button>
+          </footer>
+        </article>
+      </div>
+    }
+
+    @if (suporteAberto()) {
+      <div class="bo19-overlay">
+        <button
+          type="button"
+          class="bo19-backdrop"
+          (click)="fecharSuporte()"
+          aria-label="Fechar suporte"
+        ></button>
+        <article
+          class="bo19-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="bo19-suporte-title"
+          (keydown.escape)="fecharSuporte()"
+        >
+          <header>
+            <h2 id="bo19-suporte-title">Abrir chamado de suporte</h2>
+            <button type="button" (click)="fecharSuporte()" aria-label="Fechar">
+              <lucide-icon name="x" [size]="17" />
+            </button>
+          </header>
+          <p class="bo19-dialog-sub">
+            Informe estes dados ao time de integrações para agilizar a análise do chamado.
+          </p>
+          <dl class="bo19-suporte">
+            <div>
+              <dt>Canal</dt>
+              <dd>{{ canal() === 'provider' ? 'Provider' : 'Webhook' }}</dd>
+            </div>
+            <div>
+              <dt>Ambiente</dt>
+              <dd>{{ ambiente().rotulo }}</dd>
+            </div>
+            <div>
+              <dt>Perfil</dt>
+              <dd>{{ perfil() }}</dd>
+            </div>
+            <div>
+              <dt>Permissão</dt>
+              <dd>{{ permissao() }}</dd>
+            </div>
+            <div class="bo19-wide">
+              <dt>ID da sessão</dt>
+              <dd class="bo19-mono">{{ sessaoId }}</dd>
+            </div>
+          </dl>
+          <footer>
+            <button type="button" class="bo19-secondary" (click)="copiarSessao()">
+              {{ sessaoCopiada() ? 'ID copiado' : 'Copiar ID da sessão' }}
+            </button>
+            <a class="bo19-primary" [href]="mailtoSuporte()">Enviar e-mail ao time</a>
+          </footer>
+        </article>
+      </div>
+    }
+  </main>
+</sep-operational-shell>

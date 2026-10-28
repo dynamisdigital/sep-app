@@ -1,0 +1,10 @@
+Assets extraídos do Mockup_01
+
+Conteúdo:
+- logos: variações do logotipo SEP em fundo transparente.
+- icons: ícones individuais dos cards, badges, etapas e indicadores.
+- visuals: elementos visuais maiores do mockup, como globo digital, HUD de escudo e card principal.
+
+Observação:
+Os PNGs foram recortados a partir do mockup fornecido e processados para remover o fundo escuro, mantendo transparência.
+Alguns elementos possuem brilho/neon original e podem conter transparência semitransparente para preservar o efeito visual.

@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 
+import { environment } from '../../../environments/environment';
 import { withSupportReference } from '../api/support-reference';
 import { AuthService } from '../auth/auth.service';
 
@@ -13,7 +14,17 @@ import { ehRotaPublica } from './rotas-publicas';
 // suprimem o redirect global para /access-denied. 401/423 continuam sempre globais.
 export const TRATA_403_LOCALMENTE = new HttpContextToken<boolean>(() => false);
 
+/**
+ * Intercepta erros HTTP globais da API do SEP.
+ *
+ * Hardening (SEC-03 / SEC-07): aplica redirecionamentos de sessao apenas para respostas vindas do
+ * backend institucional (`apiBaseUrl`).
+ */
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
+  if (!req.url.startsWith(environment.apiBaseUrl)) {
+    return next(req);
+  }
+
   const auth = inject(AuthService);
   const router = inject(Router);
 

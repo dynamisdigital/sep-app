@@ -1,3 +1,13 @@
+/**
+ * SEP — Frontend
+ *
+ * Frontend Development:
+ * Daniel Möllmann
+ *
+ * Angular • TypeScript • SCSS
+ * 2026
+ */
+
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,
@@ -5,7 +15,7 @@ import {
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 
 import { routes } from './app.routes';
@@ -19,7 +29,8 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    // Página nova abre no topo; ao voltar (seta do navegador ou do site), retoma a posição em que estava.
+    provideRouter(routes, withInMemoryScrolling({ scrollPositionRestoration: 'enabled' })),
     provideHttpClient(
       withInterceptors([
         clientChannelInterceptor,

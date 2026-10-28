@@ -1,0 +1,50 @@
+:host {
+  display: block;
+}
+
+.cor-barras {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  height: 190px;
+}
+
+.cor-barra {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.cor-barra-valor {
+  color: var(--sep-text-strong);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cor-barra-trilho {
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  width: 100%;
+  max-width: 54px;
+  overflow: hidden;
+  border-radius: 6px 6px 2px 2px;
+  background: color-mix(in srgb, var(--sep-border-strong) 35%, transparent);
+}
+
+.cor-barra-preenchimento {
+  width: 100%;
+  border-radius: 6px 6px 2px 2px;
+  box-shadow: 0 0 10px rgb(var(--sep-c-cyan) / calc(30% * var(--sep-glow-alpha)));
+  transition: height 300ms ease;
+}
+
+.cor-barra-rotulo {
+  color: var(--sep-text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+}

@@ -1,53 +1,270 @@
-@use "../../../styles/sep-ds-typography" as sepType;
-@use "../../../styles/sep-ds-components" as sepDs;
+// ============ MOCKUP 42 — ACESSO NEGADO ============
+
+@use "../../../styles/tela-operacional-tema" as tema;
 
 :host {
-  display: block;
-  background: hsl(var(--background));
+  @include tema.tokens;
+
+  /* Esta rota fica fora do `/app`, então não herda o layout do ShellComponent: sem prender o
+     host à janela, o `.op-dashboard` (100vh menos as margens) sobrava 4px e a página rolava. */
+  height: 100vh;
+  overflow: hidden;
 }
 
-.access-denied {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  padding: var(--sep-space-24);
+@include tema.base("px42");
+
+.px42-page {
+  display: grid;
+  height: 100%;
+  min-height: 0;
+
+  /* As decorações saem da caixa de propósito; sem o recorte elas criam rolagem na página. */
+  overflow: hidden;
+  padding: 20px 26px;
+  place-items: center;
 }
 
-.access-denied-panel {
-  @include sepDs.sep-card;
+// ============ COMPOSIÇÃO CENTRAL ============
+// O desenho centra o bloco na área útil, com o cadeado fantasma à esquerda e a malha de pontos à
+// direita atrás do cartão. As duas decorações são puramente visuais e ficam fora da leitura.
 
+.px42-centro {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 40px;
+}
+
+.px42-fantasma {
+  position: absolute;
+  top: 118px;
+  left: -78px;
+  z-index: 0;
+  display: grid;
+  color: color-mix(in srgb, var(--sep-text-muted) 13%, transparent);
+  place-items: center;
+}
+
+.px42-malha {
+  position: absolute;
+  top: 74px;
+  right: -84px;
+  z-index: 0;
+  width: 78px;
+  height: 128px;
+  background-image: radial-gradient(circle, rgb(var(--sep-c-blue) / 34%) 1.6px, transparent 1.7px);
+  background-size: 13px 13px;
+}
+
+.px42-bloco {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+
+  /* O emblema fica metade fora do cartão, como no desenho: a linha do topo passa pelo centro
+     dele. Por isso o cartão sobe 42px e a coluna reserva o espaço só uma vez. */
+  padding-top: 42px;
+}
+
+// ============ EMBLEMA ============
+
+.px42-emblema {
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  display: grid;
+  width: 84px;
+  height: 84px;
+  color: var(--sep-danger);
+  border: 1px solid rgb(var(--sep-c-red) / 42%);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 34%, rgb(var(--sep-c-red) / 26%), transparent 62%),
+    color-mix(in srgb, var(--sep-surface) 92%, transparent);
+  box-shadow:
+    inset 0 0 22px rgb(var(--sep-c-red) / calc(22% * var(--sep-glow-alpha))),
+    0 0 34px rgb(var(--sep-c-red) / calc(22% * var(--sep-glow-alpha)));
+  place-items: center;
+  animation: px42-pulsa 3.6s ease-in-out infinite;
+}
+
+@keyframes px42-pulsa {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 0 22px rgb(var(--sep-c-red) / calc(22% * var(--sep-glow-alpha))),
+      0 0 34px rgb(var(--sep-c-red) / calc(22% * var(--sep-glow-alpha)));
+  }
+
+  50% {
+    box-shadow:
+      inset 0 0 26px rgb(var(--sep-c-red) / calc(30% * var(--sep-glow-alpha))),
+      0 0 46px rgb(var(--sep-c-red) / calc(34% * var(--sep-glow-alpha)));
+  }
+}
+
+// ============ CARTÃO ============
+
+.px42-card {
+  display: grid;
+  width: 485px;
+  padding: 62px 46px 30px;
+  text-align: center;
+  border: 1px solid var(--linha);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 50% 0%, rgb(var(--sep-c-red) / 7%), transparent 46%),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--sep-surface-2) 92%, transparent),
+      color-mix(in srgb, var(--sep-surface) 88%, transparent)
+    );
+  box-shadow: 0 22px 54px rgb(var(--sep-c-shadow) / 55%);
+  justify-items: center;
+}
+
+.px42-codigo {
+  display: grid;
+  width: 56px;
+  height: 27px;
+  margin: 0 0 14px;
+  color: var(--sep-danger);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  border: 1px solid rgb(var(--sep-c-red) / 42%);
+  border-radius: 999px;
+  background: rgb(var(--sep-c-red) / 16%);
+  place-items: center;
+}
+
+.px42-card h1 {
+  margin: 0 0 12px;
+  color: var(--sep-text-strong);
+  font-size: 29px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.px42-mensagem {
+  max-width: 292px;
+  margin: 0;
+  color: var(--muted-forte);
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+// A tela do desenho só recusa; dizer o papel corrente é o que permite ao operador saber se
+// pediu a área errada ou se falta permissão na conta dele.
+.px42-papel {
   display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-16);
+  gap: 7px;
   align-items: center;
-  max-width: 480px;
-  padding: var(--sep-space-24);
+  margin: 16px 0 0;
+  padding: 7px 14px;
+  color: var(--muted-forte);
+  font-size: 13px;
+  border: 1px solid rgb(var(--sep-c-blue) / 24%);
+  border-radius: 999px;
+  background: rgb(var(--sep-c-blue) / 8%);
+}
+
+.px42-papel strong {
+  color: var(--blue);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.px42-papel lucide-icon {
+  display: grid;
+  color: var(--blue);
+  place-items: center;
+}
+
+.px42-card hr {
+  width: 100%;
+  height: 1px;
+  margin: 26px 0;
+  border: 0;
+  background: linear-gradient(90deg, transparent, var(--linha) 18%, var(--linha) 82%, transparent);
+}
+
+.px42-card .px42-btn-primary {
+  gap: 10px;
+  width: 226px;
+  height: 48px;
+  font-size: 16.5px;
+}
+
+// ============ AJUDA ============
+
+.px42-ajuda {
+  position: relative;
+  z-index: 1;
+
+  /* O ícone corre no fluxo do texto, e não como coluna própria: é o que reproduz a quebra do
+     desenho — a primeira linha termina em "erro," e a segunda leva o link inteiro. */
+  max-width: 302px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.5;
   text-align: center;
 }
 
-.access-denied-badge {
-  @include sepDs.sep-badge-soft(--destructive);
-
-  margin: 0;
+.px42-ajuda lucide-icon {
+  display: inline-grid;
+  margin-right: 7px;
+  vertical-align: -3px;
+  place-items: center;
 }
 
-.access-denied-title {
-  @include sepType.sep-type-page-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
-}
-
-.access-denied-body {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.access-denied-link {
-  @include sepDs.sep-button-primary;
-
+.px42-ajuda a {
+  color: var(--blue);
   text-decoration: none;
+  border-bottom: 1px solid rgb(var(--sep-c-blue) / 40%);
+  transition: color 180ms ease;
+}
+
+.px42-ajuda a:hover,
+.px42-ajuda a:focus-visible {
+  color: var(--sep-accent);
+}
+
+// ============ COMPACTAÇÃO ============
+// Degraus que mexem só na folga: o corpo de texto não muda de tamanho em nenhuma altura.
+
+@include tema.resp-altura-curta {
+  .px42-centro {
+    gap: 30px;
+  }
+
+  .px42-card {
+    padding: 58px 46px 26px;
+  }
+
+  .px42-card hr {
+    margin: 20px 0;
+  }
+}
+
+@include tema.resp-altura-muito-curta {
+  .px42-centro {
+    gap: 22px;
+  }
+
+  .px42-card {
+    padding: 56px 46px 22px;
+  }
+
+  .px42-card hr {
+    margin: 16px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .px42-emblema {
+    animation: none;
+  }
 }

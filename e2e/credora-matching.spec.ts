@@ -97,10 +97,10 @@ test('credora: carteira mostra aportes somente leitura, sem mutacao', async ({ p
 
   // Navegacao SPA (sem page.goto): um full reload reinicia o estado do MSW no bundle e a sessao
   // mock voltaria ao usuario default, perdendo a persona credora.
-  await page.getByRole('link', { name: 'Credora' }).click();
-  await page.getByRole('link', { name: 'Carteira' }).click();
+  await page.getByRole('link', { name: 'Credora', exact: true }).click();
+  await page.getByRole('link', { name: 'Carteira', exact: true }).click();
   await page.waitForURL(/\/app\/credora\/carteira$/, { timeout: 10_000 });
-  await page.getByRole('link', { name: OPERACAO_CARTEIRA_ID.slice(-8) }).click();
+  await page.getByRole('link', { name: OPERACAO_CARTEIRA_ID.slice(-8), exact: true }).click();
   await page.waitForURL(new RegExp(`/app/credora/carteira/${OPERACAO_CARTEIRA_ID}$`), {
     timeout: 10_000,
   });
@@ -122,5 +122,5 @@ test('backoffice e credora (CLIENTE): nao veem o menu de matching', async ({ pag
   await login(page, 'credora@empresa.com');
   await expect(page.getByRole('link', { name: 'Matching de credoras' })).toHaveCount(0);
   // Persona CLIENTE mantem o menu proprio da jornada credora, separado do operacional.
-  await expect(page.getByRole('link', { name: 'Credora' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Credora', exact: true })).toBeVisible();
 });

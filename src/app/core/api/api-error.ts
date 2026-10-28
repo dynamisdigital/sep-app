@@ -41,8 +41,16 @@ import { ApiErrorResponse } from './api.models';
  * dado certo. Com `"   "` o no e criado em branco, e o leitor de tela anuncia um alerta sem conteudo.
  */
 export function mensagemDeErroDaApi(err: HttpErrorResponse, padrao: string): string {
-  return mensagemBrutaDaApi(err) ?? padrao;
+  const mensagem = mensagemBrutaDaApi(err);
+  if (!mensagem) return padrao;
+  // SEC-07 (convergencia com o front atual): em falha interna (5xx), detalhe de infraestrutura
+  // (excecao Java, SQL, driver) nunca chega a tela; vale o texto funcional do chamador.
+  if (err.status >= 500 && TERMOS_TECNICOS_SENSIVEIS.test(mensagem)) return padrao;
+  return mensagem;
 }
+
+const TERMOS_TECNICOS_SENSIVEIS =
+  /exception|stacktrace|sqlstate|hibernate|jdbc|postgresql|syntax error|nullpointer|driver\b/i;
 
 /**
  * A mensagem do corpo, aparada, ou `undefined` quando nao ha nenhuma utilizavel — inclusive quando

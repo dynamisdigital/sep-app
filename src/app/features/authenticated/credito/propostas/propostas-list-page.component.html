@@ -1,51 +1,309 @@
-<section class="sep-propostas-list">
-  <header class="sep-propostas-list-header">
-    <h1 class="sep-propostas-list-title">Minhas propostas</h1>
-    <a routerLink="/app/credito/propostas/nova" class="sep-propostas-list-new">Nova proposta</a>
-  </header>
+<sep-operational-shell>
+  <div class="proposals-page op-pagina-rolavel">
+    <header class="proposals-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/credito">Crédito</a><span>›</span><strong>Minhas propostas</strong>
+      </nav>
+      <h1>
+        Minhas propostas
+        <lucide-icon class="ic-azul" name="shield" [size]="30" [strokeWidth]="1.5" />
+      </h1>
+      <p>Acompanhe o status e os detalhes das suas propostas de crédito.</p>
+    </header>
 
-  @if (loading()) {
-    <p class="sep-propostas-list-state" role="status">Carregando propostas...</p>
-  } @else if (errorMessage()) {
-    <div class="sep-propostas-list-state sep-propostas-list-error" role="alert">
-      <p>{{ errorMessage() }}</p>
-      <button type="button" class="sep-propostas-list-retry" (click)="carregar()">
-        Tentar novamente
-      </button>
-    </div>
-  } @else if (propostas().length === 0) {
-    <div class="sep-propostas-list-state sep-propostas-list-empty">
-      <p>Voce ainda nao tem propostas.</p>
-      <a routerLink="/app/credito/propostas/nova">Solicitar credito</a>
-    </div>
-  } @else {
-    <table class="sep-propostas-list-table">
-      <thead>
-        <tr>
-          <th scope="col">Proposta</th>
-          <th scope="col">Tipo</th>
-          <th scope="col">Valor</th>
-          <th scope="col">Prazo</th>
-          <th scope="col">Status</th>
-          <th scope="col">Criada em</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (proposta of propostas(); track proposta.id) {
-          <tr>
-            <td>
-              <a [routerLink]="['/app/credito/propostas', proposta.id]">
-                {{ idCurto(proposta.id) }}
-              </a>
-            </td>
-            <td>{{ proposta.tipoOperacao }}</td>
-            <td>{{ formatarMoeda(proposta.valorSolicitado, proposta.moeda) }}</td>
-            <td>{{ proposta.prazoMeses }} meses</td>
-            <td><sep-proposta-status [status]="proposta.status" /></td>
-            <td>{{ formatarData(proposta.dataCriacao) }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  }
-</section>
+    <section class="proposal-metrics" aria-label="Resumo das propostas">
+      @for (metric of metrics(); track metric.label) {
+        <article [attr.data-tone]="metric.tone">
+          <div class="metric-content">
+            <lucide-icon class="metric-icon" [name]="metric.icon" [size]="48" [strokeWidth]="1" />
+            <span
+              ><small>{{ metric.label }}</small
+              ><strong>{{ metric.value }}</strong
+              ><em>{{ metric.detail }}</em></span
+            >
+            @if (metric.percentValue !== undefined) {
+              <div
+                class="metric-percent"
+                [style.--metric-progress]="metric.percentValue + '%'"
+                [attr.aria-label]="metric.percent"
+              >
+                <span>{{ metric.percent }}</span>
+              </div>
+            }
+          </div>
+          <!-- Antes era um link para a propria tela: o clique so recarregava a lista. -->
+          <button
+            type="button"
+            class="metric-action"
+            [class.metric-action-ativa]="metric.status && statusFiltro() === metric.status"
+            [attr.aria-pressed]="metric.status ? statusFiltro() === metric.status : null"
+            [attr.aria-haspopup]="metric.status ? null : 'dialog'"
+            (click)="acionarCartao(metric)"
+          >
+            {{ metric.action }} <b aria-hidden="true">→</b>
+          </button>
+        </article>
+      }
+    </section>
+
+    @if (limiteAberto()) {
+      <div class="limit-backdrop" (click)="fecharLimite()" aria-hidden="true"></div>
+      <section
+        class="limit-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="limit-dialog-title"
+        (keydown.escape)="fecharLimite()"
+      >
+        <header>
+          <lucide-icon class="ic-verde" name="wallet" [size]="26" [strokeWidth]="1.5" />
+          <div>
+            <h2 id="limit-dialog-title">Detalhes do limite</h2>
+            <p>Teto definido pelo regimento do SEP para cada proposta, PF ou PJ.</p>
+          </div>
+          <button type="button" class="limit-close" aria-label="Fechar" (click)="fecharLimite()">
+            <lucide-icon name="x" [size]="18" />
+          </button>
+        </header>
+        <dl>
+          <div>
+            <dt>Teto por proposta</dt>
+            <dd class="tone-green">{{ formatarMoeda(limite().teto, 'BRL') }}</dd>
+          </div>
+          <div>
+            <dt>Em análise ou com pendência</dt>
+            <dd>{{ formatarMoeda(limite().emAnalise, 'BRL') }}</dd>
+          </div>
+          <div>
+            <dt>Pré-aprovado ou aprovado</dt>
+            <dd>{{ formatarMoeda(limite().aprovado, 'BRL') }}</dd>
+          </div>
+          <div>
+            <dt>Maior valor solicitado</dt>
+            <dd>{{ formatarMoeda(limite().maiorSolicitacao, 'BRL') }}</dd>
+          </div>
+        </dl>
+        <ul>
+          <li>
+            <lucide-icon name="check" [size]="14" />Nenhuma proposta pode passar de
+            {{ formatarMoeda(limite().teto, 'BRL') }}.
+          </li>
+          <li>
+            <lucide-icon name="check" [size]="14" />O valor final depende do score do motor e do
+            parecer da equipe de crédito.
+          </li>
+          <li>
+            <lucide-icon name="check" [size]="14" />Valores acima do teto são recusados já no
+            cadastro da proposta.
+          </li>
+        </ul>
+        <footer>
+          <button type="button" class="limit-secondary" (click)="fecharLimite()">Fechar</button>
+          <a class="limit-primary" routerLink="/app/credito/propostas/nova">Nova proposta →</a>
+        </footer>
+      </section>
+    }
+
+    <section class="proposals-table-card" id="lista-propostas">
+      <div class="proposal-filters" aria-label="Filtros de propostas">
+        <label class="search-field"
+          ><span class="sr-only">Buscar proposta</span
+          ><input
+            type="search"
+            placeholder="Buscar por ID, tipo ou valor..."
+            [ngModel]="busca()"
+            (ngModelChange)="busca.set($event)"
+          /><b aria-hidden="true">⌕</b></label
+        >
+        <label
+          ><span>Status</span
+          ><select [ngModel]="statusFiltro()" (ngModelChange)="statusFiltro.set($event)">
+            <option value="">Todos</option>
+            <option value="EM_ANALISE">Em análise</option>
+            <option value="PRE_APROVADA">Pré-aprovada</option>
+            <option value="APROVADA">Aprovada</option>
+            <option value="PENDENCIA">Pendente</option>
+            <option value="REJEITADA">Reprovada</option>
+          </select></label
+        >
+        <label
+          ><span>Tipo de operação</span
+          ><select [ngModel]="tipoFiltro()" (ngModelChange)="tipoFiltro.set($event)">
+            <option value="">Todos</option>
+            <option value="CAPITAL_GIRO">Capital de giro</option>
+            <option value="OUTROS">Outros</option>
+          </select></label
+        >
+        <label class="date-field"
+          ><span>Data inicial</span
+          ><input
+            #dataInicialInput
+            type="date"
+            [ngModel]="dataInicial()"
+            (ngModelChange)="dataInicial.set($event)" /><button
+            type="button"
+            aria-label="Abrir calendário da data inicial"
+            (click)="abrirCalendario(dataInicialInput)"
+          >
+            <span aria-hidden="true"></span></button
+        ></label>
+        <label class="date-field"
+          ><span>Data final</span
+          ><input
+            #dataFinalInput
+            type="date"
+            [ngModel]="dataFinal()"
+            (ngModelChange)="dataFinal.set($event)" /><button
+            type="button"
+            aria-label="Abrir calendário da data final"
+            (click)="abrirCalendario(dataFinalInput)"
+          >
+            <span aria-hidden="true"></span></button
+        ></label>
+        <a class="new-proposal" routerLink="/app/credito/propostas/nova"
+          >Nova proposta <span class="new-proposal-plus" aria-hidden="true"></span
+        ></a>
+      </div>
+
+      @if (loading()) {
+        <p class="table-state" role="status">Carregando propostas...</p>
+      } @else if (errorMessage()) {
+        <div class="table-state error" role="alert">
+          <p>{{ errorMessage() }}</p>
+          <button type="button" (click)="carregar()">Tentar novamente</button>
+        </div>
+      } @else if (propostasFiltradas().length === 0) {
+        <div class="table-state">
+          <p>Nenhuma proposta encontrada para os filtros selecionados.</p>
+          <button type="button" (click)="limparFiltros()">Limpar filtros</button>
+        </div>
+      } @else {
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Proposta</th>
+                <th>Tipo de operação</th>
+                <th>Valor solicitado</th>
+                <th>Prazo</th>
+                <th>Status</th>
+                <th>Criada em</th>
+                <th>Atualizada em</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (proposta of propostasFiltradas(); track proposta.id) {
+                <tr>
+                  <td>
+                    <a [routerLink]="['/app/credito/propostas', proposta.id]">{{
+                      idCurto(proposta.id)
+                    }}</a>
+                  </td>
+                  <td>{{ tipoLabel(proposta.tipoOperacao) }}</td>
+                  <td class="requested-value">
+                    @if (valoresOcultos().has(proposta.id)) {
+                      <span aria-label="Valor solicitado oculto">R$ ••••••</span>
+                    } @else {
+                      {{ formatarMoeda(proposta.valorSolicitado, proposta.moeda) }}
+                    }
+                  </td>
+                  <td>{{ proposta.prazoMeses }} meses</td>
+                  <td><sep-proposta-status [status]="proposta.status" /></td>
+                  <td>{{ formatarData(proposta.dataCriacao) }}</td>
+                  <td>{{ formatarData(proposta.dataModificacao) }}</td>
+                  <td class="actions">
+                    <button
+                      type="button"
+                      [class.value-hidden]="valoresOcultos().has(proposta.id)"
+                      [attr.aria-label]="
+                        valoresOcultos().has(proposta.id)
+                          ? 'Mostrar valor solicitado'
+                          : 'Ocultar valor solicitado'
+                      "
+                      (click)="alternarValor(proposta.id)"
+                    >
+                      @if (valoresOcultos().has(proposta.id)) {
+                        <svg class="hidden-eye-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+                          <circle cx="12" cy="12" r="2.75" />
+                          <path d="m4 4 16 16" />
+                        </svg>
+                      } @else {
+                        <lucide-icon name="eye" [size]="14" [strokeWidth]="2.25" />
+                      }</button
+                    ><a
+                      [routerLink]="['/app/credito/propostas', proposta.id]"
+                      aria-label="Visualizar documento da proposta"
+                      ><lucide-icon name="file-text" [size]="14" [strokeWidth]="2.25" /></a
+                    ><button type="button" aria-label="Mais ações">
+                      <lucide-icon
+                        class="ic-azul"
+                        name="ellipsis-vertical"
+                        [size]="14"
+                        [strokeWidth]="2.25"
+                      />
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <footer class="table-footer">
+          <span
+            >Exibindo 1 a {{ propostasFiltradas().length }} de
+            {{ propostasFiltradas().length }} propostas</span
+          >
+          <div class="pagination">
+            <button type="button" disabled>‹</button><b>1</b
+            ><button type="button" disabled>›</button>
+          </div>
+          <label
+            >Itens por página
+            <select>
+              <option>10</option>
+            </select></label
+          >
+        </footer>
+      }
+    </section>
+
+    <section class="proposal-summaries" aria-label="Indicadores das propostas">
+      @for (summary of summaries(); track summary.label) {
+        <article [attr.data-tone]="summary.tone">
+          <lucide-icon
+            class="summary-icon"
+            [name]="summary.icon"
+            [size]="42"
+            [strokeWidth]="1.25"
+          /><span
+            ><small>{{ summary.label }}</small
+            ><strong>{{ summary.value }}</strong
+            ><em>{{ summary.detail }}</em></span
+          ><svg class="sparkline" viewBox="0 0 80 34" aria-hidden="true">
+            <defs>
+              <linearGradient
+                [attr.id]="'sparkline-gradient-' + $index"
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+                <stop offset="0%" stop-color="currentColor" stop-opacity="0.48" />
+                <stop offset="65%" stop-color="currentColor" stop-opacity="0.12" />
+                <stop offset="100%" stop-color="currentColor" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+            <polygon
+              [attr.fill]="'url(#sparkline-gradient-' + $index + ')'"
+              points="0,34 0,29 8,25 16,28 24,19 32,23 40,15 48,18 56,10 64,13 72,6 80,2 80,34"
+            />
+            <polyline points="0,29 8,25 16,28 24,19 32,23 40,15 48,18 56,10 64,13 72,6 80,2" />
+          </svg>
+        </article>
+      }
+    </section>
+  </div>
+</sep-operational-shell>

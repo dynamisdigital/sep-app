@@ -1,0 +1,388 @@
+import { escalaDoLayout } from '../../../core/layout/escala-layout';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
+
+import {
+  caracteresLidos,
+  completarPalavraLida,
+  extrairItens,
+  faixaLida,
+  mapearTexto,
+  ParteLeitura,
+  partesDe,
+} from './leitura-sincronizada';
+import { escolherVoz, VozEscolhida } from './voz-pt-br';
+
+type Estado = 'parado' | 'falando' | 'pausado';
+
+const VELOCIDADES = [0.9, 1, 1.15, 1.3] as const;
+const NOME_DESTAQUE = 'sep-lido';
+/** Caracteres por segundo da voz a 1x, antes de os eventos da própria voz calibrarem o ritmo. */
+const RITMO_INICIAL = 14.5;
+/** Mesmo recuo de contexto utilizado na retomada dos tours. */
+const RETOMAR_ANTES_MS = 2000;
+
+/**
+ * Leitura em áudio sincronizada de um texto do blog. A voz é a do próprio navegador (Web Speech API), e a
+ * parte já lida fica destacada na própria página, no ritmo da fala, com uma tarja sobre o bloco em leitura e a
+ * rolagem acompanhando. Como no leitor do projeto Ponte de Liquidez, o ritmo vem dos eventos de fronteira da
+ * voz; sem eles (vozes online), vale uma estimativa que se recalibra a cada evento.
+ *
+ * O destaque usa a API de destaque de texto do navegador, que não mexe no DOM do Angular; onde ela não existe,
+ * fica só a tarja. Nada começa sozinho: a leitura só inicia depois do clique em "Ouvir".
+ */
+@Component({
+  selector: 'sep-ouvir-texto',
+  imports: [LucideAngularModule],
+  templateUrl: './ouvir-texto.component.html',
+  styleUrl: './ouvir-texto.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class OuvirTextoComponent {
+  /** Elemento que contém o texto a ser lido (o texto vem da própria página, não de uma cópia). */
+  readonly escopo = input.required<HTMLElement | null>();
+  /** Quais elementos do escopo são lidos, na ordem em que aparecem. */
+  readonly seletor = input.required<string>();
+  /** Identifica o texto; quando muda, a leitura em andamento é interrompida. */
+  readonly chave = input<string>('');
+  /** Avisa quando a leitura chega ao fim sozinha (parar ou trocar de texto não conta). */
+  readonly concluida = output<void>();
+  /** Avisa quando uma leitura começa, para quem espera o fim cancelar o que tinha agendado. */
+  readonly iniciada = output<void>();
+
+  protected readonly disponivel =
+    typeof window !== 'undefined' &&
+    'speechSynthesis' in window &&
+    typeof SpeechSynthesisUtterance !== 'undefined';
+
+  protected readonly estado = signal<Estado>('parado');
+  protected readonly indice = signal(0);
+  protected readonly total = signal(0);
+  protected readonly velocidades = VELOCIDADES;
+  protected readonly velocidade = signal<number>(1);
+  protected readonly progresso = computed(() =>
+    this.total() ? Math.min(100, Math.round((this.indice() / this.total()) * 100)) : 0,
+  );
+
+  private readonly tarja = viewChild<ElementRef<HTMLElement>>('tarja');
+
+  private partes: ParteLeitura[] = [];
+  /** Incrementa a cada início de leitura; descarta eventos de uma fala que já foi cancelada. */
+  private geracao = 0;
+  private voz: VozEscolhida = { voz: null, feminina: false };
+  private quadroId = 0;
+  private foco: HTMLElement | null = null;
+  private lidoAte = -1;
+  private destaque: Highlight | null = null;
+  private retomada: { indice: number; caractere: number } | null = null;
+
+  /** Andamento do trecho em fala: posição conhecida (`base`, em caracteres) e o instante em que foi medida. */
+  private ritmo = {
+    parte: null as ParteLeitura | null,
+    inicio: 0,
+    base: 0,
+    medidoEm: 0,
+    vel: RITMO_INICIAL,
+    tamanho: 1,
+  };
+
+  private readonly suportaDestaque =
+    typeof CSS !== 'undefined' && 'highlights' in CSS && typeof Highlight !== 'undefined';
+
+  constructor() {
+    if (this.disponivel) {
+      this.carregarVoz();
+      window.speechSynthesis.addEventListener?.('voiceschanged', () => this.carregarVoz());
+    }
+    // Outro texto (ou a saída da página) interrompe a leitura: nunca fica voz falando por cima de nada.
+    effect(() => {
+      this.chave();
+      this.parar();
+    });
+    inject(DestroyRef).onDestroy(() => this.parar());
+  }
+
+  protected ouvir(): void {
+    const escopo = this.escopo();
+    if (!this.disponivel || !escopo) return;
+    this.partes = partesDe(extrairItens(escopo, this.seletor()));
+    if (!this.partes.length) return;
+    this.cancelarVoz();
+    this.limparMarcas();
+    this.total.set(this.partes.length);
+    this.retomada = null;
+    this.indice.set(0);
+    this.estado.set('falando');
+    this.iniciada.emit();
+    this.iniciarQuadro();
+    this.falarDe(0, ++this.geracao);
+  }
+
+  protected pausar(): void {
+    if (this.estado() !== 'falando') return;
+    // Registra antes de cancelar: pause/resume nativos podem perder o ponto nas vozes online.
+    this.retomada = this.pontoDeRetomada();
+    this.ritmo.base = this.posicaoEstimada();
+    this.geracao++;
+    this.estado.set('pausado');
+    this.cancelarVoz();
+  }
+
+  protected continuar(): void {
+    if (this.estado() !== 'pausado') return;
+    const ponto = this.retomada;
+    if (!ponto) return;
+    this.retomada = null;
+    this.estado.set('falando');
+    this.falarDe(ponto.indice, ++this.geracao, ponto.caractere);
+  }
+
+  protected parar(): void {
+    this.geracao++;
+    this.cancelarVoz();
+    this.cancelarQuadro();
+    this.limparMarcas();
+    this.retomada = null;
+    this.estado.set('parado');
+    this.indice.set(0);
+  }
+
+  protected mudarVelocidade(valor: string): void {
+    const velocidade = Number(valor);
+    if (!VELOCIDADES.some((v) => v === velocidade)) return;
+    const caractere = this.posicaoEstimada();
+    this.velocidade.set(velocidade);
+    // Troca a voz sem perder a posição já lida. Pausada, aguarda o clique em Continuar.
+    if (this.estado() === 'falando') {
+      const geracao = ++this.geracao;
+      this.cancelarVoz();
+      this.falarDe(this.indice(), geracao, this.inicioDaPalavra(this.indice(), caractere));
+    }
+  }
+
+  private pontoDeRetomada(): { indice: number; caractere: number } {
+    let indice = this.indice();
+    let caractere = this.posicaoEstimada() - (RETOMAR_ANTES_MS / 1000) * this.ritmo.vel;
+    while (caractere < 0 && indice > 0) {
+      indice--;
+      caractere += this.partes[indice].texto.length;
+    }
+    return { indice, caractere: this.inicioDaPalavra(indice, caractere) };
+  }
+
+  private inicioDaPalavra(indice: number, caractere: number): number {
+    const texto = this.partes[indice]?.texto ?? '';
+    let inicio = Math.max(0, Math.min(texto.length, Math.floor(caractere)));
+    while (inicio > 0 && !/\s/.test(texto[inicio - 1])) inicio--;
+    return inicio;
+  }
+
+  private falarDe(posicao: number, geracao: number, deslocamento = 0): void {
+    if (geracao !== this.geracao) return;
+    if (posicao >= this.partes.length) {
+      this.concluir();
+      return;
+    }
+    const parte = this.partes[posicao];
+    this.indice.set(posicao);
+    if (parte.el !== this.foco) this.focar(parte.el);
+
+    const agora = performance.now();
+    this.ritmo = {
+      parte,
+      inicio: agora,
+      base: deslocamento,
+      medidoEm: agora,
+      vel: RITMO_INICIAL * 1.02 * this.velocidade(),
+      tamanho: Math.max(1, parte.texto.length),
+    };
+    this.lidoAte = -1;
+    this.marcar(parte, deslocamento);
+
+    const fala = new SpeechSynthesisUtterance(parte.texto.slice(deslocamento));
+    fala.lang = 'pt-BR';
+    fala.rate = Math.min(1.8, 1.02 * this.velocidade());
+    if (this.voz.voz) {
+      fala.voice = this.voz.voz;
+      fala.lang = this.voz.voz.lang;
+    }
+    if (!this.voz.feminina) fala.pitch = 1.25;
+    // O ritmo vem das fronteiras de palavra: cada uma diz onde a voz está e recalibra a estimativa.
+    fala.onboundary = (e) => {
+      if (geracao !== this.geracao) return;
+      const t = performance.now();
+      const relativo = e.charIndex || 0;
+      const ci = deslocamento + relativo;
+      if (relativo > 8 && t > this.ritmo.inicio) {
+        this.ritmo.vel = Math.max(6, Math.min(40, relativo / ((t - this.ritmo.inicio) / 1000)));
+      }
+      this.ritmo.base = ci;
+      this.ritmo.medidoEm = t;
+      // A fronteira aponta o começo da palavra; a cobertura inclui a palavra inteira e sua pontuação.
+      this.marcar(parte, Math.min(parte.texto.length, ci + (e.charLength || 1)));
+    };
+    fala.onend = () => {
+      if (geracao !== this.geracao) return;
+      this.marcar(parte, parte.texto.length);
+      this.falarDe(posicao + 1, geracao);
+    };
+    // Um erro de voz pula o trecho, mas um cancelamento proposital (pausa, parar) não deve avançar.
+    fala.onerror = (e) => {
+      if (geracao !== this.geracao) return;
+      if (e.error === 'canceled' || e.error === 'interrupted') return;
+      this.falarDe(posicao + 1, geracao);
+    };
+    window.speechSynthesis.speak(fala);
+  }
+
+  private concluir(): void {
+    this.retomada = null;
+    this.cancelarQuadro();
+    this.limparMarcas();
+    this.estado.set('parado');
+    this.indice.set(0);
+    this.concluida.emit();
+  }
+
+  // ============ Marcação na página ============
+
+  /** O bloco em leitura recebe a tarja, e a página rola para mantê-lo à vista. */
+  private focar(el: HTMLElement): void {
+    this.foco = el;
+    this.lidoAte = -1;
+    this.manterAVista(el);
+  }
+
+  private manterAVista(el: HTMLElement): void {
+    const q = el.getBoundingClientRect();
+    const altura = document.documentElement.clientHeight;
+    if (q.top >= 90 && q.bottom <= altura - 24) return;
+    const semMovimento =
+      typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const alvo = q.top + window.scrollY - (q.height < altura - 220 ? (altura - q.height) / 2 : 100);
+    window.scrollTo({ top: Math.max(0, alvo), behavior: semMovimento ? 'auto' : 'smooth' });
+  }
+
+  /** Destaca, dentro do bloco do trecho, o que a voz já leu: `falados` caracteres do texto falado do trecho. */
+  private marcar(parte: ParteLeitura, falados: number): void {
+    const texto = mapearTexto(parte.el).texto;
+    const n = Math.max(
+      this.lidoAte,
+      completarPalavraLida(texto, caracteresLidos(parte, falados, texto.length)),
+    );
+    if (n === this.lidoAte) return;
+    this.lidoAte = n;
+    if (!this.suportaDestaque) return;
+    if (!this.destaque) {
+      this.destaque = new Highlight();
+      CSS.highlights.set(NOME_DESTAQUE, this.destaque);
+    }
+    this.destaque.clear();
+    const faixa = faixaLida(parte.el, n);
+    if (faixa) this.destaque.add(faixa);
+  }
+
+  private posicaoEstimada(): number {
+    const r = this.ritmo;
+    const decorrido = (performance.now() - r.medidoEm) / 1000;
+    return Math.min(r.tamanho, r.base + decorrido * r.vel);
+  }
+
+  private iniciarQuadro(): void {
+    this.cancelarQuadro();
+    const quadro = () => {
+      if (this.estado() === 'parado') return;
+      this.posicionarTarja();
+      if (this.estado() === 'falando' && this.ritmo.parte) {
+        this.marcar(this.ritmo.parte, this.posicaoEstimada());
+      }
+      this.quadroId = requestAnimationFrame(quadro);
+    };
+    this.quadroId = requestAnimationFrame(quadro);
+  }
+
+  private cancelarQuadro(): void {
+    cancelAnimationFrame(this.quadroId);
+    this.quadroId = 0;
+  }
+
+  /** A tarja acompanha o bloco lido, inclusive enquanto a página rola. */
+  private posicionarTarja(): void {
+    const tarja = this.tarja()?.nativeElement;
+    if (!tarja) return;
+    const q = this.retanguloDoFoco();
+    if (!q || !q.width || !q.height) {
+      tarja.hidden = true;
+      return;
+    }
+    const escala = escalaDoLayout(tarja);
+    const lado = q.height > 90 ? 2 : 8;
+    const topo = q.top - 5;
+    const esquerda = q.left - lado;
+    tarja.style.top = `${topo / escala}px`;
+    tarja.style.left = `${esquerda / escala}px`;
+    tarja.style.width = `${(q.width + 2 * lado) / escala}px`;
+    tarja.style.height = `${(q.height + 10) / escala}px`;
+    tarja.hidden = false;
+    // O contêiner do conteúdo do site usa contenção de layout, e com ela `position: fixed` deixa de ser
+    // relativo à janela. Mede onde a tarja foi parar e corrige a diferença, para ela cobrir o bloco lido.
+    const onde = tarja.getBoundingClientRect();
+    const dy = topo - onde.top;
+    const dx = esquerda - onde.left;
+    if (Math.abs(dy) > 0.5 || Math.abs(dx) > 0.5) {
+      tarja.style.top = `${(topo + dy) / escala}px`;
+      tarja.style.left = `${(esquerda + dx) / escala}px`;
+    }
+  }
+
+  /**
+   * Retângulo do bloco em leitura. Num texto em colunas, um parágrafo pode se partir entre duas colunas; aí a tarja
+   * cobre só o pedaço onde a voz está (o que contém o fim do trecho já lido), e não as duas colunas de uma vez.
+   */
+  private retanguloDoFoco(): DOMRect | undefined {
+    const foco = this.foco;
+    if (!foco) return undefined;
+    const pedacos = Array.from(foco.getClientRects()).filter((r) => r.width && r.height);
+    if (pedacos.length < 2) return foco.getBoundingClientRect();
+    const ponta = this.destaque && ([...this.destaque][0] as Range | undefined)?.getClientRects();
+    const ultima = ponta && ponta.length ? ponta[ponta.length - 1] : undefined;
+    if (!ultima) return pedacos[0];
+    const cx = ultima.left + ultima.width / 2;
+    const cy = ultima.top + ultima.height / 2;
+    return (
+      pedacos.find((r) => cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) ??
+      pedacos[0]
+    );
+  }
+
+  private limparMarcas(): void {
+    this.foco = null;
+    this.lidoAte = -1;
+    this.ritmo.parte = null;
+    if (this.suportaDestaque) CSS.highlights.delete(NOME_DESTAQUE);
+    this.destaque = null;
+    const tarja = this.tarja()?.nativeElement;
+    if (tarja) tarja.hidden = true;
+  }
+
+  private cancelarVoz(): void {
+    // O navegador pode perder a voz entre uma chamada e outra (aba em segundo plano, teste): não quebra.
+    if (this.disponivel) window.speechSynthesis?.cancel?.();
+  }
+
+  private carregarVoz(): void {
+    this.voz = escolherVoz(window.speechSynthesis.getVoices());
+  }
+}

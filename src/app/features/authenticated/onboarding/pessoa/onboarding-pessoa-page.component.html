@@ -1,131 +1,178 @@
-<section class="sep-onboarding-pessoa">
-  <header class="sep-onboarding-pessoa-header">
-    <h1 class="sep-onboarding-pessoa-title">Onboarding - Pessoa fisica</h1>
-    <a routerLink="/app/onboarding" class="sep-onboarding-pessoa-back">Voltar para Onboarding</a>
-  </header>
+<sep-operational-shell>
+  <div class="kyc-page op-pagina-rolavel">
+    <header class="kyc-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span>
+        <a routerLink="/app/onboarding">Onboarding</a><span>›</span>
+        <strong>Pessoa física (KYC)</strong>
+      </nav>
+      <h1>Onboarding - Pessoa física (KYC) <span>KYC</span></h1>
+      <h2>Etapa 1 de 4 <i></i> Identificação</h2>
+      <p>Informe seus dados iniciais para iniciarmos o processo de verificação de identidade.</p>
+      <a class="kyc-back" routerLink="/app/onboarding">
+        <lucide-icon name="arrow-left" [size]="44" [strokeWidth]="1" />
+        Voltar para Onboarding
+      </a>
+    </header>
 
-  @if (!id()) {
-    <form
-      class="sep-onboarding-pessoa-form"
-      [formGroup]="form"
-      (ngSubmit)="iniciar()"
-      novalidate
-      autocomplete="off"
-    >
-      <div class="sep-onboarding-pessoa-field">
-        <label for="cpf">CPF</label>
-        <input id="cpf" type="text" inputmode="numeric" formControlName="cpf" />
-        @if (form.controls.cpf.touched && form.controls.cpf.errors?.['required']) {
-          <p class="sep-onboarding-pessoa-error">Informe o CPF.</p>
-        }
-      </div>
-
-      <div class="sep-onboarding-pessoa-field">
-        <label for="nomeCompleto">Nome completo</label>
-        <input id="nomeCompleto" type="text" formControlName="nomeCompleto" />
-        @if (
-          form.controls.nomeCompleto.touched && form.controls.nomeCompleto.errors?.['required']
-        ) {
-          <p class="sep-onboarding-pessoa-error">Informe o nome completo.</p>
-        }
-      </div>
-
-      <div class="sep-onboarding-pessoa-field">
-        <label for="dataNascimento">Data de nascimento</label>
-        <input id="dataNascimento" type="date" formControlName="dataNascimento" />
-        @if (
-          form.controls.dataNascimento.touched && form.controls.dataNascimento.errors?.['required']
-        ) {
-          <p class="sep-onboarding-pessoa-error">Informe a data de nascimento.</p>
-        }
-      </div>
-
-      @if (conflito()) {
-        <div
-          class="sep-onboarding-pessoa-feedback sep-onboarding-pessoa-feedback-error"
-          role="alert"
-        >
-          <p>Este CPF ja possui um onboarding ativo.</p>
-          <a routerLink="/app/onboarding">Voltar e consultar a solicitacao existente.</a>
-        </div>
-      }
-      @if (errorMessage(); as msg) {
-        <p class="sep-onboarding-pessoa-feedback sep-onboarding-pessoa-feedback-error" role="alert">
-          {{ msg }}
-        </p>
-      }
-
-      <div class="sep-onboarding-pessoa-actions">
-        <button
-          type="submit"
-          class="sep-onboarding-pessoa-submit"
-          [disabled]="submitting() || form.invalid"
-        >
-          {{ submitting() ? 'Iniciando...' : 'Iniciar onboarding' }}
-        </button>
-      </div>
-    </form>
-  } @else {
-    <div class="sep-onboarding-pessoa-detail">
-      <div class="sep-onboarding-pessoa-status-panel">
-        <div class="sep-onboarding-pessoa-status-head">
-          <h2 class="sep-onboarding-pessoa-section-title">Status</h2>
-          <button
-            type="button"
-            class="sep-onboarding-pessoa-refresh"
-            (click)="atualizarStatus()"
-            [disabled]="carregandoStatus()"
+    <section class="kyc-stepper" aria-label="Progresso da jornada">
+      @for (step of journeySteps; track step.number) {
+        <article [class.active]="step.active" [attr.data-step]="step.number">
+          <span
+            ><strong>{{ step.title }}</strong
+            ><small>{{ step.detail }}</small></span
           >
-            {{ carregandoStatus() ? 'Atualizando...' : 'Atualizar' }}
-          </button>
+        </article>
+      }
+    </section>
+
+    @if (!id()) {
+      <div class="kyc-content-grid">
+        <div class="kyc-main-column">
+          <form class="kyc-form-card" [formGroup]="form" (ngSubmit)="iniciar()" novalidate>
+            <header>
+              <lucide-icon class="ic-verde" name="user-round" [size]="42" [strokeWidth]="1.25" />
+              <span>
+                <h2>Dados pessoais</h2>
+                <p>
+                  Preencha seus dados básicos. Todas as informações são protegidas e utilizadas
+                  apenas para verificação e segurança da plataforma SEP.
+                </p>
+              </span>
+              <aside>
+                <lucide-icon class="ic-azul" name="shield-check" [size]="36" [strokeWidth]="1.25" />
+                <span
+                  ><strong>Ambiente regulado</strong><small>Resolução CMN 4.656/2018</small></span
+                >
+              </aside>
+            </header>
+
+            <label for="cpf">CPF</label>
+            <div class="kyc-input">
+              <lucide-icon name="id-card" [size]="30" [strokeWidth]="1.5" />
+              <input
+                id="cpf"
+                type="text"
+                sepMask="cpf"
+                formControlName="cpf"
+                placeholder="000.000.000-00"
+              />
+            </div>
+            <small class="field-hint">A pontuação é aplicada enquanto você digita.</small>
+
+            <label for="nomeCompleto">Nome completo</label>
+            <div class="kyc-input">
+              <lucide-icon name="user" [size]="28" [strokeWidth]="1.75" />
+              <input
+                id="nomeCompleto"
+                type="text"
+                formControlName="nomeCompleto"
+                placeholder="Digite seu nome completo"
+              />
+            </div>
+
+            <label for="dataNascimento">Data de nascimento</label>
+            <div class="kyc-input">
+              <lucide-icon name="calendar" [size]="28" [strokeWidth]="1.75" />
+              <input id="dataNascimento" type="date" formControlName="dataNascimento" />
+            </div>
+
+            @if (conflito()) {
+              <p class="kyc-error" role="alert">Este CPF ja possui um onboarding ativo.</p>
+            }
+            @if (errorMessage(); as msg) {
+              <p class="kyc-error" role="alert">{{ msg }}</p>
+            }
+
+            <button type="submit" [disabled]="submitting() || form.invalid">
+              {{ submitting() ? 'Iniciando...' : 'Continuar para documentos' }}
+              <i class="continue-arrow" aria-hidden="true"></i>
+            </button>
+            <footer>
+              <lucide-icon name="lock" [size]="36" [strokeWidth]="1.25" />
+              Suas informações são criptografadas e não são compartilhadas com terceiros.
+            </footer>
+          </form>
+
+          <section class="kyc-benefits">
+            @for (benefit of benefits; track benefit.title) {
+              <article>
+                <lucide-icon [name]="benefit.icon" [size]="53" [strokeWidth]="1" />
+                <span
+                  ><strong>{{ benefit.title }}</strong
+                  ><small>{{ benefit.detail }}</small></span
+                >
+              </article>
+            }
+          </section>
         </div>
+
+        <aside class="kyc-side-column">
+          <section class="journey-summary">
+            <header>
+              <h2>Resumo da jornada</h2>
+              <span>KYC</span>
+            </header>
+            @for (step of journeySteps; track step.number) {
+              <article [class.active]="step.active">
+                <i class="summary-step-number" [attr.data-step]="step.number"></i>
+                <span
+                  ><strong>{{ step.title }}</strong
+                  ><small>{{ step.detail }}</small></span
+                >
+                <em>{{ step.active ? 'Em andamento' : 'Pendente' }}</em>
+              </article>
+            }
+            <footer>
+              <strong>Previsão de conclusão <span>~ 10 min</span></strong>
+              <div><i></i></div>
+              <small>25%</small>
+            </footer>
+          </section>
+          <section class="kyc-info side-card">
+            <lucide-icon class="ic-ciano" name="badge-info" [size]="30" [strokeWidth]="1.5" />
+            <div>
+              <h2>O que é o KYC?</h2>
+              <p>
+                O KYC (Know Your Customer) é o processo de conhecer e verificar a identidade do
+                cliente, garantindo segurança, prevenção à fraude e conformidade regulatória.
+              </p>
+              <a href="/como-funciona" target="_blank" rel="noopener">Saiba mais sobre KYC ↗</a>
+            </div>
+          </section>
+          <section class="kyc-help side-card">
+            <lucide-icon
+              class="ic-verde"
+              name="message-circle-question-mark"
+              [size]="28"
+              [strokeWidth]="1.75"
+            />
+            <div>
+              <h2>Precisa de ajuda?</h2>
+              <p>Nossa equipe está disponível para ajudar em todas as etapas do seu cadastro.</p>
+              <!-- Nao ha chat no SEP: o canal de atendimento e o formulario de contato. -->
+              <a class="help-link" href="/contato?assunto=Suporte" target="_blank" rel="noopener"
+                >Falar com o suporte <span>→</span></a
+              >
+            </div>
+          </section>
+        </aside>
+      </div>
+    } @else {
+      <section class="kyc-detail-legacy">
+        <h2>Acompanhamento do onboarding</h2>
         @if (status(); as s) {
           <sep-onboarding-status [status]="s.status" [resultado]="s.resultado" />
-
-          <h3 class="sep-onboarding-pessoa-section-title">Documentos enviados</h3>
-          @if (s.documentosEnviados.length) {
-            <ul class="sep-onboarding-pessoa-docs">
-              @for (doc of s.documentosEnviados; track doc.id) {
-                <li class="sep-onboarding-pessoa-doc">{{ doc.tipo }}</li>
-              }
-            </ul>
-          } @else {
-            <p class="sep-onboarding-pessoa-empty">Nenhum documento enviado.</p>
-          }
-        } @else if (!carregandoStatus()) {
-          <p class="sep-onboarding-pessoa-empty">Status indisponivel.</p>
         }
-      </div>
-
-      <div class="sep-onboarding-pessoa-upload">
-        <h2 class="sep-onboarding-pessoa-section-title">Enviar documento</h2>
         <sep-onboarding-document-upload
           [tipos]="tiposDocumento"
           [enviando]="enviandoDocumento()"
           (enviar)="aoEnviarDocumento($event)"
         />
-        @if (documentoError(); as msg) {
-          <p class="sep-onboarding-pessoa-error" role="alert">{{ msg }}</p>
-        }
-      </div>
-
-      <div class="sep-onboarding-pessoa-verify">
-        <h2 class="sep-onboarding-pessoa-section-title">Verificacao</h2>
-        <button
-          type="button"
-          class="sep-onboarding-pessoa-submit"
-          (click)="verificar()"
-          [disabled]="verificando()"
-        >
-          {{ verificando() ? 'Enviando...' : 'Enviar para verificacao' }}
+        <button type="button" (click)="verificar()" [disabled]="verificando()">
+          Enviar para verificação
         </button>
-      </div>
-
-      @if (errorMessage(); as msg) {
-        <p class="sep-onboarding-pessoa-feedback sep-onboarding-pessoa-feedback-error" role="alert">
-          {{ msg }}
-        </p>
-      }
-    </div>
-  }
-</section>
+      </section>
+    }
+  </div>
+</sep-operational-shell>

@@ -1,17 +1,94 @@
-<section class="sep-onboarding-home">
-  <header class="sep-onboarding-home-header">
-    <h1 class="sep-onboarding-home-title">Onboarding</h1>
-    <p class="sep-onboarding-home-subtitle">
-      Escolha o tipo de cadastro para iniciar a verificacao.
-    </p>
-  </header>
+<sep-operational-shell>
+  <div class="onboarding-page op-pagina-rolavel">
+    <header class="onboarding-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a>
+        <span aria-hidden="true">›</span>
+        <strong>Onboarding</strong>
+      </nav>
+      <h1>Onboarding</h1>
+      <p>Escolha o tipo de cadastro para iniciar sua jornada na SEP.</p>
+      <aside class="journey-toast">
+        <lucide-icon class="ic-ciano" name="sparkles" [size]="36" [strokeWidth]="1.25" />
+        <span>Sua jornada é <strong>100% digital</strong>,<br />segura e auditável.</span>
+      </aside>
+    </header>
 
-  <div class="sep-onboarding-home-cards">
-    @for (path of paths; track path.route) {
-      <a [routerLink]="path.route" class="sep-onboarding-home-card">
-        <span class="sep-onboarding-home-card-title">{{ path.label }}</span>
-        <span class="sep-onboarding-home-card-body">{{ path.description }}</span>
-      </a>
-    }
+    <section class="onboarding-choice-grid" aria-label="Tipos de cadastro">
+      @for (path of paths; track path.route) {
+        <article class="onboarding-choice-card" [class]="'onboarding-choice-card ' + path.tone">
+          <div class="choice-main">
+            <sep-arte class="choice-visual" [nome]="path.visual" />
+            <div class="choice-copy">
+              <span class="choice-badge">{{ path.badge }}</span>
+              <h2>{{ path.label }}</h2>
+              <p>{{ path.description }}</p>
+              <ul>
+                @for (step of path.steps; track step.label) {
+                  <li>
+                    <lucide-icon [name]="step.icon" [size]="22" [strokeWidth]="2.25" />
+                    <span>{{ step.label }}</span>
+                  </li>
+                }
+              </ul>
+            </div>
+          </div>
+
+          <div class="choice-benefits">
+            @for (benefit of path.benefits; track benefit.title) {
+              <div>
+                <lucide-icon [name]="benefit.icon" [size]="54" [strokeWidth]="1" />
+                <span>
+                  <strong>{{ benefit.title }}</strong>
+                  <small>{{ benefit.description }}</small>
+                </span>
+              </div>
+            }
+          </div>
+
+          <a class="choice-action" [routerLink]="path.route">
+            <span>{{ path.action }}</span>
+            <i aria-hidden="true"></i>
+          </a>
+        </article>
+      }
+    </section>
+
+    <section class="onboarding-reasons">
+      <h2>Por que fazer seu cadastro na SEP?</h2>
+      <div>
+        @for (reason of reasons; track reason.title) {
+          <article>
+            <lucide-icon [name]="reason.icon" [size]="53" [strokeWidth]="1" />
+            <span>
+              <strong>{{ reason.title }}</strong>
+              <small>{{ reason.description }}</small>
+            </span>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="onboarding-trust">
+      <sep-arte class="trust-hud" nome="escudo-regulado" />
+      <div class="trust-copy">
+        <h2>Ambiente seguro, regulado e auditável.</h2>
+        <p>
+          A SEP garante que todas as operações de crédito, formalização, cobrança e pagamentos sejam
+          realizadas com segurança, conformidade e transparência.
+        </p>
+      </div>
+      <div class="trust-badges">
+        @for (badge of complianceBadges; track badge.title) {
+          <article>
+            <lucide-icon [name]="badge.icon" [size]="42" [strokeWidth]="1.25" />
+            <span>
+              <strong>{{ badge.title }}</strong>
+              <small>{{ badge.description }}</small>
+            </span>
+          </article>
+        }
+      </div>
+    </section>
   </div>
-</section>
+</sep-operational-shell>

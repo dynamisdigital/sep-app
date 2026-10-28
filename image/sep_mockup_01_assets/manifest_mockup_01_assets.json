@@ -1,0 +1,196 @@
+{
+  "source": "Mockup_01.png",
+  "asset_count": 27,
+  "assets": [
+    {
+      "name": "logo_sep_simbolo_header.png",
+      "subdir": "logos",
+      "box": [40, 32, 86, 70],
+      "size": [46, 38],
+      "path": "/mnt/data/sep_mockup_01_assets/logos/logo_sep_simbolo_header.png"
+    },
+    {
+      "name": "logo_sep_header_completo.png",
+      "subdir": "logos",
+      "box": [40, 30, 330, 76],
+      "size": [290, 44],
+      "path": "/mnt/data/sep_mockup_01_assets/logos/logo_sep_header_completo.png"
+    },
+    {
+      "name": "logo_sep_simbolo_hero.png",
+      "subdir": "logos",
+      "box": [810, 155, 922, 245],
+      "size": [112, 90],
+      "path": "/mnt/data/sep_mockup_01_assets/logos/logo_sep_simbolo_hero.png"
+    },
+    {
+      "name": "logo_sep_hero_completo.png",
+      "subdir": "logos",
+      "box": [805, 155, 1045, 370],
+      "size": [240, 215],
+      "path": "/mnt/data/sep_mockup_01_assets/logos/logo_sep_hero_completo.png"
+    },
+    {
+      "name": "logo_sep_footer_completo.png",
+      "subdir": "logos",
+      "box": [50, 946, 145, 980],
+      "size": [93, 34],
+      "path": "/mnt/data/sep_mockup_01_assets/logos/logo_sep_footer_completo.png"
+    },
+    {
+      "name": "logo_sep_simbolo_footer.png",
+      "subdir": "logos",
+      "box": [50, 946, 86, 980],
+      "size": [36, 34],
+      "path": "/mnt/data/sep_mockup_01_assets/logos/logo_sep_simbolo_footer.png"
+    },
+    {
+      "name": "visual_globo_digital_lateral.png",
+      "subdir": "visuals",
+      "box": [0, 125, 235, 545],
+      "size": [227, 420],
+      "path": "/mnt/data/sep_mockup_01_assets/visuals/visual_globo_digital_lateral.png"
+    },
+    {
+      "name": "visual_escudo_seguro_hud.png",
+      "subdir": "visuals",
+      "box": [1085, 150, 1418, 415],
+      "size": [333, 265],
+      "path": "/mnt/data/sep_mockup_01_assets/visuals/visual_escudo_seguro_hud.png"
+    },
+    {
+      "name": "visual_card_plataforma_regulada.png",
+      "subdir": "visuals",
+      "box": [775, 113, 1466, 542],
+      "size": [691, 429],
+      "path": "/mnt/data/sep_mockup_01_assets/visuals/visual_card_plataforma_regulada.png"
+    },
+    {
+      "name": "icon_regulacao_cmn.png",
+      "subdir": "icons",
+      "box": [195, 508, 234, 545],
+      "size": [39, 37],
+      "path": "/mnt/data/sep_mockup_01_assets/icons/icon_regulacao_cmn.png"
+    },
+    {
+      "name": "icon_segregacao_patrimonial.png",
+      "subdir": "icons",
+      "box": [387, 508, 425, 545],
+      "size": [38, 37],
+      "path": "/mnt/data/sep_mockup_01_assets/icons/icon_segregacao_patrimonial.png"
+    },
+    {
+      "name": "icon_kyc_pld_prevencao.png",
+      "subdir": "icons",
+      "box": [570, 508, 610, 545],
+      "size": [40, 37],
+      "path": "/mnt/data/sep_mockup_01_assets/icons/icon_kyc_pld_prevencao.png"
+    },
+    {
+      "name": "icon_escrow_seguro.png",
+      "subdir": "icons",
+      "box": [810, 472, 850, 512],
+      "size": [40, 40],
+      "path": "/mnt/data/sep_mockup_01_assets/icons/icon_escrow_seguro.png"
+    },
+    {
+      "name": "icon_kyc_kyb_verificado.png",
+      "subdir": "icons",
+      "box": [925, 472, 967, 512],
+      "size": [42, 40],
+      "path": "/mnt/data/sep_mockup_01_assets/icons/icon_kyc_kyb_verificado.png"
+    },
+    {
+      "name": "icon_pld_prevencao.png",
+      "subdir": "icons",
+      "box": [1054, 472, 1096, 512],
+      "size": [42, 40],
+      "path": "/mnt/data/sep_mockup_01_assets/icons/icon_pld_prevencao.png"
+    },
+    {
+      "name": "icon_auditoria_completa.png",
+      "subdir": "icons",
+      "box": [1178, 472, 1218, 512],
+      "size": [40, 40],
+      "path": "/mnt/data/sep_mockup_01_assets/icons/icon_auditoria_completa.png"
+    },
+    {
+      "name": "icon_rastreabilidade_total.png",
+      "subdir": "icons",
+      "box": [1305, 472, 1348, 512],
+      "size": [43, 40],
+      "path": "/mnt/data/sep_mockup_01_assets/icons/icon_rastreabilidade_total.png"
+    },
+    {
+      "name": "icon_plataforma_regulada_escudo_pequeno.png",
+      "subdir": "icons",
+      "box": [1415, 136, 1443, 160],
+      "size": [28, 24],
+      "path": "/mnt/data/sep_mockup_01_assets/icons/icon_plataforma_regulada_escudo_pequeno.png"
+    },
+    {
+      "name": "icon_fluxo_01_cadastro_verificacao.png",
+      "subdir": "icons",
+      "box": [78, 641, 156, 722],
+      "size": [78, 81],
+      "path": "/mnt/data/sep_mockup_01_assets/icons/icon_fluxo_01_cadastro_verificacao.png"
+    },
+    {
+      "name": "icon_fluxo_02_proposta_analise.png",
+      "subdir": "icons",
+      "box": [445, 641, 524, 722],
+      "size": [79, 81],
+      "path": "/mnt/data/sep_mockup_01_assets/icons/icon_fluxo_02_proposta_analise.png"
+    },
+    {
+      "name": "icon_fluxo_03_formalizacao_escrow.png",
+      "subdir": "icons",
+      "box": [785, 641, 858, 722],
+      "size": [73, 81],
+      "path": "/mnt/data/sep_mockup_01_assets/icons/icon_fluxo_03_formalizacao_escrow.png"
+    },
+    {
+      "name": "icon_fluxo_04_liberacao_acompanhamento.png",
+      "subdir": "icons",
+      "box": [1117, 641, 1195, 722],
+      "size": [78, 81],
+      "path": "/mnt/data/sep_mockup_01_assets/icons/icon_fluxo_04_liberacao_acompanhamento.png"
+    },
+    {
+      "name": "icon_indicador_ambiente_regulado.png",
+      "subdir": "icons",
+      "box": [85, 816, 145, 878],
+      "size": [56, 62],
+      "path": "/mnt/data/sep_mockup_01_assets/icons/icon_indicador_ambiente_regulado.png"
+    },
+    {
+      "name": "icon_indicador_seguranca.png",
+      "subdir": "icons",
+      "box": [368, 815, 412, 872],
+      "size": [44, 57],
+      "path": "/mnt/data/sep_mockup_01_assets/icons/icon_indicador_seguranca.png"
+    },
+    {
+      "name": "icon_indicador_rastreabilidade.png",
+      "subdir": "icons",
+      "box": [633, 818, 682, 872],
+      "size": [49, 54],
+      "path": "/mnt/data/sep_mockup_01_assets/icons/icon_indicador_rastreabilidade.png"
+    },
+    {
+      "name": "icon_indicador_conexao_segura.png",
+      "subdir": "icons",
+      "box": [908, 818, 967, 872],
+      "size": [48, 54],
+      "path": "/mnt/data/sep_mockup_01_assets/icons/icon_indicador_conexao_segura.png"
+    },
+    {
+      "name": "icon_indicador_conformidade.png",
+      "subdir": "icons",
+      "box": [1184, 814, 1242, 872],
+      "size": [58, 58],
+      "path": "/mnt/data/sep_mockup_01_assets/icons/icon_indicador_conformidade.png"
+    }
+  ],
+  "notes": "Assets recortados do mockup e convertidos para PNG com fundo transparente usando máscara de remoção do fundo escuro."
+}

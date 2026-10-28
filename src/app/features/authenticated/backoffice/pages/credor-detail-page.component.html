@@ -1,0 +1,251 @@
+<sep-operational-shell>
+  <section class="pxe-page">
+    <header class="pxe-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/backoffice">Backoffice</a><span>›</span
+        ><a routerLink="/app/backoffice/credores">Credores</a><span>›</span><strong>Detalhe</strong>
+      </nav>
+      <div class="pxe-heading-row">
+        <div class="pxe-titulo-wrap">
+          <span class="pxe-titulo-icone" data-tone="blue">
+            <lucide-icon name="users" [size]="24" />
+          </span>
+          <div>
+            <h1>{{ credor()?.nome ?? 'Credor' }}</h1>
+            <p class="pxe-subtitulo">{{ credor()?.documentoMascarado }}</p>
+          </div>
+        </div>
+        <a class="pxe-btn-sec" routerLink="/app/backoffice/credores">
+          <lucide-icon name="arrow-left" [size]="16" />Voltar
+        </a>
+      </div>
+    </header>
+
+    @if (loading()) {
+      <p class="pxe-estado" role="status">Carregando credor...</p>
+    } @else if (errorMessage(); as msg) {
+      <div class="pxe-estado pxe-erro" role="alert">
+        <lucide-icon name="triangle-alert" [size]="18" />
+        <p>{{ msg }}</p>
+        <button type="button" class="pxe-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
+      </div>
+    } @else if (credor(); as c) {
+      <div class="pxe-metricas">
+        <article class="pxe-card pxe-metrica" data-tone="green">
+          <small>Disponível</small>
+          <strong>{{ formatarMoeda(c.saldo.disponivel) }}</strong>
+        </article>
+        <article class="pxe-card pxe-metrica" data-tone="amber">
+          <small>Reservado</small>
+          <strong>{{ formatarMoeda(c.saldo.reservado) }}</strong>
+        </article>
+        <article class="pxe-card pxe-metrica" data-tone="blue">
+          <small>Em operação</small>
+          <strong>{{ formatarMoeda(c.saldo.emOperacao) }}</strong>
+        </article>
+        <article class="pxe-card pxe-metrica" data-tone="purple">
+          <small>Posição total</small>
+          <strong>{{ formatarMoeda(c.saldo.patrimonio) }}</strong>
+        </article>
+      </div>
+
+      @if (acaoErro(); as erro) {
+        <p class="pxe-erro-form" role="alert">{{ erro }}</p>
+      }
+      @if (acaoMsg(); as ok) {
+        <p class="pxe-ok-form" role="status">{{ ok }}</p>
+      }
+
+      <div class="pxe-grade">
+        <article class="pxe-card pxe-bloco">
+          <h2>Cadastro</h2>
+          <dl class="pxe-dados">
+            <div>
+              <dt>Situação</dt>
+              <dd>
+                <span class="pxe-selo" [attr.data-tone]="statusTom[c.status]">{{
+                  statusLabel[c.status]
+                }}</span>
+              </dd>
+            </div>
+            <div>
+              <dt>Tipo</dt>
+              <dd>{{ c.tipoPessoa === 'PF' ? 'Pessoa física' : 'Pessoa jurídica' }}</dd>
+            </div>
+            <div>
+              <dt>Categoria</dt>
+              <dd>{{ categoriaLabel[c.categoria] }}</dd>
+            </div>
+            <div>
+              <dt>Perfil de risco</dt>
+              <dd>{{ c.perfilRisco ? perfilLabel[c.perfilRisco] : 'Não apurado' }}</dd>
+            </div>
+            <div>
+              <dt>Cadastro em</dt>
+              <dd>{{ formatarData(c.dataCadastro) }}</dd>
+            </div>
+            <div>
+              <dt>Ciência de risco</dt>
+              <dd>{{ c.cienciaRiscoEm ? formatarData(c.cienciaRiscoEm) : 'Pendente' }}</dd>
+            </div>
+            <div>
+              <dt>Termo de investidor qualificado</dt>
+              <dd>
+                {{ c.termoQualificadoEm ? formatarData(c.termoQualificadoEm) : 'Não assinado' }}
+              </dd>
+            </div>
+            <div>
+              <dt>Capacidade de aporte</dt>
+              <dd>{{ c.capacidadeAporte === null ? '—' : formatarMoeda(c.capacidadeAporte) }}</dd>
+            </div>
+          </dl>
+          @if (c.motivoStatus) {
+            <p>Motivo da situação: {{ c.motivoStatus }}</p>
+          }
+        </article>
+
+        <article class="pxe-card pxe-bloco">
+          <h2>Gestão</h2>
+          @if (!podeGerir()) {
+            <p>Somente o Backoffice e a Administração decidem sobre credores.</p>
+          } @else {
+            <div class="pxe-campo">
+              <label for="pxe-motivo-status">Motivo da decisão</label>
+              <input
+                id="pxe-motivo-status"
+                type="text"
+                autocomplete="off"
+                [value]="motivo()"
+                (input)="digitarMotivo($event)"
+              />
+            </div>
+            <div class="pxe-item-acoes">
+              @if (c.status === 'EM_ANALISE') {
+                <button
+                  type="button"
+                  class="pxe-btn-mini"
+                  [disabled]="ocupado()"
+                  (click)="mudarStatus('ATIVO')"
+                >
+                  Aprovar cadastro
+                </button>
+                <button
+                  type="button"
+                  class="pxe-btn-mini"
+                  [disabled]="ocupado()"
+                  (click)="mudarStatus('REPROVADO')"
+                >
+                  Reprovar cadastro
+                </button>
+              }
+              @if (c.status === 'ATIVO') {
+                <button
+                  type="button"
+                  class="pxe-btn-mini"
+                  [disabled]="ocupado()"
+                  (click)="mudarStatus('SUSPENSO')"
+                >
+                  Suspender
+                </button>
+              }
+              @if (c.status === 'SUSPENSO') {
+                <button
+                  type="button"
+                  class="pxe-btn-mini"
+                  [disabled]="ocupado()"
+                  (click)="mudarStatus('ATIVO')"
+                >
+                  Reativar
+                </button>
+              }
+            </div>
+            <div class="pxe-campos-2">
+              <div class="pxe-campo">
+                <label for="pxe-perfil">Perfil de risco</label>
+                <select id="pxe-perfil" [disabled]="ocupado()" (change)="mudarPerfil($event)">
+                  @if (!c.perfilRisco) {
+                    <option value="" selected>Não apurado</option>
+                  }
+                  @for (p of perfis; track p) {
+                    <option [value]="p" [selected]="p === c.perfilRisco">
+                      {{ perfilLabel[p] }}
+                    </option>
+                  }
+                </select>
+              </div>
+              <div class="pxe-campo">
+                <label for="pxe-categoria">Categoria</label>
+                <select id="pxe-categoria" [disabled]="ocupado()" (change)="mudarCategoria($event)">
+                  @for (cat of categorias; track cat) {
+                    <option [value]="cat" [selected]="cat === c.categoria">
+                      {{ categoriaLabel[cat] }}
+                    </option>
+                  }
+                </select>
+              </div>
+            </div>
+            <div class="pxe-aviso" role="note">
+              <lucide-icon name="info" [size]="16" />
+              <span>
+                Investidor qualificado só é aceito com o termo assinado e fica isento do limite de
+                R$ 15.000 por devedor.
+              </span>
+            </div>
+          }
+        </article>
+      </div>
+
+      <article class="pxe-card pxe-tabela-card">
+        <h2>Extrato da escrow</h2>
+        @if (extrato().length === 0) {
+          <p class="pxe-vazio">Sem lançamentos.</p>
+        } @else {
+          <div class="pxe-tabela-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Lançamento</th>
+                  <th>Descrição</th>
+                  <th class="pxe-num">Valor</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (l of extrato(); track l.id) {
+                  <tr>
+                    <td>{{ formatarData(l.dataLancamento) }}</td>
+                    <td>{{ lancamentoLabel[l.tipo] }}</td>
+                    <td>{{ l.descricao }}</td>
+                    <td class="pxe-num pxe-valor">{{ sinal(l) }} {{ formatarMoeda(l.valor) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </article>
+
+      <article class="pxe-card pxe-bloco">
+        <h2>Auditoria</h2>
+        @if (auditoria().length === 0) {
+          <p class="pxe-vazio">Sem eventos registrados.</p>
+        } @else {
+          <ul class="pxe-lista">
+            @for (e of auditoria(); track e.id) {
+              <li class="pxe-item">
+                <div>
+                  <strong>{{ eventoLabel[e.tipo] }}</strong>
+                  <small>{{ e.descricao }}</small>
+                  <small>{{ e.autor }} ({{ e.papel }}) • {{ formatarData(e.data) }}</small>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </article>
+    }
+  </section>
+</sep-operational-shell>

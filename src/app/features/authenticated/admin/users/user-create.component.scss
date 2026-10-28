@@ -1,0 +1,502 @@
+// ============ REFERÊNCIA 62 — NOVO USUÁRIO ============
+// Tela sem desenho de origem: a paridade é com o detalhe de usuário (Mockup 39) e com o
+// formulário do detalhe de parâmetro (Mockup 41), da mesma jornada de administração.
+
+@use "../../../../../styles/tela-operacional-tema" as tema;
+
+:host {
+  @include tema.tokens;
+}
+
+@include tema.base("px62");
+
+// ============ GRADE PRINCIPAL ============
+
+.px62-page {
+  display: grid;
+  grid-template-rows: auto minmax(min-content, 1fr) min-content;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 13px 26px 14px;
+  overflow: hidden auto;
+  background: radial-gradient(circle at 46% 12%, rgb(var(--sep-c-blue) / 6%), transparent 46%);
+}
+
+.px62-heading h1 {
+  font-size: 27px;
+}
+
+.px62-subtitulo {
+  font-size: 15.5px;
+}
+
+.px62-card h2 {
+  font-size: 18px;
+}
+
+.px62-acoes-topo {
+  display: flex;
+  flex-shrink: 0;
+  gap: 10px;
+  align-items: center;
+}
+
+.px62-duplo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 14px;
+  min-height: min-content;
+}
+
+.px62-acesso,
+.px62-papeis {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: min-content;
+}
+
+// ============ CABEÇALHO DE SEÇÃO ============
+
+.px62-secao-topo {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 2px;
+
+  div {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  h2 {
+    margin: 0 0 2px;
+  }
+
+  p {
+    margin: 0;
+    color: var(--muted-forte);
+    font-size: 13px;
+  }
+}
+
+.px62-secao-icone {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  color: var(--tone, var(--blue));
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+  border-radius: 12px;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+}
+
+// ============ CAMPOS ============
+
+.px62-campo {
+  display: grid;
+  gap: 7px;
+
+  label {
+    color: var(--muted-forte);
+    font-size: 15px;
+
+    b {
+      color: var(--red-forte);
+      font-weight: 600;
+    }
+  }
+
+  input {
+    width: 100%;
+    padding: 11px 14px;
+    color: var(--sep-text);
+    font: inherit;
+    font-size: 13.5px;
+    border: 1px solid var(--sep-border-strong);
+    border-radius: 10px;
+    background: rgb(var(--sep-c-surf) / 85%);
+    transition:
+      border-color 0.18s,
+      box-shadow 0.18s;
+  }
+
+  input::placeholder {
+    color: var(--sep-text-muted);
+  }
+
+  input:focus {
+    border-color: var(--blue);
+    outline: none;
+    box-shadow: 0 0 14px rgb(var(--sep-c-blue) / calc(26% * var(--sep-glow-alpha)));
+  }
+
+  input[aria-invalid="true"] {
+    border-color: rgb(var(--sep-c-red) / 60%);
+  }
+}
+
+.px62-campo-erro {
+  margin: 0;
+  color: var(--red-forte);
+  font-size: 12.5px;
+}
+
+/* O olho fica dentro do campo, alinhado à direita, sem roubar largura do texto. */
+.px62-senha {
+  position: relative;
+
+  input {
+    padding-right: 46px;
+  }
+}
+
+.px62-olho {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  color: var(--muted-forte);
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  transform: translateY(-50%);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--blue);
+    outline: none;
+    background: rgb(var(--sep-c-blue) / 12%);
+  }
+}
+
+.px62-criterios {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 6px 14px;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    gap: 7px;
+    align-items: center;
+    color: var(--muted);
+    font-size: 12.5px;
+  }
+
+  lucide-icon {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+  }
+}
+
+.px62-criterio-ok {
+  color: var(--green) !important;
+}
+
+// ============ PAPÉIS ============
+
+.px62-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.px62-chip {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  height: 36px;
+  padding: 0 16px;
+  color: var(--muted-forte);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 999px;
+  background: rgb(var(--sep-c-surf) / 82%);
+  cursor: pointer;
+  transition:
+    color 0.18s,
+    border-color 0.18s,
+    box-shadow 0.18s,
+    background 0.18s,
+    transform 0.18s;
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    color: var(--sep-text);
+    border-color: var(--tone-borda, rgb(var(--sep-c-blue) / 55%));
+    transform: translateY(-2px);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.px62-chip-ativo {
+  color: var(--tone, var(--blue));
+  border-color: var(--tone-borda, rgb(var(--sep-c-blue) / 62%));
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 14%));
+  box-shadow: 0 0 14px var(--tone-fundo, rgb(var(--sep-c-blue) / calc(30% * var(--sep-glow-alpha))));
+}
+
+/* Os quatro papeis sempre presentes: a grade ocupa a altura do cartao em vez de deixar vao, e os
+   nao escolhidos ficam esmaecidos. `1fr` nas linhas distribui a folga dentro dos blocos. */
+.px62-alcance {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  grid-auto-rows: 1fr;
+  gap: 12px;
+  margin: 0;
+  padding: 14px 0 0;
+  border-top: 1px solid rgb(var(--sep-c-line) / 70%);
+  list-style: none;
+
+  > li {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px;
+    border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+    border-radius: 10px;
+    background: var(--tone-fundo, rgb(var(--sep-c-blue) / 8%));
+    transition:
+      opacity 0.18s,
+      border-color 0.18s;
+  }
+
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    align-items: center;
+    justify-content: space-between;
+
+    small {
+      flex-shrink: 0;
+      color: var(--tone, var(--blue));
+      font-size: 11px;
+      white-space: nowrap;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+  }
+
+  p {
+    margin: 0;
+    color: var(--muted-forte);
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+
+  ul {
+    display: grid;
+    flex: 1 1 auto;
+    gap: 6px;
+    align-content: space-evenly;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  ul li {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    color: var(--sep-text);
+    font-size: 13px;
+  }
+
+  ul lucide-icon {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    color: var(--tone, var(--green));
+  }
+}
+
+.px62-alcance > li.px62-alcance-inativo {
+  border-color: var(--sep-border-strong);
+  background: rgb(var(--sep-c-surf) / 55%);
+  opacity: 0.5;
+
+  header small {
+    color: var(--muted);
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+
+  ul lucide-icon {
+    color: var(--muted);
+  }
+}
+
+// ============ DEPOIS DE CRIAR ============
+
+.px62-depois {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid rgb(var(--sep-c-line) / 70%);
+
+  h3 {
+    margin: 0;
+    color: var(--muted-forte);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  ul {
+    display: grid;
+    flex: 1 1 auto;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    grid-auto-rows: 1fr;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    border: 1px solid rgb(var(--sep-c-line) / 80%);
+    border-radius: 10px;
+    background: rgb(var(--sep-c-surf) / 55%);
+  }
+
+  lucide-icon {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    color: var(--blue);
+  }
+
+  span {
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.4;
+  }
+
+  strong {
+    display: block;
+    margin-bottom: 2px;
+    color: var(--sep-text);
+    font-size: 13px;
+  }
+}
+
+// ============ NOTAS ============
+
+.px62-nota {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.45;
+
+  lucide-icon {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    margin-top: 1px;
+    color: var(--blue);
+  }
+}
+
+.px62-nota-bloqueio,
+.px62-nota-bloqueio lucide-icon {
+  color: var(--amber);
+}
+
+.px62-nota-erro,
+.px62-nota-erro lucide-icon {
+  color: var(--red-forte);
+}
+
+// ============ RODAPÉ ============
+
+.px62-rodape {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.px62-passos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  strong {
+    display: block;
+    color: var(--sep-text);
+    font-size: 13.5px;
+  }
+
+  small {
+    display: block;
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+}
+
+.px62-passo-num {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  color: var(--tone, var(--blue));
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+  border-radius: 50%;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+}
+
+.px62-passo-inativo {
+  opacity: 0.55;
+}
+
+.px62-rodape-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: auto;
+}

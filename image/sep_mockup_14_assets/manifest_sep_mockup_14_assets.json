@@ -1,0 +1,532 @@
+{
+  "mockup": "Mockup_14 - Cobrança",
+  "policy": "V5: recorte centro-para-fora, canvas transparente centralizado, margem segura; correção de coordenadas de rodapé, alertas e métricas preservando circunferências sem corte.",
+  "assets": [
+    {
+      "category": "logos",
+      "filename": "logo_sep_header_completo.png",
+      "box": [22, 14, 150, 55],
+      "transparent": true
+    },
+    {
+      "category": "logos",
+      "filename": "logo_sep_simbolo_header.png",
+      "center": [46, 34],
+      "crop_size": 46,
+      "canvas_size": 64,
+      "clip": false
+    },
+    {
+      "category": "logos",
+      "filename": "logo_sep_wordmark_header.png",
+      "box": [72, 17, 142, 53],
+      "transparent": true
+    },
+    {
+      "category": "logos",
+      "filename": "logo_sep_footer_completo.png",
+      "box": [20, 995, 136, 1038],
+      "transparent": true
+    },
+    {
+      "category": "logos",
+      "filename": "logo_sep_simbolo_footer.png",
+      "center": [36, 1014],
+      "crop_size": 46,
+      "canvas_size": 64,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_sidebar_dashboard.png",
+      "center": [27, 140],
+      "crop_size": 26,
+      "canvas_size": 50,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_sidebar_onboarding.png",
+      "center": [27, 214],
+      "crop_size": 26,
+      "canvas_size": 50,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_sidebar_credito.png",
+      "center": [27, 252],
+      "crop_size": 26,
+      "canvas_size": 50,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_sidebar_formalizacao.png",
+      "center": [27, 290],
+      "crop_size": 26,
+      "canvas_size": 50,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_sidebar_cobranca.png",
+      "center": [28, 330],
+      "crop_size": 24,
+      "canvas_size": 50,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_sidebar_backoffice.png",
+      "center": [27, 405],
+      "crop_size": 26,
+      "canvas_size": 50,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_sidebar_pix.png",
+      "center": [27, 445],
+      "crop_size": 28,
+      "canvas_size": 50,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_sidebar_perfil.png",
+      "center": [27, 515],
+      "crop_size": 26,
+      "canvas_size": 50,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_help_central_ajuda.png",
+      "center": [40, 884],
+      "crop_size": 32,
+      "canvas_size": 54,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_topbar_search.png",
+      "center": [958, 35],
+      "crop_size": 28,
+      "canvas_size": 46,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_topbar_help.png",
+      "center": [1063, 35],
+      "crop_size": 28,
+      "canvas_size": 46,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_topbar_avatar_user_b.png",
+      "center": [1133, 36],
+      "crop_size": 42,
+      "canvas_size": 60,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_topbar_theme_sun.png",
+      "center": [1368, 36],
+      "crop_size": 36,
+      "canvas_size": 56,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_title_cobranca_money.png",
+      "center": [373, 136],
+      "crop_size": 30,
+      "canvas_size": 50,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_filter_arrow_dropdown.png",
+      "center": [384, 364],
+      "crop_size": 20,
+      "canvas_size": 36,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_filter_calendar_inicio.png",
+      "center": [711, 365],
+      "crop_size": 28,
+      "canvas_size": 44,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_filter_calendar_fim.png",
+      "center": [868, 365],
+      "crop_size": 28,
+      "canvas_size": 44,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_filter_funil_mais_filtros.png",
+      "center": [933, 359],
+      "crop_size": 30,
+      "canvas_size": 46,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_export_relatorio_download.png",
+      "center": [1266, 359],
+      "crop_size": 30,
+      "canvas_size": 48,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_button_arrow_right.png",
+      "center": [1372, 181],
+      "crop_size": 26,
+      "canvas_size": 42,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_ver_todos_arrow_right.png",
+      "center": [490, 426],
+      "crop_size": 24,
+      "canvas_size": 38,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_table_eye_action.png",
+      "center": [1024, 493],
+      "crop_size": 24,
+      "canvas_size": 36,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_table_calendar_action.png",
+      "center": [1008, 556],
+      "crop_size": 24,
+      "canvas_size": 36,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_table_status_paga_check.png",
+      "center": [811, 493],
+      "crop_size": 24,
+      "canvas_size": 36,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_table_status_pendente_dot.png",
+      "center": [811, 557],
+      "crop_size": 24,
+      "canvas_size": 36,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_table_status_atrasada_dot.png",
+      "center": [811, 586],
+      "crop_size": 24,
+      "canvas_size": 36,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_table_status_agendada_dot.png",
+      "center": [810, 648],
+      "crop_size": 24,
+      "canvas_size": 36,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_topbar_bell_notification.png",
+      "center": [1019, 35],
+      "crop_size": 44,
+      "canvas_size": 60,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_topbar_ambiente_regulado.png",
+      "center": [340, 36],
+      "crop_size": 36,
+      "canvas_size": 58,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_topbar_horario_sistema.png",
+      "center": [507, 36],
+      "crop_size": 36,
+      "canvas_size": 58,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_jornada_cobranca_bell_hud.png",
+      "center": [1052, 139],
+      "crop_size": 76,
+      "canvas_size": 96,
+      "clip": true
+    },
+    {
+      "category": "icons",
+      "filename": "icon_metric_valor_total_contratado.png",
+      "center": [273, 251],
+      "crop_size": 76,
+      "canvas_size": 96,
+      "clip": true
+    },
+    {
+      "category": "icons",
+      "filename": "icon_metric_valor_em_aberto.png",
+      "center": [524, 251],
+      "crop_size": 76,
+      "canvas_size": 96,
+      "clip": true
+    },
+    {
+      "category": "icons",
+      "filename": "icon_metric_atraso_15_dias.png",
+      "center": [775, 251],
+      "crop_size": 76,
+      "canvas_size": 96,
+      "clip": true
+    },
+    {
+      "category": "icons",
+      "filename": "icon_metric_proximo_vencimento.png",
+      "center": [1027, 251],
+      "crop_size": 76,
+      "canvas_size": 96,
+      "clip": true
+    },
+    {
+      "category": "icons",
+      "filename": "icon_contract_status_em_dia.png",
+      "center": [442, 472],
+      "crop_size": 26,
+      "canvas_size": 44,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_contract_status_atrasado.png",
+      "center": [440, 562],
+      "crop_size": 26,
+      "canvas_size": 44,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_contract_status_atrasado_red.png",
+      "center": [441, 651],
+      "crop_size": 26,
+      "canvas_size": 44,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_contract_status_em_dia_blue.png",
+      "center": [441, 742],
+      "crop_size": 26,
+      "canvas_size": 44,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_alerta_parcela_15_dias_red.png",
+      "center": [1155, 467],
+      "crop_size": 30,
+      "canvas_size": 52,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_alerta_parcela_5_dias_orange.png",
+      "center": [1155, 512],
+      "crop_size": 30,
+      "canvas_size": 52,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_alerta_vencimento_amanha_info.png",
+      "center": [1155, 562],
+      "crop_size": 30,
+      "canvas_size": 52,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_acordos_ativos_handshake.png",
+      "center": [896, 919],
+      "crop_size": 38,
+      "canvas_size": 58,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_footer_ambiente_regulado.png",
+      "center": [257, 1022],
+      "crop_size": 34,
+      "canvas_size": 54,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_footer_dados_criptografados.png",
+      "center": [466, 1022],
+      "crop_size": 34,
+      "canvas_size": 54,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_footer_segregacao_patrimonial.png",
+      "center": [666, 1022],
+      "crop_size": 34,
+      "canvas_size": 54,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_footer_auditoria_completa.png",
+      "center": [873, 1022],
+      "crop_size": 34,
+      "canvas_size": 54,
+      "clip": false
+    },
+    {
+      "category": "icons",
+      "filename": "icon_footer_seguranca_prioridade_shield.png",
+      "center": [1068, 1024],
+      "crop_size": 52,
+      "canvas_size": 76,
+      "clip": true
+    },
+    {
+      "category": "visuals",
+      "filename": "visual_renegociacoes_donut.png",
+      "box": [1101, 627, 1229, 755],
+      "transparent": true
+    },
+    {
+      "category": "visuals",
+      "filename": "visual_recebimentos_30dias_chart.png",
+      "box": [1102, 842, 1392, 974],
+      "transparent": true
+    },
+    {
+      "category": "visuals",
+      "filename": "visual_resumo_inadimplencia_donut.png",
+      "box": [223, 862, 351, 990],
+      "transparent": true
+    },
+    {
+      "category": "visuals",
+      "filename": "visual_recebimentos_card_chart_only.png",
+      "box": [1165, 884, 1375, 957],
+      "transparent": true
+    },
+    {
+      "category": "visuals",
+      "filename": "visual_disabled_card_background_hud.png",
+      "box": [1230, 208, 1390, 307],
+      "transparent": true
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_topbar.png",
+      "box": [0, 0, 1448, 70],
+      "transparent": false
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_sidebar.png",
+      "box": [0, 70, 224, 1086],
+      "transparent": false
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_page_header.png",
+      "box": [230, 88, 1392, 188],
+      "transparent": false
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_metric_cards_row.png",
+      "box": [230, 207, 1392, 307],
+      "transparent": false
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_filters_row.png",
+      "box": [230, 322, 1392, 395],
+      "transparent": false
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_contratos_ativos_card.png",
+      "box": [230, 405, 510, 842],
+      "transparent": false
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_parcelas_contrato_table.png",
+      "box": [520, 405, 1076, 815],
+      "transparent": false
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_alertas_card.png",
+      "box": [1088, 406, 1392, 588],
+      "transparent": false
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_renegociacoes_card.png",
+      "box": [1088, 599, 1392, 775],
+      "transparent": false
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_recebimentos_card.png",
+      "box": [1088, 786, 1392, 974],
+      "transparent": false
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_resumo_inadimplencia_card.png",
+      "box": [230, 850, 1077, 985],
+      "transparent": false
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_footer_regulatorio.png",
+      "box": [224, 998, 1448, 1086],
+      "transparent": false
+    },
+    {
+      "category": "ui-groups",
+      "filename": "ui_jornada_cobranca_card.png",
+      "box": [1004, 82, 1394, 202],
+      "transparent": false
+    }
+  ]
+}

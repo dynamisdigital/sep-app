@@ -7,9 +7,9 @@ type VarianteElegibilidade = 'elegivel' | 'pendente' | 'inelegivel';
 // Label operacional curto por elegibilidade derivada do onboarding PJ. A tela apenas apresenta; a
 // derivacao de elegibilidade pertence ao backend (KYB/PLD).
 const LABELS: Record<StatusElegibilidade, string> = {
-  PENDENTE: 'Em analise',
-  ELEGIVEL: 'Elegivel',
-  INELEGIVEL: 'Inelegivel',
+  PENDENTE: 'Em análise',
+  ELEGIVEL: 'Elegível',
+  INELEGIVEL: 'Inelegível',
 };
 
 const VARIANTES: Record<StatusElegibilidade, VarianteElegibilidade> = {

@@ -1,0 +1,567 @@
+{
+  "mockup": "Mockup_10 — Minhas propostas / Crédito",
+  "source": "Mockup_10(1).png",
+  "target_project_path": "C:\\Pastas\\PROJETOS\\Projeto Dynamis SEP\\sep-app 16062026\\image\\sep_mockup_10_assets",
+  "extraction_method": "V3 final: recorte centro-para-fora, com centro visual manual de cada ícone e expansão simétrica. Ícones circulares/HUDs recebem máscara circular conservadora para remover resíduos próximos, mantendo circunferência, glow e margem segura.",
+  "asset_count": 62,
+  "assets": [
+    {
+      "file": "logos/logo_sep_header_completo.png",
+      "category": "logos",
+      "center": null,
+      "canvas_size": [142, 43],
+      "mode": "logo",
+      "method": "retangular",
+      "note": "Logo com transparência."
+    },
+    {
+      "file": "logos/logo_sep_simbolo_header.png",
+      "category": "logos",
+      "center": null,
+      "canvas_size": [42, 43],
+      "mode": "logo",
+      "method": "retangular",
+      "note": "Logo com transparência."
+    },
+    {
+      "file": "logos/logo_sep_wordmark_header.png",
+      "category": "logos",
+      "center": null,
+      "canvas_size": [77, 43],
+      "mode": "logo",
+      "method": "retangular",
+      "note": "Logo com transparência."
+    },
+    {
+      "file": "logos/logo_sep_footer_completo.png",
+      "category": "logos",
+      "center": null,
+      "canvas_size": [135, 54],
+      "mode": "logo",
+      "method": "retangular",
+      "note": "Logo com transparência."
+    },
+    {
+      "file": "logos/logo_sep_simbolo_footer.png",
+      "category": "logos",
+      "center": null,
+      "canvas_size": [46, 54],
+      "mode": "logo",
+      "method": "retangular",
+      "note": "Logo com transparência."
+    },
+    {
+      "file": "icons/icon_menu_hamburger.png",
+      "category": "icons",
+      "center": [31, 35],
+      "canvas_size": [38, 38],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Topbar menu/hamburger; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_topbar_ambiente_regulado.png",
+      "category": "icons",
+      "center": [343, 36],
+      "canvas_size": [42, 42],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Ícone shield do status Ambiente REGULADO; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_topbar_horario_sistema.png",
+      "category": "icons",
+      "center": [514, 36],
+      "canvas_size": [42, 42],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Ícone relógio do horário do sistema; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_topbar_search.png",
+      "category": "icons",
+      "center": [990, 36],
+      "canvas_size": [42, 42],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Ícone de busca; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_topbar_bell_notification.png",
+      "category": "icons",
+      "center": [1046, 34],
+      "canvas_size": [60, 60],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Ícone de notificação com badge; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_topbar_help.png",
+      "category": "icons",
+      "center": [1104, 36],
+      "canvas_size": [42, 42],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Ícone de ajuda; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_topbar_avatar_user_b.png",
+      "category": "icons",
+      "center": [1172, 36],
+      "canvas_size": [54, 54],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Avatar do usuário; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_topbar_theme_sun.png",
+      "category": "icons",
+      "center": [1405, 36],
+      "canvas_size": [42, 42],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Ícone de tema/sol; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_sidebar_dashboard.png",
+      "category": "icons",
+      "center": [35, 145],
+      "canvas_size": [42, 42],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Sidebar dashboard; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_sidebar_onboarding.png",
+      "category": "icons",
+      "center": [34, 218],
+      "canvas_size": [42, 42],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Sidebar onboarding; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_sidebar_credito.png",
+      "category": "icons",
+      "center": [34, 260],
+      "canvas_size": [44, 44],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Sidebar crédito ativo; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_sidebar_formalizacao.png",
+      "category": "icons",
+      "center": [34, 307],
+      "canvas_size": [42, 42],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Sidebar formalização; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_sidebar_cobranca.png",
+      "category": "icons",
+      "center": [34, 347],
+      "canvas_size": [42, 42],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Sidebar cobrança; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_sidebar_backoffice.png",
+      "category": "icons",
+      "center": [34, 424],
+      "canvas_size": [42, 42],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Sidebar backoffice; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_sidebar_pix.png",
+      "category": "icons",
+      "center": [34, 489],
+      "canvas_size": [42, 42],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Sidebar Pix; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_sidebar_perfil.png",
+      "category": "icons",
+      "center": [34, 568],
+      "canvas_size": [42, 42],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Sidebar perfil; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_sidebar_help_central.png",
+      "category": "icons",
+      "center": [43, 902],
+      "canvas_size": [44, 44],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Central de ajuda; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_sidebar_profile_avatar_b.png",
+      "category": "icons",
+      "center": [44, 753],
+      "canvas_size": [54, 54],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Avatar perfil sidebar; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_title_minhas_propostas_shield.png",
+      "category": "icons",
+      "center": [475, 136],
+      "canvas_size": [40, 40],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Shield do título Minhas propostas; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_filter_sliders.png",
+      "category": "icons",
+      "center": [1115, 404],
+      "canvas_size": [42, 42],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Ícone de filtros; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_button_plus_nova_proposta.png",
+      "category": "icons",
+      "center": [1355, 404],
+      "canvas_size": [42, 42],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Plus botão Nova proposta; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_table_view_eye.png",
+      "category": "icons",
+      "center": [1289, 503],
+      "canvas_size": [32, 32],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Ação visualizar; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_table_document.png",
+      "category": "icons",
+      "center": [1331, 503],
+      "canvas_size": [32, 32],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Ação documento; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_table_more_dots.png",
+      "category": "icons",
+      "center": [1371, 503],
+      "canvas_size": [32, 32],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Ação mais opções; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_pagination_prev.png",
+      "category": "icons",
+      "center": [778, 785],
+      "canvas_size": [36, 36],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Paginação anterior; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_pagination_next.png",
+      "category": "icons",
+      "center": [864, 785],
+      "canvas_size": [36, 36],
+      "mode": "icon",
+      "method": "centro-para-fora",
+      "note": "Paginação próxima; recorte simétrico com margem."
+    },
+    {
+      "file": "icons/icon_metric_limite_pre_aprovado.png",
+      "category": "icons",
+      "center": [307, 231],
+      "canvas_size": [82, 82],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Card limite pré-aprovado; centro visual no mockup e expansão igual em todos os lados."
+    },
+    {
+      "file": "icons/icon_metric_propostas_analise.png",
+      "category": "icons",
+      "center": [601, 231],
+      "canvas_size": [82, 82],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Card propostas em análise; centro visual no mockup e expansão igual em todos os lados."
+    },
+    {
+      "file": "icons/icon_metric_propostas_aprovadas.png",
+      "category": "icons",
+      "center": [895, 231],
+      "canvas_size": [82, 82],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Card propostas aprovadas; centro visual no mockup e expansão igual em todos os lados."
+    },
+    {
+      "file": "icons/icon_metric_propostas_pendentes.png",
+      "category": "icons",
+      "center": [1179, 231],
+      "canvas_size": [82, 82],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Card propostas pendentes; centro visual no mockup e expansão igual em todos os lados."
+    },
+    {
+      "file": "icons/icon_metric_percent_analise_50.png",
+      "category": "icons",
+      "center": [798, 235],
+      "canvas_size": [54, 54],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Anel percentual 50%; centro visual no mockup e expansão igual em todos os lados."
+    },
+    {
+      "file": "icons/icon_metric_percent_aprovadas_37_5.png",
+      "category": "icons",
+      "center": [1083, 235],
+      "canvas_size": [54, 54],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Anel percentual 37,5%; centro visual no mockup e expansão igual em todos os lados."
+    },
+    {
+      "file": "icons/icon_metric_percent_pendentes_12_5.png",
+      "category": "icons",
+      "center": [1362, 235],
+      "canvas_size": [54, 54],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Anel percentual 12,5%; centro visual no mockup e expansão igual em todos os lados."
+    },
+    {
+      "file": "icons/icon_resumo_tempo_medio_analise.png",
+      "category": "icons",
+      "center": [302, 876],
+      "canvas_size": [70, 70],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Resumo tempo médio de análise; centro visual no mockup e expansão igual em todos os lados."
+    },
+    {
+      "file": "icons/icon_resumo_taxa_aprovacao.png",
+      "category": "icons",
+      "center": [565, 876],
+      "canvas_size": [70, 70],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Resumo taxa de aprovação; centro visual no mockup e expansão igual em todos os lados."
+    },
+    {
+      "file": "icons/icon_resumo_valor_medio_aprovado.png",
+      "category": "icons",
+      "center": [848, 876],
+      "canvas_size": [70, 70],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Resumo valor médio aprovado; centro visual no mockup e expansão igual em todos os lados."
+    },
+    {
+      "file": "icons/icon_resumo_total_aprovado.png",
+      "category": "icons",
+      "center": [1138, 876],
+      "canvas_size": [70, 70],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Resumo total aprovado; centro visual no mockup e expansão igual em todos os lados."
+    },
+    {
+      "file": "icons/icon_footer_ambiente_regulado.png",
+      "category": "icons",
+      "center": [289, 1024],
+      "canvas_size": [44, 44],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Footer ambiente regulado; centro visual no mockup e expansão igual em todos os lados."
+    },
+    {
+      "file": "icons/icon_footer_segregacao_patrimonial.png",
+      "category": "icons",
+      "center": [497, 1024],
+      "canvas_size": [44, 44],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Footer segregação patrimonial; centro visual no mockup e expansão igual em todos os lados."
+    },
+    {
+      "file": "icons/icon_footer_dados_criptografados.png",
+      "category": "icons",
+      "center": [701, 1024],
+      "canvas_size": [44, 44],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Footer dados criptografados; centro visual no mockup e expansão igual em todos os lados."
+    },
+    {
+      "file": "icons/icon_footer_rastreabilidade_total.png",
+      "category": "icons",
+      "center": [913, 1024],
+      "canvas_size": [44, 44],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Footer rastreabilidade total; centro visual no mockup e expansão igual em todos os lados."
+    },
+    {
+      "file": "icons/icon_footer_seguranca_prioridade_hud.png",
+      "category": "icons",
+      "center": [1129, 1023],
+      "canvas_size": [82, 82],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Footer segurança é nossa prioridade HUD; centro visual no mockup e expansão igual em todos os lados."
+    },
+    {
+      "file": "visuals/visual_onboarding_aprovado_check_hud.png",
+      "category": "visuals",
+      "center": [1078, 149],
+      "canvas_size": [118, 70],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "HUD onboarding aprovado"
+    },
+    {
+      "file": "visuals/visual_metric_cards_row_background.png",
+      "category": "visuals",
+      "center": [831, 266],
+      "canvas_size": [1167, 152],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Faixa dos cards métricos"
+    },
+    {
+      "file": "visuals/visual_table_card_background.png",
+      "category": "visuals",
+      "center": [830, 590],
+      "canvas_size": [1167, 454],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Tabela de propostas"
+    },
+    {
+      "file": "visuals/visual_sparkline_tempo_medio_analise.png",
+      "category": "visuals",
+      "center": [482, 886],
+      "canvas_size": [80, 34],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Sparkline tempo médio"
+    },
+    {
+      "file": "visuals/visual_sparkline_taxa_aprovacao.png",
+      "category": "visuals",
+      "center": [746, 886],
+      "canvas_size": [80, 34],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Sparkline taxa aprovação"
+    },
+    {
+      "file": "visuals/visual_sparkline_valor_medio_aprovado.png",
+      "category": "visuals",
+      "center": [1031, 886],
+      "canvas_size": [80, 34],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Sparkline valor médio"
+    },
+    {
+      "file": "visuals/visual_sparkline_total_aprovado.png",
+      "category": "visuals",
+      "center": [1300, 886],
+      "canvas_size": [80, 34],
+      "mode": "visual",
+      "method": "centro-para-fora",
+      "note": "Sparkline total aprovado"
+    },
+    {
+      "file": "ui-groups/ui_topbar.png",
+      "category": "ui-groups",
+      "center": null,
+      "canvas_size": [1445, 70],
+      "mode": "ui",
+      "method": "retangular",
+      "note": "Grupo UI de referência visual; textos devem ser implementados em HTML real."
+    },
+    {
+      "file": "ui-groups/ui_sidebar.png",
+      "category": "ui-groups",
+      "center": null,
+      "canvas_size": [224, 1018],
+      "mode": "ui",
+      "method": "retangular",
+      "note": "Grupo UI de referência visual; textos devem ser implementados em HTML real."
+    },
+    {
+      "file": "ui-groups/ui_page_header.png",
+      "category": "ui-groups",
+      "center": null,
+      "canvas_size": [315, 78],
+      "mode": "ui",
+      "method": "retangular",
+      "note": "Grupo UI de referência visual; textos devem ser implementados em HTML real."
+    },
+    {
+      "file": "ui-groups/ui_metric_cards_row.png",
+      "category": "ui-groups",
+      "center": null,
+      "canvas_size": [1167, 152],
+      "mode": "ui",
+      "method": "retangular",
+      "note": "Grupo UI de referência visual; textos devem ser implementados em HTML real."
+    },
+    {
+      "file": "ui-groups/ui_filters_and_table.png",
+      "category": "ui-groups",
+      "center": null,
+      "canvas_size": [1167, 455],
+      "mode": "ui",
+      "method": "retangular",
+      "note": "Grupo UI de referência visual; textos devem ser implementados em HTML real."
+    },
+    {
+      "file": "ui-groups/ui_bottom_summary_metrics.png",
+      "category": "ui-groups",
+      "center": null,
+      "canvas_size": [1167, 112],
+      "mode": "ui",
+      "method": "retangular",
+      "note": "Grupo UI de referência visual; textos devem ser implementados em HTML real."
+    },
+    {
+      "file": "ui-groups/ui_footer_regulatorio.png",
+      "category": "ui-groups",
+      "center": null,
+      "canvas_size": [1221, 117],
+      "mode": "ui",
+      "method": "retangular",
+      "note": "Grupo UI de referência visual; textos devem ser implementados em HTML real."
+    },
+    {
+      "file": "ui-groups/ui_main_content_credit_proposals.png",
+      "category": "ui-groups",
+      "center": null,
+      "canvas_size": [1221, 1018],
+      "mode": "ui",
+      "method": "retangular",
+      "note": "Grupo UI de referência visual; textos devem ser implementados em HTML real."
+    }
+  ]
+}

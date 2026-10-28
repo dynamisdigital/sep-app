@@ -1,11 +1,22 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 
-import { OperacaoCarteiraResponse } from '../../../../core/api/api.models';
+import {
+  OperacaoCarteiraResponse,
+  StatusOperacaoFinanciada,
+} from '../../../../core/api/api.models';
 import { CredoraService } from '../../../../core/credora/credora.service';
+import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
 import { AportesListComponent } from '../shared/aportes-list.component';
-import { OperacaoStatusComponent } from '../shared/operacao-status.component';
 import {
   formatarData,
   formatarMoeda,
@@ -20,9 +31,12 @@ import {
 // aportes (F-18.4, somente leitura — registrar/retry/matching sao do recorte operacional); nunca
 // busca parcelas individuais nem dado sensivel do tomador. Falha da lista de aportes fica
 // localizada no componente embutido e nao derruba o detalhe ja carregado.
+//
+// Tela sem arte de designer: construida no padrao visual do tema, na mesma linguagem dos
+// Mockups 35 e 36. A referencia em `image/mockups` e captura da implementacao.
 @Component({
   selector: 'sep-operacao-carteira-detail-page',
-  imports: [RouterLink, OperacaoStatusComponent, AportesListComponent],
+  imports: [RouterLink, LucideAngularModule, OperationalShellComponent, AportesListComponent],
   templateUrl: './operacao-carteira-detail-page.component.html',
   styleUrl: './operacao-carteira-detail-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,6 +56,31 @@ export class OperacaoCarteiraDetailPageComponent implements OnInit {
   protected readonly formatarData = formatarData;
   protected readonly formatarTaxaMensal = formatarTaxaMensal;
   protected readonly idCurto = idCurto;
+
+  // Derivados do resumo AGREGADO devolvido pelo backend. Nada aqui recalcula regra de cobranca:
+  // sao apenas as mesmas parcelas vistas por outro angulo, para os numeros fecharem com a lista.
+  protected readonly progresso = computed(() => {
+    const c = this.operacao()?.cobranca;
+    if (!c?.numeroParcelas) return 0;
+    return Math.round((c.parcelasPagas / c.numeroParcelas) * 100);
+  });
+
+  protected readonly emAberto = computed(() => {
+    const c = this.operacao()?.cobranca;
+    if (!c) return 0;
+    return Math.round((c.valorTotal - c.totalRecebido) * 100) / 100;
+  });
+
+  protected readonly parcelasRestantes = computed(() => {
+    const c = this.operacao()?.cobranca;
+    if (!c) return 0;
+    return c.numeroParcelas - c.parcelasPagas;
+  });
+
+  protected readonly tomDoTitulo = computed(() => {
+    const op = this.operacao();
+    return op ? this.statusTom(op.status) : 'blue';
+  });
 
   ngOnInit(): void {
     // O parametro :id e garantido pela rota; carrega incondicionalmente.
@@ -64,8 +103,16 @@ export class OperacaoCarteiraDetailPageComponent implements OnInit {
           this.naoEncontrada.set(true);
           return;
         }
-        this.errorMessage.set(mensagemCredoraErro(err, 'Nao foi possivel carregar a operacao.'));
+        this.errorMessage.set(mensagemCredoraErro(err, 'Não foi possível carregar a operação.'));
       },
     });
+  }
+
+  statusTom(status: StatusOperacaoFinanciada): 'green' | 'amber' {
+    return status === 'ASSOCIADA' ? 'green' : 'amber';
+  }
+
+  statusRotulo(status: StatusOperacaoFinanciada): string {
+    return status === 'ASSOCIADA' ? 'Associada' : 'Encerrada';
   }
 }

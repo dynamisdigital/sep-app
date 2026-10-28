@@ -1,0 +1,121 @@
+<sep-operational-shell>
+  <main class="cor-page">
+    <header class="cor-hero">
+      <div>
+        <p class="cor-crumbs">
+          <a routerLink="/app/dashboard">Início</a> ›
+          <a routerLink="/app/meu-backoffice">Meu Back Office</a> › <strong>Desempenho</strong>
+        </p>
+        <h1>Meu desempenho</h1>
+        <p>Suas metas, sua posição na rede e a conversão do seu funil.</p>
+      </div>
+    </header>
+
+    @if (erro()) {
+      <div class="cor-erro" role="alert">{{ erro() }}</div>
+    }
+
+    @if (carregando()) {
+      <p class="cor-estado" role="status">Carregando o desempenho...</p>
+    } @else if (desempenho(); as d) {
+      <section class="cor-grid" aria-label="Metas" data-tour="cor-metas">
+        <article class="cor-card">
+          <header class="cor-card-titulo">
+            <lucide-icon name="target" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2>Meta de clientes</h2>
+              <p>Período {{ d.meta.periodo }}</p>
+            </div>
+          </header>
+          <p class="cor-meta-numero">
+            <strong>{{ d.meta.realizadoClientes }}</strong> de {{ d.meta.metaClientes }} clientes
+          </p>
+          <div
+            class="cor-progresso cor-progresso-grande"
+            [attr.data-tone]="tom(d.meta.atingimentoClientesPct)"
+          >
+            <div><i [style.width.%]="largura(d.meta.atingimentoClientesPct)"></i></div>
+            <small>{{ pct(d.meta.atingimentoClientesPct) }}</small>
+          </div>
+        </article>
+        <article class="cor-card">
+          <header class="cor-card-titulo">
+            <lucide-icon name="gauge" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2>Meta de crédito originado</h2>
+              <p>Período {{ d.meta.periodo }}</p>
+            </div>
+          </header>
+          <p class="cor-meta-numero">
+            <strong>{{ moeda(d.meta.realizadoValorOriginado) }}</strong> de
+            {{ moeda(d.meta.metaValorOriginado) }}
+          </p>
+          <div
+            class="cor-progresso cor-progresso-grande"
+            [attr.data-tone]="tom(d.meta.atingimentoValorPct)"
+          >
+            <div><i [style.width.%]="largura(d.meta.atingimentoValorPct)"></i></div>
+            <small>{{ pct(d.meta.atingimentoValorPct) }}</small>
+          </div>
+        </article>
+        <article class="cor-card" data-tour="cor-posicao">
+          <header class="cor-card-titulo">
+            <lucide-icon name="trophy" [size]="24" [strokeWidth]="1.5" />
+            <div>
+              <h2>Sua posição na rede</h2>
+              <p>Por crédito originado</p>
+            </div>
+          </header>
+          <p class="cor-posicao">
+            <strong>{{ d.meu.posicao }}º</strong> de {{ d.totalCorrespondentes }} correspondentes
+          </p>
+          <small class="cor-nota">Os dados dos demais correspondentes não são exibidos.</small>
+        </article>
+      </section>
+
+      <section class="cor-kpis" aria-label="Indicadores de desempenho">
+        <article class="cor-kpi" data-tone="green">
+          <small>Clientes captados</small>
+          <strong>{{ d.meu.clientesCaptados }}</strong>
+          <span>vínculos desde o início</span>
+          <lucide-icon name="users" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi">
+          <small>Contratos originados</small>
+          <strong>{{ d.meu.contratos }}</strong>
+          <span>{{ moeda(d.meu.valorOriginado) }}</span>
+          <lucide-icon name="file-check" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" data-tone="amber">
+          <small>Conversão do funil</small>
+          <strong>{{ pct(d.meu.taxaConversaoPct) }}</strong>
+          <span>{{ d.meu.contratados }} de {{ d.meu.prospects }} prospects</span>
+          <lucide-icon name="funnel" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" [attr.data-tone]="d.meu.inadimplenciaPct ? 'red' : 'green'">
+          <small>Inadimplência da carteira</small>
+          <strong>{{ pct(d.meu.inadimplenciaPct) }}</strong>
+          <span>qualidade da base</span>
+          <lucide-icon name="trending-up" [size]="34" [strokeWidth]="1.25" />
+        </article>
+        <article class="cor-kpi" data-tone="green">
+          <small>Comissão gerada</small>
+          <strong>{{ moeda(d.meu.comissaoGerada) }}</strong>
+          <span>{{ moeda(d.meu.comissaoPaga) }} já paga</span>
+          <lucide-icon name="wallet" [size]="34" [strokeWidth]="1.25" />
+        </article>
+      </section>
+
+      <section class="cor-card" aria-labelledby="cor-funil-barras">
+        <header class="cor-card-titulo">
+          <lucide-icon name="funnel" [size]="24" [strokeWidth]="1.5" />
+          <div>
+            <h2 id="cor-funil-barras">Prospects por etapa do funil</h2>
+            <p>Onde estão os clientes em potencial</p>
+          </div>
+        </header>
+        <sep-cor-barras [itens]="funil()" descricao="Prospects por etapa" />
+      </section>
+    }
+  </main>
+</sep-operational-shell>

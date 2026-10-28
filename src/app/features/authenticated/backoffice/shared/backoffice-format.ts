@@ -88,8 +88,8 @@ export const TIPO_ITEM_FILA_LABEL: Record<TipoItemFila, string> = {
   ONBOARDING_PENDENTE: 'Onboarding pendente',
   ONBOARDING_ERRO: 'Onboarding com erro',
   PROPOSTA_PENDENTE: 'Proposta pendente',
-  CONTRATO_NAO_ASSINADO: 'Contrato nao assinado',
-  COBRANCA_INADIMPLENTE: 'Cobranca inadimplente',
+  CONTRATO_NAO_ASSINADO: 'Contrato não assinado',
+  COBRANCA_INADIMPLENTE: 'Cobrança inadimplente',
   WEBHOOK_FALHOU: 'Webhook falhou',
   DESEMBOLSO_PIX_FALHOU: 'Desembolso Pix falhou',
   RECEBIMENTO_PIX_DIVERGENTE: 'Recebimento Pix divergente',
@@ -98,9 +98,9 @@ export const TIPO_ITEM_FILA_LABEL: Record<TipoItemFila, string> = {
 
 export const PRIORIDADE_ITEM_LABEL: Record<PrioridadeItem, string> = {
   BAIXA: 'Baixa',
-  MEDIA: 'Media',
+  MEDIA: 'Média',
   ALTA: 'Alta',
-  CRITICA: 'Critica',
+  CRITICA: 'Crítica',
 };
 
 export const STATUS_ITEM_FILA_LABEL: Record<StatusItemFila, string> = {
@@ -114,9 +114,9 @@ export const TIPO_ENTIDADE_LABEL: Record<TipoEntidadeReferenciada, string> = {
   ONBOARDING: 'Onboarding',
   PROPOSTA: 'Proposta',
   CONTRATO: 'Contrato',
-  PARCELA_COBRANCA: 'Parcela de cobranca',
+  PARCELA_COBRANCA: 'Parcela de cobrança',
   WEBHOOK_EVENT_LOG: 'Webhook',
-  PIX_TRANSFERENCIA: 'Transferencia Pix',
+  PIX_TRANSFERENCIA: 'Transferência Pix',
   PIX_RECEBIMENTO: 'Recebimento Pix',
   OUTRO: 'Outro',
 };
@@ -129,7 +129,7 @@ export const TIPO_CHAMADA_PROVIDER_LABEL: Record<TipoChamadaProvider, string> = 
   PLD: 'PLD',
   OPEN_FINANCE: 'Open Finance',
   ASSINATURA_DIGITAL: 'Assinatura digital',
-  PIX_TRANSFERENCIA: 'Transferencia Pix',
+  PIX_TRANSFERENCIA: 'Transferência Pix',
 };
 
 export const STATUS_REPROCESSO_LABEL: Record<StatusReprocesso, string> = {
@@ -162,7 +162,7 @@ export function fimDoDiaIso(dataLocal: string): string {
   return `${dataLocal}T23:59:59-03:00`;
 }
 
-// Extrai a mensagem amigavel do corpo de erro padronizado da API, com fallback.
+// Extrai a mensagem amigavel do corpo de erro padronizado da API, com fallback e sanitizacao.
 // 401/403/423 sao tratados pelo errorInterceptor global; aqui cobrimos 404/409/422/5xx.
 export function mensagemBackofficeErro(err: HttpErrorResponse, padrao: string): string {
   return mensagemDeErroDaApi(err, padrao);

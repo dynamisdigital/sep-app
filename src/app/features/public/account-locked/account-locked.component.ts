@@ -9,6 +9,9 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
+
+import { ThemeService } from '../../../core/theme/theme.service';
 
 import { PoliticaLockoutResponse } from '../../../core/api/api.models';
 import { PoliticaLockoutService } from '../../../core/auth/politica-lockout.service';
@@ -87,9 +90,19 @@ function explicacaoComPolitica(politica: PoliticaLockoutResponse): string {
  */
 @Component({
   selector: 'sep-account-locked',
-  imports: [RouterLink],
+  imports: [RouterLink, LucideAngularModule],
   template: `
     <main class="sep-account-locked">
+      <button
+        type="button"
+        class="sep-tema-publico"
+        [attr.aria-label]="temaEscuro() ? 'Mudar para o tema claro' : 'Mudar para o tema escuro'"
+        [attr.aria-pressed]="!temaEscuro()"
+        (click)="alternarTema()"
+      >
+        <lucide-icon [name]="temaEscuro() ? 'sun' : 'moon'" [size]="20" [strokeWidth]="2" />
+      </button>
+
       <section class="sep-account-locked-card" aria-labelledby="account-locked-title">
         <span class="sep-account-locked-badge" aria-hidden="true">423</span>
         <h1 #titulo id="account-locked-title" tabindex="-1">Conta bloqueada temporariamente</h1>
@@ -112,7 +125,24 @@ function explicacaoComPolitica(politica: PoliticaLockoutResponse): string {
         display: block;
         background: hsl(var(--background));
       }
+      /* O botao de tema fica no canto, como no login: estas telas nao usam cabecalho. */
+      .sep-tema-publico {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        display: grid;
+        place-items: center;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        color: hsl(var(--foreground));
+        cursor: pointer;
+        border: 1px solid hsl(var(--border));
+        border-radius: 11px;
+        background: hsl(var(--card));
+      }
       .sep-account-locked {
+        position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -158,6 +188,7 @@ function explicacaoComPolitica(politica: PoliticaLockoutResponse): string {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccountLockedComponent implements AfterViewInit {
+  private readonly tema = inject(ThemeService);
   private readonly titulo = viewChild.required<ElementRef<HTMLHeadingElement>>('titulo');
 
   // Assina na construcao, antes do primeiro paint. `consultar()` nunca erra (o `catchError` mora no
@@ -170,10 +201,17 @@ export class AccountLockedComponent implements AfterViewInit {
     initialValue: null,
   });
 
+  /** Mesma troca de tema das demais telas publicas; o escuro e o padrao. */
+  protected readonly temaEscuro = this.tema.isDark;
+
   protected readonly explicacaoDoBloqueio = computed(() => {
     const politica = this.politica();
     return politica ? explicacaoComPolitica(politica) : EXPLICACAO_SEM_POLITICA;
   });
+
+  protected alternarTema(): void {
+    this.tema.toggle();
+  }
 
   ngAfterViewInit(): void {
     // Esta pagina e destino de redirect automatico do errorInterceptor. O Angular nao move foco na

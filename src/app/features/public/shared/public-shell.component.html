@@ -1,0 +1,101 @@
+<main class="site-page" [class.site-apresentacao]="apresentacao()" sepLarguraTela>
+  <div class="site-shell">
+    @if (!apresentacao()) {
+      <div class="site-topbar">
+        <p class="site-topbar-aviso">
+          <lucide-icon name="shield-alert" [size]="16" [strokeWidth]="2" aria-hidden="true" />
+          <span>{{ avisoAntifraude }}</span>
+          <a routerLink="/antifraude">Saiba como se proteger</a>
+        </p>
+        <a [routerLink]="areaDoInvestidor.route" class="site-topbar-investidor">
+          <lucide-icon name="wallet" [size]="16" [strokeWidth]="2" aria-hidden="true" />
+          {{ areaDoInvestidor.label }}
+        </a>
+      </div>
+    }
+
+    <header class="site-header">
+      @if (!naInicial()) {
+        <button
+          type="button"
+          class="site-voltar"
+          aria-label="Voltar para a tela anterior"
+          (click)="voltar()"
+        >
+          <lucide-icon name="arrow-left" [size]="20" [strokeWidth]="2.25" />
+        </button>
+      }
+      <a routerLink="/" class="site-brand" aria-label="Dynamis SEP - Página inicial">
+        <img
+          [src]="assetBase + '/logos/logo_sep_simbolo_header.png'"
+          alt=""
+          class="site-brand-symbol"
+          aria-hidden="true"
+        />
+        <span class="site-brand-text">
+          <strong>Dynamis SEP</strong>
+          <span>Sociedade de Empréstimo<br />entre Pessoas</span>
+        </span>
+      </a>
+
+      <nav class="site-nav" aria-label="Navegação principal">
+        @for (item of navegacao; track item.route) {
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="site-nav-ativo"
+            [routerLinkActiveOptions]="{ exact: true }"
+            >{{ item.label }}</a
+          >
+        }
+      </nav>
+
+      <div class="site-header-actions">
+        <button
+          type="button"
+          class="site-theme"
+          [attr.aria-label]="temaEscuro() ? 'Mudar para o tema claro' : 'Mudar para o tema escuro'"
+          [attr.aria-pressed]="!temaEscuro()"
+          (click)="alternarTema()"
+        >
+          <lucide-icon [name]="temaEscuro() ? 'sun' : 'moon'" [size]="20" [strokeWidth]="2" />
+        </button>
+        <sep-acoes-publicas />
+        <a routerLink="/login" class="site-login">Entrar</a>
+        @if (apresentacao()) {
+          <a [routerLink]="areaDoInvestidor.route" class="site-area-financiador">
+            <lucide-icon name="wallet" [size]="16" [strokeWidth]="2" aria-hidden="true" />
+            {{ areaDoInvestidor.label }}
+          </a>
+        }
+      </div>
+    </header>
+
+    <div class="site-content">
+      <ng-content />
+    </div>
+
+    <footer class="site-footer">
+      <div class="site-footer-brand">
+        <img
+          [src]="assetBase + '/logos/logo_sep_simbolo_footer.png'"
+          alt=""
+          class="site-footer-logo"
+          aria-hidden="true"
+        />
+        <strong>Dynamis SEP</strong>
+        <p>Sociedade de Empréstimo entre Pessoas. Capital de giro para empresas.</p>
+      </div>
+
+      <nav class="site-footer-links" aria-label="Links institucionais">
+        @for (item of institucionais; track item.route) {
+          <a [routerLink]="item.route">{{ item.label }}</a>
+        }
+      </nav>
+
+      <p class="site-legal">
+        {{ avisoRegulatorio }} Regulamentação: Resolução CMN 5.050/2022 e alterações. ©
+        {{ ano }} Dynamis SEP.
+      </p>
+    </footer>
+  </div>
+</main>

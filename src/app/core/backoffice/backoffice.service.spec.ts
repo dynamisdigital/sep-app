@@ -39,6 +39,17 @@ describe('BackofficeService', () => {
     });
   });
 
+  describe('consultarDashboardOperacional', () => {
+    it('retorna o snapshot visual calculado a partir da base ficticia central', async () => {
+      const dashboard = await awaitObservable(service.consultarDashboardOperacional());
+
+      expect(dashboard.indicadores.find((item) => item.dominio === 'ONBOARDING')?.valor).toBe(12);
+      expect(dashboard.jornadas.find((item) => item.dominio === 'ONBOARDING')?.pendencias).toBe(12);
+      expect(dashboard.resumo.find((item) => item.id === 'PAGAMENTOS_PIX')?.valor).toBe(24);
+      expect(dashboard.volume.valor).toBe(2_480_000);
+    });
+  });
+
   describe('listarFila', () => {
     it('retorna a pagina completa sem filtro', async () => {
       const page = await awaitObservable(service.listarFila());

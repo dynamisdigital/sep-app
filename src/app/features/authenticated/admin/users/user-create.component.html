@@ -1,0 +1,248 @@
+<sep-operational-shell>
+  <form class="px62-page" [formGroup]="form" (ngSubmit)="criar()" novalidate>
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px62-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/admin">Administração</a><span>›</span
+        ><a routerLink="/app/admin/users">Usuários</a><span>›</span><strong>Novo usuário</strong>
+      </nav>
+      <div class="px62-heading-row">
+        <div class="px62-titulo-wrap">
+          <span class="px62-titulo-icone" data-tone="blue">
+            <lucide-icon name="user-plus" [size]="26" />
+          </span>
+          <div>
+            <h1>Novo usuário</h1>
+            <p class="px62-subtitulo">
+              Cadastre o acesso e escolha os papéis que a pessoa terá na plataforma.
+            </p>
+          </div>
+        </div>
+        <div class="px62-acoes-topo">
+          <a class="px62-btn-sec" routerLink="/app/admin/users">
+            <lucide-icon name="arrow-left" [size]="16" />Voltar
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <div class="px62-duplo">
+      <!-- ============ DADOS DE ACESSO ============ -->
+      <article class="px62-card px62-acesso">
+        <header class="px62-secao-topo">
+          <span class="px62-secao-icone" data-tone="blue">
+            <lucide-icon name="key-round" [size]="20" />
+          </span>
+          <div>
+            <h2>Dados de acesso</h2>
+            <p>O e-mail é o login. A senha inicial é repassada à pessoa por canal seguro.</p>
+          </div>
+        </header>
+
+        <div class="px62-campo">
+          <label for="novo-email">E-mail <b aria-hidden="true">*</b></label>
+          <input
+            id="novo-email"
+            type="email"
+            autocomplete="off"
+            placeholder="nome@empresa.com"
+            formControlName="email"
+            [attr.aria-invalid]="invalido('email')"
+            aria-describedby="novo-email-erro"
+          />
+          @if (invalido('email')) {
+            <p class="px62-campo-erro" id="novo-email-erro" role="alert">
+              {{
+                form.controls.email.hasError('required')
+                  ? 'Informe o e-mail.'
+                  : 'Informe um e-mail válido.'
+              }}
+            </p>
+          }
+        </div>
+
+        <div class="px62-campo">
+          <label for="nova-senha">Senha inicial <b aria-hidden="true">*</b></label>
+          <div class="px62-senha">
+            <input
+              id="nova-senha"
+              [type]="senhaVisivel() ? 'text' : 'password'"
+              autocomplete="new-password"
+              formControlName="senha"
+              [attr.aria-invalid]="invalido('senha')"
+              aria-describedby="nova-senha-criterios"
+            />
+            <button
+              type="button"
+              class="px62-olho"
+              [attr.aria-label]="senhaVisivel() ? 'Ocultar senha' : 'Mostrar senha'"
+              [attr.aria-pressed]="senhaVisivel()"
+              (click)="senhaVisivel.set(!senhaVisivel())"
+            >
+              <lucide-icon [name]="senhaVisivel() ? 'eye-off' : 'eye'" [size]="16" />
+            </button>
+          </div>
+          <ul class="px62-criterios" id="nova-senha-criterios" aria-label="Política de senha">
+            @for (criterio of criterios(); track criterio.rotulo) {
+              <li [class.px62-criterio-ok]="criterio.ok">
+                <lucide-icon [name]="criterio.ok ? 'circle-check' : 'circle'" [size]="14" />
+                {{ criterio.rotulo }}
+              </li>
+            }
+          </ul>
+        </div>
+
+        <div class="px62-campo">
+          <label for="nova-senha-confirmacao">Confirmar senha <b aria-hidden="true">*</b></label>
+          <input
+            id="nova-senha-confirmacao"
+            [type]="senhaVisivel() ? 'text' : 'password'"
+            autocomplete="new-password"
+            formControlName="confirmacao"
+            [attr.aria-invalid]="invalido('confirmacao') || confirmacaoDivergente()"
+          />
+          @if (invalido('confirmacao')) {
+            <p class="px62-campo-erro" role="alert">Repita a senha.</p>
+          } @else if (confirmacaoDivergente()) {
+            <p class="px62-campo-erro" role="alert">As senhas não conferem.</p>
+          }
+        </div>
+
+        <section class="px62-depois" aria-labelledby="px62-depois-titulo">
+          <h3 id="px62-depois-titulo">Depois de criar</h3>
+          <ul>
+            <li>
+              <lucide-icon name="lock" [size]="16" />
+              <span
+                ><strong>Repasse a senha por canal seguro</strong>Nunca na mesma mensagem que o
+                e-mail de acesso.</span
+              >
+            </li>
+            <li>
+              <lucide-icon name="key-round" [size]="16" />
+              <span
+                ><strong>A pessoa troca a senha</strong>Em Meu perfil › Alterar senha, com a mesma
+                política acima.</span
+              >
+            </li>
+            <li>
+              <lucide-icon name="shield-check" [size]="16" />
+              <span
+                ><strong>Operações sensíveis pedem TOTP</strong>Ela habilita em Meu perfil ›
+                Configurar TOTP.</span
+              >
+            </li>
+            <li>
+              <lucide-icon name="info" [size]="16" />
+              <span
+                ><strong>O e-mail não muda depois</strong>Não há edição de dados do usuário; só os
+                papéis são alterados.</span
+              >
+            </li>
+          </ul>
+        </section>
+      </article>
+
+      <!-- ============ PAPÉIS ============ -->
+      <article class="px62-card px62-papeis">
+        <header class="px62-secao-topo">
+          <span class="px62-secao-icone" data-tone="purple">
+            <lucide-icon name="lock" [size]="20" />
+          </span>
+          <div>
+            <h2>Papéis e alcance</h2>
+            <p>Papéis são cumulativos. A conta nasce CLIENTE; os demais passam por TOTP.</p>
+          </div>
+        </header>
+
+        <div class="px62-chips" role="group" aria-label="Papéis do novo usuário">
+          @for (role of rolesDisponiveis; track role) {
+            <button
+              type="button"
+              class="px62-chip"
+              [class.px62-chip-ativo]="selecao()[role]"
+              [attr.data-tone]="tomDoPapel(role)"
+              [attr.aria-pressed]="selecao()[role]"
+              [disabled]="enviando()"
+              (click)="alternarRole(role)"
+            >
+              {{ role }}
+            </button>
+          }
+        </div>
+
+        @if (rolesEscolhidas().length === 0) {
+          <p class="px62-nota px62-nota-bloqueio" role="status">
+            <lucide-icon name="triangle-alert" [size]="15" />
+            Selecione ao menos um papel.
+          </p>
+        }
+
+        <ul class="px62-alcance" aria-label="Alcance de cada papel">
+          @for (item of alcance(); track item.role) {
+            <li [class.px62-alcance-inativo]="!item.ativo" [attr.data-tone]="item.tom">
+              <header>
+                <span class="px62-selo" [attr.data-tone]="item.tom">{{ item.vetor.rotulo }}</span>
+                <small>{{ item.ativo ? item.role : 'não atribuído' }}</small>
+              </header>
+              <p>{{ item.vetor.descricao }}</p>
+              <ul>
+                @for (permissao of item.permissoes; track permissao) {
+                  <li><lucide-icon name="check" [size]="13" />{{ permissao }}</li>
+                }
+              </ul>
+            </li>
+          }
+        </ul>
+        <p class="px62-nota px62-nota-fonte">
+          <lucide-icon name="info" [size]="15" />
+          Leitura derivada de cada papel. O backend não expõe catálogo de permissões.
+        </p>
+      </article>
+    </div>
+
+    <!-- ============ COMO A CONTA É CRIADA ============ -->
+    <article class="px62-card px62-rodape">
+      <ol class="px62-passos" aria-label="Como a conta é criada">
+        <li>
+          <span class="px62-passo-num" data-tone="blue">1</span>
+          <div>
+            <strong>Conta criada como CLIENTE</strong>
+            <small>POST /usuarios, sem confirmação adicional.</small>
+          </div>
+        </li>
+        <li [class.px62-passo-inativo]="!exigeConfirmacao()">
+          <span class="px62-passo-num" data-tone="purple">2</span>
+          <div>
+            <strong>
+              {{ exigeConfirmacao() ? 'Papéis aplicados com TOTP' : 'Sem papéis adicionais' }}
+            </strong>
+            <small>
+              {{
+                exigeConfirmacao()
+                  ? 'O detalhe do usuário pede a confirmação e aplica ' +
+                    rolesEscolhidas().join(', ') +
+                    '.'
+                  : 'Somente CLIENTE: nada a confirmar.'
+              }}
+            </small>
+          </div>
+        </li>
+      </ol>
+
+      <div class="px62-rodape-acoes">
+        @if (erro(); as msg) {
+          <p class="px62-nota px62-nota-erro" role="alert">
+            <lucide-icon name="triangle-alert" [size]="15" />{{ msg }}
+          </p>
+        }
+        <a class="px62-btn-sec" routerLink="/app/admin/users">Cancelar</a>
+        <button type="submit" class="px62-btn-primary" [disabled]="enviando()">
+          <lucide-icon name="user-plus" [size]="16" />
+          {{ enviando() ? 'Criando...' : 'Criar usuário' }}
+        </button>
+      </div>
+    </article>
+  </form>
+</sep-operational-shell>

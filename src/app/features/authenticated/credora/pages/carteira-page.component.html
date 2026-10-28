@@ -1,56 +1,211 @@
-<section class="sep-carteira">
-  <header class="sep-carteira-header">
-    <h1 class="sep-carteira-title">Carteira</h1>
-    <a routerLink="/app/credora" class="sep-carteira-back">Voltar para a jornada credora</a>
-  </header>
+<sep-operational-shell>
+  <section class="px46-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px46-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/credora">Credora</a><span>›</span><strong>Carteira</strong>
+      </nav>
+      <div class="px46-heading-row">
+        <div class="px46-titulo-wrap">
+          <span class="px46-titulo-icone" data-tone="green">
+            <lucide-icon name="wallet" [size]="24" />
+          </span>
+          <div>
+            <h1>Carteira</h1>
+            <p class="px46-subtitulo">
+              Operações financiadas associadas à sua credora, com a cobrança agregada pelo backend.
+            </p>
+          </div>
+        </div>
+        <a class="px46-btn-sec" routerLink="/app/credora/oportunidades">
+          <lucide-icon name="chart-column" [size]="16" />Ver oportunidades
+        </a>
+      </div>
+    </header>
 
-  @if (loading()) {
-    <p class="sep-carteira-state" role="status">Carregando carteira...</p>
-  } @else if (errorMessage(); as msg) {
-    <div class="sep-carteira-state sep-carteira-error" role="alert">
-      <p>{{ msg }}</p>
-      <button type="button" class="sep-carteira-retry" (click)="carregar()">
-        Tentar novamente
-      </button>
-    </div>
-  } @else if (operacoes().length === 0) {
-    <div class="sep-carteira-state sep-carteira-empty">
-      <p>Voce ainda nao tem operacoes financiadas.</p>
-      <p class="sep-carteira-empty-nota">
-        A carteira nasce por associacao operacional assistida. Manifestar interesse em oportunidades
-        nao gera operacao de carteira.
-      </p>
-    </div>
-  } @else {
-    <table class="sep-carteira-table">
-      <thead>
-        <tr>
-          <th scope="col">Operacao</th>
-          <th scope="col">Valor</th>
-          <th scope="col">Status</th>
-          <th scope="col">Associada em</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (operacao of operacoes(); track operacao.id) {
-          <tr>
-            <td>
-              <a [routerLink]="['/app/credora/carteira', operacao.id]">
-                {{ idCurto(operacao.id) }}
-              </a>
-            </td>
-            <td>
-              @if (operacao.valor !== null) {
-                {{ formatarMoeda(operacao.valor) }}
-              } @else {
-                &mdash;
-              }
-            </td>
-            <td><sep-operacao-status [status]="operacao.status" /></td>
-            <td>{{ formatarData(operacao.dataCriacao) }}</td>
-          </tr>
+    @if (loading()) {
+      <p class="px46-estado" role="status">Carregando carteira...</p>
+    } @else if (errorMessage(); as msg) {
+      <div class="px46-estado px46-erro" role="alert">
+        <lucide-icon name="triangle-alert" [size]="18" />
+        <p>{{ msg }}</p>
+        <button type="button" class="px46-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
+      </div>
+    } @else {
+      <!-- ============ MÉTRICAS ============ -->
+      <div class="px46-metricas">
+        <article class="px46-card px46-metrica" data-tone="blue">
+          <header>
+            <span class="px46-metrica-icone"><lucide-icon name="wallet" [size]="18" /></span>
+            <small>Valor financiado</small>
+          </header>
+          <strong>{{ formatarMoeda(valorFinanciado()) }}</strong>
+          <em>{{ ativas().length }} de {{ operacoes().length }} operações ativas</em>
+        </article>
+        <article class="px46-card px46-metrica" data-tone="green">
+          <header>
+            <span class="px46-metrica-icone"><lucide-icon name="banknote" [size]="18" /></span>
+            <small>Total recebido</small>
+          </header>
+          <strong>{{ formatarMoeda(totalRecebido()) }}</strong>
+          <em>parcelas já liquidadas</em>
+        </article>
+        <article class="px46-card px46-metrica" data-tone="purple">
+          <header>
+            <span class="px46-metrica-icone"><lucide-icon name="clock" [size]="18" /></span>
+            <small>Em aberto</small>
+          </header>
+          <strong>{{ formatarMoeda(emAberto()) }}</strong>
+          <em>ainda a receber</em>
+        </article>
+        <article
+          class="px46-card px46-metrica"
+          [attr.data-tone]="parcelasAtrasadas() > 0 ? 'red' : 'amber'"
+        >
+          <header>
+            <span class="px46-metrica-icone">
+              <lucide-icon name="triangle-alert" [size]="18" />
+            </span>
+            <small>Parcelas em atraso</small>
+          </header>
+          <strong>{{ parcelasAtrasadas() }}</strong>
+          <em>{{ parcelasAtrasadas() === 0 ? 'nenhuma pendência' : 'exigem acompanhamento' }}</em>
+        </article>
+      </div>
+
+      <!-- ============ OPERAÇÕES ============ -->
+      <article class="px46-card px46-tabela-card">
+        <h2>Operações associadas</h2>
+        @if (operacoes().length === 0) {
+          <div class="px46-vazio">
+            <span class="px46-vazio-icone"><lucide-icon name="inbox" [size]="26" /></span>
+            <strong>Você ainda não tem operações financiadas.</strong>
+            <p>
+              A carteira nasce por associação operacional assistida. Manifestar interesse em
+              oportunidades não gera operação de carteira.
+            </p>
+            <a class="px46-btn-sec" routerLink="/app/credora/oportunidades">
+              <lucide-icon name="chart-column" [size]="16" />Ver oportunidades disponíveis
+            </a>
+          </div>
+        } @else {
+          <div class="px46-tabela-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Operação</th>
+                  <th class="px46-num">Valor</th>
+                  <th class="px46-num">Prazo</th>
+                  <th class="px46-num">Taxa</th>
+                  <th>Cobrança</th>
+                  <th class="px46-num">Recebido</th>
+                  <th>Próximo vencimento</th>
+                  <th>Status</th>
+                  <th class="px46-acoes-col">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (o of operacoes(); track o.id) {
+                  <tr>
+                    <td>
+                      <a class="px46-link" [routerLink]="['/app/credora/carteira', o.id]">
+                        {{ idCurto(o.id) }}
+                      </a>
+                    </td>
+                    <td class="px46-num px46-valor">
+                      {{ o.valor !== null ? formatarMoeda(o.valor) : '—' }}
+                    </td>
+                    <td class="px46-num">
+                      {{ o.prazoMeses !== null ? o.prazoMeses + ' meses' : '—' }}
+                    </td>
+                    <td class="px46-num">
+                      {{ o.taxaJurosMensal !== null ? formatarTaxaMensal(o.taxaJurosMensal) : '—' }}
+                    </td>
+                    <td>
+                      @if (o.cobranca; as c) {
+                        <div class="px46-progresso">
+                          <span class="px46-progresso-trilho">
+                            <span
+                              class="px46-progresso-barra"
+                              [style.width.%]="progresso(o)"
+                            ></span>
+                          </span>
+                          <small>{{ c.parcelasPagas }}/{{ c.numeroParcelas }} parcelas</small>
+                        </div>
+                      } @else {
+                        —
+                      }
+                    </td>
+                    <td class="px46-num">
+                      {{ o.cobranca ? formatarMoeda(o.cobranca.totalRecebido) : '—' }}
+                    </td>
+                    <td>
+                      {{
+                        o.cobranca?.proximoVencimento
+                          ? formatarData(o.cobranca!.proximoVencimento!)
+                          : '—'
+                      }}
+                    </td>
+                    <td>
+                      <span class="px46-selo" [attr.data-tone]="statusTom(o.status)">
+                        {{ statusRotulo(o.status) }}
+                      </span>
+                    </td>
+                    <td class="px46-acoes-col">
+                      <a
+                        class="px46-btn-linha"
+                        [routerLink]="['/app/credora/carteira', o.id]"
+                        [attr.aria-label]="'Abrir operação ' + idCurto(o.id)"
+                        title="Abrir detalhe da operação"
+                      >
+                        <lucide-icon name="eye" [size]="15" />
+                      </a>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <footer class="px46-tabela-rodape">
+            <span>
+              {{ operacoes().length }}
+              {{ operacoes().length === 1 ? 'operação associada' : 'operações associadas' }}
+            </span>
+            <span class="px46-nota">
+              <lucide-icon name="info" [size]="14" />
+              Valores e parcelas vêm da cobrança; a tela apenas soma o que o backend devolveu.
+            </span>
+          </footer>
         }
-      </tbody>
-    </table>
-  }
-</section>
+      </article>
+
+      <!-- ============ COMO A CARTEIRA FUNCIONA ============ -->
+      <article class="px46-card px46-fluxo">
+        <h2>Como a carteira funciona</h2>
+        <ol class="px46-etapas">
+          <li data-tone="purple">
+            <span class="px46-etapa-icone"><lucide-icon name="user-check" [size]="22" /></span>
+            <strong>Associação assistida</strong>
+            <p>A operação entra na carteira por ação do backoffice, após a formalização.</p>
+          </li>
+          <li data-tone="green">
+            <span class="px46-etapa-icone"><lucide-icon name="banknote" [size]="22" /></span>
+            <strong>Cobrança agregada</strong>
+            <p>Parcelas, recebimentos e atrasos vêm da cobrança, sem dado do tomador.</p>
+          </li>
+          <li data-tone="amber">
+            <span class="px46-etapa-icone"><lucide-icon name="shield-check" [size]="22" /></span>
+            <strong>Teto do regimento</strong>
+            <p>Cada operação respeita o limite de {{ formatarMoeda(15000) }} por contrato.</p>
+          </li>
+        </ol>
+        <a class="px46-btn-sec px46-fluxo-link" routerLink="/app/credora/oportunidades">
+          <lucide-icon name="chart-column" [size]="16" />Ver oportunidades disponíveis
+        </a>
+      </article>
+    }
+  </section>
+</sep-operational-shell>

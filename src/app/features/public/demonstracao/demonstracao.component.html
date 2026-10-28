@@ -1,0 +1,339 @@
+﻿<sep-public-shell [apresentacao]="true">
+  <div class="demonstracao" [class.com-banner]="!galeria()">
+    <div class="demo-topo">
+      <nav aria-label="Caminho da página" class="breadcrumb">
+        <a routerLink="/" aria-label="Início"><lucide-icon name="house" [size]="21" /></a>
+        <a routerLink="/demonstracao">Demonstração</a
+        ><lucide-icon name="chevron-right" [size]="15" /> <span>Dados fictícios</span
+        ><lucide-icon name="chevron-right" [size]="15" />
+        <strong>{{ detalhe()?.label ?? 'Sem movimentação real' }}</strong>
+      </nav>
+      <div class="demo-ferramentas">
+        <label class="fotos-versao">
+          Imagens
+          <select
+            aria-label="Imagens"
+            [value]="fotos.versao()"
+            (change)="fotos.mudar($any($event.target).value)"
+          >
+            <option value="telas-escuras">Telas do sistema</option>
+            <option value="originais">Fotos originais</option>
+          </select>
+        </label>
+        <span class="modo-demo"
+          ><lucide-icon name="monitor-play" [size]="18" />Modo Demonstração</span
+        >
+      </div>
+    </div>
+
+    @if (!perfil() || detalhe()) {
+      <section
+        class="carrossel"
+        tabindex="0"
+        aria-label="Experiências de demonstração"
+        aria-roledescription="carrossel"
+        (mouseenter)="hover.set(true)"
+        (mouseleave)="hover.set(false)"
+        (focusin)="foco.set(true)"
+        (focusout)="sairDoFoco($event)"
+        (keydown)="teclado($event)"
+        (touchstart)="inicioToque($event)"
+        (touchend)="fimToque($event)"
+      >
+        <div class="slides">
+          @for (experiencia of cenas(); track experiencia.id) {
+            <article
+              class="cena"
+              [class.visao-geral]="experiencia.id === 'operacao_completa'"
+              [class.saindo]="!detalhe() && experiencia === experiencias[anterior() ?? -1]"
+              [attr.inert]="
+                !detalhe() && experiencia === experiencias[anterior() ?? -1] ? '' : null
+              "
+              [attr.aria-hidden]="!detalhe() && experiencia === experiencias[anterior() ?? -1]"
+              [attr.data-perfil]="experiencia.id"
+              aria-roledescription="slide"
+              [attr.aria-label]="experiencia.label"
+            >
+              @if (experiencia.id === 'operacao_completa' && !detalhe()) {
+                <header class="operacao-intro">
+                  <h1 #titulo tabindex="-1">
+                    {{ experiencia.titulo }} <em>{{ experiencia.destaque }}</em>
+                  </h1>
+                  <p>{{ experiencia.descricao }}</p>
+                </header>
+                <section class="jornadas" aria-label="Escolha uma jornada">
+                  <div class="jornadas-janela" #janelaPainel>
+                    <div
+                      class="jornadas-trilho"
+                      [attr.data-posicao]="posicaoPainel()"
+                      [class.movendo]="painelMovendo()"
+                      [class.parado]="pausaMovimento()"
+                      [style.--posicao]="posicaoPainel()"
+                      [style.--visiveis]="visiveis()"
+                      [style.--passo]="deslocamentoPainel()"
+                      (animationend)="fimPainel($event)"
+                    >
+                      @for (jornada of painel; track $index; let i = $index) {
+                        <article
+                          class="jornada-card"
+                          [class.completa]="i % 6 === 0"
+                          (mouseenter)="reproducaoSolicitada.set(false)"
+                          (focusin)="reproducaoSolicitada.set(false)"
+                          [class.central]="i >= posicaoPainel() && i < posicaoPainel() + visiveis()"
+                          [style.--arco-inicio]="arco(i - posicaoPainel())"
+                          [style.--arco-fim]="arco(i - posicaoPainel() - deslocamentoPainel())"
+                          [attr.inert]="
+                            i < posicaoPainel() || i >= posicaoPainel() + visiveis() ? '' : null
+                          "
+                          [attr.aria-hidden]="
+                            i < posicaoPainel() || i >= posicaoPainel() + visiveis()
+                          "
+                        >
+                          @if (jornada.id === 'operacao_completa') {
+                            <span class="jornada-selo-completa">
+                              <lucide-icon name="network" [size]="16" />Todos os perfis
+                            </span>
+                          }
+                          <a
+                            class="jornada-imagem"
+                            [routerLink]="['/demonstracao', jornada.id]"
+                            [attr.aria-label]="'Ver banner de ' + jornada.label"
+                            ><picture
+                              ><source [srcset]="base + jornada.banner.webp" type="image/webp" />
+                              <img
+                                [src]="base + jornada.banner.png"
+                                [alt]="jornada.banner.alt"
+                                width="640"
+                                height="700"
+                                [attr.fetchpriority]="i === 0 ? 'high' : 'auto'"
+                              /> </picture
+                          ></a>
+                          <div class="jornada-texto">
+                            <span class="jornada-icone"
+                              ><lucide-icon [name]="jornada.icone" [size]="30"
+                            /></span>
+                            <h2>
+                              Conheça
+                              <em>{{ jornada.label }}</em>
+                            </h2>
+                            <p>{{ jornada.resumo }}</p>
+                            <div class="jornada-acoes">
+                              <a
+                                [routerLink]="['/demonstracao', jornada.id]"
+                                [attr.aria-label]="'Conhecer ' + jornada.label"
+                                >Conhecer jornada</a
+                              >
+                              <a
+                                class="seta-circular"
+                                [routerLink]="['/demonstracao', jornada.id]"
+                                [attr.aria-label]="'Ver detalhes de ' + jornada.label"
+                              >
+                                <lucide-icon name="chevron-right" [size]="24" />
+                              </a>
+                            </div>
+                          </div>
+                        </article>
+                      }
+                    </div>
+                  </div>
+                  <div class="painel-controles">
+                    <button
+                      type="button"
+                      aria-label="Jornadas anteriores"
+                      (click)="moverPainel(-visiveis())"
+                    >
+                      <lucide-icon name="chevron-left" [size]="18" />
+                    </button>
+                    <span>Explore as seis jornadas</span>
+                    <button
+                      type="button"
+                      [attr.aria-label]="pausado() ? 'Retomar painel' : 'Pausar painel'"
+                      (click)="alternarReproducao()"
+                    >
+                      <lucide-icon [name]="pausado() ? 'play' : 'pause'" [size]="18" />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Próximas jornadas"
+                      (click)="moverPainel(visiveis())"
+                    >
+                      <lucide-icon name="chevron-right" [size]="18" />
+                    </button>
+                  </div>
+                </section>
+                <aside class="aviso-cenario">
+                  <lucide-icon name="info" [size]="38" />
+                  <div>
+                    <strong
+                      >Este cenário didático não cria contas reais nem consulta serviços
+                      externos.</strong
+                    >
+                    <p>
+                      Ao escolher um capítulo, o contexto necessário é preparado com dados fictícios
+                      e exemplos. Recarregar a página descarta os dados.
+                    </p>
+                  </div>
+                </aside>
+              } @else {
+                <section
+                  class="hero"
+                  [class.operacao]="experiencia.id === 'operacao_completa'"
+                  [class.financiador]="experiencia.id === 'financiador'"
+                  [class.correspondente]="experiencia.id === 'correspondente'"
+                  [class.backoffice]="experiencia.id === 'backoffice'"
+                >
+                  <picture
+                    ><source [srcset]="base + experiencia.banner.webp" type="image/webp" />
+                    <img
+                      [src]="base + experiencia.banner.png"
+                      [alt]="experiencia.banner.alt"
+                      width="1536"
+                      height="1024"
+                      fetchpriority="high"
+                    />
+                  </picture>
+                  <div class="hero-texto">
+                    <p class="kicker">
+                      {{
+                        experiencia.id === 'financiador'
+                          ? 'PARA QUEM FINANCIA'
+                          : 'DEMONSTRAÇÃO INTERATIVA'
+                      }}
+                    </p>
+                    <h1 #titulo tabindex="-1">{{ experiencia.titulo }}</h1>
+                    <h2>
+                      {{ experiencia.chamada }} <em>{{ experiencia.destaque }}</em>
+                    </h2>
+                    <p class="hero-descricao">{{ experiencia.descricao }}</p>
+                    <button
+                      class="botao principal"
+                      type="button"
+                      [disabled]="!demo"
+                      (click)="iniciar(experiencia.id)"
+                    >
+                      <span class="play"><lucide-icon name="play" [size]="16" /></span
+                      >{{ experiencia.cta }}<lucide-icon name="chevron-right" [size]="23" />
+                    </button>
+                  </div>
+                </section>
+                @if (experiencia.steps.length) {
+                  <section
+                    class="etapas"
+                    [class.etapas-financiador]="experiencia.id === 'financiador'"
+                    [attr.aria-label]="experiencia.etapasTitulo"
+                  >
+                    <header class="etapas-cabecalho">
+                      <h2>{{ experiencia.etapasTitulo }}</h2>
+                      <p>Cada cartão apresenta somente sua etapa · O botão maior exibe o cenário</p>
+                    </header>
+                    <ol>
+                      @for (etapa of experiencia.steps; track etapa.title; let i = $index) {
+                        <li>
+                          <picture
+                            ><source [srcset]="base + etapa.imageWebp" type="image/webp" />
+                            <img
+                              [src]="base + etapa.imagePng"
+                              [alt]="'Ilustração: ' + etapa.title"
+                              width="640"
+                              height="420"
+                              loading="lazy"
+                            /> </picture
+                          ><span class="numero">0{{ i + 1 }}</span>
+                          <div class="etapa-texto">
+                            <h3>{{ etapa.title }}</h3>
+                            <p>{{ etapa.description }}</p>
+                            <button
+                              class="seta-circular"
+                              type="button"
+                              [disabled]="!demo"
+                              [attr.aria-label]="
+                                'Assistir somente à etapa ' + (i + 1) + ': ' + etapa.title
+                              "
+                              (click)="iniciarEtapa(experiencia.id, i)"
+                            >
+                              <lucide-icon name="arrow-right" [size]="18" />
+                            </button>
+                          </div>
+                        </li>
+                      }
+                    </ol>
+                  </section>
+                }
+              }
+            </article>
+          }
+        </div>
+        <div class="demo-base">
+          <p class="ambiente">
+            <strong>AMBIENTE SIMULADO</strong>Dados inteiramente fictícios. Nenhuma operação
+            financeira real.
+          </p>
+          @if (!detalhe()) {
+            <div class="hero-controles" role="group" aria-label="Controles do carrossel">
+              <button
+                type="button"
+                class="hero-seta"
+                aria-label="Experiência anterior"
+                (click)="navegarBanner(-1)"
+              >
+                <lucide-icon name="arrow-left" [size]="16" />
+              </button>
+              @for (experiencia of experiencias; track experiencia.id; let i = $index) {
+                <button
+                  type="button"
+                  class="hero-ponto"
+                  [class.ativo]="indicadorAtivo(i)"
+                  [attr.aria-current]="indicadorAtivo(i) ? 'true' : null"
+                  [attr.aria-label]="'Mostrar ' + experiencia.label"
+                  (click)="mostrarBanner(i)"
+                ></button>
+              }
+              <button
+                type="button"
+                class="hero-seta"
+                aria-label="Próxima experiência"
+                (click)="navegarBanner(1)"
+              >
+                <lucide-icon name="arrow-right" [size]="16" />
+              </button>
+              <button
+                type="button"
+                class="hero-seta"
+                [attr.aria-label]="
+                  pausado() ? 'Retomar a troca automática' : 'Pausar a troca automática'
+                "
+                [attr.aria-pressed]="pausado()"
+                (click)="alternarReproducao()"
+              >
+                <lucide-icon [name]="pausado() ? 'play' : 'pause'" [size]="16" />
+              </button>
+              @if (galeria() ? (painelMovendo() ? !pausaMovimento() : !parado()) : !parado()) {
+                @for (chave of [galeria() ? progressoPainel() : reinicio()]; track chave) {
+                  <span
+                    class="hero-progresso"
+                    aria-hidden="true"
+                    [style.animation-duration.ms]="
+                      galeria() ? (painelMovendo() ? 2500 : 4000) : intervaloMs
+                    "
+                  ></span>
+                }
+              }
+            </div>
+          } @else {
+            <a class="voltar-galeria" routerLink="/demonstracao"
+              ><lucide-icon name="arrow-left" [size]="16" />Voltar à galeria</a
+            >
+          }
+        </div>
+      </section>
+    } @else {
+      <p>Perfil não encontrado. <a routerLink="/demonstracao">Voltar à galeria</a></p>
+    }
+    <p class="nota">
+      Fotografias ilustrativas geradas por IA. Condições e riscos variam por operação.
+      @if (!demo) {
+        A execução assistida é exclusiva do ambiente de demonstração.
+      }
+    </p>
+  </div>
+</sep-public-shell>

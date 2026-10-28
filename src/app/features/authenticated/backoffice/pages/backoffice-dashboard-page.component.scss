@@ -1,133 +1,1163 @@
-@use "../../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../../styles/sep-ds-components" as sepDs;
+// ============ MOCKUP 03 — PAINEL DE BACKOFFICE ============
+// Somente o miolo desta página: boas-vindas, métricas, jornadas, painéis de saúde, atividade,
+// desempenho e acessos. A moldura operacional (barra lateral, cabeçalho, navegação, rodapé) vive
+// em `styles/_shell-operacional.scss`, compartilhada com o componente de shell.
 
-.sep-bo-dashboard {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-24);
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+@use "../../../../../styles/sep-responsivo" as resp;
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  color: var(--sep-text-strong);
+  background: var(--sep-canvas);
 }
 
-.sep-bo-dashboard-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-6);
+// `.op-content` e do shell (ViewEncapsulation.None): sem ::ng-deep a regra nao casa. O miolo
+// passa da altura util ate em 1920x1080 (a ultima fileira ficava sob o rodape, com "Ver todas"
+// inalcancavel), e em 1440 o sexto cartao quebrava de linha dentro de uma faixa fixa de 247px,
+// por cima das jornadas. A faixa das metricas cresce com o conteudo e a area rola.
+// stylelint-disable-next-line selector-pseudo-element-no-unknown -- ::ng-deep e do Angular
+:host ::ng-deep .op-content:has(> .op-welcome) {
+  grid-template-rows: 68px auto auto;
+  overflow-y: auto;
 }
 
-.sep-bo-dashboard-title {
-  @include sepType.sep-type-page-title;
+.op-welcome {
+  display: flex;
 
+  /* Saudacao e acoes deixam de disputar a mesma linha quando nao ha largura para as duas.
+     Sem `gap`: acrescentar um mudaria o espacamento homologado da tela cheia. */
+  flex-wrap: wrap;
+  align-items: start;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.op-welcome-copy {
+  position: relative;
+}
+
+.op-welcome-copy p {
+  margin: 0 0 4px;
+  color: var(--op-green);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.op-welcome-copy h1 {
+  display: inline;
   margin: 0;
-  color: hsl(var(--foreground));
+  font-size: clamp(22px, 1.65vw, 28px);
+  line-height: 1;
 }
 
-.sep-bo-dashboard-updated {
-  @include sepType.sep-type-caption;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
+.op-welcome-copy > span {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  margin-left: 10px;
+  padding: 0 8px;
+  color: var(--sep-accent);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  border: 1px solid rgb(var(--sep-c-cyan) / 42%);
+  border-radius: 6px;
+  background: rgb(var(--sep-c-blue) / 14%);
 }
 
-.sep-bo-dashboard-state {
-  @include sepType.sep-type-body;
-
-  color: hsl(var(--muted-foreground));
+.op-welcome-copy small {
+  display: block;
+  margin-top: 8px;
+  color: var(--sep-text-secondary);
+  font-size: 14px;
 }
 
-.sep-bo-dashboard-error {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-  align-items: flex-start;
+.op-customize,
+.op-panel-title button,
+.op-panel-title a,
+.op-journey a {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 14px;
+  color: var(--sep-text);
+  font: inherit;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid rgb(var(--sep-c-cyan) / 36%);
+  border-radius: 8px;
+  background: rgb(var(--sep-c-sunken) / 64%);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
 }
 
-.sep-bo-dashboard-retry {
-  @include sepDs.sep-button-outline;
-}
-
-.sep-bo-kpis {
+.op-metrics {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: var(--sep-space-16);
+
+  /* Seis faixas de 225px pediam 1390px; a area util tem 1191. Continuam seis, cabendo */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 16px;
 }
 
-.sep-bo-kpi {
-  @include sepDs.sep-card-elevated;
+.op-metric {
+  --op-metric-accent: var(--op-cyan);
 
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-  padding: var(--sep-space-24);
+  position: relative;
+  width: 225px;
+  min-width: 225px;
+  max-width: 225px;
+  height: 231px;
+  min-height: 231px;
+  max-height: 231px;
+  padding: 20px 22px 16px;
 }
 
-.sep-bo-kpi-label {
-  @include sepType.sep-type-caption;
-
-  color: hsl(var(--muted-foreground));
+.op-metric[data-tone="green"] {
+  --op-metric-accent: var(--op-green);
 }
 
-.sep-bo-kpi-value {
-  @include sepType.sep-type-metric;
-
-  font-size: 32px;
-  color: hsl(var(--foreground));
+.op-metric[data-tone="blue"] {
+  --op-metric-accent: var(--op-blue);
 }
 
-.sep-bo-kpi-hint {
-  @include sepType.sep-type-caption;
-
-  color: hsl(var(--muted-foreground));
+.op-metric[data-tone="amber"] {
+  --op-metric-accent: var(--op-amber);
 }
 
-.sep-bo-grid {
+.op-metric[data-tone="purple"] {
+  --op-metric-accent: var(--op-purple);
+}
+
+.op-metric::after {
+  position: absolute;
+  right: 22px;
+  bottom: 34px;
+  left: 22px;
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgb(var(--sep-c-cyan) / 24%), transparent);
+}
+
+.op-metric-top {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--sep-space-16);
+  grid-template-columns: 66px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  translate: -10px -7px;
 }
 
-.sep-bo-panel {
-  @include sepDs.sep-card;
-
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-  padding: var(--sep-space-24);
+.op-metric:last-child .op-metric-top {
+  grid-template-columns: 62px minmax(0, 1fr);
+  gap: 12px;
+  translate: -21px -7px;
 }
 
-.sep-bo-panel-title {
-  @include sepType.sep-type-card-title;
+.op-metric:last-child .op-metric-top > div {
+  translate: -14px 0;
+}
 
+.op-metric h2,
+.op-metric small,
+.op-metric p {
   margin: 0;
-  color: hsl(var(--foreground));
 }
 
-.sep-bo-list {
+.op-metric h2 {
+  color: var(--sep-text-strong);
+  font-size: 16px;
+  line-height: 1.08;
+  white-space: nowrap;
+}
+
+.op-metric:nth-child(3) h2,
+.op-metric:last-child h2 {
+  font-size: 16px;
+}
+
+.op-metric small {
+  display: block;
+  margin-top: 4px;
+  color: var(--sep-text-secondary);
+  font-size: 16px;
+}
+
+.op-metric > strong {
+  display: block;
+  width: 100%;
+  margin: 14px 0 0;
+  color: var(--sep-text-strong);
+  font-size: clamp(34px, 2.6vw, 44px);
+  line-height: 0.95;
+  text-align: center;
+  translate: 0 -7px;
+}
+
+.op-metric:last-child > strong {
+  margin: 9px 0 0;
+  font-size: clamp(24px, 1.6vw, 29px);
+  white-space: nowrap;
+}
+
+.op-metric p {
+  position: absolute;
+  right: 0;
+  bottom: 19px;
+  left: 0;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  color: var(--sep-text-secondary);
+  font-size: 16px;
+  font-weight: 600;
+  translate: 0 -7px;
+}
+
+.op-metric p strong {
+  color: var(--sep-text-strong);
+  font-size: inherit;
+  font-weight: 800;
+}
+
+.op-metric:first-child p strong {
+  color: var(--op-cyan);
+}
+
+.op-metric:last-child p strong {
+  color: var(--op-green);
+}
+
+.op-metric p span {
+  color: var(--sep-text-secondary);
+  font-size: inherit;
+  font-weight: 500;
+}
+
+.op-sparkline polyline {
+  fill: none;
+  stroke: var(--sep-danger);
+  stroke-width: 2;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px rgb(var(--sep-c-red) / calc(45% * var(--sep-glow-alpha))));
+}
+
+.op-sparkline polyline[data-subindo="true"] {
+  stroke: var(--sep-success);
+  filter: drop-shadow(0 0 6px rgb(var(--sep-c-green) / calc(45% * var(--sep-glow-alpha))));
+}
+
+.op-metric p::before {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  color: var(--op-metric-accent);
+  font-size: 11px;
+  line-height: 1;
+  content: "↗";
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--op-metric-accent) 14%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--op-metric-accent) 24%, transparent);
+}
+
+.op-metric:first-child p::before,
+.op-metric[data-tone="amber"] p::before {
+  background: transparent;
+  box-shadow: none;
+}
+
+.op-metric:last-child p::before {
+  display: none;
+}
+
+// A tendencia e desenhada, nao mais uma imagem: o traco liga o volume do periodo anterior ao
+// atual, com a cor saindo do sentido da variacao.
+.op-sparkline {
+  position: absolute;
+  right: auto;
+  bottom: 52px;
+  left: 50%;
+  display: block;
+  width: 220px;
+  height: 55px;
+  margin: 0;
+  overflow: visible;
+  translate: calc(-50% - 10px) 0;
+}
+
+// A terceira faixa cai de 423px para 300: e ela que serve "Resumo operacional" e "Atividades
+// recentes", e nos dois a largura sobrava como vao entre o rotulo e o numero. 300 e a medida do
+// rotulo mais longo ("Pagamentos via PIX") somado as colunas do numero e da variacao — em 240 os
+// rotulos truncavam. Os 123px que a faixa devolve vao para as jornadas, que ficavam com 685px para
+// quatro cartoes de 225px.
+.op-lower-grid {
+  display: grid;
+  grid-template:
+    "journeys journeys summary" 252px
+    "journeys journeys summary" 43px
+    "performance health activity" 360px / minmax(0, 1fr) minmax(0, 283px) minmax(0, 300px);
+  gap: 18px;
+  min-height: 0;
+  overflow: visible;
+}
+
+.op-journeys-panel {
+  grid-area: journeys;
+}
+
+.op-summary {
+  grid-area: summary;
+}
+
+.op-performance {
+  grid-area: performance;
+}
+
+.op-health {
+  grid-area: health;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.op-activity {
+  grid-area: activity;
+}
+
+.op-metric,
+.op-journey {
+  overflow: visible;
+}
+
+.op-journeys {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--sep-c-blue) / 45%) transparent;
+}
+
+.op-panel-title {
   display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-6);
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 11px;
+}
+
+.op-panel-title h2 {
+  margin: 0;
+  color: var(--sep-text-strong);
+  font-size: 17px;
+  line-height: 1.1;
+}
+
+.op-panel-title small {
+  display: block;
+  margin-top: 4px;
+  color: var(--op-muted);
+  font-size: 11px;
+}
+
+.op-panel-title button,
+.op-panel-title a {
+  min-height: 28px;
+  padding-inline: 12px;
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+}
+
+.op-journeys-panel .op-panel-title button {
+  width: 98px;
+  min-width: 98px;
+  max-width: 98px;
+}
+
+.op-journeys {
+  display: grid;
+
+  /* Quatro faixas iguais que encolhem juntas. 225px e a largura natural do cartao — abaixo de
+     ~180px o simbolo, o titulo, a descricao e o botao deixam de conviver. O painel passou a
+     receber ~890px depois que a coluna do resumo cedeu, entao os quatro cabem sem rolagem. */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  justify-content: space-between;
+  gap: 9px;
+  min-height: 0;
+}
+
+// A faixa de 927px e a medida do mockup, e estava travada em `width`: com o painel recebendo
+// 685px a 1440 e 518px a 1120, o conteudo simplesmente saia da caixa. Vira teto — cabe inteira
+// quando ha espaco, encolhe quando nao ha, e o `justify-self: center` continua centrando o que
+// sobrar.
+@include resp.acima-de-estreita {
+  .op-journeys-panel .op-panel-title,
+  .op-journeys-panel .op-journeys {
+    width: min(100%, 927px);
+    max-width: none;
+    justify-self: center;
+    translate: -6px 0;
+  }
+}
+
+.op-journey {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 4px 20px 32px;
+  gap: 11px;
+
+  // Largura do mockup como **teto**, e nao como medida travada. Com `width: 225px` fixo os quatro
+  // cartoes somavam 927px e escapavam de um painel de 685px. A grade ja distribui a faixa; o
+  // cartao so precisa aceitar encolher, e `min-width: 0` e o que permite isso dentro do grid.
+  width: 100%;
+  min-width: 0;
+  max-width: 225px;
+
+  // A altura tambem era travada. Quando a faixa fica estreita a grade quebra os quatro cartoes em
+  // duas linhas, e duas linhas de 239px nao cabem nos 295px do painel: o que era transbordo
+  // horizontal virava vertical. Com altura livre e teto, as duas linhas cabem.
+  height: auto;
+  min-height: 0;
+  max-height: 239px;
+  padding: 16px 14px 14px;
+}
+
+// As linhas do cartao sao itens de grade, e portanto tem tamanho minimo automatico: sem isto elas
+// se recusam a encolher junto com o cartao e o conteudo vaza pela lateral do painel.
+.op-journey > * {
+  min-width: 0;
+}
+
+// Duas colunas enquanto houver espaco para as duas; o simbolo sobe para cima do texto quando nao
+// houver. E geometria, nao limiar: o texto pede 96px, e quando o cartao nao os oferece ao lado do
+// simbolo a propria linha quebra. Com `grid-template-columns: 60px ...` o texto ficava com 55px
+// num cartao de 156px, e o titulo saia por cima do simbolo.
+.op-journey-main {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 13px;
+}
+
+.op-journey-main > div {
+  flex: 1 1 80px;
+  min-width: 0;
+}
+
+.op-journey h3,
+.op-journey p {
+  margin: 0;
+}
+
+.op-journey h3 {
+  height: auto;
+  color: var(--sep-text-strong);
+  font-size: 16px;
+  line-height: 1.12;
+}
+
+// Tres linhas e o teto: a altura era fixa em 3,9em, e num cartao estreito a descricao passava
+// disso e caia por cima do selo de status logo abaixo.
+.op-journey p {
+  display: -webkit-box;
+  height: 3.9em;
+  margin-top: 2px;
+  overflow: hidden;
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+  line-height: 1.3;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.op-journey em {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  margin-top: 8px;
+  padding: 0 9px;
+  color: var(--op-cyan);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1;
+  translate: 0 -7px;
+  border-radius: 999px;
+  background: rgb(var(--sep-c-cyan) / 12%);
+}
+
+.op-journey[data-tone="green"] em {
+  color: var(--op-green);
+  background: rgb(var(--sep-c-green) / 10%);
+}
+
+.op-journey[data-tone="amber"] em {
+  color: var(--op-amber);
+  background: rgb(var(--sep-c-amber) / 12%);
+}
+
+.op-progress {
+  width: calc(100% - 4px);
+  overflow: hidden;
+  translate: 0 -10px;
+  border-radius: 999px;
+  background: rgb(var(--sep-c-cyan) / 28%);
+}
+
+.op-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--op-blue), var(--op-cyan));
+}
+
+.op-journey-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+}
+
+.op-journey-footer strong {
+  color: var(--op-green);
+  font-size: 11px;
+  translate: -4px 0;
+}
+
+.op-journey a {
+  // Largura do mockup como teto: com 200px travados o botao esticava o cartao inteiro por dentro,
+  // e o conteudo (214px) escapava de um cartao de 156px.
+  width: 100%;
+  min-width: 0;
+  max-width: 200px;
+  height: 35px;
+  min-height: 35px;
+  max-height: 35px;
+  padding: 0 12px;
+  justify-self: start;
+  justify-content: space-between;
+  color: var(--sep-glow);
+}
+
+.op-summary-list,
+.op-health-list {
+  display: grid;
+  min-height: 0;
+}
+
+.op-summary-list {
+  gap: 6px;
+}
+
+// Coluna do simbolo em 26px, e nao 36: o simbolo tinha 35px de desenho numa fileira de 42, quase
+// o dobro do que "Proximas jornadas" usa ao lado. As colunas do numero e da variacao tambem
+// encolhem — 44 e 62px eram medida de mockup mais largo, e a folga sobrava entre o rotulo e o
+// numero. O painel inteiro fica mais estreito por consequencia.
+.op-summary-item {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) 34px 48px;
+  gap: 10px;
+  align-items: center;
+  min-height: 42px;
+  border-bottom: 1px solid rgb(var(--sep-c-cyan) / 10%);
+}
+
+.op-summary-item:last-child {
+  border-bottom: 0;
+}
+
+.op-summary-item span {
+  overflow: hidden;
+  color: var(--sep-text);
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.op-summary-item strong {
+  text-align: right;
+}
+
+.op-summary-item em {
+  color: var(--op-green);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 800;
+  text-align: right;
+}
+
+.op-summary-item.op-danger strong,
+.op-summary-item.op-danger em {
+  color: var(--op-red);
+}
+
+.op-performance-grid {
+  display: grid;
+
+  /* Quatro medidores, sempre em uma linha: a faixa do painel tem altura fixa e não comporta duas
+     linhas de anel mais rótulo. Com o anel encolhendo junto (`min-width: 0` e número elástico na
+     folha de ícones), as quatro faixas cedem juntas em vez de o conjunto sair da caixa. */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  min-height: 0;
+}
+
+// Coluna declarada, como no `.op-panel`: sem ela a coluna implícita mede a palavra mais longa do
+// rótulo ("finalizados", 72px) e o anel, que é `min(100%, …)`, herdava esses 72px numa faixa de 44.
+.op-performance-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+  min-width: 0;
+  text-align: center;
+}
+
+.op-performance-item strong {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+// Rótulo de duas palavras quebra em duas linhas em vez de truncar: numa faixa de ~87px (o painel a
+// 1120) "Contratos finalizados" perdia 23px para a reticência, e o nome do indicador é justamente
+// o que precisa ser lido. As linhas do cartão são `auto`, então a segunda linha cabe.
+// Só os filhos diretos: o `span` de dentro do `small` ("vs período anterior") herdava a largura
+// cheia e espremia a variação ao lado ("+12%") até ela quebrar em duas linhas, solta à esquerda.
+.op-performance-item > span,
+.op-performance-item > small {
+  width: 100%;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  hyphens: auto;
+}
+
+.op-performance-item > span {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.op-performance-item small {
+  margin-top: 4px;
+  color: var(--op-green);
+  font-size: 11px;
+  white-space: normal;
+}
+
+.op-health-list {
+  align-content: start;
+  gap: 4px;
+}
+
+.op-health-item {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  min-height: 25px;
+  padding: 0 9px;
+  border: 1px solid rgb(var(--sep-c-cyan) / 20%);
+  border-radius: 6px;
+  background: rgb(var(--sep-c-sunken) / 48%);
+}
+
+.op-health-item span,
+.op-health-item em {
+  overflow: hidden;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.op-health-item em {
+  color: var(--op-green);
+  font-style: normal;
+  font-weight: 800;
+}
+
+.op-health footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+}
+
+.op-health footer span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.op-health footer strong {
+  display: grid;
+  place-items: center;
+  min-width: 56px;
+  height: 26px;
+  color: var(--op-green);
+  border-radius: 999px;
+  background: rgb(var(--sep-c-green) / 14%);
+}
+
+.op-activity ol {
+  position: relative;
+  display: grid;
+  gap: 0;
+  min-height: 0;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.sep-bo-list-row {
-  @include sepType.sep-type-body;
-
-  display: flex;
-  justify-content: space-between;
-  gap: var(--sep-space-8);
-  color: hsl(var(--foreground));
+.op-activity ol::before {
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 52px;
+  width: 1px;
+  content: "";
+  background: rgb(var(--sep-c-cyan) / 30%);
 }
 
-.sep-bo-list-total {
-  color: hsl(var(--muted-foreground));
-  font-variant-numeric: tabular-nums;
+.op-activity li {
+  display: grid;
+  grid-template-columns: 38px 22px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+  min-height: 46px;
+  padding: 4px 0;
 }
 
-.sep-bo-list-empty {
-  @include sepType.sep-type-caption;
+.op-activity time {
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+}
 
-  color: hsl(var(--muted-foreground));
+.op-activity img {
+  position: relative;
+  z-index: 1;
+  margin-top: 2px;
+}
+
+.op-activity strong,
+.op-activity p {
+  margin: 0;
+}
+
+.op-activity strong {
+  display: block;
+  font-size: 12px;
+}
+
+.op-activity p {
+  margin-top: 4px;
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.op-activity li > span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 10px;
+  color: var(--op-green);
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  border: 1px solid rgb(var(--sep-c-green) / 26%);
+  border-radius: 8px;
+  background: rgb(var(--sep-c-green) / 10%);
+}
+
+.op-activity li[data-tone="cyan"] > span {
+  color: var(--op-cyan);
+  border-color: rgb(var(--sep-c-cyan) / 26%);
+  background: rgb(var(--sep-c-cyan) / 10%);
+}
+
+.op-activity li[data-tone="red"] > span {
+  color: var(--op-red);
+  border-color: rgb(var(--sep-c-red) / 34%);
+  background: rgb(var(--sep-c-red) / 10%);
+}
+
+@include resp.ate-ampla {
+  .op-metrics {
+    /* Faixa intrinseca tambem aqui: esta media query e de **altura**, e nao tem por que devolver
+       as faixas fixas de largura — era isso que fazia a fileira transbordar 216px em janela
+       baixa. */
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .op-lower-grid {
+    grid-template:
+      "journeys journeys summary" 252px
+      "journeys journeys summary" 43px
+      "performance health activity" 360px / minmax(0, 1fr) minmax(245px, 0.58fr)
+      minmax(326px, 0.82fr);
+    gap: 12px;
+  }
+
+  .op-panel-title {
+    margin-bottom: 8px;
+  }
+
+  .op-panel-title h2 {
+    font-size: 15px;
+  }
+
+  .op-journey-main {
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .op-journey h3 {
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+
+  .op-journey a {
+    padding-inline: 10px;
+    font-size: 12px;
+  }
+
+  .op-metric {
+    width: 225px;
+    height: 231px;
+    padding: 14px 13px;
+  }
+
+  .op-metric::after {
+    right: 14px;
+    bottom: 30px;
+    left: 14px;
+  }
+
+  .op-metric-top {
+    grid-template-columns: 62px minmax(0, 1fr);
+    gap: 11px;
+  }
+
+  .op-metric > strong {
+    margin: 9px 0 0;
+    font-size: 32px;
+  }
+
+  .op-metric:last-child > strong {
+    font-size: 24px;
+  }
+
+  .op-metric h2,
+  .op-metric:nth-child(3) h2,
+  .op-metric:last-child h2 {
+    font-size: 14px;
+  }
+
+  .op-metric p {
+    bottom: 15px;
+    left: 0;
+  }
+
+  .op-metric:last-child p {
+    font-size: 14px;
+  }
+
+  .op-metric:last-child p::before {
+    display: none;
+  }
+
+  .op-metric:last-child .op-sparkline {
+    right: auto;
+    bottom: 52px;
+    width: 220px;
+    height: 50px;
+  }
+
+  .op-metric p::before {
+    width: 12px;
+    height: 12px;
+    font-size: 8px;
+  }
+
+  .op-sparkline {
+    bottom: 52px;
+    width: 220px;
+    height: 50px;
+  }
+}
+
+@include resp.larga-e-baixa(resp.$altura-muito-curta) {
+  .op-welcome-copy p,
+  .op-welcome-copy small {
+    font-size: 11px;
+  }
+
+  .op-welcome-copy small {
+    display: block;
+    margin-top: 7px;
+  }
+
+  .op-welcome-copy h1 {
+    font-size: 21px;
+  }
+
+  .op-customize {
+    min-height: 32px;
+  }
+
+  .op-metrics {
+    grid-template-columns: repeat(6, 225px);
+    justify-content: space-between;
+    gap: 7px;
+    padding-top: 16px;
+  }
+
+  .op-metric {
+    width: 225px;
+    height: 231px;
+    padding: 10px 12px 9px;
+  }
+
+  .op-metric::after {
+    right: 12px;
+    bottom: 24px;
+    left: 12px;
+  }
+
+  .op-metric-top {
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 9px;
+  }
+
+  .op-metric h2,
+  .op-metric:nth-child(3) h2,
+  .op-metric:last-child h2 {
+    font-size: 13px;
+  }
+
+  .op-metric small {
+    font-size: 15px;
+  }
+
+  .op-metric p {
+    font-size: 14px;
+  }
+
+  .op-metric > strong,
+  .op-metric:last-child > strong {
+    margin: 5px 0 0;
+    font-size: 28px;
+  }
+
+  .op-metric:last-child > strong {
+    font-size: 20px;
+  }
+
+  .op-metric:last-child p {
+    bottom: 8px;
+    left: 0;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .op-metric:last-child p::before {
+    display: none;
+  }
+
+  .op-metric:last-child .op-sparkline {
+    right: auto;
+    bottom: 42px;
+    width: 220px;
+    height: 43px;
+  }
+
+  .op-sparkline {
+    bottom: 42px;
+    width: 220px;
+    height: 43px;
+  }
+
+  .op-lower-grid {
+    grid-template:
+      "journeys journeys summary" minmax(299px, 1.16fr)
+      "performance health activity" 360px / minmax(0, 1fr) minmax(260px, 0.6fr) minmax(
+        350px,
+        0.82fr
+      );
+    gap: 7px;
+  }
+
+  .op-panel-title {
+    margin-bottom: 6px;
+  }
+
+  .op-panel-title h2 {
+    font-size: 13px;
+  }
+
+  .op-panel-title small,
+  .op-panel-title button {
+    font-size: 11px;
+  }
+
+  .op-journeys {
+    gap: 7px;
+  }
+
+  .op-journey {
+    grid-template-rows: minmax(0, 1fr) 4px 18px 30px;
+    gap: 7px;
+    padding: 10px;
+  }
+
+  .op-journey-main {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .op-journey h3 {
+    height: auto;
+    font-size: 13px;
+  }
+
+  .op-journey p {
+    height: 3.45em;
+    margin-top: 2px;
+    font-size: 11px;
+    line-height: 1.15;
+  }
+
+  .op-journey em {
+    height: 18px;
+    margin-top: 4px;
+    font-size: 11px;
+  }
+
+  .op-journey-footer,
+  .op-journey-footer strong,
+  .op-journey a {
+    font-size: 11px;
+  }
+
+  .op-journey a {
+    min-height: 26px;
+  }
+
+  .op-summary-item {
+    min-height: 42px;
+  }
+
+  .op-summary-item span,
+  .op-summary-item em,
+  .op-summary-item strong {
+    font-size: 13px;
+  }
+
+  .op-performance-grid {
+    gap: 6px;
+  }
+
+  .op-performance-item span {
+    font-size: 11px;
+  }
+
+  .op-performance-item small {
+    font-size: 11px;
+    white-space: normal;
+  }
+
+  .op-health-list {
+    gap: 5px;
+  }
+
+  .op-health-item {
+    min-height: 25px;
+  }
+
+  .op-health footer {
+    margin-top: 6px;
+  }
+
+  .op-activity li {
+    min-height: 34px;
+    padding: 1px 0;
+  }
+
+  .op-activity strong,
+  .op-activity p,
+  .op-activity time,
+  .op-activity li > span {
+    font-size: 11px;
+  }
+
+  .op-activity p {
+    margin-top: 2px;
+    line-height: 1.12;
+  }
+}
+
+@include resp.ate-estreita {
+  :host {
+    height: auto;
+    overflow: auto;
+  }
+
+  .op-lower-grid {
+    grid-template-areas:
+      "journeys"
+      "summary"
+      "activity"
+      "performance"
+      "health";
+  }
+}
+
+// ============ JANELA MAXIMIZADA ============
+// Acima de 1440 os cartoes deixam de ficar travados nas medidas do mockup (1536px de largura) e
+// acompanham o espaco. Nada aqui vale de 1440 para baixo: a forma homologada fica intacta.
+@include resp.maximizada {
+  // 225px vira piso. O miolo do cartao e centrado, entao ele cresce sem descentralizar.
+  .op-metric {
+    width: max(225px, 100%);
+    max-width: none;
+  }
+
+  // Sem o teto de 927px o painel de jornadas deixava 160px vazios de cada lado; sem o de 225px os
+  // cartoes, e sem o de 200px os botoes ficam do tamanho da faixa, como no mockup.
+  .op-journeys-panel .op-panel-title,
+  .op-journeys-panel .op-journeys {
+    width: 100%;
+  }
+
+  .op-journey,
+  .op-journey a {
+    max-width: none;
+  }
+
+  // As duas faixas da direita paravam em 283 e 300px. As porcentagens reproduzem essas medidas
+  // na grade de 1138px (1440), entao as tres faixas crescem na mesma proporcao a partir dali. Em
+  // janela baixa a grade ja tem faixas proporcionais proprias (`larga-e-baixa`).
+  @media (height > #{resp.$altura-muito-curta}) {
+    .op-lower-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, max(283px, 24.86%)) minmax(
+          0,
+          max(300px, 26.36%)
+        );
+    }
+  }
 }

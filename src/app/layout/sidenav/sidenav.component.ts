@@ -42,14 +42,19 @@ export class SidenavComponent {
         label: 'Jornadas',
         items: [
           { label: 'Onboarding', route: '/app/onboarding', icon: 'shield' },
-          { label: 'Credito', route: '/app/credito', icon: 'credit-card' },
-          { label: 'Formalizacao', route: '/app/formalizacao', icon: 'file-text' },
-          { label: 'Cobranca', route: '/app/cobranca', icon: 'banknote' },
-          { label: 'Credora', route: '/app/credora', icon: 'briefcase', roles: ['CLIENTE'] },
+          { label: 'Crédito', route: '/app/credito', icon: 'credit-card' },
+          { label: 'Formalização', route: '/app/formalizacao', icon: 'file-text' },
+          { label: 'Cobrança', route: '/app/cobranca', icon: 'banknote' },
+          {
+            label: 'Credora',
+            route: '/app/credora',
+            icon: 'briefcase',
+            roles: ['CLIENTE', 'ADMIN'],
+          },
         ],
       },
       {
-        label: 'Operacao',
+        label: 'Operação',
         items: [
           {
             label: 'Backoffice',
@@ -60,7 +65,7 @@ export class SidenavComponent {
           {
             label: 'Pix',
             route: '/app/pix',
-            icon: 'wallet',
+            icon: 'pix',
             roles: ['FINANCEIRO', 'ADMIN', 'BACKOFFICE'],
           },
           {
@@ -83,7 +88,7 @@ export class SidenavComponent {
         label: 'Conta',
         items: [
           { label: 'Meu perfil', route: '/app/profile', icon: 'user-check' },
-          { label: 'Administracao', route: '/app/admin', icon: 'users', roles: ['ADMIN'] },
+          { label: 'Administração', route: '/app/admin', icon: 'users', roles: ['ADMIN'] },
         ],
       },
     ];

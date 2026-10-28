@@ -1,0 +1,35 @@
+Manifesto de assets extraídos do Mockup_02 da Plataforma SEP
+Origem: Mockup_02.png
+Uso sugerido no projeto: image/sep_mockup_02_assets
+
+- logos/logo_sep_header_completo.png | dimensão: 367x53 | categoria: logos
+- logos/logo_sep_simbolo_header.png | dimensão: 68x59 | categoria: logos
+- logos/logo_sep_wordmark.png | dimensão: 100x46 | categoria: logos
+- logos/logo_sep_texto_extenso_header.png | dimensão: 178x51 | categoria: logos
+- visuals/visual_globo_digital_lateral.png | dimensão: 202x372 | categoria: visuals
+- visuals/visual_login_lock_hud.png | dimensão: 203x164 | categoria: visuals
+- visuals/visual_ondas_neon_inferiores.png | dimensão: 898x111 | categoria: visuals
+- visuals/visual_cidade_neon_inferior_direita.png | dimensão: 168x200 | categoria: visuals
+- visuals/visual_circuitos_fundo_central.png | dimensão: 295x494 | categoria: visuals
+- visuals/visual_status_ambiente_seguro_badge.png | dimensão: 177x58 | categoria: visuals
+- ui-groups/ui_plataforma_segura_auditavel_card.png | dimensão: 629x156 | categoria: ui-groups
+- ui-groups/ui_badges_confianca_hero.png | dimensão: 569x64 | categoria: ui-groups
+- ui-groups/ui_login_form_card.png | dimensão: 519x778 | categoria: ui-groups
+- icons/icon_badge_ambiente_regulado.png | dimensão: 56x67 | categoria: icons
+- icons/icon_badge_segregacao_patrimonial.png | dimensão: 53x67 | categoria: icons
+- icons/icon_badge_kyc_kyb_pld.png | dimensão: 50x67 | categoria: icons
+- icons/icon_panel_escrow_contratos.png | dimensão: 31x35 | categoria: icons
+- icons/icon_panel_auditoria_rastreabilidade.png | dimensão: 32x36 | categoria: icons
+- icons/icon_panel_criptografia_ponta.png | dimensão: 30x36 | categoria: icons
+- icons/icon_panel_monitoramento_continuo.png | dimensão: 33x36 | categoria: icons
+- icons/icon_top_ambiente_seguro.png | dimensão: 33x43 | categoria: icons
+- icons/icon_login_email.png | dimensão: 28x23 | categoria: icons
+- icons/icon_login_senha_lock.png | dimensão: 25x27 | categoria: icons
+- icons/icon_login_eye.png | dimensão: 30x22 | categoria: icons
+- icons/icon_login_check_lembrar.png | dimensão: 23x20 | categoria: icons
+- icons/icon_login_entrar.png | dimensão: 27x25 | categoria: icons
+- icons/icon_login_biometria.png | dimensão: 33x29 | categoria: icons
+- icons/icon_login_acesso_monitorado.png | dimensão: 45x39 | categoria: icons
+- icons/icon_bottom_seguranca_primeiro_lugar.png | dimensão: 47x58 | categoria: icons
+- icons/icon_bottom_disponibilidade_99_9.png | dimensão: 67x67 | categoria: icons
+- icons/icon_bottom_suporte_especializado.png | dimensão: 51x60 | categoria: icons

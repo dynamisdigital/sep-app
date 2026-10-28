@@ -11,15 +11,19 @@ import { roleGuard } from '../../../core/guards/role.guard';
 // a sub-rota tem guard PROPRIO, mais restrito que o pai — BACKOFFICE entra em /app/pix mas nao em
 // /app/pix/chaves.
 export const PIX_ROUTES: Routes = [
+  // Painel Pix Operacional (Mockup 20): substitui o antigo hub de cards, que era um indice
+  // provisorio ate as tres operacoes existirem. As sub-rotas abaixo permanecem inalteradas.
   {
     path: '',
-    loadComponent: () => import('./pix-shell.component').then((m) => m.PixShellComponent),
+    loadComponent: () =>
+      import('./pages/pix-operacional-page.component').then((m) => m.PixOperacionalPageComponent),
+    data: { breadcrumb: 'Pix Operacional', immersive: true },
   },
   {
     path: 'desembolsos',
     loadComponent: () =>
       import('./pages/desembolsos-page.component').then((m) => m.DesembolsosPageComponent),
-    data: { breadcrumb: 'Desembolsos' },
+    data: { breadcrumb: 'Desembolsos', immersive: true },
   },
   {
     path: 'desembolsos/:id',
@@ -27,13 +31,13 @@ export const PIX_ROUTES: Routes = [
       import('./pages/desembolso-detail-page.component').then(
         (m) => m.DesembolsoDetailPageComponent,
       ),
-    data: { breadcrumb: 'Desembolso' },
+    data: { breadcrumb: 'Desembolso', immersive: true },
   },
   {
     path: 'recebimentos',
     loadComponent: () =>
       import('./pages/recebimentos-page.component').then((m) => m.RecebimentosPageComponent),
-    data: { breadcrumb: 'Recebimentos' },
+    data: { breadcrumb: 'Recebimentos', immersive: true },
   },
   {
     path: 'recebimentos/referencias/:id',
@@ -41,7 +45,7 @@ export const PIX_ROUTES: Routes = [
       import('./pages/referencia-detail-page.component').then(
         (m) => m.ReferenciaDetailPageComponent,
       ),
-    data: { breadcrumb: 'Referencia' },
+    data: { breadcrumb: 'Referencia', immersive: true },
   },
   {
     path: 'recebimentos/:id',
@@ -49,7 +53,7 @@ export const PIX_ROUTES: Routes = [
       import('./pages/recebimento-detail-page.component').then(
         (m) => m.RecebimentoDetailPageComponent,
       ),
-    data: { breadcrumb: 'Recebimento' },
+    data: { breadcrumb: 'Recebimento', immersive: true },
   },
   {
     path: 'chaves',
@@ -62,6 +66,6 @@ export const PIX_ROUTES: Routes = [
     path: 'divergencias',
     loadComponent: () =>
       import('./pages/divergencias-page.component').then((m) => m.DivergenciasPageComponent),
-    data: { breadcrumb: 'Divergencias' },
+    data: { breadcrumb: 'Divergências', immersive: true },
   },
 ];

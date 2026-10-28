@@ -1,0 +1,153 @@
+<sep-operational-shell>
+  <section class="pxe-page">
+    <header class="pxe-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/credora">Credora</a><span>›</span><strong>Conta escrow</strong>
+      </nav>
+      <div class="pxe-heading-row">
+        <div class="pxe-titulo-wrap">
+          <span class="pxe-titulo-icone" data-tone="green">
+            <lucide-icon name="landmark" [size]="24" />
+          </span>
+          <div>
+            <h1>Conta escrow</h1>
+            <p class="pxe-subtitulo">
+              Seus recursos ficam em conta vinculada, segregada do patrimônio da SEP.
+            </p>
+          </div>
+        </div>
+        <div class="pxe-acoes-topo">
+          <a class="pxe-btn-sec" routerLink="/app/credora/alocacoes">
+            <lucide-icon name="chart-column" [size]="16" />Alocar recursos
+          </a>
+          <a class="pxe-btn-sec" routerLink="/app/credora/saques">
+            <lucide-icon name="banknote" [size]="16" />Sacar
+          </a>
+        </div>
+      </div>
+    </header>
+
+    @if (loading()) {
+      <p class="pxe-estado" role="status">Carregando conta escrow...</p>
+    } @else if (errorMessage(); as msg) {
+      <div class="pxe-estado pxe-erro" role="alert">
+        <lucide-icon name="triangle-alert" [size]="18" />
+        <p>{{ msg }}</p>
+        <button type="button" class="pxe-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
+      </div>
+    } @else if (conta(); as c) {
+      <div class="pxe-metricas">
+        <article class="pxe-card pxe-metrica" data-tone="green">
+          <small>Disponível</small>
+          <strong>{{ formatarMoeda(c.saldo.disponivel) }}</strong>
+          <em>livre para alocar ou sacar</em>
+        </article>
+        <article class="pxe-card pxe-metrica" data-tone="amber">
+          <small>Reservado</small>
+          <strong>{{ formatarMoeda(c.saldo.reservado) }}</strong>
+          <em>aguardando a formação da operação</em>
+        </article>
+        <article class="pxe-card pxe-metrica" data-tone="blue">
+          <small>Em operação</small>
+          <strong>{{ formatarMoeda(c.saldo.emOperacao) }}</strong>
+          <em>principal emprestado a receber</em>
+        </article>
+        <article class="pxe-card pxe-metrica" data-tone="purple">
+          <small>Posição total</small>
+          <strong>{{ formatarMoeda(c.saldo.patrimonio) }}</strong>
+          <em>sob custódia: {{ formatarMoeda(c.saldo.totalCustodiado) }}</em>
+        </article>
+      </div>
+
+      <div class="pxe-grade">
+        <article class="pxe-card pxe-bloco">
+          <h2>Aportar por Pix</h2>
+          <p>
+            O aporte só entra no saldo depois que o parceiro confirma o depósito na sua conta
+            vinculada ({{ c.banco }}, agência {{ c.agencia }}, conta {{ c.conta }}).
+          </p>
+          <form class="pxe-form" (submit)="$event.preventDefault(); aportar()">
+            <div class="pxe-campo">
+              <label for="pxe-aporte-valor">Valor do aporte (R$)</label>
+              <input
+                id="pxe-aporte-valor"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                placeholder="0,00"
+                [value]="valorTexto()"
+                (input)="digitar($event)"
+              />
+            </div>
+            @if (formErro(); as erro) {
+              <p class="pxe-erro-form" role="alert">{{ erro }}</p>
+            }
+            <button type="submit" class="pxe-btn-primary" [disabled]="enviando()">
+              <lucide-icon name="plus" [size]="16" />Gerar Pix de aporte
+            </button>
+          </form>
+        </article>
+
+        <article class="pxe-card pxe-bloco">
+          <h2>Aportes aguardando pagamento</h2>
+          @if (aguardando().length === 0) {
+            <p class="pxe-vazio">Nenhum aporte aguardando Pix.</p>
+          } @else {
+            <ul class="pxe-lista">
+              @for (aporte of aguardando(); track aporte.id) {
+                <li class="pxe-item">
+                  <div>
+                    <strong>{{ formatarMoeda(aporte.valor) }}</strong>
+                    <small>Pix copia e cola, válido até {{ formatarData(aporte.expiraEm) }}</small>
+                    <code class="pxe-pix">{{ aporte.pixCopiaECola }}</code>
+                  </div>
+                  <div class="pxe-item-acoes">
+                    <span class="pxe-selo" [attr.data-tone]="aporteTom[aporte.status]">{{
+                      aporteLabel[aporte.status]
+                    }}</span>
+                    <button type="button" class="pxe-btn-mini" (click)="simularPagamento(aporte)">
+                      Simular pagamento (mock)
+                    </button>
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+        </article>
+      </div>
+
+      <article class="pxe-card pxe-tabela-card">
+        <h2>Extrato</h2>
+        @if (extrato().length === 0) {
+          <p class="pxe-vazio">Ainda não há lançamentos na sua conta.</p>
+        } @else {
+          <div class="pxe-tabela-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Lançamento</th>
+                  <th>Descrição</th>
+                  <th class="pxe-num">Valor</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (l of extrato(); track l.id) {
+                  <tr>
+                    <td>{{ formatarData(l.dataLancamento) }}</td>
+                    <td>{{ tipoLabel[l.tipo] }}</td>
+                    <td>{{ l.descricao }}</td>
+                    <td class="pxe-num pxe-valor">{{ sinal(l) }} {{ formatarMoeda(l.valor) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </article>
+    }
+  </section>
+</sep-operational-shell>

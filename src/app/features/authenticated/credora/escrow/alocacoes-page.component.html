@@ -1,0 +1,187 @@
+<sep-operational-shell>
+  <section class="pxe-page">
+    <header class="pxe-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/credora">Credora</a><span>›</span><strong>Alocações</strong>
+      </nav>
+      <div class="pxe-heading-row">
+        <div class="pxe-titulo-wrap">
+          <span class="pxe-titulo-icone" data-tone="blue">
+            <lucide-icon name="chart-column" [size]="24" />
+          </span>
+          <div>
+            <h1>Alocações</h1>
+            <p class="pxe-subtitulo">
+              Reserve saldo da sua conta escrow em oportunidades de crédito.
+            </p>
+          </div>
+        </div>
+        <a class="pxe-btn-sec" routerLink="/app/credora/conta">
+          <lucide-icon name="landmark" [size]="16" />Conta escrow
+        </a>
+      </div>
+    </header>
+
+    @if (loading()) {
+      <p class="pxe-estado" role="status">Carregando alocações...</p>
+    } @else if (errorMessage(); as msg) {
+      <div class="pxe-estado pxe-erro" role="alert">
+        <lucide-icon name="triangle-alert" [size]="18" />
+        <p>{{ msg }}</p>
+        <button type="button" class="pxe-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
+      </div>
+    } @else {
+      <div class="pxe-grade">
+        <article class="pxe-card pxe-bloco">
+          <h2>Nova alocação</h2>
+          <p>
+            Saldo disponível:
+            <strong>{{ formatarMoeda(disponivel()) }}</strong>
+          </p>
+          @if (oportunidades().length === 0) {
+            <p class="pxe-vazio">Não há oportunidades abertas para alocação no momento.</p>
+          } @else {
+            <form class="pxe-form" (submit)="$event.preventDefault(); alocar()">
+              <div class="pxe-campo">
+                <label for="pxe-aloc-oportunidade">Oportunidade</label>
+                <select
+                  id="pxe-aloc-oportunidade"
+                  [value]="oportunidadeId()"
+                  (change)="escolher($event)"
+                >
+                  @for (o of oportunidades(); track o.id) {
+                    <option [value]="o.id" [selected]="o.id === oportunidadeId()">
+                      {{ o.devedorNome }} • {{ formatarMoeda(o.valor) }} • {{ o.prazoMeses }}
+                      meses
+                    </option>
+                  }
+                </select>
+              </div>
+
+              @if (selecionada(); as o) {
+                <div class="pxe-limite">
+                  <span
+                    >Taxa: <strong>{{ formatarTaxaMensal(o.taxaJurosMensal) }}</strong> • Já
+                    reservado: <strong>{{ formatarMoeda(o.alocado) }}</strong> • Falta financiar:
+                    <strong>{{ formatarMoeda(o.faltante) }}</strong></span
+                  >
+                  @if (limite(); as l) {
+                    @if (l.isento) {
+                      <span>
+                        Limite por devedor: <strong>isento</strong> (investidor qualificado).
+                      </span>
+                    } @else {
+                      <span>
+                        Seu limite com este devedor:
+                        <strong>{{ formatarMoeda(l.limite) }}</strong> • já alocado:
+                        <strong>{{ formatarMoeda(l.alocado) }}</strong> • ainda cabe:
+                        <strong>{{ formatarMoeda(l.disponivel ?? 0) }}</strong>
+                      </span>
+                    }
+                  }
+                </div>
+              }
+
+              <div class="pxe-campo">
+                <label for="pxe-aloc-valor">Valor (R$)</label>
+                <input
+                  id="pxe-aloc-valor"
+                  type="text"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  placeholder="0,00"
+                  [value]="valorTexto()"
+                  (input)="digitar($event)"
+                />
+              </div>
+
+              <label class="pxe-check">
+                <input
+                  type="checkbox"
+                  [checked]="cienciaRisco()"
+                  (change)="marcarCiencia($event)"
+                />
+                <span>
+                  Estou ciente de que o crédito entre pessoas envolve risco de inadimplência e de
+                  perda total ou parcial do valor emprestado, e que a SEP não garante o pagamento
+                  pelo tomador.
+                </span>
+              </label>
+
+              @if (formErro(); as erro) {
+                <p class="pxe-erro-form" role="alert">{{ erro }}</p>
+              }
+              @if (formMsg(); as ok) {
+                <p class="pxe-ok-form" role="status">{{ ok }}</p>
+              }
+              <button type="submit" class="pxe-btn-primary" [disabled]="enviando()">
+                <lucide-icon name="shield-check" [size]="16" />Reservar valor
+              </button>
+            </form>
+          }
+        </article>
+
+        <article class="pxe-card pxe-bloco">
+          <h2>Como funciona</h2>
+          <p>
+            O valor reservado sai do seu saldo disponível e fica separado até a operação ser
+            formada. Se a operação não se formar, a reserva volta ao saldo disponível. Enquanto
+            estiver apenas reservada, você pode cancelá-la.
+          </p>
+          <div class="pxe-aviso" role="note">
+            <lucide-icon name="info" [size]="16" />
+            <span>
+              Quando a operação é formada, o valor é repassado ao tomador em até 5 dias úteis. Os
+              retornos das parcelas chegam à sua conta escrow em até 1 dia útil.
+            </span>
+          </div>
+        </article>
+      </div>
+
+      <article class="pxe-card pxe-tabela-card">
+        <h2>Minhas alocações</h2>
+        @if (alocacoes().length === 0) {
+          <p class="pxe-vazio">Você ainda não alocou recursos.</p>
+        } @else {
+          <div class="pxe-tabela-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Devedor</th>
+                  <th>Situação</th>
+                  <th class="pxe-num">Valor</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (a of alocacoes(); track a.id) {
+                  <tr>
+                    <td>{{ formatarData(a.dataCriacao) }}</td>
+                    <td>{{ a.devedorNome }}</td>
+                    <td>
+                      <span class="pxe-selo" [attr.data-tone]="statusTom[a.status]">{{
+                        statusLabel[a.status]
+                      }}</span>
+                    </td>
+                    <td class="pxe-num pxe-valor">{{ formatarMoeda(a.valor) }}</td>
+                    <td>
+                      @if (a.status === 'RESERVADA') {
+                        <button type="button" class="pxe-btn-mini" (click)="cancelar(a)">
+                          Cancelar
+                        </button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </article>
+    }
+  </section>
+</sep-operational-shell>

@@ -1,115 +1,274 @@
-<section class="sep-parametro-detail">
-  <header class="sep-parametro-detail-header">
-    <h1 class="sep-parametro-detail-title">Detalhe do parametro</h1>
-    <a routerLink="/app/admin/parametros" class="sep-parametro-detail-back">Voltar para lista</a>
-  </header>
-
-  @if (loading() && !parametro()) {
-    <p class="sep-parametro-detail-state" role="status">Carregando parametro...</p>
-  }
-
-  @if (errorMessage(); as msg) {
-    <p class="sep-parametro-detail-error" role="alert">{{ msg }}</p>
-  }
-
-  @if (parametro(); as p) {
-    <article class="sep-parametro-detail-card">
-      <h2 class="sep-parametro-detail-card-title">{{ p.chave }}</h2>
-      <dl class="sep-parametro-detail-list">
-        <div class="sep-parametro-detail-row">
-          <dt>Tipo</dt>
-          <dd>{{ p.tipo }}</dd>
+<sep-operational-shell>
+  <section class="px41-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px41-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/admin">Administração</a><span>›</span
+        ><a routerLink="/app/admin/parametros">Parâmetros</a><span>›</span><strong>Detalhe</strong>
+      </nav>
+      <div class="px41-heading-row">
+        <div class="px41-titulo-wrap">
+          <a class="px41-voltar-circulo" routerLink="/app/admin/parametros" aria-label="Voltar">
+            <lucide-icon name="arrow-left" [size]="20" />
+          </a>
+          <div>
+            <h1>Detalhe do parâmetro</h1>
+            <p class="px41-subtitulo">
+              Visualize as informações e configurações do parâmetro do sistema.
+            </p>
+          </div>
         </div>
-        <div class="sep-parametro-detail-row">
-          <dt>Valor atual</dt>
-          <dd class="sep-parametro-detail-mono">{{ p.valor }}</dd>
-        </div>
-        <div class="sep-parametro-detail-row">
-          <dt>Versao</dt>
-          <dd>{{ p.versao }}</dd>
-        </div>
-        <div class="sep-parametro-detail-row">
-          <dt>Descricao</dt>
-          <dd>{{ p.descricao }}</dd>
-        </div>
-        <div class="sep-parametro-detail-row">
-          <dt>Modificado em</dt>
-          <dd>{{ p.dataModificacao }}</dd>
-        </div>
-      </dl>
-    </article>
-
-    <article class="sep-parametro-detail-card">
-      <h2 class="sep-parametro-detail-card-title">Alterar valor</h2>
-      <form class="sep-parametro-detail-form" [formGroup]="form" (ngSubmit)="salvar()" novalidate>
-        <div class="sep-parametro-detail-field">
-          <label for="novoValor">Novo valor ({{ p.tipo }})</label>
-          <input id="novoValor" type="text" formControlName="novoValor" autocomplete="off" />
-          @if (form.controls.novoValor.touched && form.controls.novoValor.errors?.['required']) {
-            <p class="sep-parametro-detail-field-error">Informe o novo valor.</p>
+        <div class="px41-acoes-topo">
+          @if (parametro(); as p) {
+            <span class="px41-situacao" [attr.data-tone]="p.ativo ? 'green' : 'amber'">
+              <i aria-hidden="true"></i>{{ p.ativo ? 'Ativo' : 'Inativo' }}
+            </span>
           }
+          <a class="px41-btn-sec" routerLink="/app/admin/parametros">
+            <lucide-icon name="arrow-left" [size]="16" />Voltar para lista
+          </a>
         </div>
+      </div>
+    </header>
 
-        <div class="sep-parametro-detail-field">
-          <label for="justificativa">Justificativa</label>
-          <textarea
-            id="justificativa"
-            rows="3"
-            formControlName="justificativa"
-            autocomplete="off"
-          ></textarea>
-          @if (
-            form.controls.justificativa.touched && form.controls.justificativa.errors?.['required']
-          ) {
-            <p class="sep-parametro-detail-field-error">Informe a justificativa.</p>
-          }
-        </div>
+    @if (loading() && !parametro()) {
+      <p class="px41-estado" role="status">Carregando parâmetro...</p>
+    } @else if (errorMessage(); as msg) {
+      <div class="px41-estado px41-erro" role="alert">
+        <lucide-icon name="triangle-alert" [size]="18" />
+        <p>{{ msg }}</p>
+        <a class="px41-btn-sec" routerLink="/app/admin/parametros">
+          <lucide-icon name="arrow-left" [size]="16" />Voltar para lista
+        </a>
+      </div>
+    } @else if (parametro(); as p) {
+      <!-- ============ IDENTIDADE E TÉCNICAS ============ -->
+      <div class="px41-duplo">
+        <article class="px41-card px41-identidade">
+          <header>
+            <span class="px41-identidade-icone" [attr.data-tone]="tomDoTipo(p.tipo)">
+              <lucide-icon name="database" [size]="24" />
+            </span>
+            <div>
+              <h2 class="px41-chave">{{ p.chave }}</h2>
+              <p>{{ p.descricao }}</p>
+            </div>
+          </header>
+          <dl>
+            <div>
+              <dt>Tipo</dt>
+              <dd>
+                <span class="px41-selo" [attr.data-tone]="tomDoTipo(p.tipo)">{{ p.tipo }}</span>
+              </dd>
+            </div>
+            <div>
+              <dt>Versão</dt>
+              <dd>
+                <span class="px41-versao" [class.px41-versao-alterada]="p.versao > 1">
+                  v{{ p.versao }}
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt>Alterações na trilha</dt>
+              <dd>{{ alteracoes() }}</dd>
+            </div>
+          </dl>
+        </article>
 
-        @if (formErro(); as msg) {
-          <p class="sep-parametro-detail-feedback-error" role="alert">{{ msg }}</p>
-        }
-        @if (sucesso(); as msg) {
-          <p class="sep-parametro-detail-feedback-success" role="status">{{ msg }}</p>
-        }
+        <article class="px41-card px41-tecnicas">
+          <h2>Informações técnicas</h2>
+          <dl>
+            <div>
+              <dt><lucide-icon name="database" [size]="16" />Valor atual</dt>
+              <dd class="px41-mono" [title]="'Valor canônico: ' + p.valor">
+                {{ formatarValorParametro(p.valor, p.tipo) }}
+              </dd>
+            </div>
+            <div>
+              <dt><lucide-icon name="calendar-days" [size]="16" />Criado em</dt>
+              <dd>{{ formatarDataHora(p.dataModificacao) }}</dd>
+            </div>
+            <div>
+              <dt><lucide-icon name="calendar-clock" [size]="16" />Modificado em</dt>
+              <dd>{{ formatarDataHora(p.dataModificacao) }}</dd>
+            </div>
+            <div>
+              <dt><lucide-icon name="user-check" [size]="16" />Última alteração por</dt>
+              <dd class="px41-mono" [title]="ultimoAtor()">{{ atorCurto(ultimoAtor()) }}</dd>
+            </div>
+          </dl>
+        </article>
+      </div>
 
-        <div class="sep-parametro-detail-actions">
-          <button
-            type="submit"
-            class="sep-parametro-detail-submit"
-            [disabled]="salvando() || form.invalid"
-          >
-            {{ salvando() ? 'Salvando...' : 'Salvar valor' }}
-          </button>
-        </div>
-      </form>
-    </article>
+      <!-- ============ ALTERAR VALOR ============ -->
+      <article class="px41-card px41-alterar">
+        <header class="px41-secao-topo">
+          <span class="px41-secao-icone" data-tone="blue">
+            <lucide-icon name="settings" [size]="20" />
+          </span>
+          <div>
+            <h2>Alterar valor</h2>
+            <p>
+              A alteração é versionada, auditada e exige confirmação adicional por TOTP antes de ser
+              aplicada.
+            </p>
+          </div>
+        </header>
 
-    <article class="sep-parametro-detail-card">
-      <h2 class="sep-parametro-detail-card-title">Historico de versoes</h2>
-      <p class="sep-parametro-detail-historico-caption">
-        Trilha auditavel: quem alterou, quando, de que valor para qual e por que.
-      </p>
-      @if (historico().length === 0) {
-        <p class="sep-parametro-detail-state">Sem alteracoes registradas.</p>
-      } @else {
-        <ol class="sep-parametro-detail-historico">
-          @for (versao of historico(); track versao.versao) {
-            <li class="sep-parametro-detail-versao">
-              <div class="sep-parametro-detail-versao-head">
-                <span class="sep-parametro-detail-versao-num">v{{ versao.versao }}</span>
-                <span class="sep-parametro-detail-versao-data">{{ versao.dataCriacao }}</span>
-              </div>
-              <p class="sep-parametro-detail-versao-mudanca">
-                <span class="sep-parametro-detail-mono">{{ versao.valorAnterior ?? '—' }}</span>
-                →
-                <span class="sep-parametro-detail-mono">{{ versao.valorNovo }}</span>
+        <form [formGroup]="form" (ngSubmit)="salvar()" class="px41-form">
+          <div class="px41-campo">
+            <label for="novo-valor">Novo valor ({{ p.tipo }})</label>
+            <!-- Cada tipo tem a sua mascara: BOOLEAN vira escolha, DECIMAL e INTEGER entram
+                 no padrao brasileiro e voltam ao canonico no envio, STRING segue livre. -->
+            @if (p.tipo === 'BOOLEAN') {
+              <select id="novo-valor" formControlName="novoValor">
+                <option value="true">Sim</option>
+                <option value="false">Não</option>
+              </select>
+            } @else if (p.tipo === 'STRING') {
+              <input
+                id="novo-valor"
+                type="text"
+                formControlName="novoValor"
+                autocomplete="off"
+                [attr.aria-invalid]="
+                  form.controls.novoValor.invalid && form.controls.novoValor.touched
+                "
+              />
+            } @else {
+              <input
+                id="novo-valor"
+                type="text"
+                [sepMask]="p.tipo === 'DECIMAL' ? 'moeda' : 'numero'"
+                formControlName="novoValor"
+                [attr.aria-invalid]="
+                  form.controls.novoValor.invalid && form.controls.novoValor.touched
+                "
+              />
+            }
+            @if (form.controls.novoValor.touched && form.controls.novoValor.errors?.['required']) {
+              <p class="px41-campo-erro" role="alert">Informe o novo valor.</p>
+            }
+          </div>
+
+          <div class="px41-campo">
+            <label for="justificativa">Justificativa</label>
+            <textarea
+              id="justificativa"
+              rows="3"
+              formControlName="justificativa"
+              placeholder="Informe o motivo da alteração do parâmetro..."
+              [attr.aria-invalid]="
+                form.controls.justificativa.invalid && form.controls.justificativa.touched
+              "
+            ></textarea>
+            @if (
+              form.controls.justificativa.touched &&
+              form.controls.justificativa.errors?.['required']
+            ) {
+              <p class="px41-campo-erro" role="alert">
+                A justificativa é obrigatória: ela entra na trilha de auditoria.
               </p>
-              <p class="sep-parametro-detail-versao-justificativa">{{ versao.justificativa }}</p>
-              <p class="sep-parametro-detail-versao-ator">Por: {{ versao.atorId }}</p>
-            </li>
+            }
+          </div>
+
+          <div class="px41-form-rodape">
+            <button type="submit" class="px41-btn-primary" [disabled]="salvando()">
+              <lucide-icon name="check" [size]="16" />
+              {{ salvando() ? 'Salvando...' : 'Salvar valor' }}
+            </button>
+            @if (!valorMudou()) {
+              <span class="px41-nota">
+                <lucide-icon name="info" [size]="15" />
+                O campo ainda tem o valor atual. Altere-o para registrar uma nova versão.
+              </span>
+            }
+          </div>
+
+          @if (formErro(); as msg) {
+            <p class="px41-nota px41-nota-erro" role="alert">
+              <lucide-icon name="triangle-alert" [size]="15" />{{ msg }}
+            </p>
           }
-        </ol>
-      }
-    </article>
-  }
-</section>
+          @if (sucesso(); as msg) {
+            <p class="px41-nota px41-nota-ok" role="status">
+              <lucide-icon name="circle-check" [size]="15" />{{ msg }}
+            </p>
+          }
+        </form>
+      </article>
+
+      <!-- ============ HISTÓRICO ============ -->
+      <article class="px41-card px41-historico">
+        <header class="px41-secao-topo">
+          <span class="px41-secao-icone" data-tone="purple">
+            <lucide-icon name="history" [size]="20" />
+          </span>
+          <div>
+            <h2>Histórico de versões</h2>
+            <p>Acompanhe as alterações e evoluções do parâmetro.</p>
+          </div>
+          <button
+            type="button"
+            class="px41-btn-sec"
+            disabled
+            title="Sem endpoint de histórico paginado: a consulta devolve a trilha completa do parâmetro"
+          >
+            <lucide-icon name="external-link" [size]="16" />Ver histórico completo
+          </button>
+        </header>
+
+        @if (historico().length === 0) {
+          <div class="px41-vazio" role="status">
+            <span class="px41-vazio-icone"><lucide-icon name="history" [size]="24" /></span>
+            <strong>Nenhuma alteração registrada.</strong>
+            <p>Este parâmetro está na versão inicial. A trilha começa na primeira alteração.</p>
+          </div>
+        } @else {
+          <div class="px41-tabela-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data/hora</th>
+                  <th>Versão</th>
+                  <th>Valor anterior</th>
+                  <th>Valor novo</th>
+                  <th>Usuário</th>
+                  <th>Justificativa</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (versao of historico(); track versao.versao) {
+                  <tr>
+                    <td>{{ formatarDataHora(versao.dataCriacao) }}</td>
+                    <td>
+                      <span class="px41-versao px41-versao-alterada">v{{ versao.versao }}</span>
+                    </td>
+                    <td class="px41-mono">
+                      {{
+                        versao.valorAnterior
+                          ? formatarValorParametro(versao.valorAnterior, p.tipo)
+                          : '—'
+                      }}
+                    </td>
+                    <td class="px41-mono px41-valor-novo">
+                      {{ formatarValorParametro(versao.valorNovo, p.tipo) }}
+                    </td>
+                    <td class="px41-mono" [title]="versao.atorId">
+                      {{ atorCurto(versao.atorId) }}
+                    </td>
+                    <td class="px41-justificativa" [title]="versao.justificativa">
+                      {{ versao.justificativa }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </article>
+    }
+  </section>
+</sep-operational-shell>

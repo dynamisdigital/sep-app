@@ -1,3 +1,4 @@
+import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { render } from '@testing-library/angular';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -24,14 +25,18 @@ describe('App', () => {
   });
 
   it('monta o aviso de cookies junto do outlet de rotas', async () => {
-    const { container } = await render(App, { providers: [provideRouter([])] });
+    const { container } = await render(App, {
+      providers: [provideRouter([]), provideHttpClient()],
+    });
 
     expect(container.querySelector('router-outlet')).not.toBeNull();
     expect(container.querySelector('sep-aviso-cookies')).not.toBeNull();
   });
 
   it('renderiza o outlet ANTES do aviso, para o aviso nao preceder o conteudo', async () => {
-    const { container } = await render(App, { providers: [provideRouter([])] });
+    const { container } = await render(App, {
+      providers: [provideRouter([]), provideHttpClient()],
+    });
 
     const outlet = container.querySelector('router-outlet');
     const aviso = container.querySelector('sep-aviso-cookies');

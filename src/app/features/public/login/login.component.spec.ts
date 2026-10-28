@@ -97,6 +97,29 @@ describe('LoginComponent', () => {
     resetLoginMockState();
   });
 
+  it('exibe atalho discreto para voltar a pagina inicial', async () => {
+    await setup();
+
+    const homeLink = screen.getByRole('link', { name: /voltar para a página inicial/i });
+
+    expect(homeLink.getAttribute('href')).toBe('/');
+  });
+
+  // No dev-offline os dois campos nascem preenchidos com o usuario ficticio de
+  // desenvolvimento (ADMIN, sem MFA). A validacao continua valendo quando sao limpos.
+  it('dev-offline preenche o acesso rapido de desenvolvimento', async () => {
+    const result = await setup();
+    const email = result.container.querySelector(
+      'input[formControlName="username"]',
+    ) as HTMLInputElement;
+    const senha = result.container.querySelector(
+      'input[formControlName="password"]',
+    ) as HTMLInputElement;
+
+    expect(email.value).toBe('dev@sep.local');
+    expect(senha.value).toBe('123456');
+  });
+
   it('campos vazios: submit nao chama login', async () => {
     const result = await setup();
     const auth = result.fixture.debugElement.injector.get(AuthService);
@@ -106,10 +129,20 @@ describe('LoginComponent', () => {
       throw new Error('nao deveria ser chamado');
     }) as never;
 
+    const email = result.container.querySelector(
+      'input[formControlName="username"]',
+    ) as HTMLInputElement;
+    const senha = result.container.querySelector(
+      'input[formControlName="password"]',
+    ) as HTMLInputElement;
+    fireEvent.input(email, { target: { value: '' } });
+    fireEvent.input(senha, { target: { value: '' } });
+    result.fixture.detectChanges();
+
     fireEvent.click(screen.getByRole('button', { name: /entrar/i }));
 
     expect(called).toBe(false);
-    expect(screen.getByText('E-mail obrigatorio.')).toBeTruthy();
+    expect(screen.getByText('E-mail obrigatório.')).toBeTruthy();
     expect(screen.getByText('Informe sua senha.')).toBeTruthy();
   });
 
@@ -117,7 +150,7 @@ describe('LoginComponent', () => {
     await setup();
     preencherEEnviar('nao-eh-email');
 
-    expect(screen.getByText('Informe um e-mail valido.')).toBeTruthy();
+    expect(screen.getByText('Informe um e-mail válido.')).toBeTruthy();
   });
 
   it('senha vazia mantem botao desabilitado', async () => {
@@ -125,6 +158,22 @@ describe('LoginComponent', () => {
     preencherEEnviar('a@b.com', '');
 
     expect(screen.getByText('Informe sua senha.')).toBeTruthy();
+  });
+
+  it('alternancia de visibilidade preserva o valor da senha', async () => {
+    await setup();
+    const password = screen.getByLabelText(/senha/i) as HTMLInputElement;
+
+    fireEvent.input(password, { target: { value: '123456' } });
+    fireEvent.click(screen.getByRole('button', { name: /mostrar conteúdo protegido/i }));
+
+    expect(password.type).toBe('text');
+    expect(password.value).toBe('123456');
+
+    fireEvent.click(screen.getByRole('button', { name: /ocultar conteúdo protegido/i }));
+
+    expect(password.type).toBe('password');
+    expect(password.value).toBe('123456');
   });
 
   it('credenciais validas: redireciona para /app/dashboard', async () => {
@@ -375,5 +424,15 @@ describe('LoginComponent', () => {
     expect(screen.getByText(/armazenamento local/i)).toBeTruthy();
     expect(screen.queryByText(ACUSA_CREDENCIAL)).toBeNull();
     expect(screen.queryByText(/verifique sua conexao/i)).toBeNull();
+  });
+
+  it('nao anuncia biometria como disponivel quando o navegador nao oferece WebAuthn', async () => {
+    await setup();
+
+    const biometry = screen.getByRole('button', { name: /acesso com biometria/i });
+    if (!('PublicKeyCredential' in window)) {
+      expect(biometry).toBeDisabled();
+      expect(screen.getByText('Biometria indisponível neste navegador.')).toBeTruthy();
+    }
   });
 });

@@ -1,0 +1,100 @@
+// Ilustrações do site: traço fino com brilho ciano e verde, como na página inicial. As cores saem
+// dos tokens do site, então acompanham o botão de tema.
+
+:host {
+  display: block;
+  width: 100%;
+
+  // Em um quadro de altura fixa (banners da página inicial) o desenho se ajusta à altura, sem esticar.
+  height: var(--ilu-h, auto);
+}
+
+.ilu {
+  display: block;
+  width: 100%;
+  height: var(--ilu-h, auto);
+}
+
+.fundo {
+  fill: var(--site-cartao);
+  stroke: var(--site-linha);
+  stroke-width: 1;
+}
+
+.grade path {
+  fill: none;
+  stroke: var(--site-linha);
+  stroke-width: 0.6;
+  opacity: 0.55;
+}
+
+.tr,
+.tr * {
+  stroke: var(--site-ciano);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tv {
+  stroke: var(--site-verde);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.am {
+  stroke: rgb(var(--lp-c-ambar));
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+.miolo {
+  fill: rgb(var(--lp-c-ciano) / 10%);
+  stroke: var(--site-ciano);
+  stroke-width: 1.8;
+}
+
+.no {
+  fill: rgb(var(--lp-c-ciano) / 14%);
+  stroke: var(--site-ciano);
+  stroke-width: 1.8;
+}
+
+.nv {
+  fill: rgb(var(--lp-c-verde) / 14%);
+  stroke: var(--site-verde);
+}
+
+.nvm {
+  fill: rgb(var(--lp-c-verde) / 12%);
+  stroke: var(--site-verde);
+}
+
+.barra {
+  fill: rgb(var(--lp-c-ciano) / 20%);
+  stroke: var(--site-ciano);
+  stroke-width: 1.6;
+}
+
+.barra.nvm {
+  fill: rgb(var(--lp-c-verde) / 20%);
+  stroke: var(--site-verde);
+}
+
+.barra.am {
+  fill: rgb(var(--lp-c-ambar) / 20%);
+  stroke: rgb(var(--lp-c-ambar));
+}
+
+.glow {
+  filter: drop-shadow(0 0 6px rgb(var(--lp-c-ciano) / 28%));
+}
+
+.tx text {
+  fill: var(--site-suave);
+  font-family: Inter, "Segoe UI", sans-serif;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}

@@ -56,4 +56,36 @@ describe('OnboardingDocumentUploadComponent', () => {
     );
     expect(enviar).not.toHaveBeenCalled();
   });
+
+  it('rejeita extensao nao permitida como .exe ou .svg (SEC-06)', async () => {
+    const { fixture } = await render(OnboardingDocumentUploadComponent, {
+      inputs: { tipos: [...TIPOS] },
+    });
+
+    const executavel = new File(['echo evil'], 'malware.exe', { type: 'application/x-msdownload' });
+    fireEvent.change(screen.getByLabelText(/Arquivo/), { target: { files: [executavel] } });
+    fixture.detectChanges();
+
+    expect(screen.getByText(/Formato não permitido/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Enviar documento' })).toHaveProperty(
+      'disabled',
+      true,
+    );
+  });
+
+  it('rejeita arquivo com dupla extensao perigosa (ex: documento.exe.pdf) (SEC-06)', async () => {
+    const { fixture } = await render(OnboardingDocumentUploadComponent, {
+      inputs: { tipos: [...TIPOS] },
+    });
+
+    const camuflado = new File(['fake pdf'], 'relatorio.exe.pdf', { type: 'application/pdf' });
+    fireEvent.change(screen.getByLabelText(/Arquivo/), { target: { files: [camuflado] } });
+    fixture.detectChanges();
+
+    expect(screen.getByText(/Nome de arquivo inválido ou suspeito detectado/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Enviar documento' })).toHaveProperty(
+      'disabled',
+      true,
+    );
+  });
 });

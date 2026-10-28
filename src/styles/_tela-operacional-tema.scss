@@ -1,0 +1,556 @@
+// SEP — Frontend
+// Frontend Development: Daniel Möllmann
+// Angular • TypeScript • SCSS — 2026
+
+// ============ TEMA DAS TELAS OPERACIONAIS SEM ARTE DE DESIGNER ============
+// Base visual compartilhada pelas telas construídas no padrão do tema, na mesma linguagem dos
+// Mockups 35 e 36 — tokens, cartão, cabeçalho, botões, selos, tabela e acessibilidade. Nasceu na
+// jornada credora e passou a servir também a Administração, para as telas não divergirem entre si
+// nem do que já foi aceito.
+// Uso: `@use '<caminho>/styles/tela-operacional-tema' as tema;` e depois `@include tema.base('px37');`
+
+/// Apelidos curtos que as telas já consomem, agora apontando para os tokens semânticos de
+/// `_sep-op-tokens.scss`. Continuam definidos **no escopo do componente**, e não globalmente,
+/// porque `--muted` também existe no New Design System com outro formato e outro significado:
+/// promovê-lo a global quebraria as telas claras que já o usam como trio HSL.
+// Reexporta o contrato responsivo para as telas que já usam este tema, evitando um `@use` a mais
+// por folha. A definição vive em `styles/_sep-responsivo.scss`.
+@forward "sep-responsivo" as resp-*;
+@use "sep-responsivo" as resp;
+
+@mixin tokens {
+  --linha: var(--sep-border);
+  --muted: var(--sep-text-muted);
+  --muted-forte: var(--sep-text-secondary);
+  --blue: var(--sep-accent);
+  --green: var(--sep-success);
+  --purple: var(--sep-purple);
+  --amber: var(--sep-warning);
+  --red-forte: var(--sep-danger);
+
+  display: block;
+  color: var(--sep-text);
+  font-size: 13.5px;
+}
+
+/// Cada tom declara só a própria cor; borda e fundo saem dela por `color-mix`. Antes cada tom
+/// repetia dois literais com o mesmo alpha, o que multiplicava por cinco o trabalho de tematizar.
+@mixin tons {
+  [data-tone="blue"] {
+    --tone: var(--sep-accent);
+  }
+
+  [data-tone="green"] {
+    --tone: var(--sep-success);
+  }
+
+  [data-tone="purple"] {
+    --tone: var(--sep-purple);
+  }
+
+  [data-tone="amber"] {
+    --tone: var(--sep-warning);
+  }
+
+  [data-tone="red"] {
+    --tone: var(--sep-danger);
+  }
+
+  [data-tone] {
+    --tone-borda: color-mix(in srgb, var(--tone) 55%, transparent);
+    --tone-fundo: color-mix(in srgb, var(--tone) 12%, transparent);
+  }
+}
+
+/// Ajustes do shell operacional para a página ocupar a área útil inteira.
+@mixin shell($px) {
+  /* stylelint-disable selector-pseudo-element-no-unknown -- Angular ::ng-deep */
+
+  /* min-width: 0 impede que o conteudo estique a area util: item de grid nao encolhe abaixo do
+     proprio min-content sem isso, e faixas de muitas colunas transbordariam para fora do shell. */
+  :host ::ng-deep .op-content:has(> .#{$px}-page) {
+    display: block;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+
+    /* A area de conteudo e o container do contrato responsivo: e ela que recebe o espaco que
+       sobra depois da barra lateral, entao e ela que a pagina deve medir. Nao serve declarar no
+       `:host` do componente de pagina — o host envolve o shell inteiro e tem a largura da janela.
+       `inline-size` nao cria bloco de contencao para `position: fixed`, e nenhuma pagina que usa
+       este mixin tem elemento fixo. */
+    container: sep-conteudo / inline-size;
+  }
+
+  /* Com a janela em meia tela ou menos, a área útil rola em vez de recortar. Telas ainda não
+     migradas ao contrato responsivo continuam pedindo mais largura do que sobra; rolar mantém
+     tudo alcançável, enquanto `hidden` sumia com coluna e botão sem nenhum aviso. */
+  @container sep-app (width <= 1080px) {
+    :host ::ng-deep .op-content:has(> .#{$px}-page) {
+      overflow: auto;
+    }
+
+    /* A classe repetida é proposital: a folha de cada tela declara `.pxNN-page` com o próprio
+       `overflow` e vem depois deste mixin no arquivo. Sem o desempate, a regra da tela venceria
+       por ordem e o recorte continuaria. */
+    .#{$px}-page.#{$px}-page {
+      overflow: auto;
+    }
+  }
+
+  /* A linha do `.op-dashboard` e implicita e nasce `auto`: sem isso ela cresce com o conteudo,
+     o `.op-main` passa da altura da janela e o rodape do shell sai da tela. */
+  :host ::ng-deep .op-dashboard:has(.#{$px}-page) {
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  /* A coluna precisa ser minmax(0, 1fr): como `auto`, ela cresceria com o min-content da pagina e
+     empurraria o conteudo para fora do shell em larguras menores. */
+  :host ::ng-deep .op-main:has(.#{$px}-page) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 70px minmax(0, 1fr) 80px;
+  }
+
+  :host ::ng-deep .op-main:has(.#{$px}-page) > .op-footer {
+    min-height: 80px;
+  }
+
+  :host ::ng-deep .op-dashboard:has(.#{$px}-page) > .op-sidebar {
+    grid-template-rows: 70px minmax(0, 1fr) 130px 80px;
+  }
+
+  /* stylelint-enable selector-pseudo-element-no-unknown */
+}
+
+@mixin cartao($px) {
+  .#{$px}-card {
+    padding: 20px 24px;
+    border: 1px solid var(--linha);
+    border-radius: 12px;
+    background: linear-gradient(
+      160deg,
+      rgb(var(--sep-c-sunken) / 96%),
+      rgb(var(--sep-c-sunken) / 94%)
+    );
+    box-shadow: inset 0 1px 0 rgb(var(--sep-c-blue) / calc(4% * var(--sep-glow-alpha)));
+    transition:
+      border-color 0.18s,
+      box-shadow 0.18s;
+
+    /* Widget principal: reforça borda e glow, sem alterar dimensões. */
+    &:hover,
+    &:focus-within {
+      border-color: rgb(var(--sep-c-blue) / 38%);
+      box-shadow:
+        0 0 18px rgb(var(--sep-c-blue) / calc(7% * var(--sep-glow-alpha))),
+        inset 0 1px 0 rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha)));
+    }
+  }
+
+  .#{$px}-card h2 {
+    margin: 0 0 16px;
+    color: var(--sep-text);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.1px;
+  }
+}
+
+@mixin cabecalho($px) {
+  .#{$px}-heading nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    color: var(--muted);
+    font-size: 12.5px;
+  }
+
+  .#{$px}-heading nav a {
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.18s;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--sep-text);
+      text-decoration: underline;
+    }
+  }
+
+  .#{$px}-heading nav span {
+    color: var(--sep-text-muted);
+  }
+
+  .#{$px}-heading nav strong {
+    color: var(--sep-text);
+    font-weight: 600;
+  }
+
+  .#{$px}-heading-row {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .#{$px}-titulo-wrap {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    min-width: 0;
+
+    h1 {
+      margin: 0;
+      overflow: hidden;
+      color: var(--sep-text);
+      font-size: 25px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .#{$px}-titulo-icone {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    color: var(--tone, var(--blue));
+    border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+    border-radius: 13px;
+    background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+    box-shadow: 0 0 16px
+      var(--tone-fundo, rgb(var(--sep-c-blue) / calc(16% * var(--sep-glow-alpha))));
+  }
+
+  .#{$px}-subtitulo {
+    margin: 6px 0 0;
+    color: var(--muted-forte);
+    font-size: 13.5px;
+  }
+
+  /* Meia área: título e ações deixam de disputar a mesma linha. A trilha de navegação também
+     quebra — ela é a primeira coisa que empurra o cabeçalho para fora em espaço estreito. */
+  @include resp.half {
+    .#{$px}-heading nav,
+    .#{$px}-heading-row,
+    .#{$px}-acoes-topo {
+      flex-wrap: wrap;
+    }
+
+    /* `min-width: auto` e o padrao de item de flex e de grid: sem isto a barra de acoes recusa
+       encolher abaixo do proprio min-content e estica o cabecalho inteiro para fora da area util,
+       levando junto a pagina toda. Foi a causa do transbordo em px38 e bo18. */
+    .#{$px}-acoes-topo,
+    .#{$px}-titulo-wrap,
+    .#{$px}-card {
+      min-width: 0;
+    }
+
+    /* O rodape da tabela — contagem, paginas e "itens por pagina" — e uma linha so de flex. Sem a
+       quebra ele estica o cartao inteiro e leva a pagina junto, mesmo com a tabela ja rolando. */
+    .#{$px}-tabela-rodape {
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+  }
+
+  /* Um terço: hierarquia vertical. O título vem primeiro, as ações abaixo dele, e o ícone
+     encolhe — reduzir o corpo do texto é o último recurso, nunca o primeiro. */
+  @include resp.third {
+    .#{$px}-heading-row {
+      flex-direction: column;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .#{$px}-titulo-wrap {
+      gap: 12px;
+
+      h1 {
+        font-size: 21px;
+      }
+    }
+
+    .#{$px}-titulo-icone {
+      width: 42px;
+      min-width: 42px;
+      height: 42px;
+    }
+  }
+}
+
+@mixin botoes($px) {
+  .#{$px}-btn-primary {
+    display: inline-flex;
+    flex-shrink: 0;
+    gap: 9px;
+    align-items: center;
+    justify-content: center;
+    height: 46px;
+    padding: 0 22px;
+    color: var(--sep-on-solid);
+    font-size: 14.5px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid rgb(var(--sep-c-blue) / 60%);
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--sep-accent), var(--sep-accent));
+    box-shadow: 0 0 16px rgb(var(--sep-c-blue) / calc(28% * var(--sep-glow-alpha)));
+    cursor: pointer;
+    transition:
+      transform 0.18s,
+      box-shadow 0.18s,
+      border-color 0.18s;
+
+    lucide-icon {
+      flex-shrink: 0;
+      transition: transform 0.18s;
+    }
+
+    &:hover:not(:disabled),
+    &:focus-visible {
+      border-color: var(--blue);
+      box-shadow: 0 0 24px rgb(var(--sep-c-blue) / calc(48% * var(--sep-glow-alpha)));
+      transform: translateY(-2px);
+    }
+
+    &:hover:not(:disabled) lucide-icon,
+    &:focus-visible lucide-icon {
+      transform: scale(1.08);
+    }
+
+    &:disabled {
+      color: var(--muted);
+      border-color: var(--sep-border-strong);
+      background: rgb(var(--sep-c-surf2) / 85%);
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+  }
+
+  .#{$px}-btn-sec {
+    display: inline-flex;
+    flex-shrink: 0;
+    gap: 9px;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    padding: 0 18px;
+    color: var(--sep-text);
+    font-size: 13.5px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid var(--sep-border-strong);
+    border-radius: 9px;
+    background: rgb(var(--sep-c-surf2) / 80%);
+    cursor: pointer;
+    transition:
+      border-color 0.18s,
+      background 0.18s,
+      box-shadow 0.18s,
+      transform 0.18s;
+
+    lucide-icon {
+      transition: transform 0.18s;
+    }
+
+    &:hover:not(:disabled),
+    &:focus-visible {
+      border-color: var(--blue);
+      background: rgb(var(--sep-c-hover) / 90%);
+      box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(22% * var(--sep-glow-alpha)));
+      transform: translateY(-2px);
+    }
+
+    &:hover:not(:disabled) lucide-icon,
+    &:focus-visible lucide-icon {
+      transform: translateX(-3px);
+    }
+
+    &:disabled {
+      color: var(--muted);
+      cursor: not-allowed;
+    }
+  }
+}
+
+@mixin selo($px) {
+  .#{$px}-selo {
+    display: inline-flex;
+    flex-shrink: 0;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    height: 26px;
+    padding: 0 13px;
+    color: var(--tone, var(--blue));
+    font-size: 11.5px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 55%));
+    border-radius: 999px;
+    background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+    transition:
+      border-color 0.18s,
+      box-shadow 0.18s,
+      transform 0.18s;
+
+    &:hover {
+      border-color: var(--tone, var(--blue));
+      box-shadow: 0 0 12px
+        var(--tone-fundo, rgb(var(--sep-c-blue) / calc(30% * var(--sep-glow-alpha))));
+      transform: scale(1.04);
+    }
+  }
+}
+
+@mixin estados($px) {
+  .#{$px}-estado {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    grid-column: 1 / -1;
+    margin: auto;
+    color: var(--muted-forte);
+    text-align: center;
+  }
+
+  .#{$px}-erro {
+    color: var(--red-forte);
+  }
+}
+
+@mixin tabela($px) {
+  .#{$px}-tabela-wrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+  }
+
+  .#{$px}-tabela-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+  }
+
+  .#{$px}-tabela-wrap th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 10px 8px;
+    color: var(--muted);
+    font-size: 12.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--sep-border);
+    background: var(--sep-surface-sunken);
+  }
+
+  .#{$px}-tabela-wrap td {
+    padding: 11px 8px;
+    vertical-align: middle;
+    white-space: nowrap;
+    border-bottom: 1px solid rgb(var(--sep-c-line) / 50%);
+    transition: background 0.18s;
+  }
+
+  /* Realce da linha por fundo e marcador lateral: nenhuma coluna muda de largura. */
+  .#{$px}-tabela-wrap tbody tr:hover td {
+    background: rgb(var(--sep-c-blue) / 6%);
+  }
+
+  .#{$px}-tabela-wrap tbody tr:hover td:first-child {
+    box-shadow: inset 3px 0 0 var(--blue);
+  }
+
+  .#{$px}-num {
+    text-align: right;
+  }
+
+  .#{$px}-link {
+    color: var(--blue);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: rgb(var(--sep-c-blue) / 40%);
+    text-underline-offset: 2px;
+    transition:
+      color 0.18s,
+      text-shadow 0.18s;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--sep-accent);
+      text-shadow: 0 0 10px rgb(var(--sep-c-blue) / calc(45% * var(--sep-glow-alpha)));
+    }
+  }
+
+  .#{$px}-vazio-linha {
+    padding: 16px 0;
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+  }
+}
+
+@mixin acessibilidade($px) {
+  :focus-visible {
+    outline: 2px solid rgb(var(--sep-c-blue) / 70%);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      transition: none !important;
+    }
+
+    .#{$px}-btn-primary:hover,
+    .#{$px}-btn-sec:hover,
+    .#{$px}-btn-sec:hover lucide-icon,
+    .#{$px}-selo:hover {
+      transform: none;
+    }
+  }
+}
+
+/// Aplica tudo de uma vez. Cada tela acrescenta só o que é seu depois disso.
+@mixin base($px) {
+  * {
+    box-sizing: border-box;
+  }
+
+  button {
+    font: inherit;
+  }
+
+  @include tons;
+  @include shell($px);
+  @include cartao($px);
+  @include cabecalho($px);
+  @include botoes($px);
+  @include selo($px);
+  @include estados($px);
+  @include acessibilidade($px);
+}
+
+// ============ CONTRATO RESPONSIVO ============
+
+/// Grade de cartões equivalentes que se reorganiza **sozinha**, sem nenhum limiar.
+///
+/// Preferir isto a `repeat(N, ...)` mais consulta de container: quando os cartões são
+/// intercambiáveis, a própria geometria resolve, e não há número arbitrário para manter.
+/// `$min` é a largura abaixo da qual um cartão deixa de ser legível — é a única decisão real.
+@mixin grade-fluida($min: 240px, $gap: 16px) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, #{$min}), 1fr));
+  gap: $gap;
+}

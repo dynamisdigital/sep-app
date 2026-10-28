@@ -14,9 +14,13 @@ export function formatarMoeda(valor: number): string {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
 }
 
-// Data do backend (OffsetDateTime/LocalDate ISO) apenas para exibicao.
+// Data do backend (OffsetDateTime/LocalDate ISO) apenas para exibicao. LocalDate ("2026-06-25")
+// seria interpretado como meia-noite UTC e apareceria um dia antes em fuso negativo; por isso a
+// data pura e ancorada no fuso local antes de formatar.
 export function formatarData(iso: string): string {
-  return formatarDataIso(iso, { dateStyle: 'short' });
+  // Data pura ancorada no fuso local; o resto (inclusive ausente e invalido) segue o contrato da FMF-4.1.
+  const dataPura = /^\d{4}-\d{2}-\d{2}$/.test(iso ?? '');
+  return formatarDataIso(dataPura ? `${iso}T00:00:00` : iso, { dateStyle: 'short' });
 }
 
 // Sufixo do UUID para identificacao curta em listas (o id completo permanece no link).
@@ -40,7 +44,7 @@ export const TIPO_CREDORA_LABEL: Record<TipoCredora, string> = {
   INSTITUICAO_FINANCEIRA: 'Instituicao financeira',
 };
 
-// Mensagem amigavel do corpo de erro padronizado da API, com fallback. 401/403/423 globais sao
+// Mensagem amigavel do corpo de erro padronizado da API, com fallback e sanitizacao. 401/403/423 globais sao
 // tratados pelo errorInterceptor; aqui os componentes cobrem os erros de dominio da credora.
 export function mensagemCredoraErro(err: HttpErrorResponse, padrao: string): string {
   return mensagemDeErroDaApi(err, padrao);

@@ -3,7 +3,11 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { UsuarioResponse, UsuarioSenhaUpdateRequest } from '../api/api.models';
+import {
+  UsuarioCreateRequest,
+  UsuarioResponse,
+  UsuarioSenhaUpdateRequest,
+} from '../api/api.models';
 
 const API_BASE_URL = environment.apiBaseUrl;
 
@@ -13,6 +17,12 @@ export class UsuariosService {
 
   listar(): Observable<UsuarioResponse[]> {
     return this.http.get<UsuarioResponse[]>(`${API_BASE_URL}/usuarios`);
+  }
+
+  // O backend sempre cria CLIENTE e ignora `role`: os demais papeis vao por PUT /usuarios/:id/roles,
+  // que exige step-up. Por isso o corpo aqui leva so as credenciais.
+  criar(payload: Pick<UsuarioCreateRequest, 'username' | 'password'>): Observable<UsuarioResponse> {
+    return this.http.post<UsuarioResponse>(`${API_BASE_URL}/usuarios`, payload);
   }
 
   buscarPorId(id: string): Observable<UsuarioResponse> {

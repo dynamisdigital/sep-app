@@ -1,0 +1,1966 @@
+@use "../../../../../styles/sep-responsivo" as resp;
+
+:host {
+  display: block;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.bo15 {
+  --c: var(--sep-accent);
+}
+
+.bo15 .op-main {
+  grid-template-rows: 70px minmax(0, 1fr) 96px;
+}
+
+.bo15 .op-sidebar {
+  grid-template-rows: 70px minmax(0, 1fr) auto auto 82px;
+}
+
+.bo15 .op-sidebar-head {
+  padding: 5px 15px;
+}
+
+.bo15 .op-brand sep-logo {
+  width: 148px;
+}
+
+.bo15 .op-nav {
+  padding-top: 14px;
+}
+
+.bo15 .op-nav-link sep-arte,
+.bo15 .op-topbar img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.bo15 .op-side-user {
+  margin-bottom: 10px;
+}
+
+.bo15 .op-topbar {
+  padding: 0 18px;
+}
+
+.bo15 .op-regulated {
+  grid-template-columns: 40px auto 14px;
+}
+
+.bo15 .op-clock {
+  grid-template-columns: 42px auto auto;
+}
+
+.bo15 .op-icon-button {
+  overflow: hidden;
+}
+
+.bo15 .op-icon-button img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.bo15-content {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 12px 18px 10px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 55% 6%, rgb(var(--sep-c-muted) / 33%), transparent 40%),
+    linear-gradient(rgb(var(--sep-c-hover) / 20%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--sep-c-hover) / 20%) 1px, transparent 1px);
+  background-size:
+    auto,
+    48px 48px,
+    48px 48px;
+}
+
+.bo15-heading {
+  height: 84px;
+  display: flex;
+  justify-content: space-between;
+}
+
+// Respiro interno menor: a faixa do cabecalho passou a ser `auto` para nao ser atropelada pelos
+// cartoes de metrica, e em janela baixa cada pixel dela sai das faixas de conteudo.
+.bo15-heading p {
+  margin: 0 0 4px;
+  color: var(--sep-text-muted);
+  font-size: 11px;
+}
+
+.bo15-heading p a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 140ms ease;
+}
+
+.bo15-heading p a:hover,
+.bo15-heading p a:focus-visible {
+  color: var(--sep-accent);
+  text-decoration: underline;
+}
+
+.bo15-heading h1 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 25px;
+}
+
+.bo15-heading h1 img,
+.bo15-heading h1 lucide-icon {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  color: var(--sep-accent);
+  filter: drop-shadow(0 0 6px rgb(var(--sep-c-blue) / calc(35% * var(--sep-glow-alpha))));
+}
+
+.bo15-heading > div > span {
+  display: block;
+  margin-top: 4px;
+  color: var(--sep-text-secondary);
+  font-size: 13px;
+}
+
+// Alinhamento pela base, e nao pelo centro: o campo de periodo tem um rotulo acima do controle e
+// mede 54px, o botao mede 40. Centralizados, o botao subia 8px em relacao ao campo vizinho.
+.bo15-actions {
+  display: flex;
+  gap: 16px;
+  align-items: end;
+}
+
+.bo15-actions label {
+  position: relative;
+  width: 195px;
+}
+
+.bo15-actions small {
+  display: block;
+  color: var(--sep-text-muted);
+  font-size: 11px;
+}
+
+.bo15-actions select,
+.bo15-actions button {
+  height: 40px;
+  border: 1px solid var(--sep-accent);
+  border-radius: 7px;
+  color: var(--sep-text-strong);
+  background: var(--sep-surface);
+}
+
+.bo15-actions select {
+  width: 100%;
+  padding: 0 40px 0 12px;
+  appearance: none;
+}
+
+.bo15-actions label img,
+.bo15-actions label lucide-icon {
+  position: absolute;
+  right: 6px;
+  bottom: 4px;
+  width: 30px;
+}
+
+// O degrado passava pelo proprio `--sep-accent`, que e a cor do texto: no meio do botao letra e
+// fundo eram a mesma cor e a palavra sumia — parecia botao cortado. O acento fica, com alfa, como
+// realce; o texto volta a ler do inicio ao fim.
+// `line-height: 1` tira a folga da caixa de linha, que descia o texto alguns pixels em relacao ao
+// simbolo ao lado.
+.bo15-actions button {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 9px;
+  align-items: center;
+  justify-content: center;
+  min-width: 180px;
+  color: var(--sep-accent);
+  line-height: 1;
+  background: linear-gradient(
+    110deg,
+    var(--sep-surface),
+    rgb(var(--sep-c-blue) / 34%),
+    var(--sep-surface-2)
+  );
+}
+
+.bo15-actions button img,
+.bo15-actions button lucide-icon {
+  width: 28px;
+}
+
+.bo15-card {
+  overflow: hidden;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 8px;
+  background: linear-gradient(145deg, rgb(var(--sep-c-surf2) / 98%), rgb(var(--sep-c-surf) / 96%));
+  transition: 0.18s;
+}
+
+.bo15-card:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.12) saturate(1.12);
+  box-shadow: 0 0 15px rgb(var(--sep-c-blue) / calc(13% * var(--sep-glow-alpha)));
+}
+
+.bo15-card h2 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.bo15-card > a {
+  height: 33px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid var(--sep-border);
+  color: var(--sep-accent);
+  text-decoration: none;
+  font-size: 11px;
+}
+
+.bo15-metrics {
+  height: 122px;
+  display: grid;
+
+  // `1fr` sozinho nao encolhe abaixo do conteudo: as cinco faixas ficavam do tamanho do texto mais
+  // largo e os cartoes saiam da fileira (35px a 1440, 91px a 1120). `minmax(0, 1fr)` e o que
+  // autoriza a faixa a ceder.
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.bo15-metric {
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr);
+  grid-template-rows: 1fr 28px;
+  min-width: 0;
+  padding: 13px 9px 3px;
+}
+
+.bo15-metric > * {
+  min-width: 0;
+}
+
+// A coluna de texto vira container de consulta para o valor poder se medir por ela. Sem isto o
+// unico jeito de caber "R$ 92.000,00" numa coluna de 87px seria cortar o numero com reticencia —
+// e valor monetario cortado nao informa nada.
+.bo15-metric > div {
+  container-type: inline-size;
+}
+
+.bo15-metric > img:first-child {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+
+.bo15-metric small {
+  font-size: 11px;
+  color: var(--sep-text-secondary);
+}
+
+// 20px onde couber, encolhendo com a coluna ate 11px. E a mesma ideia do `clamp` de espacamento:
+// a medida sai da largura recebida, sem limiar declarado.
+.bo15-metric strong {
+  display: block;
+  margin-top: 5px;
+  overflow: hidden;
+  font-size: clamp(12px, 15cqi, 24px);
+  white-space: nowrap;
+}
+
+// A linha de comparacao era `nowrap` e media 180px numa coluna de 143: era ela que empurrava o
+// cartao para fora da fileira. Deixar quebrar resolveu a largura e criou altura — o cartao tem
+// 102px travados. Continua numa linha, agora com reticencia: o percentual, que vem primeiro, fica
+// sempre visivel, e o "vs. 30 dias anteriores" cede o que faltar.
+.bo15-metric p {
+  margin: 4px 0 0;
+  overflow: hidden;
+  color: var(--sep-text-muted);
+  font-size: 8px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.bo15-metric p b {
+  color: var(--sep-success);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.bo15-metric[data-tone="purple"] p b {
+  color: var(--sep-danger);
+}
+
+.bo15-metric[data-tone="amber"] strong {
+  color: var(--sep-warning);
+}
+
+.bo15-metric[data-tone="red"] strong {
+  color: var(--sep-danger);
+}
+
+.bo15-metric[data-tone="green"] p b {
+  color: var(--sep-success);
+}
+
+.bo15-metric .spark {
+  grid-column: 1/-1;
+  width: 100%;
+  height: 25px;
+  object-fit: fill;
+  object-position: bottom;
+  clip-path: inset(6px 0 0);
+}
+
+.bo15-overview {
+  height: 216px;
+  margin-top: 15px;
+  display: grid;
+  grid-template-columns: 1.05fr 1.05fr 1.2fr 0.98fr;
+  gap: 10px;
+}
+
+.bo15-overview article {
+  padding: 14px 14px 0;
+  display: grid;
+
+  // `minmax(0, 1fr)` no miolo, e nao `1fr`: a faixa tem 216px travados e a lista de legendas varia
+  // de tres a seis linhas conforme o dado. Com `1fr` a linha crescia com o conteudo e o cartao
+  // vazava 49-55px; com o minimo em zero ela cede, e o miolo rola em vez de escapar.
+  grid-template-rows: auto minmax(0, 1fr) 33px;
+}
+
+// Quem rola e a lista, nao o miolo inteiro: com o miolo rolando, em janela baixa o proprio anel do
+// donut ficava cortado pela base. O anel (84px) cabe na faixa; a legenda de seis linhas nao.
+.bo15-overview article > :nth-child(2) {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.bo15-overview .donut-card ul,
+.bo15-overview .top-card ol {
+  max-height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--sep-c-blue) / 45%) transparent;
+}
+
+.donut-card > div {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  align-items: center;
+  gap: 5px;
+}
+
+.donut-card > div > img {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  transition: 0.18s;
+}
+
+.donut-card:hover > div > img {
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 8px rgb(var(--sep-c-blue) / calc(40% * var(--sep-glow-alpha))));
+}
+
+.donut-card ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.donut-card li {
+  min-height: 23px;
+  display: grid;
+  grid-template-columns: 9px 1fr 15px 38px;
+  gap: 5px;
+  align-items: center;
+  font-size: 11px;
+}
+
+// O ponto da legenda sai da mesma cor da fatia (`--legenda`, ligado no template): assim ele
+// nao tem como discordar do anel quando a distribuicao muda.
+.donut-card li i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--legenda, var(--sep-accent));
+  box-shadow: 0 0 6px var(--legenda, var(--sep-accent));
+}
+
+.donut-card em {
+  font-style: normal;
+  text-align: right;
+}
+
+.top-card ol {
+  list-style: none;
+  padding: 5px 0 0;
+  margin: 0;
+}
+
+.top-card li {
+  height: 30px;
+  display: grid;
+  grid-template-columns: 26px 1fr 20px;
+  align-items: center;
+  border-bottom: 1px solid var(--sep-surface-active);
+  font-size: 11px;
+}
+
+.top-card li i {
+  width: 19px;
+  height: 19px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--sep-warning);
+  border-radius: 50%;
+  color: var(--sep-warning);
+  font-style: normal;
+}
+
+.bo15-middle {
+  height: 210px;
+  margin-top: 15px;
+  display: grid;
+  grid-template-columns: 1.5fr 0.94fr 1.28fr;
+  gap: 10px;
+}
+
+.bo15-middle article {
+  padding: 14px 14px 0;
+}
+
+.evolution {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.evolution img {
+  width: 100%;
+  height: 172px;
+  object-fit: fill;
+  object-position: bottom;
+  clip-path: inset(18px 0 0);
+}
+
+.proposal {
+  display: grid;
+  grid-template-rows: auto 1fr 33px;
+}
+
+.proposal > div {
+  display: grid;
+  grid-template-columns: 125px 1fr;
+  align-items: center;
+}
+
+.proposal img {
+  width: 125px;
+}
+
+.proposal ul {
+  list-style: none;
+  padding: 0;
+  font-size: 11px;
+  line-height: 27px;
+}
+
+.ranking {
+  display: grid;
+
+  // As cinco posicoes eram 25px travados: com o cabecalho e o rodape do cartao a soma dava 192px
+  // numa faixa de 177. `minmax(0, 1fr)` deixa as linhas cederem juntas, em vez de a quinta sair
+  // pela borda.
+  grid-template-rows: auto 20px repeat(5, minmax(0, 1fr)) 33px;
+}
+
+.ranking > small {
+  color: var(--sep-text-muted);
+  border-bottom: 1px solid var(--sep-border);
+}
+
+.ranking > div {
+  display: grid;
+  grid-template-columns: 25px 1fr 115px 18px;
+  gap: 7px;
+  align-items: center;
+  font-size: 11px;
+}
+
+.ranking div i {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--sep-purple);
+  color: var(--sep-on-tint);
+  font-style: normal;
+}
+
+.ranking div b {
+  height: 5px;
+  background: var(--sep-surface-3);
+  border-radius: 5px;
+}
+
+.ranking div u {
+  display: block;
+  height: 100%;
+  background: var(--sep-accent);
+  border-radius: 5px;
+}
+
+.ranking div em {
+  text-align: right;
+  font-style: normal;
+}
+
+.bo15-bottom {
+  height: 192px;
+  margin-top: 15px;
+  display: grid;
+  grid-template-columns: 1.55fr 1fr;
+  gap: 10px;
+}
+
+.bo15-bottom article {
+  padding: 14px 14px 0;
+}
+
+.critical {
+  display: grid;
+  grid-template-rows: auto 27px repeat(3, 35px) 33px;
+
+  // Seis colunas com 468px de largura travada mais a coluna flexivel: a 1120 o cartao recebe
+  // 509px e as colunas saiam 175px para fora. Como na tabela de reprocessos, a linha rola em vez
+  // de espremer — dado de ocorrencia critica truncado nao serve para nada.
+  overflow-x: auto;
+}
+
+.critical > * {
+  min-width: min-content;
+}
+
+.critical header,
+.critical > a:not(.all-critical) {
+  display: grid;
+  grid-template-columns: 78px 80px minmax(120px, 1.5fr) 115px 105px 90px;
+  gap: 7px;
+  align-items: center;
+  font-size: 11px;
+}
+
+.critical header {
+  color: var(--sep-text-muted);
+  border-bottom: 1px solid var(--sep-border);
+}
+
+.critical > a:not(.all-critical) {
+  color: var(--sep-text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--sep-surface-active);
+}
+
+.critical a i,
+.critical a b {
+  justify-self: start;
+  padding: 3px 7px;
+  border: 1px solid var(--sep-danger);
+  border-radius: 10px;
+  color: var(--sep-danger);
+  font-style: normal;
+}
+
+.all-critical {
+  color: var(--sep-danger) !important;
+}
+
+.indicators {
+  display: grid;
+  grid-template-rows: auto repeat(3, 1fr) 33px;
+}
+
+.indicators > div {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px 1fr 70px;
+  gap: 6px;
+  align-items: center;
+  border-bottom: 1px solid var(--sep-border);
+}
+
+.indicators lucide-icon {
+  width: 42px;
+}
+
+.indicators span small {
+  display: block;
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+}
+
+.indicators span strong {
+  font-size: 16px;
+}
+
+.indicators em {
+  font-size: 8px;
+  font-style: normal;
+  text-align: right;
+  color: var(--sep-text-muted);
+}
+
+.indicators div > b {
+  position: absolute;
+  left: 50px;
+  right: 0;
+  bottom: 6px;
+  height: 5px;
+  background: var(--sep-surface-3);
+}
+
+.indicators div > b i {
+  display: block;
+  height: 100%;
+  background: var(--sep-purple);
+  box-shadow: 0 0 7px var(--sep-purple);
+}
+
+.indicators div[data-tone="amber"] > b i {
+  background: var(--sep-warning);
+}
+
+.indicators div[data-tone="cyan"] > b i {
+  background: var(--sep-glow);
+}
+
+@include resp.larga-e-baixa(resp.$altura-curta) {
+  .bo15 .op-main {
+    grid-template-rows: 64px minmax(0, 1fr) 82px;
+  }
+
+  .bo15-content {
+    padding-top: 10px;
+  }
+
+  .bo15-heading {
+    height: 72px;
+  }
+
+  .bo15-metrics {
+    height: 112px;
+  }
+
+  .bo15-overview {
+    height: 198px;
+    margin-top: 11px;
+  }
+
+  .bo15-middle {
+    height: 192px;
+    margin-top: 11px;
+  }
+
+  .bo15-bottom {
+    height: 178px;
+    margin-top: 11px;
+  }
+
+  .donut-card > div > img {
+    width: 100px;
+    height: 100px;
+  }
+
+  .donut-card > div {
+    grid-template-columns: 100px 1fr;
+  }
+
+  .evolution img {
+    height: 155px;
+  }
+
+  .critical {
+    grid-template-rows: auto 24px repeat(3, 31px) 30px;
+  }
+
+  .bo15 .op-footer {
+    min-height: 82px;
+    padding-block: 4px;
+  }
+}
+
+.bo15-heading h1 {
+  font-size: 30px;
+}
+
+.bo15-heading > div > span {
+  font-size: 15px;
+}
+
+.bo15-metric {
+  grid-template-rows: minmax(0, 1fr) 35px;
+  padding: 12px 11px 1px;
+}
+
+.bo15-metric small {
+  color: var(--sep-text);
+  font-size: 12px;
+}
+
+.bo15-metric p,
+.bo15-metric p b {
+  font-size: 11px;
+}
+
+.bo15-metric .spark {
+  height: 34px;
+  color: var(--metric-color);
+  filter: drop-shadow(0 0 4px rgb(var(--metric-rgb) / 50%));
+}
+
+/* Donuts e ranking da segunda linha, conforme o Mockup 15. */
+.bo15-overview .bo15-card h2 {
+  font-size: 16px;
+}
+
+.donut-card > div {
+  grid-template-columns: 100px minmax(0, 1fr);
+  gap: 12px;
+}
+
+.css-donut {
+  width: 92px;
+  filter: drop-shadow(0 0 7px rgb(var(--sep-c-blue) / calc(28% * var(--sep-glow-alpha))));
+}
+
+.css-donut::after {
+  inset: 13px;
+}
+
+.css-donut b {
+  font-size: 22px;
+}
+
+.css-donut small {
+  font-size: 12px;
+}
+
+.donut-card li {
+  min-height: 27px;
+  grid-template-columns: 11px minmax(0, 1fr) 21px 44px;
+  font-size: 11px;
+}
+
+.donut-card li i {
+  width: 10px;
+  height: 10px;
+}
+
+.bo15-overview .bo15-card > a {
+  font-size: 13px;
+}
+
+.donut-card:hover .css-donut {
+  transform: scale(1.04);
+  filter: saturate(1.18)
+    drop-shadow(0 0 7px rgb(var(--sep-c-blue) / calc(52% * var(--sep-glow-alpha))));
+}
+
+.top-card li {
+  height: 32px;
+  grid-template-columns: 22px minmax(0, 1fr) 20px;
+  font-size: 12px;
+}
+
+.top-card li i {
+  width: 18px;
+  height: 18px;
+  border-color: currentcolor;
+  box-shadow: 0 0 5px
+    color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent);
+}
+
+.top-card li span {
+  padding-left: 7px;
+}
+
+.top-card li b {
+  justify-self: end;
+}
+
+.top-card li:nth-child(1) i {
+  color: var(--sep-warning);
+}
+
+.top-card li:nth-child(2) i {
+  color: var(--sep-purple);
+}
+
+.top-card li:nth-child(3) i {
+  color: var(--sep-danger);
+}
+
+.top-card li:nth-child(4) i {
+  color: var(--sep-accent);
+}
+
+.top-card li:nth-child(5) i {
+  color: var(--sep-success);
+}
+
+.bo15-metric p,
+.bo15-metric p b {
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.metric-icon {
+  width: 24px;
+  height: 24px;
+  border-color: rgb(var(--metric-rgb) / 9%);
+  border-radius: 8px;
+  background: linear-gradient(145deg, rgb(var(--metric-rgb) / 6%), rgb(var(--sep-c-sunken) / 48%));
+  box-shadow:
+    inset 0 0 6px rgb(var(--metric-rgb) / 4%),
+    0 0 5px rgb(var(--metric-rgb) / 4%);
+}
+
+.bo15-metric small {
+  font-size: 13px;
+}
+
+.bo15-metric p,
+.bo15-metric p b {
+  font-size: 13px;
+}
+
+/* Ajuste fino do cabeçalho e dos cinco indicadores superiores. */
+.bo15-heading p,
+.bo15-actions small {
+  font-size: 11px;
+}
+
+.bo15-heading h1 {
+  font-size: 30px;
+}
+
+.bo15-heading > div > span {
+  font-size: 15px;
+}
+
+.bo15-actions select,
+.bo15-actions button {
+  font-size: 13px;
+}
+
+.bo15-metric {
+  --metric-rgb: 25 176 255;
+  --metric-color: var(--sep-accent);
+
+  grid-template-columns: 62px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) 35px;
+  padding: 12px 11px 1px;
+  border-color: rgb(var(--metric-rgb) / 46%);
+  background:
+    radial-gradient(circle at 17% 30%, rgb(var(--metric-rgb) / 18%), transparent 29%),
+    linear-gradient(
+      145deg,
+      rgb(var(--metric-rgb) / 11%),
+      var(--sep-surface) 52%,
+      var(--sep-surface-sunken) 100%
+    );
+  box-shadow: inset 0 0 20px rgb(var(--metric-rgb) / 6%);
+}
+
+.bo15-metric[data-tone="purple"] {
+  --metric-rgb: 164 71 226;
+  --metric-color: var(--sep-purple);
+}
+
+.bo15-metric[data-tone="amber"] {
+  --metric-rgb: 255 166 14;
+  --metric-color: var(--sep-warning);
+}
+
+.bo15-metric[data-tone="red"] {
+  --metric-rgb: 255 60 75;
+  --metric-color: var(--sep-danger);
+}
+
+.bo15-metric[data-tone="green"] {
+  --metric-rgb: 0 211 129;
+  --metric-color: var(--sep-success);
+}
+
+.metric-icon {
+  display: grid;
+  place-items: center;
+  align-self: start;
+  width: 54px;
+  height: 54px;
+  color: var(--metric-color);
+  border: 1px solid rgb(var(--metric-rgb) / 42%);
+  border-radius: 9px;
+  background: linear-gradient(145deg, rgb(var(--metric-rgb) / 22%), rgb(var(--sep-c-sunken) / 72%));
+  box-shadow:
+    inset 0 0 14px rgb(var(--metric-rgb) / 17%),
+    0 0 12px rgb(var(--metric-rgb) / 18%);
+}
+
+.bo15-metric small {
+  color: var(--sep-text);
+  font-size: 12px;
+}
+
+.bo15-metric strong {
+  margin-top: 4px;
+}
+
+.bo15-metric p,
+.bo15-metric p b {
+  font-size: 11px;
+}
+
+.bo15-metric .spark {
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 34px;
+  color: var(--metric-color);
+  overflow: visible;
+  clip-path: none;
+  filter: drop-shadow(0 0 4px rgb(var(--metric-rgb) / 50%));
+}
+
+.bo15-metric .spark polyline {
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.7;
+  vector-effect: non-scaling-stroke;
+}
+
+.bo15-metric .spark polygon {
+  fill: rgb(var(--metric-rgb) / 11%);
+}
+
+.bo15-metric:hover {
+  border-color: rgb(var(--metric-rgb) / 76%);
+  filter: brightness(1.08) saturate(1.12);
+  box-shadow:
+    inset 0 0 22px rgb(var(--metric-rgb) / 10%),
+    0 0 17px rgb(var(--metric-rgb) / 25%);
+}
+
+/* Mockup 15: distribuição proporcional dentro da área útil do shell. A faixa do cabeçalho é
+   `auto` — ele tem altura própria e a porcentagem não a cobria, deixando os cartões de métrica
+   passarem por cima do subtítulo. */
+.bo15-content {
+  display: grid;
+  grid-template-rows: auto 13% 23% 23% minmax(0, 1fr);
+  gap: 1.1%;
+  padding: 12px 18px 10px;
+}
+
+.bo15-heading,
+.bo15-metrics,
+.bo15-overview,
+.bo15-middle,
+.bo15-bottom {
+  height: auto;
+  min-height: 0;
+  margin-top: 0;
+}
+
+.bo15-heading {
+  align-items: flex-start;
+}
+
+.bo15-heading h1 {
+  gap: 9px;
+  font-size: 27px;
+  line-height: 1.1;
+}
+
+.bo15-heading h1 img {
+  width: 38px;
+  height: 38px;
+}
+
+.bo15-heading > div > span {
+  margin-top: 7px;
+  font-size: 14px;
+}
+
+.bo15-actions {
+  align-self: center;
+}
+
+.bo15-card h2 {
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.bo15-card > a {
+  min-height: 34px;
+  font-size: 12px;
+  text-shadow: 0 0 8px rgb(var(--sep-c-blue) / calc(28% * var(--sep-glow-alpha)));
+}
+
+.bo15-metric {
+  grid-template-columns: 62px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) 32px;
+  padding: 13px 11px 2px;
+}
+
+.bo15-metric > img:first-child {
+  width: 60px;
+  height: 60px;
+  align-self: start;
+}
+
+.bo15-metric small {
+  font-size: 11px;
+}
+
+.bo15-metric strong {
+  margin-top: 4px;
+  line-height: 1.05;
+}
+
+.bo15-metric p {
+  margin-top: 7px;
+  font-size: 11px;
+}
+
+.bo15-metric p b {
+  font-size: 11px;
+  text-shadow: 0 0 7px
+    color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent);
+}
+
+.bo15-metric .spark {
+  height: 31px;
+  clip-path: none;
+  filter: saturate(1.2)
+    drop-shadow(
+      0 0 5px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+    );
+}
+
+.bo15-overview article,
+.bo15-middle article,
+.bo15-bottom article {
+  min-height: 0;
+  padding: 14px 14px 0;
+}
+
+.donut-card > div {
+  grid-template-columns: 116px minmax(0, 1fr);
+  gap: 12px;
+}
+
+.css-donut {
+  position: relative;
+  width: 108px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 8px rgb(var(--sep-c-blue) / calc(25% * var(--sep-glow-alpha))));
+  transition:
+    transform 180ms ease,
+    filter 180ms ease;
+}
+
+.css-donut::after {
+  position: absolute;
+  inset: 16px;
+  content: "";
+  border-radius: inherit;
+  background: radial-gradient(circle, var(--sep-surface) 64%, var(--sep-surface-2) 100%);
+  box-shadow: inset 0 0 15px rgb(var(--sep-c-shadow) / 58%);
+}
+
+.css-donut > span {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+}
+
+.css-donut b {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.css-donut small {
+  margin-top: 4px;
+  color: var(--sep-text);
+  font-size: 11px;
+}
+
+// O halo de 12px somado ao aumento de 5,5% passava dos 14px de respiro do cartao, e como o cartao
+// recorta o proprio conteudo (canto arredondado) a borda esquerda do anel aparecia cortada no
+// hover. Com 7px de halo e 4% de aumento o efeito continua e cabe no respiro.
+.donut-card:hover .css-donut,
+.proposal:hover .css-donut {
+  transform: scale(1.04);
+  filter: drop-shadow(0 0 7px rgb(var(--sep-c-blue) / calc(55% * var(--sep-glow-alpha))));
+}
+
+.donut-card li {
+  min-height: 25px;
+  grid-template-columns: 10px minmax(0, 1fr) 19px 42px;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.donut-card li i {
+  width: 9px;
+  height: 9px;
+}
+
+.top-card li {
+  height: 31px;
+  font-size: 11px;
+}
+
+.evolution {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.evolution-chart {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.evolution-chart > img {
+  position: absolute;
+  inset: 10px 0 19px 25px;
+  width: calc(100% - 25px);
+  height: calc(100% + 9px);
+  object-fit: fill;
+  clip-path: inset(35px 0 0);
+  filter: saturate(1.15)
+    drop-shadow(0 0 5px rgb(var(--sep-c-blue) / calc(25% * var(--sep-glow-alpha))));
+}
+
+.chart-legend {
+  position: absolute;
+  z-index: 2;
+  top: 7px;
+  left: 50%;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+  translate: -50% 0;
+}
+
+.chart-legend i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--sep-accent);
+  box-shadow: 0 0 7px var(--sep-accent);
+}
+
+.chart-legend i:nth-of-type(2) {
+  margin-left: 8px;
+  background: var(--sep-success);
+  box-shadow: 0 0 7px var(--sep-success);
+}
+
+.chart-y {
+  position: absolute;
+  z-index: 2;
+  top: 37px;
+  bottom: 21px;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: var(--sep-text-muted);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.chart-dates {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  bottom: 1px;
+  left: 25px;
+  display: flex;
+  justify-content: space-between;
+  color: var(--sep-text-muted);
+  font-size: 11px;
+}
+
+.proposal > div {
+  grid-template-columns: 116px minmax(0, 1fr);
+  gap: 10px;
+}
+
+.proposal ul {
+  margin: 0;
+  display: grid;
+  gap: 8px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.proposal li {
+  display: grid;
+  grid-template-columns: 9px minmax(0, 1fr) 18px 42px;
+  gap: 5px;
+  align-items: center;
+}
+
+.proposal li i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--legenda, var(--sep-accent));
+  box-shadow: 0 0 6px var(--legenda, var(--sep-accent));
+}
+
+.proposal li em {
+  font-style: normal;
+  text-align: right;
+}
+
+.ranking {
+  // O piso de 22px por posicao somava 200px numa faixa de 177: o degrau tambem precisa deixar as
+  // cinco cederem.
+  grid-template-rows: auto 23px repeat(5, minmax(0, 1fr)) 34px;
+}
+
+.ranking > small,
+.ranking > div {
+  font-size: 11px;
+}
+
+.ranking > div {
+  grid-template-columns: 26px minmax(80px, 1fr) minmax(85px, 115px) 20px;
+}
+
+.critical header,
+.critical > a:not(.all-critical) {
+  grid-template-columns: 74px 78px minmax(150px, 1.5fr) 120px 105px 94px;
+}
+
+.critical a i,
+.critical a b {
+  white-space: nowrap;
+}
+
+.indicators lucide-icon {
+  display: grid;
+  place-items: center;
+  color: var(--sep-purple);
+  border: 1px solid currentcolor;
+  border-radius: 50%;
+  filter: drop-shadow(
+    0 0 7px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+  );
+}
+
+.indicators div[data-tone="amber"] lucide-icon {
+  color: var(--sep-warning);
+}
+
+.indicators div[data-tone="cyan"] lucide-icon {
+  color: var(--sep-glow);
+}
+
+@include resp.larga-e-baixa(resp.$altura-curta) {
+  .bo15-content {
+    grid-template-rows: 10% 13% 23% 23% 24%;
+    gap: 1.1%;
+    padding-top: 10px;
+  }
+
+  .bo15-heading,
+  .bo15-metrics,
+  .bo15-overview,
+  .bo15-middle,
+  .bo15-bottom {
+    height: auto;
+    margin-top: 0;
+  }
+}
+
+/* Deve permanecer por último para não ser reduzido pelos ajustes responsivos anteriores. */
+.bo15-heading h1 {
+  font-size: 30px;
+}
+
+.bo15-heading > div > span {
+  font-size: 15px;
+}
+
+.bo15-metric {
+  grid-template-columns: 46px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) 35px;
+  padding: 12px 11px 1px;
+}
+
+.bo15-metric .metric-icon {
+  width: 32px;
+  height: 32px;
+  border-color: rgb(var(--metric-rgb) / 8%);
+  border-radius: 7px;
+  background: rgb(var(--metric-rgb) / 5%);
+  box-shadow:
+    inset 0 0 5px rgb(var(--metric-rgb) / 3%),
+    0 0 4px rgb(var(--metric-rgb) / 3%);
+}
+
+.bo15-metric small {
+  color: var(--sep-text);
+  font-size: 12px;
+}
+
+.bo15-metric p,
+.bo15-metric p b {
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.bo15-metric .spark {
+  height: 34px;
+  color: var(--metric-color);
+  filter: drop-shadow(0 0 4px rgb(var(--metric-rgb) / 50%));
+}
+
+.bo15-overview .bo15-card h2 {
+  font-size: 16px;
+}
+
+.donut-card > div {
+  grid-template-columns: 100px minmax(0, 1fr);
+}
+
+.css-donut {
+  width: 92px;
+}
+
+.css-donut::after {
+  inset: 13px;
+}
+
+.css-donut b {
+  font-size: 22px;
+}
+
+.css-donut small {
+  font-size: 12px;
+}
+
+.donut-card li {
+  min-height: 27px;
+  grid-template-columns: 11px minmax(0, 1fr) 21px 44px;
+  font-size: 11px;
+}
+
+.donut-card li i {
+  width: 10px;
+  height: 10px;
+  box-shadow: 0 0 7px
+    color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent);
+}
+
+.bo15-overview .bo15-card > a {
+  font-size: 13px;
+}
+
+.top-card li {
+  height: 32px;
+  grid-template-columns: 18px minmax(0, 1fr) 20px;
+  font-size: 12px;
+}
+
+.top-card li i {
+  width: 17px;
+  height: 17px;
+  border-color: currentcolor;
+  font-size: 11px;
+  box-shadow: 0 0 5px
+    color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent);
+}
+
+.top-card li span {
+  padding-left: 14px;
+}
+
+.top-card li b {
+  justify-self: end;
+  transform: translateX(-12px);
+}
+
+/* Mesmo refinamento aplicado à terceira linha do dashboard. */
+.bo15-middle .bo15-card h2 {
+  font-size: 16px;
+}
+
+.chart-legend {
+  gap: 7px;
+  font-size: 11px;
+}
+
+.chart-legend i {
+  width: 6px;
+  height: 6px;
+}
+
+.evolution-chart > img {
+  filter: saturate(1.2)
+    drop-shadow(0 0 7px rgb(var(--sep-c-blue) / calc(34% * var(--sep-glow-alpha))));
+}
+
+.evolution:hover .evolution-chart > img {
+  filter: saturate(1.3)
+    drop-shadow(0 0 10px rgb(var(--sep-c-blue) / calc(48% * var(--sep-glow-alpha))));
+}
+
+.proposal > div {
+  grid-template-columns: 100px minmax(0, 1fr);
+  gap: 13px;
+}
+
+.proposal ul {
+  gap: 10px;
+  font-size: 11px;
+}
+
+.proposal li {
+  grid-template-columns: 8px minmax(0, 1fr) 20px 41px;
+  gap: 7px;
+}
+
+.proposal li i {
+  width: 7px;
+  height: 7px;
+}
+
+.proposal li span {
+  min-width: 0;
+  padding-left: 7px;
+  line-height: 1.15;
+}
+
+// Sem `translateX(-8px)`: o numero e o percentual eram puxados para cima do rotulo — "Aprovada2s".
+// Rotulo encolhe e quebra no espaco; numero e percentual alinham a direita, em algarismos tabulares.
+.proposal li b,
+.proposal li em {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.proposal > a,
+.ranking > a {
+  font-size: 13px;
+}
+
+.ranking > small {
+  font-size: 11px;
+}
+
+.ranking > div {
+  grid-template-columns: 21px minmax(80px, 1fr) minmax(80px, 108px) 20px;
+  gap: 7px;
+  font-size: 11px;
+}
+
+.ranking div i {
+  width: 17px;
+  height: 17px;
+  font-size: 11px;
+  box-shadow: 0 0 5px
+    color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent);
+}
+
+.ranking div em {
+  transform: translateX(-10px);
+}
+
+.ranking div b {
+  height: 6px;
+  box-shadow: 0 0 6px rgb(var(--sep-c-blue) / calc(16% * var(--sep-glow-alpha)));
+}
+
+.ranking div u {
+  box-shadow: 0 0 7px rgb(var(--sep-c-blue) / calc(38% * var(--sep-glow-alpha)));
+}
+
+.evolution-svg {
+  position: absolute;
+  inset: 35px 0 20px 25px;
+  width: calc(100% - 25px);
+  height: calc(100% - 55px);
+  overflow: visible;
+}
+
+.evolution-svg .chart-grid line {
+  stroke: rgb(var(--sep-c-muted) / 33%);
+  stroke-width: 0.7;
+  vector-effect: non-scaling-stroke;
+}
+
+.evolution-svg .blue-area {
+  fill: url("#bo15-blue-area");
+}
+
+.evolution-svg .green-area {
+  fill: url("#bo15-green-area");
+}
+
+.evolution-svg .blue-line,
+.evolution-svg .green-line {
+  fill: none;
+  stroke-width: 1.7;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.evolution-svg .blue-line {
+  stroke: var(--sep-accent);
+  filter: url("#bo15-blue-glow");
+}
+
+.evolution-svg .green-line {
+  stroke: var(--sep-success);
+  filter: url("#bo15-green-glow");
+}
+
+.evolution-svg .blue-points circle {
+  fill: var(--sep-accent);
+  filter: url("#bo15-blue-glow");
+}
+
+.evolution-svg .green-points circle {
+  fill: var(--sep-success);
+  filter: url("#bo15-green-glow");
+}
+
+.evolution:hover .evolution-svg .blue-line,
+.evolution:hover .evolution-svg .green-line {
+  stroke-width: 2.1;
+}
+
+.evolution:hover .evolution-svg .blue-area,
+.evolution:hover .evolution-svg .green-area {
+  filter: saturate(1.25) brightness(1.12);
+}
+
+.ranking > small {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 2px;
+  color: var(--sep-text-muted);
+}
+
+.ranking > div {
+  grid-template-columns: 22px minmax(95px, 1fr) minmax(95px, 118px) 20px;
+  gap: 9px;
+  min-height: 0;
+}
+
+.ranking div i {
+  justify-self: center;
+  width: 18px;
+  height: 18px;
+  color: var(--sep-on-tint);
+  background: var(--sep-purple);
+  box-shadow: 0 0 7px rgb(var(--sep-c-purple) / calc(38% * var(--sep-glow-alpha)));
+}
+
+.ranking div:nth-of-type(2) i {
+  background: var(--sep-purple);
+  box-shadow: 0 0 7px rgb(var(--sep-c-purple) / calc(38% * var(--sep-glow-alpha)));
+}
+
+.ranking div:nth-of-type(3) i {
+  background: var(--sep-surface-active);
+  color: var(--sep-text-strong);
+  box-shadow: 0 0 7px rgb(var(--sep-c-shadow) / 32%);
+}
+
+.ranking div:nth-of-type(4) i {
+  background: var(--sep-surface-active);
+  color: var(--sep-text-strong);
+  box-shadow: 0 0 7px rgb(var(--sep-c-shadow) / 32%);
+}
+
+.ranking div:nth-of-type(5) i {
+  background: var(--sep-accent);
+  box-shadow: 0 0 8px rgb(var(--sep-c-blue) / calc(42% * var(--sep-glow-alpha)));
+}
+
+.ranking div span {
+  padding-left: 3px;
+}
+
+.ranking div b {
+  width: 100%;
+  height: 6px;
+  overflow: hidden;
+  background: linear-gradient(90deg, var(--sep-surface-2), var(--sep-surface-hover));
+  box-shadow: inset 0 0 4px rgb(var(--sep-c-shadow) / 45%);
+}
+
+.ranking div u {
+  background: linear-gradient(
+    90deg,
+    var(--sep-accent) 0%,
+    var(--sep-accent) 55%,
+    var(--sep-accent) 100%
+  );
+  box-shadow:
+    0 0 6px rgb(var(--sep-c-blue) / calc(48% * var(--sep-glow-alpha))),
+    inset 0 0 3px rgb(var(--sep-c-cyan) / calc(28% * var(--sep-glow-alpha)));
+}
+
+.ranking div em {
+  justify-self: end;
+  transform: none;
+}
+
+.chart-y {
+  top: 35px;
+  bottom: 20px;
+  width: 22px;
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+}
+
+.chart-y b {
+  display: block;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.chart-dates {
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+}
+
+.chart-legend {
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+}
+
+.bo15-middle {
+  grid-template-columns: minmax(0, 1.72fr) minmax(0, 0.94fr) minmax(0, 1.06fr);
+}
+
+.ranking > div {
+  grid-template-columns: 22px minmax(76px, 1fr) minmax(68px, 96px) 18px;
+  gap: 7px;
+  padding-right: 25px;
+}
+
+.ranking > small {
+  padding-right: 25px;
+}
+
+.ranking div span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Mantém a base final e expande a última linha em direção ao topo. A primeira faixa e `auto`: o
+   cabeçalho pede 84px e a porcentagem lhe dava 64, então os cartões de métrica passavam por cima
+   da linha "Visão geral da operação e desempenho da plataforma". O que sobra continua repartido
+   entre as quatro faixas de conteúdo. */
+.bo15-content {
+  grid-template-rows: auto 13% 22.25% 22.25% minmax(0, 1fr);
+  gap: 1.1%;
+  padding-top: 4px;
+}
+
+.bo15-bottom .critical,
+.bo15-bottom .indicators {
+  height: 100%;
+}
+
+/* Refinamento interno da última fileira do Mockup 15. */
+.critical {
+  grid-template-rows: auto 29px repeat(3, 44px) 1fr;
+}
+
+.critical header,
+.critical > a:not(.all-critical) {
+  font-size: 11px;
+  line-height: 1.15;
+}
+
+.critical a i,
+.critical a b {
+  min-width: 58px;
+  padding: 2px 9px;
+  border-radius: 9px;
+  font-size: 11px;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.critical > .all-critical {
+  align-self: end;
+  padding-bottom: 5px;
+  font-size: 13px;
+}
+
+.critical a i.badge-cobranca {
+  border-color: var(--sep-warning) !important;
+  color: var(--sep-warning) !important;
+  box-shadow: 0 0 8px rgb(var(--sep-c-amber) / calc(24% * var(--sep-glow-alpha)));
+}
+
+.critical a i.badge-webhook {
+  border-color: var(--sep-purple) !important;
+  color: var(--sep-purple) !important;
+  box-shadow: 0 0 8px rgb(var(--sep-c-purple) / calc(24% * var(--sep-glow-alpha)));
+}
+
+.critical a i.badge-pix {
+  border-color: var(--sep-danger) !important;
+  color: var(--sep-danger) !important;
+  box-shadow: 0 0 8px rgb(var(--sep-c-red) / calc(24% * var(--sep-glow-alpha)));
+}
+
+.critical a b.badge-treatment {
+  border-color: var(--sep-warning) !important;
+  color: var(--sep-warning) !important;
+  box-shadow: 0 0 8px rgb(var(--sep-c-amber) / calc(24% * var(--sep-glow-alpha)));
+}
+
+.critical a b.badge-open {
+  border-color: var(--sep-accent) !important;
+  color: var(--sep-accent) !important;
+  box-shadow: 0 0 8px rgb(var(--sep-c-blue) / calc(28% * var(--sep-glow-alpha)));
+}
+
+.status-card li[data-status],
+.critical b[data-status] {
+  transition:
+    filter 160ms ease,
+    text-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.bo15-content:has([data-status="Aberto"]:hover) [data-status="Aberto"],
+.bo15-content:has([data-status="Em tratamento"]:hover) [data-status="Em tratamento"] {
+  z-index: 1;
+  filter: brightness(1.35) saturate(1.3)
+    drop-shadow(
+      0 0 7px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+    );
+  text-shadow: 0 0 8px
+    color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent);
+  transform: translateZ(0) scale(1.045);
+}
+
+.donut-card li[data-type-key],
+.critical i[data-type-key] {
+  transition:
+    filter 160ms ease,
+    text-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.bo15-content:has([data-type-key="webhook"]:hover) [data-type-key="webhook"],
+.bo15-content:has([data-type-key="cobranca"]:hover) [data-type-key="cobranca"],
+.bo15-content:has([data-type-key="pix"]:hover) [data-type-key="pix"] {
+  z-index: 1;
+  filter: brightness(1.35) saturate(1.3)
+    drop-shadow(
+      0 0 7px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+    );
+  text-shadow: 0 0 8px
+    color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent);
+  transform: translateZ(0) scale(1.045);
+}
+
+.indicators span small {
+  font-size: 12px;
+  line-height: 1.15;
+}
+
+.indicators span strong {
+  font-size: 19px;
+  line-height: 1.05;
+}
+
+.indicators em {
+  font-size: 13px;
+}
+
+.indicators > div {
+  grid-template-columns: 42px minmax(0, 1fr) 82px;
+  padding-block: 3px;
+}
+
+.indicators lucide-icon {
+  width: 24px;
+  height: 24px;
+  filter: drop-shadow(
+    0 0 5px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+  );
+}
+
+.indicators div > b {
+  left: 132px;
+  right: 4px;
+  bottom: 15px;
+  height: 5px;
+}
+
+.indicators > a {
+  font-size: 13px;
+}
+
+// Legenda dos donuts: o rotulo nao encolhia abaixo do proprio texto e invadia a coluna do numero —
+// "Resolvido1", "Ignorado1". Rotulo pode quebrar em duas linhas; numero e percentual alinham a
+// direita, em algarismos tabulares, com respiro proprio.
+.donut-card li > span {
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.donut-card li > b,
+.donut-card li > em {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+// O anel de 108px deixava ~29px para o rotulo num cartao de 272 — o texto quebrava letra a letra.
+// Com 84px o rotulo ganha ~94px: "Em tratamento" cabe inteiro e "Cobranca inadimplente" quebra no
+// espaco. O prefixo `.bo15-overview` da a especificidade que vence os degraus que redeclaram o anel,
+// sem repetir o seletor.
+.bo15-overview .donut-card > div {
+  grid-template-columns: 84px minmax(0, 1fr);
+}
+
+.bo15-overview .donut-card .css-donut {
+  width: 84px;
+}
+
+.bo15-overview .donut-card .css-donut::after {
+  inset: 12px;
+}
+
+// ============ JANELA BAIXA ============
+// As cinco faixas sao porcentagem da altura e encolhem juntas, mas as linhas internas destes cartoes
+// eram fixas: a 800px Ocorrencias criticas pedia 228px numa faixa de 166, Indicadores 202, Propostas
+// passava 15px e as metricas 5px. So espacamento cede aqui — linhas elasticas com piso, cabecalho e
+// link mais baixos, respiro superior menor. Tamanho de fonte nao muda. Em janela alta as linhas
+// `minmax(piso, 1fr)` crescem de volta ate preencher a faixa.
+@include resp.altura-baixa {
+  .bo15-overview article,
+  .bo15-bottom article {
+    padding-top: 10px;
+  }
+
+  .bo15-overview .bo15-card > a,
+  .bo15-middle .bo15-card > a,
+  .bo15-bottom .bo15-card > a {
+    height: 26px;
+    min-height: 26px;
+  }
+
+  .bo15-bottom .critical {
+    grid-template-rows: auto 22px repeat(3, minmax(28px, 1fr)) 26px;
+  }
+
+  .bo15-bottom .critical > .all-critical {
+    padding-bottom: 3px;
+  }
+
+  .bo15-bottom .indicators {
+    grid-template-rows: auto repeat(3, minmax(0, 1fr)) 26px;
+  }
+
+  .bo15-bottom .indicators > div {
+    min-height: 0;
+  }
+
+  .bo15-bottom .indicators div > b {
+    bottom: 3px;
+  }
+
+  .bo15-middle .proposal {
+    grid-template-rows: auto minmax(0, 1fr) 26px;
+  }
+
+  .bo15-middle .proposal ul {
+    gap: 6px;
+  }
+
+  // A sparkline pede 33px: com 30 ela recortava 3px ate em janela alta.
+  .bo15-metrics .bo15-metric {
+    grid-template-rows: minmax(0, 1fr) 33px;
+    padding-top: 8px;
+  }
+
+  // Ranking: a 1000px as linhas tem 17px e o avatar de 18 invadia o vizinho.
+  .bo15-middle .ranking div i {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+// Ranking abaixo de 920px: as cinco linhas caiam para ~11px. Piso de 16px por linha e a legenda
+// "Operador / Time" recolhida numa linha de altura zero — continua na grade, entao as posicoes nao
+// mudam de faixa.
+@include resp.altura-curta {
+  .bo15-middle .ranking {
+    grid-template-rows: auto 0 repeat(5, minmax(16px, 1fr)) 26px;
+  }
+
+  .bo15-middle .ranking > small {
+    height: 0;
+    overflow: hidden;
+    border-bottom: 0;
+  }
+}
+
+// Abaixo de 820px o miolo dos donuts tem ~77px: o anel de 84 perdia 7px pela base.
+@include resp.altura-muito-curta {
+  .bo15-overview .donut-card > div {
+    grid-template-columns: 76px minmax(0, 1fr);
+  }
+
+  .bo15-overview .donut-card .css-donut {
+    width: 76px;
+  }
+
+  .bo15-overview .donut-card .css-donut::after {
+    inset: 11px;
+  }
+}

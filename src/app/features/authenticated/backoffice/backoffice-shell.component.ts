@@ -33,6 +33,11 @@ export class BackofficeShellComponent {
       route: '/app/backoffice/fila',
     },
     {
+      label: 'Envios de correspondentes',
+      descricao: 'Validação dos documentos enviados pelos correspondentes.',
+      route: '/app/backoffice/correspondentes',
+    },
+    {
       label: 'Reprocessos',
       descricao: 'Reenvio de webhook e provider com step-up.',
       route: '/app/backoffice/reprocessos',

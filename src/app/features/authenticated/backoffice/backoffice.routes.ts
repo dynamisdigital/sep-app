@@ -8,7 +8,10 @@ export const BACKOFFICE_ROUTES: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./backoffice-shell.component').then((m) => m.BackofficeShellComponent),
+      import('./pages/backoffice-operational-dashboard-page.component').then(
+        (m) => m.BackofficeOperationalDashboardPageComponent,
+      ),
+    data: { breadcrumb: 'Dashboard operacional', immersive: true },
   },
   {
     path: 'dashboard',
@@ -16,24 +19,71 @@ export const BACKOFFICE_ROUTES: Routes = [
       import('./pages/backoffice-dashboard-page.component').then(
         (m) => m.BackofficeDashboardPageComponent,
       ),
-    data: { breadcrumb: 'Dashboard' },
+    data: { breadcrumb: 'Dashboard', immersive: true },
   },
   {
     path: 'fila',
     loadComponent: () =>
       import('./pages/fila-operacional-page.component').then((m) => m.FilaOperacionalPageComponent),
-    data: { breadcrumb: 'Fila operacional' },
+    data: { breadcrumb: 'Fila operacional', immersive: true },
   },
   {
     path: 'fila/:id',
     loadComponent: () =>
       import('./pages/item-fila-detail-page.component').then((m) => m.ItemFilaDetailPageComponent),
-    data: { breadcrumb: 'Item da fila' },
+    data: { breadcrumb: 'Item da fila', immersive: true },
+  },
+  // Gestao dos credores (investidores): fila de cadastros, detalhe e decisoes.
+  {
+    path: 'credores',
+    loadComponent: () =>
+      import('./pages/credores-page.component').then((m) => m.CredoresPageComponent),
+    data: { breadcrumb: 'Credores', immersive: true },
+  },
+  {
+    path: 'credores/:id',
+    loadComponent: () =>
+      import('./pages/credor-detail-page.component').then((m) => m.CredorDetailPageComponent),
+    data: { breadcrumb: 'Detalhe do credor', immersive: true },
+  },
+  // Tesouraria da conta escrow dos credores: formacao das operacoes, repasse das parcelas e saques.
+  {
+    path: 'tesouraria',
+    loadComponent: () =>
+      import('./pages/tesouraria-page.component').then((m) => m.TesourariaPageComponent),
+    data: { breadcrumb: 'Tesouraria', immersive: true },
+  },
+  {
+    path: 'correspondentes',
+    loadComponent: () =>
+      import('./pages/envios-correspondentes-page.component').then(
+        (m) => m.EnviosCorrespondentesPageComponent,
+      ),
+    data: { breadcrumb: 'Envios de correspondentes', immersive: true },
   },
   {
     path: 'reprocessos',
     loadComponent: () =>
       import('./pages/reprocessos-page.component').then((m) => m.ReprocessosPageComponent),
-    data: { breadcrumb: 'Reprocessos' },
+    data: { breadcrumb: 'Reprocessos', immersive: true },
+  },
+  // Disparo manual em tela dedicada (Mockup 19). Um componente atende os dois canais; `canal`
+  // define a aba ativa, o titulo, o formulario e a permissao exibida, e cada canal tem a sua
+  // URL para poder ser aberta direto e voltar do step-up no lugar certo.
+  {
+    path: 'reprocessos/provider',
+    loadComponent: () =>
+      import('./pages/reprocessar-provider-page.component').then(
+        (m) => m.ReprocessarProviderPageComponent,
+      ),
+    data: { breadcrumb: 'Provider', immersive: true, canal: 'provider' },
+  },
+  {
+    path: 'reprocessos/webhook',
+    loadComponent: () =>
+      import('./pages/reprocessar-provider-page.component').then(
+        (m) => m.ReprocessarProviderPageComponent,
+      ),
+    data: { breadcrumb: 'Webhook', immersive: true, canal: 'webhook' },
   },
 ];

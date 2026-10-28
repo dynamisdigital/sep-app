@@ -7,6 +7,8 @@ const prettier = require('eslint-config-prettier');
 const vitest = require('@vitest/eslint-plugin');
 
 module.exports = defineConfig([
+  // Paginas estaticas (apresentacoes e relatorios) nao sao templates Angular: nao passam pelo lint.
+  { ignores: ['docs/**', 'public/relatorio-seguranca/**'] },
   {
     files: ['**/*.ts'],
     extends: [

@@ -1,0 +1,15 @@
+<div class="cor-barras" role="img" [attr.aria-label]="descricao()">
+  @for (item of itens(); track item.rotulo) {
+    <div class="cor-barra">
+      <span class="cor-barra-valor">{{ item.destaque ?? formato()(item.valor) }}</span>
+      <div class="cor-barra-trilho">
+        <div
+          class="cor-barra-preenchimento"
+          [style.height]="altura(item.valor)"
+          [style.background]="cor(item.tom ?? 'ciano')"
+        ></div>
+      </div>
+      <span class="cor-barra-rotulo">{{ item.rotulo }}</span>
+    </div>
+  }
+</div>

@@ -1,0 +1,66 @@
+# Manifesto de Assets — Mockup_05
+
+Pasta pública sugerida: /image/sep_mockup_05_assets/
+
+- logos/logo_sep_header_completo.png | categoria: logos | margem: 8 | obs: Logo completo do header com símbolo SEP e texto institucional.
+- logos/logo_sep_simbolo_header.png | categoria: logos | margem: 10 | obs:
+- logos/logo_sep_wordmark_header.png | categoria: logos | margem: 8 | obs:
+- logos/logo_sep_texto_extenso_header.png | categoria: logos | margem: 8 | obs:
+- logos/logo_sep_footer_completo.png | categoria: logos | margem: 8 | obs:
+- logos/logo_sep_simbolo_footer.png | categoria: logos | margem: 10 | obs:
+- logos/logo_sep_wordmark_footer.png | categoria: logos | margem: 8 | obs:
+- icons/icon_sidebar_dashboard.png | categoria: icons | margem: 10 | obs:
+- icons/icon_sidebar_onboarding.png | categoria: icons | margem: 10 | obs:
+- icons/icon_sidebar_credito.png | categoria: icons | margem: 10 | obs:
+- icons/icon_sidebar_formalizacao.png | categoria: icons | margem: 10 | obs:
+- icons/icon_sidebar_cobranca.png | categoria: icons | margem: 10 | obs:
+- icons/icon_sidebar_backoffice.png | categoria: icons | margem: 10 | obs:
+- icons/icon_sidebar_pix.png | categoria: icons | margem: 10 | obs:
+- icons/icon_sidebar_meu_perfil.png | categoria: icons | margem: 10 | obs:
+- icons/icon_avatar_perfil_b.png | categoria: icons | margem: 8 | obs:
+- icons/icon_topbar_ambiente_regulado.png | categoria: icons | margem: 10 | obs:
+- icons/icon_topbar_horario_sistema.png | categoria: icons | margem: 10 | obs:
+- icons/icon_topbar_search.png | categoria: icons | margem: 12 | obs:
+- icons/icon_topbar_bell_notification.png | categoria: icons | margem: 12 | obs:
+- icons/icon_topbar_help.png | categoria: icons | margem: 10 | obs:
+- icons/icon_topbar_avatar_d.png | categoria: icons | margem: 8 | obs:
+- icons/icon_topbar_theme_sun.png | categoria: icons | margem: 10 | obs:
+- icons/icon_page_title_shield.png | categoria: icons | margem: 10 | obs:
+- icons/icon_alert_lock.png | categoria: icons | margem: 10 | obs:
+- icons/icon_tips_lightbulb.png | categoria: icons | margem: 10 | obs:
+- icons/icon_field_lock_current.png | categoria: icons | margem: 10 | obs:
+- icons/icon_field_lock_new.png | categoria: icons | margem: 10 | obs:
+- icons/icon_field_lock_confirm.png | categoria: icons | margem: 10 | obs:
+- icons/icon_field_eye.png | categoria: icons | margem: 10 | obs:
+- icons/icon_security_note_shield.png | categoria: icons | margem: 10 | obs:
+- icons/icon_button_save_shield.png | categoria: icons | margem: 10 | obs:
+- icons/icon_req_min_12.png | categoria: icons | margem: 10 | obs:
+- icons/icon_req_letters_aa.png | categoria: icons | margem: 10 | obs:
+- icons/icon_req_numbers_123.png | categoria: icons | margem: 10 | obs:
+- icons/icon_req_symbols.png | categoria: icons | margem: 10 | obs:
+- icons/icon_req_no_personal_data.png | categoria: icons | margem: 10 | obs:
+- icons/icon_req_not_common_password.png | categoria: icons | margem: 10 | obs:
+- icons/icon_req_check_ok.png | categoria: icons | margem: 10 | obs:
+- icons/icon_last_password_clock.png | categoria: icons | margem: 10 | obs:
+- icons/icon_footer_ambiente_regulado.png | categoria: icons | margem: 10 | obs:
+- icons/icon_footer_segregacao_patrimonial.png | categoria: icons | margem: 10 | obs:
+- icons/icon_footer_seguranca.png | categoria: icons | margem: 10 | obs:
+- icons/icon_footer_rastreabilidade.png | categoria: icons | margem: 10 | obs:
+- icons/icon_priority_dot.png | categoria: icons | margem: 10 | obs:
+- visuals/visual_password_strength_ring_96.png | categoria: visuals | margem: 12 | obs: Anel visual de força da senha com percentual 96%.
+- visuals/visual_lock_hud_password_strength.png | categoria: visuals | margem: 16 | obs: HUD de cadeado com remoção de texto sobreposto do card.
+- visuals/visual_last_password_calendar_hud.png | categoria: visuals | margem: 14 | obs:
+- visuals/visual_security_priority_shield.png | categoria: visuals | margem: 12 | obs:
+- visuals/visual_background_circuitos_main.png | categoria: visuals | margem: 0 | obs: Circuitos decorativos do fundo, sem captura de textos do card.
+- visuals/visual_sidebar_profile_card_avatar.png | categoria: visuals | margem: None | obs: Referência visual do card de perfil lateral.
+- ui-groups/ui_topbar_authenticated.png | categoria: ui-groups | margem: None | obs: Recorte de referência visual; reconstruir em HTML/SCSS no frontend.
+- ui-groups/ui_sidebar_full.png | categoria: ui-groups | margem: None | obs: Recorte de referência visual; reconstruir em HTML/SCSS no frontend.
+- ui-groups/ui_change_password_form_card.png | categoria: ui-groups | margem: None | obs: Recorte de referência visual; reconstruir em HTML/SCSS no frontend.
+- ui-groups/ui_password_security_tip_banner.png | categoria: ui-groups | margem: None | obs: Recorte de referência visual; reconstruir em HTML/SCSS no frontend.
+- ui-groups/ui_password_warning_note_banner.png | categoria: ui-groups | margem: None | obs: Recorte de referência visual; reconstruir em HTML/SCSS no frontend.
+- ui-groups/ui_password_strength_card.png | categoria: ui-groups | margem: None | obs: Recorte de referência visual; reconstruir em HTML/SCSS no frontend.
+- ui-groups/ui_password_requirements_card.png | categoria: ui-groups | margem: None | obs: Recorte de referência visual; reconstruir em HTML/SCSS no frontend.
+- ui-groups/ui_last_password_change_card.png | categoria: ui-groups | margem: None | obs: Recorte de referência visual; reconstruir em HTML/SCSS no frontend.
+- ui-groups/ui_footer_regulatory_status.png | categoria: ui-groups | margem: None | obs: Recorte de referência visual; reconstruir em HTML/SCSS no frontend.
+- ui-groups/ui_security_priority_footer_card.png | categoria: ui-groups | margem: None | obs: Recorte de referência visual; reconstruir em HTML/SCSS no frontend.
+- ui-groups/ui_main_content_password_page.png | categoria: ui-groups | margem: None | obs: Recorte de referência visual; reconstruir em HTML/SCSS no frontend.

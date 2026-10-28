@@ -1,0 +1,26 @@
+// Reaproveita o tema e os blocos da conta escrow (mesma linguagem visual).
+@use "../../credora/escrow/escrow-telas";
+
+.pxe-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pxe-filtro {
+  height: 34px;
+  padding: 0 14px;
+  color: var(--muted-forte);
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid rgb(var(--sep-c-blue) / 30%);
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+
+  &[aria-pressed="true"] {
+    color: var(--sep-text);
+    border-color: var(--blue);
+    background: rgb(var(--sep-c-blue) / 14%);
+  }
+}

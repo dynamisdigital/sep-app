@@ -1,0 +1,1315 @@
+@use "../../../../../styles/sep-responsivo" as resp;
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+// `.op-content` pertence ao shell operacional (ViewEncapsulation.None): sem ::ng-deep a regra
+// nao casa e a tela perde ~28px de cada lado. Mesmo padrao dos Mockups 15 a 18.
+// stylelint-disable-next-line selector-pseudo-element-no-unknown -- ::ng-deep e do Angular
+:host ::ng-deep .op-content:has(> .bo19-page) {
+  /* Container do contrato responsivo: e esta area que recebe o espaco restante depois da barra
+       lateral, entao e ela que a pagina mede. Declarar no `:host` do componente nao serve — o host
+       envolve o shell inteiro e tem a largura da janela. */
+  container: sep-conteudo / inline-size;
+  display: block;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.bo19-page {
+  --green: var(--sep-success);
+  --orange: var(--sep-warning);
+  --red: var(--sep-danger);
+  --blue: var(--sep-accent);
+  --cyan: var(--sep-accent);
+  --card: var(--sep-surface-sunken);
+  --stroke: var(--sep-surface-active);
+  --muted: var(--sep-text-muted);
+  --btn-fundo: linear-gradient(
+    180deg,
+    rgb(var(--sep-c-surf3) / 62%) 70%,
+    rgb(var(--sep-c-blue) / 58%) 30%
+  );
+  --btn-borda: rgb(var(--sep-c-blue) / 52%);
+  --btn-relevo:
+    inset 0 1px 0 rgb(var(--sep-c-strong) / 14%), 0 2px 8px rgb(var(--sep-c-shadow) / 26%);
+  --btn-fundo-primario: linear-gradient(
+    180deg,
+    rgb(var(--sep-c-blue) / 82%) 70%,
+    rgb(var(--sep-c-blue) / 74%) 30%
+  );
+  --btn-borda-primaria: rgb(var(--sep-c-blue) / 72%);
+
+  position: relative;
+  display: grid;
+
+  // A faixa explicita evita que a linha implicita `auto` estique com o conteudo e jogue os
+  // cartoes para debaixo do rodape do shell.
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 403px;
+  gap: 16px;
+  height: 100%;
+  min-height: 0;
+  padding: 18px 18px 16px 24px;
+  color: var(--sep-text-strong);
+  font-family: Inter, "Segoe UI", sans-serif;
+}
+
+.bo19-main {
+  display: grid;
+
+  // As faixas seguem as medidas do mockup (cabecalho 96, abas 46, formulario 448 e historico
+  // 255). Os cartoes dimensionam pelo conteudo, e nao por `1fr`: esticar o historico deixava
+  // um vazio grande abaixo das cinco linhas.
+  grid-template-rows: 94px 46px max-content max-content;
+  gap: 14px;
+  align-content: start;
+  min-width: 0;
+  min-height: 0;
+}
+
+// Os quatro cartoes precisam caber na altura util sem rolagem, como no mockup; por isso as
+// alturas internas abaixo sao enxutas. A rolagem fica como rede de seguranca em telas baixas.
+.bo19-side {
+  display: grid;
+  grid-template-rows: repeat(4, max-content);
+  gap: 12px;
+  align-content: start;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+/* ---------- Cabecalho ---------- */
+
+.bo19-heading p {
+  margin: 0 0 10px;
+  color: var(--sep-text-muted);
+  font-size: 12.5px;
+}
+
+.bo19-heading p strong {
+  color: var(--sep-text);
+}
+
+.bo19-heading p a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 140ms ease;
+}
+
+.bo19-heading p a:hover,
+.bo19-heading p a:focus-visible {
+  color: var(--sep-accent);
+  text-decoration: underline;
+}
+
+.bo19-heading h1 {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0 0 5px;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.2px;
+}
+
+// Ao contrario dos pacotes anteriores, os PNGs do Mockup 19 ja vem recortados no tamanho de
+// uso: aqui vale o tamanho nominal do asset, sem compensacao de margem negativa.
+.bo19-heading h1 lucide-icon {
+  width: 34px;
+  height: 34px;
+}
+
+.bo19-heading span {
+  color: var(--muted);
+  font-size: 13.5px;
+}
+
+/* ---------- Abas ---------- */
+
+.bo19-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 208px));
+  gap: 0;
+  align-self: start;
+}
+
+.bo19-tabs button {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  height: 46px;
+  padding: 0 18px;
+  border: 1px solid var(--btn-borda);
+  background: var(--btn-fundo);
+  color: var(--sep-text-secondary);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--btn-relevo);
+  transition:
+    filter 150ms ease,
+    color 150ms ease;
+}
+
+.bo19-tabs button:first-child {
+  border-radius: 11px 0 0 11px;
+}
+
+.bo19-tabs button:last-child {
+  border-radius: 0 11px 11px 0;
+}
+
+.bo19-tabs button.ativa {
+  z-index: 1;
+  border-color: var(--btn-borda-primaria);
+  border-radius: 11px;
+  background: var(--btn-fundo-primario);
+  color: var(--sep-text-strong);
+  font-weight: 600;
+  box-shadow:
+    0 0 18px rgb(var(--sep-c-blue) / calc(34% * var(--sep-glow-alpha))),
+    inset 0 1px 0 rgb(var(--sep-c-strong) / 22%);
+}
+
+.bo19-tabs button:hover:not(.ativa) {
+  color: var(--sep-text);
+  filter: brightness(1.2);
+}
+
+.bo19-tabs button:focus-visible {
+  outline: 2px solid var(--sep-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Cartoes ---------- */
+
+.bo19-card {
+  min-height: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  background: var(--card);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.bo19-card h2 {
+  margin: 0 0 8px;
+  font-size: 15.5px;
+  font-weight: 600;
+}
+
+/* ---------- Formulario ---------- */
+
+.bo19-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px 18px;
+  align-items: start;
+}
+
+.bo19-wide {
+  grid-column: 1 / -1;
+}
+
+.bo19-field {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.bo19-field label {
+  color: var(--sep-text-secondary);
+  font-size: 13px;
+}
+
+.bo19-field label b {
+  color: var(--red);
+  font-weight: 600;
+}
+
+.bo19-field input,
+.bo19-field select {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 9px;
+  background: var(--sep-surface);
+  color: var(--sep-text);
+  font-family: inherit;
+  font-size: 13.5px;
+}
+
+.bo19-field select {
+  appearance: none;
+  padding-right: 32px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--sep-text-secondary) 50%),
+    linear-gradient(135deg, var(--sep-text-secondary) 50%, transparent 50%);
+  background-repeat: no-repeat;
+  background-position:
+    right 17px center,
+    right 12px center;
+  background-size: 6px 6px;
+}
+
+.bo19-field input::placeholder {
+  color: var(--sep-text-muted);
+}
+
+.bo19-field input:focus-visible,
+.bo19-field select:focus-visible {
+  border-color: var(--sep-accent);
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(var(--sep-c-blue) / calc(26% * var(--sep-glow-alpha)));
+}
+
+.bo19-field small {
+  color: var(--sep-text-muted);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+/* ---------- Lista de sugestoes ---------- */
+
+// O `datalist` nativo e desenhado pelo navegador com o tema do sistema e nao aceita CSS; esta
+// lista propria segue a superficie escura, as bordas e os corpos reduzidos do restante da tela.
+.bo19-combo {
+  position: relative;
+  min-width: 0;
+}
+
+.bo19-combo > lucide-icon {
+  position: absolute;
+  top: 50%;
+  right: 11px;
+  color: var(--sep-text-muted);
+  pointer-events: none;
+  transform: translateY(-50%);
+  transition: transform 160ms ease;
+}
+
+.bo19-combo:has(input[aria-expanded="true"]) > lucide-icon {
+  color: var(--sep-accent);
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.bo19-combo input {
+  padding-right: 34px;
+}
+
+.bo19-combo-lista {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  left: 0;
+  z-index: 12;
+  max-height: 188px;
+  margin: 0;
+  padding: 5px;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid rgb(var(--sep-c-blue) / 55%);
+  border-radius: 10px;
+  background: var(--sep-surface-2);
+  box-shadow:
+    0 14px 30px rgb(var(--sep-c-shadow) / 58%),
+    0 0 18px rgb(var(--sep-c-blue) / calc(16% * var(--sep-glow-alpha)));
+  scrollbar-width: thin;
+  animation: bo19-abrir 140ms ease;
+}
+
+@keyframes bo19-abrir {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.bo19-combo-titulo {
+  padding: 5px 9px 6px;
+  color: var(--sep-text-muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.bo19-combo-lista li button {
+  display: block;
+  width: 100%;
+  padding: 7px 9px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: var(--sep-text);
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 11.5px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.bo19-combo-lista li button:hover,
+.bo19-combo-lista li button.ativa {
+  background: linear-gradient(
+    180deg,
+    rgb(var(--sep-c-surf3) / 90%) 70%,
+    rgb(var(--sep-c-blue) / 82%) 30%
+  );
+  color: var(--sep-text);
+}
+
+// Cartao de ajuda ao lado do primeiro campo, na mesma altura do rotulo + campo.
+.bo19-hint {
+  align-self: stretch;
+  padding: 11px 14px;
+  border: 1px solid rgb(var(--sep-c-blue) / 38%);
+  border-radius: 10px;
+  background: rgb(var(--sep-c-hover) / 42%);
+}
+
+.bo19-hint h3 {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  margin: 0 0 5px;
+  color: var(--sep-accent);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.bo19-hint p {
+  margin: 0;
+  color: var(--sep-text-secondary);
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.bo19-warning {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  margin-top: 0;
+  padding: 10px 14px;
+  border: 1px solid rgb(var(--sep-c-blue) / 30%);
+  border-radius: 10px;
+  background: rgb(var(--sep-c-surf2) / 60%);
+}
+
+.bo19-warning > lucide-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgb(var(--sep-c-blue) / 55%);
+  border-radius: 50%;
+  color: var(--sep-accent);
+}
+
+.bo19-warning p {
+  margin: 0;
+  color: var(--sep-text-secondary);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.bo19-submit {
+  display: inline-flex;
+  gap: 9px;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--btn-borda-primaria);
+  border-radius: 10px;
+  background: var(--btn-fundo-primario);
+  color: var(--sep-text-strong);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow:
+    0 0 18px rgb(var(--sep-c-blue) / calc(34% * var(--sep-glow-alpha))),
+    inset 0 1px 0 rgb(var(--sep-c-strong) / 22%);
+  transition:
+    filter 150ms ease,
+    transform 150ms ease;
+}
+
+.bo19-submit:hover:not(:disabled) {
+  filter: brightness(1.14);
+  transform: translateY(-1px);
+}
+
+.bo19-submit:disabled {
+  border-color: rgb(var(--sep-c-blue) / 30%);
+  background: rgb(var(--sep-c-surf3) / 60%);
+  color: var(--sep-text-muted);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.bo19-nota {
+  margin: 12px 0 0;
+  padding: 9px 12px;
+  border: 1px solid rgb(var(--sep-c-amber) / 40%);
+  border-radius: 9px;
+  background: rgb(var(--sep-c-amber) / 10%);
+  color: var(--sep-danger);
+  font-size: 12.5px;
+}
+
+.bo19-erro {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border: 1px solid rgb(var(--sep-c-red) / 45%);
+  border-radius: 9px;
+  background: rgb(var(--sep-c-red) / 12%);
+  color: var(--sep-danger);
+  font-size: 12.5px;
+}
+
+.bo19-erro button,
+.bo19-resultado header button {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.bo19-resultado {
+  margin-top: 14px;
+  padding-top: 13px;
+  border-top: 1px solid var(--sep-surface-hover);
+}
+
+.bo19-resultado header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.bo19-resultado h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ---------- Historico ---------- */
+
+.bo19-history {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  min-height: 0;
+  padding-bottom: 8px;
+}
+
+.bo19-history header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.bo19-history h2 {
+  margin: 0;
+}
+
+.bo19-history header a {
+  color: var(--sep-accent);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.bo19-history header a:hover {
+  color: var(--sep-accent);
+  text-decoration: underline;
+}
+
+// A soma dos minimos mais os respiros precisa caber na largura util do cartao; com os valores
+// anteriores a tabela empurrava a coluna principal e o conteudo era cortado a direita.
+.bo19-table-head,
+.bo19-row {
+  display: grid;
+  grid-template-columns:
+    minmax(112px, 118fr) minmax(98px, 104fr) minmax(88px, 91fr) minmax(54px, 58fr)
+    minmax(124px, 137fr) minmax(84px, 88fr) minmax(32px, 34fr) 30px;
+  gap: 6px;
+  align-items: center;
+}
+
+.bo19-table-head {
+  padding: 0 2px 6px;
+  border-bottom: 1px solid var(--sep-surface-hover);
+  color: var(--sep-text-secondary);
+  font-size: 12.5px;
+}
+
+.bo19-row {
+  padding: 4px 2px;
+  border-bottom: 1px solid var(--sep-surface-3);
+  color: var(--sep-text);
+  font-size: 12.5px;
+  line-height: 1.2;
+  transition:
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.bo19-row:last-child {
+  border-bottom: 0;
+}
+
+// A linha inteira reage ao mouse: fundo, fio lateral, avatar e atalho.
+.bo19-row:hover {
+  background: var(--sep-surface-2);
+  box-shadow: inset 3px 0 0 rgb(var(--sep-c-blue) / calc(65% * var(--sep-glow-alpha)));
+}
+
+.bo19-row > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// A celula do selo nao recorta: o realce do hover amplia o selo e desenha o halo em volta, e
+// com `overflow: hidden` das demais celulas ele era cortado nas laterais. O seletor precisa
+// repetir `.bo19-row >` para superar a especificidade de `.bo19-row > span`.
+.bo19-row > .bo19-celula-selo {
+  overflow: visible;
+}
+
+.bo19-quando {
+  color: var(--sep-text-secondary);
+}
+
+// Menor que o resto da linha porque "CONT-8d991a11" e a entidade mais longa do conjunto e so
+// cabe inteira neste corpo na largura disponivel da coluna.
+.bo19-mono {
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 11.5px;
+}
+
+.bo19-user {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.bo19-user i {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: var(--sep-on-tint);
+  font-size: 10.5px;
+  font-style: normal;
+  font-weight: 700;
+  transition: box-shadow 160ms ease;
+}
+
+.bo19-selo {
+  display: inline-block;
+  transition: filter 160ms ease;
+  padding: 3px 8px;
+  border: 1px solid currentcolor;
+  border-radius: 7px;
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.bo19-selo[data-tone="green"] {
+  border-color: rgb(var(--sep-c-green) / 55%);
+  background: rgb(var(--sep-c-green) / 12%);
+  color: var(--green);
+}
+
+.bo19-selo[data-tone="orange"] {
+  border-color: rgb(var(--sep-c-amber) / 55%);
+  background: rgb(var(--sep-c-amber) / 14%);
+  color: var(--orange);
+}
+
+.bo19-selo[data-tone="red"] {
+  border-color: rgb(var(--sep-c-red) / 55%);
+  background: rgb(var(--sep-c-red) / 14%);
+  color: var(--red);
+}
+
+.bo19-tempo {
+  color: var(--sep-text-secondary);
+}
+
+.bo19-ver {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 23px;
+  border: 1px solid var(--btn-borda);
+  border-radius: 8px;
+  background: var(--btn-fundo);
+  color: var(--sep-accent);
+  box-shadow: var(--btn-relevo);
+  transition:
+    filter 140ms ease,
+    border-color 140ms ease;
+}
+
+.bo19-ver:hover {
+  border-color: var(--sep-accent);
+  filter: brightness(1.3);
+}
+
+// As linhas ficam em um contentor proprio: soltas no grid do cartao, a auto-colocacao punha
+// duas delas na mesma faixa e elas se sobrepunham.
+.bo19-rows {
+  display: block;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.bo19-vazio {
+  margin: 0;
+  padding: 22px 0;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ---------- Reprocessamento manual ---------- */
+
+.bo19-manual {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  border-color: rgb(var(--sep-c-blue) / 55%);
+  background: linear-gradient(
+    135deg,
+    rgb(var(--sep-c-hover) / 82%) 0%,
+    var(--sep-surface-sunken) 72%
+  );
+  box-shadow: 0 0 22px rgb(var(--sep-c-blue) / calc(14% * var(--sep-glow-alpha)));
+}
+
+// HUD do proprio pacote (88px), no lugar do circulo que eu desenhava em CSS.
+.bo19-manual > sep-arte {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+
+  // O aviso mais importante da tela respira devagar.
+  animation: bo19-halo 4.2s ease-in-out infinite;
+}
+
+.bo19-manual h2 {
+  margin: 0 0 5px;
+  font-size: 15.5px;
+}
+
+.bo19-manual p {
+  margin: 0;
+  color: var(--sep-text-secondary);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/* ---------- Seguranca e conformidade ---------- */
+
+.bo19-security header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.bo19-security h2 {
+  margin: 0;
+}
+
+.bo19-security header button {
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--btn-borda);
+  border-radius: 8px;
+  background: var(--btn-fundo);
+  color: var(--sep-accent);
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: var(--btn-relevo);
+}
+
+.bo19-security header button:hover {
+  border-color: var(--sep-accent);
+  filter: brightness(1.2);
+}
+
+.bo19-security dl {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.bo19-security dl div {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--sep-surface-3);
+}
+
+.bo19-security dl div:last-child {
+  border-bottom: 0;
+}
+
+.bo19-security dt {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--sep-text-secondary);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bo19-security dt lucide-icon {
+  flex-shrink: 0;
+  color: var(--sep-text-muted);
+}
+
+// O valor nunca encolhe: quem cede espaco e o rotulo, senao "REPROCESSAR_PROVIDER" perde a
+// ultima letra.
+.bo19-security dd {
+  display: flex;
+  flex-shrink: 0;
+  gap: 7px;
+  align-items: center;
+  margin: 0;
+  color: var(--sep-text);
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.bo19-security dd[data-tone="green"] {
+  color: var(--green);
+}
+
+.bo19-security dd[data-tone="cyan"] {
+  color: var(--cyan);
+}
+
+.bo19-security dd lucide-icon[data-ok] {
+  color: var(--green);
+  transition:
+    filter 180ms ease,
+    transform 180ms ease;
+}
+
+.bo19-security > footer {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgb(var(--sep-c-green) / 32%);
+  border-radius: 10px;
+  background: rgb(var(--sep-c-green) / 7%);
+}
+
+// Escudo do proprio pacote (68px), no tamanho do mockup.
+.bo19-security > footer > sep-arte {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.bo19-security > footer strong {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+// O UUID da sessao ocupa a linha inteira: ao lado do rotulo ele nao cabia na largura do
+// cartao e era cortado no meio.
+.bo19-security > footer p {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  margin: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 10.5px;
+}
+
+// O UUID quebra em duas linhas em vez de ser cortado: a largura do cartao nao comporta o
+// rotulo e as 36 casas em uma linha so.
+.bo19-security > footer p span {
+  overflow-wrap: anywhere;
+}
+
+.bo19-security > footer p button {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: var(--sep-text-muted);
+  cursor: pointer;
+}
+
+.bo19-security > footer p button:hover {
+  color: var(--green);
+}
+
+/* ---------- Risco operacional ---------- */
+
+.bo19-risk-body {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+
+// Medidor em anel: `--pct` define a fatia colorida e o restante fica na trilha escura.
+.bo19-gauge {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+
+  // Medidor de 300 graus com a abertura centrada embaixo, como no mockup. As paradas sao em
+  // graus, e nao em porcentagem: `--pct` chega como numero puro e `calc(var(--pct) * 3deg)`
+  // converte a fracao do arco. Antes o valor vinha com `%` e `calc(62% * 1%)` e invalido, o
+  // que descartava o gradiente inteiro — o anel simplesmente nao era desenhado.
+  background: conic-gradient(
+    from 210deg,
+    var(--gauge) 0deg calc(var(--pct) * 3deg),
+    rgb(var(--sep-c-amber) / 22%) calc(var(--pct) * 3deg) 300deg,
+    transparent 300deg 360deg
+  );
+  filter: drop-shadow(0 0 14px rgb(var(--sep-c-amber) / calc(42% * var(--sep-glow-alpha))));
+
+  // Pulso lento: sinaliza que o indicador e vivo, sem competir com a leitura.
+  animation: bo19-pulso 3.6s ease-in-out infinite;
+  transition: transform 220ms ease;
+}
+
+.bo19-gauge[data-tone="green"] {
+  --gauge: var(--green);
+}
+
+.bo19-gauge[data-tone="orange"] {
+  --gauge: var(--orange);
+}
+
+.bo19-gauge[data-tone="red"] {
+  --gauge: var(--red);
+}
+
+.bo19-gauge::after {
+  position: absolute;
+  inset: 13%;
+  border-radius: 50%;
+  background: var(--sep-surface-sunken);
+  content: "";
+}
+
+// Descido alguns pixels: centralizado no circulo, o topo do rotulo encostava no anel.
+.bo19-gauge span {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 3px;
+  justify-items: center;
+  margin-top: 10px;
+}
+
+.bo19-gauge strong {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.bo19-gauge lucide-icon {
+  color: var(--gauge);
+}
+
+.bo19-risk-body > div:not(.bo19-gauge) strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.bo19-risk-body > div:not(.bo19-gauge) strong[data-tone="orange"] {
+  color: var(--orange);
+}
+
+.bo19-risk-body > div:not(.bo19-gauge) strong[data-tone="red"] {
+  color: var(--red);
+}
+
+.bo19-risk-body > div:not(.bo19-gauge) strong[data-tone="green"] {
+  color: var(--green);
+}
+
+.bo19-risk-body p {
+  margin: 0;
+  color: var(--sep-text-secondary);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.bo19-risk > button,
+.bo19-support > button {
+  width: 100%;
+  height: 38px;
+  margin-top: 8px;
+  padding: 0 14px;
+  border: 1px solid var(--btn-borda);
+  border-radius: 10px;
+  background: var(--btn-fundo);
+  color: var(--sep-accent);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--btn-relevo);
+  transition:
+    filter 150ms ease,
+    border-color 150ms ease;
+}
+
+.bo19-risk > button:hover,
+.bo19-support > button:hover {
+  border-color: var(--sep-accent);
+  filter: brightness(1.2);
+}
+
+/* ---------- Suporte tecnico ---------- */
+
+.bo19-support {
+  align-content: start;
+}
+
+.bo19-support-body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+}
+
+.bo19-support-icone {
+  width: 38px;
+  height: 38px;
+  color: var(--sep-text-secondary);
+}
+
+// HUD do fone (136px no pacote) que o mockup traz a direita do cartao e que faltava aqui.
+.bo19-support-hud {
+  width: 62px;
+  height: 62px;
+  object-fit: contain;
+}
+
+.bo19-support-body strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.bo19-support-body p {
+  margin: 0;
+  color: var(--sep-text-secondary);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/* ---------- Dialogos ---------- */
+
+.bo19-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.bo19-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: rgb(var(--sep-c-canvas) / 72%);
+  cursor: pointer;
+}
+
+.bo19-dialog {
+  position: relative;
+  width: min(620px, 100%);
+  max-height: 100%;
+  padding: 18px 22px 20px;
+  overflow-y: auto;
+  border: 1px solid var(--sep-accent);
+  border-radius: 13px;
+  background: var(--sep-surface);
+  box-shadow: 0 22px 54px rgb(var(--sep-c-shadow) / 62%);
+  scrollbar-width: thin;
+}
+
+.bo19-dialog header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.bo19-dialog h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.bo19-dialog header button {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--btn-borda);
+  border-radius: 7px;
+  background: var(--btn-fundo);
+  color: var(--sep-text-secondary);
+  cursor: pointer;
+  box-shadow: var(--btn-relevo);
+}
+
+.bo19-dialog-sub {
+  margin: 8px 0 14px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.bo19-regras {
+  display: grid;
+  gap: 11px;
+  margin: 14px 0 0;
+  padding: 0 0 0 18px;
+}
+
+.bo19-regras li {
+  color: var(--sep-text-secondary);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.bo19-regras strong {
+  color: var(--sep-text);
+}
+
+.bo19-suporte {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 18px;
+  margin: 0;
+}
+
+.bo19-suporte dt {
+  margin-bottom: 3px;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.bo19-suporte dd {
+  margin: 0;
+  overflow: hidden;
+  color: var(--sep-text);
+  font-size: 13px;
+  text-overflow: ellipsis;
+}
+
+.bo19-dialog footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.bo19-primary,
+.bo19-secondary {
+  display: inline-grid;
+  place-items: center;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: var(--btn-relevo);
+  transition: filter 150ms ease;
+}
+
+.bo19-primary {
+  border: 1px solid var(--btn-borda-primaria);
+  background: var(--btn-fundo-primario);
+  color: var(--sep-text-strong);
+}
+
+.bo19-secondary {
+  border: 1px solid var(--btn-borda);
+  background: var(--btn-fundo);
+  color: var(--sep-text);
+}
+
+.bo19-primary:hover,
+.bo19-secondary:hover {
+  filter: brightness(1.18);
+}
+
+/* ---------- Efeitos ---------- */
+
+// Realce cruzado: passar o mouse sobre um selo de resultado acende todos os selos daquele
+// resultado, como nos Mockups 15, 16 e 18.
+.bo19-page:has(.bo19-selo[data-tone="green"]:hover) .bo19-selo[data-tone="green"],
+.bo19-page:has(.bo19-selo[data-tone="orange"]:hover) .bo19-selo[data-tone="orange"],
+.bo19-page:has(.bo19-selo[data-tone="red"]:hover) .bo19-selo[data-tone="red"] {
+  position: relative;
+  z-index: 1;
+
+  // Sem `scale`: a coluna Resultado e estreita e qualquer ampliacao fazia o selo invadir as
+  // celulas vizinhas. O brilho e o halo sao pintura e nao deslocam a caixa.
+  filter: brightness(1.4) saturate(1.35)
+    drop-shadow(
+      0 0 8px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+    );
+  text-shadow: 0 0 9px
+    color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent);
+}
+
+.bo19-row:hover .bo19-user i {
+  box-shadow: 0 0 10px rgb(var(--sep-c-blue) / calc(45% * var(--sep-glow-alpha)));
+}
+
+.bo19-row:hover .bo19-ver {
+  border-color: var(--sep-accent);
+  color: var(--sep-accent);
+}
+
+.bo19-form-card:hover,
+.bo19-history:hover,
+.bo19-security:hover,
+.bo19-risk:hover,
+.bo19-support:hover {
+  border-color: rgb(var(--sep-c-blue) / 62%);
+  box-shadow: 0 0 22px rgb(var(--sep-c-blue) / calc(12% * var(--sep-glow-alpha)));
+}
+
+@keyframes bo19-pulso {
+  50% {
+    filter: drop-shadow(0 0 18px rgb(var(--sep-c-amber) / calc(34% * var(--sep-glow-alpha))));
+  }
+}
+
+.bo19-risk:hover .bo19-gauge {
+  transform: scale(1.03);
+}
+
+.bo19-security:hover dd lucide-icon[data-ok] {
+  filter: drop-shadow(
+    0 0 6px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+  );
+  transform: scale(1.12);
+}
+
+@keyframes bo19-halo {
+  50% {
+    filter: drop-shadow(0 0 14px rgb(var(--sep-c-blue) / calc(55% * var(--sep-glow-alpha))));
+  }
+}
+
+// Quem prefere menos movimento nao recebe nenhuma animacao continua.
+@media (prefers-reduced-motion: reduce) {
+  .bo19-gauge,
+  .bo19-manual > lucide-icon,
+  .bo19-combo-lista {
+    animation: none;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+// ============ JANELA MAXIMIZADA ============
+// Acima de 1440 as medidas homologadas viram piso e o layout acompanha o espaco. Nada aqui vale de
+// 1440 para baixo: a forma original fica intacta.
+@include resp.maximizada {
+  // Coluna lateral: 403px viram piso. 35.35% da grade de 1140px (1440) dao o mesmo.
+  .bo19-page {
+    grid-template-columns: minmax(0, 1fr) max(403px, 35.35%);
+  }
+}

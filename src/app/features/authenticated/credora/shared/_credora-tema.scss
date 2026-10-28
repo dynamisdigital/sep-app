@@ -1,0 +1,5 @@
+// ============ TEMA DA JORNADA CREDORA ============
+// A base virou `src/styles/_tela-operacional-tema.scss` quando a Administração passou a usar a
+// mesma linguagem. Este arquivo permanece como ponto de entrada da jornada credora, para as telas
+// já aceitas seguirem importando pelo caminho conhecido.
+@forward "../../../../../styles/tela-operacional-tema";

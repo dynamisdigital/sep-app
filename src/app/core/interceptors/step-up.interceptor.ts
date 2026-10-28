@@ -1,18 +1,26 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 
+import { environment } from '../../../environments/environment';
 import { StepUpTokenStore } from '../auth/step-up-token.store';
 
 /**
  * Anexa {@code X-Step-Up-Token} (Sprint 5) na proxima request quando o store
  * estiver populado. O token e consumido (uso unico) apos anexar.
+ *
+ * Hardening (SEC-03): Anexa apenas para chamadas a API institucional (apiBaseUrl).
  */
 export const stepUpInterceptor: HttpInterceptorFn = (req, next) => {
+  if (!req.url.startsWith(environment.apiBaseUrl)) {
+    return next(req);
+  }
+
   const store = inject(StepUpTokenStore);
   const token = store.token();
   if (!token) {
     return next(req);
   }
+
   // Anexa apenas em operacoes sensiveis conhecidas para nao gastar o token em chamadas irrelevantes.
   // O guard de metodo evita consumir o token (uso unico) num GET acidental para uma URL
   // terminada em /aceite. Cobranca (F-9.5): propor renegociacao (POST) e aceite do tomador

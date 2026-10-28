@@ -1,0 +1,337 @@
+[
+  {
+    "name": "logo_sep_header_completo.png",
+    "category": "logos",
+    "path": "logos/logo_sep_header_completo.png"
+  },
+  {
+    "name": "logo_sep_simbolo_header.png",
+    "category": "logos",
+    "path": "logos/logo_sep_simbolo_header.png"
+  },
+  {
+    "name": "logo_sep_wordmark_header.png",
+    "category": "logos",
+    "path": "logos/logo_sep_wordmark_header.png"
+  },
+  {
+    "name": "logo_sep_texto_extenso_header.png",
+    "category": "logos",
+    "path": "logos/logo_sep_texto_extenso_header.png"
+  },
+  {
+    "name": "logo_sep_footer_completo.png",
+    "category": "logos",
+    "path": "logos/logo_sep_footer_completo.png"
+  },
+  {
+    "name": "logo_sep_simbolo_footer.png",
+    "category": "logos",
+    "path": "logos/logo_sep_simbolo_footer.png"
+  },
+  {
+    "name": "icon_sidebar_dashboard.png",
+    "category": "icons",
+    "path": "icons/icon_sidebar_dashboard.png"
+  },
+  {
+    "name": "icon_sidebar_onboarding.png",
+    "category": "icons",
+    "path": "icons/icon_sidebar_onboarding.png"
+  },
+  {
+    "name": "icon_sidebar_credito.png",
+    "category": "icons",
+    "path": "icons/icon_sidebar_credito.png"
+  },
+  {
+    "name": "icon_sidebar_formalizacao.png",
+    "category": "icons",
+    "path": "icons/icon_sidebar_formalizacao.png"
+  },
+  {
+    "name": "icon_sidebar_cobranca.png",
+    "category": "icons",
+    "path": "icons/icon_sidebar_cobranca.png"
+  },
+  {
+    "name": "icon_sidebar_backoffice.png",
+    "category": "icons",
+    "path": "icons/icon_sidebar_backoffice.png"
+  },
+  {
+    "name": "icon_sidebar_pix.png",
+    "category": "icons",
+    "path": "icons/icon_sidebar_pix.png"
+  },
+  {
+    "name": "icon_sidebar_perfil.png",
+    "category": "icons",
+    "path": "icons/icon_sidebar_perfil.png"
+  },
+  {
+    "name": "icon_sidebar_help.png",
+    "category": "icons",
+    "path": "icons/icon_sidebar_help.png"
+  },
+  {
+    "name": "icon_sidebar_avatar_d.png",
+    "category": "icons",
+    "path": "icons/icon_sidebar_avatar_d.png"
+  },
+  {
+    "name": "icon_topbar_ambiente_regulado.png",
+    "category": "icons",
+    "path": "icons/icon_topbar_ambiente_regulado.png"
+  },
+  {
+    "name": "icon_topbar_horario_sistema.png",
+    "category": "icons",
+    "path": "icons/icon_topbar_horario_sistema.png"
+  },
+  {
+    "name": "icon_topbar_search.png",
+    "category": "icons",
+    "path": "icons/icon_topbar_search.png"
+  },
+  {
+    "name": "icon_topbar_bell_notification.png",
+    "category": "icons",
+    "path": "icons/icon_topbar_bell_notification.png"
+  },
+  {
+    "name": "icon_topbar_help.png",
+    "category": "icons",
+    "path": "icons/icon_topbar_help.png"
+  },
+  {
+    "name": "icon_topbar_avatar_d.png",
+    "category": "icons",
+    "path": "icons/icon_topbar_avatar_d.png"
+  },
+  {
+    "name": "icon_topbar_sun_theme.png",
+    "category": "icons",
+    "path": "icons/icon_topbar_sun_theme.png"
+  },
+  {
+    "name": "icon_stepper_kyb_1.png",
+    "category": "icons",
+    "path": "icons/icon_stepper_kyb_1.png"
+  },
+  {
+    "name": "icon_stepper_kyb_2.png",
+    "category": "icons",
+    "path": "icons/icon_stepper_kyb_2.png"
+  },
+  {
+    "name": "icon_stepper_kyb_3.png",
+    "category": "icons",
+    "path": "icons/icon_stepper_kyb_3.png"
+  },
+  {
+    "name": "icon_stepper_kyb_4.png",
+    "category": "icons",
+    "path": "icons/icon_stepper_kyb_4.png"
+  },
+  {
+    "name": "icon_stepper_kyb_5.png",
+    "category": "icons",
+    "path": "icons/icon_stepper_kyb_5.png"
+  },
+  {
+    "name": "icon_form_cnpj_building.png",
+    "category": "icons",
+    "path": "icons/icon_form_cnpj_building.png"
+  },
+  {
+    "name": "icon_form_date_calendar.png",
+    "category": "icons",
+    "path": "icons/icon_form_date_calendar.png"
+  },
+  {
+    "name": "icon_form_help_cnpj.png",
+    "category": "icons",
+    "path": "icons/icon_form_help_cnpj.png"
+  },
+  {
+    "name": "icon_form_help_razao_social.png",
+    "category": "icons",
+    "path": "icons/icon_form_help_razao_social.png"
+  },
+  {
+    "name": "icon_form_help_porte.png",
+    "category": "icons",
+    "path": "icons/icon_form_help_porte.png"
+  },
+  {
+    "name": "icon_form_select_chevron_porte.png",
+    "category": "icons",
+    "path": "icons/icon_form_select_chevron_porte.png"
+  },
+  {
+    "name": "icon_form_select_chevron_tipo.png",
+    "category": "icons",
+    "path": "icons/icon_form_select_chevron_tipo.png"
+  },
+  {
+    "name": "icon_form_ambiente_regulado_badge.png",
+    "category": "icons",
+    "path": "icons/icon_form_ambiente_regulado_badge.png"
+  },
+  {
+    "name": "icon_form_info_shield_note.png",
+    "category": "icons",
+    "path": "icons/icon_form_info_shield_note.png"
+  },
+  {
+    "name": "icon_button_arrow_next.png",
+    "category": "icons",
+    "path": "icons/icon_button_arrow_next.png"
+  },
+  {
+    "name": "icon_summary_badge_kyb.png",
+    "category": "icons",
+    "path": "icons/icon_summary_badge_kyb.png"
+  },
+  {
+    "name": "icon_summary_step_1.png",
+    "category": "icons",
+    "path": "icons/icon_summary_step_1.png"
+  },
+  {
+    "name": "icon_summary_step_2.png",
+    "category": "icons",
+    "path": "icons/icon_summary_step_2.png"
+  },
+  {
+    "name": "icon_summary_step_3.png",
+    "category": "icons",
+    "path": "icons/icon_summary_step_3.png"
+  },
+  {
+    "name": "icon_summary_step_4.png",
+    "category": "icons",
+    "path": "icons/icon_summary_step_4.png"
+  },
+  {
+    "name": "icon_summary_step_5.png",
+    "category": "icons",
+    "path": "icons/icon_summary_step_5.png"
+  },
+  {
+    "name": "icon_what_is_kyb_info.png",
+    "category": "icons",
+    "path": "icons/icon_what_is_kyb_info.png"
+  },
+  {
+    "name": "icon_what_is_kyb_external_link.png",
+    "category": "icons",
+    "path": "icons/icon_what_is_kyb_external_link.png"
+  },
+  {
+    "name": "icon_previsao_conclusao_clock.png",
+    "category": "icons",
+    "path": "icons/icon_previsao_conclusao_clock.png"
+  },
+  {
+    "name": "icon_benefit_conformidade_total.png",
+    "category": "icons",
+    "path": "icons/icon_benefit_conformidade_total.png"
+  },
+  {
+    "name": "icon_benefit_segregacao_patrimonial.png",
+    "category": "icons",
+    "path": "icons/icon_benefit_segregacao_patrimonial.png"
+  },
+  {
+    "name": "icon_benefit_rastreabilidade.png",
+    "category": "icons",
+    "path": "icons/icon_benefit_rastreabilidade.png"
+  },
+  {
+    "name": "icon_benefit_seguranca_juridica.png",
+    "category": "icons",
+    "path": "icons/icon_benefit_seguranca_juridica.png"
+  },
+  {
+    "name": "icon_footer_ambiente_regulado.png",
+    "category": "icons",
+    "path": "icons/icon_footer_ambiente_regulado.png"
+  },
+  {
+    "name": "icon_footer_segregacao_patrimonial.png",
+    "category": "icons",
+    "path": "icons/icon_footer_segregacao_patrimonial.png"
+  },
+  {
+    "name": "icon_footer_seguranca.png",
+    "category": "icons",
+    "path": "icons/icon_footer_seguranca.png"
+  },
+  {
+    "name": "icon_footer_rastreabilidade.png",
+    "category": "icons",
+    "path": "icons/icon_footer_rastreabilidade.png"
+  },
+  {
+    "name": "ui_topbar.png",
+    "category": "ui-groups",
+    "path": "ui-groups/ui_topbar.png"
+  },
+  {
+    "name": "ui_sidebar.png",
+    "category": "ui-groups",
+    "path": "ui-groups/ui_sidebar.png"
+  },
+  {
+    "name": "ui_stepper_kyb.png",
+    "category": "ui-groups",
+    "path": "ui-groups/ui_stepper_kyb.png"
+  },
+  {
+    "name": "ui_card_dados_empresa.png",
+    "category": "ui-groups",
+    "path": "ui-groups/ui_card_dados_empresa.png"
+  },
+  {
+    "name": "ui_resumo_jornada_kyb.png",
+    "category": "ui-groups",
+    "path": "ui-groups/ui_resumo_jornada_kyb.png"
+  },
+  {
+    "name": "ui_o_que_e_kyb.png",
+    "category": "ui-groups",
+    "path": "ui-groups/ui_o_que_e_kyb.png"
+  },
+  {
+    "name": "ui_previsao_conclusao.png",
+    "category": "ui-groups",
+    "path": "ui-groups/ui_previsao_conclusao.png"
+  },
+  {
+    "name": "ui_beneficios_kyb.png",
+    "category": "ui-groups",
+    "path": "ui-groups/ui_beneficios_kyb.png"
+  },
+  {
+    "name": "ui_footer_regulatorio.png",
+    "category": "ui-groups",
+    "path": "ui-groups/ui_footer_regulatorio.png"
+  },
+  {
+    "name": "ui_main_content_area.png",
+    "category": "ui-groups",
+    "path": "ui-groups/ui_main_content_area.png"
+  },
+  {
+    "name": "visual_background_grid_main.png",
+    "category": "visuals",
+    "path": "visuals/visual_background_grid_main.png"
+  },
+  {
+    "name": "visual_footer_background_circuitos.png",
+    "category": "visuals",
+    "path": "visuals/visual_footer_background_circuitos.png"
+  }
+]

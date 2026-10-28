@@ -1,0 +1,27 @@
+🖥️ SEP — Atualização do Frontend · 22 a 24 de Setembro de 2026
+
+Prezada Diretoria e Conselho Executivo,
+
+Dando sequência ao relatório de segurança de 18/09, concluí nesta semana quatro frentes no
+Frontend do Sistema SEP (Sociedade de Empréstimo entre Pessoas), todas verificadas no navegador,
+em monitores reais e em testes automatizados:
+
+🖥️ Telas panorâmicas: 24 telas passaram a acompanhar monitores grandes e ultrawide; as 9 telas
+do site institucional cabem inteiras na tela, sem rolagem.
+🔗 Navegação auditada: 803 links e botões verificados; os que não levavam a lugar nenhum foram
+corrigidos, e o que depende do backend aparece bloqueado com o motivo.
+👤 Novo usuário: tela de cadastro na Administração, com papéis e confirmação por TOTP.
+🎬 Tour assistido: o sistema demonstra as tarefas na própria tela, com destaque visual,
+narração em português e música de fundo.
+
+✅ 687 testes automatizados aprovados (100%)
+✅ Telas homologadas idênticas nos tamanhos de referência
+✅ Nenhuma rota quebrada
+
+📱 Acesse a apresentação interativa e o PDF oficial:
+https://fabulous-cactus-fed896.netlify.app
+
+Responsável Técnico:
+Daniel Möllmann
+Frontend Development & Security Architecture
+24 de Setembro de 2026

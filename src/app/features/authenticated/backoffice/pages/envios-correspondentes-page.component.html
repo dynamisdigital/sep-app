@@ -1,0 +1,96 @@
+<sep-operational-shell>
+  <main class="cor-page">
+    <header class="cor-heading">
+      <div>
+        <p class="cor-crumbs">
+          <a routerLink="/app/dashboard">Início</a> ›
+          <a routerLink="/app/backoffice">Backoffice</a> ›
+          <strong>Envios de correspondentes</strong>
+        </p>
+        <h1>Envios de correspondentes</h1>
+        <p>
+          Documentos enviados pelos correspondentes, já com o atesto de conferência. A validação é
+          do backoffice.
+        </p>
+      </div>
+    </header>
+
+    @if (erro()) {
+      <div class="cor-erro" role="alert">{{ erro() }}</div>
+    }
+    @if (aviso()) {
+      <div class="cor-aviso" data-tone="green" role="status">{{ aviso() }}</div>
+    }
+
+    <section class="cor-card">
+      @if (carregando()) {
+        <p class="cor-estado" role="status">Carregando os envios...</p>
+      } @else {
+        <div class="cor-tabela-wrap">
+          <table class="cor-tabela">
+            <thead>
+              <tr>
+                <th>Correspondente</th>
+                <th>Cliente</th>
+                <th>Documentos</th>
+                <th>Enviado em</th>
+                <th>Atesto</th>
+                <th>Situação</th>
+                <th>Decisão</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (e of envios(); track e.id) {
+                <tr>
+                  <td>{{ e.correspondenteNome }}</td>
+                  <td>{{ e.clienteNome }}</td>
+                  <td>
+                    @for (d of e.documentos; track d.nomeArquivo) {
+                      {{ d.tipo }}<small>{{ d.nomeArquivo }}</small>
+                    }
+                  </td>
+                  <td>{{ data(e.enviadoEm) }}</td>
+                  <td>{{ e.atestoConferencia ? 'Conferido' : 'Sem atesto' }}</td>
+                  <td>
+                    <span class="cor-selo" [attr.data-tone]="tom[e.status]">{{
+                      rotulo[e.status]
+                    }}</span>
+                  </td>
+                  <td>
+                    @if (e.status === 'EM_VALIDACAO') {
+                      <input
+                        type="text"
+                        placeholder="Observação (obrigatória ao devolver)"
+                        [attr.aria-label]="'Observação para ' + e.clienteNome"
+                        [(ngModel)]="observacoes[e.id]"
+                        [ngModelOptions]="{ standalone: true }"
+                      />
+                      <div class="cor-acoes" style="margin-top: 6px">
+                        <button type="button" class="cor-btn" (click)="decidir(e, 'VALIDAR')">
+                          Validar
+                        </button>
+                        <button
+                          type="button"
+                          class="cor-btn perigo"
+                          (click)="decidir(e, 'DEVOLVER')"
+                        >
+                          Devolver
+                        </button>
+                      </div>
+                    } @else {
+                      {{ e.observacaoBackoffice ?? '—' }}
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="cor-estado">Nenhum envio de correspondente.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  </main>
+</sep-operational-shell>

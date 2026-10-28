@@ -1,0 +1,111 @@
+<sep-operational-shell>
+  <main class="cor-page">
+    <header class="cor-heading">
+      <div>
+        <p class="cor-crumbs">
+          <a routerLink="/app/dashboard">Início</a> ›
+          <a routerLink="/app/meu-backoffice">Meu Back Office</a> › <strong>Contratos</strong>
+        </p>
+        <h1>Contratos e propostas dos meus clientes</h1>
+        <p>
+          Você captou, você acompanha: situação, valor da parcela e andamento de cada operação da
+          sua base.
+        </p>
+      </div>
+    </header>
+
+    @if (erro()) {
+      <div class="cor-erro" role="alert">{{ erro() }}</div>
+    }
+
+    @if (carregando()) {
+      <p class="cor-estado" role="status">Carregando os contratos...</p>
+    } @else {
+      <div
+        class="cor-filtros"
+        role="group"
+        aria-label="Filtrar por situação"
+        data-tour="cor-filtros"
+      >
+        @for (f of filtros; track f.chave) {
+          <button
+            type="button"
+            [class.ativo]="filtro() === f.chave"
+            [attr.aria-pressed]="filtro() === f.chave"
+            (click)="filtro.set(f.chave)"
+          >
+            {{ f.rotulo }} ({{ contar(f.chave) }})
+          </button>
+        }
+      </div>
+
+      <section class="cor-card" data-tour="cor-contratos-tabela">
+        <div class="cor-tabela-wrap">
+          <table class="cor-tabela">
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Operação</th>
+                <th class="num">Valor</th>
+                <th class="num">Parcela</th>
+                <th>Andamento</th>
+                <th>Próx. vencimento</th>
+                <th class="num">Em atraso</th>
+                <th>Situação</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (o of visiveis(); track o.id) {
+                <tr [class.cor-linha-atraso]="o.situacao === 'EM_ATRASO'">
+                  <td>
+                    {{ o.clienteNome }}<small>{{ o.clienteDocumentoMascarado }}</small>
+                  </td>
+                  <td>
+                    {{ o.numero
+                    }}<small
+                      >{{ o.tipo === 'CONTRATO' ? 'Contrato' : 'Proposta' }} ·
+                      {{ o.produto }}</small
+                    >
+                  </td>
+                  <td class="num">{{ moeda(o.valorContratado) }}</td>
+                  <td class="num">{{ o.tipo === 'CONTRATO' ? moeda(o.valorParcela) : '—' }}</td>
+                  <td>
+                    @if (o.tipo === 'CONTRATO') {
+                      <div class="cor-progresso" [attr.data-tone]="tomProgresso(o.situacao)">
+                        <div><i [style.width.%]="pct(o.parcelasPagas, o.totalParcelas)"></i></div>
+                        <small>{{ o.parcelasPagas }}/{{ o.totalParcelas }}</small>
+                      </div>
+                    } @else {
+                      —
+                    }
+                  </td>
+                  <td>{{ data(o.proximoVencimento) }}</td>
+                  <td class="num">{{ o.valorEmAtraso ? moeda(o.valorEmAtraso) : '—' }}</td>
+                  <td>
+                    <span class="cor-selo" [attr.data-tone]="tom[o.situacao]">{{
+                      rotulo[o.situacao]
+                    }}</span>
+                  </td>
+                  <td>
+                    @if (o.tipo === 'CONTRATO') {
+                      <a
+                        class="cor-btn secundario"
+                        [routerLink]="['/app/meu-backoffice/contratos', o.id]"
+                        >Parcelas</a
+                      >
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="9" class="cor-estado">Nenhuma operação nesta situação.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+  </main>
+</sep-operational-shell>

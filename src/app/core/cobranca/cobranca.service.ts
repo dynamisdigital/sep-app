@@ -15,6 +15,7 @@ import {
   RenegociacaoResponse,
   RenegociacaoTomadorResponse,
   StatusParcela,
+  StatusRenegociacao,
   ValorAtualizadoParcelaResponse,
 } from '../api/api.models';
 
@@ -77,6 +78,14 @@ export class CobrancaService {
       `${COBRANCA_URL}/parcelas/${parcelaId}/contato`,
       request,
     );
+  }
+
+  // Carteira de renegociacoes. Leitura simples: o painel da Cobranca conta por status a partir
+  // desta lista, em vez de exibir um total proprio.
+  listarRenegociacoes(status?: StatusRenegociacao): Observable<RenegociacaoResponse[]> {
+    return this.http.get<RenegociacaoResponse[]>(`${COBRANCA_URL}/renegociacoes`, {
+      params: status ? new HttpParams().set('status', status) : undefined,
+    });
   }
 
   // Leitura owner-scoped do tomador (backend Sprint 24): sem step-up e sem token. O DTO

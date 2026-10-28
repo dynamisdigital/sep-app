@@ -273,25 +273,25 @@
 
 .ds-badge--outline {
   color: hsl(var(--foreground));
-  border-color: hsl(var(--border));
+  border-color: currentcolor;
 }
 
 .ds-badge--success {
   color: hsl(var(--success));
   background: hsl(var(--success) / 12%);
-  border-color: hsl(var(--success) / 20%);
+  border-color: currentcolor;
 }
 
 .ds-badge--warning {
   color: hsl(var(--warning));
   background: hsl(var(--warning) / 12%);
-  border-color: hsl(var(--warning) / 20%);
+  border-color: currentcolor;
 }
 
 .ds-badge--destructive {
   color: hsl(var(--destructive));
   background: hsl(var(--destructive) / 12%);
-  border-color: hsl(var(--destructive) / 20%);
+  border-color: currentcolor;
 }
 
 // ===== Cards =====

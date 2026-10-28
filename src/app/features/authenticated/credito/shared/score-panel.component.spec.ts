@@ -19,6 +19,6 @@ describe('ScorePanelComponent', () => {
 
     expect(screen.getByText('Score')).toBeTruthy();
     expect(screen.getByText('720')).toBeTruthy();
-    expect(screen.getByText('Pre-aprovada')).toBeTruthy();
+    expect(screen.getByText('Pré-aprovada')).toBeTruthy();
   });
 });

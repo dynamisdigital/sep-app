@@ -1,10 +1,13 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/angular';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 import { HttpResponse, http } from 'msw';
 
 import { AccountLockedComponent } from './account-locked.component';
+import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
 import { authInterceptor } from '../../../core/interceptors/auth.interceptor';
 import { server } from '../../../../mocks/server';
 import { estabilizar } from '../../../../testing/estabilizar';
@@ -82,7 +85,11 @@ async function renderPagina() {
   // `provideHttpClient` com o authInterceptor real: a pagina passou a fazer uma request, e a
   // isencao do endpoint publico e parte do comportamento sob teste (ver o ultimo caso).
   return render(AccountLockedComponent, {
-    providers: [provideRouter([]), provideHttpClient(withInterceptors([authInterceptor]))],
+    providers: [
+      provideRouter([]),
+      provideHttpClient(withInterceptors([authInterceptor])),
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+    ],
   });
 }
 

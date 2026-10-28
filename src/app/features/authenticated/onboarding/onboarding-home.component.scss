@@ -1,68 +1,610 @@
-@use "../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../styles/sep-ds-components" as sepDs;
+@use "../../../../styles/sep-responsivo" as resp;
 
-.sep-onboarding-home {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-32);
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+:host {
+  display: block;
+  height: 100vh;
 }
 
-.sep-onboarding-home-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
+.onboarding-page,
+.onboarding-page *,
+.onboarding-page *::before,
+.onboarding-page *::after {
+  box-sizing: border-box;
 }
 
-.sep-onboarding-home-title {
-  @include sepType.sep-type-page-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
-}
-
-.sep-onboarding-home-subtitle {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-onboarding-home-cards {
+.onboarding-page {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--sep-space-16);
+  grid-row: 1 / -1;
+  grid-template-rows: 86px 595px 180px 160px;
+  gap: 14px;
+  min-width: 0;
+  min-height: 100%;
+  height: auto;
+  color: var(--sep-text-strong);
 }
 
-.sep-onboarding-home-card {
-  @include sepDs.sep-card;
+.onboarding-heading {
+  position: relative;
+}
 
-  padding: var(--sep-space-24);
+.onboarding-heading nav {
   display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-6);
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
-  transition: border-color 120ms ease;
+  gap: 8px;
+  align-items: center;
+  height: 18px;
+  margin-bottom: 11px;
+  color: var(--sep-text-muted);
+  font-size: 11px;
+}
 
-  &:hover {
-    border-color: hsl(var(--primary));
+.onboarding-heading nav a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.onboarding-heading nav strong {
+  color: var(--sep-text-secondary);
+  font-weight: 500;
+}
+
+.onboarding-heading h1,
+.onboarding-heading p,
+.onboarding-choice-card h2,
+.onboarding-choice-card p,
+.onboarding-reasons h2,
+.onboarding-trust h2,
+.onboarding-trust p {
+  margin: 0;
+}
+
+.onboarding-heading h1 {
+  font-size: 27px;
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.onboarding-heading > p {
+  margin-top: 8px;
+  color: var(--sep-text-secondary);
+  font-size: 14px;
+}
+
+.journey-toast {
+  position: absolute;
+  top: 10px;
+  right: 0;
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 8px;
+  align-items: center;
+  width: 249px;
+  height: 66px;
+  padding: 6px 14px 6px 8px;
+  border: 1px solid rgb(var(--sep-c-cyan) / 46%);
+  border-radius: 8px;
+  background: linear-gradient(120deg, rgb(var(--sep-c-surf2) / 92%), rgb(var(--sep-c-surf) / 78%));
+  color: var(--sep-text);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.journey-toast lucide-icon {
+  width: 36px;
+  height: 36px;
+}
+
+.journey-toast strong {
+  color: var(--sep-accent);
+}
+
+.onboarding-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 551px), 1fr));
+  gap: 30px;
+  min-height: 0;
+}
+
+.onboarding-choice-card {
+  --card-accent: var(--sep-success);
+  --card-border: rgb(var(--sep-c-green) / 68%);
+  --card-glow: rgb(var(--sep-c-green) / 14%);
+
+  display: grid;
+  grid-template-rows: 404px 108px 50px;
+  min-width: 0;
+  min-height: 595px;
+  padding: 13px 20px 14px;
+  overflow: hidden;
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 78% 18%, var(--card-glow), transparent 40%),
+    linear-gradient(90deg, rgb(var(--sep-c-sunken) / 97%), rgb(var(--sep-c-surf3) / 94%));
+  box-shadow: inset 0 0 28px rgb(var(--sep-c-blue) / calc(4% * var(--sep-glow-alpha)));
+  transition:
+    border-color 190ms ease,
+    box-shadow 190ms ease,
+    transform 190ms ease;
+}
+
+.onboarding-choice-card.company {
+  --card-accent: var(--sep-accent);
+  --card-border: rgb(var(--sep-c-blue) / 72%);
+  --card-glow: rgb(var(--sep-c-blue) / 15%);
+}
+
+.onboarding-choice-card:hover,
+.onboarding-choice-card:focus-within {
+  border-color: var(--card-accent);
+  box-shadow:
+    inset 0 0 32px var(--card-glow),
+    0 0 22px var(--card-glow);
+  transform: translateY(-3px);
+}
+
+.choice-main {
+  display: grid;
+  grid-template-columns: 252px minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+  min-height: 0;
+}
+
+/* Largura natural deste layout: 511px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 507px) {
+  .choice-main {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
-.sep-onboarding-home-card-title {
-  @include sepType.sep-type-card-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
+.choice-visual {
+  width: 252px;
+  height: 252px;
+  object-fit: contain;
 }
 
-.sep-onboarding-home-card-body {
-  @include sepType.sep-type-body;
+.choice-copy {
+  min-width: 0;
+}
 
-  margin: 0;
-  color: hsl(var(--muted-foreground));
+.choice-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 56px;
+  height: 28px;
+  padding: 0 14px;
+  border: 1px solid color-mix(in srgb, var(--card-accent) 45%, transparent);
+  border-radius: 16px;
+  color: var(--card-accent);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.choice-copy h2 {
+  margin-top: 12px;
+  color: var(--card-accent);
+  font-size: 23px;
+  font-weight: 500;
+}
+
+.choice-copy > p {
+  max-width: 290px;
+  margin-top: 12px;
+  color: var(--sep-text-secondary);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.choice-copy ul {
+  display: grid;
+  gap: 9px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.choice-copy li {
+  display: grid;
+  grid-template-columns: 39px minmax(0, 1fr);
+  gap: 9px;
+  align-items: center;
+  min-height: 38px;
+  color: var(--sep-text-secondary);
+  font-size: 14px;
+}
+
+.choice-copy li lucide-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.choice-benefits {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 253px), 1fr));
+  align-items: center;
+  border-top: 1px solid rgb(var(--sep-c-cyan) / 26%);
+}
+
+.choice-benefits > div {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+}
+
+.choice-benefits > div + div {
+  padding-left: 17px;
+  border-left: 1px solid rgb(var(--sep-c-cyan) / 22%);
+}
+
+.choice-benefits lucide-icon {
+  width: 54px;
+  height: 54px;
+  transition: transform 180ms ease;
+}
+
+.choice-benefits > div:hover img {
+  transform: scale(1.06);
+}
+
+.choice-benefits span {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.choice-benefits strong {
+  color: var(--card-accent);
+  font-size: 14px;
+}
+
+.choice-benefits small {
+  max-width: 175px;
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.choice-action {
+  display: grid;
+  grid-template-columns: 1fr 38px;
+  align-items: center;
+  height: 50px;
+  padding: 0 28px;
+  border: 1px solid rgb(var(--sep-c-blue) / 68%);
+  border-radius: 11px;
+  background: linear-gradient(100deg, var(--sep-accent), var(--sep-success));
+  color: var(--sep-on-solid);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 0 13px rgb(var(--sep-c-blue) / calc(18% * var(--sep-glow-alpha)));
+  transition:
+    filter 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.company .choice-action {
+  background: linear-gradient(100deg, var(--sep-accent), var(--sep-accent));
+}
+
+.choice-action i {
+  position: relative;
+  width: 22px;
+  height: 15px;
+  justify-self: center;
+}
+
+.choice-action i::before {
+  position: absolute;
+  top: 6px;
+  left: 0;
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentcolor;
+  box-shadow: 0 0 5px rgb(var(--sep-c-shadow) / 45%);
+  content: "";
+}
+
+.choice-action i::after {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  width: 9px;
+  height: 9px;
+  border-top: 2px solid currentcolor;
+  border-right: 2px solid currentcolor;
+  content: "";
+  transform: rotate(45deg);
+}
+
+.choice-action:hover,
+.choice-action:focus-visible {
+  filter: brightness(1.13);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--card-accent) 42%, transparent);
+  outline: none;
+  transform: translateY(-2px);
+}
+
+.onboarding-reasons,
+.onboarding-trust {
+  border: 1px solid rgb(var(--sep-c-blue) / 52%);
+  border-radius: 11px;
+  background: linear-gradient(
+    120deg,
+    rgb(var(--sep-c-surf2) / 95%),
+    rgb(var(--sep-c-sunken) / 88%)
+  );
+}
+
+.onboarding-reasons {
+  display: grid;
+  grid-template-rows: 34px 1fr;
+  padding: 20px 22px;
+}
+
+.onboarding-reasons h2 {
+  color: var(--sep-accent);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.onboarding-reasons > div {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  place-items: center stretch;
+}
+
+.onboarding-reasons article {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 150px);
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.onboarding-reasons article + article {
+  padding-left: 8px;
+  border-left: 1px solid rgb(var(--sep-c-cyan) / 23%);
+}
+
+.onboarding-reasons article lucide-icon {
+  width: 53px;
+  height: 53px;
+}
+
+.onboarding-reasons article span,
+.trust-badges article span {
+  display: grid;
+  gap: 4px;
+}
+
+.onboarding-reasons article span {
+  justify-content: center;
+  min-height: 76px;
+}
+
+.onboarding-reasons article strong {
+  color: var(--sep-text);
+  font-size: 14px;
+}
+
+.onboarding-reasons article small {
+  max-width: 150px;
+  color: var(--sep-text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.onboarding-trust {
+  display: grid;
+  grid-template-columns: 200px minmax(170px, 1fr) 610px;
+  gap: 14px;
+  align-items: center;
+  min-height: 0;
+  padding: 8px 12px;
+}
+
+/* Largura natural deste layout: 1038px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 1034px) {
+  .onboarding-trust {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.trust-hud {
+  width: 200px;
+  height: 138px;
+  object-fit: contain;
+}
+
+.trust-copy h2 {
+  font-size: 16px;
+}
+
+.trust-copy p {
+  max-width: 430px;
+  margin-top: 10px;
+  color: var(--sep-text-muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.trust-badges {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+  gap: 12px;
+}
+
+.trust-badges article {
+  display: grid;
+  grid-template-columns: 60px max-content;
+  gap: 4px;
+  place-content: center;
+  min-width: 0;
+  height: 66px;
+  padding: 4px 6px;
+  border: 1px solid rgb(var(--sep-c-blue) / 38%);
+  border-radius: 9px;
+  background: rgb(var(--sep-c-surf2) / 55%);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.trust-badges article > span {
+  transform: translateX(-17px);
+}
+
+.trust-badges article > img {
+  transform: translate(-7px, -4px);
+}
+
+.trust-badges article:last-child > img {
+  transform: translate(-12px, -4px);
+}
+
+.trust-badges article:last-child > span {
+  transform: translateX(-18px);
+}
+
+.trust-badges article:hover {
+  border-color: rgb(var(--sep-c-blue) / 72%);
+  box-shadow: 0 0 15px rgb(var(--sep-c-blue) / calc(12% * var(--sep-glow-alpha)));
+}
+
+.trust-badges lucide-icon {
+  width: 42px;
+  height: 42px;
+}
+
+.trust-badges article span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 0;
+  height: 54px;
+  gap: 5px;
+  text-align: center;
+}
+
+.trust-badges strong {
+  font-size: 11px;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.trust-badges small {
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+@include resp.ate-ampla {
+  .onboarding-page {
+    grid-template-rows: 86px 595px 180px 160px;
+    gap: 12px;
+  }
+
+  .onboarding-choice-grid {
+    gap: 16px;
+  }
+
+  .onboarding-choice-card {
+    grid-template-rows: 404px 108px 50px;
+    min-height: 595px;
+    padding: 13px 16px 14px;
+  }
+
+  .choice-main {
+    grid-template-columns: 226px minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .choice-visual {
+    width: 226px;
+    height: 226px;
+  }
+
+  .onboarding-trust {
+    grid-template-columns: 172px minmax(140px, 1fr) 610px;
+  }
+
+  .trust-hud {
+    width: 168px;
+    height: 112px;
+  }
+}
+
+@include resp.ate-estreita {
+  :host {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .onboarding-page {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+  }
+
+  .onboarding-choice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .onboarding-reasons > div,
+  .trust-badges {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .onboarding-trust {
+    grid-template-columns: 145px 1fr;
+  }
+
+  .trust-badges {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-page *,
+  .onboarding-page *::before,
+  .onboarding-page *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// ============ JANELA MAXIMIZADA ============
+// Acima de 1440 as medidas homologadas viram piso e o layout acompanha o espaco. Nada aqui vale de
+// 1440 para baixo: a forma original fica intacta.
+@include resp.maximizada {
+  // Os motivos tinham teto de 150px e o par simbolo + texto ficava ilhado numa faixa de 312px.
+  // 68.8% da faixa de 218px (1440) ficam abaixo de 150, entao o crescimento comeca daqui.
+  .onboarding-reasons article {
+    grid-template-columns: 76px minmax(0, max(150px, 68.8%));
+  }
+
+  .onboarding-reasons article small {
+    max-width: max(150px, 100%);
+  }
+
+  // 610px viram piso dos selos: 54.85% da faixa de 1112px (1440) dao o mesmo, e os quatro selos
+  // crescem juntos em vez de ficarem travados em 195px cada.
+  @container (min-width: 1035px) {
+    .onboarding-trust {
+      grid-template-columns: 200px minmax(170px, 1fr) max(610px, 54.85%);
+    }
+  }
 }

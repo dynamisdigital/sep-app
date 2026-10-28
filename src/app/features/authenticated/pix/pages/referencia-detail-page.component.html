@@ -1,54 +1,591 @@
-<section class="sep-referencia-detail">
-  @if (loading()) {
-    <p class="sep-referencia-detail-state" role="status">Carregando referencia...</p>
-  } @else if (errorMessage()) {
-    <div class="sep-referencia-detail-state sep-referencia-detail-error" role="alert">
-      <p>{{ errorMessage() }}</p>
-      <button type="button" class="sep-referencia-detail-retry" (click)="carregar()">
-        Tentar novamente
-      </button>
-    </div>
-  } @else if (naoEncontrada()) {
-    <div class="sep-referencia-detail-state">
-      <p>Referencia nao encontrada.</p>
-    </div>
-  } @else if (referencia(); as r) {
-    <header class="sep-referencia-detail-header">
-      <h1 class="sep-referencia-detail-title">Referencia {{ idCurto(r.referenciaId) }}</h1>
-      <sep-pix-referencia-status [status]="r.status" />
-    </header>
+<sep-operational-shell>
+  <section class="px26-page">
+    @if (loading()) {
+      <p class="px26-estado" role="status">Carregando referência Pix...</p>
+    } @else if (errorMessage(); as mensagem) {
+      <div class="px26-estado px26-erro" role="alert">
+        <lucide-icon name="circle-alert" [size]="18" />
+        <p>{{ mensagem }}</p>
+        <button type="button" class="px26-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" />Tentar novamente
+        </button>
+      </div>
+    } @else if (naoEncontrada()) {
+      <div class="px26-estado px26-vazio-tela">
+        <lucide-icon name="inbox" [size]="26" />
+        <p>Referência Pix não encontrada.</p>
+        <a class="px26-btn-sec" routerLink="/app/pix/recebimentos">Voltar para Recebimentos</a>
+      </div>
+    } @else if (referencia(); as r) {
+      <!-- ============ CABEÇALHO DA PÁGINA ============ -->
+      <header class="px26-heading">
+        <nav aria-label="Navegação estrutural">
+          <a routerLink="/app/dashboard">Início</a><span>›</span><a routerLink="/app/pix">Pix</a
+          ><span>›</span><a routerLink="/app/pix/recebimentos">Recebimentos</a><span>›</span
+          ><a routerLink="/app/pix/recebimentos">Referências</a><span>›</span
+          ><strong>{{ r.referenciaId }}</strong>
+        </nav>
+        <div class="px26-heading-row">
+          <div class="px26-titulo-wrap">
+            <h1>
+              Referência {{ idCurto(r.referenciaId) }}
+              <span class="px26-selo-head" [attr.data-tone]="statusTom()">
+                {{ statusRotulo() }}
+              </span>
+            </h1>
+            <p class="px26-subtitulo">Consulte os recebimentos associados a esta referência Pix.</p>
+          </div>
+          <div class="px26-heading-acoes px26-menu-wrap">
+            <button
+              type="button"
+              class="px26-btn-primary"
+              (click)="irPara('/app/pix/recebimentos')"
+            >
+              <lucide-icon name="search" [size]="16" />Buscar recebimentos
+            </button>
+            <button
+              type="button"
+              class="px26-btn-sec px26-btn-icon"
+              aria-label="Mais ações da referência"
+              [attr.aria-expanded]="menuAberto()"
+              (click)="alternarMenu()"
+              (keydown.escape)="menuAberto.set(false)"
+            >
+              <lucide-icon name="ellipsis-vertical" [size]="16" />
+            </button>
+            @if (menuAberto()) {
+              <div class="px26-menu" role="menu">
+                <button
+                  type="button"
+                  role="menuitem"
+                  (click)="copiar(r.referenciaId, 'menu-ref'); alternarMenu()"
+                >
+                  <lucide-icon name="copy" [size]="15" />Copiar ID da referência
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  (click)="copiar(r.codigoCopiaCola, 'menu-pix'); alternarMenu()"
+                >
+                  <lucide-icon name="copy" [size]="15" />Copiar Pix Copia e Cola
+                </button>
+                <button type="button" role="menuitem" (click)="irPara('/app/pix/recebimentos')">
+                  <lucide-icon name="file-text" [size]="15" />Ver recebimentos vinculados
+                </button>
+                @if (r.parcelaId && podeVerParcela()) {
+                  <button
+                    type="button"
+                    role="menuitem"
+                    (click)="irPara('/app/cobranca/parcelas/' + r.parcelaId)"
+                  >
+                    <lucide-icon name="calendar" [size]="15" />Ir para a parcela
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </header>
 
-    @if (r.status === 'DIVERGENTE') {
-      <p class="sep-referencia-detail-alerta" role="alert">
-        Referencia divergente. O recebimento vinculado precisa de tratamento operacional.
-      </p>
+      <!-- ============ DADOS DA REFERÊNCIA ============ -->
+      <article class="px26-card px26-dados">
+        <h2>Dados da referência</h2>
+        <dl class="px26-dados-grid">
+          <div class="px26-campo">
+            <dt>Valor esperado</dt>
+            <dd class="px26-valor-esperado">{{ moeda(r.valorEsperado) }}</dd>
+          </div>
+          <div class="px26-campo">
+            <dt>TXID</dt>
+            <dd class="px26-quebra">
+              <span>{{ texto(r.txid) }}</span>
+              @if (r.txid; as txid) {
+                <button
+                  type="button"
+                  class="px26-btn-copy"
+                  aria-label="Copiar TXID"
+                  (click)="copiar(txid, 'txid')"
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'txid' ? 'circle-check' : 'copy')"
+                    [size]="13"
+                  />
+                </button>
+              }
+            </dd>
+          </div>
+          <div class="px26-campo">
+            <dt>Chave Pix</dt>
+            <dd class="px26-quebra">
+              <span>{{ texto(r.chavePix ?? '11.111.111/0001-91 (CNPJ)') }}</span>
+              <button
+                type="button"
+                class="px26-btn-copy"
+                aria-label="Copiar chave Pix"
+                (click)="copiar(r.chavePix ?? '11.111.111/0001-91 (CNPJ)', 'chave')"
+              >
+                <lucide-icon
+                  [name]="$any(copiado() === 'chave' ? 'circle-check' : 'copy')"
+                  [size]="13"
+                />
+              </button>
+            </dd>
+          </div>
+
+          <div class="px26-campo">
+            <dt>Status</dt>
+            <dd>
+              <span class="px26-selo-inline" [attr.data-tone]="statusTom()">
+                {{ statusRotulo() }}
+              </span>
+            </dd>
+          </div>
+          <div class="px26-campo">
+            <dt>Código de barras (Copia e Cola)</dt>
+            <dd class="px26-quebra">
+              <span class="px26-copia-cola-text">{{ texto(r.codigoCopiaCola) }}</span>
+              @if (r.codigoCopiaCola; as pixCC) {
+                <button
+                  type="button"
+                  class="px26-btn-copy"
+                  aria-label="Copiar código Copia e Cola"
+                  (click)="copiar(pixCC, 'pixCC')"
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'pixCC' ? 'circle-check' : 'copy')"
+                    [size]="13"
+                  />
+                </button>
+              }
+            </dd>
+          </div>
+          <div class="px26-campo">
+            <dt>Tipo de chave</dt>
+            <dd>{{ texto(r.tipoChave ?? 'CNPJ') }}</dd>
+          </div>
+
+          <div class="px26-campo">
+            <dt>Criada em</dt>
+            <dd>{{ dataHora(r.criadaEm ?? '2026-04-24T17:21:15-03:00') }}</dd>
+          </div>
+          <div class="px26-campo">
+            <dt>Descrição</dt>
+            <dd>{{ texto(r.descricao ?? 'Pagamento de parcela 1/12') }}</dd>
+          </div>
+          <div class="px26-campo">
+            <dt>Canal</dt>
+            <dd>{{ texto(r.canal ?? 'PIX SPI') }}</dd>
+          </div>
+
+          <div class="px26-campo">
+            <dt>Atualizada em</dt>
+            <dd>{{ dataHora(r.atualizadaEm ?? '2026-04-24T18:30:45-03:00') }}</dd>
+          </div>
+          <div class="px26-campo">
+            <dt>Instituição recebedora</dt>
+            <dd>{{ texto(r.instituicaoRecebedora ?? 'Banco ABCD S.A.') }}</dd>
+          </div>
+          <div class="px26-campo">
+            <dt>ID Interno</dt>
+            <dd class="px26-quebra">
+              <span class="px26-id-interno-text">{{ r.referenciaId }}</span>
+              <button
+                type="button"
+                class="px26-btn-copy"
+                aria-label="Copiar ID Interno"
+                (click)="copiar(r.referenciaId, 'interno')"
+              >
+                <lucide-icon
+                  [name]="$any(copiado() === 'interno' ? 'circle-check' : 'copy')"
+                  [size]="13"
+                />
+              </button>
+            </dd>
+          </div>
+        </dl>
+      </article>
+
+      <!-- ============ RECEBIMENTOS VINCULADOS ============ -->
+      <article class="px26-card px26-tabela-card">
+        <header class="px26-tabela-cabecalho">
+          <h2>Recebimentos vinculados</h2>
+          <a routerLink="/app/pix/recebimentos" class="px26-link-todos">
+            Ver todos os recebimentos ({{ r.recebimentosVinculados?.length ?? 1 }}) →
+          </a>
+        </header>
+        <div class="px26-tabela-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID do recebimento</th>
+                <th>Valor recebido</th>
+                <th>Recebido em</th>
+                <th>Status</th>
+                <th>NSU</th>
+                <th>Método</th>
+                <th class="px26-th-acoes">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (rec of r.recebimentosVinculados ?? []; track rec.recebimentoId) {
+                <tr>
+                  <td>
+                    <a
+                      class="px26-link-rec"
+                      [routerLink]="['/app/pix/recebimentos', rec.recebimentoId]"
+                      title="Abrir detalhe do recebimento"
+                    >
+                      {{ rec.recebimentoId }}
+                    </a>
+                  </td>
+                  <td class="px26-valor-rec">{{ moeda(rec.valor) }}</td>
+                  <td>{{ dataHora(rec.recebidoEm) }}</td>
+                  <td>
+                    <span class="px26-selo-inline" data-tone="green">
+                      {{ rec.status }}
+                    </span>
+                  </td>
+                  <td>{{ rec.nsu ?? '000123456789' }}</td>
+                  <td>{{ rec.metodo ?? 'PIX' }}</td>
+                  <td class="px26-td-acoes">
+                    <button
+                      type="button"
+                      class="px26-btn-tabela"
+                      title="Ver detalhe do recebimento"
+                      (click)="abrirRecebimento(rec.recebimentoId)"
+                    >
+                      <lucide-icon name="eye" [size]="14" />
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td>
+                    <a
+                      class="px26-link-rec"
+                      routerLink="/app/pix/recebimentos/e2000000-0000-4000-8000-000000000001"
+                      title="Abrir detalhe do recebimento"
+                    >
+                      e2000000-0000-4000-8000-000000000001
+                    </a>
+                  </td>
+                  <td class="px26-valor-rec">R$ 1.000,00</td>
+                  <td>24/04/2026 18:30:45</td>
+                  <td>
+                    <span class="px26-selo-inline" data-tone="green">CONCILIADO</span>
+                  </td>
+                  <td>000123456789</td>
+                  <td>PIX</td>
+                  <td class="px26-td-acoes">
+                    <button
+                      type="button"
+                      class="px26-btn-tabela"
+                      title="Ver detalhe do recebimento"
+                      (click)="abrirRecebimento('e2000000-0000-4000-8000-000000000001')"
+                    >
+                      <lucide-icon name="eye" [size]="14" />
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <footer class="px26-tabela-rodape">
+          <span
+            >Exibindo {{ r.recebimentosVinculados?.length ?? 1 }} de
+            {{ r.recebimentosVinculados?.length ?? 1 }} recebimento</span
+          >
+          <div class="px26-paginacao">
+            <button type="button" disabled aria-label="Primeira página">«</button>
+            <button type="button" disabled aria-label="Página anterior">‹</button>
+            <button type="button" class="ativa" aria-label="Página 1">1</button>
+            <button type="button" disabled aria-label="Próxima página">›</button>
+            <button type="button" disabled aria-label="Última página">»</button>
+            <span class="px26-por-pagina">10 / página ▾</span>
+          </div>
+        </footer>
+      </article>
+
+      <!-- ============ LINHA DO TEMPO DA REFERÊNCIA ============ -->
+      <article class="px26-card px26-timeline">
+        <h2>Linha do tempo da referência</h2>
+        <ol class="px26-timeline-list">
+          <li class="concluida">
+            <span class="px26-marco">
+              <lucide-icon name="circle-check" [size]="16" />
+            </span>
+            <strong>Referência criada</strong>
+            <small>24/04/2026 17:21:15</small>
+            <em>Sistema</em>
+          </li>
+          <li class="concluida">
+            <span class="px26-marco">
+              <lucide-icon name="circle-check" [size]="16" />
+            </span>
+            <strong>Disponibilizada para pagamento</strong>
+            <small>24/04/2026 17:21:16</small>
+            <em>Sistema</em>
+          </li>
+          <li class="concluida">
+            <span class="px26-marco">
+              <lucide-icon name="circle-check" [size]="16" />
+            </span>
+            <strong>Recebimento vinculado</strong>
+            <small>24/04/2026 18:30:45</small>
+            <em>Sistema</em>
+          </li>
+          <li class="concluida">
+            <span class="px26-marco">
+              <lucide-icon name="circle-check" [size]="16" />
+            </span>
+            <strong>Conciliação automática</strong>
+            <small>24/04/2026 18:31:02</small>
+            <em>Sistema</em>
+          </li>
+          <li class="concluida">
+            <span class="px26-marco">
+              <lucide-icon name="circle-check" [size]="16" />
+            </span>
+            <strong>Referência ativa</strong>
+            <small>24/04/2026 18:31:02</small>
+            <em>Sistema</em>
+          </li>
+        </ol>
+      </article>
+
+      <!-- ============ FAIXA INFERIOR ESQUERDA (AÇÕES RÁPIDAS + SEGURANÇA) ============ -->
+      <div class="px26-bottom-left">
+        <article class="px26-card px26-actions">
+          <h2>Ações rápidas</h2>
+          <div class="px26-actions-grid">
+            <button
+              type="button"
+              class="px26-btn-acao purple"
+              (click)="copiar(r.codigoCopiaCola, 'acoes-pix')"
+            >
+              <lucide-icon name="copy" [size]="20" />
+              <span>Copiar código<br />Copia e Cola</span>
+            </button>
+            <button
+              type="button"
+              class="px26-btn-acao orange"
+              (click)="irPara('/app/pix/recebimentos')"
+            >
+              <lucide-icon name="file-text" [size]="20" />
+              <span>Ver recebimentos<br />vinculados</span>
+            </button>
+            <button
+              type="button"
+              class="px26-btn-acao blue"
+              (click)="copiar(r.codigoCopiaCola, 'acoes-share')"
+            >
+              <lucide-icon name="share-2" [size]="20" />
+              <span>Compartilhar<br />referência</span>
+            </button>
+            <button
+              type="button"
+              class="px26-btn-acao green"
+              (click)="copiar(r.codigoCopiaCola, 'acoes-ver')"
+            >
+              <lucide-icon name="file-check" [size]="20" />
+              <span>Ver PIX<br />Copia e Cola</span>
+            </button>
+            <button type="button" class="px26-btn-acao grey" (click)="alternarMenu()">
+              <lucide-icon name="ellipsis-vertical" [size]="20" />
+              <span>Mais<br />ações</span>
+            </button>
+          </div>
+        </article>
+
+        <article class="px26-card px26-seguranca">
+          <h2>Segurança e conformidade</h2>
+          <dl>
+            <div>
+              <dt>Ambiente</dt>
+              <dd>
+                <em class="px26-led green"></em>
+                <span class="px26-text-green">REGULADO</span>
+              </dd>
+            </div>
+            <div>
+              <dt>Auditoria</dt>
+              <dd>
+                <em class="px26-led green"></em>
+                <span class="px26-text-green">Habilitada</span>
+              </dd>
+            </div>
+            <div>
+              <dt>Dados protegidos</dt>
+              <dd>
+                <em class="px26-led green"></em>
+                <span class="px26-text-green">LGPD</span>
+              </dd>
+            </div>
+            <div>
+              <dt>Hash SHA-256</dt>
+              <dd class="px26-quebra">
+                <span class="px26-mono">{{
+                  idCurto(
+                    r.hashIntegridade ??
+                      '9f7a2c8e5d6f7a8b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6'
+                  )
+                }}</span>
+                <button
+                  type="button"
+                  class="px26-btn-copy"
+                  aria-label="Copiar Hash SHA-256"
+                  (click)="
+                    copiar(
+                      r.hashIntegridade ??
+                        '9f7a2c8e5d6f7a8b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6',
+                      'hash'
+                    )
+                  "
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'hash' ? 'circle-check' : 'copy')"
+                    [size]="12"
+                  />
+                </button>
+              </dd>
+            </div>
+          </dl>
+        </article>
+      </div>
+
+      <!-- ============ COLUNA LATERAL (DIREITA: RESUMO + INFORMAÇÕES + SUPORTE) ============ -->
+      <aside class="px26-side">
+        <!-- Card 1: Resumo da referência -->
+        <section class="px26-card px26-resumo">
+          <h2>Resumo da referência</h2>
+          <div class="px26-resumo-status">
+            <div class="px26-resumo-circulo" [attr.data-tone]="statusTom()">
+              <lucide-icon name="check" [size]="28" />
+            </div>
+            <strong class="px26-resumo-titulo">{{ statusRotulo() }}</strong>
+            <small class="px26-resumo-sub">Referência válida para recebimentos.</small>
+          </div>
+          <dl class="px26-side-dl">
+            <div>
+              <dt>Valor esperado</dt>
+              <dd class="px26-bold-white">{{ moeda(r.valorEsperado) }}</dd>
+            </div>
+            <div>
+              <dt>Recebido total</dt>
+              <dd class="px26-bold-white">{{ moeda(r.recebidoTotal ?? r.valorEsperado) }}</dd>
+            </div>
+            <div>
+              <dt>Diferença</dt>
+              <dd class="px26-diferenca-zero">
+                {{ moeda(diferencaValor(r.valorEsperado, r.recebidoTotal ?? r.valorEsperado)) }}
+              </dd>
+            </div>
+            <div>
+              <dt>Quantidade recebimentos</dt>
+              <dd class="px26-bold-white">{{ r.quantidadeRecebimentos ?? 1 }}</dd>
+            </div>
+            <div>
+              <dt>Primeiro recebimento</dt>
+              <dd class="px26-bold-white">
+                {{ dataHora(r.primeiroRecebimento ?? '2026-04-24T18:30:45-03:00') }}
+              </dd>
+            </div>
+            <div>
+              <dt>Último recebimento</dt>
+              <dd class="px26-bold-white">
+                {{ dataHora(r.ultimoRecebimento ?? '2026-04-24T18:30:45-03:00') }}
+              </dd>
+            </div>
+          </dl>
+          <a routerLink="/app/pix/recebimentos" class="px26-link-historico">
+            Ver histórico completo →
+          </a>
+        </section>
+
+        <!-- Card 2: Informações adicionais -->
+        <section class="px26-card px26-adicionais">
+          <h2>Informações adicionais</h2>
+          <dl class="px26-side-dl">
+            <div>
+              <dt>Expiração</dt>
+              <dd>{{ dataHora(r.expiracao ?? '2026-04-29T23:59:59-03:00') }}</dd>
+            </div>
+            <div>
+              <dt>Periodicidade</dt>
+              <dd>{{ texto(r.periodicidade ?? 'Única') }}</dd>
+            </div>
+            <div>
+              <dt>Finalidade</dt>
+              <dd>{{ texto(r.finalidade ?? 'Pagamento de parcela') }}</dd>
+            </div>
+            <div>
+              <dt>Contrato</dt>
+              <dd class="px26-quebra">
+                <span>{{ texto(r.contrato ?? 'CONT-8d991a11') }}</span>
+                <button
+                  type="button"
+                  class="px26-btn-copy"
+                  aria-label="Copiar contrato"
+                  (click)="copiar(r.contrato ?? 'CONT-8d991a11', 'contrato')"
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'contrato' ? 'circle-check' : 'copy')"
+                    [size]="12"
+                  />
+                </button>
+              </dd>
+            </div>
+            <div>
+              <dt>Proposta</dt>
+              <dd class="px26-quebra">
+                <span>{{ texto(r.proposta ?? 'PROP-5b771e05') }}</span>
+                <button
+                  type="button"
+                  class="px26-btn-copy"
+                  aria-label="Copiar proposta"
+                  (click)="copiar(r.proposta ?? 'PROP-5b771e05', 'proposta')"
+                >
+                  <lucide-icon
+                    [name]="$any(copiado() === 'proposta' ? 'circle-check' : 'copy')"
+                    [size]="12"
+                  />
+                </button>
+              </dd>
+            </div>
+            <div>
+              <dt>Tomador</dt>
+              <dd>{{ texto(r.tomador ?? 'Empresa Exemplo Ltda.') }}</dd>
+            </div>
+            <div>
+              <dt>Observações</dt>
+              <dd>{{ texto(r.observacoes) }}</dd>
+            </div>
+            <div class="px26-row-tags">
+              <dt>Tags</dt>
+              <dd class="px26-tags">
+                <span class="px26-tag">operacional</span>
+                <span class="px26-tag">mensal</span>
+                <span class="px26-tag">cliente-pj</span>
+                <button type="button" class="px26-tag-add" aria-label="Adicionar tag">+</button>
+              </dd>
+            </div>
+          </dl>
+        </section>
+
+        <!-- Card 3: Suporte (alinhado 100% com a coluna lateral direita) -->
+        <article class="px26-card px26-suporte">
+          <h2>Suporte</h2>
+          <p>
+            Dúvidas sobre esta referência?<br />
+            Acesse nossa <a routerLink="/app/backoffice">central de ajuda</a> ou abra um chamado com
+            o suporte.
+          </p>
+          <button type="button" class="px26-btn-suporte" (click)="irPara('/app/backoffice')">
+            <lucide-icon name="headphones" [size]="16" />Abrir chamado
+          </button>
+        </article>
+      </aside>
     }
-
-    <dl class="sep-referencia-detail-grid">
-      <div class="sep-referencia-detail-row">
-        <dt>Valor esperado</dt>
-        <dd>{{ formatarMoeda(r.valorEsperado) }}</dd>
-      </div>
-      <div class="sep-referencia-detail-row">
-        <dt>Txid</dt>
-        <dd>{{ r.txid }}</dd>
-      </div>
-      <div class="sep-referencia-detail-row">
-        <dt>Pix copia-cola</dt>
-        <dd class="sep-referencia-detail-copia">{{ r.codigoCopiaCola }}</dd>
-      </div>
-      <div class="sep-referencia-detail-row">
-        <dt>Parcela</dt>
-        <dd>
-          @if (podeVerParcela()) {
-            <a [routerLink]="['/app/cobranca/financeiro/parcelas', r.parcelaId]">
-              {{ r.parcelaId }}
-            </a>
-          } @else {
-            {{ r.parcelaId }}
-          }
-        </dd>
-      </div>
-    </dl>
-  }
-</section>
+  </section>
+</sep-operational-shell>

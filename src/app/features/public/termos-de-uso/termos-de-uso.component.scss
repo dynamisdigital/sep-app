@@ -1,0 +1,105 @@
+// ============ TERMOS DE USO ============
+// O layout de documento legal (índice fixo + prosa) vale para esta página e para a política de
+// privacidade; as duas incluem os mesmos mixins com prefixo próprio.
+
+@use "../shared/site-tema" as site;
+@use "../../../../styles/sep-responsivo" as resp;
+
+:host {
+  @include site.tokens;
+}
+
+@include site.base("px54");
+@include site.prosa("px54");
+
+.px54-vigencia {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-self: start;
+  margin: 4px 0 0;
+  color: var(--site-fraco);
+  font-size: 0.86rem;
+}
+
+.px54-vigencia lucide-icon {
+  display: grid;
+  place-items: center;
+}
+
+.px54-corpo {
+  display: grid;
+  grid-template-columns: 268px minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+}
+
+// O índice acompanha a leitura em telas largas.
+.px54-indice {
+  position: sticky;
+  top: 26px;
+  padding: 22px;
+  border: 1px solid var(--site-linha);
+  border-radius: 16px;
+  background: var(--site-cartao);
+}
+
+.px54-indice p {
+  margin: 0 0 12px;
+  color: var(--site-fraco);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.px54-indice ol {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.px54-indice a {
+  display: block;
+  padding: 6px 10px;
+  color: var(--site-suave);
+  font-size: 0.85rem;
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  border-radius: 0 8px 8px 0;
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease;
+}
+
+.px54-indice a:hover {
+  color: var(--site-texto);
+  border-left-color: var(--site-ciano);
+  background: rgb(var(--lp-c-ciano) / 8%);
+}
+
+.px54-prosa {
+  max-width: 760px;
+}
+
+@include resp.ate-estreita {
+  .px54-corpo {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+  }
+
+  .px54-indice {
+    position: static;
+  }
+
+  .px54-indice ol {
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    display: grid;
+  }
+}
+
+// Janela panoramica: texto em colunas na altura da tela (ver `site.documento-panoramico`).
+@include site.documento-panoramico("px54");

@@ -1,0 +1,258 @@
+[
+  {
+    "sha256": "38297FB1594280C5C60E596384F7DC7E351E384E510AE1F7AC2A526EC3906F07",
+    "arquivo": "assets/backoffice/00_backoffice_banner.png"
+  },
+  {
+    "sha256": "A30D8DF239AB5A4D38A15AFCE765CAD9F65CFEBA207E24C3B6F9AD312D1BEDFC",
+    "arquivo": "assets/backoffice/00_backoffice_banner.webp"
+  },
+  {
+    "sha256": "3F32BCBE05AF1A4A03B443ADC13A73BDA5237C0BF0DCC3301190873F4E0866D8",
+    "arquivo": "assets/backoffice/01_triagem_cadastral.png"
+  },
+  {
+    "sha256": "043B7A34B089256E1CA9D0E9457A757DF84FBB1D87954315C05AB332300A22D1",
+    "arquivo": "assets/backoffice/01_triagem_cadastral.webp"
+  },
+  {
+    "sha256": "D2D3183AA5485F789FF6CABA92936E193B5267E90DEB023994FBEDB871BA35F8",
+    "arquivo": "assets/backoffice/02_conferencia_documental.png"
+  },
+  {
+    "sha256": "0BA19CCD587F16FD5EC233A5ABBC726D4480597C83B0B7DA78C86E773C17454B",
+    "arquivo": "assets/backoffice/02_conferencia_documental.webp"
+  },
+  {
+    "sha256": "BE75D6060639C8AF2EAC1C38BEEB95046B075851BE250CCAF9F014FAF3CFA2E2",
+    "arquivo": "assets/backoffice/03_gestao_operacoes.png"
+  },
+  {
+    "sha256": "AA50AEF6B3998EAFD7085192D4446FA6C34A1046A54E4DBF769C75790F41EB7B",
+    "arquivo": "assets/backoffice/03_gestao_operacoes.webp"
+  },
+  {
+    "sha256": "CB3E0ED054F5C76AC77451D6C5CBA458DB7246289FCD80C25AF9A4A94A46FCDE",
+    "arquivo": "assets/backoffice/04_conciliacao_acompanhamento.png"
+  },
+  {
+    "sha256": "A40DF68F68E4C5E9FF3A117BB202CDD9617AE77D4BE7A4B207CF8C677AD17AD0",
+    "arquivo": "assets/backoffice/04_conciliacao_acompanhamento.webp"
+  },
+  {
+    "sha256": "8C8F5B394530E77CC62721AD7AA95B8AE2541BD5AA8D6C82B1D4753D4BCB9043",
+    "arquivo": "assets/backoffice/05_indicadores_auditoria.png"
+  },
+  {
+    "sha256": "C6181A83C5934F525E7CBD22B5F9857DEC160A7B9FD123BA8096C17C8C3877B6",
+    "arquivo": "assets/backoffice/05_indicadores_auditoria.webp"
+  },
+  {
+    "sha256": "E4B4509AA50DEB59EE366FD88AFDF176BBC2E6D0D0BDA7B1B694469D13576B3B",
+    "arquivo": "assets/cliente/00_cliente_banner.png"
+  },
+  {
+    "sha256": "987010B72BE22AF9025AC6B662EE3B37456285B27246D4D2BCF188D264713745",
+    "arquivo": "assets/cliente/00_cliente_banner.webp"
+  },
+  {
+    "sha256": "0A029AB56ED9405C618EE971D9E127CDC2D9BBD6A9C987F1032F7443B2F1E43C",
+    "arquivo": "assets/cliente/01_cadastro_verificacao.png"
+  },
+  {
+    "sha256": "668C99BE2F2F78D62DF8014FD54888752B248AD99772EB83F8ADE0C0A0EBE358",
+    "arquivo": "assets/cliente/01_cadastro_verificacao.webp"
+  },
+  {
+    "sha256": "4CBA0C54FC187F4052F4A0F96A7910D03B67D4704C25C94DA76FB66C58409D9A",
+    "arquivo": "assets/cliente/02_solicitacao_credito.png"
+  },
+  {
+    "sha256": "B5915AC355F8E055138DDE2CCB4A2CC5BDD88E9B22C42EBA94295D9EAEBB08AA",
+    "arquivo": "assets/cliente/02_solicitacao_credito.webp"
+  },
+  {
+    "sha256": "1A56A7F621649723E439CA1D8EC6334D633F372A9D56FFE28E8C943DCB4BBDD8",
+    "arquivo": "assets/cliente/03_analise_proposta.png"
+  },
+  {
+    "sha256": "4D16D3BB3DAAFAF9B87200C011C865F46F9DE56D5307BD4017CD5D13EA2FC125",
+    "arquivo": "assets/cliente/03_analise_proposta.webp"
+  },
+  {
+    "sha256": "4FBD91195081DBB7200062476F7A74B892723DDE7D6DEEAE0BA430A22FECD04F",
+    "arquivo": "assets/cliente/04_contratacao_liberacao.png"
+  },
+  {
+    "sha256": "C52DAD4A86D4F5C775AFDCBBF52D400127F2DC261FCD972131DD001C5B568831",
+    "arquivo": "assets/cliente/04_contratacao_liberacao.webp"
+  },
+  {
+    "sha256": "E9B1021A9E6E879575BB87FB411F0FB23D46E4E1433877C4ACAFFF09080E2CE0",
+    "arquivo": "assets/cliente/05_acompanhamento_quitacao.png"
+  },
+  {
+    "sha256": "3917351B576A45CEDD88216110FD69354FC14DF56E518599EA9BD350F5FC3666",
+    "arquivo": "assets/cliente/05_acompanhamento_quitacao.webp"
+  },
+  {
+    "sha256": "1DC4938BEE142C9AA8EE84A14BDC8D353A685B9DDC54D9D28B1EEB48D39427D1",
+    "arquivo": "assets/correspondente/00_correspondente_banner.png"
+  },
+  {
+    "sha256": "DC1E9B4ACFB48E2388662DBC195CB741FEFDF136A22BAB266200EA6351A54853",
+    "arquivo": "assets/correspondente/00_correspondente_banner.webp"
+  },
+  {
+    "sha256": "A00677E345C44A5913DF5560424D64A90DAEABD233B92BC33CB3E3880BFA43AE",
+    "arquivo": "assets/correspondente/01_cadastro_cliente.png"
+  },
+  {
+    "sha256": "7451721916A12341AC283DD76D2CCC412A89E01DC654CF2B8FC711E337E2585C",
+    "arquivo": "assets/correspondente/01_cadastro_cliente.webp"
+  },
+  {
+    "sha256": "5CA2A6D66CDF17CD14FB34286472707659D867F587C90E7350D7ADCF88451BB0",
+    "arquivo": "assets/correspondente/02_proposta_analise.png"
+  },
+  {
+    "sha256": "FC99C1445DB09AF8718F6B2D9DF57458AC4BCCA02986B4A98159255799CE2C95",
+    "arquivo": "assets/correspondente/02_proposta_analise.webp"
+  },
+  {
+    "sha256": "9DDA0E9A5BD89FC1D728D661459220FA016D7BC34E71E539C831C03724FF8014",
+    "arquivo": "assets/correspondente/03_acompanhamento.png"
+  },
+  {
+    "sha256": "8D37C939113EF5334CA8A15E2C81F1F99E93B25F3B0418F37CC26BACAF21519A",
+    "arquivo": "assets/correspondente/03_acompanhamento.webp"
+  },
+  {
+    "sha256": "50A31FFD032D7DECFA32FBE0FABC6161BD14B47DF8B93953910BEE867BF3E5F1",
+    "arquivo": "assets/correspondente/04_formalizacao_liberacao.png"
+  },
+  {
+    "sha256": "6B98DC847B5ABD471DFF41C62A582656B89695EBFE1064F774D9F87C1F4625BC",
+    "arquivo": "assets/correspondente/04_formalizacao_liberacao.webp"
+  },
+  {
+    "sha256": "03D3ADFB8D7E47A50CC0823F1C22AB18B8D895522FA96A472A2D6990BC34D6AF",
+    "arquivo": "assets/correspondente/05_comissao_resultados.png"
+  },
+  {
+    "sha256": "3F2E0F7F7768FEDFF1620DB4052DCAB7D4DC13F943C49B928F937CB9953FD6FB",
+    "arquivo": "assets/correspondente/05_comissao_resultados.webp"
+  },
+  {
+    "sha256": "CEE40AEA1AEE25D198B413B844869FCA94EF3454B19BA3A445BDF12A7CA2FA91",
+    "arquivo": "assets/financiador/00_financiador_banner.png"
+  },
+  {
+    "sha256": "DC10881E94128E093C3ED34878ABF3A15AE7873481BE5715A9337145A1D4E5EB",
+    "arquivo": "assets/financiador/00_financiador_banner.webp"
+  },
+  {
+    "sha256": "2608E6A73B812EA9DD9EC57521B803FC66C982BEA557FE9E3BEE31DCB7679D5E",
+    "arquivo": "assets/financiador/01_cadastro_financiador.png"
+  },
+  {
+    "sha256": "8BE30B08B4EE31197E86968F58E20FABBD44BBC4BB84260B129382AF786AB0C2",
+    "arquivo": "assets/financiador/01_cadastro_financiador.webp"
+  },
+  {
+    "sha256": "BA09782F028F523148045473F748305A20B7AF7CB058750F9EB84E5DC07FFBCC",
+    "arquivo": "assets/financiador/02_selecao_oportunidades.png"
+  },
+  {
+    "sha256": "8083361BD73673A215B3691A6ED9330633C996F8885DACA68DE419000BBC172B",
+    "arquivo": "assets/financiador/02_selecao_oportunidades.webp"
+  },
+  {
+    "sha256": "162E478B7D5683F5EBC73E64D43C55753890931ACBDD333A76E2AC27D14D2981",
+    "arquivo": "assets/financiador/03_analise_riscos_condicoes.png"
+  },
+  {
+    "sha256": "94B28AD9EC06B1B39896DFC4FEA828C52064851FD71690D254759D1BA535716B",
+    "arquivo": "assets/financiador/03_analise_riscos_condicoes.webp"
+  },
+  {
+    "sha256": "269C45320C38241755F6A033E9CA4D6D6A21B2F1525FC743D4418ACCAB1C6818",
+    "arquivo": "assets/financiador/04_formalizacao_participacao.png"
+  },
+  {
+    "sha256": "BD6D8DA954B76B78911997D6D4B4B58FF66FC900FCB53595CA5B9DDD605018DF",
+    "arquivo": "assets/financiador/04_formalizacao_participacao.webp"
+  },
+  {
+    "sha256": "6CA47D18FABD15E82182970C3C0C71ED85EC4DCBB365E7F1EE94F4B1F4BCA0BA",
+    "arquivo": "assets/financiador/05_carteira_recebimentos.png"
+  },
+  {
+    "sha256": "53E2109C1055D0F3C006E37C156405D92408CB555A30AAB576C283E816C6DF8F",
+    "arquivo": "assets/financiador/05_carteira_recebimentos.webp"
+  },
+  {
+    "sha256": "020D6C1C767B465B3D7639FF6F3BA39E5E67813556EECAF42F681DA21AA0821B",
+    "arquivo": "assets/operacao_completa/00_operacao_completa_banner.png"
+  },
+  {
+    "sha256": "7BC423F3196683F53C9132CD5D00CC2D468C31C5507C717836FDC82C2FF722AD",
+    "arquivo": "assets/operacao_completa/00_operacao_completa_banner.webp"
+  },
+  {
+    "sha256": "CE7704F329B5B7D60BB07402A12453720781C7C5709A4DBB445E35153847B4D4",
+    "arquivo": "assets/operacao_completa/01_operacao_completa_exclusiva.png"
+  },
+  {
+    "sha256": "085764EE5E0F481235653C4E25C0ADEA4AEF7422A73CB2BFB9B0BD55853F6445",
+    "arquivo": "assets/operacao_completa/01_operacao_completa_exclusiva.webp"
+  },
+  {
+    "sha256": "020D6C1C767B465B3D7639FF6F3BA39E5E67813556EECAF42F681DA21AA0821B",
+    "arquivo": "assets/subcorrespondente/00_subcorrespondente_banner.png"
+  },
+  {
+    "sha256": "7BC423F3196683F53C9132CD5D00CC2D468C31C5507C717836FDC82C2FF722AD",
+    "arquivo": "assets/subcorrespondente/00_subcorrespondente_banner.webp"
+  },
+  {
+    "sha256": "17579C18570B0B873BF591955D339E8C25EB5427F0414F917AD21D94244CB14F",
+    "arquivo": "assets/subcorrespondente/01_ativacao_na_rede.png"
+  },
+  {
+    "sha256": "237261C93F1365F354E4919D34EFC6325205559AD86D448C7B7DDEF59DF34E74",
+    "arquivo": "assets/subcorrespondente/01_ativacao_na_rede.webp"
+  },
+  {
+    "sha256": "0A403F6081B248BF8F39E8695674AA55FED5D3971A007738217A210A6D2F0C7F",
+    "arquivo": "assets/subcorrespondente/02_atendimento_e_cadastro.png"
+  },
+  {
+    "sha256": "96C0A90FE50B8D55688C7EB56EEE4580D5CBA374F05DE2667315B252DA565453",
+    "arquivo": "assets/subcorrespondente/02_atendimento_e_cadastro.webp"
+  },
+  {
+    "sha256": "4513CF250FFF05D816EBFFBF4B9C2D431817F66AB6A2DF0862B1DCFD4867BABB",
+    "arquivo": "assets/subcorrespondente/03_propostas_e_acompanhamento.png"
+  },
+  {
+    "sha256": "BAE1675C6342BF0300F61625E723AC08177EA2E040D5776B2DA809D841A224B2",
+    "arquivo": "assets/subcorrespondente/03_propostas_e_acompanhamento.webp"
+  },
+  {
+    "sha256": "AB9553F7A8C647B0EE745F9C8E632CB56E2D7436C978442348345A7E2B97C8EC",
+    "arquivo": "assets/subcorrespondente/04_formalizacao.png"
+  },
+  {
+    "sha256": "EC6D1C352E6847320EBE31AC9F3D49168925CFD033813F06C6FBC2ABB4045C0A",
+    "arquivo": "assets/subcorrespondente/04_formalizacao.webp"
+  },
+  {
+    "sha256": "69F434F4DE0523D715F702A15D3F1A08956972E2DA9F24087A3E7E9266BA5C1F",
+    "arquivo": "assets/subcorrespondente/05_carteira_e_comissoes.png"
+  },
+  {
+    "sha256": "64E489320E434EEA8B2FA89191E12A84D4B72B67F1479624A44E8453DE488BD0",
+    "arquivo": "assets/subcorrespondente/05_carteira_e_comissoes.webp"
+  }
+]

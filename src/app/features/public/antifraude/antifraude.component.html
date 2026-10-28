@@ -1,0 +1,109 @@
+<sep-public-shell>
+  <section class="px63-page">
+    <div class="px63-hero">
+      <header class="px63-heading" sepEntrada="esquerda">
+        <p class="px63-kicker"><lucide-icon name="shield-alert" [size]="14" />Antifraude</p>
+        <h1>Crédito de verdade <em>não pede pagamento</em> antes de liberar o dinheiro.</h1>
+        <p class="px63-lead">
+          O golpe do empréstimo com depósito antecipado é o mais comum do setor. Veja o que o
+          Dynamis SEP nunca faz, como reconhecer uma tentativa e o que fazer se ela acontecer com
+          você.
+        </p>
+      </header>
+      <div class="px63-hero-arte" sepEntrada="direita" [entradaAtraso]="120">
+        <sep-ilustracao
+          cena="alerta"
+          descricao="Alerta de golpe: telefone, pedido de depósito e aviso"
+        />
+      </div>
+    </div>
+
+    <section class="px63-secao" aria-labelledby="px63-nunca">
+      <div class="px63-secao-topo" sepEntrada="esquerda">
+        <h2 id="px63-nunca">O que o Dynamis SEP nunca faz</h2>
+        <p>Se alguém em nosso nome fizer qualquer uma destas coisas, é golpe.</p>
+      </div>
+      <div class="px63-grade">
+        @for (item of nunca; track item.titulo; let i = $index) {
+          <article
+            class="px63-card"
+            [attr.data-tone]="item.tom"
+            [sepEntrada]="i % 2 === 0 ? 'esquerda' : 'direita'"
+            [entradaAtraso]="i * 70"
+          >
+            <span class="px63-card-icone"><lucide-icon [name]="item.icone" [size]="22" /></span>
+            <h3>{{ item.titulo }}</h3>
+            <p>{{ item.descricao }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="px63-secao px63-duas" aria-labelledby="px63-sinais">
+      <div class="px63-duas-texto">
+        <div class="px63-secao-topo" sepEntrada="esquerda">
+          <h2 id="px63-sinais">Como reconhecer um golpe</h2>
+          <p>Um só destes sinais já é motivo para parar e confirmar por um canal oficial.</p>
+        </div>
+        <ul class="px63-sinais">
+          @for (sinal of sinais; track sinal; let i = $index) {
+            <li sepEntrada="base" [entradaAtraso]="i * 60">
+              <lucide-icon name="triangle-alert" [size]="18" />
+              <span>{{ sinal }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+      <div class="px63-canais" sepEntrada="direita">
+        <h3>Canais oficiais</h3>
+        <dl>
+          <dt>E-mail</dt>
+          <dd>{{ contato.email }}</dd>
+          <dt>Atendimento</dt>
+          <dd>{{ contato.atendimento }}</dd>
+          <dt>Endereço</dt>
+          <dd>{{ contato.endereco }}</dd>
+        </dl>
+        <p>
+          Na dúvida sobre um contato, confirme pelo e-mail oficial antes de responder. Não use
+          telefones ou links recebidos por mensagem.
+        </p>
+      </div>
+    </section>
+
+    <section class="px63-secao" aria-labelledby="px63-passos">
+      <div class="px63-secao-topo" sepEntrada="direita">
+        <h2 id="px63-passos">Se aconteceu com você</h2>
+        <p>Quatro passos, na ordem.</p>
+      </div>
+      <div class="px63-grade">
+        @for (item of passos; track item.titulo; let i = $index) {
+          <article
+            class="px63-card"
+            [attr.data-tone]="item.tom"
+            sepEntrada="base"
+            [entradaAtraso]="i * 80"
+          >
+            <span class="px63-card-icone"><lucide-icon [name]="item.icone" [size]="22" /></span>
+            <h3>{{ item.titulo }}</h3>
+            <p>{{ item.descricao }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    <div class="px63-chamada" sepEntrada="escala">
+      <h2>Viu algo suspeito?</h2>
+      <p>
+        Envie o endereço do site, o número ou a mensagem para o canal oficial. Reportes de boa-fé
+        ajudam a proteger outras pessoas.
+      </p>
+      <div class="px63-chamada-acoes">
+        <a class="px63-btn-primary" routerLink="/contato">
+          <lucide-icon name="mail" [size]="18" />Avisar o canal oficial
+        </a>
+        <a class="px63-btn-secondary" routerLink="/seguranca">Segurança da plataforma</a>
+      </div>
+    </div>
+  </section>
+</sep-public-shell>

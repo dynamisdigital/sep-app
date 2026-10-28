@@ -1,64 +1,326 @@
-<section class="sep-profile">
-  <header class="sep-profile-header">
-    <h1 class="sep-profile-title">Meu perfil</h1>
-    <div class="sep-profile-actions">
-      <a routerLink="/app/profile/change-password" class="sep-profile-action-link">
-        Alterar senha
-      </a>
-      <button
-        type="button"
-        class="sep-profile-action-button"
-        (click)="recarregar()"
-        [disabled]="loadingUser()"
-      >
-        {{ loadingUser() ? 'Carregando...' : 'Recarregar' }}
+<sep-operational-shell>
+  <div class="profile-page op-pagina-rolavel">
+    <nav class="profile-breadcrumb" aria-label="Navegação estrutural">
+      <a routerLink="/app/dashboard">Início</a>
+      <span aria-hidden="true">›</span>
+      <strong>Meu perfil</strong>
+    </nav>
+
+    <header class="profile-heading">
+      <div>
+        <h1>Meu perfil</h1>
+        <p>
+          Gerencie suas informações pessoais, segurança e o histórico de auditoria da sua conta.
+        </p>
+      </div>
+      <button type="button" class="profile-outline-button" (click)="startEditing()">
+        <lucide-icon name="user-pen" [size]="14" [strokeWidth]="2.25" />
+        Editar perfil
       </button>
-    </div>
-  </header>
+    </header>
 
-  @if (currentUser(); as user) {
-    <div class="sep-profile-grid">
-      <article class="sep-profile-card">
-        <h2 class="sep-profile-card-title">Identificacao</h2>
-        <dl class="sep-profile-list">
-          <div class="sep-profile-list-row">
-            <dt>E-mail</dt>
-            <dd>{{ user.username }}</dd>
-          </div>
-          <div class="sep-profile-list-row">
-            <dt>Perfil</dt>
-            <dd>{{ user.role }}</dd>
-          </div>
-          <div class="sep-profile-list-row">
-            <dt>ID</dt>
-            <dd class="sep-profile-mono">{{ user.id }}</dd>
-          </div>
-        </dl>
-      </article>
+    @if (loading()) {
+      <div class="profile-state" role="status">Carregando informações do perfil...</div>
+    } @else if (errorMessage()) {
+      <div class="profile-state profile-state-error" role="alert">
+        <span>{{ errorMessage() }}</span>
+        <button type="button" (click)="loadProfile()">Tentar novamente</button>
+      </div>
+    } @else if (currentUser(); as user) {
+      @if (profile(); as details) {
+        @if (feedbackMessage()) {
+          <p class="profile-feedback" role="status">{{ feedbackMessage() }}</p>
+        }
 
-      <article class="sep-profile-card">
-        <h2 class="sep-profile-card-title">Auditoria</h2>
-        <dl class="sep-profile-list">
-          <div class="sep-profile-list-row">
-            <dt>Criado em</dt>
-            <dd>{{ user.dataCriacao }}</dd>
+        <section class="profile-hero profile-panel">
+          <div class="profile-avatar">
+            <span aria-hidden="true">{{ inicial() }}</span>
           </div>
-          <div class="sep-profile-list-row">
-            <dt>Modificado em</dt>
-            <dd>{{ user.dataModificacao }}</dd>
+          <div class="profile-identity">
+            <div>
+              <h2>{{ user.username }}</h2>
+              <em>{{ user.role }}</em>
+            </div>
+            <strong>Perfil operacional</strong>
+            <small>ID da conta</small>
+            <p>
+              {{ user.id }}
+              <button type="button" aria-label="Copiar ID da conta" (click)="copyAccountId()">
+                <span class="profile-copy-icon" aria-hidden="true"></span>
+              </button>
+            </p>
           </div>
-          <div class="sep-profile-list-row">
-            <dt>Criado por</dt>
-            <dd class="sep-profile-mono">{{ user.criadoPor }}</dd>
+          <div class="profile-account-status">
+            <lucide-icon
+              class="profile-account-status-icon"
+              name="shield-check"
+              [size]="47"
+              [strokeWidth]="1"
+            />
+            <div>
+              <span>Status da conta</span>
+              <strong>Conta ativa e verificada</strong>
+              <small>Acesso liberado para todas as funcionalidades autorizadas.</small>
+            </div>
           </div>
-          <div class="sep-profile-list-row">
-            <dt>Modificado por</dt>
-            <dd class="sep-profile-mono">{{ user.modificadoPor }}</dd>
+          <div class="profile-environment">
+            <span>Ambiente</span>
+            <strong>Regulado</strong>
+            <small>Resolução CMN 4.656/2018</small>
           </div>
-        </dl>
-      </article>
-    </div>
-  } @else {
-    <p class="sep-profile-empty">Nenhum dado de usuario disponivel no momento.</p>
-  }
-</section>
+          <div class="profile-regulatory-art" aria-hidden="true">
+            <sep-arte nome="escudo-heroi" />
+          </div>
+        </section>
+
+        <div class="profile-grid">
+          <section class="profile-panel profile-access">
+            <h2>Identificação e Acesso</h2>
+            <dl class="profile-rows">
+              <div>
+                <dt><lucide-icon name="mail" [size]="21" [strokeWidth]="2.25" /> E-mail</dt>
+                <dd>{{ user.username }}</dd>
+              </div>
+              <div>
+                <dt><lucide-icon name="user-round" [size]="23" [strokeWidth]="2" /> Perfil</dt>
+                <dd>{{ user.role }}</dd>
+              </div>
+              <div>
+                <dt>
+                  <lucide-icon name="key-round" [size]="21" [strokeWidth]="2.25" /> Nível de acesso
+                </dt>
+                <dd>
+                  <span class="profile-chip">{{ details.nivelAcesso }}</span>
+                </dd>
+              </div>
+              <div>
+                <dt><lucide-icon name="clock" [size]="24" [strokeWidth]="2" /> Último acesso</dt>
+                <dd>
+                  {{ formatDate(details.ultimoAcesso) }}
+                  <span class="profile-now-badge">Agora</span>
+                </dd>
+              </div>
+              <div>
+                <dt>
+                  <lucide-icon name="lock-keyhole" [size]="23" [strokeWidth]="2" /> MFA (Segundo
+                  fator)
+                </dt>
+                <dd>
+                  <span
+                    class="profile-live-state"
+                    [class.profile-live-state-off]="!user.mfaHabilitado"
+                  >
+                    <i aria-hidden="true"></i>
+                    {{ user.mfaHabilitado ? 'Ativado' : 'Desativado' }}
+                  </span>
+                </dd>
+              </div>
+              <div>
+                <dt>
+                  <lucide-icon name="monitor" [size]="26" [strokeWidth]="1.75" /> Status da sessão
+                </dt>
+                <dd>
+                  <span class="profile-live-state">
+                    <i aria-hidden="true"></i>
+                    Ativa
+                  </span>
+                </dd>
+              </div>
+              <div>
+                <dt>
+                  <lucide-icon name="smartphone" [size]="24" [strokeWidth]="2" />
+                  Dispositivos autorizados
+                </dt>
+                <dd>{{ details.dispositivosAutorizados }} dispositivos <span>›</span></dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="profile-panel profile-audit">
+            <sep-arte class="profile-audit-art" nome="prancheta" />
+            <header>
+              <h2>Auditoria da Conta</h2>
+              <button type="button" class="profile-export" (click)="exportReport()">
+                <lucide-icon name="file-down" [size]="14" [strokeWidth]="2.25" />
+                Exportar relatório
+              </button>
+            </header>
+            <dl class="profile-rows">
+              <div>
+                <dt>
+                  <lucide-icon name="calendar" [size]="24" [strokeWidth]="2" />
+                  Criado em
+                </dt>
+                <dd>{{ formatDate(user.dataCriacao) }}</dd>
+              </div>
+              <div>
+                <dt>
+                  <lucide-icon name="calendar-clock" [size]="24" [strokeWidth]="2" />
+                  Modificado em
+                </dt>
+                <dd>{{ formatDate(user.dataModificacao) }}</dd>
+              </div>
+              <div>
+                <dt><lucide-icon name="user" [size]="24" [strokeWidth]="2" /> Criado por</dt>
+                <dd>{{ user.criadoPor }}</dd>
+              </div>
+              <div>
+                <dt>
+                  <lucide-icon name="user-pen" [size]="21" [strokeWidth]="2.25" />
+                  Modificado por
+                </dt>
+                <dd>{{ user.modificadoPor }}</dd>
+              </div>
+              <div>
+                <dt>
+                  <lucide-icon name="fingerprint" [size]="22" [strokeWidth]="2.25" />
+                  Última autenticação
+                </dt>
+                <dd>{{ formatDate(details.ultimaAutenticacao) }}</dd>
+              </div>
+              <div>
+                <dt>
+                  <lucide-icon name="shield-alert" [size]="24" [strokeWidth]="2" />
+                  Tentativas de login (24h)
+                </dt>
+                <dd class="profile-success">{{ details.tentativasLogin24h }} falhas</dd>
+              </div>
+              <div>
+                <dt>
+                  <lucide-icon name="scroll-text" [size]="23" [strokeWidth]="2" /> Logs de auditoria
+                </dt>
+                <dd class="profile-link">Ver histórico completo <span>›</span></dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="profile-panel profile-security">
+            <h2>Segurança da conta</h2>
+            <div class="profile-security-grid">
+              <article>
+                <lucide-icon name="key-round" [size]="54" [strokeWidth]="1" />
+                <span>Senha forte</span>
+                <strong>{{ details.senhaForte ? 'Protegida' : 'Revisar' }}</strong>
+              </article>
+              <article>
+                <lucide-icon name="lock-keyhole" [size]="37" [strokeWidth]="1.25" />
+                <span>MFA</span>
+                <strong>{{ user.mfaHabilitado ? 'Ativado' : 'Desativado' }}</strong>
+                <!-- Sem este atalho a habilitação do TOTP não tinha porta de entrada: só o
+                     step-up levava até ela, e só depois de uma operação ser recusada. -->
+                @if (!user.mfaHabilitado) {
+                  <a class="profile-mfa-link" routerLink="/app/profile/setup-totp">
+                    Habilitar agora <span aria-hidden="true">›</span>
+                  </a>
+                }
+              </article>
+              <article>
+                <lucide-icon name="monitor" [size]="31" [strokeWidth]="1.5" />
+                <span>Sessões</span>
+                <strong>{{ details.sessoesAtivas }} ativas</strong>
+              </article>
+              <article>
+                <lucide-icon name="smartphone" [size]="34" [strokeWidth]="1.5" />
+                <span>Dispositivos</span>
+                <strong>{{ details.dispositivosAutorizados }} autorizados</strong>
+              </article>
+              <article>
+                <lucide-icon name="scroll-text" [size]="48" [strokeWidth]="1" />
+                <span>Auditoria</span>
+                <strong>{{ details.auditoriaAtiva ? 'Ativa' : 'Inativa' }}</strong>
+              </article>
+            </div>
+          </section>
+
+          <section class="profile-panel profile-complementary">
+            <h2>Informações complementares</h2>
+            <div class="profile-complementary-grid">
+              <div>
+                <lucide-icon class="ic-verde" name="globe" [size]="31" [strokeWidth]="1.5" />
+                <span><small>Idioma</small>{{ details.preferencias.idioma }}</span>
+              </div>
+              <div>
+                <lucide-icon class="ic-ambar" name="clock" [size]="25" [strokeWidth]="2" />
+                <span><small>Fuso horário</small>{{ details.preferencias.fusoHorario }}</span>
+              </div>
+              <div>
+                <lucide-icon class="ic-verde" name="palette" [size]="29" [strokeWidth]="1.75" />
+                <span><small>Preferência de tema</small>{{ details.preferencias.tema }}</span>
+              </div>
+              <div>
+                <lucide-icon class="ic-verde" name="bell" [size]="28" [strokeWidth]="1.75" />
+                <span
+                  ><small>Notificações</small
+                  >{{ details.preferencias.notificacoesAtivas ? 'Ativadas' : 'Desativadas' }}</span
+                >
+              </div>
+              <div>
+                <lucide-icon class="ic-ambar" name="mail" [size]="24" [strokeWidth]="2" />
+                <span><small>Comunicações</small>{{ details.preferencias.canalComunicacao }}</span>
+              </div>
+              <div>
+                <lucide-icon class="ic-azul" name="cloud" [size]="31" [strokeWidth]="1.5" />
+                <span
+                  ><small>Armazenamento</small
+                  >{{ details.armazenamentoSincronizado ? 'Sincronizado' : 'Pendente' }}</span
+                >
+              </div>
+            </div>
+          </section>
+        </div>
+      }
+    } @else {
+      <div class="profile-state">Nenhum dado de usuário disponível no momento.</div>
+    }
+
+    @if (editing()) {
+      <div class="profile-modal-backdrop" role="presentation">
+        <section class="profile-modal" role="dialog" aria-modal="true" aria-labelledby="edit-title">
+          <h2 id="edit-title">Editar preferências</h2>
+          <p>Os dados de identidade são administrados pela conta corporativa.</p>
+          <form [formGroup]="preferencesForm" (ngSubmit)="savePreferences()">
+            <label>
+              Idioma
+              <select formControlName="idioma">
+                <option>Português (Brasil)</option>
+                <option>English</option>
+              </select>
+            </label>
+            <label>
+              Fuso horário
+              <select formControlName="fusoHorario">
+                <option>(UTC-03:00) Brasília</option>
+                <option>(UTC+00:00) UTC</option>
+              </select>
+            </label>
+            <label>
+              Tema
+              <select formControlName="tema">
+                <option value="ESCURO">Escuro</option>
+                <option value="CLARO">Claro</option>
+                <option value="SISTEMA">Sistema</option>
+              </select>
+            </label>
+            <label>
+              Canal de comunicação
+              <select formControlName="canalComunicacao">
+                <option>E-mail corporativo</option>
+                <option>Notificação na plataforma</option>
+              </select>
+            </label>
+            <label class="profile-checkbox">
+              <input type="checkbox" formControlName="notificacoesAtivas" />
+              Receber notificações operacionais
+            </label>
+            <footer>
+              <button type="button" (click)="cancelEditing()">Cancelar</button>
+              <button type="submit" [disabled]="saving()">
+                {{ saving() ? 'Salvando...' : 'Salvar alterações' }}
+              </button>
+            </footer>
+          </form>
+        </section>
+      </div>
+    }
+  </div>
+</sep-operational-shell>

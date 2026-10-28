@@ -1,110 +1,1748 @@
-@use "../../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../../styles/sep-ds-components" as sepDs;
+@use "../../../../../styles/sep-responsivo" as resp;
 
-.sep-bo-reproc {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-16);
-  max-width: 720px;
-  margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+:host {
+  display: block;
+  height: 100%;
 }
 
-.sep-bo-reproc-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-6);
+// `.op-content` pertence ao shell operacional (ViewEncapsulation.None): sem ::ng-deep a regra
+// nao casa e a tela perde ~28px de cada lado, cortando a coluna Acoes. Mesmo padrao ja
+// homologado nos Mockups 15, 16 e 17.
+// stylelint-disable-next-line selector-pseudo-element-no-unknown -- ::ng-deep e do Angular
+:host ::ng-deep .op-content:has(> .bo18-page) {
+  /* Container do contrato responsivo: e esta area que recebe o espaco restante depois da barra
+       lateral, entao e ela que a pagina mede. Declarar no `:host` do componente nao serve — o host
+       envolve o shell inteiro e tem a largura da janela. */
+  container: sep-conteudo / inline-size;
+  display: block;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
-.sep-bo-reproc-title {
-  @include sepType.sep-type-page-title;
+.bo18-page {
+  --green: var(--sep-success);
+  --orange: var(--sep-warning);
+  --red: var(--sep-danger);
+  --blue: var(--sep-accent);
+  --purple: var(--sep-purple);
+  --card: var(--sep-surface-sunken);
+  --stroke: var(--sep-surface-active);
+  --muted: var(--sep-text-muted);
 
-  margin: 0;
-  color: hsl(var(--foreground));
+  // Superficie padrao dos botoes: degrade 70/30 em rgba, para o fundo do cartao aparecer por
+  // baixo, com fio de luz no topo e sombra de apoio. O tom claro fica nos ultimos 30%.
+  --btn-fundo: linear-gradient(
+    180deg,
+    rgb(var(--sep-c-surf3) / 62%) 70%,
+    rgb(var(--sep-c-blue) / 58%) 30%
+  );
+  --btn-borda: rgb(var(--sep-c-blue) / 52%);
+  --btn-relevo:
+    inset 0 1px 0 rgb(var(--sep-c-strong) / 14%), 0 2px 8px rgb(var(--sep-c-shadow) / 26%);
+  --btn-fundo-primario: linear-gradient(
+    180deg,
+    rgb(var(--sep-c-blue) / 82%) 70%,
+    rgb(var(--sep-c-blue) / 74%) 30%
+  );
+  --btn-borda-primaria: rgb(var(--sep-c-blue) / 72%);
+
+  position: relative;
+  display: grid;
+
+  // A linha explicita e obrigatoria: sem ela a faixa implicita e `auto` e as duas colunas
+  // crescem ate a altura do conteudo, empurrando o historico para debaixo do rodape do shell.
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 288px;
+  gap: 14px;
+  height: 100%;
+  min-height: 0;
+  padding: 18px 16px 16px 24px;
+  color: var(--sep-text-strong);
+  font-family: Inter, "Segoe UI", sans-serif;
 }
 
-.sep-bo-reproc-sub {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-bo-reproc-abas {
-  display: flex;
-  gap: var(--sep-space-8);
-}
-
-.sep-bo-reproc-aba {
-  @include sepDs.sep-button-outline;
-
-  &.sep-bo-reproc-aba-ativa {
-    border-color: hsl(var(--primary));
-    color: hsl(var(--primary));
+/* Largura natural deste layout: 1151px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 1147px) {
+  .bo18-page {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
-.sep-bo-reproc-form {
+.bo18-main {
+  display: grid;
+
+  // Cabecalho / metricas / filtros / tabela (flexivel) / historico. Os cartoes de painel e a
+  // faixa de filtros ganharam altura; quem paga e a tabela, cuja linha encolheu para 39px para
+  // continuar exibindo as oito do mockup sem rolagem interna.
+  // A faixa das metricas e `minmax(148px, auto)` e nao 148px fixos: em janela estreita os cinco
+  // cartoes quebram em duas linhas, e numa faixa travada a segunda linha ficava com 67px para um
+  // conteudo de 122px — os cinco cartoes recortados de uma vez.
+  grid-template-rows: 88px minmax(148px, auto) 88px minmax(0, 1fr) 146px;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* ---------- Cabecalho ---------- */
+
+.bo18-heading p {
+  margin: 0 0 9px;
+  color: var(--sep-text-muted);
+  font-size: 12px;
+}
+
+.bo18-heading p strong {
+  color: var(--sep-text);
+}
+
+.bo18-heading p a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 140ms ease;
+}
+
+.bo18-heading p a:hover,
+.bo18-heading p a:focus-visible {
+  color: var(--sep-accent);
+  text-decoration: underline;
+}
+
+.bo18-heading h1 {
   display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-12);
-  align-items: flex-start;
+  gap: 7px;
+  align-items: center;
+  margin: 0 0 4px;
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.2px;
 }
 
-.sep-bo-field {
+// Os PNGs do pacote do Mockup 18 vem com margem segura transparente: o desenho ocupa de 40% a
+// 67% do canvas. Renderizar no tamanho nominal deixaria o icone visivelmente menor que o do
+// mockup, entao ampliamos a imagem e recolhemos a caixa de layout com margem negativa.
+.bo18-heading h1 lucide-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.bo18-heading span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ---------- Metricas ---------- */
+
+.bo18-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+
+  // 10px em vez de 12 alarga cada cartao em ~2px: e o que a nota precisa para caber inteira
+  // depois de subir de 10 para 11px.
+  gap: 10px;
+}
+
+.bo18-metric {
+  position: relative;
+  display: grid;
+
+  // A nota tem faixa fixa de duas linhas e a sparkline a sua: assim os cinco cartoes alinham a
+  // mesma base, mesmo quando so um deles tem a nota longa em duas linhas.
+  grid-template-rows: auto auto 28px 26px;
+  padding: 10px 8px 0;
+  overflow: hidden;
+  border: 1px solid var(--tone-border);
+  border-radius: 11px;
+  background: linear-gradient(160deg, var(--tone-bg) 0%, var(--sep-canvas) 76%);
+}
+
+.bo18-metric header {
   display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-6);
-  width: 100%;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.sep-bo-field-label {
-  @include sepType.sep-type-caption;
-
-  color: hsl(var(--muted-foreground));
+// O rotulo e a nota precisam caber em uma linha, como no mockup. A coluna principal aqui e
+// ~7% mais estreita que a do mockup (o menu do shell homologado e mais largo), entao os corpos
+// destes dois textos sao a reducao proporcional do original, nao um encolhimento arbitrario.
+.bo18-metric header small {
+  color: var(--sep-text-secondary);
+  font-size: 11.5px;
+  line-height: 1.2;
 }
 
-.sep-bo-field-control {
-  @include sepDs.sep-input;
-
-  width: 100%;
+// Ver nota da margem segura no icone do titulo. 76px de imagem levam o desenho visivel de
+// ~31px para ~50px; a margem negativa horizontal segura a caixa em 30px de largura, para o
+// rotulo nao perder espaco, e a vertical define a altura da faixa do cabecalho.
+.bo18-metric header lucide-icon {
+  color: var(--tom, var(--sep-accent));
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
 }
 
-.sep-bo-reproc-aviso {
-  @include sepType.sep-type-caption;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
+// Entrelinha travada e margem negativa aproximam o numeral do rotulo, como no mockup, sem
+// mexer na altura do cartao.
+.bo18-metric strong {
+  margin-top: -2px;
+  color: var(--sep-text-strong);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.05;
 }
 
-.sep-bo-reproc-enviar {
-  @include sepDs.sep-button-primary;
+// A 12px "18,5% vs. 30 dias anteriores" nao cabe em uma linha na largura util do cartao
+// (~136px), entao a nota passa a ocupar ate duas linhas dentro da faixa fixa de 30px.
+.bo18-metric p {
+  margin: 3px 0 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.15;
+}
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: default;
+.bo18-metric p b {
+  color: var(--tone);
+  font-weight: 600;
+}
+
+.bo18-metric svg {
+  width: calc(100% + 16px);
+  height: 30px;
+  margin: 0 -8px;
+  align-self: end;
+}
+
+.bo18-metric polyline {
+  fill: none;
+  stroke: var(--tone);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 4px var(--tone));
+}
+
+.bo18-metric[data-tone="blue"] {
+  --tone: var(--blue);
+  --tone-bg: var(--sep-surface-3);
+  --tone-border: var(--sep-accent);
+}
+
+.bo18-metric[data-tone="green"] {
+  --tone: var(--green);
+  --tone-bg: var(--sep-surface-3);
+  --tone-border: var(--sep-text-muted);
+}
+
+.bo18-metric[data-tone="orange"] {
+  --tone: var(--orange);
+  --tone-bg: var(--sep-surface-3);
+  --tone-border: var(--sep-text-muted);
+}
+
+.bo18-metric[data-tone="purple"] {
+  --tone: var(--purple);
+  --tone-bg: var(--sep-surface-2);
+  --tone-border: var(--sep-text-muted);
+}
+
+.bo18-metric[data-tone="red"] {
+  --tone: var(--red);
+  --tone-bg: var(--sep-surface);
+  --tone-border: var(--sep-text-muted);
+}
+
+/* ---------- Filtros ---------- */
+
+.bo18-filters {
+  display: grid;
+
+  // Proporcoes medidas na faixa do mockup (busca, Status, Tipo, Periodo, Origem, botao). Os
+  // minimos precisam somar menos que a coluna principal, senao a faixa empurra a largura da
+  // coluna inteira e a tabela invade a barra lateral. A ultima trilha e mais generosa que a do
+  // mockup porque o botao ganhou o ladrilho do icone e nao pode vazar pela borda do cartao.
+  grid-template-columns:
+    minmax(96px, 104fr) minmax(64px, 70fr) minmax(90px, 100fr)
+    minmax(168px, 182fr) minmax(84px, 92fr) minmax(150px, 160fr);
+  gap: 10px;
+  align-items: end;
+  padding: 9px 12px;
+  border: 1px solid var(--stroke);
+  border-radius: 11px;
+  background: var(--card);
+}
+
+/* Largura natural desta fileira: 702px. Abaixo disso os campos se reorganizam em
+   quantas colunas couberem, e o que sobra desce — em vez de a fileira empurrar a tela. */
+@container (max-width: 698px) {
+  .bo18-filters {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
   }
 }
 
-.sep-bo-reproc-erro {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--destructive));
+/* Largura natural desta fileira: 745px. Abaixo disso os campos se reorganizam em quantas
+   colunas couberem, e o que sobra desce — em vez de a fileira empurrar a tela inteira. */
+@container (max-width: 741px) {
+  .bo18-filters {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  }
 }
 
-.sep-bo-reproc-painel {
-  @include sepDs.sep-card;
+.bo18-filters label,
+.bo18-period {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
 
+.bo18-filters small,
+.bo18-period legend {
+  padding: 0;
+  color: var(--sep-text-muted);
+  font-size: 11.5px;
+}
+
+.bo18-filters select,
+.bo18-filters input {
+  width: 100%;
+  min-width: 0;
+  height: 39px;
+  padding: 0 9px;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 8px;
+  background: var(--sep-surface);
+  color: var(--sep-text);
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.bo18-filters select {
+  appearance: none;
+  padding-right: 26px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--sep-text-secondary) 50%),
+    linear-gradient(135deg, var(--sep-text-secondary) 50%, transparent 50%);
+  background-repeat: no-repeat;
+  background-position:
+    right 13px center,
+    right 8px center;
+  background-size: 5px 5px;
+}
+
+.bo18-filters select:focus-visible,
+.bo18-filters input:focus-visible {
+  border-color: var(--sep-accent);
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(var(--sep-c-blue) / calc(26% * var(--sep-glow-alpha)));
+}
+
+.bo18-search {
+  position: relative;
+}
+
+.bo18-search input {
+  height: 51px;
+  padding-right: 36px;
+}
+
+.bo18-search button {
+  position: absolute;
+  right: 7px;
+  bottom: 8px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 34px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: var(--sep-text-secondary);
+  cursor: pointer;
+}
+
+.bo18-search button lucide-icon {
+  width: 17px;
+  height: 17px;
+}
+
+.bo18-period {
+  grid-template-rows: auto auto;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 3px 5px;
+  align-items: center;
+}
+
+.bo18-period legend {
+  grid-column: 1 / -1;
+}
+
+.bo18-period span {
+  color: var(--sep-text-muted);
+  font-size: 12px;
+}
+
+// As duas datas por extenso ("30/05/2026") tem de caber lado a lado na trilha do periodo,
+// somadas ao indicador de calendario que o Chromium desenha dentro do campo. Com padding de
+// 6px o ano era cortado — e `scrollWidth` nao denuncia isso em input[type=date].
+.bo18-period input {
+  padding: 0 2px;
+  font-size: 11px;
+}
+
+// Acao primaria da tela: degrade 70/30 do padrao do Mockup 17, borda viva, brilho externo e
+// um fio de luz no topo que destaca o botao do resto da faixa de filtros.
+.bo18-new {
+  position: relative;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  height: 41px;
+  padding: 0 13px;
+  overflow: hidden;
+  border: 1px solid var(--btn-borda-primaria);
+  border-radius: 10px;
+  background: var(--btn-fundo-primario);
+  color: var(--sep-text-strong);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow:
+    0 0 16px rgb(var(--sep-c-blue) / calc(34% * var(--sep-glow-alpha))),
+    inset 0 1px 0 rgb(var(--sep-c-strong) / 22%);
+  transition:
+    filter 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+.bo18-new lucide-icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: rgb(var(--sep-c-active) / 16%);
+}
+
+.bo18-new:hover {
+  filter: brightness(1.14);
+  box-shadow:
+    0 0 22px rgb(var(--sep-c-blue) / calc(55% * var(--sep-glow-alpha))),
+    inset 0 1px 0 rgb(var(--sep-c-strong) / 28%);
+  transform: translateY(-1px);
+}
+
+.bo18-new:active {
+  transform: translateY(0);
+}
+
+.bo18-new:focus-visible {
+  outline: 2px solid var(--sep-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Tabela ---------- */
+
+.bo18-table-card {
+  display: grid;
+
+  // O cabecalho usa 40px porque "Ultima atualizacao" ocupa duas linhas na largura da coluna;
+  // com 34px a segunda linha era cortada.
+  grid-template-rows: 40px minmax(0, 1fr) 40px;
+
+  // Nove colunas com minimos que somam 724px: abaixo disso nao ha layout que as acomode sem
+  // esconder dado. Em vez de truncar em cadeia, a tabela rola na horizontal e as nove continuam
+  // inteiras. `min-width: min-content` nas linhas e o que impede a grade de espremer as colunas
+  // abaixo do proprio minimo declarado.
+  overflow-x: auto;
+  min-height: 0;
+  padding: 0;
+  border: 1px solid var(--stroke);
+  border-radius: 11px;
+  background: var(--card);
+}
+
+.bo18-table-head,
+.bo18-row {
+  display: grid;
+
+  // Larguras-alvo medidas no mockup e reescalonadas para a coluna principal disponivel (a
+  // area util aqui e menor que a do mockup porque o menu do shell homologado e mais largo).
+  // A soma dos minimos precisa caber na largura do cartao, senao as nove colunas estouram e o
+  // conteudo trunca em cadeia.
+  // Cada trilha recebe o que o seu conteudo mais largo exige e a folga restante vai para as
+  // tres colunas da direita (Criado em, Solicitante e Ultima atualizacao), que eram as mais
+  // apertadas do conjunto.
+  grid-template-columns:
+    minmax(70px, 74fr) minmax(78px, 84fr) minmax(96px, 106fr) minmax(102px, 117fr)
+    minmax(94px, 101fr) minmax(62px, 65fr) minmax(54px, 58fr) minmax(62px, 64fr)
+    minmax(66px, 66fr);
+  gap: 5px;
+  align-items: center;
+}
+
+.bo18-table-card > * {
+  min-width: min-content;
+}
+
+// Sem `overflow: hidden`: um elemento que esconde o proprio transbordo tem contribuicao de
+// `min-content` igual a zero, entao o `min-width: min-content` acima nao o segurava e o cabecalho
+// continuava sendo espremido em vez de rolar junto com a tabela.
+.bo18-table-head {
+  padding: 5px 12px 6px 14px;
+  border-bottom: 1px solid var(--sep-surface-hover);
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+
+  // A calha reservada aqui precisa da mesma largura da lista, senao o cabecalho desalinha.
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+}
+
+// Solicitante e Acoes tem conteudo centrado na celula; sem centrar tambem o rotulo, o titulo
+// fica na esquerda e o avatar parece deslocado para a direita da coluna.
+.bo18-table-head span:nth-child(7),
+.bo18-table-head span:last-child {
+  text-align: center;
+}
+
+.bo18-rows {
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+}
+
+// 8 linhas precisam caber na altura util sem rolagem interna, como no mockup. O que dita a
+// altura e o bloco de duas linhas das datas; por isso a entrelinha delas e travada abaixo.
+.bo18-row {
+  position: relative;
+  padding: 6px 12px 6px 14px;
+  border-bottom: 1px solid var(--sep-surface-3);
+  font-size: 13px;
+}
+
+// Faixa semantica na borda esquerda, na cor do status da linha.
+.bo18-row::before {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--row-tone);
+  box-shadow: 0 0 8px var(--row-tone);
+  content: "";
+}
+
+.bo18-row[data-status="CONCLUIDO"] {
+  --row-tone: var(--green);
+}
+
+.bo18-row[data-status="EM_EXECUCAO"] {
+  --row-tone: var(--orange);
+}
+
+.bo18-row[data-status="AGUARDANDO"] {
+  --row-tone: var(--blue);
+}
+
+.bo18-row[data-status="FALHA"] {
+  --row-tone: var(--red);
+}
+
+.bo18-row:hover {
+  background: var(--sep-surface-2);
+}
+
+.bo18-id {
+  position: relative;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  min-width: 0;
+}
+
+.bo18-id strong {
+  color: var(--sep-accent);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+// O botao de copiar flutua sobre a borda direita da celula: reservar uma coluna para ele
+// empurraria "RPR-000128" para duas linhas e engordaria a altura da linha inteira.
+.bo18-id button {
+  position: absolute;
+  right: 0;
+  display: grid;
+  place-items: center;
+  width: 19px;
+  height: 19px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: var(--sep-surface-2);
+  color: var(--sep-text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+
+.bo18-row:hover .bo18-id button,
+.bo18-id button:focus-visible,
+.bo18-id button.copiado {
+  opacity: 1;
+}
+
+.bo18-id button.copiado {
+  color: var(--green);
+}
+
+.bo18-type,
+.bo18-reference {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--sep-text);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Menor que as demais colunas: "PIX-20260530-001256" e a referencia mais longa do conjunto e
+// so cabe inteira neste corpo.
+.bo18-reference {
+  color: var(--sep-text-secondary);
+  font-size: 11.5px;
+}
+
+// `flex` e nao `inline-flex`: como elemento em linha, o icone de 44px se apoiava na linha de
+// base do texto e a entrelinha resultante engordava a linha da tabela de 41 para 46px.
+.bo18-origin {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--sep-text);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Ver nota da margem segura no icone do titulo. Com 44px de imagem o desenho visivel fica em
+// ~26px, e a margem negativa segura a caixa de layout em 28x26 para nao engordar a linha.
+.bo18-origin lucide-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+}
+
+.bo18-status {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  padding: 3px 8px;
+  border: 1px solid currentcolor;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.bo18-status[data-status-key="CONCLUIDO"] {
+  border-color: rgb(var(--sep-c-green) / 55%);
+  background: rgb(var(--sep-c-green) / 12%);
+  color: var(--green);
+}
+
+.bo18-status[data-status-key="EM_EXECUCAO"] {
+  border-color: rgb(var(--sep-c-amber) / 55%);
+  background: rgb(var(--sep-c-amber) / 14%);
+  color: var(--orange);
+}
+
+.bo18-status[data-status-key="AGUARDANDO"] {
+  border-color: rgb(var(--sep-c-blue) / 55%);
+  background: rgb(var(--sep-c-blue) / 12%);
+  color: var(--blue);
+}
+
+.bo18-status[data-status-key="FALHA"] {
+  border-color: rgb(var(--sep-c-red) / 55%);
+  background: rgb(var(--sep-c-red) / 14%);
+  color: var(--red);
+}
+
+.bo18-date {
+  display: grid;
+  min-width: 0;
+  line-height: 1.1;
+}
+
+// O bloco de duas linhas das datas e o que dita a altura da linha da tabela; a entrelinha
+// travada aqui e o que permite as oito linhas do mockup caberem sem rolagem interna.
+.bo18-date span {
+  color: var(--sep-text-secondary);
+  font-size: 11.5px;
+}
+
+.bo18-date small {
+  color: var(--sep-text-muted);
+  font-size: 11px;
+}
+
+.bo18-requester {
+  display: flex;
+  justify-content: center;
+}
+
+// Avatar desenhado em CSS: os PNGs do pacote vieram recortados pela metade (ver nota no
+// componente). O circulo com as iniciais e o que o mockup mostra nesta coluna.
+.bo18-avatar {
+  display: grid;
+  place-items: center;
+
+  // 26px e o teto: acima disso o avatar passa a ditar a altura da linha e a oitava some.
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+
+  // A tinta de fundo vem do componente e nao muda com o tema; o texto sobre ela e sempre branco.
+  color: var(--sep-on-tint);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  cursor: default;
+}
+
+.bo18-actions {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  justify-content: center;
+}
+
+.bo18-actions > button,
+.bo18-menu > button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--btn-borda);
+  border-radius: 7px;
+  background: var(--btn-fundo);
+  cursor: pointer;
+  box-shadow: var(--btn-relevo);
+  transition:
+    filter 140ms ease,
+    border-color 140ms ease;
+}
+
+.bo18-view {
+  color: var(--sep-accent);
+}
+
+.bo18-play {
+  border-color: rgb(var(--sep-c-green) / 45%);
+  color: var(--green);
+}
+
+.bo18-menu > button {
+  color: var(--sep-text-muted);
+}
+
+.bo18-actions > button:hover,
+.bo18-menu > button:hover {
+  border-color: var(--sep-accent);
+  filter: brightness(1.35);
+}
+
+.bo18-menu {
+  position: relative;
+}
+
+.bo18-menu ul {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  z-index: 5;
+  min-width: 186px;
+  margin: 0;
+  padding: 5px;
+  list-style: none;
+  border: 1px solid var(--sep-accent);
+  border-radius: 9px;
+  background: var(--sep-surface-2);
+  box-shadow: 0 12px 26px rgb(var(--sep-c-shadow) / 55%);
+}
+
+.bo18-menu li button,
+.bo18-menu li a {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  padding: 7px 9px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--sep-text);
+  font-family: inherit;
+  font-size: 12.5px;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.bo18-menu li button:hover,
+.bo18-menu li a:hover {
+  background: var(--sep-surface-active);
+}
+
+/* ---------- Estados ---------- */
+
+.bo18-state {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  justify-content: center;
+  padding: 26px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.bo18-state.bo18-error {
+  flex-direction: column;
+  color: var(--sep-danger);
+}
+
+.bo18-state button {
+  padding: 8px 15px;
+  border: 1px solid var(--btn-borda);
+  border-radius: 8px;
+  background: var(--btn-fundo);
+  color: var(--sep-text);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--btn-relevo);
+}
+
+.bo18-spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid var(--sep-border-strong);
+  border-top-color: var(--sep-accent);
+  border-radius: 50%;
+  animation: bo18-spin 780ms linear infinite;
+}
+
+@keyframes bo18-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Paginacao ---------- */
+
+.bo18-pagination {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 0 14px;
+  border-top: 1px solid var(--sep-surface-hover);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Largura natural deste layout: 819px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 815px) {
+  .bo18-pagination {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.bo18-pagination nav {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+}
+
+.bo18-pagination nav button {
+  min-width: 26px;
+  height: 26px;
+  padding: 0 5px;
+  border: 1px solid var(--btn-borda);
+  border-radius: 6px;
+  background: var(--btn-fundo);
+  color: var(--sep-text);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--btn-relevo);
+}
+
+.bo18-pagination nav button.active {
+  border-color: var(--btn-borda-primaria);
+  background: var(--btn-fundo-primario);
+  color: var(--sep-text-strong);
+}
+
+.bo18-pagination nav button:disabled {
+  border-color: rgb(var(--sep-c-blue) / 22%);
+  background: rgb(var(--sep-c-surf3) / 40%);
+  color: var(--sep-text-muted);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.bo18-gap {
+  padding: 0 3px;
+  color: var(--sep-text-muted);
+}
+
+.bo18-pagination label {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.bo18-pagination select {
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 6px;
+  background: var(--sep-surface-2);
+  color: var(--sep-text);
+  font-family: inherit;
+  font-size: 12px;
+}
+
+/* ---------- Historico ---------- */
+
+.bo18-history {
+  display: grid;
+
+  // Sem a faixa explicita a linha implicita e `auto`: o grafico dimensionava pelo conteudo e
+  // vazava 57px para fora do cartao, levando junto a regua de datas.
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 212px;
+  gap: 14px;
+  min-height: 0;
+  padding: 10px 14px 8px;
+  border: 1px solid var(--stroke);
+  border-radius: 11px;
+  background: var(--card);
+}
+
+/* Largura natural deste layout: 819px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 815px) {
+  .bo18-history {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.bo18-history-chart {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 5px;
+  min-width: 0;
+  min-height: 0;
+}
+
+.bo18-history-chart header {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.bo18-history-chart h2 {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.bo18-chart-legend {
+  display: flex;
+  gap: 15px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bo18-chart-legend li {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+}
+
+.bo18-chart-legend i,
+.bo18-history-total i,
+.bo18-donut-wrap i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--dot);
+  box-shadow: 0 0 7px var(--dot);
+}
+
+[data-tone="green"] {
+  --dot: var(--green);
+}
+
+[data-tone="red"] {
+  --dot: var(--red);
+}
+
+[data-tone="orange"] {
+  --dot: var(--orange);
+}
+
+[data-tone="blue"] {
+  --dot: var(--blue);
+}
+
+[data-tone="purple"] {
+  --dot: var(--purple);
+}
+
+.bo18-plot {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 15px;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 2px 5px;
+  min-height: 0;
+}
+
+.bo18-axis {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-8);
-  padding: var(--sep-space-24);
+  justify-content: space-between;
+  min-height: 0;
+  padding: 1px 0 8px;
+  color: var(--sep-text-muted);
+  font-size: 11px;
+  text-align: right;
 }
 
-.sep-bo-reproc-painel-title {
-  @include sepType.sep-type-card-title;
+.bo18-plot svg {
+  width: 100%;
+  min-height: 0;
+  height: 100%;
+}
 
+.bo18-grid line {
+  stroke: var(--sep-surface-hover);
+  stroke-width: 0.7;
+}
+
+.bo18-line {
+  fill: none;
+  stroke: var(--dot);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 3px var(--dot));
+}
+
+.bo18-dots circle {
+  fill: var(--dot);
+}
+
+.bo18-dates {
+  display: flex;
+  grid-column: 2;
+  justify-content: space-between;
+  color: var(--sep-text-muted);
+  font-size: 11px;
+}
+
+// O painel de totais precisa caber inteiro na altura do cartao: as quatro faixas somadas ao
+// numero grande passavam da base e a ultima linha ficava cortada.
+.bo18-history-total {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 1px;
+  align-content: start;
+  min-height: 0;
+  padding-left: 14px;
+  border-left: 1px solid var(--sep-surface-hover);
+}
+
+.bo18-history-total small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.bo18-history-total strong {
+  margin-bottom: 4px;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.bo18-history-total ul {
+  display: grid;
+  gap: 3px;
+  align-content: start;
   margin: 0;
-  color: hsl(var(--foreground));
+  padding: 0;
+  list-style: none;
+}
+
+.bo18-history-total li,
+.bo18-donut-wrap li {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) auto;
+  gap: 7px;
+  align-items: center;
+  font-size: 11.5px;
+}
+
+.bo18-history-total li span,
+.bo18-donut-wrap li span {
+  overflow: hidden;
+  color: var(--sep-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bo18-history-total li b,
+.bo18-donut-wrap li b {
+  color: var(--sep-text);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ---------- Coluna lateral ---------- */
+
+.bo18-side {
+  display: grid;
+
+  // Os dois cartoes de donut cresceram 5% (196 -> 206 e 206 -> 216); os 20px vieram de
+  // Execucoes em andamento e Acoes rapidas, que continuam distribuindo os proprios
+  // componentes em vez de acumular vazio no rodape.
+  grid-template-rows:
+    minmax(190px, 206px) minmax(196px, 216px) minmax(196px, 1.06fr)
+    minmax(186px, 1fr);
+  gap: 14px;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.bo18-side-card {
+  display: grid;
+  min-height: 0;
+  padding: 12px 13px;
+  border: 1px solid var(--stroke);
+  border-radius: 11px;
+  background: var(--card);
+}
+
+.bo18-side-card h2 {
+  margin: 0 0 9px;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.bo18-distribution {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.bo18-donut-wrap {
+  display: grid;
+
+  // A trilha do donut precisa ser definida em px: com `auto`, o `width: 100%` do circulo
+  // resolveria contra uma largura indefinida e o grafico colapsaria para zero. 100px e o teto
+  // que ainda deixa "Integracao Pix" e "38 (29,7%)" inteiros na legenda.
+  grid-template-columns: minmax(0, 100px) minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-height: 0;
+}
+
+.bo18-donut {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+
+  // Halo por quadrante nas cores das fatias e realce no hover, como nos donuts homologados
+  // dos Mockups 15 e 16.
+  box-shadow:
+    -5px -7px 14px rgb(var(--sep-c-green) / calc(22% * var(--sep-glow-alpha))),
+    7px -6px 14px rgb(var(--sep-c-red) / calc(22% * var(--sep-glow-alpha))),
+    8px 7px 15px rgb(var(--sep-c-amber) / calc(20% * var(--sep-glow-alpha))),
+    -6px 8px 15px rgb(var(--sep-c-blue) / calc(22% * var(--sep-glow-alpha)));
+  filter: drop-shadow(0 0 7px rgb(var(--sep-c-blue) / calc(28% * var(--sep-glow-alpha))));
+  transition:
+    transform 180ms ease,
+    filter 180ms ease;
+}
+
+.bo18-distribution:hover .bo18-donut {
+  transform: scale(1.06);
+  filter: saturate(1.18)
+    drop-shadow(0 0 11px rgb(var(--sep-c-blue) / calc(52% * var(--sep-glow-alpha))));
+}
+
+// O furo central e um disco opaco, nao um `mask`: mascarar o elemento recortaria junto o
+// numero e o rotulo do nucleo, que e o que sumia do meio do grafico.
+// Quanto menor o `inset`, maior o furo e mais fino o anel. 13,6% e a espessura de 17%
+// reduzida em 20%, conforme pedido, e sobra ainda mais folga para o nucleo.
+.bo18-donut::after {
+  position: absolute;
+  inset: 13.6%;
+  border-radius: 50%;
+  background: var(--sep-surface-sunken);
+  box-shadow: inset 0 0 14px rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha)));
+  content: "";
+}
+
+.bo18-donut span {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.bo18-donut strong {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.bo18-donut small {
+  color: var(--sep-text-secondary);
+  font-size: 10.5px;
+}
+
+// A legenda acompanha a altura do cartao: o espaco entre faixas cresce junto, em vez de
+// sobrar um vao no rodape.
+.bo18-donut-wrap ul {
+  display: grid;
+  gap: 8px;
+  align-content: space-evenly;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// Precisa ser restrito aos cartoes de distribuicao e de execucoes: como `.bo18-side-card >
+// button`, a regra tambem casava com os quatro botoes de Acoes rapidas, que herdavam
+// `justify-self: center` e encolhiam para a largura do texto.
+.bo18-distribution > button,
+.bo18-running > button {
+  justify-self: center;
+  margin-top: 8px;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: var(--sep-accent);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.bo18-distribution > button:hover,
+.bo18-running > button:hover {
+  color: var(--sep-accent);
+  text-decoration: underline;
+}
+
+/* ---------- Execucoes em andamento ---------- */
+
+.bo18-running {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+// `space-evenly` reparte a sobra entre os dois itens em vez de empilha-los no topo e deixar
+// um vao antes do link "Ver todas".
+.bo18-running ol {
+  display: grid;
+  gap: 8px;
+  align-content: space-evenly;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bo18-running li {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 8px;
+
+  // O selo redondo fica na meia altura do bloco que descreve o reprocesso.
+  align-items: center;
+}
+
+.bo18-running li > lucide-icon {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid rgb(var(--sep-c-amber) / 45%);
+  border-radius: 50%;
+  color: var(--orange);
+}
+
+// O selo encosta na borda direita para ficar na mesma prumada do percentual da barra abaixo.
+.bo18-running li header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1px;
+}
+
+.bo18-running li strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.bo18-running li small {
+  display: block;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bo18-running li p {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  margin: 3px 0 0;
+}
+
+// A trilha da barra fica no proprio <p>, atras do preenchimento.
+.bo18-running li p::before {
+  grid-row: 1;
+  grid-column: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--sep-surface-hover);
+  content: "";
+}
+
+.bo18-running li p b {
+  display: block;
+  grid-row: 1;
+  grid-column: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--sep-surface-active), var(--orange));
+  box-shadow: 0 0 7px rgb(var(--sep-c-amber) / calc(55% * var(--sep-glow-alpha)));
+}
+
+.bo18-running li p em {
+  color: var(--sep-text);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.bo18-empty {
+  margin: 0;
+  align-self: center;
+  color: var(--muted);
+  font-size: 12.5px;
+  text-align: center;
+}
+
+/* ---------- Acoes rapidas ---------- */
+
+// Botoes de altura fixa e menor; a sobra do cartao vira respiro entre eles, nao altura de
+// botao.
+.bo18-quick {
+  grid-template-rows: auto repeat(4, 36px);
+  align-content: space-between;
+  gap: 7px;
+}
+
+.bo18-quick button {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 0 12px;
+  border: 1px solid var(--btn-borda);
+  border-radius: 9px;
+  background: var(--btn-fundo);
+  color: var(--sep-text);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: var(--btn-relevo);
+  transition:
+    filter 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.bo18-quick button:hover {
+  border-color: rgb(var(--sep-c-blue) / 82%);
+  filter: brightness(1.24);
+  box-shadow:
+    inset 0 1px 0 rgb(var(--sep-c-strong) / 20%),
+    0 3px 12px rgb(var(--sep-c-blue) / calc(26% * var(--sep-glow-alpha)));
+}
+
+.bo18-quick button:focus-visible {
+  outline: 2px solid var(--sep-accent);
+  outline-offset: 2px;
+}
+
+.bo18-quick lucide-icon {
+  color: var(--sep-accent);
+}
+
+/* ---------- Realce cruzado ---------- */
+
+// Passar o mouse sobre um selo de status (tabela, painel ou legenda) acende todos os
+// elementos daquele status na tela, como nos Mockups 15 e 16.
+.bo18-page:has([data-status-key="CONCLUIDO"]:hover) [data-status-key="CONCLUIDO"],
+.bo18-page:has([data-status-key="EM_EXECUCAO"]:hover) [data-status-key="EM_EXECUCAO"],
+.bo18-page:has([data-status-key="AGUARDANDO"]:hover) [data-status-key="AGUARDANDO"],
+.bo18-page:has([data-status-key="FALHA"]:hover) [data-status-key="FALHA"],
+.bo18-page:has([data-tipo-key="INTEGRACAO_PIX"]:hover) [data-tipo-key="INTEGRACAO_PIX"],
+.bo18-page:has([data-tipo-key="COBRANCA"]:hover) [data-tipo-key="COBRANCA"],
+.bo18-page:has([data-tipo-key="CREDITO"]:hover) [data-tipo-key="CREDITO"],
+.bo18-page:has([data-tipo-key="FORMALIZACAO"]:hover) [data-tipo-key="FORMALIZACAO"],
+.bo18-page:has([data-tipo-key="ONBOARDING"]:hover) [data-tipo-key="ONBOARDING"] {
+  z-index: 1;
+
+  // Nas legendas o texto e claro e `currentcolor` sairia branco; `--dot` carrega a cor
+  // semantica da faixa. Nos selos da tabela `--dot` nao existe e o proprio texto ja e colorido.
+  filter: brightness(1.35) saturate(1.3)
+    drop-shadow(
+      0 0 7px
+        color-mix(in srgb, var(--dot, currentcolor) calc(100% * var(--sep-glow-alpha)), transparent)
+    );
+  text-shadow: 0 0 8px
+    color-mix(in srgb, var(--dot, currentcolor) calc(100% * var(--sep-glow-alpha)), transparent);
+  transform: translateZ(0) scale(1.045);
+}
+
+/* ---------- Dialogos ---------- */
+
+.bo18-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+// Fundo clicavel como <button> real: fechar no clique fora precisa ser alcancavel por teclado,
+// e um <div> com (click) nao e focavel nem anuncia a acao.
+.bo18-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: rgb(var(--sep-c-canvas) / 72%);
+  cursor: pointer;
+}
+
+.bo18-dialog {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: 100%;
+  padding: 18px 20px 20px;
+  overflow-y: auto;
+  border: 1px solid var(--sep-accent);
+  border-radius: 13px;
+  background: var(--sep-surface);
+  box-shadow: 0 22px 54px rgb(var(--sep-c-shadow) / 62%);
+  scrollbar-width: thin;
+}
+
+.bo18-dialog header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bo18-dialog h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.bo18-dialog header button {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--btn-borda);
+  border-radius: 7px;
+  background: var(--btn-fundo);
+  color: var(--sep-text-secondary);
+  cursor: pointer;
+  box-shadow: var(--btn-relevo);
+}
+
+.bo18-dialog-sub {
+  margin: 7px 0 14px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.bo18-tabs {
+  display: flex;
+  gap: 7px;
+  margin-bottom: 14px;
+}
+
+.bo18-tabs button {
+  padding: 8px 16px;
+  border: 1px solid var(--btn-borda);
+  border-radius: 8px;
+  background: var(--btn-fundo);
+  color: var(--sep-text-secondary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--btn-relevo);
+}
+
+.bo18-tabs button.ativa {
+  border-color: var(--btn-borda-primaria);
+  background: var(--btn-fundo-primario);
+  color: var(--sep-text-strong);
+  font-weight: 600;
+}
+
+.bo18-form {
+  display: grid;
+  gap: 11px;
+}
+
+.bo18-form label {
+  display: grid;
+  gap: 4px;
+}
+
+.bo18-form span {
+  color: var(--sep-text-muted);
+  font-size: 12px;
+}
+
+.bo18-form input,
+.bo18-form select {
+  height: 39px;
+  padding: 0 10px;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 8px;
+  background: var(--sep-surface);
+  color: var(--sep-text);
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.bo18-warning {
+  margin: 0;
+  color: var(--sep-danger);
+  font-size: 12px;
+}
+
+.bo18-primary,
+.bo18-secondary {
+  height: 39px;
+  padding: 0 16px;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: filter 150ms ease;
+}
+
+.bo18-primary {
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--btn-borda-primaria);
+  background: var(--btn-fundo-primario);
+  color: var(--sep-text-strong);
+  box-shadow: var(--btn-relevo);
+}
+
+.bo18-secondary {
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--btn-borda);
+  background: var(--btn-fundo);
+  color: var(--sep-text);
+  box-shadow: var(--btn-relevo);
+}
+
+.bo18-primary:hover,
+.bo18-secondary:hover {
+  filter: brightness(1.2);
+}
+
+.bo18-primary:disabled {
+  border-color: var(--sep-border-strong);
+  background: var(--sep-surface-3);
+  color: var(--sep-text-muted);
+  cursor: not-allowed;
+}
+
+.bo18-dialog-error {
+  margin: 13px 0 0;
+  padding: 9px 11px;
+  border: 1px solid rgb(var(--sep-c-red) / 45%);
+  border-radius: 8px;
+  background: rgb(var(--sep-c-red) / 12%);
+  color: var(--sep-danger);
+  font-size: 12.5px;
+}
+
+.bo18-dialog-result {
+  margin-top: 15px;
+  padding-top: 13px;
+  border-top: 1px solid var(--sep-surface-hover);
+}
+
+.bo18-dialog-result h3 {
+  margin: 0 0 9px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.bo18-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+  margin: 15px 0 0;
+}
+
+.bo18-detail-grid dt {
+  margin-bottom: 3px;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.bo18-detail-grid dd {
+  margin: 0;
+  overflow: hidden;
+  color: var(--sep-text);
+  font-size: 13px;
+  text-overflow: ellipsis;
+}
+
+.bo18-mono {
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 11.5px;
+}
+
+.bo18-detail-result {
+  margin: 15px 0 0;
+  padding: 9px 11px;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 8px;
+  background: var(--sep-surface-2);
+  color: var(--sep-text);
+  font-size: 12.5px;
+}
+
+.bo18-dialog footer {
+  display: flex;
+  gap: 9px;
+  justify-content: flex-end;
+  margin-top: 17px;
+}
+
+/* ---------- Aviso ---------- */
+
+.bo18-toast {
+  position: absolute;
+  right: 24px;
+  bottom: 20px;
+  z-index: 30;
+  max-width: 420px;
+  margin: 0;
+  padding: 11px 15px;
+  border: 1px solid var(--sep-accent);
+  border-radius: 10px;
+  background: var(--sep-surface-2);
+  color: var(--sep-text);
+  font-size: 12.5px;
+  box-shadow: 0 14px 30px rgb(var(--sep-c-shadow) / 55%);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+// ============ JANELA MAXIMIZADA ============
+// Acima de 1440 as medidas homologadas viram piso e o layout acompanha o espaco. Nada aqui vale de
+// 1440 para baixo: a forma original fica intacta.
+@include resp.maximizada {
+  // Coluna lateral: 288px viram piso. 25.21% da grade de 1142px (1440) dao o mesmo.
+  @container (min-width: 1148px) {
+    .bo18-page {
+      grid-template-columns: minmax(0, 1fr) max(288px, 25.21%);
+    }
+
+    // A trilha do donut cresce com o cartao (38.46% do miolo de 260px sao os 100px de 1440); o
+    // circulo fica nos 100px homologados e centrado nela — crescer junto o faria passar da altura
+    // do cartao.
+    .bo18-donut-wrap {
+      grid-template-columns: minmax(0, max(100px, 38.46%)) minmax(0, 1fr);
+    }
+
+    .bo18-donut {
+      max-width: 100px;
+      justify-self: center;
+    }
+  }
 }

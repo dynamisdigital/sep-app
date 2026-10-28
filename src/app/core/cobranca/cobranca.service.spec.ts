@@ -3,6 +3,8 @@ import { TestBed } from '@angular/core/testing';
 import { Observable } from 'rxjs';
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { resetCobrancaState } from '../../../mocks/handlers';
+import { parcelaPrice } from '../financeiro/calculo-financeiro';
 import { CobrancaService } from './cobranca.service';
 import { RegistrarRecebimentoRequest } from '../api/api.models';
 import { StepUpTokenStore } from '../auth/step-up-token.store';
@@ -43,6 +45,9 @@ describe('CobrancaService', () => {
   let stepUpStore: StepUpTokenStore;
 
   beforeEach(() => {
+    // O aceite e a recusa mudam o status da renegociacao no mock, e a listagem enxerga isso:
+    // sem o reset, a contagem de um teste dependeria de qual outro rodou antes.
+    resetCobrancaState();
     // stepUpInterceptor real na cadeia HTTP (recorte do app.config.ts): as specs tambem
     // provam que o token de step-up so e anexado/consumido na allowlist, nunca nos GETs.
     TestBed.configureTestingModule({
@@ -58,14 +63,35 @@ describe('CobrancaService', () => {
         service.consultarAgendaPorContrato(CONTRATO_COM_AGENDA_ID),
       );
 
+      // Contrato 5b771c05 da carteira: 10 parcelas de R$ 312,50, sete pagas, duas em
+      // atraso (uma delas ha mais de 15 dias, logo inadimplente) e uma ainda a vencer.
       expect(agenda.contratoId).toBe(CONTRATO_COM_AGENDA_ID);
+      expect(agenda.parcelas).toHaveLength(10);
       expect(agenda.parcelas.map((p) => p.status)).toEqual([
-        'PENDENTE',
-        'ATRASADA',
-        'PARCIALMENTE_PAGA',
         'PAGA',
+        'PAGA',
+        'PAGA',
+        'PAGA',
+        'PAGA',
+        'PAGA',
+        'PAGA',
+        'INADIMPLENTE',
+        'INADIMPLENTE',
+        'PENDENTE',
       ]);
-      expect(agenda.parcelas[0].total).toBe(1000);
+      // A parcela e a da tabela Price a 2,4% a.m.: principal + juros, e nao mais a divisao simples (312,50).
+      expect(agenda.parcelas[0].total).toBe(parcelaPrice(3125, 0.024, 10));
+      expect(agenda.parcelas[0].juros).toBeGreaterThan(0);
+      expect(agenda.parcelas[0].total).toBe(
+        Math.round((agenda.parcelas[0].principal + agenda.parcelas[0].juros) * 100) / 100,
+      );
+      expect(agenda.valorContratado).toBe(3125);
+      // O que se paga fecha: a soma dos principais e o contratado; a soma dos totais e o total a pagar.
+      const somar = (campo: 'principal' | 'total') =>
+        Math.round(agenda.parcelas.reduce((s, p) => s + p[campo], 0) * 100) / 100;
+      expect(somar('principal')).toBe(3125);
+      expect(somar('total')).toBe(agenda.valorTotal);
+      expect(agenda.valorTotal).toBeGreaterThan(agenda.valorContratado ?? 0);
     });
 
     it('rejeita com 403 quando a agenda e de outro tomador', async () => {
@@ -207,6 +233,25 @@ describe('CobrancaService', () => {
       const linhas = await awaitObservable(service.listarInadimplencia({ diasAtrasoMin: 100 }));
 
       expect(linhas.every((l) => l.diasAtraso >= 100)).toBe(true);
+    });
+  });
+
+  describe('listarRenegociacoes', () => {
+    it('retorna a carteira inteira, com os status que o mock semeia', async () => {
+      const lista = await awaitObservable(service.listarRenegociacoes());
+
+      // Cinco propostas em aberto (duas da carteira, tres do fluxo do tomador) e uma ja aceita: e
+      // desta contagem que o painel da Cobranca tira o total e a legenda.
+      expect(lista).toHaveLength(6);
+      expect(lista.filter((r) => r.status === 'PROPOSTA')).toHaveLength(5);
+      expect(lista.filter((r) => r.status === 'ACEITA')).toHaveLength(1);
+    });
+
+    it('filtra por status enviando o query param correto', async () => {
+      const lista = await awaitObservable(service.listarRenegociacoes('ACEITA'));
+
+      expect(lista).toHaveLength(1);
+      expect(lista.every((r) => r.status === 'ACEITA')).toBe(true);
     });
   });
 

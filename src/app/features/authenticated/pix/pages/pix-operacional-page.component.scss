@@ -1,0 +1,1459 @@
+@use "../../../../../styles/sep-responsivo" as resp;
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+// `.op-content` pertence ao shell operacional (ViewEncapsulation.None): sem ::ng-deep a regra
+// nao casa e a tela perde ~28px de cada lado. Mesmo padrao dos Mockups 15 a 19.
+// stylelint-disable-next-line selector-pseudo-element-no-unknown -- ::ng-deep e do Angular
+:host ::ng-deep .op-content:has(> .px20-page) {
+  /* Container do contrato responsivo: e esta area que recebe o espaco restante depois da barra
+       lateral, entao e ela que a pagina mede. Declarar no `:host` do componente nao serve — o host
+       envolve o shell inteiro e tem a largura da janela. */
+  container: sep-conteudo / inline-size;
+  display: block;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+
+  // Rola quando a janela e mais baixa que os cartoes: com `hidden` os widgets de baixo ficavam
+  // atras do rodape (92px a 1440x900).
+  overflow: hidden auto;
+}
+
+// O rodape do Mockup 20 tem cerca de 80px. A compactacao e restrita a esta rota e devolve
+// altura aos quatro widgets inferiores sem alterar o shell das telas ja homologadas.
+// stylelint-disable-next-line selector-pseudo-element-no-unknown -- ::ng-deep e do Angular
+:host ::ng-deep .op-main:has(.px20-page) {
+  grid-template-rows: 74px minmax(0, 1fr) 70px;
+}
+
+// stylelint-disable-next-line selector-pseudo-element-no-unknown -- ::ng-deep e do Angular
+:host ::ng-deep .op-main:has(.px20-page) > .op-footer {
+  min-height: 70px;
+}
+
+/* stylelint-disable selector-pseudo-element-no-unknown -- ::ng-deep e do Angular */
+:host ::ng-deep .op-main:has(.px20-page) > .op-footer .op-footer-status,
+:host ::ng-deep .op-main:has(.px20-page) > .op-footer .op-access {
+  transform: translateY(-4px);
+}
+
+:host ::ng-deep .op-main:has(.px20-page) > .op-footer .op-footer-hud {
+  width: 116px;
+  height: 70px;
+  object-fit: contain;
+}
+/* stylelint-enable selector-pseudo-element-no-unknown */
+
+// Mantem a linha superior do rodape lateral na mesma altura do rodape principal.
+// stylelint-disable-next-line selector-pseudo-element-no-unknown -- ::ng-deep e do Angular
+:host ::ng-deep .op-dashboard:has(.px20-page) > .op-sidebar {
+  grid-template-rows: 74px minmax(0, 1fr) 130px 70px;
+}
+
+.px20-page {
+  --blue: var(--sep-accent);
+  --green: var(--sep-success);
+  --orange: var(--sep-warning);
+  --red: var(--sep-danger);
+  --purple: var(--sep-purple);
+  --card: var(--sep-surface-sunken);
+  --stroke: var(--sep-surface-active);
+  --muted: var(--sep-text-muted);
+  --btn-fundo: linear-gradient(
+    180deg,
+    rgb(var(--sep-c-surf3) / 62%) 70%,
+    rgb(var(--sep-c-blue) / 58%) 30%
+  );
+  --btn-borda: rgb(var(--sep-c-blue) / 52%);
+  --btn-relevo:
+    inset 0 1px 0 rgb(var(--sep-c-strong) / 14%), 0 2px 8px rgb(var(--sep-c-shadow) / 26%);
+
+  position: relative;
+  display: grid;
+
+  // Tres colunas medidas no mockup (784 / 134 / 330 em 1280 de area util). As metricas ocupam
+  // as duas primeiras e os alertas as duas ultimas; e por isso que a coluna da direita muda de
+  // largura entre as faixas, o que uma barra lateral de largura fixa nao reproduziria.
+  grid-template:
+    "titulo   titulo   provider" 110px
+    "metricas metricas volume" 208px
+    "concilia alertas  alertas" 250px
+    "inferior direita  direita" minmax(0, 1fr) / minmax(0, 1fr) 130px 320px;
+  gap: 12px;
+  height: 100%;
+  min-height: 0;
+  padding: 8px 18px 14px 24px;
+  color: var(--sep-text-strong);
+  font-family: Inter, "Segoe UI", sans-serif;
+}
+
+/* Largura natural deste layout: 1280px de area util. Abaixo disso as tres colunas viram
+   uma, na ordem de leitura da tela, em vez de o conteudo ser cortado na lateral. */
+@container (max-width: 1000px) {
+  .px20-page {
+    grid-template:
+      "titulo"
+      "provider"
+      "metricas"
+      "volume"
+      "concilia"
+      "alertas"
+      "inferior"
+      "direita"
+      / minmax(0, 1fr);
+    grid-template-rows: repeat(8, auto);
+    height: auto;
+  }
+}
+
+.px20-card {
+  min-width: 0;
+  min-height: 0;
+  padding: 13px 15px;
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  background: var(--card);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.px20-card:hover {
+  border-color: rgb(var(--sep-c-blue) / 62%);
+  box-shadow: 0 0 22px rgb(var(--sep-c-blue) / calc(12% * var(--sep-glow-alpha)));
+}
+
+.px20-card h2 {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.px20-card h2 img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+// Rodape de navegacao repetido em varios cartoes.
+.px20-card > a:last-child {
+  display: block;
+  margin-top: 6px;
+  color: var(--sep-accent);
+  font-size: 12.5px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+}
+
+.px20-card > a:last-child:hover {
+  color: var(--sep-accent);
+  text-decoration: underline;
+}
+
+/* ---------- Cabecalho ---------- */
+
+.px20-heading {
+  grid-area: titulo;
+  min-width: 0;
+}
+
+.px20-heading p {
+  margin: 0 0 11px;
+  color: var(--sep-text-muted);
+  font-size: 12.5px;
+}
+
+.px20-heading p strong {
+  color: var(--sep-text);
+}
+
+.px20-heading p a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 140ms ease;
+}
+
+.px20-heading p a:hover,
+.px20-heading p a:focus-visible {
+  color: var(--sep-accent);
+  text-decoration: underline;
+}
+
+.px20-heading h1 {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.2px;
+}
+
+.px20-heading h1 sep-arte {
+  width: 30px;
+}
+
+.px20-heading span {
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.3;
+}
+
+/* ---------- Provider ---------- */
+
+.px20-provider {
+  position: relative;
+  display: grid;
+
+  // O icone acompanha nome e estado nas duas linhas superiores; tempo e sparkline dividem a
+  // base. Essa composicao preserva a escala do ativo sem comprimir o texto em tres colunas.
+  grid-template-rows: 1fr 1fr auto;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 0 4px;
+  align-content: center;
+  align-items: center;
+  align-self: start;
+  height: 100px;
+  border-color: rgb(var(--sep-c-blue) / 48%);
+  background: linear-gradient(
+    135deg,
+    rgb(var(--sep-c-surf2) / 82%) 0%,
+    var(--sep-surface-sunken) 74%
+  );
+}
+
+.px20-provider > lucide-icon {
+  grid-row: 1 / 3;
+  width: 41px;
+  height: 41px;
+}
+
+// Claro como no mockup: em cinza o rotulo sumia ao lado do "ONLINE".
+.px20-provider > small {
+  grid-column: 2;
+  color: var(--sep-text-strong);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.px20-provider > strong {
+  grid-column: 2;
+  color: var(--green);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.6px;
+}
+
+.px20-provider > p {
+  grid-row: 3;
+  grid-column: 1 / -1;
+  margin: 3px 0 0;
+  color: var(--sep-text-secondary);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.px20-provider > p b {
+  color: var(--sep-text);
+}
+
+// Na linha do tempo de resposta, como no mockup, e nao ao lado do rotulo do topo.
+.px20-provider > svg {
+  position: absolute;
+  right: 13px;
+  bottom: 7px;
+  width: 122px;
+  height: 30px;
+}
+
+// Azul, e nao verde: no mockup o traco da sparkline contrasta com o "ONLINE".
+.px20-provider polyline {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 0.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 3px rgb(var(--sep-c-blue) / calc(70% * var(--sep-glow-alpha))));
+}
+
+.px20-provider-area {
+  fill: url("#px20-provider-area");
+}
+
+/* ---------- Metricas ---------- */
+
+.px20-metrics {
+  display: grid;
+  grid-area: metricas;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 261px), 1fr));
+  gap: 14px;
+  min-width: 0;
+}
+
+.px20-metric {
+  display: grid;
+  grid-template-rows: auto auto auto auto auto;
+  min-width: 0;
+  padding: 13px 15px 0;
+  border: 1px solid var(--tone-borda);
+  border-radius: 12px;
+  background: linear-gradient(160deg, var(--tone-fundo) 0%, var(--sep-canvas) 78%);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    filter 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.px20-metric:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 0 22px var(--tone-halo);
+}
+
+.px20-metric header {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+}
+
+.px20-metric header lucide-icon {
+  width: 31px;
+  height: 31px;
+}
+
+.px20-metric h2 {
+  margin: 0;
+  color: var(--tone);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.px20-metric-valor {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.px20-metric-valor > strong {
+  color: var(--sep-text-strong);
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.px20-metric-valor span {
+  display: grid;
+  justify-items: end;
+}
+
+.px20-metric-valor small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.px20-metric-valor b {
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.px20-metric-legenda {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.px20-metric-variacao {
+  margin: 3px 0 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.px20-metric-variacao i {
+  color: var(--tone);
+  font-style: normal;
+  font-weight: 600;
+}
+
+.px20-metric footer {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-top: 1px solid rgb(var(--sep-c-edge) / 8%);
+}
+
+.px20-metric footer small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.px20-metric footer strong {
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.px20-metric[data-tone="blue"] {
+  --tone: var(--blue);
+  --tone-fundo: var(--sep-surface-3);
+  --tone-borda: var(--sep-accent);
+  --tone-halo: rgb(var(--sep-c-blue) / 22%);
+}
+
+.px20-metric[data-tone="green"] {
+  --tone: var(--green);
+  --tone-fundo: var(--sep-surface-3);
+  --tone-borda: var(--sep-text-muted);
+  --tone-halo: rgb(var(--sep-c-green) / 22%);
+}
+
+.px20-metric[data-tone="orange"] {
+  --tone: var(--orange);
+  --tone-fundo: var(--sep-surface-3);
+  --tone-borda: var(--sep-text-muted);
+  --tone-halo: rgb(var(--sep-c-amber) / 22%);
+}
+
+/* ---------- Volume 24h ---------- */
+
+.px20-volume {
+  display: grid;
+  grid-area: volume;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.px20-volume-corpo {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  min-height: 0;
+}
+
+.px20-donut {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  box-shadow:
+    -5px -7px 14px rgb(var(--sep-c-blue) / calc(20% * var(--sep-glow-alpha))),
+    7px -6px 14px rgb(var(--sep-c-green) / calc(20% * var(--sep-glow-alpha))),
+    6px 8px 15px rgb(var(--sep-c-amber) / calc(18% * var(--sep-glow-alpha)));
+  transition:
+    filter 180ms ease,
+    transform 180ms ease;
+}
+
+// Furo central opaco: mascarar o elemento recortaria junto o total do nucleo.
+.px20-donut::after {
+  position: absolute;
+  inset: 15%;
+  border-radius: 50%;
+  background: var(--sep-surface-sunken);
+  content: "";
+}
+
+.px20-donut span {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  line-height: 1.1;
+}
+
+.px20-donut strong {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.px20-donut small {
+  color: var(--muted);
+  font-size: 10.5px;
+}
+
+.px20-volume ul {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.px20-volume li {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  transition:
+    color 150ms ease,
+    transform 150ms ease;
+}
+
+.px20-volume li:hover {
+  color: var(--sep-text-strong);
+  transform: translateX(3px);
+}
+
+.px20-volume:has(li:hover) .px20-donut {
+  transform: scale(1.04);
+}
+
+.px20-volume:has(li[data-tone="blue"]:hover) .px20-donut {
+  filter: drop-shadow(0 0 9px rgb(var(--sep-c-blue) / calc(62% * var(--sep-glow-alpha))));
+}
+
+.px20-volume:has(li[data-tone="green"]:hover) .px20-donut {
+  filter: drop-shadow(0 0 9px rgb(var(--sep-c-green) / calc(62% * var(--sep-glow-alpha))));
+}
+
+.px20-volume:has(li[data-tone="orange"]:hover) .px20-donut {
+  filter: drop-shadow(0 0 9px rgb(var(--sep-c-amber) / calc(62% * var(--sep-glow-alpha))));
+}
+
+.px20-volume li span {
+  overflow: hidden;
+  color: var(--sep-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.px20-volume li b {
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ---------- Pontos de legenda ---------- */
+
+[data-tone="blue"] {
+  --dot: var(--blue);
+}
+
+[data-tone="green"] {
+  --dot: var(--green);
+}
+
+[data-tone="orange"] {
+  --dot: var(--orange);
+}
+
+[data-tone="red"] {
+  --dot: var(--red);
+}
+
+[data-tone="purple"] {
+  --dot: var(--purple);
+}
+
+[data-tone="cyan"] {
+  --dot: var(--sep-glow);
+}
+
+.px20-volume li i,
+.px20-legenda i,
+.px20-balao i,
+.px20-atividade li > i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--dot);
+  box-shadow: 0 0 7px var(--dot);
+}
+
+/* ---------- Conciliacao ---------- */
+
+.px20-conciliacao {
+  display: grid;
+  grid-area: concilia;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.px20-conciliacao > h2 lucide-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.px20-gauges {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 148px), 1fr));
+  gap: 14px;
+  align-items: center;
+  min-height: 0;
+}
+
+.px20-gauges article {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto auto;
+  gap: 1px;
+  justify-items: center;
+  height: 156px;
+  padding: 9px 9px 8px;
+  border: 1px solid var(--sep-surface-active);
+  border-radius: 10px;
+  background: rgb(var(--sep-c-surf2) / 60%);
+  text-align: center;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.px20-gauges article:hover {
+  border-color: var(--dot);
+  box-shadow:
+    inset 0 0 18px color-mix(in srgb, var(--dot) 9%, transparent),
+    0 0 18px color-mix(in srgb, var(--dot) 24%, transparent);
+  transform: translateY(-3px);
+}
+
+.px20-gauges article:hover .px20-arco {
+  filter: drop-shadow(0 0 6px var(--dot));
+}
+
+.px20-gauges small {
+  color: var(--sep-text);
+  font-size: 12px;
+}
+
+.px20-gauges svg {
+  width: 100%;
+  max-width: 126px;
+  height: auto;
+  margin: 3px 0 -20px;
+}
+
+.px20-trilha {
+  fill: none;
+  stroke: var(--sep-surface-active);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+}
+
+// O halo usa a cor do proprio indicador: com `currentcolor` ele herdava o branco do texto e
+// aparecia como um retangulo claro atras do arco.
+.px20-arco {
+  fill: none;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 3px var(--dot));
+}
+
+.px20-gauges strong {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.px20-gauges em {
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.px20-gauges article[data-indicator="taxa"] em {
+  color: var(--green);
+}
+
+.px20-gauges article > span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* ---------- Alertas ---------- */
+
+.px20-alertas {
+  display: grid;
+  grid-area: alertas;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.px20-alertas > header {
+  margin-bottom: 10px;
+}
+
+.px20-alertas > a:last-child {
+  margin-top: 8px;
+}
+
+.px20-alertas > header,
+.px20-atividade > header,
+.px20-integracoes > header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.px20-alertas > header h2,
+.px20-atividade > header h2,
+.px20-integracoes > header h2 {
+  margin: 0;
+}
+
+.px20-alertas > header a,
+.px20-atividade > header a,
+.px20-integracoes > header a {
+  color: var(--sep-accent);
+  font-size: 12.5px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.px20-alertas > header a:hover,
+.px20-atividade > header a:hover,
+.px20-integracoes > header a:hover {
+  color: var(--sep-accent);
+  text-decoration: underline;
+}
+
+.px20-alertas ol,
+.px20-atividade ol {
+  display: grid;
+  gap: 4px;
+  align-content: space-evenly;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-height: 0;
+}
+
+.px20-alertas ol {
+  gap: 5px;
+  align-content: center;
+}
+
+.px20-alertas li {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto auto;
+  gap: 6px;
+  align-items: center;
+  padding: 7px 10px;
+  border: 1px solid var(--sep-surface-active);
+  border-radius: 9px;
+  background: rgb(var(--sep-c-surf2) / 55%);
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+.px20-alertas li lucide-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.px20-alertas li > div {
+  display: grid;
+  gap: 2px;
+}
+
+.px20-alertas strong,
+.px20-atividade strong {
+  display: block;
+  overflow: hidden;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.px20-alertas small,
+.px20-atividade small {
+  display: block;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.px20-alertas small {
+  font-size: 11px;
+}
+
+.px20-selo {
+  padding: 3px 9px;
+  border: 1px solid currentcolor;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    filter 150ms ease,
+    transform 150ms ease;
+}
+
+.px20-alertas li:hover {
+  border-color: color-mix(in srgb, var(--dot, var(--blue)) 52%, var(--sep-surface-active));
+  box-shadow: inset 0 0 18px rgb(var(--sep-c-blue) / calc(7% * var(--sep-glow-alpha)));
+  transform: translateY(-1px);
+}
+
+.px20-alertas li:has(.px20-selo[data-tone="red"]) {
+  --dot: var(--red);
+}
+
+.px20-alertas li:has(.px20-selo[data-tone="orange"]) {
+  --dot: var(--orange);
+}
+
+.px20-alertas li:has(.px20-selo[data-tone="blue"]) {
+  --dot: var(--blue);
+}
+
+.px20-alertas li:hover .px20-selo {
+  filter: brightness(1.22)
+    drop-shadow(
+      0 0 5px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+    );
+  transform: scale(1.04);
+}
+
+.px20-alertas li:hover img {
+  filter: brightness(1.2)
+    drop-shadow(
+      0 0 6px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+    );
+}
+
+.px20-selo[data-tone="red"] {
+  border-color: rgb(var(--sep-c-red) / 55%);
+  background: rgb(var(--sep-c-red) / 14%);
+  color: var(--red);
+}
+
+.px20-selo[data-tone="orange"] {
+  border-color: rgb(var(--sep-c-amber) / 55%);
+  background: rgb(var(--sep-c-amber) / 14%);
+  color: var(--orange);
+}
+
+.px20-selo[data-tone="blue"] {
+  border-color: rgb(var(--sep-c-blue) / 55%);
+  background: rgb(var(--sep-c-blue) / 12%);
+  color: var(--blue);
+}
+
+.px20-alertas li > span,
+.px20-atividade li > span {
+  color: var(--muted);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+/* ---------- Faixa inferior ---------- */
+
+// A faixa inferior da coluna principal: grafico a esquerda e atividade a direita, nas
+// proporcoes do mockup (459 e 313 de 784).
+.px20-inferior {
+  display: grid;
+  grid-area: inferior;
+  grid-template-columns: minmax(0, 1fr) 316px;
+  gap: 14px;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  max-height: 344px;
+  align-self: start;
+  container-name: px20-lower;
+  container-type: size;
+}
+
+/* Largura natural deste layout: 675px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 671px) {
+  .px20-inferior {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.px20-chart {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+.px20-chart > header {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.px20-chart > header h2 {
+  margin: 0;
+}
+
+.px20-legenda {
+  display: flex;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.px20-legenda li {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--sep-text-secondary);
+  font-size: 11.5px;
+}
+
+.px20-legenda i {
+  width: 6px;
+  height: 6px;
+}
+
+.px20-plot {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 15px;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 2px 5px;
+  min-height: 0;
+}
+
+.px20-eixo {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 0;
+  padding: 0 0 6px;
+  color: var(--sep-text-muted);
+  font-size: 11px;
+  text-align: right;
+}
+
+.px20-tela {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+.px20-tela svg {
+  width: 100%;
+  height: 100%;
+}
+
+.px20-grade line {
+  stroke: var(--sep-surface-hover);
+  stroke-width: 0.7;
+}
+
+.px20-linha {
+  fill: none;
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(
+    0 0 4px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+  );
+  transition:
+    filter 150ms ease,
+    stroke-width 150ms ease;
+}
+
+.px20-tela:hover .px20-linha {
+  stroke-width: 1.4;
+  filter: drop-shadow(
+      0 0 7px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+    )
+    brightness(1.16);
+}
+
+.px20-tela circle {
+  transition: r 150ms ease;
+}
+
+.px20-tela:hover circle {
+  r: 4px;
+}
+
+.px20-barra {
+  fill: var(--orange);
+  filter: drop-shadow(0 0 5px rgb(var(--sep-c-amber) / calc(45% * var(--sep-glow-alpha))));
+}
+
+// Areas invisiveis que capturam o cursor para o balao do dia.
+.px20-alvos rect {
+  fill: transparent;
+  cursor: crosshair;
+}
+
+.px20-alvos rect:focus-visible {
+  fill: rgb(var(--sep-c-blue) / 10%);
+  outline: none;
+}
+
+.px20-balao {
+  position: absolute;
+  top: 14%;
+  z-index: 3;
+  display: grid;
+  gap: 3px;
+  padding: 8px 11px;
+  border: 1px solid var(--sep-accent);
+  border-radius: 9px;
+  background: rgb(var(--sep-c-surf) / 96%);
+  box-shadow: 0 10px 24px rgb(var(--sep-c-shadow) / 55%);
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.px20-balao strong {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.px20-balao p {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin: 0;
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.px20-balao b {
+  color: var(--sep-text);
+}
+
+.px20-datas {
+  display: flex;
+  grid-column: 2;
+  justify-content: space-between;
+  color: var(--sep-text-muted);
+  font-size: 11px;
+}
+
+/* ---------- Atividade recente ---------- */
+
+.px20-atividade {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 4px 15px;
+}
+
+// A lista precisa caber na faixa que sobra entre o cabecalho e o link do rodape; sem a
+// entrelinha travada acima, os quatro itens passavam por cima de "Ver historico completo".
+.px20-atividade li {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto 8px;
+  gap: 8px;
+  align-items: center;
+  padding: 2px 8px 2px 3px;
+  border-radius: 8px;
+  background: rgb(var(--sep-c-surf2) / 45%);
+  transition:
+    background 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+.px20-atividade li:hover {
+  background: rgb(var(--sep-c-surf3) / 72%);
+  box-shadow: inset 3px 0 0 var(--dot, var(--blue));
+  transform: translateX(3px);
+}
+
+.px20-atividade li:has(> i[data-tone="green"]) {
+  --dot: var(--green);
+}
+
+.px20-atividade li:has(> i[data-tone="blue"]) {
+  --dot: var(--blue);
+}
+
+.px20-atividade li:has(> i[data-tone="orange"]) {
+  --dot: var(--orange);
+}
+
+.px20-atividade li:hover > i {
+  box-shadow: 0 0 12px var(--dot);
+  transform: scale(1.2);
+}
+
+.px20-atividade li lucide-icon {
+  width: 23px;
+  height: 23px;
+}
+
+.px20-atividade li > div {
+  display: grid;
+  gap: 2px;
+  margin-left: 5px;
+}
+
+/* ---------- Coluna direita inferior ---------- */
+
+.px20-direita {
+  display: grid;
+  grid-area: direita;
+  grid-template-rows: clamp(140px, 57%, 196px) minmax(0, 1fr);
+  gap: 10px;
+  align-self: start;
+  width: 100%;
+  height: 100%;
+  max-height: 344px;
+  min-height: 0;
+  container-name: px20-lower;
+  container-type: size;
+}
+
+.px20-quick {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  padding: 6px 15px;
+}
+
+.px20-quick > div {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  align-items: center;
+}
+
+.px20-quick a,
+.px20-quick button {
+  display: grid;
+  gap: 12px;
+  align-content: center;
+  justify-items: center;
+  place-self: center;
+  width: 100%;
+  height: 70%;
+  padding: 4px 6px;
+  border: 1px solid var(--tone-borda);
+  border-radius: 11px;
+  background: var(--tone-fundo);
+  color: var(--sep-text);
+  font-family: inherit;
+  font-size: 11.5px;
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    filter 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.px20-quick a:hover,
+.px20-quick button:hover {
+  filter: brightness(1.18);
+  box-shadow: 0 0 18px var(--tone-halo);
+}
+
+.px20-quick lucide-icon {
+  width: 31px;
+  height: 31px;
+}
+
+// Os PNGs possuem margens transparentes internas diferentes; estes deslocamentos alinham
+// o centro optico de cada desenho ao centro do respectivo texto.
+.px20-quick > div > :nth-child(1) img {
+  transform: translateX(5px);
+}
+
+.px20-quick > div > :nth-child(2) img {
+  transform: translateX(10px);
+}
+
+.px20-quick > div > :nth-child(3) img {
+  transform: translateX(17px);
+}
+
+.px20-quick > div > :nth-child(4) img {
+  transform: translateX(23px);
+}
+
+.px20-quick span {
+  width: 100%;
+  text-align: center;
+}
+
+.px20-quick [data-tone="blue"] {
+  --tone-fundo: linear-gradient(
+    180deg,
+    rgb(var(--sep-c-surf3) / 88%) 70%,
+    rgb(var(--sep-c-blue) / 74%) 30%
+  );
+  --tone-borda: rgb(var(--sep-c-blue) / 60%);
+  --tone-halo: rgb(var(--sep-c-blue) / 26%);
+}
+
+.px20-quick [data-tone="green"] {
+  --tone-fundo: linear-gradient(
+    180deg,
+    rgb(var(--sep-c-surf3) / 88%) 70%,
+    rgb(var(--sep-c-muted) / 74%) 30%
+  );
+  --tone-borda: rgb(var(--sep-c-green) / 52%);
+  --tone-halo: rgb(var(--sep-c-green) / 24%);
+}
+
+.px20-quick [data-tone="orange"] {
+  --tone-fundo: linear-gradient(
+    180deg,
+    rgb(var(--sep-c-surf3) / 88%) 70%,
+    rgb(var(--sep-c-muted) / 74%) 30%
+  );
+  --tone-borda: rgb(var(--sep-c-amber) / 52%);
+  --tone-halo: rgb(var(--sep-c-amber) / 24%);
+}
+
+.px20-quick [data-tone="purple"] {
+  --tone-fundo: linear-gradient(
+    180deg,
+    rgb(var(--sep-c-surf2) / 88%) 70%,
+    rgb(var(--sep-c-muted) / 74%) 30%
+  );
+  --tone-borda: rgb(var(--sep-c-purple) / 52%);
+  --tone-halo: rgb(var(--sep-c-purple) / 24%);
+}
+
+// No claro a faixa de cor da base fica a 18%: o texto `--sep-text` cai sobre ela, e a 74% lia a
+// 2,4:1. A cor continua marcando o tom de cada acao; o brilho fica com o tema escuro.
+:host-context(html:not(.dark)) .px20-quick [data-tone="blue"] {
+  --tone-fundo: linear-gradient(180deg, var(--sep-surface-3) 70%, rgb(var(--sep-c-blue) / 18%) 30%);
+}
+
+:host-context(html:not(.dark)) .px20-quick [data-tone="green"] {
+  --tone-fundo: linear-gradient(
+    180deg,
+    var(--sep-surface-3) 70%,
+    rgb(var(--sep-c-green) / 18%) 30%
+  );
+}
+
+:host-context(html:not(.dark)) .px20-quick [data-tone="orange"] {
+  --tone-fundo: linear-gradient(
+    180deg,
+    var(--sep-surface-3) 70%,
+    rgb(var(--sep-c-amber) / 18%) 30%
+  );
+}
+
+:host-context(html:not(.dark)) .px20-quick [data-tone="purple"] {
+  --tone-fundo: linear-gradient(
+    180deg,
+    var(--sep-surface-3) 70%,
+    rgb(var(--sep-c-purple) / 18%) 30%
+  );
+}
+
+/* ---------- Integracoes ---------- */
+
+// O cartao fecha a coluna da direita: o respiro interno e menor que o dos demais para as duas
+// integracoes caberem na altura que sobra abaixo das acoes rapidas.
+.px20-integracoes {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+  padding: 4px 13px;
+}
+
+.px20-integracoes > header {
+  margin-bottom: 2px;
+}
+
+.px20-integracoes > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-content: center;
+}
+
+.px20-integracoes article {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  min-height: 60px;
+  padding: 8px 9px;
+  border: 1px solid var(--sep-surface-active);
+  border-radius: 10px;
+  background: rgb(var(--sep-c-surf2) / 55%);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.px20-integracoes article:hover {
+  border-color: rgb(var(--sep-c-green) / 58%);
+  box-shadow:
+    inset 0 0 18px rgb(var(--sep-c-green) / calc(8% * var(--sep-glow-alpha))),
+    0 0 16px rgb(var(--sep-c-green) / calc(14% * var(--sep-glow-alpha)));
+  transform: translateY(-2px);
+}
+
+.px20-integracoes article:hover img {
+  filter: brightness(1.16)
+    drop-shadow(0 0 7px rgb(var(--sep-c-green) / calc(55% * var(--sep-glow-alpha))));
+}
+
+.px20-integracoes lucide-icon {
+  width: 31px;
+  height: 31px;
+}
+
+.px20-integracoes article:first-child > div {
+  transform: translateX(4px);
+}
+
+.px20-integracoes article:nth-child(2) > img {
+  transform: translateX(-11px);
+}
+
+.px20-integracoes strong {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.px20-integracoes article > div {
+  display: grid;
+  gap: 2px;
+}
+
+.px20-integracoes small {
+  display: block;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.px20-integracoes > div span {
+  display: grid;
+  gap: 2px;
+  justify-items: end;
+  text-align: right;
+}
+
+.px20-integracoes > div span b {
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.px20-integracoes > div span b.ativa {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  color: var(--green);
+}
+
+.px20-integracoes > div span b.ativa::before {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  content: "";
+}
+
+// Quando a faixa recebe os 100px adicionais solicitados, os elementos internos crescem na
+// mesma proporcao. Em alturas menores, permanecem nos tamanhos seguros da referencia 1536x1024.
+@container px20-lower (min-height: 320px) {
+  .px20-chart > header h2,
+  .px20-atividade > header h2,
+  .px20-quick > h2,
+  .px20-integracoes > header h2 {
+    font-size: 16px;
+  }
+
+  .px20-legenda li,
+  .px20-atividade strong,
+  .px20-quick a,
+  .px20-quick button,
+  .px20-integracoes strong {
+    font-size: 12.5px;
+  }
+
+  .px20-atividade li > div,
+  .px20-integracoes article > div,
+  .px20-integracoes > div span {
+    gap: 3px;
+  }
+
+  .px20-atividade li lucide-icon {
+    width: 31px;
+    height: 31px;
+  }
+
+  .px20-quick a,
+  .px20-quick button {
+    gap: 10px;
+  }
+
+  .px20-quick lucide-icon,
+  .px20-integracoes lucide-icon {
+    width: 41px;
+    height: 41px;
+  }
+
+  .px20-integracoes article {
+    min-height: 84px;
+    padding: 11px 12px;
+  }
+}
+
+/* ---------- Aviso ---------- */
+
+.px20-toast {
+  position: absolute;
+  right: 22px;
+  bottom: 18px;
+  z-index: 30;
+  max-width: 420px;
+  margin: 0;
+  padding: 11px 15px;
+  border: 1px solid var(--sep-accent);
+  border-radius: 10px;
+  background: var(--sep-surface-2);
+  color: var(--sep-text);
+  font-size: 12.5px;
+  box-shadow: 0 14px 30px rgb(var(--sep-c-shadow) / 55%);
+}
+
+// ============ JANELA MAXIMIZADA ============
+// Acima de 1440 as medidas homologadas viram piso e o layout acompanha o espaco. Nada aqui vale de
+// 1440 para baixo: a forma original fica intacta.
+@include resp.maximizada {
+  // 130 e 320px viram pisos: 11.4% e 28.07% da grade de 1140px (1440) dao o mesmo. Sem isto
+  // toda a sobra ia para a primeira coluna e os cartoes da direita ficavam travados.
+  @container (min-width: 1001px) {
+    .px20-page {
+      grid-template-columns: minmax(0, 1fr) max(130px, 11.4%) max(320px, 28.07%);
+    }
+  }
+}

@@ -1,111 +1,200 @@
-<section class="sep-bo-dashboard">
-  <header class="sep-bo-dashboard-header">
-    <h1 class="sep-bo-dashboard-title">Dashboard operacional</h1>
-    @if (dashboard(); as d) {
-      <p class="sep-bo-dashboard-updated">Gerado em {{ formatarDataHora(d.geradoEm) }}</p>
-    }
-  </header>
-
-  @if (loading()) {
-    <p class="sep-bo-dashboard-state">Carregando...</p>
-  } @else if (errorMessage()) {
-    <div class="sep-bo-dashboard-state sep-bo-dashboard-error" role="alert">
-      <p>{{ errorMessage() }}</p>
-      <button type="button" class="sep-bo-dashboard-retry" (click)="carregar()">
-        Tentar novamente
-      </button>
-    </div>
-  } @else if (dashboard(); as d) {
-    <div class="sep-bo-kpis">
-      <article class="sep-bo-kpi">
-        <span class="sep-bo-kpi-label">Recebimentos do dia</span>
-        <span class="sep-bo-kpi-value">{{ formatarMoeda(d.recebimentosDoDia) }}</span>
-      </article>
-      <article class="sep-bo-kpi">
-        <span class="sep-bo-kpi-label">Inadimplencia total</span>
-        <span class="sep-bo-kpi-value">{{ formatarMoeda(d.inadimplenciaTotal.valorTotal) }}</span>
-        <span class="sep-bo-kpi-hint">{{ d.inadimplenciaTotal.numeroParcelas }} parcela(s)</span>
-      </article>
-      <article class="sep-bo-kpi">
-        <span class="sep-bo-kpi-label">Tempo medio de resolucao (30d)</span>
-        <span class="sep-bo-kpi-value">{{ formatarDuracao(d.tempoMedioResolucao30d) }}</span>
-      </article>
-      <article class="sep-bo-kpi">
-        <span class="sep-bo-kpi-label">Criticos abertos +48h</span>
-        <span class="sep-bo-kpi-value">{{ d.itensCriticosAbertosMais48h }}</span>
-      </article>
-    </div>
-
-    <div class="sep-bo-grid">
-      <article class="sep-bo-panel">
-        <h2 class="sep-bo-panel-title">Itens por status</h2>
-        <ul class="sep-bo-list">
-          @for (c of d.contadoresPorStatus; track c.status) {
-            <li class="sep-bo-list-row">
-              <span>{{ statusLabel[c.status] }}</span>
-              <span class="sep-bo-list-total">{{ c.total }}</span>
-            </li>
-          } @empty {
-            <li class="sep-bo-list-empty">Sem itens.</li>
-          }
-        </ul>
-      </article>
-
-      <article class="sep-bo-panel">
-        <h2 class="sep-bo-panel-title">Itens por prioridade</h2>
-        <ul class="sep-bo-list">
-          @for (c of d.contadoresPorPrioridade; track c.prioridade) {
-            <li class="sep-bo-list-row">
-              <span>{{ prioridadeLabel[c.prioridade] }}</span>
-              <span class="sep-bo-list-total">{{ c.total }}</span>
-            </li>
-          } @empty {
-            <li class="sep-bo-list-empty">Sem itens.</li>
-          }
-        </ul>
-      </article>
-
-      <article class="sep-bo-panel">
-        <h2 class="sep-bo-panel-title">Itens por tipo</h2>
-        <ul class="sep-bo-list">
-          @for (c of d.contadoresPorTipo; track c.tipo) {
-            <li class="sep-bo-list-row">
-              <span>{{ tipoLabel[c.tipo] }}</span>
-              <span class="sep-bo-list-total">{{ c.total }}</span>
-            </li>
-          } @empty {
-            <li class="sep-bo-list-empty">Sem itens.</li>
-          }
-        </ul>
-      </article>
-
-      <article class="sep-bo-panel">
-        <h2 class="sep-bo-panel-title">Top 5 tipos mais frequentes</h2>
-        <ul class="sep-bo-list">
-          @for (c of d.topCincoTiposMaisFrequentes; track c.tipo) {
-            <li class="sep-bo-list-row">
-              <span>{{ tipoLabel[c.tipo] }}</span>
-              <span class="sep-bo-list-total">{{ c.total }}</span>
-            </li>
-          } @empty {
-            <li class="sep-bo-list-empty">Sem itens.</li>
-          }
-        </ul>
-      </article>
-
-      <article class="sep-bo-panel">
-        <h2 class="sep-bo-panel-title">Propostas por status</h2>
-        <ul class="sep-bo-list">
-          @for (c of d.propostasPorStatus; track c.status) {
-            <li class="sep-bo-list-row">
-              <span>{{ c.status }}</span>
-              <span class="sep-bo-list-total">{{ c.total }}</span>
-            </li>
-          } @empty {
-            <li class="sep-bo-list-empty">Sem propostas.</li>
-          }
-        </ul>
-      </article>
+<!-- A moldura (menu, cabecalho, rodape) e a do shell homologado. Esta pagina tinha uma copia
+     propria, com menu fixo, contadores inventados e botoes de pesquisa, alertas e ajuda sem acao. -->
+<sep-operational-shell>
+  @if (dashboardLoading()) {
+    <p class="op-data-status" role="status">Atualizando indicadores operacionais...</p>
+  }
+  @if (dashboardError()) {
+    <div class="op-data-error" role="alert">
+      <span>{{ dashboardError() }}</span>
+      <button type="button" (click)="loadDashboard()">Tentar novamente</button>
     </div>
   }
-</section>
+
+  <section class="op-welcome">
+    <div class="op-welcome-copy op-reveal-text">
+      <p>{{ greeting() }},</p>
+      <h1 id="op-dashboard-title">{{ currentUser().username }}</h1>
+      <span>Backoffice</span>
+      <small>Bem-vindo ao painel operacional da SEP.</small>
+    </div>
+    <!-- A disposicao do painel e fixa: nao ha preferencia de layout salva no backend. -->
+    <button
+      type="button"
+      class="op-customize"
+      disabled
+      title="A personalização do painel ainda não está disponível"
+    >
+      <span aria-hidden="true">⌘</span>
+      Personalizar dashboard
+    </button>
+  </section>
+
+  <section class="op-metrics" aria-label="Métricas operacionais">
+    @for (metric of metrics(); track metric.label) {
+      <article class="op-metric op-glow-card" [attr.data-tone]="metric.tone">
+        <div class="op-metric-top">
+          <span class="op-metric-icon" aria-hidden="true">
+            <lucide-icon [name]="metric.icon" [size]="51" [strokeWidth]="1" />
+          </span>
+          <div>
+            <h2>{{ metric.label }}</h2>
+            <small style="font-size: 14px">{{ metric.subtitle }}</small>
+          </div>
+        </div>
+        <strong
+          style="
+            text-shadow:
+              0 0 8px rgb(255 255 255 / 55%),
+              0 0 18px rgb(0 190 255 / 28%);
+          "
+          >{{ metric.value }}</strong
+        >
+        @if (metric.unit) {
+          <small style="text-align: center; translate: 0 -7px">{{ metric.unit }}</small>
+        }
+        @if (metric.label === 'Volume operacional' && volumeTendencia(); as tendencia) {
+          <svg
+            class="op-sparkline"
+            viewBox="0 0 220 48"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <polyline [attr.points]="tendencia.pontos" [attr.data-subindo]="tendencia.subindo" />
+          </svg>
+        }
+        <p>
+          <strong>{{ metric.trendValue }}</strong>
+          <span>{{ metric.trendContext }}</span>
+        </p>
+      </article>
+    }
+  </section>
+
+  <div class="op-lower-grid">
+    <section class="op-panel op-journeys-panel">
+      <div class="op-panel-title">
+        <h2>Próximas jornadas</h2>
+        <button type="button">Todas <span>⌄</span></button>
+      </div>
+      <div class="op-journeys">
+        @for (journey of journeys(); track journey.title) {
+          <article class="op-journey op-glow-card" [attr.data-tone]="journey.statusTone">
+            <div class="op-journey-main">
+              <span class="op-journey-icon" aria-hidden="true">
+                <lucide-icon [name]="journey.icon" [size]="32" [strokeWidth]="1.5" />
+              </span>
+              <div>
+                <h3>
+                  {{ journey.title }}
+                </h3>
+                <p>{{ journey.description }}</p>
+                <em>{{ journey.status }}</em>
+              </div>
+            </div>
+            <div class="op-progress" aria-hidden="true">
+              <span [style.width.%]="journeyProgress(journey)"></span>
+            </div>
+            <div class="op-journey-footer">
+              <span>Pendências</span>
+              <strong>{{ journey.pendingValue }} {{ journey.pendingLabel }}</strong>
+            </div>
+            <a [routerLink]="journey.route">Acessar jornada <b>→</b></a>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="op-panel op-summary">
+      <div class="op-panel-title">
+        <h2>Resumo operacional</h2>
+        <button type="button">Hoje <span>⌄</span></button>
+      </div>
+      <div class="op-summary-list">
+        @for (item of summary(); track item.label) {
+          <div class="op-summary-item" [class.op-danger]="item.severity === 'danger'">
+            <lucide-icon [name]="item.icon" [size]="22" />
+            <span>{{ item.label }}</span>
+            <strong>{{ item.value }}</strong>
+            <em>{{ item.trend }}</em>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="op-panel op-performance">
+      <div class="op-panel-title">
+        <div>
+          <h2>Indicadores de performance</h2>
+          <small>Visão geral dos últimos 7 dias</small>
+        </div>
+        <button type="button">7 dias <span>⌄</span></button>
+      </div>
+      <div class="op-performance-grid">
+        @for (item of performance(); track item.label; let performanceIndex = $index) {
+          <article class="op-performance-item" [attr.data-performance-index]="performanceIndex">
+            <div
+              class="op-performance-ring"
+              role="img"
+              [attr.aria-label]="item.label + ': ' + item.value"
+              [style.--ring-progress]="item.progress + '%'"
+              [style.--ring-color]="item.color"
+            >
+              <strong>{{ item.value }}</strong>
+            </div>
+            <span>{{ item.label }}</span>
+            <small>
+              @if (item.trend) {
+                <b>{{ item.trend }}</b>
+              }
+              <span>{{ item.context }}</span>
+            </small>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="op-panel op-health">
+      <div class="op-panel-title">
+        <div>
+          <h2>Saúde da plataforma</h2>
+          <small>Status dos serviços</small>
+        </div>
+      </div>
+      <div class="op-health-list">
+        @for (item of health(); track item.label) {
+          <div class="op-health-item">
+            <lucide-icon [name]="item.icon" [size]="18" />
+            <span>{{ item.label }}</span>
+            <em>{{ item.status }}</em>
+          </div>
+        }
+      </div>
+      <footer>
+        <span>Todos os sistemas operacionais</span>
+        <strong>100%</strong>
+      </footer>
+    </section>
+
+    <section class="op-panel op-activity">
+      <div class="op-panel-title">
+        <h2>Atividades recentes</h2>
+        <!-- Nao ha lista global de atividades: as que pedem acao viram item da fila operacional. -->
+        <a routerLink="/app/backoffice/fila">Ver todas</a>
+      </div>
+      <ol>
+        @for (activity of activities(); track activity.title) {
+          <li [attr.data-tone]="activity.tone">
+            <time>{{ activity.time }}</time>
+            <i class="op-timeline-dot" aria-hidden="true"></i>
+            <div>
+              <strong>{{ activity.title }}</strong>
+              <p>{{ activity.detail }}</p>
+            </div>
+            <span>{{ activity.status }}</span>
+          </li>
+        }
+      </ol>
+    </section>
+  </div>
+</sep-operational-shell>

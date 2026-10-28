@@ -1,0 +1,93 @@
+<sep-operational-shell>
+  <main class="cor-page">
+    <header class="cor-heading">
+      <div>
+        <p class="cor-crumbs">
+          <a routerLink="/app/dashboard">Início</a> ›
+          <a routerLink="/app/meu-backoffice">Meu Back Office</a> › <strong>Minha base</strong>
+        </p>
+        <h1>Minha base</h1>
+        <p>Clientes vinculados a você, com o histórico dos vínculos encerrados.</p>
+      </div>
+    </header>
+
+    @if (erro()) {
+      <div class="cor-erro" role="alert">{{ erro() }}</div>
+    }
+
+    @if (carregando()) {
+      <p class="cor-estado" role="status">Carregando a sua base...</p>
+    } @else {
+      <section class="cor-card">
+        <div class="cor-tabela-wrap">
+          <table class="cor-tabela">
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Situação</th>
+                <th>Início</th>
+                <th>Fim / motivo</th>
+                <th>Operação</th>
+                <th>Última proposta cita você?</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (v of base(); track v.id) {
+                <tr>
+                  <td>
+                    {{ v.clienteNome }}<small>{{ v.clienteDocumentoMascarado }}</small>
+                  </td>
+                  <td>
+                    <span class="cor-selo" [attr.data-tone]="tom[v.status]">{{
+                      rotulo[v.status]
+                    }}</span>
+                  </td>
+                  <td>{{ data(v.inicio) }}</td>
+                  <td>
+                    {{ data(v.fim) }}
+                    @if (v.motivoFim) {
+                      <small>{{ motivo[v.motivoFim] }}</small>
+                    }
+                  </td>
+                  <td>
+                    @if (operacaoDe(v); as o) {
+                      <span class="cor-selo" [attr.data-tone]="tomOperacao[o.situacao]">{{
+                        rotuloOperacao[o.situacao]
+                      }}</span>
+                      <small
+                        >{{ o.numero
+                        }}{{
+                          o.tipo === 'CONTRATO' ? ' · parcela ' + moeda(o.valorParcela) : ''
+                        }}</small
+                      >
+                      @if (o.tipo === 'CONTRATO') {
+                        <a class="cor-link" [routerLink]="['/app/meu-backoffice/contratos', o.id]"
+                          >Ver parcelas</a
+                        >
+                      }
+                    } @else {
+                      —
+                    }
+                  </td>
+                  <td>
+                    @if (v.ultimaPropostaCitaCorrespondente === null) {
+                      Sem proposta
+                    } @else if (v.ultimaPropostaCitaCorrespondente) {
+                      Sim
+                    } @else {
+                      Não — o vínculo está em risco
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="cor-estado">Sua base ainda não tem clientes.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+  </main>
+</sep-operational-shell>

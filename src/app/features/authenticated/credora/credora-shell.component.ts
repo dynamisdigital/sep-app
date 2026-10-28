@@ -1,28 +1,72 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 
 import { EmpresaCredoraResponse } from '../../../core/api/api.models';
 import { CredoraService } from '../../../core/credora/credora.service';
+import { OperationalShellComponent } from '../../../layout/operational-shell/operational-shell.component';
+import { SepMascaraPipe } from '../../../shared/forms/sep-mascara.pipe';
 
 interface CredoraLink {
   label: string;
   description: string;
   route: string;
+  icone: string;
+  tom: 'blue' | 'green' | 'purple';
 }
 
-// Landing da jornada credora. Resolve a presenca de credora (GET /credores/me): sem credora (404),
-// apresenta apenas o caminho de cadastro; com credora, libera perfil, oportunidades e carteira.
-// Elegibilidade, ownership e demais regras pertencem ao backend — o shell apenas navega.
+interface Motivo {
+  titulo: string;
+  descricao: string;
+  icone: string;
+  tom: 'blue' | 'green' | 'purple' | 'amber';
+}
+
+// As quatro razoes do desenho. Ficam aqui, e nao no template, para o cartao e a ordem
+// andarem juntos.
+const MOTIVOS: Motivo[] = [
+  {
+    titulo: 'Receba propostas',
+    descricao: 'Receba propostas de crédito de tomadores interessados.',
+    icone: 'users',
+    tom: 'blue',
+  },
+  {
+    titulo: 'Acompanhe oportunidades',
+    descricao: 'Visualize e gerencie oportunidades em tempo real.',
+    icone: 'chart-column',
+    tom: 'green',
+  },
+  {
+    titulo: 'Gerencie sua carteira',
+    descricao: 'Acompanhe contratos, parcelas e recebimentos.',
+    icone: 'wallet',
+    tom: 'purple',
+  },
+  {
+    titulo: 'Mais segurança',
+    descricao: 'Operações seguras, auditadas e em conformidade.',
+    icone: 'shield-check',
+    tom: 'amber',
+  },
+];
+
+// Landing da jornada credora (Mockup 35). Resolve a presenca de credora (GET /credores/me):
+// sem credora (404), a tela e o convite ao cadastro; com credora, libera perfil,
+// oportunidades e carteira. Elegibilidade, ownership e demais regras pertencem ao backend —
+// o shell apenas navega.
 @Component({
   selector: 'sep-credora-shell',
-  imports: [RouterLink],
+  imports: [RouterLink, LucideAngularModule, OperationalShellComponent, SepMascaraPipe],
   templateUrl: './credora-shell.component.html',
   styleUrl: './credora-shell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CredoraShellComponent implements OnInit {
   private readonly credora = inject(CredoraService);
+
+  protected readonly motivos = MOTIVOS;
 
   protected readonly loading = signal(true);
   protected readonly errorMessage = signal<string | null>(null);
@@ -33,20 +77,57 @@ export class CredoraShellComponent implements OnInit {
       label: 'Perfil e elegibilidade',
       description: 'Status cadastral e elegibilidade derivada do onboarding.',
       route: '/app/credora/perfil',
+      icone: 'building-2',
+      tom: 'blue',
     },
     {
       label: 'Oportunidades',
-      description: 'Operacoes disponiveis para investimento.',
+      description: 'Operações disponíveis para financiamento.',
       route: '/app/credora/oportunidades',
+      icone: 'chart-column',
+      tom: 'green',
     },
     {
       label: 'Carteira',
-      description: 'Operacoes financiadas e acompanhamento de cobranca.',
+      description: 'Operações financiadas e acompanhamento de cobrança.',
       route: '/app/credora/carteira',
+      icone: 'wallet',
+      tom: 'purple',
+    },
+  ];
+
+  // Conta escrow do investidor: vale para credor pessoa fisica ou juridica, com ou sem credora PJ.
+  protected readonly linksInvestidor: CredoraLink[] = [
+    {
+      label: 'Conta escrow',
+      description: 'Saldo, aporte por Pix e extrato da sua conta vinculada.',
+      route: '/app/credora/conta',
+      icone: 'landmark',
+      tom: 'green',
+    },
+    {
+      label: 'Alocações',
+      description: 'Reserve saldo em oportunidades, respeitando o limite por devedor.',
+      route: '/app/credora/alocacoes',
+      icone: 'chart-column',
+      tom: 'blue',
+    },
+    {
+      label: 'Saques',
+      description: 'Retire saldo disponível para uma conta sua cadastrada.',
+      route: '/app/credora/saques',
+      icone: 'banknote',
+      tom: 'purple',
     },
   ];
 
   ngOnInit(): void {
+    this.carregar();
+  }
+
+  carregar(): void {
+    this.loading.set(true);
+    this.errorMessage.set(null);
     this.credora.consultarMinhaCredora().subscribe({
       next: (credora) => {
         this.empresaCredora.set(credora);
@@ -54,8 +135,9 @@ export class CredoraShellComponent implements OnInit {
       },
       error: (error: HttpErrorResponse) => {
         // 404 = usuario ainda sem credora (estado desejado, oferece cadastro), nao erro duro.
+        this.empresaCredora.set(null);
         if (error.status !== 404) {
-          this.errorMessage.set('Nao foi possivel carregar sua credora. Tente novamente.');
+          this.errorMessage.set('Não foi possível carregar sua credora. Tente novamente.');
         }
         this.loading.set(false);
       },

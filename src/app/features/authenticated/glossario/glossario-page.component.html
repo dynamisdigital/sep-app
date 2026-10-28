@@ -1,0 +1,141 @@
+<sep-operational-shell>
+  <section class="gl-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="gl-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span><strong>Glossário técnico</strong>
+      </nav>
+      <div class="gl-heading-row">
+        <div class="gl-titulo-wrap">
+          <div>
+            <h1>Glossário técnico</h1>
+            <p class="gl-subtitulo">
+              Os termos do Dynamis SEP explicados em poucas linhas, cada um com o módulo em que
+              aparece.
+            </p>
+          </div>
+        </div>
+        <div class="gl-acoes-topo">
+          <button type="button" class="gl-btn-sec" (click)="voltar()">
+            <lucide-icon name="arrow-left" [size]="16" />Voltar
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============ BUSCA E FILTROS ============ -->
+    <article class="gl-card gl-filtros">
+      <label class="gl-campo">
+        <span>Buscar</span>
+        <span class="gl-busca">
+          <lucide-icon name="search" [size]="16" />
+          <input
+            type="search"
+            [value]="busca()"
+            (input)="buscar($event)"
+            placeholder="Termo, resumo ou módulo"
+            autocomplete="off"
+          />
+        </span>
+      </label>
+
+      <label class="gl-campo">
+        <span>Módulo</span>
+        <select (change)="escolherModulo($event)">
+          <option value="" [selected]="!modulo()">Todos os módulos</option>
+          @for (m of modulos; track m) {
+            <option [value]="m" [selected]="m === modulo()">{{ m }}</option>
+          }
+        </select>
+      </label>
+
+      <div class="gl-campo">
+        <span>Ordem</span>
+        <button
+          type="button"
+          class="gl-btn-sec gl-ordem"
+          (click)="alternarOrdem()"
+          [attr.aria-label]="
+            ordem() === 'asc'
+              ? 'Ordem de A a Z. Inverter para Z a A'
+              : 'Ordem de Z a A. Inverter para A a Z'
+          "
+        >
+          <lucide-icon [name]="ordem() === 'asc' ? 'arrow-down' : 'arrow-up'" [size]="16" />{{
+            ordem() === 'asc' ? 'A → Z' : 'Z → A'
+          }}
+        </button>
+      </div>
+
+      <div class="gl-letras" role="group" aria-label="Filtrar pela letra inicial">
+        @for (l of alfabeto; track l) {
+          <button
+            type="button"
+            class="gl-letra"
+            [class.gl-letra-ativa]="letra() === l"
+            [disabled]="!letrasDisponiveis().has(l)"
+            [attr.aria-pressed]="letra() === l"
+            (click)="escolherLetra(l)"
+          >
+            {{ l }}
+          </button>
+        }
+      </div>
+
+      <p class="gl-contagem" aria-live="polite">
+        <span
+          ><strong>{{ resultado().length }}</strong> de {{ total }} termos</span
+        >
+        @if (filtrando()) {
+          <button type="button" class="gl-limpar" (click)="limpar()">
+            <lucide-icon name="x" [size]="13" />Limpar filtros
+          </button>
+        }
+      </p>
+    </article>
+
+    <!-- ============ VERBETES ============ -->
+    <div class="gl-lista">
+      @for (grupo of grupos(); track grupo.letra) {
+        <section class="gl-grupo" [attr.aria-label]="'Termos com a letra ' + grupo.letra">
+          <h2 class="gl-letra-titulo">{{ grupo.letra }}</h2>
+          <div class="gl-grade">
+            @for (v of grupo.verbetes; track v.termo) {
+              <article class="gl-card gl-verbete">
+                <h3>{{ v.termo }}</h3>
+                <p>{{ v.resumo }}</p>
+                <p class="gl-usado">
+                  <lucide-icon name="map-pin" [size]="13" /><span
+                    ><strong>Usado em:</strong> {{ v.usadoEm }}</span
+                  >
+                </p>
+                <ul class="gl-modulos" aria-label="Módulos">
+                  @for (m of v.modulos; track m) {
+                    <li>
+                      <button
+                        type="button"
+                        class="gl-selo"
+                        [style.--tom]="tomDe(m)"
+                        [class.gl-selo-ativo]="modulo() === m"
+                        (click)="filtrarPorSelo(m)"
+                        [title]="'Mostrar só os termos do módulo ' + m"
+                      >
+                        {{ m }}
+                      </button>
+                    </li>
+                  }
+                </ul>
+              </article>
+            }
+          </div>
+        </section>
+      } @empty {
+        <div class="gl-card gl-vazio" role="status">
+          <lucide-icon name="search" [size]="22" />
+          <p>Nenhum termo encontrado para esta busca.</p>
+          <button type="button" class="gl-btn-sec" (click)="limpar()">Limpar filtros</button>
+        </div>
+      }
+    </div>
+  </section>
+</sep-operational-shell>

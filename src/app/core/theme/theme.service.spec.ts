@@ -12,12 +12,12 @@ describe('ThemeService', () => {
     TestBed.configureTestingModule({});
   });
 
-  it('inicia em light quando nao ha preferencia salva', () => {
+  it('inicia em dark quando nao ha preferencia salva', () => {
     const service = TestBed.inject(ThemeService);
 
-    expect(service.theme()).toBe('light');
-    expect(service.isDark()).toBe(false);
-    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(service.theme()).toBe('dark');
+    expect(service.isDark()).toBe(true);
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
   });
 
   it('le o tema salvo no localStorage ao inicializar', () => {
@@ -34,15 +34,15 @@ describe('ThemeService', () => {
 
     service.toggle();
 
-    expect(service.theme()).toBe('dark');
-    expect(document.documentElement.classList.contains('dark')).toBe(true);
-    expect(window.localStorage.getItem(THEME_KEY)).toBe('dark');
-
-    service.toggle();
-
     expect(service.theme()).toBe('light');
     expect(document.documentElement.classList.contains('dark')).toBe(false);
     expect(window.localStorage.getItem(THEME_KEY)).toBe('light');
+
+    service.toggle();
+
+    expect(service.theme()).toBe('dark');
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(window.localStorage.getItem(THEME_KEY)).toBe('dark');
   });
 
   it('setTheme aplica e persiste o tema informado', () => {

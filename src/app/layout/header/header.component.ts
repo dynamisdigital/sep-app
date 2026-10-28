@@ -12,40 +12,9 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 
 import { AuthService } from '../../core/auth/auth.service';
-import {
-  ContagemNaoLidas,
-  NotificacoesNaoLidasStore,
-} from '../../core/notificacoes/notificacoes-nao-lidas.store';
+import { marcadorDaCentral, rotuloDaCentral } from '../../core/notificacoes/central-rotulos';
+import { NotificacoesNaoLidasStore } from '../../core/notificacoes/notificacoes-nao-lidas.store';
 import { ThemeService } from '../../core/theme/theme.service';
-
-// Rotulo acessivel do acesso a central: o numero sozinho nao diz do que e (criterio 4 da spec 127).
-function rotuloDaCentral(contagem: ContagemNaoLidas | null): string {
-  switch (contagem?.situacao) {
-    case 'conhecida':
-      if (contagem.naoLidas === 0) {
-        return 'Notificacoes, nenhuma nao lida';
-      }
-      return contagem.naoLidas === 1
-        ? 'Notificacoes, 1 nao lida'
-        : `Notificacoes, ${contagem.naoLidas} nao lidas`;
-    case 'indisponivel':
-      return 'Notificacoes, contagem de nao lidas indisponivel';
-    default:
-      return 'Notificacoes, carregando contagem de nao lidas';
-  }
-}
-
-// Marcador visual, escondido do leitor de tela (o rotulo ja diz tudo). Zero e carregando nao marcam;
-// indisponivel marca `?` para nao parecer zero.
-function marcadorDaCentral(contagem: ContagemNaoLidas | null): string | null {
-  if (contagem?.situacao === 'indisponivel') {
-    return '?';
-  }
-  if (contagem?.situacao !== 'conhecida' || contagem.naoLidas === 0) {
-    return null;
-  }
-  return contagem.naoLidas > 99 ? '99+' : String(contagem.naoLidas);
-}
 
 @Component({
   selector: 'sep-header',

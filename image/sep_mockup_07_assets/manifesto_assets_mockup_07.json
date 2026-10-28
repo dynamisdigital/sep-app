@@ -1,0 +1,490 @@
+[
+  {
+    "file": "logo_sep_header_completo.png",
+    "category": "logos",
+    "box": [18, 15, 158, 60],
+    "size": [160, 58],
+    "public_path": "/image/sep_mockup_07_assets/logos/logo_sep_header_completo.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "logo_sep_simbolo_header.png",
+    "category": "logos",
+    "box": [18, 12, 64, 63],
+    "size": [79, 79],
+    "public_path": "/image/sep_mockup_07_assets/logos/logo_sep_simbolo_header.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "logo_sep_wordmark_header.png",
+    "category": "logos",
+    "box": [70, 22, 158, 56],
+    "size": [105, 50],
+    "public_path": "/image/sep_mockup_07_assets/logos/logo_sep_wordmark_header.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "logo_sep_footer_completo.png",
+    "category": "logos",
+    "box": [18, 1018, 160, 1060],
+    "size": [160, 58],
+    "public_path": "/image/sep_mockup_07_assets/logos/logo_sep_footer_completo.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "logo_sep_simbolo_footer.png",
+    "category": "logos",
+    "box": [20, 1018, 58, 1058],
+    "size": [70, 70],
+    "public_path": "/image/sep_mockup_07_assets/logos/logo_sep_simbolo_footer.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "sidebar_dashboard.png",
+    "category": "icons",
+    "box": [18, 100, 48, 132],
+    "size": [72, 72],
+    "public_path": "/image/sep_mockup_07_assets/icons/sidebar_dashboard.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "sidebar_onboarding.png",
+    "category": "icons",
+    "box": [18, 185, 50, 219],
+    "size": [72, 72],
+    "public_path": "/image/sep_mockup_07_assets/icons/sidebar_onboarding.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "sidebar_credito.png",
+    "category": "icons",
+    "box": [18, 238, 52, 263],
+    "size": [72, 72],
+    "public_path": "/image/sep_mockup_07_assets/icons/sidebar_credito.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "sidebar_formalizacao.png",
+    "category": "icons",
+    "box": [20, 288, 52, 320],
+    "size": [72, 72],
+    "public_path": "/image/sep_mockup_07_assets/icons/sidebar_formalizacao.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "sidebar_cobranca.png",
+    "category": "icons",
+    "box": [20, 338, 52, 367],
+    "size": [72, 72],
+    "public_path": "/image/sep_mockup_07_assets/icons/sidebar_cobranca.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "sidebar_backoffice.png",
+    "category": "icons",
+    "box": [18, 418, 52, 452],
+    "size": [72, 72],
+    "public_path": "/image/sep_mockup_07_assets/icons/sidebar_backoffice.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "sidebar_pix.png",
+    "category": "icons",
+    "box": [18, 468, 52, 504],
+    "size": [72, 72],
+    "public_path": "/image/sep_mockup_07_assets/icons/sidebar_pix.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "sidebar_perfil.png",
+    "category": "icons",
+    "box": [19, 553, 51, 587],
+    "size": [72, 72],
+    "public_path": "/image/sep_mockup_07_assets/icons/sidebar_perfil.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "sidebar_help.png",
+    "category": "icons",
+    "box": [25, 924, 62, 963],
+    "size": [72, 72],
+    "public_path": "/image/sep_mockup_07_assets/icons/sidebar_help.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "topbar_ambiente_regulado_shield.png",
+    "category": "icons",
+    "box": [356, 21, 383, 52],
+    "size": [72, 72],
+    "public_path": "/image/sep_mockup_07_assets/icons/topbar_ambiente_regulado_shield.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "topbar_horario_sistema.png",
+    "category": "icons",
+    "box": [514, 18, 548, 56],
+    "size": [82, 82],
+    "public_path": "/image/sep_mockup_07_assets/icons/topbar_horario_sistema.png",
+    "note": "Asset refinado V5: recorte preciso, centralização e margem segura sem cortar circunferência/HUD/ícone."
+  },
+  {
+    "file": "topbar_search.png",
+    "category": "icons",
+    "box": [874, 19, 911, 59],
+    "size": [78, 78],
+    "public_path": "/image/sep_mockup_07_assets/icons/topbar_search.png",
+    "note": "Asset refinado V5: recorte preciso, centralização e margem segura sem cortar circunferência/HUD/ícone."
+  },
+  {
+    "file": "topbar_bell_notification.png",
+    "category": "icons",
+    "box": [930, 10, 979, 64],
+    "size": [92, 92],
+    "public_path": "/image/sep_mockup_07_assets/icons/topbar_bell_notification.png",
+    "note": "Asset refinado V5: recorte preciso, centralização e margem segura sem cortar circunferência/HUD/ícone."
+  },
+  {
+    "file": "topbar_help.png",
+    "category": "icons",
+    "box": [1012, 18, 1048, 59],
+    "size": [78, 78],
+    "public_path": "/image/sep_mockup_07_assets/icons/topbar_help.png",
+    "note": "Asset refinado V5: recorte preciso, centralização e margem segura sem cortar circunferência/HUD/ícone."
+  },
+  {
+    "file": "topbar_avatar_d.png",
+    "category": "icons",
+    "box": [1102, 10, 1155, 64],
+    "size": [90, 90],
+    "public_path": "/image/sep_mockup_07_assets/icons/topbar_avatar_d.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "topbar_theme_sun.png",
+    "category": "icons",
+    "box": [1346, 17, 1386, 60],
+    "size": [82, 82],
+    "public_path": "/image/sep_mockup_07_assets/icons/topbar_theme_sun.png",
+    "note": "Asset refinado V5: recorte preciso, centralização e margem segura sem cortar circunferência/HUD/ícone."
+  },
+  {
+    "file": "back_to_onboarding_arrow.png",
+    "category": "icons",
+    "box": [1187, 137, 1218, 164],
+    "size": [60, 60],
+    "public_path": "/image/sep_mockup_07_assets/icons/back_to_onboarding_arrow.png",
+    "note": "Asset refinado V5: recorte preciso, centralização e margem segura sem cortar circunferência/HUD/ícone."
+  },
+  {
+    "file": "page_title_kyc_badge.png",
+    "category": "icons",
+    "box": [682, 139, 729, 163],
+    "size": [76, 42],
+    "public_path": "/image/sep_mockup_07_assets/icons/page_title_kyc_badge.png",
+    "note": "Asset refinado V5: recorte preciso, centralização e margem segura sem cortar circunferência/HUD/ícone."
+  },
+  {
+    "file": "step_identificacao_1_active.png",
+    "category": "icons",
+    "box": [298, 240, 358, 300],
+    "size": [98, 98],
+    "public_path": "/image/sep_mockup_07_assets/icons/step_identificacao_1_active.png",
+    "note": "PNG transparente com badge/circunferência preservado por máscara circular e margem segura."
+  },
+  {
+    "file": "step_documentos_2.png",
+    "category": "icons",
+    "box": [559, 239, 621, 301],
+    "size": [98, 98],
+    "public_path": "/image/sep_mockup_07_assets/icons/step_documentos_2.png",
+    "note": "PNG transparente com badge/circunferência preservado por máscara circular e margem segura."
+  },
+  {
+    "file": "step_verificacao_3.png",
+    "category": "icons",
+    "box": [853, 239, 915, 301],
+    "size": [98, 98],
+    "public_path": "/image/sep_mockup_07_assets/icons/step_verificacao_3.png",
+    "note": "PNG transparente com badge/circunferência preservado por máscara circular e margem segura."
+  },
+  {
+    "file": "step_revisao_4.png",
+    "category": "icons",
+    "box": [1139, 239, 1201, 301],
+    "size": [98, 98],
+    "public_path": "/image/sep_mockup_07_assets/icons/step_revisao_4.png",
+    "note": "PNG transparente com badge/circunferência preservado por máscara circular e margem segura."
+  },
+  {
+    "file": "card_dados_pessoais_icon.png",
+    "category": "icons",
+    "box": [296, 352, 356, 410],
+    "size": [108, 108],
+    "public_path": "/image/sep_mockup_07_assets/icons/card_dados_pessoais_icon.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "badge_ambiente_regulado_icon.png",
+    "category": "icons",
+    "box": [812, 374, 850, 413],
+    "size": [84, 84],
+    "public_path": "/image/sep_mockup_07_assets/icons/badge_ambiente_regulado_icon.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "input_cpf_document.png",
+    "category": "icons",
+    "box": [306, 484, 340, 514],
+    "size": [70, 70],
+    "public_path": "/image/sep_mockup_07_assets/icons/input_cpf_document.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "input_nome_usuario.png",
+    "category": "icons",
+    "box": [306, 592, 338, 622],
+    "size": [70, 70],
+    "public_path": "/image/sep_mockup_07_assets/icons/input_nome_usuario.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "input_data_calendario.png",
+    "category": "icons",
+    "box": [306, 690, 340, 722],
+    "size": [72, 72],
+    "public_path": "/image/sep_mockup_07_assets/icons/input_data_calendario.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "button_continuar_arrow.png",
+    "category": "icons",
+    "box": [918, 751, 955, 789],
+    "size": [72, 72],
+    "public_path": "/image/sep_mockup_07_assets/icons/button_continuar_arrow.png",
+    "note": "Asset refinado V5: recorte preciso, centralização e margem segura sem cortar circunferência/HUD/ícone."
+  },
+  {
+    "file": "footnote_lock.png",
+    "category": "icons",
+    "box": [414, 801, 439, 824],
+    "size": [54, 54],
+    "public_path": "/image/sep_mockup_07_assets/icons/footnote_lock.png",
+    "note": "Asset refinado V5: recorte preciso, centralização e margem segura sem cortar circunferência/HUD/ícone."
+  },
+  {
+    "file": "benefit_protecao_dados.png",
+    "category": "icons",
+    "box": [287, 903, 349, 965],
+    "size": [106, 106],
+    "public_path": "/image/sep_mockup_07_assets/icons/benefit_protecao_dados.png",
+    "note": "PNG transparente com badge/circunferência preservado por máscara circular e margem segura."
+  },
+  {
+    "file": "benefit_ambiente_regulado.png",
+    "category": "icons",
+    "box": [463, 902, 527, 966],
+    "size": [106, 106],
+    "public_path": "/image/sep_mockup_07_assets/icons/benefit_ambiente_regulado.png",
+    "note": "PNG transparente com badge/circunferência preservado por máscara circular e margem segura."
+  },
+  {
+    "file": "benefit_processo_seguro.png",
+    "category": "icons",
+    "box": [655, 902, 719, 966],
+    "size": [106, 106],
+    "public_path": "/image/sep_mockup_07_assets/icons/benefit_processo_seguro.png",
+    "note": "PNG transparente com badge/circunferência preservado por máscara circular e margem segura."
+  },
+  {
+    "file": "benefit_100_digital.png",
+    "category": "icons",
+    "box": [843, 902, 907, 966],
+    "size": [106, 106],
+    "public_path": "/image/sep_mockup_07_assets/icons/benefit_100_digital.png",
+    "note": "Asset refinado V5: recorte preciso, centralização e margem segura sem cortar circunferência/HUD/ícone."
+  },
+  {
+    "file": "summary_kyc_badge.png",
+    "category": "icons",
+    "box": [1312, 342, 1370, 371],
+    "size": [88, 48],
+    "public_path": "/image/sep_mockup_07_assets/icons/summary_kyc_badge.png",
+    "note": "Asset refinado V5: recorte preciso, centralização e margem segura sem cortar circunferência/HUD/ícone."
+  },
+  {
+    "file": "summary_timeline_step_1.png",
+    "category": "icons",
+    "box": [1042, 378, 1086, 422],
+    "size": [78, 78],
+    "public_path": "/image/sep_mockup_07_assets/icons/summary_timeline_step_1.png",
+    "note": "PNG transparente com badge/circunferência preservado por máscara circular e margem segura."
+  },
+  {
+    "file": "summary_timeline_step_2.png",
+    "category": "icons",
+    "box": [1042, 432, 1086, 476],
+    "size": [78, 78],
+    "public_path": "/image/sep_mockup_07_assets/icons/summary_timeline_step_2.png",
+    "note": "PNG transparente com badge/circunferência preservado por máscara circular e margem segura."
+  },
+  {
+    "file": "summary_timeline_step_3.png",
+    "category": "icons",
+    "box": [1042, 486, 1086, 530],
+    "size": [78, 78],
+    "public_path": "/image/sep_mockup_07_assets/icons/summary_timeline_step_3.png",
+    "note": "PNG transparente com badge/circunferência preservado por máscara circular e margem segura."
+  },
+  {
+    "file": "summary_timeline_step_4.png",
+    "category": "icons",
+    "box": [1042, 539, 1086, 583],
+    "size": [78, 78],
+    "public_path": "/image/sep_mockup_07_assets/icons/summary_timeline_step_4.png",
+    "note": "PNG transparente com badge/circunferência preservado por máscara circular e margem segura."
+  },
+  {
+    "file": "info_kyc_icon.png",
+    "category": "icons",
+    "box": [1074, 724, 1112, 762],
+    "size": [82, 82],
+    "public_path": "/image/sep_mockup_07_assets/icons/info_kyc_icon.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "info_external_link.png",
+    "category": "icons",
+    "box": [1206, 808, 1232, 835],
+    "size": [58, 58],
+    "public_path": "/image/sep_mockup_07_assets/icons/info_external_link.png",
+    "note": "Asset refinado V5: recorte preciso, centralização e margem segura sem cortar circunferência/HUD/ícone."
+  },
+  {
+    "file": "help_chat_icon.png",
+    "category": "icons",
+    "box": [1074, 900, 1112, 936],
+    "size": [82, 82],
+    "public_path": "/image/sep_mockup_07_assets/icons/help_chat_icon.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "help_button_arrow.png",
+    "category": "icons",
+    "box": [1254, 953, 1284, 982],
+    "size": [68, 68],
+    "public_path": "/image/sep_mockup_07_assets/icons/help_button_arrow.png",
+    "note": "Asset refinado V5: recorte preciso, centralização e margem segura sem cortar circunferência/HUD/ícone."
+  },
+  {
+    "file": "visual_dados_pessoais_profile_hud.png",
+    "category": "visuals",
+    "box": [286, 342, 368, 424],
+    "size": [140, 140],
+    "public_path": "/image/sep_mockup_07_assets/visuals/visual_dados_pessoais_profile_hud.png",
+    "note": "PNG transparente, centralizado, recorte ampliado e margem segura após a circunferência/glow do elemento."
+  },
+  {
+    "file": "visual_secure_progress_glow.png",
+    "category": "visuals",
+    "box": [276, 229, 1378, 309],
+    "size": [1102, 80],
+    "public_path": "/image/sep_mockup_07_assets/visuals/visual_secure_progress_glow.png",
+    "note": "Fundo/linha do stepper para composição; não usar como substituto dos textos HTML."
+  },
+  {
+    "file": "visual_fundo_circuitos_main.png",
+    "category": "visuals",
+    "box": [780, 90, 1420, 300],
+    "size": [640, 210],
+    "public_path": "/image/sep_mockup_07_assets/visuals/visual_fundo_circuitos_main.png",
+    "note": "Fundo tecnológico com circuitos e pontos em transparência para composição."
+  },
+  {
+    "file": "visual_main_background_dots.png",
+    "category": "visuals",
+    "box": [920, 100, 1440, 640],
+    "size": [520, 540],
+    "public_path": "/image/sep_mockup_07_assets/visuals/visual_main_background_dots.png",
+    "note": "Pontos/circuitos de fundo para composição."
+  },
+  {
+    "file": "ui_topbar.png",
+    "category": "ui-groups",
+    "box": [0, 0, 1448, 75],
+    "size": [1448, 75],
+    "public_path": "/image/sep_mockup_07_assets/ui-groups/ui_topbar.png",
+    "note": "Topbar completa de referência visual."
+  },
+  {
+    "file": "ui_sidebar.png",
+    "category": "ui-groups",
+    "box": [0, 75, 249, 1005],
+    "size": [249, 930],
+    "public_path": "/image/sep_mockup_07_assets/ui-groups/ui_sidebar.png",
+    "note": "Sidebar completa de referência visual."
+  },
+  {
+    "file": "ui_footer.png",
+    "category": "ui-groups",
+    "box": [0, 1000, 1448, 1086],
+    "size": [1448, 86],
+    "public_path": "/image/sep_mockup_07_assets/ui-groups/ui_footer.png",
+    "note": "Footer completo de referência visual."
+  },
+  {
+    "file": "ui_progress_steps.png",
+    "category": "ui-groups",
+    "box": [276, 229, 1378, 309],
+    "size": [1102, 80],
+    "public_path": "/image/sep_mockup_07_assets/ui-groups/ui_progress_steps.png",
+    "note": "Stepper da jornada KYC."
+  },
+  {
+    "file": "ui_form_dados_pessoais_card.png",
+    "category": "ui-groups",
+    "box": [276, 328, 1008, 838],
+    "size": [732, 510],
+    "public_path": "/image/sep_mockup_07_assets/ui-groups/ui_form_dados_pessoais_card.png",
+    "note": "Card do formulário de dados pessoais."
+  },
+  {
+    "file": "ui_resumo_jornada_card.png",
+    "category": "ui-groups",
+    "box": [1033, 328, 1378, 679],
+    "size": [345, 351],
+    "public_path": "/image/sep_mockup_07_assets/ui-groups/ui_resumo_jornada_card.png",
+    "note": "Card resumo da jornada."
+  },
+  {
+    "file": "ui_o_que_e_kyc_card.png",
+    "category": "ui-groups",
+    "box": [1034, 693, 1378, 852],
+    "size": [344, 159],
+    "public_path": "/image/sep_mockup_07_assets/ui-groups/ui_o_que_e_kyc_card.png",
+    "note": "Card explicativo O que é KYC."
+  },
+  {
+    "file": "ui_precisa_ajuda_card.png",
+    "category": "ui-groups",
+    "box": [1034, 867, 1378, 1006],
+    "size": [344, 139],
+    "public_path": "/image/sep_mockup_07_assets/ui-groups/ui_precisa_ajuda_card.png",
+    "note": "Card de suporte/ajuda."
+  },
+  {
+    "file": "ui_benefits_strip.png",
+    "category": "ui-groups",
+    "box": [276, 867, 1008, 980],
+    "size": [732, 113],
+    "public_path": "/image/sep_mockup_07_assets/ui-groups/ui_benefits_strip.png",
+    "note": "Faixa de benefícios inferiores."
+  },
+  {
+    "file": "ui_back_to_onboarding_button.png",
+    "category": "ui-groups",
+    "box": [1168, 126, 1380, 174],
+    "size": [212, 48],
+    "public_path": "/image/sep_mockup_07_assets/ui-groups/ui_back_to_onboarding_button.png",
+    "note": "Botão Voltar para Onboarding."
+  }
+]

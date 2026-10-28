@@ -1,120 +1,1185 @@
-@use "../../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../../styles/sep-ds-components" as sepDs;
+@use "../../../../../styles/tela-operacional-tema" as tema;
+@use "../../../../../styles/sep-responsivo" as resp;
 
-.sep-bo-fila {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-24);
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+:host {
+  display: block;
+  height: 100%;
 }
 
-.sep-bo-fila-title {
-  @include sepType.sep-type-page-title;
+// `.op-content` pertence ao shell operacional (ViewEncapsulation.None): sem ::ng-deep a regra
+// nao casa e a tela perde ~28px de cada lado, cortando as colunas SLA e Acoes. Mesmo padrao
+// ja homologado em cobranca-shell e contrato-detail.
+// stylelint-disable-next-line selector-pseudo-element-no-unknown -- ::ng-deep e do Angular
+:host ::ng-deep .op-content:has(> .bo16-page) {
+  /* Container do contrato responsivo: e esta area que recebe o espaco restante depois da barra
+       lateral, entao e ela que a pagina mede. Declarar no `:host` do componente nao serve — o host
+       envolve o shell inteiro e tem a largura da janela. */
+  container: sep-conteudo / inline-size;
+  display: block;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
 
+.bo16-page {
+  --cyan: var(--sep-accent);
+  --green: var(--sep-success);
+  --orange: var(--sep-warning);
+  --red: var(--sep-danger);
+  --purple: var(--sep-purple);
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 274px;
+  gap: 18px;
+  height: 100%;
+  min-height: 0;
+  padding: 20px 18px 18px 26px;
+  color: var(--sep-text-strong);
+  font-family: Inter, "Segoe UI", sans-serif;
+}
+
+/* Largura natural deste layout: 1147px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 1143px) {
+  .bo16-page {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.bo16-main {
+  min-width: 0;
+  display: grid;
+
+  // A faixa de filtros precisa de 76px: 9 de padding + 14 do rotulo (11px) + 4 de folga + 38 do
+  // campo + 9 de padding. Com 64px os selects e o botao Limpar filtros estouravam a borda.
+  grid-template-rows: 86px 106px 76px minmax(0, 1fr);
+  gap: 13px;
+}
+
+.bo16-heading p {
+  margin: 0 0 10px;
+  color: var(--sep-text-muted);
+  font-size: 12px;
+}
+
+.bo16-heading p strong {
+  color: var(--sep-text);
+}
+
+.bo16-heading p a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 140ms ease;
+}
+
+.bo16-heading p a:hover,
+.bo16-heading p a:focus-visible {
+  color: var(--sep-accent);
+  text-decoration: underline;
+}
+
+.bo16-heading h1 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 7px;
+  color: var(--sep-text-strong);
+  font-size: 27px;
+  line-height: 1;
+}
+
+.bo16-heading h1 lucide-icon {
+  color: var(--sep-glow);
+  width: 24px;
+  height: 24px;
+}
+
+.bo16-heading > span {
+  color: var(--sep-text-secondary);
+  font-size: 14px;
+}
+
+.bo16-metrics {
+  display: grid;
+
+  /* Cinco faixas fixas: a area util real da fila e ~855px depois da coluna lateral, e uma
+     grade intrinseca com minimo legivel cairia para quatro colunas mais uma orfa. Aqui a
+     geometria nao resolve — quem estreita os cartoes e o contrato, mais abaixo. */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 158px), 1fr));
+  gap: 14px;
+}
+
+.bo16-metric {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 64px;
+  align-items: center;
+  min-width: 0;
+  padding: 14px 11px 13px 16px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--tone) 50%, transparent);
+  border-radius: 8px;
+  background:
+    radial-gradient(
+      circle at 90% 46%,
+      color-mix(in srgb, var(--tone) 13%, transparent),
+      transparent 35%
+    ),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--tone) 7%, var(--sep-surface-sunken)),
+      var(--sep-surface) 72%
+    );
+  box-shadow: inset 0 0 24px color-mix(in srgb, var(--tone) 7%, transparent);
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s;
+}
+
+.bo16-metric:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 0 30px color-mix(in srgb, var(--tone) 13%, transparent),
+    0 0 18px color-mix(in srgb, var(--tone) 18%, transparent);
+}
+
+.bo16-metric[data-tone="critical"] {
+  --tone: var(--red);
+}
+
+.bo16-metric[data-tone="high"] {
+  --tone: var(--orange);
+}
+
+.bo16-metric[data-tone="medium"] {
+  --tone: var(--purple);
+}
+
+.bo16-metric[data-tone="low"] {
+  --tone: var(--sep-accent);
+}
+
+.bo16-metric[data-tone="total"] {
+  --tone: var(--green);
+}
+
+.bo16-metric div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.bo16-metric small {
+  color: var(--sep-text-secondary);
+  font-size: 14px;
+}
+
+.bo16-metric strong {
+  color: var(--sep-text-strong);
+  font-size: 30px;
+  line-height: 1;
+}
+
+.bo16-metric span {
+  margin-top: 4px;
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.bo16-metric lucide-icon {
+  color: var(--tone);
+  width: 54px;
+  height: 54px;
+  filter: drop-shadow(0 0 9px color-mix(in srgb, var(--tone) 48%, transparent));
+}
+
+.bo16-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) repeat(4, minmax(0, 0.86fr)) 196px 112px;
+  gap: 8px;
+  align-items: end;
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid rgb(var(--sep-c-cyan) / 34%);
+  border-radius: 8px;
+  background: rgb(var(--sep-c-sunken) / 82%);
+  box-shadow: inset 0 0 18px rgb(var(--sep-c-blue) / calc(5% * var(--sep-glow-alpha)));
+}
+
+/* Largura natural desta fileira: 992px. Abaixo disso os campos se reorganizam em quantas
+   colunas couberem, e o que sobra desce — em vez de a fileira empurrar a tela inteira. */
+@container (max-width: 988px) {
+  .bo16-filters {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  }
+}
+
+.bo16-filters label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.bo16-filters small,
+.bo16-period legend {
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+}
+
+.bo16-filters input,
+.bo16-filters select,
+.bo16-period {
+  height: 38px;
+  min-width: 0;
+  color: var(--sep-text-strong);
+  font-size: 11px;
+  border: 1px solid rgb(var(--sep-c-edge) / 35%);
+  border-radius: 6px;
+  outline: none;
+  background: var(--sep-surface);
+}
+
+.bo16-filters select {
+  padding: 0 28px 0 11px;
+  color-scheme: inherit;
+}
+
+.bo16-filters input {
+  padding: 0 10px;
+  color-scheme: inherit;
+}
+
+.bo16-filters input:focus,
+.bo16-filters select:focus,
+.bo16-period:focus-within {
+  border-color: rgb(var(--sep-c-blue) / 70%);
+  box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(18% * var(--sep-glow-alpha)));
+}
+
+.bo16-search {
+  position: relative;
+  align-self: end;
+}
+
+.bo16-search input {
+  width: 100%;
+  padding-right: 38px;
+}
+
+.bo16-search button {
+  position: absolute;
+  right: 7px;
+  bottom: 5px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.bo16-search lucide-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.bo16-period {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 8px minmax(0, 1fr) 26px;
+  align-items: center;
+  padding: 0 4px 0 7px;
+}
+
+.bo16-period legend {
+  position: absolute;
+  top: -18px;
+  left: 0;
+}
+
+.bo16-period input {
+  width: 100%;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.bo16-period input::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  width: 0;
+}
+
+.bo16-period span {
+  color: var(--sep-text-muted);
+  text-align: center;
+}
+
+.bo16-period lucide-icon {
+  width: 18px;
+  height: 18px;
+}
+
+// A 96px o rotulo ocupava a largura inteira do botao, sem respiro lateral, e "filtros" ficava
+// ilegivel. Com 112px, place-items e padding o texto centraliza com folga dos dois lados.
+.bo16-clear {
+  display: grid;
+  place-items: center;
+  height: 38px;
+  padding: 0 8px;
+  color: var(--sep-accent);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+  border: 1px solid rgb(var(--sep-c-cyan) / 28%);
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgb(var(--sep-c-hover) / 75%), rgb(var(--sep-c-surf) / 92%));
+  cursor: pointer;
+}
+
+.bo16-table-card {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: 38px minmax(0, 1fr) 50px;
+  padding: 0 10px;
+  overflow: hidden;
+  border: 1px solid rgb(var(--sep-c-cyan) / 28%);
+  border-radius: 8px;
+  background: linear-gradient(145deg, rgb(var(--sep-c-surf) / 94%), rgb(var(--sep-c-sunken) / 91%));
+}
+
+// As nove colunas cabem na area util sem rolagem horizontal: a soma fixa (630px) mais os
+// gaps (48px) deixa o restante para Descricao, que trunca com reticencias.
+.bo16-table-head,
+.bo16-row {
+  display: grid;
+
+  // Os `fr` sao as larguras-alvo em tela larga, nao pesos arbitrarios: assim a sobra de espaco
+  // e repartida proporcionalmente entre as nove colunas em vez de ir inteira para Descricao.
+  // A 1712px isso puxa Prioridade..SLA ~70px para a esquerda; a 1448px todas as faixas caem no
+  // minimo e o resultado e exatamente a grade de referencia do mockup.
+  grid-template-columns:
+    minmax(74px, 43fr) minmax(96px, 56fr) minmax(142px, 152fr) minmax(70px, 41fr)
+    minmax(104px, 61fr) minmax(116px, 68fr) minmax(66px, 39fr) minmax(60px, 35fr)
+    minmax(34px, 20fr);
+  gap: 6px;
+  align-items: center;
+}
+
+// `overflow: hidden` + `scrollbar-gutter: stable` fazem o cabecalho reservar exatamente a mesma
+// calha de scroll das linhas, mantendo as nove colunas alinhadas em qualquer plataforma.
+.bo16-table-head {
+  padding: 0 0 0 12px;
+  overflow: hidden;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+  border-bottom: 1px solid rgb(var(--sep-c-edge) / 22%);
+}
+
+.bo16-rows {
+  min-height: 0;
+  overflow: auto;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+}
+
+.bo16-row {
+  position: relative;
+  min-height: 60px;
+  padding: 5px 0 5px 12px;
+  border-bottom: 1px solid rgb(var(--sep-c-edge) / 19%);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--row-tone) 5%, transparent),
+    transparent 24%
+  );
+  transition:
+    background 0.16s,
+    box-shadow 0.16s;
+}
+
+.bo16-row::before {
+  position: absolute;
+  inset: 5px auto 5px 0;
+  width: 3px;
+  content: "";
+  border-radius: 2px;
+  background: var(--row-tone);
+  box-shadow: 0 0 10px var(--row-tone);
+}
+
+.bo16-row:hover {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--row-tone) 11%, transparent),
+    rgb(var(--sep-c-surf3) / 35%)
+  );
+  box-shadow: inset 0 0 18px color-mix(in srgb, var(--row-tone) 6%, transparent);
+}
+
+.bo16-row[data-priority="CRITICA"] {
+  --row-tone: var(--red);
+}
+
+.bo16-row[data-priority="ALTA"] {
+  --row-tone: var(--orange);
+}
+
+.bo16-row[data-priority="MEDIA"] {
+  --row-tone: var(--purple);
+}
+
+.bo16-row[data-priority="BAIXA"] {
+  --row-tone: var(--cyan);
+}
+
+.bo16-row strong {
+  font-size: 11.5px;
+}
+
+// O texto secundario media 10px no mockup; a 9px ficava visivelmente menor que o original.
+.bo16-row small {
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+}
+
+// +1px apenas no subtitulo da Descricao, na hora de "Aberto em" e no rotulo do SLA. O codigo
+// da coluna ID segue em 11px de proposito, para nao competir com o proprio ID.
+.bo16-description small,
+.bo16-date small,
+.bo16-sla small {
+  font-size: 12px;
+}
+
+.bo16-id,
+.bo16-description,
+.bo16-date,
+.bo16-sla {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.bo16-id strong {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  min-width: 0;
+  font-size: 11px;
+}
+
+// Folga a direita para o texto nunca encostar na coluna de Prioridade, como no mockup.
+.bo16-description {
+  padding-right: 8px;
+}
+
+// Sem tamanho explicito a data herdaria 16px e invadiria a coluna de SLA.
+.bo16-date span {
+  font-size: 11px;
+}
+
+.bo16-id button {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  color: var(--sep-text-muted);
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 0.16s,
+    background 0.16s;
+}
+
+.bo16-id button:hover {
+  color: var(--cyan);
+  background: rgb(var(--sep-c-blue) / 12%);
+}
+
+.bo16-id button.copied {
+  color: var(--green);
+}
+
+.bo16-description strong,
+.bo16-description small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// max-width + ellipsis garantem que rotulos longos ("Formalizacao") nao invadam a Descricao.
+.bo16-type {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 5px 8px;
+  color: var(--type-tone);
+  font-size: 11px;
+  border: 1px solid color-mix(in srgb, var(--type-tone) 60%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--type-tone) 10%, transparent);
+  transition:
+    filter 160ms ease,
+    text-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.bo16-type[data-tone="red"] {
+  --type-tone: var(--sep-danger);
+}
+
+.bo16-type[data-tone="purple"] {
+  --type-tone: var(--sep-purple);
+}
+
+.bo16-type[data-tone="orange"] {
+  --type-tone: var(--sep-warning);
+}
+
+.bo16-type[data-tone="green"] {
+  --type-tone: var(--sep-success);
+}
+
+.bo16-type[data-tone="cyan"] {
+  --type-tone: var(--sep-accent);
+}
+
+.bo16-type[data-tone="gray"] {
+  --type-tone: var(--sep-text-secondary);
+}
+
+// Chip homologado reaproveitado; a instancia do Mockup 16 ganha icone semantico, cantos
+// arredondados e a paleta do donut (Media roxo, Baixa azul), sem alterar as outras telas.
+.bo16-row sep-backoffice-chip {
+  gap: 4px;
+  min-height: 26px;
+  padding: 0 7px;
+  font-size: 11px;
+  border-radius: 6px;
+  background: color-mix(in srgb, currentcolor 10%, transparent);
+  transition:
+    filter 160ms ease,
+    text-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.bo16-row sep-backoffice-chip lucide-icon {
+  display: inline-flex;
+  flex: none;
+}
+
+.bo16-row sep-backoffice-chip[data-prioridade="MEDIA"] {
+  color: var(--purple);
+}
+
+.bo16-row sep-backoffice-chip[data-prioridade="BAIXA"] {
+  color: var(--sep-accent);
+}
+
+.bo16-assigned {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+}
+
+// Realce cruzado (padrao homologado no Mockup 15): passar o mouse em um selo da tabela acende
+// o mesmo status/prioridade na legenda do donut lateral, e vice-versa.
+.bo16-page:has([data-prioridade="CRITICA"]:hover) [data-prioridade="CRITICA"],
+.bo16-page:has([data-prioridade="ALTA"]:hover) [data-prioridade="ALTA"],
+.bo16-page:has([data-prioridade="MEDIA"]:hover) [data-prioridade="MEDIA"],
+.bo16-page:has([data-prioridade="BAIXA"]:hover) [data-prioridade="BAIXA"],
+.bo16-page:has([data-status="ABERTO"]:hover) [data-status="ABERTO"],
+.bo16-page:has([data-status="EM_TRATAMENTO"]:hover) [data-status="EM_TRATAMENTO"],
+.bo16-page:has([data-status="RESOLVIDO"]:hover) [data-status="RESOLVIDO"],
+.bo16-page:has([data-status="IGNORADO"]:hover) [data-status="IGNORADO"],
+.bo16-page:has([data-tipo-key="cobranca"]:hover) [data-tipo-key="cobranca"],
+.bo16-page:has([data-tipo-key="webhook"]:hover) [data-tipo-key="webhook"],
+.bo16-page:has([data-tipo-key="pix"]:hover) [data-tipo-key="pix"],
+.bo16-page:has([data-tipo-key="onboarding"]:hover) [data-tipo-key="onboarding"],
+.bo16-page:has([data-tipo-key="outros"]:hover) [data-tipo-key="outros"] {
+  z-index: 1;
+  filter: brightness(1.35) saturate(1.3)
+    drop-shadow(
+      0 0 7px color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent)
+    );
+  text-shadow: 0 0 8px
+    color-mix(in srgb, currentcolor calc(100% * var(--sep-glow-alpha)), transparent);
+  transform: translateZ(0) scale(1.045);
+}
+
+.bo16-assigned img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.bo16-assigned strong {
+  overflow: hidden;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bo16-sla strong {
+  color: var(--cyan);
+}
+
+.bo16-sla small {
+  color: var(--cyan);
+}
+
+.bo16-sla[data-tone="risk"] strong,
+.bo16-sla[data-tone="risk"] small {
+  color: var(--orange);
+}
+
+.bo16-sla[data-tone="late"] strong,
+.bo16-sla[data-tone="late"] small {
+  color: var(--red);
+}
+
+.bo16-view {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgb(var(--sep-c-blue) / 45%);
+  border-radius: 7px;
+  background: linear-gradient(145deg, rgb(var(--sep-c-blue) / 68%), rgb(var(--sep-c-surf2) / 84%));
+}
+
+// O botao tem fundo azul: sem declarar, o icone herdava um lilas de ancestral. O PNG era claro.
+.bo16-view lucide-icon {
+  width: 27px;
+  height: 27px;
+  color: var(--sep-on-accent);
+}
+
+.bo16-view:hover {
+  box-shadow: 0 0 16px rgb(var(--sep-c-blue) / calc(30% * var(--sep-glow-alpha)));
+}
+
+.bo16-state {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  color: var(--sep-text-secondary);
+}
+
+.bo16-state button {
+  color: var(--cyan);
+  border: 1px solid rgb(var(--sep-c-blue) / 35%);
+  background: var(--sep-surface-2);
+}
+
+.bo16-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgb(var(--sep-c-blue) / 20%);
+  border-top-color: var(--cyan);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.bo16-pagination {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  color: var(--sep-text-secondary);
+  font-size: 12px;
+  border-top: 1px solid rgb(var(--sep-c-edge) / 22%);
+}
+
+/* Largura natural deste layout: 664px. Abaixo disso as colunas se
+   reorganizam em uma so, em vez de o conteudo ser cortado na lateral.
+   O numero nao e arbitrario — e a medida do proprio widget. */
+@container (max-width: 660px) {
+  .bo16-pagination {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.bo16-pagination nav {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.bo16-gap {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  color: var(--sep-text-muted);
+}
+
+.bo16-pagination button {
+  display: grid;
+  place-items: center;
+  width: 29px;
+  height: 29px;
+  color: var(--sep-text-secondary);
+  border: 1px solid rgb(var(--sep-c-edge) / 28%);
+  border-radius: 5px;
+  background: var(--sep-surface);
+  cursor: pointer;
+}
+
+.bo16-pagination button.active {
+  color: var(--sep-on-solid);
+  border-color: var(--sep-accent);
+  background: linear-gradient(145deg, var(--sep-accent), var(--sep-accent));
+  box-shadow: 0 0 14px rgb(var(--sep-c-blue) / calc(32% * var(--sep-glow-alpha)));
+}
+
+.bo16-pagination button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.bo16-pagination label {
+  justify-self: end;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.bo16-pagination select {
+  height: 30px;
+  padding: 0 24px 0 9px;
+  color: var(--sep-text);
+  border: 1px solid rgb(var(--sep-c-edge) / 32%);
+  border-radius: 5px;
+  background: var(--sep-surface);
+  color-scheme: inherit;
+}
+
+// Cinco cartoes na coluna lateral (filtros + tres donuts + atalhos). Atalhos e a ultima faixa:
+// a base continua colada no rodape da area util e so a altura diminui, abrindo espaco para o
+// donut de tipo. `overflow-y: auto` e apenas rede de seguranca para telas mais baixas.
+.bo16-side {
+  min-height: 0;
+  display: grid;
+
+  // Sao os TRES DONUTS que absorvem a sobra vertical, nao o Atalhos. Antes Atalhos era a faixa
+  // `1fr` e em telas mais altas crescia sozinho (chegava a ~300px), invertendo a proporcao
+  // pretendida. Agora Atalhos e Filtros rapidos tem altura fixa (o conteudo deles nao escala) e
+  // os donuts sao flexiveis, repartindo o excedente proporcionalmente entre si.
+  // Os tres donuts crescem ate +10% sobre a altura de referencia (196/196/202 contra 178/178/184)
+  // e param ai. Atalhos tem teto de 132px para nunca voltar a dominar a coluna. A sobra de altura
+  // em telas mais altas vai para Filtros rapidos, cujas quatro faixas esticam bem.
+  // O minimo de Tipo e maior (182px) porque sao cinco faixas de legenda em vez de quatro.
+  grid-template-rows:
+    minmax(199px, 1fr) minmax(164px, 196px) minmax(164px, 196px) minmax(182px, 202px)
+    minmax(116px, 132px);
+  gap: 9px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.bo16-side-card {
+  min-height: 0;
+  padding: 11px;
+  border: 1px solid rgb(var(--sep-c-blue) / 40%);
+  border-radius: 8px;
+  background: linear-gradient(145deg, rgb(var(--sep-c-surf) / 96%), rgb(var(--sep-c-sunken) / 94%));
+  box-shadow: inset 0 0 22px rgb(var(--sep-c-blue) / calc(5% * var(--sep-glow-alpha)));
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+}
+
+.bo16-side-card:hover {
+  border-color: rgb(var(--sep-c-blue) / 62%);
+  box-shadow:
+    inset 0 0 24px rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha))),
+    0 0 18px rgb(var(--sep-c-blue) / calc(9% * var(--sep-glow-alpha)));
+}
+
+.bo16-side-card h2 {
   margin: 0;
-  color: hsl(var(--foreground));
+  color: var(--sep-text-strong);
+  font-size: 14px;
 }
 
-.sep-bo-fila-filtros {
+.bo16-quick {
+  display: grid;
+  grid-template-rows: 26px repeat(4, minmax(0, 1fr)) 32px;
+  gap: 3px;
+}
+
+.bo16-quick h2 {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--sep-space-16);
-  align-items: flex-end;
+  gap: 8px;
+  align-items: center;
 }
 
-.sep-bo-field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-6);
+.bo16-quick h2 lucide-icon {
+  color: var(--sep-glow);
+  width: 14px;
+  height: 14px;
 }
 
-.sep-bo-field-label {
-  @include sepType.sep-type-caption;
-
-  color: hsl(var(--muted-foreground));
+.bo16-quick > button:not(.bo16-save) {
+  display: grid;
+  grid-template-columns: 28px 1fr 26px;
+  gap: 7px;
+  align-items: center;
+  padding: 0;
+  color: var(--sep-text);
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
 }
 
-.sep-bo-field-control {
-  @include sepDs.sep-input;
+.bo16-quick button lucide-icon {
+  width: 18px;
+  height: 18px;
 }
 
-.sep-bo-fila-aplicar {
-  @include sepDs.sep-button-primary;
+.bo16-quick button span {
+  font-size: 12px;
 }
 
-.sep-bo-fila-state {
-  @include sepType.sep-type-body;
-
-  color: hsl(var(--muted-foreground));
+.bo16-quick button strong {
+  justify-self: end;
+  font-size: 13px;
 }
 
-.sep-bo-fila-error {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-  align-items: flex-start;
+.bo16-quick button strong.red {
+  color: var(--red);
 }
 
-.sep-bo-fila-lista {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
+.bo16-save {
+  margin-top: 5px;
+  color: var(--sep-accent);
+  font-size: 11px;
+  border: 1px solid rgb(var(--sep-c-blue) / 38%);
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgb(var(--sep-c-active) / 55%), rgb(var(--sep-c-surf) / 84%));
+  cursor: pointer;
+}
+
+// row-gap separa titulo, donut e "Ver detalhes" em vez de deixar os tres colados.
+.bo16-distribution {
+  display: grid;
+  grid-template-rows: 24px minmax(0, 1fr) 26px;
+  row-gap: 6px;
+}
+
+.bo16-distribution h2 {
+  color: var(--sep-glow);
+}
+
+.bo16-donut-wrap {
+  display: grid;
+  grid-template-columns: 102px minmax(0, 1fr);
+  gap: 6px;
+  place-items: center center;
+}
+
+// O donut acompanha a altura util do cartao ate 98px (o mockup usa 93px), em vez de ficar
+// congelado num tamanho fixo enquanto o cartao cresce.
+.bo16-donut {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: auto;
+  height: min(100%, 98px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+
+  // O anel e o halo por quadrante vem do componente (`gradiente()` e `halo()`): as fatias sao a
+  // distribuicao real da fila, entao a cor precisa sair do mesmo calculo que os numeros. Aqui
+  // fica so o que nao depende do dado — geometria, brilho e transicao.
+  filter: drop-shadow(0 0 7px rgb(var(--sep-c-blue) / calc(28% * var(--sep-glow-alpha))));
+  transition:
+    transform 180ms ease,
+    filter 180ms ease;
+}
+
+.bo16-distribution:hover .bo16-donut {
+  transform: scale(1.06);
+  filter: saturate(1.18)
+    drop-shadow(0 0 11px rgb(var(--sep-c-blue) / calc(52% * var(--sep-glow-alpha))));
+}
+
+// Percentual para o furo do donut escalar junto com o diametro.
+.bo16-donut::after {
+  position: absolute;
+  inset: 13.5%;
+  content: "";
+  border-radius: 50%;
+  background: var(--sep-surface-sunken);
+  box-shadow: inset 0 0 14px rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha)));
+}
+
+.bo16-donut span {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  text-align: center;
+}
+
+.bo16-donut strong {
+  font-size: 19px;
+  line-height: 1.1;
+}
+
+.bo16-donut small {
+  color: var(--sep-text-secondary);
+  font-size: 11px;
+}
+
+.bo16-donut-wrap ul {
+  display: grid;
+  gap: 7px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.sep-bo-fila-link {
-  @include sepDs.sep-card;
-
+.bo16-donut-wrap li {
   display: grid;
-  grid-template-columns: auto auto 1fr auto auto auto;
-  gap: var(--sep-space-12);
-  padding: var(--sep-space-24);
+  grid-template-columns: 9px 1fr auto;
+  gap: 5px;
   align-items: center;
+  color: var(--legend);
+  font-size: 11px;
+  transition:
+    filter 160ms ease,
+    text-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.bo16-donut-wrap li span,
+.bo16-donut-wrap li strong {
+  color: var(--sep-text);
+  white-space: nowrap;
+}
+
+.bo16-donut-wrap li i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--legend);
+  box-shadow:
+    0 0 9px var(--legend),
+    0 0 3px var(--legend);
+}
+
+.bo16-donut-wrap li strong {
+  font-size: 11px;
+}
+
+.bo16-distribution > a {
+  display: grid;
+  place-items: center;
+  color: var(--sep-accent);
+  font-size: 11px;
   text-decoration: none;
-  color: inherit;
-  cursor: pointer;
-  transition: border-color 120ms ease;
-
-  &:hover {
-    border-color: hsl(var(--primary));
-  }
+  background: rgb(var(--sep-c-blue) / 7%);
 }
 
-.sep-bo-fila-titulo {
-  @include sepType.sep-type-body-semibold;
-
-  color: hsl(var(--foreground));
+// No mockup os dois atalhos sao blocos compactos com icone em ladrilho, rotulo branco de 13px
+// e chevron fino; antes ficavam esticados, com icone apagado e texto menor que o original.
+.bo16-shortcuts {
+  display: grid;
+  grid-template-rows: 18px repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 9px 11px;
 }
 
-.sep-bo-fila-tipo,
-.sep-bo-fila-data,
-.sep-bo-fila-atribuido {
-  @include sepType.sep-type-caption;
-
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-bo-fila-paginacao {
-  display: flex;
-  gap: var(--sep-space-16);
+.bo16-shortcuts a {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) 16px;
+  gap: 10px;
   align-items: center;
+  padding: 0 10px;
+  color: var(--sep-text);
+  font-size: 13px;
+  text-decoration: none;
+  border: 1px solid rgb(var(--sep-c-blue) / 30%);
+  border-radius: 8px;
+  background: linear-gradient(
+    135deg,
+    rgb(var(--sep-c-active) / 78%),
+    rgb(var(--sep-c-surf) / 92%) 62%
+  );
+  box-shadow: inset 0 1px 0 rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha)));
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
 }
 
-.sep-bo-fila-pag-botao {
-  @include sepDs.sep-button-outline;
+.bo16-shortcuts a:hover {
+  color: var(--sep-text-strong);
+  border-color: rgb(var(--sep-c-blue) / 62%);
+  background: linear-gradient(
+    135deg,
+    rgb(var(--sep-c-blue) / 85%),
+    rgb(var(--sep-c-surf2) / 94%) 62%
+  );
+  box-shadow:
+    inset 0 1px 0 rgb(var(--sep-c-blue) / calc(14% * var(--sep-glow-alpha))),
+    0 0 16px rgb(var(--sep-c-blue) / calc(20% * var(--sep-glow-alpha)));
+}
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: default;
+// Icone em ladrilho, como no mockup: maior, com fundo proprio e brilho para nao sumir no card.
+.bo16-shortcuts lucide-icon {
+  width: 24px;
+  height: 24px;
+  padding: 3px;
+  border-radius: 8px;
+  background: rgb(var(--sep-c-blue) / 12%);
+  filter: brightness(1.4)
+    drop-shadow(0 0 6px rgb(var(--sep-c-blue) / calc(40% * var(--sep-glow-alpha))));
+}
+
+.bo16-shortcuts b {
+  justify-self: end;
+  color: var(--sep-accent);
+  font-size: 19px;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-.sep-bo-fila-pag-info {
-  @include sepType.sep-type-caption;
+/* Meia área: a coluna lateral desce, a densidade cai um degrau e a tabela larga passa a rolar
+   no próprio eixo. Antes isto era decidido pela janela — e por isso nunca acontecia quando só o
+   espaço do componente encolhia. */
+@include tema.resp-half {
+  .bo16-page {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    height: auto;
+    padding-left: 18px;
+    overflow: auto;
+  }
 
-  color: hsl(var(--muted-foreground));
+  .bo16-main {
+    grid-template-rows: 82px 94px 60px minmax(0, 1fr);
+    gap: 10px;
+    min-height: 790px;
+  }
+
+  .bo16-side {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, 220px);
+    gap: 10px;
+  }
+
+  .bo16-metric {
+    grid-template-columns: minmax(0, 1fr) 42px;
+    padding: 10px;
+  }
+
+  .bo16-metric lucide-icon {
+    width: 45px;
+    height: 45px;
+
+    // O `[size]` do template desenha o SVG com medida fixa; aqui a caixa encolhe, entao o
+    // desenho precisa encolher junto.
+    svg {
+      width: 42px;
+      height: 42px;
+    }
+  }
+
+  .bo16-metric strong {
+    font-size: 22px;
+  }
+
+  /* A legenda do cartão deixa de ser uma linha só: é ela que era cortada em silêncio pelo
+     `overflow: hidden` do próprio cartão. */
+  .bo16-metric span {
+    white-space: normal;
+  }
+
+  .bo16-filters {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .bo16-donut-wrap {
+    grid-template-columns: 87px minmax(0, 1fr);
+  }
+
+  .bo16-donut {
+    width: 82px;
+  }
+
+  .bo16-table-card {
+    overflow-x: auto;
+  }
+
+  .bo16-table-head,
+  .bo16-row {
+    grid-template-columns: 70px 84px minmax(0, 1fr) 60px 94px 108px 62px 58px 34px;
+    gap: 5px;
+    min-width: 800px;
+  }
+}
+
+@include tema.resp-third {
+  .bo16-side {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(4, 220px);
+  }
+
+  .bo16-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+// ============ JANELA MAXIMIZADA ============
+// Acima de 1440 as medidas homologadas viram piso e o layout acompanha o espaco. Nada aqui vale de
+// 1440 para baixo: a forma original fica intacta.
+@include resp.maximizada {
+  // Coluna lateral: 274px viram piso. 24.07% da grade de 1138px (1440) dao o mesmo.
+  @container (min-width: 1144px) {
+    .bo16-page {
+      grid-template-columns: minmax(0, 1fr) max(274px, 24.07%);
+    }
+
+    // A trilha do donut cresce com o cartao: 40.8% do miolo de 250px sao os 102px de 1440. Sem
+    // isto o donut ficava preso a esquerda e a legenda ilhada no meio do cartao largo.
+    .bo16-donut-wrap {
+      grid-template-columns: max(102px, 40.8%) minmax(0, 1fr);
+    }
+  }
 }

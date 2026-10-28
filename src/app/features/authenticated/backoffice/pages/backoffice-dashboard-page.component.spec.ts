@@ -1,96 +1,134 @@
+import { importProvidersFrom } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
-import { http, HttpResponse } from 'msw';
+import { of, throwError } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 
-import { server } from '../../../../../mocks/server';
+import { AuthService } from '../../../../core/auth/auth.service';
+import { BackofficeService } from '../../../../core/backoffice/backoffice.service';
+import {
+  buildOperationalDashboardSnapshot,
+  createOperationalDashboardStore,
+} from '../../../../../mocks/data/operational-dashboard.store';
 import { BackofficeDashboardPageComponent } from './backoffice-dashboard-page.component';
-import { estabilizar } from '../../../../../testing/estabilizar';
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 
-const DASHBOARD_URL = 'http://localhost:8080/api/v1/backoffice/dashboard';
-
-function renderPagina() {
-  return render(BackofficeDashboardPageComponent, {
-    providers: [provideHttpClient(), provideRouter([])],
+async function renderPagina() {
+  const result = await render(BackofficeDashboardPageComponent, {
+    providers: [
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      provideHttpClient(),
+      provideRouter([]),
+      {
+        provide: BackofficeService,
+        useValue: {
+          consultarDashboardOperacional: () =>
+            of(buildOperationalDashboardSnapshot(createOperationalDashboardStore())),
+        },
+      },
+    ],
   });
+  const auth = result.fixture.debugElement.injector.get(AuthService) as unknown as {
+    currentUserState: { set: (u: unknown) => void };
+  };
+  auth.currentUserState.set({
+    id: 'usuario-backoffice',
+    username: 'backoffice@empresa.com',
+    role: 'BACKOFFICE',
+    dataCriacao: '2026-07-08T00:00:00Z',
+    dataModificacao: '2026-07-08T00:00:00Z',
+    criadoPor: 'sistema',
+    modificadoPor: 'sistema',
+    precisaRedefinirSenha: false,
+    mfaHabilitado: false,
+  });
+  result.fixture.detectChanges();
+  return result;
 }
 
 describe('BackofficeDashboardPageComponent', () => {
-  it('apresenta KPIs, contadores e valores monetarios do backend', async () => {
-    const { fixture } = await renderPagina();
-    await estabilizar(fixture);
+  it('renderiza o painel operacional autenticado com usuário backoffice', async () => {
+    await renderPagina();
 
-    expect(screen.getByText('Recebimentos do dia')).toBeTruthy();
-    expect(screen.getByText('Inadimplencia total')).toBeTruthy();
-    expect(screen.getByText(/18\.450,75/)).toBeTruthy();
-    expect(screen.getByText('Em tratamento')).toBeTruthy();
-    // O mesmo tipo pode aparecer em "por tipo" e em "top 5"; basta render em pelo menos um painel.
-    expect(screen.getAllByText('Cobranca inadimplente').length).toBeGreaterThan(0);
+    expect(screen.getByRole('heading', { name: 'backoffice@empresa.com' })).toBeTruthy();
+    expect(screen.getAllByText('backoffice@empresa.com').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('BACKOFFICE').length).toBeGreaterThan(0);
+    expect(screen.getByText('Personalizar dashboard')).toBeTruthy();
   });
 
-  /**
-   * Este teste ja existia e ja assertava `'2h'` — mas passava pelo motivo errado: o mock devolvia
-   * `7200` (numero), enquanto o backend real manda `"PT2H"`. O mock era mais correto que o servidor,
-   * e por isso o `NaNmin` da tela nunca apareceu em teste nenhum. Com o mock alinhado, o mesmo assert
-   * passa a exercitar o caminho de producao.
-   */
-  it('formata o tempo medio de resolucao a partir do Duration ISO-8601 do backend', async () => {
-    const { fixture } = await renderPagina();
-    await estabilizar(fixture);
+  it('exibe métricas, jornadas e blocos operacionais do mockup 03', async () => {
+    await renderPagina();
 
-    // "PT2H" -> 2h
-    expect(screen.getByText('2h')).toBeTruthy();
+    expect(screen.getAllByText('Onboarding').length).toBeGreaterThan(0);
+    expect(screen.getByText('Volume operacional')).toBeTruthy();
+    expect(screen.getAllByText('Em andamento').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Em análise').length).toBeGreaterThan(0);
+    expect(screen.getByText('Aguardando assinatura')).toBeTruthy();
+    expect(screen.getByText('Operacional')).toBeTruthy();
+    expect(screen.getByText('cadastros')).toBeTruthy();
+    expect(screen.getByText('propostas')).toBeTruthy();
+    expect(screen.getByText('contratos')).toBeTruthy();
+    expect(screen.getByText('parcelas')).toBeTruthy();
+    expect(screen.getByText('transações')).toBeTruthy();
+    expect(screen.getByText('Próximas jornadas')).toBeTruthy();
+    expect(screen.getByText('Resumo operacional')).toBeTruthy();
+    expect(screen.getByText('Atividades recentes')).toBeTruthy();
+    expect(screen.getByText('Indicadores de performance')).toBeTruthy();
+    expect(screen.getByText('Saúde da plataforma')).toBeTruthy();
   });
 
-  /**
-   * Trava o defeito pelo lado do sintoma, e nao so pelo do formato: o KPI nunca pode renderizar
-   * `NaN`. O formato exercitado e o numerico antigo — o que um backend anterior a Sprint 34 mandaria,
-   * e o que o proprio mock mandava ate esta Task —, entao o que fica preso aqui e a guarda de
-   * `typeof` do parse.
-   */
-  it('KPI de tempo medio: payload no formato numerico antigo vira travessao, nunca NaN', async () => {
-    // Payload literal, e nao um passthrough: um handler que faz `fetch` da propria URL e
-    // reinterceptado pelo MSW e recursiona ate estourar a heap do worker.
-    server.use(
-      http.get(DASHBOARD_URL, () =>
-        HttpResponse.json({
-          contadoresPorTipo: [],
-          contadoresPorPrioridade: [],
-          contadoresPorStatus: [],
-          // Formato antigo: numero de segundos, que e o que um backend anterior a Sprint 34
-          // mandaria — e o que o proprio mock mandava ate esta Task.
-          tempoMedioResolucao30d: 7200,
-          itensCriticosAbertosMais48h: 0,
-          topCincoTiposMaisFrequentes: [],
-          recebimentosDoDia: 0,
-          inadimplenciaTotal: { valorTotal: 0, numeroParcelas: 0 },
-          propostasPorStatus: [],
-          geradoEm: '2026-08-06T09:00:00-03:00',
-        }),
-      ),
+  it('usa a moldura do shell homologado, e nao uma copia propria', async () => {
+    await renderPagina();
+
+    // A pagina tinha menu e cabecalho proprios, com pesquisa, alertas e ajuda sem acao. Agora a
+    // moldura e a do shell: um unico menu lateral, e os botoes do cabecalho abrem painel.
+    expect(document.querySelectorAll('.op-sidebar')).toHaveLength(1);
+    expect(document.querySelector('sep-operational-shell .op-welcome')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Pesquisar telas' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Ajuda' })).toBeTruthy();
+  });
+
+  it('leva "Ver todas" das atividades para a fila operacional', async () => {
+    await renderPagina();
+
+    expect(screen.getByRole('link', { name: 'Ver todas' }).getAttribute('href')).toBe(
+      '/app/backoffice/fila',
     );
-    const { fixture } = await renderPagina();
-    await estabilizar(fixture);
-
-    expect(screen.queryByText(/NaN/)).toBeNull();
-    // Escopo explicito no cartao do KPI: `getByText('—')` sozinho so identifica este elemento por
-    // coincidencia — hoje nenhum outro painel emite travessao, mas amarrar ao rotulo torna o
-    // acoplamento intencional em vez de sortudo.
-    const cartao = screen.getByText('Tempo medio de resolucao (30d)').closest('article');
-    expect(cartao?.textContent).toContain('—');
   });
 
-  it('mostra estado de erro com retry quando o backend falha', async () => {
-    server.use(
-      http.get(DASHBOARD_URL, () =>
-        HttpResponse.json({ message: 'Erro no servidor' }, { status: 500 }),
-      ),
-    );
-    const { fixture } = await renderPagina();
-    await estabilizar(fixture);
+  it('desenha os simbolos em vetor e mantém os wrappers de escala por categoria', async () => {
+    await renderPagina();
 
-    expect(screen.getByText('Erro no servidor')).toBeTruthy();
-    expect(screen.getByText('Tentar novamente')).toBeTruthy();
+    expect(document.querySelectorAll('.op-metric-icon lucide-icon')).toHaveLength(6);
+    expect(document.querySelectorAll('.op-journey-icon lucide-icon')).toHaveLength(4);
+    expect(document.querySelectorAll('.op-performance-ring')).toHaveLength(4);
+
+    const journeyProgress = Array.from(
+      document.querySelectorAll<HTMLElement>('.op-journey .op-progress span'),
+    ).map((progress) => progress.style.width);
+    expect(journeyProgress).toEqual(['100%', '100%', '63%', '56%']);
+  });
+
+  it('apresenta erro recuperavel quando o snapshot operacional falha', async () => {
+    await render(BackofficeDashboardPageComponent, {
+      providers: [
+        importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+        provideHttpClient(),
+        provideRouter([]),
+        {
+          provide: BackofficeService,
+          useValue: {
+            consultarDashboardOperacional: () => throwError(() => new Error('indisponivel')),
+          },
+        },
+      ],
+    });
+
+    expect(
+      screen.getByText('Não foi possível atualizar os indicadores operacionais. Tente novamente.'),
+    ).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Tentar novamente' })).toBeTruthy();
   });
 });

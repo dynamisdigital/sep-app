@@ -1,93 +1,668 @@
-@use "../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../styles/sep-ds-components" as sepDs;
+// ============ MOCKUP 35 — CREDORA (SEM CADASTRO) ============
 
-.sep-credora-shell {
+@use "../../../../styles/sep-responsivo" as resp;
+
+:host {
+  --linha: var(--sep-border);
+  --muted: var(--sep-text-muted);
+  --muted-forte: var(--sep-text-secondary);
+  --blue: var(--sep-accent);
+  --green: var(--sep-success);
+  --purple: var(--sep-purple);
+  --amber: var(--sep-warning);
+  --red-forte: var(--sep-danger);
+
+  display: block;
+  color: var(--sep-text);
+  font-size: 13.5px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button {
+  font: inherit;
+}
+
+/* stylelint-disable selector-pseudo-element-no-unknown -- Angular ::ng-deep */
+
+:host ::ng-deep .op-content:has(> .px35-page) {
+  /* Container do contrato responsivo: e esta area que recebe o espaco restante depois da barra
+       lateral, entao e ela que a pagina mede. Declarar no `:host` do componente nao serve — o host
+       envolve o shell inteiro e tem a largura da janela. */
+  container: sep-conteudo / inline-size;
+  display: block;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+:host ::ng-deep .op-main:has(.px35-page) {
+  grid-template-rows: 70px minmax(0, 1fr) 80px;
+}
+
+:host ::ng-deep .op-main:has(.px35-page) > .op-footer {
+  min-height: 80px;
+}
+
+:host ::ng-deep .op-dashboard:has(.px35-page) > .op-sidebar {
+  grid-template-rows: 70px minmax(0, 1fr) 130px 80px;
+}
+
+/* stylelint-enable selector-pseudo-element-no-unknown */
+
+[data-tone="blue"] {
+  --tone: var(--blue);
+  --tone-borda: rgb(var(--sep-c-blue) / 55%);
+  --tone-fundo: rgb(var(--sep-c-blue) / 12%);
+}
+
+[data-tone="green"] {
+  --tone: var(--green);
+  --tone-borda: rgb(var(--sep-c-green) / 55%);
+  --tone-fundo: rgb(var(--sep-c-green) / 12%);
+}
+
+[data-tone="purple"] {
+  --tone: var(--purple);
+  --tone-borda: rgb(var(--sep-c-purple) / 55%);
+  --tone-fundo: rgb(var(--sep-c-purple) / 12%);
+}
+
+[data-tone="amber"] {
+  --tone: var(--amber);
+  --tone-borda: rgb(var(--sep-c-amber) / 55%);
+  --tone-fundo: rgb(var(--sep-c-amber) / 12%);
+}
+
+// ============ GRADE PRINCIPAL ============
+
+/* Coluna única empilhada, como no desenho: cabeçalho, o cartão do estado vazio, o bloco
+   de motivos e o aviso. A largura máxima segue o desenho, que deixa margem dos dois lados. */
+.px35-page {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-32);
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+  gap: 34px;
+  width: 100%;
+  height: 100%;
+  padding: 18px 30px 20px;
+  overflow: hidden auto;
+  background: radial-gradient(circle at 50% 22%, rgb(var(--sep-c-blue) / 6%), transparent 50%);
 }
 
-.sep-credora-shell-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
+.px35-page > * {
+  width: min(100%, 1200px);
+  margin-inline: auto;
 }
 
-.sep-credora-shell-title {
-  @include sepType.sep-type-page-title;
+// ============ CARTÃO BASE ============
 
-  margin: 0;
-  color: hsl(var(--foreground));
-}
+.px35-card {
+  padding: 16px 20px;
+  border: 1px solid var(--linha);
+  border-radius: 12px;
+  background: linear-gradient(
+    160deg,
+    rgb(var(--sep-c-sunken) / 96%),
+    rgb(var(--sep-c-sunken) / 94%)
+  );
+  box-shadow: inset 0 1px 0 rgb(var(--sep-c-blue) / calc(4% * var(--sep-glow-alpha)));
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
 
-.sep-credora-shell-subtitle {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-credora-shell-status {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-credora-shell-error {
-  color: hsl(var(--destructive));
-}
-
-.sep-credora-shell-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--sep-space-16);
-}
-
-.sep-credora-shell-card {
-  @include sepDs.sep-card;
-
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-6);
-  padding: var(--sep-space-24);
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
-  transition: border-color 120ms ease;
-
+  /* Widget principal: reforça borda e glow, sem alterar dimensões. */
   &:hover,
-  &.sep-credora-shell-card-active {
-    border-color: hsl(var(--primary));
+  &:focus-within {
+    border-color: rgb(var(--sep-c-blue) / 38%);
+    box-shadow:
+      0 0 18px rgb(var(--sep-c-blue) / calc(7% * var(--sep-glow-alpha))),
+      inset 0 1px 0 rgb(var(--sep-c-blue) / calc(8% * var(--sep-glow-alpha)));
   }
 }
 
-.sep-credora-shell-card-title {
-  @include sepType.sep-type-card-title;
+// ============ ESTADOS ============
 
-  margin: 0;
-  color: hsl(var(--foreground));
-}
-
-.sep-credora-shell-card-body {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-credora-shell-empty {
+.px35-estado {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-8);
-  align-items: flex-start;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  color: var(--muted-forte);
+  text-align: center;
 }
 
-.sep-credora-shell-link {
-  @include sepType.sep-type-body;
+.px35-erro {
+  color: var(--red-forte);
+}
 
-  color: hsl(var(--primary));
+// ============ CABEÇALHO ============
+
+.px35-heading nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.px35-heading nav a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.18s;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sep-text);
+    text-decoration: underline;
+  }
+}
+
+.px35-heading nav span {
+  color: var(--sep-text-muted);
+}
+
+.px35-heading nav strong {
+  color: var(--sep-text);
+  font-weight: 600;
+}
+
+.px35-titulo-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+
+  h1 {
+    margin: 0;
+    color: var(--sep-text);
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+}
+
+.px35-titulo-icone {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 62px;
+  height: 62px;
+  color: var(--tone, var(--blue));
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+  border-radius: 15px;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+  box-shadow: 0 0 18px var(--tone-fundo, rgb(var(--sep-c-blue) / calc(18% * var(--sep-glow-alpha))));
+}
+
+.px35-subtitulo {
+  margin: 7px 0 0;
+  color: var(--muted-forte);
+  font-size: 13.5px;
+}
+
+// ============ ESTADO VAZIO ============
+
+.px35-vazio {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+  padding: 28px 26px 32px;
+  text-align: center;
+
+  h2 {
+    max-width: 680px;
+    margin: 0;
+    color: var(--sep-text);
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+
+  p {
+    max-width: 600px;
+    margin: -6px 0 0;
+    color: var(--muted-forte);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+}
+
+/* Ilustração do desenho: círculo tracejado com o prédio dentro e o "mais" em destaque. */
+.px35-ilustracao {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 170px;
+  height: 170px;
+  margin-bottom: 2px;
+  color: var(--blue);
+  border: 1px dashed rgb(var(--sep-c-blue) / 40%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(var(--sep-c-blue) / 10%), transparent 68%);
+  transition:
+    border-color 0.18s,
+    transform 0.18s;
+
+  > lucide-icon {
+    filter: drop-shadow(0 0 12px rgb(var(--sep-c-blue) / calc(45% * var(--sep-glow-alpha))));
+  }
+
+  em {
+    position: absolute;
+    right: 34px;
+    bottom: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    color: var(--sep-surface-sunken);
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 18px rgb(var(--sep-c-green) / calc(45% * var(--sep-glow-alpha)));
+    transition: transform 0.18s;
+  }
+}
+
+.px35-vazio:hover .px35-ilustracao {
+  border-color: rgb(var(--sep-c-blue) / 70%);
+  transform: scale(1.02);
+}
+
+.px35-vazio:hover .px35-ilustracao em {
+  transform: scale(1.08);
+}
+
+// ============ BOTÕES ============
+
+.px35-btn-primary {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  height: 54px;
+  margin-top: 8px;
+  padding: 0 32px;
+  color: var(--sep-on-solid);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid rgb(var(--sep-c-blue) / 60%);
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--sep-accent), var(--sep-accent));
+  box-shadow: 0 0 18px rgb(var(--sep-c-blue) / calc(30% * var(--sep-glow-alpha)));
+  cursor: pointer;
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s,
+    border-color 0.18s;
+
+  lucide-icon {
+    flex-shrink: 0;
+    transition: transform 0.18s;
+  }
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--blue);
+    box-shadow: 0 0 26px rgb(var(--sep-c-blue) / calc(50% * var(--sep-glow-alpha)));
+    transform: translateY(-2px);
+  }
+
+  &:hover lucide-icon,
+  &:focus-visible lucide-icon {
+    transform: scale(1.1);
+  }
+}
+
+// ============ MOTIVOS ============
+
+.px35-motivos h2 {
+  margin: 0 0 14px;
+  color: var(--sep-text);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+}
+
+.px35-motivos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  gap: 14px;
+}
+
+.px35-motivo {
+  display: flex;
+  gap: 13px;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 16px;
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  strong {
+    color: var(--sep-text);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+}
+
+.px35-motivo-icone {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  color: var(--tone, var(--blue));
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+  border-radius: 50%;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+  transition:
+    box-shadow 0.18s,
+    transform 0.18s;
+}
+
+.px35-motivo:hover .px35-motivo-icone {
+  box-shadow: 0 0 14px var(--tone-fundo, rgb(var(--sep-c-blue) / calc(40% * var(--sep-glow-alpha))));
+  transform: scale(1.06);
+}
+
+// ============ AVISO ============
+
+.px35-aviso {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 20px 24px;
+  color: var(--muted-forte);
+  border: 1px solid rgb(var(--sep-c-blue) / 32%);
+  border-radius: 12px;
+  background: rgb(var(--sep-c-blue) / 8%);
+
+  > lucide-icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--blue);
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+}
+
+// ============ COM CREDORA ============
+
+.px35-credora-topo {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+
+  div {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  strong {
+    overflow: hidden;
+    color: var(--sep-text);
+    font-size: 16px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 12.5px;
+  }
+
+  .px35-titulo-icone {
+    width: 46px;
+    height: 46px;
+  }
+}
+
+.px35-selo {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  padding: 0 13px;
+  color: var(--tone, var(--green));
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-green) / 55%));
+  border-radius: 999px;
+  background: var(--tone-fundo, rgb(var(--sep-c-green) / 12%));
+}
+
+.px35-atalhos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 14px;
+}
+
+.px35-atalho {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  min-width: 0;
+  text-decoration: none;
+  transition:
+    transform 0.18s,
+    border-color 0.18s,
+    box-shadow 0.18s;
+
+  div {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  strong {
+    color: var(--sep-text);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.4;
+  }
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--tone-borda, rgb(var(--sep-c-blue) / 55%));
+    box-shadow: 0 0 16px
+      var(--tone-fundo, rgb(var(--sep-c-blue) / calc(30% * var(--sep-glow-alpha))));
+    transform: translateY(-2px);
+  }
+}
+
+.px35-atalho-icone {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  color: var(--tone, var(--blue));
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+  border-radius: 11px;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+  transition:
+    box-shadow 0.18s,
+    transform 0.18s;
+}
+
+.px35-atalho:hover .px35-atalho-icone {
+  box-shadow: 0 0 14px var(--tone-fundo, rgb(var(--sep-c-blue) / calc(40% * var(--sep-glow-alpha))));
+  transform: scale(1.06);
+}
+
+.px35-atalho-seta {
+  flex-shrink: 0;
+  color: var(--muted);
+  transition:
+    color 0.18s,
+    transform 0.18s;
+}
+
+.px35-atalho:hover .px35-atalho-seta {
+  color: var(--tone, var(--blue));
+  transform: translateX(3px);
+}
+
+.px35-atalho-ativo {
+  border-color: var(--tone-borda, rgb(var(--sep-c-blue) / 55%));
+}
+
+// ============ TELAS BAIXAS E ESTREITAS ============
+
+/* Degraus de compactação: só espaçamento e o tamanho da ilustração, nunca o texto. */
+
+/* Degraus de compactação: reduzem só o vão entre blocos, o respiro interno e o tamanho
+   da ilustração. Ícones e texto de leitura ficam na escala do desenho. */
+@include resp.altura-densa {
+  .px35-page {
+    gap: 24px;
+    padding: 14px 28px 16px;
+  }
+
+  .px35-vazio {
+    gap: 16px;
+    padding: 28px 24px 30px;
+  }
+
+  .px35-ilustracao {
+    width: 152px;
+    height: 152px;
+
+    em {
+      right: 30px;
+      bottom: 34px;
+      width: 40px;
+      height: 40px;
+    }
+  }
+
+  .px35-motivos h2 {
+    margin-bottom: 13px;
+  }
+
+  .px35-aviso {
+    padding: 16px 22px;
+  }
+}
+
+@include resp.altura-curta {
+  .px35-page {
+    gap: 15px;
+    padding: 12px 26px 14px;
+  }
+
+  .px35-heading nav {
+    margin-bottom: 7px;
+  }
+
+  .px35-titulo-icone {
+    width: 54px;
+    height: 54px;
+  }
+
+  .px35-vazio {
+    gap: 13px;
+    padding: 20px 22px 22px;
+  }
+
+  .px35-ilustracao {
+    width: 124px;
+    height: 124px;
+    margin-bottom: 0;
+
+    em {
+      right: 24px;
+      bottom: 27px;
+      width: 34px;
+      height: 34px;
+    }
+  }
+
+  .px35-btn-primary {
+    height: 48px;
+    margin-top: 4px;
+  }
+
+  .px35-motivo {
+    padding: 14px 17px;
+  }
+
+  .px35-motivos h2 {
+    margin-bottom: 10px;
+  }
+
+  .px35-aviso {
+    padding: 13px 20px;
+  }
+}
+
+// ============ ACESSIBILIDADE ============
+
+:focus-visible {
+  outline: 2px solid rgb(var(--sep-c-blue) / 70%);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+
+  .px35-btn-primary:hover,
+  .px35-vazio:hover .px35-ilustracao,
+  .px35-vazio:hover .px35-ilustracao em,
+  .px35-motivo:hover .px35-motivo-icone,
+  .px35-atalho:hover,
+  .px35-atalho:hover .px35-atalho-icone,
+  .px35-atalho:hover .px35-atalho-seta {
+    transform: none;
+  }
 }

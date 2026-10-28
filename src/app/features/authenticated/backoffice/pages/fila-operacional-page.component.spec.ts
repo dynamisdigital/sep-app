@@ -1,8 +1,11 @@
 import { provideHttpClient } from '@angular/common/http';
+import { importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
 import { describe, expect, it } from 'vitest';
+import { LucideAngularModule } from 'lucide-angular';
 
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { FilaOperacionalPageComponent } from './fila-operacional-page.component';
 import { estabilizar } from '../../../../../testing/estabilizar';
 
@@ -15,7 +18,11 @@ interface FilaProbe {
 
 function renderPagina() {
   return render(FilaOperacionalPageComponent, {
-    providers: [provideHttpClient(), provideRouter([])],
+    providers: [
+      provideHttpClient(),
+      provideRouter([]),
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+    ],
   });
 }
 

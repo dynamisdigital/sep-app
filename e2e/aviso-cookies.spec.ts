@@ -2,6 +2,9 @@ import { expect, test } from '@playwright/test';
 
 const AVISO = 'Aviso de cookies';
 
+// A suite parte com o aviso dispensado (`playwright.config.ts`); aqui ele precisa aparecer.
+test.use({ storageState: { cookies: [], origins: [] } });
+
 /**
  * Jornada de PRIMEIRA VISITA. Roda sem semear `localStorage`, de proposito: e o unico caminho em
  * que a faixa aparece, e blindar a suite inteira contra ela esconderia justamente o que esta sprint
@@ -30,7 +33,7 @@ test('o aviso leva a politica de privacidade', async ({ page }) => {
 
   await page.waitForURL(/\/politica-de-privacidade$/);
   await expect(
-    page.getByRole('heading', { level: 1, name: /politica de privacidade/i }),
+    page.getByRole('heading', { level: 1, name: /pol[ií]tica de privacidade/i }),
   ).toBeVisible();
 });
 

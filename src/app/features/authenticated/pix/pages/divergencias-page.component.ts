@@ -4,37 +4,39 @@ import {
   Component,
   DestroyRef,
   OnInit,
+  computed,
   inject,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 import { forkJoin } from 'rxjs';
 
-import { ItemFilaResponse, StatusItemFila } from '../../../../core/api/api.models';
+import { ItemFilaResponse, PrioridadeItem, StatusItemFila } from '../../../../core/api/api.models';
 import { BackofficeService } from '../../../../core/backoffice/backoffice.service';
-import { BackofficeChipComponent } from '../../backoffice/shared/backoffice-chip.component';
 import {
+  PRIORIDADE_ITEM_LABEL,
   STATUS_ITEM_FILA_LABEL,
   STATUS_ITENS_FILA,
 } from '../../backoffice/shared/backoffice-format';
+import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
 import { formatarDataHora, mensagemPixErro } from '../shared/pix-format';
+import { SepArteComponent } from '../../../../shared/arte/sep-arte.component';
 
 // Tamanho fixo da pagina consultada; os titulos usam SEMPRE o totalElements do backend e,
 // quando a pagina e parcial, a UI diz explicitamente quantos itens estao exibidos (F-17.2).
 const TAMANHO_PAGINA = 50;
 
-// Painel de divergencias Pix. Nao e uma fila propria: reaproveita a fila operacional do backoffice
-// filtrada pelos tipos Pix (RECEBIMENTO_PIX_DIVERGENTE e DESEMBOLSO_PIX_FALHOU) e leva cada item ao
-// seu detalhe no backoffice, onde vivem assumir/comentar/resolver/ignorar. A UI nao duplica esse
-// tratamento, nao reenvia Pix e nao reprocessa provider para recebimento (o Pix ja foi recebido);
-// para desembolso falho oferece apenas a reconsulta de status (F-13.3).
+// Painel de divergencias Pix (Mockup 23). Exibe o estado de erro do provider com tratamento
+// visual completo e, quando os dados carregam, lista os itens divergentes no painel central.
+// Nao duplica o tratamento da fila: leva cada item ao backoffice.
 //
 // F-17.2: o recorte por status e enviado ao backend (um status por consulta, como o contrato
 // aceita; default ABERTO) e contagem/filtragem nunca sao derivadas localmente.
 @Component({
   selector: 'sep-divergencias-page',
-  imports: [RouterLink, BackofficeChipComponent],
+  imports: [SepArteComponent, LucideAngularModule, OperationalShellComponent, RouterLink],
   templateUrl: './divergencias-page.component.html',
   styleUrl: './divergencias-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,7 +45,9 @@ export class DivergenciasPageComponent implements OnInit {
   private readonly backoffice = inject(BackofficeService);
   private readonly destroyRef = inject(DestroyRef);
 
+  protected readonly assetBase = '/image/sep_mockup_23_assets';
   protected readonly formatarDataHora = formatarDataHora;
+  protected readonly prioridadeLabel = PRIORIDADE_ITEM_LABEL;
   protected readonly statusLabel = STATUS_ITEM_FILA_LABEL;
   protected readonly statusItens = STATUS_ITENS_FILA;
 
@@ -55,6 +59,94 @@ export class DivergenciasPageComponent implements OnInit {
   protected readonly recebimentosTotal = signal(0);
   protected readonly desembolsosFalhos = signal<ItemFilaResponse[]>([]);
   protected readonly desembolsosTotal = signal(0);
+  protected readonly copiado = signal<string | null>(null);
+
+  // Dados fixos do mockup para o cartão de status do provider: a tela não consulta o provider,
+  // apenas a fila do backoffice.
+  protected readonly providerOnline = signal(true);
+  protected readonly providerTempoResposta = signal('186 ms');
+  protected readonly ultimaVerificacao = signal('30/05/2026 11:58:30');
+  // Série do mockup, usada só para desenhar a sparkline do tempo de resposta.
+  private readonly serieTempoResposta = [
+    182, 191, 178, 199, 184, 205, 176, 193, 186, 201, 179, 196, 188, 203, 181,
+  ];
+
+  // O cartão "Última tentativa de consulta" reflete a última chamada real à fila. O protocolo
+  // segue como valor do mockup porque o endpoint não devolve identificador de consulta.
+  protected readonly ultimaTentativaData = signal('30/05/2026 11:56:12');
+  protected readonly ultimaTentativaProtocolo = signal('DIV-0f8a7c2e-9a1b-4f7e-bc21-3d8f5a9e7c10');
+  protected readonly ultimaTentativaMensagem = signal(
+    'Erro ao obter dados do provider Pix. Timeout excedido.',
+  );
+  protected readonly tentativaFalhou = signal(true);
+
+  protected readonly sparklinePontos = computed(() => {
+    const valores = this.serieTempoResposta;
+    const maximo = Math.max(...valores);
+    const minimo = Math.min(...valores);
+    const faixa = Math.max(maximo - minimo, 1);
+    const passo = 120 / (valores.length - 1);
+    return valores
+      .map(
+        (valor, indice) =>
+          `${(indice * passo).toFixed(2)},${(23 - ((valor - minimo) / faixa) * 19).toFixed(2)}`,
+      )
+      .join(' ');
+  });
+
+  protected readonly causas = [
+    {
+      icon: 'equal-not',
+      tom: 'red',
+      titulo: 'Valor diferente do registrado',
+      descricao: 'Diferença entre valor no sistema e no provider.',
+    },
+    {
+      icon: 'unlink',
+      tom: 'orange',
+      titulo: 'Recebimento não vinculado',
+      descricao: 'Item sem parcela ou contrato associado.',
+    },
+    {
+      icon: 'clock-alert',
+      tom: 'purple',
+      titulo: 'Timeout na consulta de status',
+      descricao: 'Falha ao obter status atualizado do provider.',
+    },
+    {
+      icon: 'refresh-cw',
+      tom: 'blue',
+      titulo: 'Reprocessamento pendente',
+      descricao: 'Item aguardando nova tentativa de conciliação.',
+    },
+  ];
+
+  protected readonly possiveisCausasErro = [
+    {
+      icon: 'cloud-lightning',
+      tom: 'red',
+      titulo: 'Instabilidade',
+      subtitulo: 'do provider Pix',
+    },
+    {
+      icon: 'wifi-off',
+      tom: 'red',
+      titulo: 'Falha na conexão',
+      subtitulo: 'com o sistema',
+    },
+    {
+      icon: 'shield-off',
+      tom: 'purple',
+      titulo: 'Permissão insuficiente',
+      subtitulo: 'para consultar',
+    },
+    {
+      icon: 'wrench',
+      tom: 'purple',
+      titulo: 'Manutenção programada',
+      subtitulo: 'em andamento',
+    },
+  ];
 
   ngOnInit(): void {
     this.carregar();
@@ -84,10 +176,13 @@ export class DivergenciasPageComponent implements OnInit {
           this.desembolsosFalhos.set(desembolsos.content);
           this.desembolsosTotal.set(desembolsos.totalElements);
           this.loading.set(false);
+          this.registrarTentativa(false, 'Consulta à fila de divergências concluída com sucesso.');
         },
         error: (err: HttpErrorResponse) => {
           this.loading.set(false);
-          this.errorMessage.set(mensagemPixErro(err, 'Nao foi possivel carregar as divergencias.'));
+          const mensagem = mensagemPixErro(err, 'Não foi possível carregar as divergências');
+          this.errorMessage.set(mensagem);
+          this.registrarTentativa(true, mensagem);
         },
       });
   }
@@ -95,5 +190,24 @@ export class DivergenciasPageComponent implements OnInit {
   filtrarPorStatus(valor: string): void {
     this.statusFiltro.set(valor as StatusItemFila | '');
     this.carregar();
+  }
+
+  copiar(valor: string, chave: string): void {
+    void navigator.clipboard?.writeText(valor);
+    this.copiado.set(chave);
+    window.setTimeout(() => this.copiado.set(null), 1600);
+  }
+
+  // Tom do selo de prioridade do item, no mesmo vocabulário de cores das demais telas Pix.
+  protected tomPrioridade(prioridade: PrioridadeItem): string {
+    if (prioridade === 'CRITICA') return 'red';
+    if (prioridade === 'ALTA') return 'orange';
+    return prioridade === 'MEDIA' ? 'blue' : 'green';
+  }
+
+  private registrarTentativa(falhou: boolean, mensagem: string): void {
+    this.tentativaFalhou.set(falhou);
+    this.ultimaTentativaMensagem.set(mensagem);
+    this.ultimaTentativaData.set(formatarDataHora(new Date().toISOString()));
   }
 }
