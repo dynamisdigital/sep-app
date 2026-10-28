@@ -15,7 +15,6 @@ import { CredoraService } from '../../../../core/credora/credora.service';
 import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
 import { CredoraCadastroPageComponent } from './credora-cadastro-page.component';
-import { estabilizar } from '../../../../../testing/estabilizar';
 
 const ONBOARDING_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78a001';
 
@@ -104,7 +103,11 @@ describe('CredoraCadastroPageComponent — Mockup 36', () => {
   it('onboarding não aprovado aparece com o selo de alerta, sem bloquear o envio', async () => {
     const { fixture } = await renderPagina(
       () => of({} as EmpresaCredoraResponse),
-      () => of({ ...ONBOARDING_APROVADO, status: 'EM_ANALISE' } as StatusOnboardingEmpresaResponse),
+      () =>
+        of({
+          ...ONBOARDING_APROVADO,
+          status: 'EM_ANALISE',
+        } as unknown as StatusOnboardingEmpresaResponse),
     );
     await informarOnboarding(fixture);
 

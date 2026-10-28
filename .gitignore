@@ -74,6 +74,9 @@ MANIFEST
 **/evidences/
 **/logs/
 **/*.log
+**/_pyi_version_info.txt
+**/.build_metadata.json
+*.spec
 sep-app 16062026-*/
 sep-app-16062026-*/
 sep-app_16062026-*/

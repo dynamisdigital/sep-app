@@ -23,6 +23,18 @@ updates:
         update-types:
           - 'minor'
           - 'patch'
+      # Security updates NAO usam os grupos acima: sem `applies-to`, um grupo vale so para
+      # version updates (docs do Dependabot). Sem este grupo, cada correcao de seguranca do
+      # Angular chega como um PR por pacote e nunca instala — os @angular/* exigem os irmaos
+      # na mesma versao exata (ERESOLVE). Foi o que prendeu a GHSA-hh8m em 2026-09.
+      # Security updates vao sempre para a branch default do repo (`target-branch` nao se aplica).
+      angular-security:
+        applies-to: security-updates
+        patterns:
+          - '@angular/*'
+          - '@angular-devkit/*'
+          - '@angular-eslint/*'
+          - 'angular-eslint'
       # Stack de teste/bundler: vitest e @vitest/coverage-v8 precisam da MESMA
       # versao; vite/@analogjs acompanham.
       test-tooling:
@@ -89,6 +101,11 @@ updates:
       # @types/node acompanha o Node da esteira (20 hoje); major junto com o
       # bump de Node 22 planejado para a infra da Fase 5.
       - dependency-name: '@types/node'
+        update-types:
+          - 'version-update:semver-major'
+      # jest-dom 7 exige Node 22 (engines `>=22`); o CI-APP roda em Node 20. Sobe junto com o
+      # bump de Node 22 da esteira, pela mesma politica do @types/node.
+      - dependency-name: '@testing-library/jest-dom'
         update-types:
           - 'version-update:semver-major'
       # Majors de tooling de lint sobem deliberadamente, nunca por bump

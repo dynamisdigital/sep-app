@@ -8,7 +8,7 @@ type JanelaVoz = Window & {
 for (const post of POSTS) {
   test(`áudio de ${post.slug}: Play retoma o ponto pausado com recuo`, async ({ page }) => {
     await page.addInitScript(() => {
-      const janela = window as JanelaVoz;
+      const janela = window as unknown as JanelaVoz;
       janela.__leituraTeste = { agora: 1000, falas: [] };
       Object.defineProperty(performance, 'now', { value: () => janela.__leituraTeste.agora });
       Object.defineProperty(window, 'speechSynthesis', {
@@ -24,7 +24,7 @@ for (const post of POSTS) {
     await page.goto(`/blog/${post.slug}`);
     await page.getByRole('button', { name: 'Ouvir', exact: true }).click();
     const original = await page.evaluate(() => {
-      const teste = (window as JanelaVoz).__leituraTeste;
+      const teste = (window as unknown as JanelaVoz).__leituraTeste;
       // Passa pelo título e por eventuais blocos curtos até uma frase com espaço para o recuo.
       for (let i = 0; teste.falas.at(-1)!.text.length < 80 && i < 30; i++) {
         const fala = teste.falas.at(-1)!;
@@ -47,17 +47,17 @@ for (const post of POSTS) {
     await page.getByRole('button', { name: 'Pausar', exact: true }).click();
     await expect(page.locator('sep-ouvir-texto [role="status"]')).toContainText('2 segundos');
     await page.evaluate(() => {
-      const teste = (window as JanelaVoz).__leituraTeste;
+      const teste = (window as unknown as JanelaVoz).__leituraTeste;
       teste.agora = 69_000;
       const antiga = teste.falas.at(-1)!;
       antiga.onend?.(new SpeechSynthesisEvent('end', { utterance: antiga }));
     });
-    expect(await page.evaluate(() => (window as JanelaVoz).__leituraTeste.falas.length)).toBe(
-      original.quantidade,
-    );
+    expect(
+      await page.evaluate(() => (window as unknown as JanelaVoz).__leituraTeste.falas.length),
+    ).toBe(original.quantidade);
     await page.getByRole('button', { name: 'Continuar', exact: true }).click();
     const retomada = await page.evaluate(() => {
-      const falas = (window as JanelaVoz).__leituraTeste.falas;
+      const falas = (window as unknown as JanelaVoz).__leituraTeste.falas;
       return { texto: falas.at(-1)!.text, quantidade: falas.length };
     });
     expect(retomada.quantidade).toBe(original.quantidade + 1);

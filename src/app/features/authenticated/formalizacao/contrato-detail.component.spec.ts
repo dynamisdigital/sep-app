@@ -13,7 +13,6 @@ import { server } from '../../../../mocks/server';
 import { ContratoDetailComponent } from './contrato-detail.component';
 import { LucideAngularModule } from 'lucide-angular';
 import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
-import { estabilizar } from '../../../../testing/estabilizar';
 
 const CONTRATO_AGUARDANDO_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e01';
 const CONTRATO_EM_ASSINATURA_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e02';

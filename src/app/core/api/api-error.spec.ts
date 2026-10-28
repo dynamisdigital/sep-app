@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { describe, expect, it } from 'vitest';
 
-import { mensagemDeErroDaApi } from './api-error';
+import { codigoDeErroDaApi, mensagemDeErroDaApi } from './api-error';
 
 const PADRAO = 'Nao foi possivel concluir a operacao.';
 
@@ -82,5 +82,104 @@ describe('mensagemDeErroDaApi', () => {
   ])('cai no padrao quando message e %s, sem lancar', (_tipo, valor) => {
     expect(() => mensagemDeErroDaApi(erroCom({ message: valor }), PADRAO)).not.toThrow();
     expect(mensagemDeErroDaApi(erroCom({ message: valor }), PADRAO)).toBe(PADRAO);
+  });
+});
+
+/**
+ * `ErrorResponseDto.codigo`, publicado pela Sprint 36 do `sep-api`. O campo escolhe o RAMO; o
+ * `message` continua escolhendo a FRASE — ver o docblock de `copy-de-erro.ts`. Por isso este helper
+ * nao consulta catalogo nenhum: validar contra uma lista local faria o web recusar codigo que o
+ * backend passe a publicar depois, e a tela cairia no ramo legado sem ninguem notar.
+ *
+ * A matriz abaixo repete a do irmao `mensagemBrutaDaApi` de proposito. As duas guardam a mesma
+ * fronteira (`err.error` e `unknown` de fato) e o mesmo estrago: um `.trim()` sobre valor nao-string
+ * **lanca dentro do callback de erro**, e o `loading.set(false)` que vem depois nunca roda — a tela
+ * fica carregando para sempre. Isso e pior que nao ter o codigo.
+ */
+describe('codigoDeErroDaApi', () => {
+  it('extrai o codigo do corpo padronizado da API', () => {
+    const erro = erroCom({
+      timestamp: '2026-09-08T09:00:00Z',
+      status: 400,
+      error: 'Bad Request',
+      message: 'Codigo invalido.',
+      path: '/api/v1/auth/totp/verify',
+      codigo: 'MFA-400-002',
+    });
+
+    expect(codigoDeErroDaApi(erro)).toBe('MFA-400-002');
+  });
+
+  /**
+   * O caso que sustenta o criterio de aceite 5 da spec: o campo e opcional no contrato porque o
+   * backend so publica um subconjunto da taxonomia e porque `401`/`403`/`429` da cadeia de seguranca
+   * nunca passam pelo `@RestControllerAdvice`. Backend anterior a 36 produz exatamente este corpo.
+   */
+  it('devolve undefined quando o corpo nao tem codigo (backend anterior a 36)', () => {
+    const erro = erroCom({
+      timestamp: '2026-09-08T09:00:00Z',
+      status: 400,
+      error: 'Bad Request',
+      message: 'Codigo invalido.',
+      path: '/api/v1/auth/totp/verify',
+    });
+
+    expect(codigoDeErroDaApi(erro)).toBeUndefined();
+  });
+
+  it('devolve undefined quando nao ha corpo (504 de gateway, 204 sem body)', () => {
+    expect(codigoDeErroDaApi(erroCom(null, 504))).toBeUndefined();
+  });
+
+  it('devolve undefined quando o corpo nao e objeto (HTML de proxy)', () => {
+    expect(codigoDeErroDaApi(erroCom('<html>502 Bad Gateway</html>', 502))).toBeUndefined();
+  });
+
+  it('devolve undefined em falha de rede, onde o corpo e um ProgressEvent', () => {
+    expect(codigoDeErroDaApi(erroCom(new ProgressEvent('error'), 0))).toBeUndefined();
+  });
+
+  /**
+   * Codigo em branco nao e codigo. Sem o `trim`, `'   '` seria truthy e um `switch` sobre ele
+   * escolheria o ramo `default` achando que recebeu identificador — pior que `undefined`, que ao
+   * menos declara ausencia e cai no tratamento legado por status.
+   */
+  it.each([
+    ['string vazia', ''],
+    ['so espacos', '   '],
+  ])('devolve undefined quando o codigo e %s', (_caso, valor) => {
+    expect(codigoDeErroDaApi(erroCom({ codigo: valor }))).toBeUndefined();
+  });
+
+  it('apara as bordas do codigo', () => {
+    expect(codigoDeErroDaApi(erroCom({ codigo: '  MFA-400-004  ' }))).toBe('MFA-400-004');
+  });
+
+  /**
+   * `null` entra na lista separado dos demais porque o encadeamento opcional (`?.`) ja o cobre, e um
+   * refactor que troque `?.` por acesso direto continuaria passando nos outros casos. `array` idem:
+   * `[].codigo` e `undefined` sem lancar, entao so este caso denuncia quem passar a confiar na forma.
+   */
+  it.each([
+    ['null', null],
+    ['numero', 400],
+    ['booleano', false],
+    ['objeto', { valor: 'MFA-400-002' }],
+    ['array', ['MFA-400-002']],
+  ])('devolve undefined quando o codigo e %s, sem lancar', (_tipo, valor) => {
+    expect(() => codigoDeErroDaApi(erroCom({ codigo: valor }))).not.toThrow();
+    expect(codigoDeErroDaApi(erroCom({ codigo: valor }))).toBeUndefined();
+  });
+
+  /**
+   * O `verify-totp` chama por `mensagemDeErroDeTotp(erro: unknown)`, que so estreita para
+   * `HttpErrorResponse` DEPOIS de um `instanceof`. Se algum call site futuro inverter a ordem, este
+   * helper nao pode ser o que lanca — dai o cast deliberado aqui.
+   */
+  it('nao lanca quando recebe valor que nao e HttpErrorResponse', () => {
+    const naoEhErroHttp = { mensagem: 'objeto qualquer' } as unknown as HttpErrorResponse;
+
+    expect(() => codigoDeErroDaApi(naoEhErroHttp)).not.toThrow();
+    expect(codigoDeErroDaApi(naoEhErroHttp)).toBeUndefined();
   });
 });

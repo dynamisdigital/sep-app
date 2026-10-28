@@ -114,8 +114,8 @@ function servico() {
         repasseAoCredorAte: '2026-10-13',
       }),
     ),
-    aprovarSaque: vi.fn(() => of({ ...SAQUE, status: 'EXECUTADO' })),
-    rejeitarSaque: vi.fn(() => of({ ...SAQUE, status: 'REJEITADO' })),
+    aprovarSaque: vi.fn((id: string) => of({ ...SAQUE, id, status: 'EXECUTADO' })),
+    rejeitarSaque: vi.fn((id: string) => of({ ...SAQUE, id, status: 'REJEITADO' })),
   };
 }
 

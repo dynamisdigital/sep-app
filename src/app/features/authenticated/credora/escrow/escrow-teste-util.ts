@@ -39,7 +39,9 @@ export async function estabilizar(fixture: ComponentFixture<unknown>): Promise<v
 
 export function renderizar<T>(
   componente: Type<T>,
-  service: Partial<CredoresEscrowService>,
+  // Mock parcial: os fixtures usam literais que o TS alarga para `string`, entao o tipo do service
+  // real nao e satisfeito e nem precisa ser.
+  service: object,
   extras: Provider[] = [],
 ) {
   return render(componente, {

@@ -4,7 +4,7 @@ import { expect, test, type Page } from '@playwright/test';
 // da janela: por isso a validação estreita o **container** e mantém o viewport fixo, e depois
 // repete em viewports diferentes para provar que os dois eixos são independentes.
 
-const TEMA = process.env.SEP_TEMA ?? 'dark';
+const TEMA = process.env['SEP_TEMA'] ?? 'dark';
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript((t) => {

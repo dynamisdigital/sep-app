@@ -35,14 +35,14 @@ function registrado(nome: string): boolean {
 
 describe('TourService', () => {
   let tour: TourService;
-  let auth: AuthService & { currentUserState: { set: (u: UsuarioResponse | null) => void } };
+  let auth: { currentUserState: { set: (u: UsuarioResponse | null) => void } };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [provideRouter([{ path: 'app/dashboard', children: [] }]), provideHttpClient()],
     });
     tour = TestBed.inject(TourService);
-    auth = TestBed.inject(AuthService) as typeof auth;
+    auth = TestBed.inject(AuthService) as unknown as typeof auth;
   });
 
   afterEach(() => {

@@ -4,6 +4,8 @@ import { mensagemDeErroDaApi } from '../../../../core/api/api-error';
 
 import { TipoCredora } from '../../../../core/api/api.models';
 
+import { formatarDataIso } from '../../../../core/format/data';
+
 // Formatacao apenas visual da jornada credora. Valores chegam como number BRL; elegibilidade,
 // status cadastral e mascaramento de CNPJ pertencem ao backend — nada aqui interpreta regra de
 // negocio.
@@ -16,10 +18,9 @@ export function formatarMoeda(valor: number): string {
 // seria interpretado como meia-noite UTC e apareceria um dia antes em fuso negativo; por isso a
 // data pura e ancorada no fuso local antes de formatar.
 export function formatarData(iso: string): string {
-  const dataPura = /^\d{4}-\d{2}-\d{2}$/.test(iso);
-  return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' }).format(
-    new Date(dataPura ? `${iso}T00:00:00` : iso),
-  );
+  // Data pura ancorada no fuso local; o resto (inclusive ausente e invalido) segue o contrato da FMF-4.1.
+  const dataPura = /^\d{4}-\d{2}-\d{2}$/.test(iso ?? '');
+  return formatarDataIso(dataPura ? `${iso}T00:00:00` : iso, { dateStyle: 'short' });
 }
 
 // Sufixo do UUID para identificacao curta em listas (o id completo permanece no link).

@@ -8,7 +8,7 @@ type JanelaLeitura = Window & {
 async function instalarVoz(page: Page, tema = 'dark') {
   await page.addInitScript((tema) => {
     localStorage.setItem('SEP_THEME', tema);
-    const janela = window as JanelaLeitura;
+    const janela = window as unknown as JanelaLeitura;
     janela.__destaqueTeste = { agora: 1000, falas: [] };
     Object.defineProperty(performance, 'now', { value: () => janela.__destaqueTeste.agora });
     Object.defineProperty(window, 'speechSynthesis', {
@@ -31,7 +31,7 @@ for (const post of POSTS) {
     await page.goto(`/blog/${post.slug}`);
     await page.getByRole('button', { name: 'Ouvir', exact: true }).click();
     const resultado = await page.evaluate(() => {
-      const teste = (window as JanelaLeitura).__destaqueTeste;
+      const teste = (window as unknown as JanelaLeitura).__destaqueTeste;
       const falhas: string[] = [];
       let verificadas = 0;
       while (verificadas < 500) {
@@ -88,7 +88,7 @@ for (const tema of ['dark', 'light']) {
         .click();
       await page.getByRole('button', { name: 'Ouvir', exact: true }).click();
       const cobertura = await page.evaluate(() => {
-        const teste = (window as JanelaLeitura).__destaqueTeste;
+        const teste = (window as unknown as JanelaLeitura).__destaqueTeste;
         for (let i = 0; i < 150; i++) {
           const fala = teste.falas.at(-1)!;
           const indice = fala.text.indexOf('banner da jornada.');

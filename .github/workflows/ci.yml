@@ -1,9 +1,10 @@
 # =============================================================================
 # CI do repositorio sep-app (frontend Angular).
 # Copiado de docs-SEP/docs-sep/ci-pipelines/templates/sep-app-ci.template.yml
-# Ajustes locais: name renomeado para CI-APP; adicionados format:check, lint:scss e
+# Ajustes locais: name renomeado para CI-APP; adicionados format:check, lint:scss,
 # contract:check (F-19: valida os contratos consumidos contra contracts/openapi.snapshot.json,
-# offline e deterministico — nao sobe backend nem baixa OpenAPI de ambiente externo).
+# offline e deterministico — nao sobe backend nem baixa OpenAPI de ambiente externo) e
+# typecheck:spec (F-28).
 # =============================================================================
 
 name: CI-APP
@@ -65,6 +66,11 @@ jobs:
 
       - name: Lint SCSS
         run: npm run lint:scss
+
+      # F-28: tsconfig.app.json exclui os specs, entao sem este passo um erro de tipo em spec passa
+      # por test, lint e build — medido na F-26. Fixture tipado so gateia alguma coisa com ele.
+      - name: Typecheck specs
+        run: npm run typecheck:spec
 
       - name: Test with coverage
         run: npm run test:coverage

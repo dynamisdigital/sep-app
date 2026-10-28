@@ -91,7 +91,7 @@ describe('CobrancaService', () => {
         Math.round(agenda.parcelas.reduce((s, p) => s + p[campo], 0) * 100) / 100;
       expect(somar('principal')).toBe(3125);
       expect(somar('total')).toBe(agenda.valorTotal);
-      expect(agenda.valorTotal).toBeGreaterThan(agenda.valorContratado);
+      expect(agenda.valorTotal).toBeGreaterThan(agenda.valorContratado ?? 0);
     });
 
     it('rejeita com 403 quando a agenda e de outro tomador', async () => {

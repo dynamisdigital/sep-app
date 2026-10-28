@@ -96,6 +96,21 @@ export interface ApiErrorResponse {
   message: string;
   path: string;
   traceId?: string;
+  /**
+   * Codigo estavel da condicao de erro (`ErrorResponseDto.codigo`, backend Sprint 36). **Nao
+   * confundir com o `codigo` de `StepUpCompleteRequest`/`TotpVerifyRequest`**, que e o TOTP de seis
+   * digitos: mesmo nome, significado oposto, e o `consumed-contracts.json` ja carrega tres
+   * ocorrencias daquele.
+   *
+   * Opcional porque o backend publica so um **subconjunto** dos codigos que constroi (perimetro da
+   * Sprint 36; a particao vigente vive em `sep-api/CODIGOS-DE-ERRO.md` e e recalculada a cada build
+   * por `ParticaoDeCodigosErroTest` — nao repetir a contagem aqui, a Sprint 37 vai muda-la) e
+   * porque `401`/`403`/`429` da cadeia de seguranca nunca passam pelo `@RestControllerAdvice`:
+   * dois filtros e dois handlers do Spring Security montam o corpo direto na response. Backend
+   * anterior a 36, handler sem taxonomia e proxy que reescreve o corpo produzem o mesmo efeito:
+   * campo ausente. Quem le ramifica pelo legado nesse caso, nunca quebra.
+   */
+  codigo?: string;
 }
 
 /**
@@ -1423,4 +1438,37 @@ export interface AporteCredoraResponse {
   valor: number;
   dataCriacao: string;
   dataAtualizacao: string;
+}
+
+// --- Central de notificacoes (F-Sprint 27 / backend Sprint 38) ---
+// So o canal IN_APP do usuario autenticado chega aqui; e-mail enviado fica no historico do backend.
+
+// Fato que originou a notificacao (TipoNotificacao no backend). CONTA_BLOQUEADA hoje so vai por
+// e-mail e nao aparece na central, mas o enum publicado e um so.
+export type TipoNotificacao = 'DESEMBOLSO_PIX_CONCLUIDO' | 'CONTA_BLOQUEADA';
+
+// Recurso ao qual a notificacao aponta, por allowlist (TipoReferencia no backend).
+export type TipoReferenciaNotificacao = 'CONTRATO';
+
+export interface ReferenciaNotificacaoResponse {
+  tipo: TipoReferenciaNotificacao;
+  id: string;
+}
+
+// Item de GET /notificacoes e resposta do POST /notificacoes/{id}/leitura. `lidaEm` e `referencia`
+// chegam presentes e nulos quando vazios, mas o OpenAPI nao os marca required (o springdoc descarta
+// `nullable` em 3.1): por isso opcionais E nulos, e quem renderiza tolera os dois.
+export interface NotificacaoResponse {
+  id: string;
+  tipo: TipoNotificacao;
+  titulo: string;
+  mensagem: string;
+  criadaEm: string;
+  lidaEm?: string | null;
+  referencia?: ReferenciaNotificacaoResponse | null;
+}
+
+// GET /notificacoes/nao-lidas/contagem: mesmo recorte da listagem, zero quando nao ha.
+export interface NotificacoesNaoLidasResponse {
+  naoLidas: number;
 }

@@ -60,7 +60,7 @@ async function renderProfile(service: Partial<ProfileService> = {}) {
       { provide: ProfileService, useValue: profileService },
     ],
   });
-  const auth = result.fixture.debugElement.injector.get(AuthService) as AuthService & {
+  const auth = result.fixture.debugElement.injector.get(AuthService) as unknown as {
     currentUserState: { set: (value: UsuarioResponse | null) => void };
   };
   auth.currentUserState.set(user);

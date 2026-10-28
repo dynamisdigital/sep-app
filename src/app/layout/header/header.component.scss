@@ -8,6 +8,10 @@
   display: flex;
   gap: var(--sep-space-16);
   align-items: center;
+
+  // Sem reset global de box-sizing: `width: 100%` + padding passava 48px da viewport, ate no
+  // desktop.
+  box-sizing: border-box;
   width: 100%;
   height: var(--header-height);
   padding: 0 var(--sep-space-24);
@@ -31,6 +35,36 @@
 
 .sep-header-spacer {
   flex: 1;
+}
+
+.sep-header-notificacoes {
+  @include sepDs.sep-button-ghost;
+  @include sepDs.sep-button-size-icon;
+
+  position: relative;
+  flex-shrink: 0;
+  color: hsl(var(--foreground));
+}
+
+.sep-header-notificacoes-ativo {
+  color: hsl(var(--accent-foreground));
+  background: hsl(var(--accent));
+}
+
+// Marcador no canto, fora do desenho do sino: compacto para nao cobrir o icone.
+.sep-header-notificacoes-marcador {
+  @include sepDs.sep-badge-primary;
+
+  position: absolute;
+  top: 0;
+  right: 0;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 var(--sep-space-4);
+  font-size: 10px;
+  line-height: 16px;
+  transform: translate(25%, -10%);
 }
 
 .sep-header-theme-toggle {
@@ -60,4 +94,17 @@
 .sep-header-logout {
   @include sepDs.sep-button-ghost;
   @include sepDs.sep-button-size-sm;
+}
+
+// Ate 600px o header nao cabe inteiro: a 390px ja transbordava (455px) antes do sino, e o
+// sino somava mais 58px. Nome e papel sao o maior item e o unico repetido na tela: a sidenav,
+// empilhada nessa largura, mostra o usuario no rodape. Os controles ficam.
+@media (width <= 600px) {
+  .sep-header {
+    padding: 0 var(--sep-space-16);
+  }
+
+  .sep-header-user {
+    display: none;
+  }
 }

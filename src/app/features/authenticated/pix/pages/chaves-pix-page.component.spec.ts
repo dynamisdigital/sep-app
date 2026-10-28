@@ -113,7 +113,7 @@ function stubLista(chaves: ChavePixResponse[]): { total: () => number } {
 }
 
 // Captura os DELETEs recebidos (por id de chave) e responde com o status pedido.
-function stubRemocao(responder: () => HttpResponse | Response): {
+function stubRemocao(responder: () => Response): {
   ids: () => string[];
   headers: () => (string | null)[];
 } {
@@ -131,7 +131,7 @@ function stubRemocao(responder: () => HttpResponse | Response): {
 
 // Captura as Idempotency-Keys de cada POST e responde com o status pedido. Permite provar o
 // reuso da MESMA key em retry ambiguo e a troca de key quando tipo/valor mudam.
-function stubCadastro(responder: () => HttpResponse | Response): { keys: () => string[] } {
+function stubCadastro(responder: () => Response): { keys: () => string[] } {
   const keys: string[] = [];
   server.use(
     http.post(CHAVES_URL, ({ request }) => {

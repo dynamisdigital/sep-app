@@ -5,11 +5,11 @@ import { fireEvent, render, screen } from '@testing-library/angular';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { resetSenhasDev } from '../../../../../mocks/handlers';
-import { AuthService } from '../../../../core/auth/auth.service';
 import { ChangePasswordComponent } from './change-password.component';
 import { LucideAngularModule } from 'lucide-angular';
 import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { flush } from '../../../../../testing/estabilizar';
+import { logarAdmin } from '../../../../../testing/logar-admin';
 
 async function waitForHttp(): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, 50));
@@ -23,16 +23,6 @@ async function setup() {
       provideRouter([]),
       provideHttpClient(),
     ],
-  });
-}
-
-async function logarAdmin(result: Awaited<ReturnType<typeof setup>>) {
-  const auth = result.fixture.debugElement.injector.get<AuthService>(AuthService);
-  await new Promise<void>((resolve, reject) => {
-    auth.login({ username: 'admin@empresa.com', password: '123456' }).subscribe({
-      next: () => resolve(),
-      error: reject,
-    });
   });
 }
 

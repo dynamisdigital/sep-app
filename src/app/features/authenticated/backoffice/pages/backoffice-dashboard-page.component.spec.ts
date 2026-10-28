@@ -30,7 +30,7 @@ async function renderPagina() {
       },
     ],
   });
-  const auth = result.fixture.debugElement.injector.get(AuthService) as AuthService & {
+  const auth = result.fixture.debugElement.injector.get(AuthService) as unknown as {
     currentUserState: { set: (u: unknown) => void };
   };
   auth.currentUserState.set({
