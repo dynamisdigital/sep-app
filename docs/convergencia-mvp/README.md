@@ -62,7 +62,8 @@ seção 4.
 
 ## Avisos de revisão (26/10/2026)
 
-- As capturas de `../atualizacao-07102026/imagens/` (módulos 1, 2, 4 e 5) são de 07/10 e mostram a **marca anterior** ("SEP"). As novas, em
-  `imagens/`, já têm "Dynamis SEP". Se for publicar, refazer as antigas com um script equivalente ao `capturar-telas.cjs`.
+- As capturas de `../atualizacao-07102026/imagens/` (módulos 1, 2, 4 e 5) foram refeitas em 28/10/2026 com a marca "Dynamis SEP" (scripts
+  `capturar-telas.js` e `capturar-telas-extra.js`, agora com o aviso de cookies já dispensado). As de `imagens/` já eram da marca nova. O relatório
+  de 07/10 (PDF, HTML e `publicar/`) **não** foi regenerado e ainda mostra a marca anterior.
 - O levantamento do `sep-api` é leitura de código (controllers e domínio), sem rodar a API: o Maurício deve confirmar o que já está implementado.
 - Números do comparativo: contagem por nome de arquivo e por `path:` únicos; refazer após o merge de convergência.
