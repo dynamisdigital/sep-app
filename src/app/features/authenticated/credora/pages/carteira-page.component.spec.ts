@@ -1,6 +1,5 @@
 import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { importProvidersFrom } from '@angular/core';
-import { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
 import { LucideAngularModule } from 'lucide-angular';
@@ -11,6 +10,7 @@ import { OperacaoCarteiraResponse } from '../../../../core/api/api.models';
 import { CredoraService } from '../../../../core/credora/credora.service';
 import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { CarteiraPageComponent } from './carteira-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const OPERACAO: OperacaoCarteiraResponse = {
   id: '7f0799c0-98b9-6d9d-bc4a-7d6f5b78c001',
@@ -32,18 +32,6 @@ const OPERACAO: OperacaoCarteiraResponse = {
   },
   dataCriacao: '2026-05-28T12:00:00-03:00',
 };
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
 
 function renderPagina(listarCarteira: () => Observable<OperacaoCarteiraResponse[]>) {
   return render(CarteiraPageComponent, {

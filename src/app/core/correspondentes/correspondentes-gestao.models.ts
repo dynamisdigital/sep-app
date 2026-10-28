@@ -58,13 +58,7 @@ export interface MoverEtapaRequest {
 // ---- Agenda e relacionamento ----
 
 export type TipoInteracao =
-  | 'LIGACAO'
-  | 'WHATSAPP'
-  | 'VISITA'
-  | 'REUNIAO'
-  | 'OBSERVACAO'
-  | 'RETORNO'
-  | 'PENDENCIA_DOCUMENTAL';
+  'LIGACAO' | 'WHATSAPP' | 'VISITA' | 'REUNIAO' | 'OBSERVACAO' | 'RETORNO' | 'PENDENCIA_DOCUMENTAL';
 
 export type StatusInteracao = 'REGISTRADA' | 'AGENDADA' | 'CONCLUIDA' | 'ATRASADA';
 

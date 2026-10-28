@@ -1,0 +1,12 @@
+@if (visivel()) {
+  <section class="sep-aviso-cookies" role="region" aria-label="Aviso de cookies">
+    <p class="sep-aviso-cookies-texto">
+      Usamos apenas um cookie, necessario para manter voce autenticado. Nao usamos cookies de
+      publicidade nem ferramentas de rastreamento.
+      <a routerLink="/politica-de-privacidade" class="sep-aviso-cookies-link">
+        Ler a politica de privacidade e cookies
+      </a>
+    </p>
+    <button type="button" class="sep-aviso-cookies-botao" (click)="dispensar()">Entendi</button>
+  </section>
+}

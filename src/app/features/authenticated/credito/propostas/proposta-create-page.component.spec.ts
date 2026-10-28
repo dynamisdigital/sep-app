@@ -10,6 +10,7 @@ import { CreditoService } from '../../../../core/credito/credito.service';
 import { PropostaCreatePageComponent } from './proposta-create-page.component';
 import { LucideAngularModule } from 'lucide-angular';
 import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const ONBOARDING_APROVADO = '2f0799c0-98b9-6d9d-bc4a-7d6f5b771f01';
 
@@ -24,7 +25,6 @@ async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
   await flush();
   fixture.detectChanges();
 }
-
 function renderPagina() {
   return render(PropostaCreatePageComponent, {
     providers: [

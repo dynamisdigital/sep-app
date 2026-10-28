@@ -1,6 +1,6 @@
 import { importProvidersFrom } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { describe, expect, it, vi } from 'vitest';
@@ -8,20 +8,9 @@ import { describe, expect, it, vi } from 'vitest';
 import { OnboardingEmpresaPageComponent } from './onboarding-empresa-page.component';
 import { LucideAngularModule } from 'lucide-angular';
 import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const EMPRESA_ID = '2f0799c0-98b9-6d9d-bc4a-7d6f5b771f02';
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await new Promise((resolve) => setTimeout(resolve, 50));
-  await flush();
-  fixture.detectChanges();
-}
 
 function activatedRoute(id?: string) {
   return { snapshot: { paramMap: convertToParamMap(id ? { id } : {}) } };

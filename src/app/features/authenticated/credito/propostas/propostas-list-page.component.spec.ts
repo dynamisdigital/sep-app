@@ -1,6 +1,5 @@
 import { importProvidersFrom } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
-import { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { describe, expect, it } from 'vitest';
@@ -8,14 +7,7 @@ import { describe, expect, it } from 'vitest';
 import { PropostasListPageComponent } from './propostas-list-page.component';
 import { LucideAngularModule } from 'lucide-angular';
 import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await new Promise((resolve) => setTimeout(resolve, 30));
-  for (let i = 0; i < 12; i += 1) {
-    await Promise.resolve();
-  }
-  fixture.detectChanges();
-}
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 function renderPagina() {
   return render(PropostasListPageComponent, {

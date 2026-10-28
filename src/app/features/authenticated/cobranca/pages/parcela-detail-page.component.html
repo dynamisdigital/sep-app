@@ -36,6 +36,14 @@
             </p>
           </div>
           <div class="cb24-heading-acoes cb24-menu-wrap">
+            @if (p.status === 'EM_NEGOCIACAO') {
+              <a
+                class="cb24-btn-sec"
+                [routerLink]="['/app/cobranca/parcelas', p.parcelaId, 'renegociacao']"
+              >
+                Ver proposta de renegociação
+              </a>
+            }
             <button type="button" class="cb24-btn-primary" (click)="baixarDemonstrativo()">
               <lucide-icon name="download" [size]="18" />Baixar demonstrativo
             </button>

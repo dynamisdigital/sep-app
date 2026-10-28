@@ -64,5 +64,24 @@ carteira da credora, `handlers.ts` (4 trechos), `styles/index.scss`, `package.js
 3. Separação de ambientes (ver `00-responsabilidades-e-ambientes.md`).
 4. Documentos por módulo e entrega ao backend (esta pasta).
 
+### Situação em 28/10/2026
+
+Passos 1 e 2 concluídos: merge feito, lint, formatação, build, `contract:check` (85 operações) e testes
+unitários verdes. O e2e achou o que o merge deixou desalinhado, já corrigido:
+
+- **Aviso de cookies do MVP × specs do atual.** O aviso reserva 10rem no rodapé do `body` e quebrava as
+  specs que medem altura ou clicam no rodapé. A suíte agora parte com o aviso dispensado
+  (`playwright.config.ts`); só `aviso-cookies.spec.ts` o reexibe.
+- **Menu.** "Chaves Pix" e "Matching de credoras" só existiam no `sidenav` antigo. Entraram no shell
+  operacional (filho de Pix e item de Operação, ambos FINANCEIRO e ADMIN).
+- **Rota duplicada.** `/politica-de-privacidade` existia nas duas bases; ficou a página do atual (11
+  seções). `politica-privacidade/` (MVP) continua no repositório, sem rota: decidir se o texto sobre cookies
+  e as seções pendentes de redação jurídica migram para a página atual ou se a pasta é removida.
+- **Specs do MVP** ajustadas ao menu em cascata e a nomes acentuados.
+
+Cinco specs e2e já falhavam **antes** do merge, na `escritorio-2026-10-26`, e seguem pendentes (não são do
+merge): `cobranca` (painel de inadimplência), `credores-escrow` (conta de destino e saque), `governanca`
+(chips de papéis), `onboarding` (PJ, `APROVADO_FINAL`) e `site-institucional` (menu da landing).
+
 **Por que o MVP manda no núcleo:** é a espinha dorsal que o backend já acompanha (contrato de erro, lockout,
 OpenAPI). Os módulos novos entram em cima dela, sem mudar a base.

@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
     // segfaulta ao passar de ~24 specs. O pool 'threads' isola sem esse vazamento.
     pool: 'threads',
     setupFiles: ['./src/test-setup.ts'],
-    include: ['src/**/*.spec.ts'],
+    include: ['src/**/*.spec.ts', 'scripts/**/*.spec.ts'],
     server: {
       deps: {
         inline: [/@angular/, /@testing-library/, /@analogjs/],
@@ -26,6 +26,9 @@ export default defineConfig(({ mode }) => ({
         'src/test-setup.ts',
         'src/test-polyfills.ts',
         'src/mocks/**',
+        // Helpers de teste: cobertos 100% por construcao (todo spec os usa), entao entrariam no
+        // denominador inflando a baseline sem medir nada. Mesma razao dos tres itens acima.
+        'src/testing/**',
         '**/*.config.ts',
       ],
     },

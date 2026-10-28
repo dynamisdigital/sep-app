@@ -1,7 +1,9 @@
 # =============================================================================
 # CI do repositorio sep-app (frontend Angular).
 # Copiado de docs-SEP/docs-sep/ci-pipelines/templates/sep-app-ci.template.yml
-# Ajustes locais: name renomeado para CI-APP; adicionados format:check e lint:scss.
+# Ajustes locais: name renomeado para CI-APP; adicionados format:check, lint:scss e
+# contract:check (F-19: valida os contratos consumidos contra contracts/openapi.snapshot.json,
+# offline e deterministico — nao sobe backend nem baixa OpenAPI de ambiente externo).
 # =============================================================================
 
 name: CI-APP
@@ -35,19 +37,28 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
 
       - name: Format check
         run: npm run format:check
+
+      # D-Sprint 1: falha o job em `high`/`critical`. O limiar e high, e nao `total`, porque
+      # `moderate`/`low` costumam so ter correcao em major — barrado pelo ADR 0018 — e um gate
+      # cronicamente vermelho vira gate ignorado. `moderate` segue visivel na saida do comando.
+      - name: Security audit (dependencias, falha em high/critical)
+        run: npm run audit
+
+      - name: Contract check (OpenAPI snapshot)
+        run: npm run contract:check
 
       - name: Lint TS/HTML
         run: npm run lint
@@ -60,7 +71,7 @@ jobs:
 
       - name: Upload coverage
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: web-coverage
           path: coverage/
@@ -74,22 +85,22 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
 
       - name: Build
         run: npm run build
 
       - name: Upload build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: web-build
           path: dist/

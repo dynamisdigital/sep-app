@@ -69,8 +69,7 @@ export class BlogComponent {
   constructor() {
     // Quem chega daqui depois de ouvir um texto até o fim volta ao ponto onde estava (ver BlogArtigo).
     const estado = inject(Router).getCurrentNavigation()?.extras.state as
-      | { lido?: string }
-      | undefined;
+      { lido?: string } | undefined;
     const slug = estado?.lido;
     if (slug && postPorSlug(slug)) afterNextRender(() => this.retomar(slug));
     inject(DestroyRef).onDestroy(() => this.encerrar());

@@ -1,31 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { ApiErrorResponse } from './api.models';
-
-const TERMOS_TECNICOS_SENSIVEIS =
-  /exception|stacktrace|sqlstate|hibernate|jdbc|postgresql|syntax error|nullpointer|driver\b/i;
+import { mensagemDeErroDaApi } from './api-error';
 
 /**
- * SEP — Frontend Security Architecture
- * Sanitização e Proteção contra Exposição de Erros Técnicos / Stack Traces (SEC-07 / OWASP ASVS)
+ * SEC-07 (OWASP ASVS): em falha interna do backend, detalhe tecnico nunca chega a interface.
  *
- * Em caso de falhas internas do backend (HTTP 500, 502, 503), APIs mal configuradas podem
- * retornar detalhes de infraestrutura, nomes de tabelas, consultas SQL ou excecoes do Java/Node.
- *
- * Esta funcao garante que detalhes tecnicos internos nunca alcancem a interface do usuario,
- * retornando a mensagem funcional amigavel padrao.
+ * Mantido so por compatibilidade com os chamadores do front que nasceu depois do MVP: a regra agora
+ * vive em `mensagemDeErroDaApi` (api-error.ts), unica para o sistema todo. Prefira aquela.
  */
 export function extrairMensagemErroSegura(err: HttpErrorResponse, padrao: string): string {
-  const apiErr = err.error as ApiErrorResponse | undefined;
-  const mensagem = apiErr?.message;
-
-  if (!mensagem) {
-    return padrao;
-  }
-
-  if (err.status >= 500 && TERMOS_TECNICOS_SENSIVEIS.test(mensagem)) {
-    return padrao;
-  }
-
-  return mensagem;
+  return mensagemDeErroDaApi(err, padrao);
 }

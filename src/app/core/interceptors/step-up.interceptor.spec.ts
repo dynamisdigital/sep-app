@@ -113,6 +113,38 @@ describe('stepUpInterceptor', () => {
     expect(store.token()).toBe('step-up-tok');
   });
 
+  it('NAO anexa o token na consulta de renegociacao ativa do tomador (GET, F-16)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest(
+      'GET',
+      'http://localhost:8080/api/v1/cobranca/parcelas/abc/renegociacao-ativa',
+    );
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(store.token()).toBe('step-up-tok');
+  });
+
+  it('sem token no store, o PATCH de aceite segue sem header (backend decide o 403)', () => {
+    const req = new HttpRequest(
+      'PATCH',
+      'http://localhost:8080/api/v1/cobranca/renegociacoes/abc/aceite',
+      {},
+    );
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(store.token()).toBeNull();
+  });
+
   it('anexa o token ao resolver item da fila (PATCH /backoffice/fila/:id/resolver)', () => {
     store.set('step-up-tok');
     const req = new HttpRequest(
@@ -343,6 +375,158 @@ describe('stepUpInterceptor', () => {
       'POST',
       'http://localhost:8080/api/v1/pix/recebimentos/referencias',
       {},
+    );
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(store.token()).toBe('step-up-tok');
+  });
+
+  it('anexa o token ao decidir matching (POST /credores/matching/:id/decisao)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest(
+      'POST',
+      'http://localhost:8080/api/v1/credores/matching/abc/decisao',
+      {},
+    );
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.get('X-Step-Up-Token')).toBe('step-up-tok');
+    expect(store.token()).toBeNull();
+  });
+
+  it('anexa o token ao registrar aporte (POST /credores/operacoes/:id/aportes)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest(
+      'POST',
+      'http://localhost:8080/api/v1/credores/operacoes/abc/aportes',
+      {},
+    );
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.get('X-Step-Up-Token')).toBe('step-up-tok');
+    expect(store.token()).toBeNull();
+  });
+
+  it('NAO anexa o token na lista owner-scoped de aportes (GET mesma URL do POST)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest(
+      'GET',
+      'http://localhost:8080/api/v1/credores/operacoes/abc/aportes',
+    );
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(store.token()).toBe('step-up-tok');
+  });
+
+  it('NAO anexa o token nas leituras de matching (GET sugestoes e detalhe)', () => {
+    store.set('step-up-tok');
+    const sugestoes = new HttpRequest(
+      'GET',
+      'http://localhost:8080/api/v1/credores/matching/sugestoes',
+    );
+    const detalhe = new HttpRequest('GET', 'http://localhost:8080/api/v1/credores/matching/abc');
+    const sugestoesCap = captureNext();
+    const detalheCap = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(sugestoes, sugestoesCap.handler).subscribe();
+      stepUpInterceptor(detalhe, detalheCap.handler).subscribe();
+    });
+
+    expect(sugestoesCap.state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(detalheCap.state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(store.token()).toBe('step-up-tok');
+  });
+
+  it('NAO anexa o token no interesse da credora (POST /oportunidades/:id/interesses, path parecido)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest(
+      'POST',
+      'http://localhost:8080/api/v1/credores/oportunidades/abc/interesses',
+      null,
+    );
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(store.token()).toBe('step-up-tok');
+  });
+
+  it('anexa o token ao cadastrar chave Pix (POST /pix/chaves)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest('POST', 'http://localhost:8080/api/v1/pix/chaves', {
+      tipo: 'EMAIL',
+      valor: 'financeiro@dynamis.com.br',
+    });
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.get('X-Step-Up-Token')).toBe('step-up-tok');
+    expect(store.token()).toBeNull();
+  });
+
+  it('anexa o token ao remover chave Pix (DELETE /pix/chaves/:id)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest(
+      'DELETE',
+      'http://localhost:8080/api/v1/pix/chaves/e3000000-0000-4000-8000-000000000001',
+    );
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.get('X-Step-Up-Token')).toBe('step-up-tok');
+    expect(store.token()).toBeNull();
+  });
+
+  // O GET compartilha a URL do POST: sem o guard de metodo, listar chaves gastaria o token de uso
+  // unico e a mutacao seguinte falharia com 403.
+  it('NAO anexa o token na listagem de chaves Pix (GET mesma URL do POST)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest('GET', 'http://localhost:8080/api/v1/pix/chaves');
+    const { state, handler } = captureNext();
+
+    TestBed.runInInjectionContext(() => {
+      stepUpInterceptor(req, handler).subscribe();
+    });
+
+    expect(state.lastReq?.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(store.token()).toBe('step-up-tok');
+  });
+
+  // Path parecido dentro do proprio modulo Pix: o DELETE so casa com /pix/chaves/, nunca com uma
+  // sub-rota de desembolso.
+  it('NAO anexa o token num DELETE fora de /pix/chaves/ (path parecido)', () => {
+    store.set('step-up-tok');
+    const req = new HttpRequest(
+      'DELETE',
+      'http://localhost:8080/api/v1/pix/desembolsos/e0000000-0000-4000-8000-000000000001',
     );
     const { state, handler } = captureNext();
 

@@ -1,0 +1,17 @@
+@use "../../../../../styles/sep-ds-components" as sepDs;
+
+.sep-chave-pix-status-badge {
+  @include sepDs.sep-badge-base;
+
+  align-self: flex-start;
+
+  &.is-ativa {
+    color: hsl(var(--success));
+    background: hsl(var(--success) / 12%);
+  }
+
+  &.is-inativa {
+    color: hsl(var(--muted-foreground));
+    background: hsl(var(--muted));
+  }
+}

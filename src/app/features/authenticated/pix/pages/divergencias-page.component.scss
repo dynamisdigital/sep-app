@@ -1182,3 +1182,31 @@ input {
     max-width: max(392px, 50.38%);
   }
 }
+
+// Filtro por status e aviso de pagina parcial (F-17.2, vem do MVP): o recorte e feito pelo backend.
+.px23-filtro {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 240px;
+  margin-bottom: 12px;
+
+  label {
+    color: var(--muted-forte, hsl(var(--muted-foreground)));
+    font-size: 13px;
+  }
+
+  select {
+    padding: 8px 10px;
+    color: var(--foreground-forte, hsl(var(--foreground)));
+    border: 1px solid var(--borda, hsl(var(--border)));
+    border-radius: 8px;
+    background: transparent;
+  }
+}
+
+.px23-parcial {
+  margin: 0 0 8px;
+  color: var(--muted-forte, hsl(var(--muted-foreground)));
+  font-size: 13px;
+}

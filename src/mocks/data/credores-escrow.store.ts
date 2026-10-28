@@ -488,8 +488,7 @@ export function resetCredoresEscrowState(): void {
 // ---------- Resultado ----------
 
 export type ResultadoEscrow<T> =
-  | { ok: true; valor: T }
-  | { ok: false; status: number; erro: string };
+  { ok: true; valor: T } | { ok: false; status: number; erro: string };
 
 const ok = <T>(valor: T): ResultadoEscrow<T> => ({ ok: true, valor });
 const falha = (status: number, erro: string): ResultadoEscrow<never> => ({

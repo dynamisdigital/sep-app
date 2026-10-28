@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { extrairMensagemErroSegura } from '../../../../core/api/api-error-sanitizer';
+import { mensagemDeErroDaApi } from '../../../../core/api/api-error';
+
 import { TipoCredora } from '../../../../core/api/api.models';
 
 // Formatacao apenas visual da jornada credora. Valores chegam como number BRL; elegibilidade,
@@ -45,5 +46,5 @@ export const TIPO_CREDORA_LABEL: Record<TipoCredora, string> = {
 // Mensagem amigavel do corpo de erro padronizado da API, com fallback e sanitizacao. 401/403/423 globais sao
 // tratados pelo errorInterceptor; aqui os componentes cobrem os erros de dominio da credora.
 export function mensagemCredoraErro(err: HttpErrorResponse, padrao: string): string {
-  return extrairMensagemErroSegura(err, padrao);
+  return mensagemDeErroDaApi(err, padrao);
 }

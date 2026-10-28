@@ -15,6 +15,7 @@ import { CredoraService } from '../../../../core/credora/credora.service';
 import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
 import { CredoraCadastroPageComponent } from './credora-cadastro-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const ONBOARDING_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78a001';
 
@@ -46,7 +47,6 @@ async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
   await flush();
   fixture.detectChanges();
 }
-
 function erro(status: number, message: string): HttpErrorResponse {
   return new HttpErrorResponse({ status, error: { message } });
 }

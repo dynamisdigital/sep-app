@@ -9,12 +9,7 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { ChangePasswordComponent } from './change-password.component';
 import { LucideAngularModule } from 'lucide-angular';
 import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
+import { flush } from '../../../../../testing/estabilizar';
 
 async function waitForHttp(): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, 50));

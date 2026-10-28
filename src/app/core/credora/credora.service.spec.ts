@@ -3,7 +3,11 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { CadastrarCredoraRequest } from '../api/api.models';
+import {
+  CadastrarCredoraRequest,
+  DecidirMatchingRequest,
+  RegistrarAporteRequest,
+} from '../api/api.models';
 import { CredoraService } from './credora.service';
 
 // Contrato HTTP exato (URL, metodo, body, headers, status). O CredoraService e transporte puro:
@@ -141,5 +145,96 @@ describe('CredoraService (contrato HTTP)', () => {
     const req = httpMock.expectOne(`${base}/credores/carteira/${OPERACAO_ID}`);
     expect(req.request.method).toBe('GET');
     req.flush({});
+  });
+
+  // --- Aporte e matching (F-18.1 / backend Sprints 29-30) ---
+  // O service transporta DTOs e headers sem gerar key, decidir retry ou interpretar estado. O
+  // X-Step-Up-Token dos POSTs sensiveis pertence ao stepUpInterceptor (coberto na spec dele); aqui
+  // valida-se somente que o service nao anexa header algum por conta propria.
+
+  const SUGESTAO_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78d001';
+  const IDEMPOTENCY_KEY = '0d6f5b78-98b9-6d9d-bc4a-7f0799c0e001';
+
+  it('listarSugestoesMatching: GET /credores/matching/sugestoes sem step-up', () => {
+    service.listarSugestoesMatching().subscribe();
+
+    const req = httpMock.expectOne(`${base}/credores/matching/sugestoes`);
+    expect(req.request.method).toBe('GET');
+    expect(req.request.headers.has('X-Step-Up-Token')).toBe(false);
+    req.flush([]);
+  });
+
+  it('consultarMatching: GET /credores/matching/{id} sem step-up', () => {
+    service.consultarMatching(SUGESTAO_ID).subscribe();
+
+    const req = httpMock.expectOne(`${base}/credores/matching/${SUGESTAO_ID}`);
+    expect(req.request.method).toBe('GET');
+    expect(req.request.headers.has('X-Step-Up-Token')).toBe(false);
+    req.flush({});
+  });
+
+  it('decidirMatching: POST /credores/matching/{id}/decisao com acao e motivo', () => {
+    const request: DecidirMatchingRequest = { acao: 'CONFIRMAR', motivo: 'par elegivel' };
+    service.decidirMatching(SUGESTAO_ID, request).subscribe();
+
+    const req = httpMock.expectOne(`${base}/credores/matching/${SUGESTAO_ID}/decisao`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(request);
+    req.flush({});
+  });
+
+  it('decidirMatching: propaga o 409 de decisao sobre status terminal', async () => {
+    const erro = new Promise<{ status: number }>((resolve) => {
+      service.decidirMatching(SUGESTAO_ID, { acao: 'REJEITAR' }).subscribe({ error: resolve });
+    });
+
+    const req = httpMock.expectOne(`${base}/credores/matching/${SUGESTAO_ID}/decisao`);
+    req.flush({ message: 'Sugestao ja decidida' }, { status: 409, statusText: 'Conflict' });
+
+    expect((await erro).status).toBe(409);
+  });
+
+  it('registrarAporte: POST /credores/operacoes/{id}/aportes com body e Idempotency-Key', () => {
+    const request: RegistrarAporteRequest = { valor: 25000.5 };
+    service.registrarAporte(OPERACAO_ID, request, IDEMPOTENCY_KEY).subscribe();
+
+    const req = httpMock.expectOne(`${base}/credores/operacoes/${OPERACAO_ID}/aportes`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(request);
+    expect(req.request.headers.get('Idempotency-Key')).toBe(IDEMPOTENCY_KEY);
+    req.flush({}, { status: 201, statusText: 'Created' });
+  });
+
+  it('registrarAporte: replay idempotente 200 chega no canal de sucesso', () => {
+    let sucesso = false;
+    service
+      .registrarAporte(OPERACAO_ID, { valor: 25000.5 }, IDEMPOTENCY_KEY)
+      .subscribe(() => (sucesso = true));
+
+    const req = httpMock.expectOne(`${base}/credores/operacoes/${OPERACAO_ID}/aportes`);
+    req.flush({}, { status: 200, statusText: 'OK' });
+
+    expect(sucesso).toBe(true);
+  });
+
+  it('listarAportes: GET /credores/operacoes/{id}/aportes sem step-up nem Idempotency-Key', () => {
+    service.listarAportes(OPERACAO_ID).subscribe();
+
+    const req = httpMock.expectOne(`${base}/credores/operacoes/${OPERACAO_ID}/aportes`);
+    expect(req.request.method).toBe('GET');
+    expect(req.request.headers.has('X-Step-Up-Token')).toBe(false);
+    expect(req.request.headers.has('Idempotency-Key')).toBe(false);
+    req.flush([]);
+  });
+
+  it('listarAportes: propaga o 404 neutro (owner-scoped) pelo canal de erro', async () => {
+    const erro = new Promise<{ status: number }>((resolve) => {
+      service.listarAportes(OPERACAO_ID).subscribe({ error: resolve });
+    });
+
+    const req = httpMock.expectOne(`${base}/credores/operacoes/${OPERACAO_ID}/aportes`);
+    req.flush({ message: 'Operacao nao encontrada' }, { status: 404, statusText: 'Not Found' });
+
+    expect((await erro).status).toBe(404);
   });
 });

@@ -16,6 +16,7 @@ import {
 } from '../../../../core/api/api.models';
 import { CredoraService } from '../../../../core/credora/credora.service';
 import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
+import { AportesListComponent } from '../shared/aportes-list.component';
 import {
   formatarData,
   formatarMoeda,
@@ -26,14 +27,16 @@ import {
 
 // Detalhe de uma operacao financiada da carteira da credora. Leitura por ownership no backend (404
 // para operacao de outra credora ou inexistente). Apresenta o snapshot da oportunidade de origem, a
-// justificativa, o status do contrato e o resumo AGREGADO de cobranca; nunca busca parcelas
-// individuais nem dado sensivel do tomador.
+// justificativa, o status do contrato, o resumo AGREGADO de cobranca e a lista owner-scoped de
+// aportes (F-18.4, somente leitura — registrar/retry/matching sao do recorte operacional); nunca
+// busca parcelas individuais nem dado sensivel do tomador. Falha da lista de aportes fica
+// localizada no componente embutido e nao derruba o detalhe ja carregado.
 //
 // Tela sem arte de designer: construida no padrao visual do tema, na mesma linguagem dos
 // Mockups 35 e 36. A referencia em `image/mockups` e captura da implementacao.
 @Component({
   selector: 'sep-operacao-carteira-detail-page',
-  imports: [RouterLink, LucideAngularModule, OperationalShellComponent],
+  imports: [RouterLink, LucideAngularModule, OperationalShellComponent, AportesListComponent],
   templateUrl: './operacao-carteira-detail-page.component.html',
   styleUrl: './operacao-carteira-detail-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

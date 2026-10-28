@@ -10,9 +10,9 @@ import { RouterLink } from '@angular/router';
   selector: 'sep-redirect-to-app',
   imports: [RouterLink],
   template: `
-    <section class="sep-redirect">
-      <div class="sep-redirect-card">
-        <h1>Como cadastrar sua conta</h1>
+    <main class="sep-redirect">
+      <section class="sep-redirect-card" aria-labelledby="redirect-to-app-title">
+        <h1 id="redirect-to-app-title">Como cadastrar sua conta</h1>
         <ul>
           <li>
             <strong>Tomador (pessoa fisica ou MEI):</strong> baixe o aplicativo SEP nas lojas e siga
@@ -27,8 +27,8 @@ import { RouterLink } from '@angular/router';
           </li>
         </ul>
         <a routerLink="/login" class="sep-redirect-link">Ja tenho conta — fazer login</a>
-      </div>
-    </section>
+      </section>
+    </main>
   `,
   styles: [
     `

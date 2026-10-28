@@ -1,11 +1,14 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
+import { mensagemDeErroDaApi } from '../../../../core/api/api-error';
+
 import {
+  StatusChavePix,
   StatusPixRecebimento,
   StatusPixReferenciaRecebimento,
   StatusPixTransferencia,
+  TipoChavePix,
 } from '../../../../core/api/api.models';
-import { extrairMensagemErroSegura } from '../../../../core/api/api-error-sanitizer';
 
 // Formatacao apenas visual da jornada Pix. Valores chegam como number BRL; nada aqui interpreta
 // regra de negocio (elegibilidade, status, conciliacao e mascaramento pertencem ao backend).
@@ -55,8 +58,25 @@ export const STATUS_RECEBIMENTO_LABEL: Record<StatusPixRecebimento, string> = {
   FALHOU: 'Falhou',
 };
 
-// Extrai a mensagem amigavel do corpo de erro padronizado da API, com fallback e sanitizacao. 401/403/423
+// Label por tipo de chave Pix da conta operacional. EVP e o termo do DICT para a chave
+// aleatoria; o rotulo explicita isso sem renomear o valor do contrato.
+export const TIPO_CHAVE_LABEL: Record<TipoChavePix, string> = {
+  CPF: 'CPF',
+  CNPJ: 'CNPJ',
+  EMAIL: 'E-mail',
+  TELEFONE: 'Telefone',
+  EVP: 'Aleatoria (EVP)',
+};
+
+// Label por estado da chave Pix. ATIVA -> INATIVA e a unica transicao; a remocao e logica e o
+// historico permanece visivel.
+export const STATUS_CHAVE_LABEL: Record<StatusChavePix, string> = {
+  ATIVA: 'Ativa',
+  INATIVA: 'Inativa',
+};
+
+// Extrai a mensagem amigavel do corpo de erro padronizado da API, com fallback. 401/403/423
 // globais sao tratados pelo errorInterceptor/fluxo de step-up; aqui cobrimos 404/409/422/5xx.
 export function mensagemPixErro(err: HttpErrorResponse, padrao: string): string {
-  return extrairMensagemErroSegura(err, padrao);
+  return mensagemDeErroDaApi(err, padrao);
 }

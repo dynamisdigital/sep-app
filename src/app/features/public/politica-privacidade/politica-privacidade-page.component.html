@@ -1,0 +1,94 @@
+<main class="sep-politica">
+  <article class="sep-politica-card" aria-labelledby="politica-titulo">
+    <h1 #titulo id="politica-titulo" tabindex="-1">Politica de privacidade e cookies</h1>
+
+    <p class="sep-politica-revisao" role="note">
+      <strong>Texto pendente de revisao juridica.</strong> O conteudo tecnico abaixo descreve o que
+      o sistema faz hoje, conferido no codigo. As secoes de base legal, direitos do titular e
+      encarregado ainda nao foram redigidas e estao marcadas como pendentes.
+    </p>
+
+    <section aria-labelledby="politica-cookies">
+      <h2 id="politica-cookies">Cookies que usamos</h2>
+      <p>
+        Usamos <strong>um unico cookie</strong>, e ele existe para manter voce autenticado. Nao
+        usamos cookies de publicidade, medicao de audiencia ou perfilamento.
+      </p>
+      <dl class="sep-politica-lista">
+        <dt><code>sep-refresh</code></dt>
+        <dd>
+          Guarda o token de renovacao da sua sessao, para que voce nao precise digitar a senha a
+          cada poucos minutos. E marcado como <code>HttpOnly</code>, o que impede que qualquer
+          script da pagina leia o valor. Em producao trafega apenas por conexao segura
+          (<code>Secure</code>) e com <code>SameSite=Strict</code>. Fica restrito ao caminho
+          <code>/api/v1/auth</code>, entao nao acompanha as demais chamadas da API. Validade de
+          <strong>30 dias</strong>, e o logout o remove imediatamente.
+        </dd>
+      </dl>
+    </section>
+
+    <section aria-labelledby="politica-recusa">
+      <h2 id="politica-recusa">Por que nao ha opcao de recusar</h2>
+      <p>
+        O <code>sep-refresh</code> e estritamente necessario para o funcionamento do login:
+        recusa-lo equivale a nao conseguir entrar na plataforma. Como nao usamos nenhum cookie de
+        analise ou marketing, nao existe escolha a oferecer — e preferimos dizer isso a exibir um
+        botao de recusa que nao recusaria nada.
+      </p>
+    </section>
+
+    <section aria-labelledby="politica-armazenamento">
+      <h2 id="politica-armazenamento">O que guardamos no seu navegador</h2>
+      <p>
+        Alem do cookie, o aplicativo guarda alguns valores no armazenamento local do navegador
+        (<code>localStorage</code>):
+      </p>
+      <dl class="sep-politica-lista">
+        <dt><code>SEP_ACCESS_TOKEN</code></dt>
+        <dd>Token que autoriza suas requisicoes enquanto voce esta logado. Removido no logout.</dd>
+        <dt><code>SEP_PENDING_MFA_CHALLENGE</code></dt>
+        <dd>
+          Identificador do desafio de verificacao em duas etapas em andamento, usado entre a tela de
+          senha e a de codigo. Removido no logout.
+        </dd>
+        <dt><code>SEP_THEME</code></dt>
+        <dd>Sua preferencia de tema claro ou escuro. Nao identifica voce.</dd>
+        <dt><code>SEP_AVISO_COOKIES</code></dt>
+        <dd>
+          Registra que voce ja viu o aviso de cookies, para nao exibi-lo de novo. Fica somente no
+          seu navegador e nunca e enviado aos nossos servidores.
+        </dd>
+      </dl>
+      <p>
+        Nao utilizamos <code>sessionStorage</code>. Esses valores ficam no seu dispositivo e podem
+        ser apagados a qualquer momento pelas configuracoes do navegador — apagar o token de acesso
+        equivale a sair da sua conta.
+      </p>
+    </section>
+
+    <section aria-labelledby="politica-terceiros">
+      <h2 id="politica-terceiros">Rastreamento de terceiros</h2>
+      <p>
+        <strong>Nao ha nenhum.</strong> A aplicacao nao carrega scripts de terceiros e nao possui
+        ferramentas de analise de audiencia, mapas de calor, pixels de anuncio ou redes de
+        publicidade. Nenhum dado de navegacao seu e compartilhado com terceiros para esses fins.
+      </p>
+    </section>
+
+    <section aria-labelledby="politica-pendencias">
+      <h2 id="politica-pendencias">Secoes pendentes de redacao juridica</h2>
+      <p>
+        Os itens abaixo exigem revisao juridica formal e ainda <strong>nao</strong> fazem parte
+        desta politica. Estao listados para que a lacuna fique explicita, em vez de parecer
+        inexistente:
+      </p>
+      <ul class="sep-politica-pendencias">
+        <li>Base legal do tratamento de dados pessoais.</li>
+        <li>Direitos do titular e como exerce-los.</li>
+        <li>Identificacao e contato do encarregado pelo tratamento de dados.</li>
+      </ul>
+    </section>
+
+    <a routerLink="/" class="sep-politica-link">Voltar ao inicio</a>
+  </article>
+</main>

@@ -1,0 +1,53 @@
+.sep-aviso-cookies {
+  position: fixed;
+  right: var(--sep-space-16);
+  bottom: var(--sep-space-16);
+  left: var(--sep-space-16);
+  z-index: 40;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sep-space-16);
+  align-items: center;
+  justify-content: space-between;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: var(--sep-space-16) var(--sep-space-24);
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--sep-radius-lg);
+  background: hsl(var(--card));
+  box-shadow: var(--shadow-lg);
+}
+
+.sep-aviso-cookies-texto {
+  flex: 1 1 320px;
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.sep-aviso-cookies-link {
+  color: hsl(var(--primary));
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.sep-aviso-cookies-botao {
+  flex: 0 0 auto;
+  padding: var(--sep-space-8) var(--sep-space-24);
+  border: 0;
+  border-radius: var(--sep-radius-md);
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: hsl(var(--primary-hover));
+  }
+
+  &:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+}

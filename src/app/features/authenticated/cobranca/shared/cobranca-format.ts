@@ -1,7 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { StatusParcela } from '../../../../core/api/api.models';
-import { extrairMensagemErroSegura } from '../../../../core/api/api-error-sanitizer';
+import { mensagemDeErroDaApi } from '../../../../core/api/api-error';
+
+import { StatusParcela, StatusRenegociacao } from '../../../../core/api/api.models';
 
 // Formatacao apenas visual da jornada de cobranca. Valores chegam como number BRL e
 // datas como string do backend; nada aqui interpreta regra de negocio (saldo, mora,
@@ -47,9 +48,18 @@ export const STATUS_PARCELA_LABEL: Record<StatusParcela, string> = {
   RENEGOCIADA: 'Renegociada',
 };
 
-// Extrai a mensagem amigavel do corpo de erro padronizado da API, com fallback e sanitizacao.
+// Label curto por status de renegociacao apresentado ao tomador (F-16). A proposta
+// consultavel e sempre PROPOSTA; os demais cobrem estados historicos/terminais.
+export const STATUS_RENEGOCIACAO_LABEL: Record<StatusRenegociacao, string> = {
+  PROPOSTA: 'Aguardando sua decisao',
+  ACEITA: 'Aceita',
+  RECUSADA: 'Recusada',
+  EXPIRADA: 'Expirada',
+};
+
+// Extrai a mensagem amigavel do corpo de erro padronizado da API, com fallback.
 // 401/403/423 sao tratados pelo errorInterceptor global (redirecionamento); aqui
 // cobrimos 404/409/422/5xx como fallback defensivo.
 export function mensagemCobrancaErro(err: HttpErrorResponse, padrao: string): string {
-  return extrairMensagemErroSegura(err, padrao);
+  return mensagemDeErroDaApi(err, padrao);
 }

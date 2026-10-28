@@ -16,9 +16,11 @@ import { filter, map } from 'rxjs';
 import { ThemeService } from './core/theme/theme.service';
 import { TourOverlayComponent } from './shared/tour/tour-overlay.component';
 
+import { AvisoCookiesComponent } from './layout/aviso-cookies/aviso-cookies.component';
+
 @Component({
   selector: 'sep-root',
-  imports: [RouterOutlet, TourOverlayComponent],
+  imports: [RouterOutlet, TourOverlayComponent, AvisoCookiesComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

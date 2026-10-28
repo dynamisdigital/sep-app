@@ -1,6 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
 import { importProvidersFrom } from '@angular/core';
-import { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { LucideAngularModule } from 'lucide-angular';
@@ -8,23 +7,12 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { AgendaTomadorPageComponent } from './agenda-tomador-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 // Contrato 5b771c05 da carteira: R$ 3.125,00 contratados em 10 parcelas de R$ 312,50,
 // sete pagas, duas em atraso e uma a vencer.
 const CONTRATO_COM_AGENDA_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771e03';
 const CONTRATO_SEM_AGENDA_ID = '6f0799c0-98b9-6d9d-bc4a-7d6f5b771beef';
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
 
 function renderAgenda(contratoId: string) {
   return render(AgendaTomadorPageComponent, {

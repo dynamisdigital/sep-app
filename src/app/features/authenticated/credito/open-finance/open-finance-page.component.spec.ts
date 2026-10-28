@@ -1,5 +1,4 @@
 import { provideHttpClient } from '@angular/common/http';
-import { ComponentFixture } from '@angular/core/testing';
 import { importProvidersFrom } from '@angular/core';
 import { LucideAngularModule } from 'lucide-angular';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
@@ -8,23 +7,12 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { OpenFinancePageComponent } from './open-finance-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const PROPOSTA_EM_ANALISE_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c01';
 const PROPOSTA_OF_PENDENTE_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c05';
 const PROPOSTA_OF_AUTORIZADO_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c06';
 const PROPOSTA_SEM_OWNERSHIP_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771ff03';
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
 
 function activatedRoute(id: string, retorno = false) {
   return { snapshot: { paramMap: convertToParamMap({ id }), data: { retorno } } };

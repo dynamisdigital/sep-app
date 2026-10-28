@@ -1,4 +1,4 @@
-<section class="sep-verify-totp">
+<main class="sep-verify-totp">
   <button
     type="button"
     class="sep-tema-publico"
@@ -8,8 +8,8 @@
   >
     <lucide-icon [name]="temaEscuro() ? 'sun' : 'moon'" [size]="20" [strokeWidth]="2" />
   </button>
-  <div class="sep-verify-totp-card">
-    <h1 class="sep-verify-totp-title">Verificacao em duas etapas</h1>
+  <section class="sep-verify-totp-card" aria-labelledby="verify-totp-title">
+    <h1 id="verify-totp-title" class="sep-verify-totp-title">Verificacao em duas etapas</h1>
     <p class="sep-verify-totp-lead">
       Informe o codigo de 6 digitos do seu aplicativo autenticador ou um dos backup codes que voce
       guardou ao habilitar o MFA.
@@ -55,5 +55,5 @@
       </form>
       <a routerLink="/login" class="sep-verify-totp-cancel">Cancelar e voltar ao login</a>
     }
-  </div>
-</section>
+  </section>
+</main>

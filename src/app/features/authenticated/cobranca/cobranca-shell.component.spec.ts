@@ -93,14 +93,14 @@ describe('CobrancaShellComponent', () => {
     const { fixture } = await renderComRole('BACKOFFICE');
     await estabilizar(fixture);
 
-    // O mock semeia tres renegociacoes: duas em proposta e uma aceita. O total do nucleo e a
+    // O mock semeia seis renegociacoes: cinco em proposta e uma aceita. O total do nucleo e a
     // legenda saem da mesma lista, e os status sem ocorrencia aparecem zerados.
     const painel = document.querySelector('.renegotiations') as HTMLElement;
-    expect(painel.querySelector('.small-donut strong')?.textContent).toBe('3');
+    expect(painel.querySelector('.small-donut strong')?.textContent).toBe('6');
     const linhas = [...painel.querySelectorAll('li')].map((li) =>
       (li.textContent ?? '').replace(/\s+/g, ' ').trim(),
     );
-    expect(linhas).toEqual(['Em proposta 2', 'Aceitas 1', 'Recusadas 0', 'Expiradas 0']);
+    expect(linhas).toEqual(['Em proposta 5', 'Aceitas 1', 'Recusadas 0', 'Expiradas 0']);
   });
 
   it('oculta e restaura individualmente o valor de uma parcela', async () => {

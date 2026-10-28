@@ -79,8 +79,8 @@ export interface StepUpCompleteResponse {
 export interface UsuarioCreateRequest {
   username: string;
   password: string;
-  // 5F-FIX-01: cadastro publico sempre cria CLIENTE; role e ignorado pelo backend
-  // mesmo quando enviado. Mantido opcional para compat com chamadas legadas.
+  // Cadastro sempre cria CLIENTE; o role e ignorado pelo backend mesmo quando enviado. Mantido
+  // opcional para compat com chamadas legadas. Usado pelo "Novo usuario" da administracao.
   role?: UsuarioRole;
 }
 
@@ -96,6 +96,23 @@ export interface ApiErrorResponse {
   message: string;
   path: string;
   traceId?: string;
+}
+
+/**
+ * Politica de lockout vigente (`GET /auth/politica-lockout`, backend Sprint 34). Publico: quem
+ * precisa do valor esta bloqueado e, por definicao, nao tem sessao.
+ *
+ * `windowMinutes` e `lockoutMinutes` estao em MINUTOS — nao segundos, nao millis. O aviso nao e
+ * decorativo: o header `Retry-After` da mesma feature vem em SEGUNDOS, e nenhum dos dois nomes
+ * denuncia a unidade.
+ *
+ * O springdoc nao emite `required` neste schema, entao o contrato NAO garante os tres campos; quem
+ * consome valida na borda (ver `PoliticaLockoutService`).
+ */
+export interface PoliticaLockoutResponse {
+  maxAttempts: number;
+  windowMinutes: number;
+  lockoutMinutes: number;
 }
 
 // --- Onboarding KYC PF / KYB PJ (F-Sprint 6) ---
@@ -114,13 +131,7 @@ export type StatusOnboarding =
   | 'REPROVADO_PLD';
 
 export type TipoDocumento =
-  | 'RG'
-  | 'CNH'
-  | 'PASSAPORTE'
-  | 'SELFIE'
-  | 'CONTRATO_SOCIAL'
-  | 'CCMEI'
-  | 'COMPROVANTE_ENDERECO';
+  'RG' | 'CNH' | 'PASSAPORTE' | 'SELFIE' | 'CONTRATO_SOCIAL' | 'CCMEI' | 'COMPROVANTE_ENDERECO';
 
 export type TipoSocietario = 'LTDA' | 'SA' | 'EIRELI' | 'MEI' | 'OUTROS';
 
@@ -380,12 +391,7 @@ export type StatusFormalizacao =
   | 'CANCELADO';
 
 export type StatusEnvelope =
-  | 'RASCUNHO'
-  | 'ENVIADO'
-  | 'VISUALIZADO'
-  | 'ASSINADO'
-  | 'RECUSADO'
-  | 'EXPIRADO';
+  'RASCUNHO' | 'ENVIADO' | 'VISUALIZADO' | 'ASSINADO' | 'RECUSADO' | 'EXPIRADO';
 
 export type TipoContrato = 'MUTUO' | 'CCB' | 'OUTROS';
 
@@ -683,6 +689,22 @@ export interface RenegociacaoResponse {
   agendaSubstitutaId: string | null;
 }
 
+// Visao publica owner-scoped da renegociacao ativa (backend Sprint 24). Contem apenas os
+// dez campos expostos ao tomador; `valorTotalRenegociado` ja vem calculado pelo backend e
+// nao deve ser derivado no front. Distinto do `RenegociacaoResponse` interno das mutacoes.
+export interface RenegociacaoTomadorResponse {
+  renegociacaoId: string;
+  parcelaId: string;
+  status: StatusRenegociacao;
+  novoValorParcela: number;
+  numeroParcelas: number;
+  valorTotalRenegociado: number;
+  novoVencimento: string;
+  desconto: number;
+  dataProposta: string;
+  dataExpiracao: string;
+}
+
 // --- Backoffice e financeiro operacional (F-Sprint 10 / backend Sprint 14 + Pix 20-21) ---
 // DTOs de borda fieis a `backoffice.web.dto`. Transicoes de status, validacao de estado,
 // audit trail, anti-abuso e autorizacao real pertencem ao backend; estes modelos nao
@@ -718,12 +740,7 @@ export type TipoEntidadeReferenciada =
 // status); KYC/KYB/PLD/OPEN_FINANCE/ASSINATURA_DIGITAL podem ser stubs no backend — a UI
 // nao deve prometer retentativa real quando o backend nao garante.
 export type TipoChamadaProvider =
-  | 'KYC'
-  | 'KYB'
-  | 'PLD'
-  | 'OPEN_FINANCE'
-  | 'ASSINATURA_DIGITAL'
-  | 'PIX_TRANSFERENCIA';
+  'KYC' | 'KYB' | 'PLD' | 'OPEN_FINANCE' | 'ASSINATURA_DIGITAL' | 'PIX_TRANSFERENCIA';
 
 export type StatusReprocesso = 'PENDENTE' | 'SUCESSO' | 'FALHA';
 
@@ -819,13 +836,16 @@ export interface InadimplenciaConsolidada {
 }
 
 // Snapshot consolidado (GET /backoffice/dashboard, Cache-Control: no-store).
-// tempoMedioResolucao30d e um Duration serializado pelo backend como numero de segundos
-// (Jackson WRITE_DURATIONS_AS_TIMESTAMPS); a apresentacao formata para exibicao.
+// tempoMedioResolucao30d e um Duration serializado como string ISO-8601 ("PT2H"): o
+// JacksonAutoConfiguration do Spring Boot DESLIGA WRITE_DURATIONS_AS_TIMESTAMPS, entao o fio nunca
+// leva numero. Medido na Sprint 34. O tipo aqui dizia `number` e o comentario afirmava o contrario
+// do que o servidor faz — era a origem do `NaNmin` no KPI do dashboard, corrigido na F-24.4.
+// `backoffice-format.ts` parseia para exibicao.
 export interface DashboardResponse {
   contadoresPorTipo: ContadorPorTipo[];
   contadoresPorPrioridade: ContadorPorPrioridade[];
   contadoresPorStatus: ContadorPorStatus[];
-  tempoMedioResolucao30d: number;
+  tempoMedioResolucao30d: string;
   itensCriticosAbertosMais48h: number;
   topCincoTiposMaisFrequentes: ContadorPorTipo[];
   recebimentosDoDia: number;
@@ -1009,28 +1029,15 @@ export interface AlterarParametroRequest {
 
 // Estados de uma transferencia Pix de desembolso (StatusPixTransferencia no backend).
 export type StatusPixTransferencia =
-  | 'CRIADA'
-  | 'SOLICITADA'
-  | 'PROCESSANDO'
-  | 'CONCLUIDA'
-  | 'FALHOU'
-  | 'CANCELADA';
+  'CRIADA' | 'SOLICITADA' | 'PROCESSANDO' | 'CONCLUIDA' | 'FALHOU' | 'CANCELADA';
 
 // Estados de uma referencia Pix de recebimento de parcela (StatusPixReferenciaRecebimento).
 export type StatusPixReferenciaRecebimento =
-  | 'ATIVA'
-  | 'PAGA'
-  | 'EXPIRADA'
-  | 'CANCELADA'
-  | 'DIVERGENTE';
+  'ATIVA' | 'PAGA' | 'EXPIRADA' | 'CANCELADA' | 'DIVERGENTE';
 
 // Estados de um recebimento Pix identificado por evento de provider (StatusPixRecebimento).
 export type StatusPixRecebimento =
-  | 'RECEBIDO'
-  | 'EM_PROCESSAMENTO'
-  | 'CONCILIADO'
-  | 'NAO_IDENTIFICADO'
-  | 'FALHOU';
+  'RECEBIDO' | 'EM_PROCESSAMENTO' | 'CONCILIADO' | 'NAO_IDENTIFICADO' | 'FALHOU';
 
 // POST /pix/desembolsos: solicita desembolso assistido. A chave Pix em claro existe apenas
 // aqui; nunca e persistida, logada ou reexibida. Exige Idempotency-Key (header) e step-up.
@@ -1225,6 +1232,36 @@ export interface PixRecebimentoResponse {
   eventos?: ParcelaEvento[];
 }
 
+// --- Chaves Pix da conta operacional (F-Sprint 20 / backend Sprint 31) ---
+// Gestao assistida das chaves da conta operacional/escrow, restrita a FINANCEIRO/ADMIN. Tipo,
+// digito verificador, unicidade, idempotencia e transicao de estado sao autoritativos no backend;
+// o frontend nunca valida DV nem deriva status.
+
+// Tipos de chave aceitos pelo backend (TipoChavePix), alinhados ao DICT.
+export type TipoChavePix = 'CPF' | 'CNPJ' | 'EMAIL' | 'TELEFONE' | 'EVP';
+
+// Ciclo de vida da chave (StatusChavePix). ATIVA -> INATIVA e a unica transicao; a remocao e
+// logica e o historico nunca e apagado.
+export type StatusChavePix = 'ATIVA' | 'INATIVA';
+
+// POST /pix/chaves: o valor em claro existe SOMENTE nesta request (e na chamada do backend ao
+// provider). Nunca aparece em resposta, leitura, log ou mensagem de erro.
+export interface CadastrarChavePixRequest {
+  tipo: TipoChavePix;
+  valor: string;
+}
+
+// Resposta de POST /pix/chaves (201 novo / 200 replay idempotente) e item de GET /pix/chaves.
+// valorMascarado e a unica forma pela qual a chave e exposta. removidaEm e nulo enquanto ATIVA.
+export interface ChavePixResponse {
+  id: string;
+  tipo: TipoChavePix;
+  valorMascarado: string;
+  status: StatusChavePix;
+  criadaEm: string;
+  removidaEm: string | null;
+}
+
 // --- Credora (F-Sprint 11 / backend Sprints 16-17) ---
 // DTOs de borda espelhando os contratos reais de `sep-api` (modulo credores). Elegibilidade,
 // ownership, regras de interesse, associacao de carteira e auditoria pertencem ao backend: o
@@ -1332,4 +1369,58 @@ export interface OperacaoCarteiraResponse {
   contratoStatus: string | null;
   cobranca: CarteiraCobrancaResumo | null;
   dataCriacao: string;
+}
+
+// --- Aporte e matching da credora (F-Sprint 18 / backend Sprints 29-30) ---
+// Contratos minimos dos modulos de matching assistido e aporte assistido. Elegibilidade, valor
+// elegivel, estados, ownership, idempotencia e escrow sao autoritativos no backend; o frontend
+// apresenta os DTOs sem recalcular regra financeira. O backend nunca expoe motivo de decisao,
+// decisor, score, idempotency key, referencia de escrow, provider ou motivo tecnico de falha.
+
+// Estado da sugestao de matching credora-operacao (StatusMatchingCredoraOperacao no backend).
+// SUGERIDA -> CONFIRMADA | REJEITADA; CONFIRMADA/REJEITADA sao terminais.
+export type StatusMatchingCredoraOperacao = 'SUGERIDA' | 'CONFIRMADA' | 'REJEITADA';
+
+// Acao da decisao assistida do matching (AcaoDecisaoMatching no backend).
+export type AcaoDecisaoMatching = 'CONFIRMAR' | 'REJEITAR';
+
+// Estado do aporte assistido (StatusAporteCredora no backend).
+// PENDENTE -> EM_PROCESSAMENTO -> LIQUIDADO | FALHOU.
+export type StatusAporteCredora = 'PENDENTE' | 'EM_PROCESSAMENTO' | 'LIQUIDADO' | 'FALHOU';
+
+// GET /credores/matching/sugestoes, GET /credores/matching/{id} e resposta da decisao. criterios
+// sao codigos funcionais do snapshot de elegibilidade; decididaEm e nula enquanto SUGERIDA.
+export interface MatchingSugestaoResponse {
+  id: string;
+  operacaoId: string;
+  empresaCredoraId: string;
+  status: StatusMatchingCredoraOperacao;
+  valorElegivel: number;
+  criterios: string[];
+  criadaEm: string;
+  decididaEm: string | null;
+}
+
+// POST /credores/matching/{id}/decisao: motivo opcional de ate 255 caracteres. Decisao sobre
+// status terminal responde 409. Confirmar apenas registra a decisao; nunca cria aporte.
+export interface DecidirMatchingRequest {
+  acao: AcaoDecisaoMatching;
+  motivo?: string;
+}
+
+// POST /credores/operacoes/{operacaoId}/aportes: valor positivo com ate duas casas decimais. A
+// Idempotency-Key vai no header e a operacao no path; 201 = registro novo, 200 = replay idempotente.
+export interface RegistrarAporteRequest {
+  valor: number;
+}
+
+// Resposta do POST e itens de GET /credores/operacoes/{operacaoId}/aportes (owner-scoped: 404
+// neutro para usuario sem credora, operacao alheia ou inexistente).
+export interface AporteCredoraResponse {
+  id: string;
+  operacaoId: string;
+  status: StatusAporteCredora;
+  valor: number;
+  dataCriacao: string;
+  dataAtualizacao: string;
 }

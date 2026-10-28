@@ -1,6 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
 import { importProvidersFrom } from '@angular/core';
-import { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { LucideAngularModule } from 'lucide-angular';
@@ -8,21 +7,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { ParcelaDetailPageComponent } from './parcela-detail-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const PARCELA_ATRASADA_ID = 'a0000000-0000-4000-8000-000000000002';
+const PARCELA_EM_NEGOCIACAO_ID = 'a0000000-0000-4000-8000-000000000008';
 const PARCELA_INEXISTENTE_ID = 'a0000000-0000-4000-8000-0000000000aa';
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
 
 function renderParcela(id: string) {
   return render(ParcelaDetailPageComponent, {
@@ -119,5 +108,22 @@ describe('ParcelaDetailPageComponent', () => {
     await estabilizar(fixture);
 
     expect(screen.getByText('Parcela não encontrada.')).toBeTruthy();
+  });
+
+  it('exibe o CTA da proposta apenas quando a parcela esta EM_NEGOCIACAO', async () => {
+    const { fixture } = await renderParcela(PARCELA_EM_NEGOCIACAO_ID);
+    await estabilizar(fixture);
+
+    const cta = screen.getByRole('link', { name: /Ver proposta de renegocia(ç|c)(ã|a)o/ });
+    expect(cta.getAttribute('href')).toBe(
+      `/app/cobranca/parcelas/${PARCELA_EM_NEGOCIACAO_ID}/renegociacao`,
+    );
+  });
+
+  it('nao exibe o CTA da proposta para outros status', async () => {
+    const { fixture } = await renderParcela(PARCELA_ATRASADA_ID);
+    await estabilizar(fixture);
+
+    expect(screen.queryByRole('link', { name: /Ver proposta de renegocia(ç|c)(ã|a)o/ })).toBeNull();
   });
 });

@@ -3,22 +3,14 @@
 // vigencia, perda de base e validacao pertencem ao backend; o front apresenta o estado recebido.
 
 export type StatusCadastroCorrespondente =
-  | 'PENDENTE'
-  | 'ATIVO'
-  | 'A_VENCER'
-  | 'VENCIDO'
-  | 'SUSPENSO'
-  | 'INATIVO';
+  'PENDENTE' | 'ATIVO' | 'A_VENCER' | 'VENCIDO' | 'SUSPENSO' | 'INATIVO';
 
 import type { NivelCorrespondente } from './correspondentes-rede.models';
 
 export type StatusVinculo = 'VIGENTE' | 'PERDIDO' | 'TRANSFERIDO' | 'DIRETO_SEP';
 
 export type MotivoFimVinculo =
-  | 'CADASTRO_VENCIDO'
-  | 'PROPOSTA_SEM_CITACAO'
-  | 'ELEICAO_CLIENTE'
-  | 'TRANSFERENCIA_ADMIN';
+  'CADASTRO_VENCIDO' | 'PROPOSTA_SEM_CITACAO' | 'ELEICAO_CLIENTE' | 'TRANSFERENCIA_ADMIN';
 
 export type StatusEnvioDocumentos = 'EM_VALIDACAO' | 'VALIDADO' | 'DEVOLVIDO';
 
@@ -79,12 +71,7 @@ export interface EnvioDocumentosResponse {
 }
 
 export type SituacaoOperacao =
-  | 'EM_ANALISE'
-  | 'EM_FORMALIZACAO'
-  | 'EM_DIA'
-  | 'EM_ATRASO'
-  | 'QUITADO'
-  | 'RECUSADA';
+  'EM_ANALISE' | 'EM_FORMALIZACAO' | 'EM_DIA' | 'EM_ATRASO' | 'QUITADO' | 'RECUSADA';
 
 export type StatusParcela = 'PAGA' | 'A_VENCER' | 'VENCIDA';
 

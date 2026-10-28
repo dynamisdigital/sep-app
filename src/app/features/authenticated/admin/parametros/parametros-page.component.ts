@@ -12,11 +12,8 @@ import { RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LucideAngularModule } from 'lucide-angular';
 
-import {
-  ApiErrorResponse,
-  ParametroOperacional,
-  TipoParametro,
-} from '../../../../core/api/api.models';
+import { mensagemDeErroDaApi } from '../../../../core/api/api-error';
+import { ParametroOperacional, TipoParametro } from '../../../../core/api/api.models';
 import { formatarValorParametro } from '../../../../core/format/br-format';
 import { GovernancaService } from '../../../../core/governanca/governanca.service';
 import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
@@ -143,8 +140,7 @@ export class ParametrosPageComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err: HttpErrorResponse) => {
-        const apiErr = err.error as ApiErrorResponse | undefined;
-        this.errorMessage.set(apiErr?.message ?? 'Não foi possível carregar os parâmetros.');
+        this.errorMessage.set(mensagemDeErroDaApi(err, 'Nao foi possivel carregar os parametros.'));
         this.loading.set(false);
       },
     });

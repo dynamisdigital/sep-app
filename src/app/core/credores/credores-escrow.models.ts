@@ -204,12 +204,7 @@ export interface AlterarStatusCredorRequest {
 }
 
 export type TipoEventoCredor =
-  | 'CADASTRO'
-  | 'APROVACAO'
-  | 'SUSPENSAO'
-  | 'REPROVACAO'
-  | 'CATEGORIA_ALTERADA'
-  | 'PERFIL_ALTERADO';
+  'CADASTRO' | 'APROVACAO' | 'SUSPENSAO' | 'REPROVACAO' | 'CATEGORIA_ALTERADA' | 'PERFIL_ALTERADO';
 
 export interface EventoAuditoriaCredor {
   id: string;
@@ -235,9 +230,7 @@ export interface TesourariaResumoResponse {
 }
 
 export type TipoDivergenciaEscrow =
-  | 'APORTE_SEM_CREDOR'
-  | 'VALOR_DIVERGENTE'
-  | 'SAQUE_NAO_EXECUTADO';
+  'APORTE_SEM_CREDOR' | 'VALOR_DIVERGENTE' | 'SAQUE_NAO_EXECUTADO';
 
 export interface DivergenciaEscrow {
   id: string;

@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  inject,
+  viewChild,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -16,11 +24,20 @@ import { OperationalShellComponent } from '../../layout/operational-shell/operat
   styleUrl: './access-denied.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AccessDeniedComponent {
+export class AccessDeniedComponent implements AfterViewInit {
   private readonly auth = inject(AuthService);
+  private readonly titulo = viewChild.required<ElementRef<HTMLHeadingElement>>('titulo');
 
   protected readonly usuario = this.auth.currentUser;
 
   /** O papel corrente, quando há sessão. É o dado que explica a recusa. */
   protected readonly papel = computed(() => this.usuario()?.role ?? null);
+
+  ngAfterViewInit(): void {
+    // Destino de redirect automatico por dois caminhos: o 403 do errorInterceptor e o roleGuard.
+    // O Angular nao move foco na navegacao e o app nao tem live region de rota, entao sem isto o
+    // foco fica onde estava, na tela anterior ja substituida, e o usuario de leitor de tela nao
+    // percebe que a acao foi negada — continua tentando operar algo que nao existe mais.
+    this.titulo().nativeElement.focus();
+  }
 }

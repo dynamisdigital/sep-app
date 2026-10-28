@@ -3,12 +3,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, catchError, finalize, of, tap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import {
-  LoginRequest,
-  TokenResponse,
-  UsuarioCreateRequest,
-  UsuarioResponse,
-} from '../api/api.models';
+import { LoginRequest, TokenResponse, UsuarioResponse } from '../api/api.models';
 
 const API_BASE_URL = environment.apiBaseUrl;
 const ACCESS_TOKEN_KEY = 'SEP_ACCESS_TOKEN';
@@ -55,10 +50,6 @@ export class AuthService {
    */
   applyMfaVerifyResponse(response: TokenResponse): void {
     this.handleTokenResponse(response);
-  }
-
-  register(payload: UsuarioCreateRequest): Observable<UsuarioResponse> {
-    return this.http.post<UsuarioResponse>(`${API_BASE_URL}/usuarios`, payload);
   }
 
   loadCurrentUser(): Observable<UsuarioResponse> {

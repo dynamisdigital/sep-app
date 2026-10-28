@@ -68,6 +68,20 @@ export class SidenavComponent {
             icon: 'pix',
             roles: ['FINANCEIRO', 'ADMIN', 'BACKOFFICE'],
           },
+          {
+            // Sub-rota mais restrita que /app/pix: o backend limita as chaves da conta
+            // operacional a FINANCEIRO/ADMIN, entao BACKOFFICE nao ve este item.
+            label: 'Chaves Pix',
+            route: '/app/pix/chaves',
+            icon: 'lock',
+            roles: ['FINANCEIRO', 'ADMIN'],
+          },
+          {
+            label: 'Matching de credoras',
+            route: '/app/credora/matching',
+            icon: 'link-2',
+            roles: ['FINANCEIRO', 'ADMIN'],
+          },
         ],
       },
       {

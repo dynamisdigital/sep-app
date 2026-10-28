@@ -4,15 +4,11 @@ import { provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { LucideAngularModule } from 'lucide-angular';
 import { beforeEach, describe, expect, it } from 'vitest';
-
 import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
+import { http, HttpResponse } from 'msw';
+import { server } from '../../../../../mocks/server';
 import { UsersListComponent } from './users-list.component';
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
+import { flush } from '../../../../../testing/estabilizar';
 
 async function setup() {
   const result = await render(UsersListComponent, {
@@ -144,5 +140,23 @@ describe('UsersListComponent', () => {
     const links = screen.getAllByRole('link', { name: /ver detalhe/i });
     expect(links.length).toBeGreaterThan(0);
     expect(links[0].getAttribute('href')).toMatch(/^\/app\/admin\/users\//);
+  });
+
+  /**
+   * Prende a delegacao a `mensagemDeErroDaApi` (F-24.3). O corpo vem com `message: ''` de proposito:
+   * e o unico input que SEPARA as duas implementacoes — delegando, sai o literal local; com o
+   * `apiErr?.message ?? padrao` inline de antes, sai `''` e a tela nao renderiza alerta nenhum.
+   * Um corpo com mensagem preenchida passaria nos dois e nao provaria a delegacao.
+   */
+  it('erro com message vazia: cai no literal local em vez de nao renderizar nada', async () => {
+    server.use(
+      http.get('http://localhost:8080/api/v1/usuarios', () =>
+        HttpResponse.json({ status: 500, message: '' }, { status: 500 }),
+      ),
+    );
+
+    await setup();
+
+    expect(screen.getByText('Nao foi possivel carregar os usuarios.')).toBeTruthy();
   });
 });

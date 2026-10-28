@@ -1,8 +1,16 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 
+import { mensagemBrutaDaApi } from '../../../core/api/api-error';
+import {
+  CONTA_BLOQUEADA_FALLBACK,
+  FALHA_DE_ARMAZENAMENTO_LOCAL,
+  SERVICO_INDISPONIVEL,
+} from './copy-de-erro';
+import { esperaDoRetryAfter } from '../../../core/api/retry-after';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ehAmbienteDemo } from '../../../core/env/ambiente';
 import { LarguraTelaDirective } from '../../../core/layout/largura-tela.directive';
@@ -19,6 +27,73 @@ import { SepLogoComponent } from '../../../shared/arte/sep-logo.component';
 const DEV_USUARIO = 'dev@sep.local';
 const DEV_SENHA = '123456';
 const ehDevOffline = ehAmbienteDemo;
+
+/**
+ * Traducao de borda: erro do login -> mensagem para o usuario. O status HTTP e o unico
+ * discriminador de *categoria* disponivel no fio — o ErrorResponseDto do sep-api nao carrega campo
+ * de codigo, e o `AUTH-423-001` de ContaBloqueadaException nunca e serializado. Ja o `message` do
+ * corpo existe e, em dois casos, e mais autoritativo que qualquer literal daqui.
+ *
+ * O 423 aparece aqui como fallback defensivo, nao como caminho normal: no fluxo normal o
+ * errorInterceptor ja navegou para /account-locked e este componente foi destruido antes de
+ * renderizar. Se a navegacao for cancelada um dia (um guard novo, por exemplo), o usuario nao
+ * pode ficar lendo "senha invalida". NAO trocar por navegacao aqui — o redirect do 423 e
+ * responsabilidade unica do errorInterceptor, que tambem faz clearSession() e cobre o 423 vindo
+ * de /auth/totp/verify.
+ */
+function mensagemDeErroDeLogin(erro: unknown): string {
+  if (!(erro instanceof HttpErrorResponse)) {
+    // Nao veio do fio: o `tap` de AuthService.login estourou ao persistir o token (localStorage
+    // cheio ou desabilitado, como no modo privado do Safari). O servidor ACEITOU o login, entao
+    // acusar credencial ou conexao seria mentira dupla.
+    return FALHA_DE_ARMAZENAMENTO_LOCAL;
+  }
+
+  // `mensagemBrutaDaApi` normaliza branco para `undefined`, entao o `??` dos ramos abaixo volta a
+  // ser o operador certo. O porque da guarda — e por que ela e defensiva, nao correcao de um bug
+  // observado — esta em `core/api/api-error.ts`, casa unica desse raciocinio.
+  const mensagemDaApi = mensagemBrutaDaApi(erro);
+
+  switch (erro.status) {
+    case 400:
+      return 'Dados invalidos. Confira o e-mail e a senha e tente de novo.';
+    case 401:
+      // Copia local de proposito: o sep-api responde "Autenticacao requerida" no 401
+      // (ApiExceptionHandler), que orienta menos o usuario que a frase daqui.
+      return 'E-mail ou senha invalidos.';
+    case 423: {
+      // O header GANHA do corpo, e essa ordem e o ponto todo: a `message` do sep-api e montada a
+      // partir de `lockoutMinutes` (a duracao NOMINAL da politica), nao do relogio, entao ela
+      // superestima a espera por design — quem esta bloqueado ha 29 minutos le "30 minutos". O
+      // `Retry-After` traz os segundos que realmente faltam.
+      // Sem header (corpo antigo, proxy que filtrou, CORS mal configurado), cai no comportamento
+      // anterior: a duracao real vem de `app.security.lockout.lockout-minutes`, sobrescrevivel por
+      // ambiente, entao o corpo do servidor ainda ganha do literal local.
+      const espera = esperaDoRetryAfter(erro);
+      return espera
+        ? `Conta bloqueada temporariamente. Tente novamente em ${espera}.`
+        : (mensagemDaApi ?? CONTA_BLOQUEADA_FALLBACK);
+    }
+    case 429: {
+      // Rate limit por IP (RateLimitFilter), nao o account lockout: nao ha conta trancada aqui,
+      // so requisicoes demais na janela.
+      // O "cerca de" fica so aqui: o `Retry-After` do 429 e o periodo de refresh do limitador
+      // (60s constantes), um limite SUPERIOR e nao a espera exata — ao contrario do 423, onde o
+      // header e o restante real e hedge seria ruido.
+      const espera = esperaDoRetryAfter(erro);
+      return `Muitas tentativas seguidas. Aguarde cerca de ${espera ?? '1 minuto'} e tente de novo.`;
+    }
+    case 0:
+      // Rede, CORS ou offline. Requisito, nao detalhe: falha de rede jamais pode ser reportada
+      // como senha invalida.
+      return 'Nao foi possivel entrar agora. Verifique sua conexao e tente de novo.';
+    default:
+      // 5xx e status nao mapeados. Em 5xx o errorInterceptor ja anexou o codigo de suporte ao
+      // `message` via withSupportReference; descartar o corpo tiraria o traceId do usuario, e
+      // mandar ele conferir a conexao apontaria para o lado errado do problema.
+      return mensagemDaApi ?? SERVICO_INDISPONIVEL;
+  }
+}
 
 @Component({
   selector: 'sep-login',
@@ -137,6 +212,9 @@ export class LoginComponent {
     }
 
     this.loading.set(true);
+    // NAO remover por parecer redundante: zerar a mensagem destroi o no do `@if`, e o callback de
+    // erro o recria. Sem isso, dois erros consecutivos de texto identico nao mudam o DOM e a live
+    // region `role="alert"` do template nao anuncia o segundo.
     this.errorMessage.set(null);
 
     this.authService.login(this.form.getRawValue()).subscribe({
@@ -152,11 +230,9 @@ export class LoginComponent {
         }
         void this.router.navigateByUrl('/app/dashboard');
       },
-      error: () => {
+      error: (erro: unknown) => {
         this.loading.set(false);
-        this.errorMessage.set(
-          'Não foi possível acessar a plataforma com as credenciais informadas.',
-        );
+        this.errorMessage.set(mensagemDeErroDeLogin(erro));
       },
     });
   }

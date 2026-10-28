@@ -12,7 +12,8 @@ import { RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LucideAngularModule } from 'lucide-angular';
 
-import { ApiErrorResponse, UsuarioResponse, UsuarioRole } from '../../../../core/api/api.models';
+import { mensagemDeErroDaApi } from '../../../../core/api/api-error';
+import { UsuarioResponse, UsuarioRole } from '../../../../core/api/api.models';
 import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
 import { UsuariosService } from '../../../../core/users/usuarios.service';
 
@@ -142,8 +143,7 @@ export class UsersListComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err: HttpErrorResponse) => {
-        const apiErr = err.error as ApiErrorResponse | undefined;
-        this.errorMessage.set(apiErr?.message ?? 'Não foi possível carregar os usuários.');
+        this.errorMessage.set(mensagemDeErroDaApi(err, 'Nao foi possivel carregar os usuarios.'));
         this.loading.set(false);
       },
     });

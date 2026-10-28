@@ -702,7 +702,26 @@ export class OperationalShellComponent implements OnDestroy {
           lucide: 'circle-alert',
           tom: 'var(--sep-tint-teal)',
         },
+        {
+          // Mais restrita que o Pix: o backend limita as chaves da conta operacional a
+          // FINANCEIRO e ADMIN, entao BACKOFFICE nao ve este item.
+          label: 'Chaves Pix',
+          route: '/app/pix/chaves',
+          lucide: 'key-round',
+          tom: 'var(--sep-tint-teal)',
+          roles: ['FINANCEIRO', 'ADMIN'],
+        },
       ],
+    },
+    {
+      // A fila de sugestoes e operacao interna (FINANCEIRO/ADMIN), nao a jornada da credora: por
+      // isso nao fica sob "Credora", que e o menu proprio do papel CLIENTE.
+      label: 'Matching de credoras',
+      route: '/app/credora/matching',
+      lucide: 'link-2',
+      tom: 'var(--sep-tint-emerald)',
+      section: 'operacao',
+      roles: ['FINANCEIRO', 'ADMIN'],
     },
     {
       label: 'Meu perfil',

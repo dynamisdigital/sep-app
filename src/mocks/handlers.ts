@@ -89,6 +89,21 @@ const clienteUsuario = {
   modificadoPor: 'system',
 };
 
+// Persona do tomador com MFA ativo (fix review manual F-16): a jornada de decisao de
+// renegociacao e CLIENTE-only no backend; o smoke nao deve rodar como ADMIN, senao
+// mascara regressao de persona. MFA ativo e pre-condicao do aceite com step-up estrito.
+const tomadorMfaUsuario = {
+  id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771011',
+  username: 'tomador@empresa.com',
+  role: 'CLIENTE',
+  precisaRedefinirSenha: false,
+  mfaHabilitado: true,
+  dataCriacao: now,
+  dataModificacao: now,
+  criadoPor: 'system',
+  modificadoPor: 'system',
+};
+
 const financeiroUsuario = {
   id: '1f0799c0-98b9-6d9d-bc4a-7d6f5b771003',
   username: 'financeiro@empresa.com',
@@ -263,6 +278,7 @@ export function resetSenhasDev(): void {
 const loginUsuarios: Record<string, typeof adminUsuario> = {
   'dev@sep.local': devUsuario,
   'admin@empresa.com': adminUsuario,
+  'tomador@empresa.com': tomadorMfaUsuario,
   'financeiro@empresa.com': financeiroUsuario,
   'backoffice@empresa.com': backofficeUsuario,
   // Contas que o menu "Trocar de usuario" oferece: sem entrar aqui, o clique falhava em silencio.
@@ -281,7 +297,49 @@ let currentMockUser = adminUsuario;
 let usuariosCriados = 0;
 const QTD_USUARIOS_SEED = usuariosFake.length;
 
-function errorResponse(status: number, error: string, message: string, path: string) {
+// --- Account lockout no login (F-Sprint 21 / backend Sprints 5 e 33) ---
+// Espelha LockoutService + LockoutProperties do sep-api: `app.security.lockout.max-attempts`
+// falhas trancam a conta por `lockout-minutes`. A janela de 15 min e a duracao de 30 min nao sao
+// simuladas — o mock nao tem relogio e nenhuma spec/smoke vive tanto. Consequencia pratica: o
+// bloqueio dura ate `resetLoginMockState()` nas specs, ou ate o reload da pagina no dev-offline
+// (o modulo e reavaliado). O que precisa ser fiel e a ordem de avaliacao e o limiar, que e o que
+// torna /account-locked alcancavel offline.
+const LOCKOUT_MAX_TENTATIVAS = 5;
+const LOCKOUT_MINUTOS = 30;
+// Janela de deteccao (`app.security.lockout.window-minutes`). Como as outras duas, NAO e simulada —
+// o mock nao tem relogio. Existe para o handler de /auth/politica-lockout anunciar os tres numeros
+// coerentes com o limiar que o handler de login aplica; com a janela literal no handler o mock se
+// contradiria ao primeiro override.
+const LOCKOUT_JANELA_MINUTOS = 15;
+// DIVERGENCIA DELIBERADA do backend, decidida na F-Sprint 21: aqui QUALQUER credencial recusada
+// incrementa, inclusive username desconhecido, vazio ou fora do formato e-mail. No sep-api so
+// contam SENHA_INVALIDA e TOTP_INVALIDO (LockoutService.STATUSES_FALHA), entao um username
+// inexistente responde 401 para sempre (verificado contra :8080 em 2026-07-30: 6 falhas, 6x 401)
+// e um username vazio/malformado nem chega ao use case — cai em 400 por bean validation
+// (@NotBlank @Email em LoginRequestDto). O mock e portanto mais estrito que a producao nesses
+// casos; a assimetria e segura (falha offline, passa em producao — nunca o contrario).
+// TOTP_INVALIDO nao se aplica: o mock nao expoe verificacao de TOTP.
+// Nao "corrigir" sem revisar o step 121.1.2; ha teste travando esta escolha.
+const falhasDeLoginPorUsuario = new Map<string, number>();
+
+// Restaura o estado mutavel do login (usuario da sessao e contador de lockout) para o seed,
+// garantindo testes independentes (F.I.R.S.T.). O Vitest isola modulos por arquivo, nao por teste:
+// sem isto as falhas de um teste vazam para os seguintes e um caso nao relacionado cai em 423, e um
+// login bem-sucedido deixa `currentMockUser` trocado para as specs de /auth/me.
+export function resetLoginMockState(): void {
+  falhasDeLoginPorUsuario.clear();
+  currentMockUser = adminUsuario;
+}
+
+function errorResponse(
+  status: number,
+  error: string,
+  message: string,
+  path: string,
+  // Headers de resposta do erro (F-Sprint 23: `Retry-After` no 423). Opcional e no fim para nao
+  // tocar nenhum dos call sites existentes — `HttpResponse.json` aceita `headers: undefined`.
+  headers?: Record<string, string>,
+) {
   return HttpResponse.json(
     {
       timestamp: now,
@@ -290,7 +348,7 @@ function errorResponse(status: number, error: string, message: string, path: str
       message,
       path,
     },
-    { status },
+    { status, headers },
   );
 }
 
@@ -1270,6 +1328,12 @@ const formalizacaoHandlers = [
 //   reapresentada com payload divergente -> 409; mesma key + mesmo payload -> replay
 //   com novo=false).
 // - parcela "...0007" ja tem renegociacao ativa (criar proposta -> 409).
+// - parcela "...0008" esta EM_NEGOCIACAO com proposta ativa do tomador: jornada de
+//   decisao F-16 (GET renegociacao-ativa -> 200 com os dez campos publicos).
+// - parcela "...0009" (EM_NEGOCIACAO) e dedicada ao fluxo de ACEITE do tomador: o teste
+//   muda a proposta para ACEITA, entao ids proprios preservam o isolamento dos demais.
+// - parcela "...000a" (EM_NEGOCIACAO) e dedicada ao fluxo de RECUSA do tomador, pelo
+//   mesmo motivo de isolamento.
 // - renegociacao exige X-Step-Up-Token na criacao e no aceite; a recusa nao exige.
 // Estado de recebimentos e de renegociacao e por sessao do mock; ids dedicados isolam testes.
 const AGENDA_ID = 'a0000000-0000-4000-8000-000000000a01';
@@ -1282,10 +1346,16 @@ const PARCELA_PAGA_ID = 'a0000000-0000-4000-8000-000000000004';
 const PARCELA_INADIMPLENTE_ID = 'a0000000-0000-4000-8000-000000000005';
 const PARCELA_PARA_RECEBIMENTO_ID = 'a0000000-0000-4000-8000-000000000006';
 const PARCELA_RENEG_ATIVA_ID = 'a0000000-0000-4000-8000-000000000007';
+const PARCELA_EM_NEGOCIACAO_ID = 'a0000000-0000-4000-8000-000000000008';
+const PARCELA_ACEITE_TOMADOR_ID = 'a0000000-0000-4000-8000-000000000009';
+const PARCELA_RECUSA_TOMADOR_ID = 'a0000000-0000-4000-8000-00000000000a';
 const PARCELA_SEM_OWNERSHIP_ID = 'a0000000-0000-4000-8000-0000000000ff';
 const RENEG_PARA_ACEITE_ID = 'b0000000-0000-4000-8000-000000000001';
 const RENEG_PARA_RECUSA_ID = 'b0000000-0000-4000-8000-000000000002';
 const RENEG_DECIDIDA_ID = 'b0000000-0000-4000-8000-000000000003';
+const RENEG_TOMADOR_ATIVA_ID = 'b0000000-0000-4000-8000-000000000004';
+const RENEG_TOMADOR_ACEITE_ID = 'b0000000-0000-4000-8000-000000000005';
+const RENEG_TOMADOR_RECUSA_ID = 'b0000000-0000-4000-8000-000000000006';
 const RENEG_CRIADA_ID = 'b0000000-0000-4000-8000-0000000000c1';
 const ESCROW_MOV_ID = 'c0000000-0000-4000-8000-0000000000e1';
 // Espelham StatusParcela.permiteRecebimento / permiteIniciarRenegociacao do backend.
@@ -1511,6 +1581,45 @@ const detalheParcela: Record<string, ReturnType<typeof valorAtualizado>> = {
     1000,
     0,
     40,
+    20,
+    0,
+  ),
+  // Parcela do tomador em negociacao (backend Sprint 13: proposta ativa => EM_NEGOCIACAO).
+  // Ponto de partida da jornada de decisao do tomador (F-16).
+  [PARCELA_EM_NEGOCIACAO_ID]: valorAtualizado(
+    PARCELA_EM_NEGOCIACAO_ID,
+    8,
+    'EM_NEGOCIACAO',
+    '2026-05-10',
+    1000,
+    0,
+    55,
+    20,
+    0,
+  ),
+  // Parcela dedicada ao fluxo de aceite do tomador (F-16.3): a proposta desta parcela e
+  // mutada para ACEITA pelo teste, sem afetar a jornada de leitura da "...0008".
+  [PARCELA_ACEITE_TOMADOR_ID]: valorAtualizado(
+    PARCELA_ACEITE_TOMADOR_ID,
+    9,
+    'EM_NEGOCIACAO',
+    '2026-05-12',
+    1000,
+    0,
+    35,
+    20,
+    0,
+  ),
+  // Parcela dedicada ao fluxo de recusa do tomador (F-16.4): a proposta desta parcela e
+  // mutada para RECUSADA pelo teste.
+  [PARCELA_RECUSA_TOMADOR_ID]: valorAtualizado(
+    PARCELA_RECUSA_TOMADOR_ID,
+    10,
+    'EM_NEGOCIACAO',
+    '2026-05-14',
+    1000,
+    0,
+    25,
     20,
     0,
   ),
@@ -1917,6 +2026,28 @@ function seedRenegociacoes(): Record<string, ReturnType<typeof renegociacaoFake>
         desconto: 20.0,
       },
     ),
+    // Proposta ativa da parcela EM_NEGOCIACAO "...0008", consultada pelo tomador via GET
+    // renegociacao-ativa (F-16 / backend Sprint 24).
+    [RENEG_TOMADOR_ATIVA_ID]: renegociacaoFake(
+      RENEG_TOMADOR_ATIVA_ID,
+      PARCELA_EM_NEGOCIACAO_ID,
+      'PROPOSTA',
+      { novoValorParcela: 340.0, novoVencimento: '2026-08-15', numeroParcelas: 5, desconto: 60.0 },
+    ),
+    // Proposta da parcela "...0009", dedicada ao fluxo de aceite do tomador (F-16.3).
+    [RENEG_TOMADOR_ACEITE_ID]: renegociacaoFake(
+      RENEG_TOMADOR_ACEITE_ID,
+      PARCELA_ACEITE_TOMADOR_ID,
+      'PROPOSTA',
+      { novoValorParcela: 420.0, novoVencimento: '2026-09-01', numeroParcelas: 3, desconto: 45.0 },
+    ),
+    // Proposta da parcela "...000a", dedicada ao fluxo de recusa do tomador (F-16.4).
+    [RENEG_TOMADOR_RECUSA_ID]: renegociacaoFake(
+      RENEG_TOMADOR_RECUSA_ID,
+      PARCELA_RECUSA_TOMADOR_ID,
+      'PROPOSTA',
+      { novoValorParcela: 510.0, novoVencimento: '2026-09-10', numeroParcelas: 2, desconto: 30.0 },
+    ),
     [RENEG_DECIDIDA_ID]: renegociacaoFake(
       RENEG_DECIDIDA_ID,
       PARCELA_PARA_RECEBIMENTO_ID,
@@ -2124,6 +2255,37 @@ const cobrancaHandlers = [
     return HttpResponse.json(renegociacao);
   }),
 
+  // Leitura owner-scoped do tomador (F-16 / backend Sprint 24). Read-only, sem step-up.
+  // 403 uniforme para parcela alheia OU inexistente (nao enumera recursos); 404 para parcela
+  // propria sem PROPOSTA ativa. O total e "calculado no backend" (aqui, o mock) — o front
+  // nunca deriva. A proposta e a mesma estrutura mutavel de `renegociacoes`: apos aceite ou
+  // recusa o status sai de PROPOSTA e este GET passa a responder 404, como o backend.
+  http.get(`${baseUrl}/cobranca/parcelas/:parcelaId/renegociacao-ativa`, ({ params }) => {
+    const parcelaId = params['parcelaId'] as string;
+    const path = `/api/v1/cobranca/parcelas/${parcelaId}/renegociacao-ativa`;
+    if (parcelaId === PARCELA_SEM_OWNERSHIP_ID || !detalheParcela[parcelaId]) {
+      return errorResponse(403, 'Forbidden', 'Acesso negado', path);
+    }
+    const ativa = Object.values(renegociacoes).find(
+      (r) => r.parcelaOriginalId === parcelaId && r.status === 'PROPOSTA',
+    );
+    if (!ativa) {
+      return errorResponse(404, 'Not Found', 'Parcela sem renegociacao ativa', path);
+    }
+    return HttpResponse.json({
+      renegociacaoId: ativa.id,
+      parcelaId: ativa.parcelaOriginalId,
+      status: ativa.status,
+      novoValorParcela: ativa.novoValorParcela,
+      numeroParcelas: ativa.numeroParcelas,
+      valorTotalRenegociado: Number((ativa.novoValorParcela * ativa.numeroParcelas).toFixed(2)),
+      novoVencimento: ativa.novoVencimento,
+      desconto: ativa.desconto,
+      dataProposta: ativa.dataProposta,
+      dataExpiracao: ativa.dataExpiracao,
+    });
+  }),
+
   // Por id mantido por ultimo: as rotas com sub-segmento (/recebimentos, /contato,
   // /renegociacao) ja casaram por metodo/caminho antes deste GET de detalhe.
   http.get(`${baseUrl}/cobranca/parcelas/:id`, ({ params }) => {
@@ -2142,7 +2304,7 @@ const cobrancaHandlers = [
 
 // Mocks alinhados ao PRD §21 (contratos iniciais dos endpoints).
 // Sucesso login usa admin@empresa.com / 123456.
-// 401: credenciais invalidas. 409: cadastro com duplicado@empresa.com.
+// 401: credenciais invalidas.
 // --- Backoffice e financeiro operacional (F-Sprint 10 / backend Sprint 14 + Pix 20-21) ---
 // Identificadores deterministicos para dev-offline e specs do BackofficeService. Fixtures
 // nao guardam payload bruto de webhook/provider, CPF/CNPJ completo, chave Pix, dados
@@ -2153,6 +2315,7 @@ const ITEM_RESOLVIDO_ID = 'c0000000-0000-4000-8000-000000000003'; // RESOLVIDO (
 const ITEM_IGNORADO_ID = 'c0000000-0000-4000-8000-000000000004'; // IGNORADO (final)
 const ITEM_DESEMBOLSO_PIX_ID = 'c0000000-0000-4000-8000-000000000005'; // ABERTO / DESEMBOLSO_PIX_FALHOU
 const ITEM_RECEBIMENTO_PIX_ID = 'c0000000-0000-4000-8000-000000000006'; // ABERTO / RECEBIMENTO_PIX_DIVERGENTE
+const ITEM_DESEMBOLSO_PIX_RESOLVIDO_ID = 'c0000000-0000-4000-8000-000000000007'; // RESOLVIDO / DESEMBOLSO_PIX_FALHOU (F-17: filtro de status das divergencias)
 // id 'c0000000-...-0000000000aa' (usado nas specs) cai no 404 generico de item nao encontrado.
 const WEBHOOK_EVENT_ID = 'd0000000-0000-4000-8000-000000000001';
 // Entidade do item de fila DESEMBOLSO_PIX_FALHOU: precisa ser um id de transferencia real, e nao
@@ -2230,6 +2393,20 @@ const itensFilaFake = [
     atribuidoA: null,
     dataAbertura: '2026-06-06T10:20:00-03:00',
     dataResolucao: null,
+  },
+  {
+    // Divergencia Pix ja tratada (F-17): so aparece nas divergencias quando o filtro de
+    // status pede RESOLVIDO/Todos, exercitando o recorte enviado ao backend.
+    id: ITEM_DESEMBOLSO_PIX_RESOLVIDO_ID,
+    tipo: 'DESEMBOLSO_PIX_FALHOU',
+    prioridade: 'MEDIA',
+    status: 'RESOLVIDO',
+    tipoEntidade: 'PIX_TRANSFERENCIA',
+    entidadeId: PIX_ENTIDADE_ID,
+    titulo: 'Desembolso Pix com falha ja reconciliado',
+    atribuidoA: null,
+    dataAbertura: '2026-06-04T09:00:00-03:00',
+    dataResolucao: '2026-06-05T15:00:00-03:00',
   },
   {
     id: ITEM_RECEBIMENTO_PIX_ID,
@@ -2400,7 +2577,9 @@ const backofficeHandlers = [
           { status: 'RESOLVIDO', total: 10 },
           { status: 'IGNORADO', total: 4 },
         ],
-        tempoMedioResolucao30d: 7200,
+        // ISO-8601, como o Duration do backend realmente sai. Enquanto era `7200` o mock era mais
+        // correto que o servidor, e por isso nenhum teste via o NaNmin da tela (F-24.4).
+        tempoMedioResolucao30d: 'PT2H',
         itensCriticosAbertosMais48h: 2,
         topCincoTiposMaisFrequentes: [
           { tipo: 'COBRANCA_INADIMPLENTE', total: 5 },
@@ -3689,19 +3868,126 @@ function seedCarteiraPorUsuario(): Record<string, Record<string, unknown>[]> {
   return { [credoraUsuario.id]: [operacaoAssociadaSeed()] };
 }
 
+const MATCHING_SUGERIDA_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78f001';
+const MATCHING_SUGERIDA_2_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78f002';
+const MATCHING_CONFIRMADA_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78f003';
+const OPERACAO_MATCHING_2_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78c002';
+const OPERACAO_MATCHING_3_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78c003';
+const APORTE_LIQUIDADO_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78ab01';
+const APORTE_EM_PROCESSAMENTO_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78ab02';
+const APORTE_FALHOU_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78ab03';
+
+function seedMatchingSugestoes(): Record<string, Record<string, unknown>> {
+  // Sugestoes de matching (F-18 / backend Sprint 30). criterios sao codigos funcionais do
+  // snapshot (CriterioMatchingCredoraOperacao); valorElegivel e autoritativo do backend.
+  return {
+    [MATCHING_SUGERIDA_ID]: {
+      id: MATCHING_SUGERIDA_ID,
+      operacaoId: OPERACAO_ASSOCIADA_ID,
+      empresaCredoraId: CREDORA_ELEGIVEL_ID,
+      status: 'SUGERIDA',
+      valorElegivel: 25000.0,
+      criterios: [
+        'CREDORA_ATIVA',
+        'CREDORA_ELEGIVEL',
+        'OPERACAO_ATIVA',
+        'CONTRATO_ASSINADO',
+        'PAR_SEM_MATCHING_PREVIO',
+      ],
+      criadaEm: now,
+      decididaEm: null,
+    },
+    // Segunda sugestao da MESMA credora elegivel (par credora-operacao distinto): o backend so
+    // gera sugestao quando TODOS os criterios sao atendidos — credora inelegivel nunca aparece.
+    [MATCHING_SUGERIDA_2_ID]: {
+      id: MATCHING_SUGERIDA_2_ID,
+      operacaoId: OPERACAO_MATCHING_2_ID,
+      empresaCredoraId: CREDORA_ELEGIVEL_ID,
+      status: 'SUGERIDA',
+      valorElegivel: 12000.0,
+      criterios: [
+        'CREDORA_ATIVA',
+        'CREDORA_ELEGIVEL',
+        'OPERACAO_ATIVA',
+        'CONTRATO_ASSINADO',
+        'CAPACIDADE_COMPORTA_VALOR',
+        'PAR_SEM_MATCHING_PREVIO',
+      ],
+      criadaEm: now,
+      decididaEm: null,
+    },
+    // Matching ja CONFIRMADO no seed: alimenta o fluxo de aporte (detalhe -> CTA -> pagina de
+    // aporte) sem depender de decisao com TOTP, que o modo offline nao completa.
+    [MATCHING_CONFIRMADA_ID]: {
+      id: MATCHING_CONFIRMADA_ID,
+      operacaoId: OPERACAO_MATCHING_3_ID,
+      empresaCredoraId: CREDORA_ELEGIVEL_ID,
+      status: 'CONFIRMADA',
+      valorElegivel: 18000.0,
+      criterios: ['CREDORA_ATIVA', 'CREDORA_ELEGIVEL', 'OPERACAO_ATIVA', 'CONTRATO_ASSINADO'],
+      criadaEm: now,
+      decididaEm: now,
+    },
+  };
+}
+
+function seedAportesPorOperacao(): Record<string, Record<string, unknown>[]> {
+  // Aportes da Sprint 29 (F-18.4). A operacao associada (da carteira da credora elegivel) ja tem
+  // um aporte LIQUIDADO; a operacao do matching confirmado cobre EM_PROCESSAMENTO e FALHOU; a do
+  // segundo matching comeca vazia (PENDENTE nasce pelo POST). Ordem = criacao decrescente, como o
+  // contrato. Operacao fora deste mapa = 404 neutro.
+  return {
+    [OPERACAO_ASSOCIADA_ID]: [
+      {
+        id: APORTE_LIQUIDADO_ID,
+        operacaoId: OPERACAO_ASSOCIADA_ID,
+        status: 'LIQUIDADO',
+        valor: 10000.0,
+        dataCriacao: now,
+        dataAtualizacao: now,
+      },
+    ],
+    [OPERACAO_MATCHING_2_ID]: [],
+    [OPERACAO_MATCHING_3_ID]: [
+      {
+        id: APORTE_EM_PROCESSAMENTO_ID,
+        operacaoId: OPERACAO_MATCHING_3_ID,
+        status: 'EM_PROCESSAMENTO',
+        valor: 8000.0,
+        dataCriacao: now,
+        dataAtualizacao: now,
+      },
+      {
+        id: APORTE_FALHOU_ID,
+        operacaoId: OPERACAO_MATCHING_3_ID,
+        status: 'FALHOU',
+        valor: 3000.0,
+        dataCriacao: now,
+        dataAtualizacao: now,
+      },
+    ],
+  };
+}
+
 let credorasPorUsuario = seedCredorasPorUsuario();
 let oportunidadesCredora = seedOportunidadesCredora();
 let carteiraPorUsuario = seedCarteiraPorUsuario();
 let interessesAtivos = new Set<string>();
+let matchingSugestoes = seedMatchingSugestoes();
+let aportesPorOperacao = seedAportesPorOperacao();
+let aportesPorKey: Record<string, Record<string, unknown>> = {};
 let credoraSeq = 200;
 
-// Restaura o estado mutavel da credora (cadastro, interesses) para o seed, garantindo testes
-// independentes (F.I.R.S.T.) ao exercitar cadastro/interesse.
+// Restaura o estado mutavel da credora (cadastro, interesses, matching, aportes) para o seed,
+// garantindo testes independentes (F.I.R.S.T.) ao exercitar cadastro/interesse/decisao/aporte.
 export function resetCredoraState(): void {
   credorasPorUsuario = seedCredorasPorUsuario();
   oportunidadesCredora = seedOportunidadesCredora();
   carteiraPorUsuario = seedCarteiraPorUsuario();
   interessesAtivos = new Set<string>();
+  matchingSugestoes = seedMatchingSugestoes();
+  aportesPorOperacao = seedAportesPorOperacao();
+  aportesPorKey = {};
   credoraSeq = 200;
   resetCredoresEscrowState();
   resetIdempotenciaEscrow();
@@ -3714,6 +4000,198 @@ function credoraAtual(): Record<string, unknown> | undefined {
 function chaveInteresse(oportunidadeId: string): string {
   return `${currentMockUser.id}:${oportunidadeId}`;
 }
+
+// --- Chaves Pix da conta operacional/escrow (F-20.6 / backend Sprint 31) ---
+// As tres operacoes exigem FINANCEIRO/ADMIN; POST e DELETE exigem ainda step-up estrito. A chave
+// em claro NUNCA e guardada nem devolvida: o mock persiste apenas a mascara, reusando o
+// mascararChavePix() ja existente. O valor bruto so vive no corpo da request, como no backend.
+interface ChavePixMockState {
+  id: string;
+  tipo: string;
+  valorMascarado: string;
+  status: 'ATIVA' | 'INATIVA';
+  criadaEm: string;
+  removidaEm: string | null;
+}
+
+// Sentinelas de erro. Espelham as regras do backend sem reimplementa-las: o mock nao valida DV
+// nem formato por tipo — apenas reconhece valores combinados para produzir 400 e 422.
+const CHAVE_PIX_VALOR_INVALIDO = '000.000.000-00';
+const CHAVE_PIX_VALOR_CONTA_INDISPONIVEL = 'conta-indisponivel@dynamis.com.br';
+
+// Impressao nao reversivel de (tipo + valor), no espirito do hash SHA-256 que o backend persiste.
+// Existe para os dois usos internos do mock — idempotencia e deteccao de chave equivalente — sem
+// reter o valor em claro em estrutura nenhuma. A mascara NAO serve a esses usos: ela guarda so os
+// tres primeiros caracteres, entao 'financeiro@x' e 'financeira@x' colidiriam e produziriam um
+// 409 falso.
+function impressaoChavePix(tipo: string, valor: string): string {
+  const entrada = `${tipo}|${valor}`;
+  let hash = 5381;
+  for (let i = 0; i < entrada.length; i += 1) {
+    hash = ((hash << 5) + hash + entrada.charCodeAt(i)) >>> 0;
+  }
+  return `cp-${hash.toString(16)}`;
+}
+
+// Seed: uma chave ATIVA e uma INATIVA (historico), da mais recente para a mais antiga — a mesma
+// ordem que o backend garante. O frontend nao reordena, entao a ordem daqui e a ordem exibida.
+export function seedChavesPix(): ChavePixMockState[] {
+  return [
+    {
+      id: 'e3000000-0000-4000-8000-000000000001',
+      tipo: 'EMAIL',
+      valorMascarado: mascararChavePix('financeiro@dynamis.com.br'),
+      status: 'ATIVA',
+      criadaEm: '2026-07-10T09:00:00-03:00',
+      removidaEm: null,
+    },
+    {
+      id: 'e3000000-0000-4000-8000-000000000002',
+      tipo: 'CNPJ',
+      valorMascarado: mascararChavePix('11222333000181'),
+      status: 'INATIVA',
+      criadaEm: '2026-06-02T09:00:00-03:00',
+      removidaEm: '2026-07-01T14:20:00-03:00',
+    },
+  ];
+}
+
+// Identidade (tipo + valor) de cada chave, por id. Fica FORA do DTO: nunca e serializada numa
+// resposta. E o que permite detectar chave equivalente sem comparar mascaras.
+function seedIdentidadesChavePix(): Map<string, string> {
+  return new Map([
+    [
+      'e3000000-0000-4000-8000-000000000001',
+      impressaoChavePix('EMAIL', 'financeiro@dynamis.com.br'),
+    ],
+    ['e3000000-0000-4000-8000-000000000002', impressaoChavePix('CNPJ', '11222333000181')],
+  ]);
+}
+
+let chavesPix = seedChavesPix();
+let identidadeChavePix = seedIdentidadesChavePix();
+// Idempotencia do cadastro: key -> {impressao do payload, resposta}. Mesma key com payload
+// divergente e 409, espelhando o backend; mesma key com o mesmo payload devolve a chave existente
+// com 200. Guarda a impressao, nunca o corpo da request — que conteria o valor em claro.
+const chavePixPorKey = new Map<string, { impressao: string; response: ChavePixMockState }>();
+let chavePixSeq = 300;
+
+// Restaura o estado mutavel das chaves Pix (lista, identidades e idempotencia) para o seed,
+// garantindo testes independentes (F.I.R.S.T.) ao exercitar cadastro/replay/remocao.
+export function resetChavesPixState(): void {
+  chavesPix = seedChavesPix();
+  identidadeChavePix = seedIdentidadesChavePix();
+  chavePixPorKey.clear();
+  chavePixSeq = 300;
+}
+
+const chavesPixHandlers = [
+  // Leitura local, sempre mascarada, incluindo INATIVA. Sem step-up e sem 404: conta operacional
+  // ausente devolveria lista vazia, nunca erro.
+  http.get(`${baseUrl}/pix/chaves`, () => {
+    const path = '/api/v1/pix/chaves';
+    const negado = negarSeNaoFinanceiroPix(path);
+    if (negado) {
+      return negado;
+    }
+    return HttpResponse.json(chavesPix);
+  }),
+
+  http.post(`${baseUrl}/pix/chaves`, async ({ request }) => {
+    const path = '/api/v1/pix/chaves';
+    const negado = negarSeNaoFinanceiroPix(path);
+    if (negado) {
+      return negado;
+    }
+    if (faltaStepUp(request)) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
+    }
+    const chaveIdempotencia = request.headers.get('Idempotency-Key');
+    if (!chaveIdempotencia || !IDEMPOTENCY_KEY_PATTERN.test(chaveIdempotencia)) {
+      return errorResponse(
+        400,
+        'Bad Request',
+        "Header 'Idempotency-Key' ausente ou invalido",
+        path,
+      );
+    }
+    const body = (await request.json()) as { tipo?: string; valor?: string };
+    const impressao = impressaoChavePix(body.tipo ?? '', body.valor ?? '');
+    const anterior = chavePixPorKey.get(chaveIdempotencia);
+    if (anterior) {
+      if (anterior.impressao !== impressao) {
+        return errorResponse(
+          409,
+          'Conflict',
+          'Idempotency-Key reapresentada com payload divergente',
+          path,
+        );
+      }
+      // Replay idempotente: mesma chave, 200 em vez de 201.
+      return HttpResponse.json(anterior.response, { status: 200 });
+    }
+    if (!body.tipo || !body.valor) {
+      return errorResponse(400, 'Bad Request', 'Tipo e valor da chave sao obrigatorios', path);
+    }
+    if (body.valor === CHAVE_PIX_VALOR_INVALIDO) {
+      return errorResponse(400, 'Bad Request', 'Valor de chave invalido', path);
+    }
+    if (body.valor === CHAVE_PIX_VALOR_CONTA_INDISPONIVEL) {
+      return errorResponse(
+        422,
+        'Unprocessable Entity',
+        'Conta operacional/escrow indisponivel',
+        path,
+      );
+    }
+    // Equivalencia por impressao de (tipo + valor), nao por mascara: valores diferentes com o
+    // mesmo prefixo nao podem colidir num 409 falso.
+    const jaAtiva = chavesPix.some(
+      (chave) => chave.status === 'ATIVA' && identidadeChavePix.get(chave.id) === impressao,
+    );
+    if (jaAtiva) {
+      return errorResponse(409, 'Conflict', 'Ja existe chave equivalente ativa', path);
+    }
+    chavePixSeq += 1;
+    const nova: ChavePixMockState = {
+      id: novoId('e3000000', chavePixSeq),
+      tipo: body.tipo,
+      valorMascarado: mascararChavePix(body.valor),
+      status: 'ATIVA',
+      criadaEm: now,
+      removidaEm: null,
+    };
+    // Mais recentes primeiro, como o backend devolve.
+    chavesPix = [nova, ...chavesPix];
+    identidadeChavePix.set(nova.id, impressao);
+    chavePixPorKey.set(chaveIdempotencia, { impressao, response: nova });
+    return HttpResponse.json(nova, { status: 201 });
+  }),
+
+  // Inativacao logica idempotente: 204 tambem quando a chave ja estava INATIVA. O 404 e neutro —
+  // nao distingue inexistente de fora do escopo da conta operacional.
+  http.delete(`${baseUrl}/pix/chaves/:chaveId`, ({ params, request }) => {
+    const chaveId = String(params['chaveId']);
+    const path = `/api/v1/pix/chaves/${chaveId}`;
+    const negado = negarSeNaoFinanceiroPix(path);
+    if (negado) {
+      return negado;
+    }
+    if (faltaStepUp(request)) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio', path);
+    }
+    const alvo = chavesPix.find((chave) => chave.id === chaveId);
+    if (!alvo) {
+      return errorResponse(404, 'Not Found', 'Chave Pix nao encontrada', path);
+    }
+    if (alvo.status === 'ATIVA') {
+      chavesPix = chavesPix.map((chave) =>
+        chave.id === chaveId ? { ...chave, status: 'INATIVA' as const, removidaEm: now } : chave,
+      );
+    }
+    return new HttpResponse(null, { status: 204 });
+  }),
+];
 
 const credoraHandlers = [
   http.post(`${baseUrl}/credores`, async ({ request }) => {
@@ -3885,6 +4363,117 @@ const credoraHandlers = [
       return errorResponse(404, 'Not Found', 'Usuario nao possui credora', path);
     }
     return HttpResponse.json(carteiraPorUsuario[currentMockUser.id] ?? []);
+  }),
+
+  // GET refresh-on-read (F-18 / Sprint 30): o backend pode persistir sugestoes novas antes de
+  // listar; o mock e estatico, logo naturalmente idempotente. Lista somente SUGERIDA em ordem
+  // deterministica (maior valorElegivel primeiro), como o contrato.
+  http.get(`${baseUrl}/credores/matching/sugestoes`, () => {
+    const sugeridas = Object.values(matchingSugestoes)
+      .filter((s) => s['status'] === 'SUGERIDA')
+      .sort((a, b) => (b['valorElegivel'] as number) - (a['valorElegivel'] as number));
+    return HttpResponse.json(sugeridas);
+  }),
+
+  // Consulta individual (qualquer status); inexistente responde 404 neutro sem identificador.
+  // Registrado DEPOIS de /matching/sugestoes: o MSW casa na ordem do array e este pattern
+  // tambem casaria aquela URL.
+  http.get(`${baseUrl}/credores/matching/:sugestaoId`, ({ params }) => {
+    const sugestao = matchingSugestoes[params['sugestaoId'] as string];
+    if (!sugestao) {
+      return errorResponse(
+        404,
+        'Not Found',
+        'Sugestao de matching nao encontrada',
+        '/api/v1/credores/matching',
+      );
+    }
+    return HttpResponse.json(sugestao);
+  }),
+
+  // Decisao assistida (step-up estrito): confirma ou rejeita sugestao SUGERIDA. Espelha o
+  // MatchingCredoraController — 403 sem token de step-up, 400 acao/motivo invalido, 404 neutro,
+  // 409 em status terminal. Confirmar apenas registra a decisao; nenhum aporte e criado.
+  http.post(`${baseUrl}/credores/matching/:sugestaoId/decisao`, async ({ request, params }) => {
+    const path = '/api/v1/credores/matching/decisao';
+    if (!request.headers.get('X-Step-Up-Token')) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio para esta operacao', path);
+    }
+    const body = (await request.json()) as { acao?: string; motivo?: string };
+    if (body.acao !== 'CONFIRMAR' && body.acao !== 'REJEITAR') {
+      return errorResponse(400, 'Bad Request', 'acao deve ser CONFIRMAR ou REJEITAR', path);
+    }
+    if (body.motivo && body.motivo.length > 255) {
+      return errorResponse(400, 'Bad Request', 'motivo nao pode exceder 255 caracteres', path);
+    }
+    const sugestao = matchingSugestoes[params['sugestaoId'] as string];
+    if (!sugestao) {
+      return errorResponse(404, 'Not Found', 'Sugestao de matching nao encontrada', path);
+    }
+    if (sugestao['status'] !== 'SUGERIDA') {
+      return errorResponse(409, 'Conflict', 'Sugestao ja decidida', path);
+    }
+    sugestao['status'] = body.acao === 'CONFIRMAR' ? 'CONFIRMADA' : 'REJEITADA';
+    sugestao['decididaEm'] = now;
+    return HttpResponse.json(sugestao);
+  }),
+
+  // GET owner-scoped (Sprint 29): FINANCEIRO/ADMIN listam qualquer operacao conhecida; a credora
+  // dona (CLIENTE) somente a propria (presenca na carteira). Operacao desconhecida, usuario sem
+  // credora e operacao alheia respondem o MESMO 404 neutro, sem identificador.
+  http.get(`${baseUrl}/credores/operacoes/:operacaoId/aportes`, ({ params }) => {
+    const operacaoId = params['operacaoId'] as string;
+    const path = '/api/v1/credores/operacoes/aportes';
+    const aportes = aportesPorOperacao[operacaoId];
+    const visaoOperacional =
+      currentMockUser.role === 'FINANCEIRO' || currentMockUser.role === 'ADMIN';
+    const dona = (carteiraPorUsuario[currentMockUser.id] ?? []).some((o) => o['id'] === operacaoId);
+    if (!aportes || (!visaoOperacional && !dona)) {
+      return errorResponse(404, 'Not Found', 'Operacao nao encontrada para aporte', path);
+    }
+    return HttpResponse.json(aportes);
+  }),
+
+  // POST do aporte assistido (Sprint 29): step-up estrito + Idempotency-Key obrigatoria. Replay
+  // da mesma key com o mesmo valor devolve o aporte existente (200); valor divergente responde
+  // 409. Novo registro nasce PENDENTE (201). Nunca ecoa key, escrow ou provider.
+  http.post(`${baseUrl}/credores/operacoes/:operacaoId/aportes`, async ({ request, params }) => {
+    const operacaoId = params['operacaoId'] as string;
+    const path = '/api/v1/credores/operacoes/aportes';
+    if (!request.headers.get('X-Step-Up-Token')) {
+      return errorResponse(403, 'Forbidden', 'Step-up obrigatorio para esta operacao', path);
+    }
+    const key = request.headers.get('Idempotency-Key');
+    if (!key) {
+      return errorResponse(400, 'Bad Request', 'Idempotency-Key obrigatoria', path);
+    }
+    const body = (await request.json()) as { valor?: number };
+    if (typeof body.valor !== 'number' || body.valor <= 0) {
+      return errorResponse(400, 'Bad Request', 'valor deve ser positivo', path);
+    }
+    const aportes = aportesPorOperacao[operacaoId];
+    if (!aportes) {
+      return errorResponse(404, 'Not Found', 'Operacao nao encontrada para aporte', path);
+    }
+    const existente = aportesPorKey[key];
+    if (existente) {
+      if (existente['valor'] !== body.valor) {
+        return errorResponse(409, 'Conflict', 'Idempotency-Key conflitante', path);
+      }
+      return HttpResponse.json(existente);
+    }
+    credoraSeq += 1;
+    const aporte: Record<string, unknown> = {
+      id: novoId('7f0799c0', credoraSeq),
+      operacaoId,
+      status: 'PENDENTE',
+      valor: body.valor,
+      dataCriacao: now,
+      dataAtualizacao: now,
+    };
+    aportes.unshift(aporte);
+    aportesPorKey[key] = aporte;
+    return HttpResponse.json(aporte, { status: 201 });
   }),
 ];
 
@@ -4080,12 +4669,36 @@ export const handlers = [
 
   http.post(`${baseUrl}/auth/login`, async ({ request }) => {
     const body = (await request.json()) as { username?: string; password?: string };
-    const candidato = loginUsuarios[body.username ?? ''] ?? usuarioDeSubCriado(body.username ?? '');
-    const usuario =
-      candidato && body.password === senhaDe(body.username ?? '') ? candidato : undefined;
-    if (!usuario) {
-      return errorResponse(401, 'Unauthorized', 'Credenciais invalidas', '/api/v1/auth/login');
+    const username = body.username ?? '';
+    const path = '/api/v1/auth/login';
+
+    // A posicao do lockout na ordem de avaliacao e a mesma de AutenticarUsuarioUseCase#executar:
+    // verificado ANTES de resolver o usuario e de avaliar a credencial. Duas consequencias que o
+    // mock preserva de proposito: a 5a senha errada ainda responde 401 (o bloqueio so aparece na
+    // 6a requisicao) e a senha CORRETA depois do bloqueio tambem responde 423, porque a credencial
+    // nem chega a ser avaliada. O resto da sequencia do use case nao e espelhado — nao ha registro
+    // de tentativa nem ramo de desafio MFA aqui.
+    const falhas = falhasDeLoginPorUsuario.get(username) ?? 0;
+    if (falhas >= LOCKOUT_MAX_TENTATIVAS) {
+      return errorResponse(
+        423,
+        'Locked',
+        `Conta bloqueada temporariamente. Tente novamente em ${LOCKOUT_MINUTOS} minutos.`,
+        path,
+        // Duracao INTEIRA, e nao o restante como no sep-api: o mock nao tem relogio (o bloqueio
+        // dura ate `resetLoginMockState()`), entao os segundos que faltam sao sempre todos eles.
+        { 'Retry-After': String(LOCKOUT_MINUTOS * 60) },
+      );
     }
+
+    const candidato = loginUsuarios[username] ?? usuarioDeSubCriado(username);
+    const usuario = candidato && body.password === senhaDe(username) ? candidato : undefined;
+    if (!usuario) {
+      falhasDeLoginPorUsuario.set(username, falhas + 1);
+      return errorResponse(401, 'Unauthorized', 'Credenciais invalidas', path);
+    }
+    // Sucesso NAO zera o contador: LockoutService le apenas instantes de falha na janela e nao ha
+    // caminho de reset no sep-api. Ha teste travando isto.
     currentMockUser = usuario;
     credenciarSub(usuario.username);
     return HttpResponse.json({
@@ -4257,6 +4870,31 @@ export const handlers = [
     return HttpResponse.json(perfilOperacionalFake);
   }),
 
+  // Politica de lockout (backend Sprint 34), consumida por /account-locked na F-Sprint 23.
+  // Os tres numeros saem das MESMAS constantes que o handler de login aplica: um mock que
+  // anunciasse uma politica diferente da que impoe seria pior que nenhum.
+  http.get(`${baseUrl}/auth/politica-lockout`, ({ request }) => {
+    // TRIPWIRE, nao simulacao. Enquanto o `authInterceptor` isentar esta rota, este ramo e
+    // INALCANCAVEL — ele existe para que remover a isencao apareca como falha, na spec e no e2e,
+    // em vez de degradar em silencio para a copy de fallback. Espelha o `JwtAuthenticationFilter`,
+    // que rejeita bearer invalido mesmo em rota `permitAll`; os tokens deste mock nunca sao JWTs
+    // reais, entao "qualquer Authorization -> 401" e a simulacao fiel DELES. Assimetria na direcao
+    // segura (falha offline, passa em producao), como a do contador de lockout acima.
+    if (request.headers.get('Authorization')) {
+      return errorResponse(
+        401,
+        'Unauthorized',
+        'Autenticacao requerida',
+        '/api/v1/auth/politica-lockout',
+      );
+    }
+    return HttpResponse.json({
+      maxAttempts: LOCKOUT_MAX_TENTATIVAS,
+      windowMinutes: LOCKOUT_JANELA_MINUTOS,
+      lockoutMinutes: LOCKOUT_MINUTOS,
+    });
+  }),
+
   http.get(`${baseUrl}/usuarios`, () => HttpResponse.json(usuariosFake)),
 
   http.get(`${baseUrl}/usuarios/:id`, ({ params }) => {
@@ -4349,5 +4987,6 @@ export const handlers = [
   ...backofficeHandlers,
   ...governancaHandlers,
   ...pixHandlers,
+  ...chavesPixHandlers,
   ...credoraHandlers,
 ];

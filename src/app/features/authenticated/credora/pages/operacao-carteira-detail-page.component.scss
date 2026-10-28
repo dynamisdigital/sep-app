@@ -508,3 +508,18 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+// Lista de aportes da operacao (F-18.4, vem do MVP): fica abaixo dos cartoes, na largura toda.
+.px47-aportes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+
+  h2 {
+    margin: 0;
+    color: var(--foreground-forte, hsl(var(--foreground)));
+    font-size: 18px;
+    font-weight: 600;
+  }
+}

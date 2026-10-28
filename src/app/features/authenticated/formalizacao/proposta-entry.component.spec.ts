@@ -8,6 +8,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { LUCIDE_ICONS } from '../../../core/icons/lucide-icons';
 import { PropostaEntryComponent } from './proposta-entry.component';
+import { estabilizar } from '../../../../testing/estabilizar';
 
 const PROPOSTA_APROVADA_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c03';
 const PROPOSTA_SEM_CONTRATO_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c02';
@@ -26,7 +27,6 @@ async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
     fixture.detectChanges();
   }
 }
-
 function activatedRoute(propostaId: string) {
   return { snapshot: { paramMap: convertToParamMap({ propostaId }) } };
 }

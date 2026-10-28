@@ -15,11 +15,7 @@ import { TipoReprocesso } from '../../../../core/api/api.models';
 export type StatusReprocessoUi = 'CONCLUIDO' | 'EM_EXECUCAO' | 'AGUARDANDO' | 'FALHA';
 
 export type TipoReprocessoUi =
-  | 'INTEGRACAO_PIX'
-  | 'COBRANCA'
-  | 'CREDITO'
-  | 'FORMALIZACAO'
-  | 'ONBOARDING';
+  'INTEGRACAO_PIX' | 'COBRANCA' | 'CREDITO' | 'FORMALIZACAO' | 'ONBOARDING';
 
 export interface LinhaReprocesso {
   id: string;

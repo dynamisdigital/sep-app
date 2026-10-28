@@ -1,0 +1,171 @@
+<section class="sep-aporte">
+  @if (loading() && !matching()) {
+    <p class="sep-aporte-state" role="status">Carregando matching...</p>
+  } @else if (errorMessage()) {
+    <div class="sep-aporte-state sep-aporte-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="sep-aporte-retry" (click)="carregar()">Tentar novamente</button>
+    </div>
+  } @else if (indisponivel()) {
+    <div class="sep-aporte-state sep-aporte-empty">
+      <p>Matching indisponivel para aporte.</p>
+      <a class="sep-aporte-voltar" [routerLink]="['/app/credora/matching']">
+        Voltar para as sugestoes
+      </a>
+    </div>
+  } @else if (matching(); as m) {
+    <header class="sep-aporte-header">
+      <h1 class="sep-aporte-title">Aporte da operacao</h1>
+    </header>
+
+    <p class="sep-aporte-descricao">
+      Registro assistido de aporte na operacao {{ idCurto(m.operacaoId) }}, vinculada ao matching
+      confirmado com a credora {{ idCurto(m.empresaCredoraId) }}. Nesta fase o processamento usa
+      provider local (fake): nenhum dinheiro real e movimentado.
+    </p>
+
+    @if (m.status !== 'CONFIRMADA') {
+      <div class="sep-aporte-aviso" role="alert">
+        <p>
+          O aporte assistido so esta disponivel para matching confirmado. O estado atual desta
+          sugestao nao permite registro.
+        </p>
+        <a class="sep-aporte-aviso-link" [routerLink]="['/app/credora/matching', m.id]">
+          Ver detalhe do matching
+        </a>
+      </div>
+    } @else {
+      <dl class="sep-aporte-campos">
+        <div class="sep-aporte-campo">
+          <dt>Operacao</dt>
+          <dd>{{ idCurto(m.operacaoId) }}</dd>
+        </div>
+        <div class="sep-aporte-campo">
+          <dt>Valor elegivel</dt>
+          <dd>{{ formatarMoeda(m.valorElegivel) }}</dd>
+        </div>
+      </dl>
+
+      @if (resultado(); as aporte) {
+        <div class="sep-aporte-resultado" role="status">
+          <p>
+            Aporte registrado no valor de {{ formatarMoeda(aporte.valor) }}. O processamento e local
+            (fake) e o status abaixo vem do backend — sem garantia de liquidacao imediata.
+          </p>
+          <div class="sep-aporte-resultado-status">
+            <sep-aporte-status [status]="aporte.status" />
+            <span class="sep-aporte-resultado-datas">
+              Registrado em {{ formatarData(aporte.dataCriacao) }}
+            </span>
+          </div>
+        </div>
+      } @else {
+        @if (mfaNecessario()) {
+          <div class="sep-aporte-aviso" role="alert">
+            <p>
+              Para registrar o aporte e preciso ter a verificacao em duas etapas (MFA) ativa na sua
+              conta.
+            </p>
+            <a class="sep-aporte-aviso-link" [routerLink]="['/app/profile/setup-totp']">
+              Ativar verificacao em duas etapas
+            </a>
+          </div>
+        }
+
+        @if (aporteErro()) {
+          <p class="sep-aporte-decisao-erro" role="alert">{{ aporteErro() }}</p>
+        }
+
+        @if (verificacaoNecessaria()) {
+          <div class="sep-aporte-aviso" role="alert">
+            <p>Nao foi possivel confirmar sua identidade para o aporte.</p>
+            <button type="button" class="sep-aporte-retry" (click)="verificarNovamente()">
+              Verificar novamente
+            </button>
+          </div>
+        }
+
+        <div class="sep-aporte-form">
+          <label class="sep-aporte-form-label" for="aporte-valor">Valor do aporte (R$)</label>
+          <input
+            class="sep-aporte-form-campo"
+            id="aporte-valor"
+            type="text"
+            inputmode="decimal"
+            [value]="valor()"
+            [disabled]="aporteBloqueado()"
+            (input)="atualizarValor($any($event.target).value)"
+          />
+          <span class="sep-aporte-form-ajuda">
+            Valor sugerido a partir do valor elegivel do matching. Voce pode revisa-lo; a
+            elegibilidade final e validada pelo backend.
+          </span>
+          @if (valorErro()) {
+            <span class="sep-aporte-form-erro" role="alert">{{ valorErro() }}</span>
+          }
+        </div>
+
+        <div class="sep-aporte-acoes">
+          <button
+            type="button"
+            class="sep-aporte-registrar"
+            (click)="registrarClick()"
+            [disabled]="aporteBloqueado()"
+          >
+            Registrar aporte
+          </button>
+        </div>
+
+        @if (confirmando()) {
+          <div
+            #confirmacaoBox
+            class="sep-aporte-confirmacao"
+            role="alertdialog"
+            aria-modal="true"
+            tabindex="-1"
+            aria-labelledby="confirmacao-aporte-titulo"
+            (keydown.escape)="cancelarConfirmacao()"
+            (keydown.tab)="prenderFoco($event)"
+            (keydown.shift.tab)="prenderFoco($event)"
+          >
+            <h2 class="sep-aporte-confirmacao-titulo" id="confirmacao-aporte-titulo">
+              Confirmar aporte
+            </h2>
+            <p class="sep-aporte-confirmacao-texto">
+              Voce esta registrando um aporte de {{ valor() }} na operacao
+              {{ idCurto(m.operacaoId) }}. O processamento desta fase usa provider local (fake):
+              nenhum dinheiro real e movimentado.
+            </p>
+            <div class="sep-aporte-confirmacao-acoes">
+              <button
+                type="button"
+                class="sep-aporte-registrar"
+                (click)="confirmarAporte()"
+                [disabled]="aporteEmVoo()"
+              >
+                {{ aporteEmVoo() ? 'Enviando...' : 'Confirmar aporte' }}
+              </button>
+              <button
+                type="button"
+                class="sep-aporte-cancelar"
+                (click)="cancelarConfirmacao()"
+                [disabled]="aporteEmVoo()"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        }
+      }
+
+      <section class="sep-aporte-lista">
+        <h2 class="sep-aporte-subtitulo">Aportes da operacao</h2>
+        <sep-aportes-list [operacaoId]="m.operacaoId" />
+      </section>
+    }
+
+    <a class="sep-aporte-voltar" [routerLink]="['/app/credora/matching', m.id]">
+      Voltar para o detalhe do matching
+    </a>
+  }
+</section>

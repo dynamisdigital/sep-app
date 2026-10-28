@@ -1,6 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
 import { importProvidersFrom } from '@angular/core';
-import { ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { LucideAngularModule } from 'lucide-angular';
@@ -8,22 +7,11 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { InadimplenciaPageComponent } from './inadimplencia-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 // Primeira linha da triagem — a parcela 7 de 10 do contrato 5b771c06, a mais antiga em
 // atraso. O detalhe dela nasce da mesma carteira do mock.
 const PARCELA_ATRASADA_ID = 'a0000000-0000-4000-8000-000000000327';
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
 
 function renderPage() {
   return render(InadimplenciaPageComponent, {

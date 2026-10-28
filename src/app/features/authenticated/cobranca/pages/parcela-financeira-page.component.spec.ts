@@ -16,6 +16,7 @@ import { CobrancaService } from '../../../../core/cobranca/cobranca.service';
 import { stepUpInterceptor } from '../../../../core/interceptors/step-up.interceptor';
 import { server } from '../../../../../mocks/server';
 import { ParcelaFinanceiraPageComponent } from './parcela-financeira-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const PARCELA_ATRASADA_ID = 'a0000000-0000-4000-8000-000000000002';
 const PARCELA_PAGA_ID = 'a0000000-0000-4000-8000-000000000004';
@@ -50,7 +51,6 @@ async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
   await flush();
   fixture.detectChanges();
 }
-
 function renderParcela(id: string, comStepUp = false) {
   return render(ParcelaFinanceiraPageComponent, {
     providers: [

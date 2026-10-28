@@ -9,6 +9,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { PropostaDetailPageComponent } from './proposta-detail-page.component';
+import { estabilizar } from '../../../../../testing/estabilizar';
 
 const PROPOSTA_PRE_APROVADA_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c02';
 const PROPOSTA_APROVADA_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771c03';
@@ -16,18 +17,6 @@ const PROPOSTA_SEM_OWNERSHIP_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771ff03';
 const OUTRO_USUARIO_ID = '1f0799c0-98b9-6d9d-bc4a-7d6f5b771001';
 const PROPOSTA_INEXISTENTE_ID = '3f0799c0-98b9-6d9d-bc4a-7d6f5b771dead';
 const TOMADOR_ID = '1f0799c0-98b9-6d9d-bc4a-7d6f5b771002';
-
-async function flush(times = 5): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function estabilizar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await fixture.whenStable();
-  await flush();
-  fixture.detectChanges();
-}
 
 function activatedRoute(id?: string) {
   return { snapshot: { paramMap: convertToParamMap(id ? { id } : {}) } };
