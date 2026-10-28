@@ -150,9 +150,58 @@
 
         <h2 id="cookies">9. Cookies e armazenamento local</h2>
         <p>
-          A plataforma usa armazenamento local do navegador para manter sua sessão, lembrar
-          preferências como o tema e o estado do menu, e proteger contra fraude. Não usamos cookies
-          de publicidade nem rastreamento entre sites.
+          Usamos <strong>um único cookie</strong>, e ele existe para manter você autenticado. Não
+          usamos cookies de publicidade, medição de audiência ou perfilamento.
+        </p>
+        <dl>
+          <dt><code>sep-refresh</code></dt>
+          <dd>
+            Guarda o token de renovação da sua sessão, para que você não precise digitar a senha a
+            cada poucos minutos. É marcado como <code>HttpOnly</code>, o que impede que qualquer
+            script da página leia o valor. Em produção trafega apenas por conexão segura
+            (<code>Secure</code>) e com <code>SameSite=Strict</code>. Fica restrito ao caminho
+            <code>/api/v1/auth</code>, então não acompanha as demais chamadas da API. Validade de
+            <strong>30 dias</strong>; o logout o remove imediatamente.
+          </dd>
+        </dl>
+        <p>
+          <strong>Por que não há opção de recusar.</strong> O <code>sep-refresh</code> é
+          estritamente necessário para o login: recusá-lo equivale a não conseguir entrar na
+          plataforma. Como não usamos nenhum cookie de análise ou marketing, não existe escolha a
+          oferecer, e preferimos dizer isso a exibir um botão de recusa que não recusaria nada.
+        </p>
+        <p>
+          Além do cookie, o aplicativo guarda alguns valores no armazenamento local do navegador
+          (<code>localStorage</code>):
+        </p>
+        <dl>
+          <dt><code>SEP_ACCESS_TOKEN</code></dt>
+          <dd>
+            Token que autoriza suas requisições enquanto você está logado. Removido no logout.
+          </dd>
+          <dt><code>SEP_PENDING_MFA_CHALLENGE</code></dt>
+          <dd>
+            Identificador do desafio de verificação em duas etapas em andamento, usado entre a tela
+            de senha e a de código. Removido no logout.
+          </dd>
+          <dt><code>SEP_THEME</code></dt>
+          <dd>Sua preferência de tema claro ou escuro. Não identifica você.</dd>
+          <dt><code>SEP_AVISO_COOKIES</code></dt>
+          <dd>
+            Registra que você já viu o aviso de cookies, para não exibi-lo de novo. Fica somente no
+            seu navegador e nunca é enviado aos nossos servidores.
+          </dd>
+        </dl>
+        <p>
+          Não utilizamos <code>sessionStorage</code>. Esses valores ficam no seu dispositivo e podem
+          ser apagados a qualquer momento pelas configurações do navegador; apagar o token de acesso
+          equivale a sair da sua conta.
+        </p>
+        <p>
+          <strong>Rastreamento de terceiros: não há nenhum.</strong> A aplicação não carrega scripts
+          de terceiros e não possui ferramentas de análise de audiência, mapas de calor, pixels de
+          anúncio ou redes de publicidade. Nenhum dado de navegação seu é compartilhado com
+          terceiros para esses fins.
         </p>
 
         <h2 id="alteracoes">10. Alterações desta política</h2>

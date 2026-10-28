@@ -82,6 +82,20 @@
   max-width: 820px;
 }
 
+.px55-prosa dl {
+  margin: 0 0 20px;
+}
+
+.px55-prosa dt {
+  margin-top: 14px;
+  font-weight: 600;
+  color: var(--site-texto);
+}
+
+.px55-prosa dd {
+  margin: 4px 0 0;
+}
+
 // ============ TABELA DE TRATAMENTO ============
 // Larga por natureza: rola dentro da própria caixa, e não empurra a página.
 

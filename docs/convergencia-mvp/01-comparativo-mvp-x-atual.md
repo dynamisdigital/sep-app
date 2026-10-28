@@ -75,8 +75,11 @@ unitários verdes. O e2e achou o que o merge deixou desalinhado, já corrigido:
 - **Menu.** "Chaves Pix" e "Matching de credoras" só existiam no `sidenav` antigo. Entraram no shell
   operacional (filho de Pix e item de Operação, ambos FINANCEIRO e ADMIN).
 - **Rota duplicada.** `/politica-de-privacidade` existia nas duas bases; ficou a página do atual (11
-  seções). `politica-privacidade/` (MVP) continua no repositório, sem rota: decidir se o texto sobre cookies
-  e as seções pendentes de redação jurídica migram para a página atual ou se a pasta é removida.
+  seções). `politica-privacidade/` (MVP) foi removida: o inventário de cookies e
+  de chaves do navegador (`sep-refresh`, `SEP_ACCESS_TOKEN`, `SEP_PENDING_MFA_CHALLENGE`, `SEP_THEME`,
+  `SEP_AVISO_COOKIES`) migrou para a seção 9 da página atual, junto de um spec que trava esse inventário.
+  O aviso de "pendente de revisão jurídica" e a lista de seções pendentes não migraram, porque a página
+  atual já tem base legal, direitos e encarregado; o texto da seção 9 ainda precisa de revisão jurídica.
 - **Specs do MVP** ajustadas ao menu em cascata e a nomes acentuados.
 - **Segundo merge (`origin/develop`, sprints 26 a 28 do MVP).** O `develop` do `origin` tinha andado 37 commits
   depois do primeiro merge (códigos de erro, central de notificações, contract-check com typecheck, Angular
