@@ -66,7 +66,7 @@ carteira da credora, `handlers.ts` (4 trechos), `styles/index.scss`, `package.js
 
 ### Situação em 28/10/2026
 
-Passos 1 e 2 concluídos: merge feito, lint, formatação, build, `contract:check` (85 operações) e testes
+Passos 1 e 2 concluídos: merge feito, lint, formatação, build, `contract:check` (88 operações) e testes
 unitários verdes. O e2e achou o que o merge deixou desalinhado, já corrigido:
 
 - **Aviso de cookies do MVP × specs do atual.** O aviso reserva 10rem no rodapé do `body` e quebrava as

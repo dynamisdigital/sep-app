@@ -21,6 +21,7 @@ está em aberto**.
 | [modulos/05-analise-de-credito.md](modulos/05-analise-de-credito.md) | Bureaus, score interno explicável e parecer |
 | [modulos/06-glossario-e-ajuda.md](modulos/06-glossario-e-ajuda.md) | Glossário técnico e ajuda do sistema |
 | [modulos/07-site-publico-e-demonstracao.md](modulos/07-site-publico-e-demonstracao.md) | Site institucional, blog, investidores e demonstração |
+| [08-correcao-ci.md](08-correcao-ci.md) | Correção da auditoria do PR #190, compatibilidade do tooling e limites da validação |
 
 Os contratos detalhados que já existem continuam sendo a fonte da verdade e são citados em cada módulo:
 [`CONTRATO_BACKEND_CORRESPONDENTES.md`](../atualizacao-07102026/CONTRATO_BACKEND_CORRESPONDENTES.md),

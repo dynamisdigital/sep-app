@@ -19,6 +19,9 @@ export default defineConfig(({ mode }) => ({
     },
     coverage: {
       provider: 'v8',
+      // Vitest 4 cobre só arquivos carregados por padrão. Manter também os não exercitados,
+      // como na baseline do Vitest 3, para não inflar a cobertura durante a migração.
+      include: ['src/**/*.ts'],
       reporter: ['text', 'html', 'lcov'],
       reportsDirectory: 'coverage',
       exclude: [
