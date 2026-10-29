@@ -19,6 +19,7 @@ import {
   formatarData,
   formatarMoeda,
   idCurto,
+  rotuloCriterio,
   mensagemCredoraErro,
 } from '../shared/credora-format';
 import { MatchingStatusComponent } from '../shared/matching-status.component';
@@ -42,6 +43,7 @@ export class MatchingSugestoesPageComponent implements OnInit {
   protected readonly formatarData = formatarData;
   protected readonly formatarMoeda = formatarMoeda;
   protected readonly idCurto = idCurto;
+  protected readonly rotuloCriterio = rotuloCriterio;
 
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);

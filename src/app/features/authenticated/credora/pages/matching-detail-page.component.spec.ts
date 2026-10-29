@@ -111,7 +111,7 @@ describe('MatchingDetailPageComponent', () => {
     expect(screen.getByRole('heading', { name: 'Detalhe do matching' })).toBeTruthy();
     expect(screen.getByText('Sugerida')).toBeTruthy();
     expect(screen.getByText(/25\.000,00/)).toBeTruthy();
-    expect(screen.getByText('CONTRATO_ASSINADO')).toBeTruthy();
+    expect(screen.getByText('Contrato assinado')).toBeTruthy();
     expect(screen.getByText('Confirmar matching')).toBeTruthy();
     expect(screen.getByText('Rejeitar matching')).toBeTruthy();
   });

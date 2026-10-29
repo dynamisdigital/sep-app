@@ -53,8 +53,8 @@ describe('MatchingSugestoesPageComponent', () => {
     expect(screen.queryByText(/7f0799c0-98b9/)).toBeNull();
     expect(screen.getByText(/25\.000,00/)).toBeTruthy();
     expect(screen.getByText(/12\.000,00/)).toBeTruthy();
-    expect(screen.getAllByText('CONTRATO_ASSINADO').length).toBe(2);
-    expect(screen.getByText('CAPACIDADE_COMPORTA_VALOR')).toBeTruthy();
+    expect(screen.getAllByText('Contrato assinado').length).toBe(2);
+    expect(screen.getByText('Capacidade comporta o valor')).toBeTruthy();
     expect(screen.getAllByText('Sugerida').length).toBe(2);
   });
 

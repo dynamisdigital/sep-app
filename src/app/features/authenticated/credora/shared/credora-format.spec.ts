@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatarData } from './credora-format';
+import { formatarData, rotuloCriterio } from './credora-format';
 
 /**
  * Fiacao com `formatarDataIso` (FMF-4.1). O contrato completo — e a explicacao de por que
@@ -22,5 +22,16 @@ describe('formatarData', () => {
 
   it('data valida continua formatando', () => {
     expect(formatarData('2026-09-14T12:00:00Z')).toContain('14/09/2026');
+  });
+});
+
+describe('rotuloCriterio', () => {
+  it('traduz o código do backend para o rótulo em português', () => {
+    expect(rotuloCriterio('CREDORA_ELEGIVEL')).toBe('Credora elegível');
+    expect(rotuloCriterio('PAR_SEM_MATCHING_PREVIO')).toBe('Sem matching prévio no par');
+  });
+
+  it('código ainda não mapeado vira texto legível, nunca o identificador cru', () => {
+    expect(rotuloCriterio('LIMITE_DIARIO_RESPEITADO')).toBe('Limite diario respeitado');
   });
 });

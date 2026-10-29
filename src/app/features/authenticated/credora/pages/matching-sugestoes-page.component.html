@@ -95,7 +95,7 @@
               </span>
               <ul class="px67-criterios">
                 @for (criterio of sugestao.criterios; track criterio) {
-                  <li class="px67-criterio">{{ criterio }}</li>
+                  <li class="px67-criterio">{{ rotuloCriterio(criterio) }}</li>
                 }
               </ul>
               <span class="px67-item-data"> Criada em {{ formatarData(sugestao.criadaEm) }} </span>

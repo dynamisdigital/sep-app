@@ -41,8 +41,29 @@ export function formatarTaxaMensal(taxa: number): string {
 // Label legivel da natureza da credora (TipoCredora no backend).
 export const TIPO_CREDORA_LABEL: Record<TipoCredora, string> = {
   EMPRESA: 'Empresa',
-  INSTITUICAO_FINANCEIRA: 'Instituicao financeira',
+  INSTITUICAO_FINANCEIRA: 'Instituição financeira',
 };
+
+// Rótulos dos critérios de elegibilidade do matching. O backend devolve códigos (ex.: CREDORA_ATIVA);
+// a tela mostra a frase em português. Código novo ainda não mapeado cai no fallback legível, nunca
+// no identificador cru.
+const CRITERIO_LABEL: Record<string, string> = {
+  CREDORA_ATIVA: 'Credora ativa',
+  CREDORA_ELEGIVEL: 'Credora elegível',
+  OPERACAO_ATIVA: 'Operação ativa',
+  CONTRATO_ASSINADO: 'Contrato assinado',
+  PAR_SEM_MATCHING_PREVIO: 'Sem matching prévio no par',
+  CAPACIDADE_COMPORTA_VALOR: 'Capacidade comporta o valor',
+};
+
+export function rotuloCriterio(codigo: string): string {
+  const conhecido = CRITERIO_LABEL[codigo];
+  if (conhecido) {
+    return conhecido;
+  }
+  const texto = codigo.replace(/_/g, ' ').trim().toLowerCase();
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
 
 // Mensagem amigavel do corpo de erro padronizado da API, com fallback e sanitizacao. 401/403/423 globais sao
 // tratados pelo errorInterceptor; aqui os componentes cobrem os erros de dominio da credora.

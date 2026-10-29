@@ -33,7 +33,7 @@ test('admin: sugestões -> detalhe -> confirmação navega ao step-up sem decidi
   await page.waitForURL(/\/app\/credora\/matching$/, { timeout: 10_000 });
   await expect(page.getByRole('heading', { name: 'Matching de credoras' })).toBeVisible();
   await expect(page.getByText(/25\.000,00/)).toBeVisible();
-  await expect(page.getByText('CONTRATO_ASSINADO').first()).toBeVisible();
+  await expect(page.getByText('Contrato assinado').first()).toBeVisible();
 
   // Detalhe autoritativo da sugestao pendente.
   await page.getByRole('link', { name: 'Ver detalhe e decidir' }).first().click();

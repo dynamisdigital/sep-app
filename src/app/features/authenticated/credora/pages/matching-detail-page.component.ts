@@ -23,6 +23,7 @@ import {
   formatarData,
   formatarMoeda,
   idCurto,
+  rotuloCriterio,
   mensagemCredoraErro,
 } from '../shared/credora-format';
 import { MatchingStatusComponent } from '../shared/matching-status.component';
@@ -74,6 +75,7 @@ export class MatchingDetailPageComponent implements OnInit {
   protected readonly formatarData = formatarData;
   protected readonly formatarMoeda = formatarMoeda;
   protected readonly idCurto = idCurto;
+  protected readonly rotuloCriterio = rotuloCriterio;
   protected readonly motivoMax = MOTIVO_MAX;
 
   // Dialogo acessivel (padrao F-16): foco entra na confirmacao ao abrir e volta ao botao que a
