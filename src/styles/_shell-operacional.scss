@@ -291,6 +291,7 @@ $janela-meia-tela: 1716px;
    respeita a linha e rola por dentro. */
 .op-dashboard .op-sidebar .op-nav {
   align-self: stretch;
+  padding-inline: 10px;
 }
 
 .op-nav-section {
@@ -323,6 +324,13 @@ $janela-meia-tela: 1716px;
     border-color 180ms ease,
     box-shadow 180ms ease,
     background 180ms ease;
+}
+
+// Recuo do menu: ícone e texto mais perto da borda e entre si, para o rótulo longo caber sem quebrar.
+// O seletor tem a força do `.op-sidebar .op-nav-link` do tema global, que fixava o padding em 12px.
+.op-dashboard .op-sidebar .op-nav-link {
+  gap: 9px;
+  padding-inline: 9px;
 }
 
 .op-nav-link span {
@@ -803,8 +811,8 @@ $janela-meia-tela: 1716px;
     width: 116px;
   }
 
-  .op-nav {
-    padding: 14px 8px 8px;
+  .op-dashboard .op-sidebar .op-nav {
+    padding: 14px 6px 8px;
   }
 
   .op-nav-section {
@@ -818,19 +826,23 @@ $janela-meia-tela: 1716px;
     padding-inline: 9px;
   }
 
+  .op-dashboard .op-sidebar .op-nav-link {
+    gap: 6px;
+    padding-inline: 7px;
+  }
+
+  /* Último recurso: o tema global fixa o rótulo em 14px com !important e "Correspondentes" ainda
+     quebrava no meio da palavra nos 208px. Meio ponto a menos resolve sem mexer nas outras larguras. */
+  .op-dashboard .op-sidebar .op-nav-link span {
+    font-size: 13.5px !important;
+  }
+
   /* Com a barra em 208px o rotulo e a primeira coisa a faltar espaco: "Agenda financeira" e
      "Administração" saiam reticenciados. Aqui so a folga encolhe — o corpo de texto continua
      em 13px, como nas larguras maiores. */
   .op-nav-link small {
     min-width: 20px;
     height: 20px;
-  }
-
-  /* O tema global fixa o rótulo em 14px com !important, e "Correspondentes" (112px) não cabe nos
-     108px que sobram aqui: quebrava no meio da palavra. Com a especificidade maior, volta aos 13px
-     que este bloco prometia. */
-  .op-dashboard .op-sidebar .op-nav-link span {
-    font-size: 13px !important;
   }
 
   .op-subnav {
