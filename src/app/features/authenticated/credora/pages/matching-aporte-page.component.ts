@@ -137,7 +137,7 @@ export class MatchingAportePageComponent implements OnInit {
             this.indisponivel.set(true);
             return;
           }
-          this.errorMessage.set(mensagemCredoraErro(err, 'Nao foi possivel carregar o matching.'));
+          this.errorMessage.set(mensagemCredoraErro(err, 'Não foi possível carregar o matching.'));
         },
       });
   }
@@ -267,7 +267,7 @@ export class MatchingAportePageComponent implements OnInit {
       return null;
     }
     if (!VALOR_PATTERN.test(texto)) {
-      this.valorErro.set('Valor invalido: use um numero positivo com ate duas casas decimais.');
+      this.valorErro.set('Valor inválido: use um número positivo com até duas casas decimais.');
       return null;
     }
     const valor = Number(texto.replace(',', '.'));
@@ -291,7 +291,7 @@ export class MatchingAportePageComponent implements OnInit {
       // Valor/key invalidos: mantem o formulario para correcao. Nada foi criado — a intencao e
       // encerrada e a proxima confirmacao nasce com key nova.
       this.aporteErro.set(
-        mensagemCredoraErro(err, 'Dados do aporte invalidos. Revise o valor e tente novamente.'),
+        mensagemCredoraErro(err, 'Dados do aporte inválidos. Revise o valor e tente novamente.'),
       );
       this.intencoes.limpar();
       return;
@@ -305,7 +305,7 @@ export class MatchingAportePageComponent implements OnInit {
       return;
     }
     if (err.status === 404) {
-      this.aporteErro.set('Operacao indisponivel para aporte.');
+      this.aporteErro.set('Operação indisponível para aporte.');
       this.intencoes.limpar();
       return;
     }
@@ -313,7 +313,7 @@ export class MatchingAportePageComponent implements OnInit {
       // Elegibilidade/key conflitante: reconsultar a lista, sem sucesso presumido; a proxima
       // confirmacao cria nova intencao.
       this.aporteErro.set(
-        'A operacao nao aceitou o aporte (elegibilidade ou registro conflitante). O status foi atualizado.',
+        'A operação não aceitou o aporte (elegibilidade ou registro conflitante). O status foi atualizado.',
       );
       this.intencoes.limpar();
       this.aportesList()?.atualizar();
@@ -322,7 +322,7 @@ export class MatchingAportePageComponent implements OnInit {
     // Rede/5xx: o aporte pode ou nao ter sido registrado. A intencao (mesma key) e mantida para o
     // retry com o mesmo valor — o backend faz o replay idempotente — e a lista e reconsultada.
     this.aporteErro.set(
-      'Nao foi possivel confirmar o registro do aporte. Atualize o status antes de tentar novamente com o mesmo valor.',
+      'Não foi possível confirmar o registro do aporte. Atualize o status antes de tentar novamente com o mesmo valor.',
     );
     this.aportesList()?.atualizar();
   }

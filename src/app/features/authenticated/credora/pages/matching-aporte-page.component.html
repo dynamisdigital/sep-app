@@ -13,12 +13,12 @@
             <lucide-icon name="banknote" [size]="24" aria-hidden="true" />
           </span>
           <div>
-            <h1>Aporte da operacao</h1>
+            <h1>Aporte da operação</h1>
             @if (matching(); as m) {
               <p class="px69-subtitulo">
-                Registro assistido de aporte na operacao {{ idCurto(m.operacaoId) }}, vinculada ao
+                Registro assistido de aporte na operação {{ idCurto(m.operacaoId) }}, vinculada ao
                 matching confirmado com a credora {{ idCurto(m.empresaCredoraId) }}. Nesta fase o
-                processamento usa provider local (fake): nenhum dinheiro real e movimentado.
+                processamento usa provider local (fake): nenhum dinheiro real é movimentado.
               </p>
             }
           </div>
@@ -30,7 +30,7 @@
           </a>
         } @else {
           <a class="px69-btn-sec" routerLink="/app/credora/matching">
-            <lucide-icon name="arrow-left" [size]="16" aria-hidden="true" />Voltar para as sugestoes
+            <lucide-icon name="arrow-left" [size]="16" aria-hidden="true" />Voltar para as sugestões
           </a>
         }
       </div>
@@ -48,15 +48,15 @@
       </div>
     } @else if (indisponivel()) {
       <div class="px69-card px69-estado">
-        <p>Matching indisponivel para aporte.</p>
+        <p>Matching indisponível para aporte.</p>
       </div>
     } @else if (matching(); as m) {
       @if (m.status !== 'CONFIRMADA') {
         <div class="px69-alerta" data-tone="amber" role="alert">
           <lucide-icon name="triangle-alert" [size]="18" aria-hidden="true" />
           <p>
-            O aporte assistido so esta disponivel para matching confirmado. O estado atual desta
-            sugestao nao permite registro.
+            O aporte assistido só está disponível para matching confirmado. O estado atual desta
+            sugestão não permite registro.
           </p>
           <a class="px69-link" [routerLink]="['/app/credora/matching', m.id]">
             Ver detalhe do matching
@@ -72,11 +72,11 @@
 
             <dl class="px69-campos">
               <div class="px69-campo-dado">
-                <dt>Operacao</dt>
+                <dt>Operação</dt>
                 <dd>{{ idCurto(m.operacaoId) }}</dd>
               </div>
               <div class="px69-campo-dado">
-                <dt>Valor elegivel</dt>
+                <dt>Valor elegível</dt>
                 <dd>{{ formatarMoeda(m.valorElegivel) }}</dd>
               </div>
             </dl>
@@ -85,8 +85,8 @@
               <div class="px69-alerta" data-tone="green" role="status">
                 <lucide-icon name="circle-check" [size]="18" aria-hidden="true" />
                 <p>
-                  Aporte registrado no valor de {{ formatarMoeda(aporte.valor) }}. O processamento e
-                  local (fake) e o status abaixo vem do backend — sem garantia de liquidacao
+                  Aporte registrado no valor de {{ formatarMoeda(aporte.valor) }}. O processamento é
+                  local (fake) e o status abaixo vem do backend — sem garantia de liquidação
                   imediata.
                 </p>
               </div>
@@ -101,11 +101,11 @@
                 <div class="px69-alerta" data-tone="amber" role="alert">
                   <lucide-icon name="triangle-alert" [size]="18" aria-hidden="true" />
                   <p>
-                    Para registrar o aporte e preciso ter a verificacao em duas etapas (MFA) ativa
+                    Para registrar o aporte é preciso ter a verificação em duas etapas (MFA) ativa
                     na sua conta.
                   </p>
                   <a class="px69-link" [routerLink]="['/app/profile/setup-totp']">
-                    Ativar verificacao em duas etapas
+                    Ativar verificação em duas etapas
                   </a>
                 </div>
               }
@@ -121,7 +121,7 @@
               @if (verificacaoNecessaria()) {
                 <div class="px69-alerta" data-tone="amber" role="alert">
                   <lucide-icon name="triangle-alert" [size]="18" aria-hidden="true" />
-                  <p>Nao foi possivel confirmar sua identidade para o aporte.</p>
+                  <p>Não foi possível confirmar sua identidade para o aporte.</p>
                   <button type="button" class="px69-btn-sec" (click)="verificarNovamente()">
                     Verificar novamente
                   </button>
@@ -140,8 +140,8 @@
                     (input)="atualizarValor($any($event.target).value)"
                   />
                   <span class="px69-ajuda">
-                    Valor sugerido a partir do valor elegivel do matching. Voce pode revisa-lo; a
-                    elegibilidade final e validada pelo backend.
+                    Valor sugerido a partir do valor elegível do matching. Você pode revisá-lo; a
+                    elegibilidade final é validada pelo backend.
                   </span>
                   @if (valorErro()) {
                     <span class="px69-erro-campo" role="alert">{{ valorErro() }}</span>
@@ -163,7 +163,7 @@
           <!-- ============ APORTES DA OPERAÇÃO ============ -->
           <section class="px69-card px69-lista" aria-labelledby="aporte-lista-titulo">
             <header class="px69-card-topo">
-              <h2 id="aporte-lista-titulo">Aportes da operacao</h2>
+              <h2 id="aporte-lista-titulo">Aportes da operação</h2>
             </header>
             <sep-aportes-list [operacaoId]="m.operacaoId" />
           </section>
@@ -225,9 +225,9 @@
               </span>
               <h2 id="confirmacao-aporte-titulo">Confirmar aporte</h2>
               <p>
-                Voce esta registrando um aporte de {{ valor() }} na operacao
+                Você está registrando um aporte de {{ valor() }} na operação
                 {{ idCurto(m.operacaoId) }}. O processamento desta fase usa provider local (fake):
-                nenhum dinheiro real e movimentado.
+                nenhum dinheiro real é movimentado.
               </p>
               <div class="px69-dialogo-acoes">
                 <button

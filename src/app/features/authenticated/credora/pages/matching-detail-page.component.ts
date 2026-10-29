@@ -290,12 +290,12 @@ export class MatchingDetailPageComponent implements OnInit {
   // Matriz de falhas da decisao: nenhum caminho presume sucesso e nenhum erro ecoa UUID.
   private tratarErroDecisao(err: HttpErrorResponse): void {
     if (err.status === 409) {
-      this.decisaoErro.set('A sugestao ja foi decidida. O estado foi atualizado.');
+      this.decisaoErro.set('A sugestão já foi decidida. O estado foi atualizado.');
       this.atualizarSugestao();
       return;
     }
     if (err.status === 404) {
-      this.decisaoErro.set('A sugestao nao esta mais disponivel.');
+      this.decisaoErro.set('A sugestão não está mais disponível.');
       this.atualizarSugestao();
       return;
     }
@@ -309,14 +309,14 @@ export class MatchingDetailPageComponent implements OnInit {
     }
     if (err.status === 400) {
       this.decisaoErro.set(
-        mensagemCredoraErro(err, 'Dados da decisao invalidos. Revise e tente novamente.'),
+        mensagemCredoraErro(err, 'Dados da decisão inválidos. Revise e tente novamente.'),
       );
       return;
     }
     // Rede/5xx: resultado desconhecido nunca vira decisao presumida; exige nova leitura
     // bem-sucedida antes de qualquer novo gesto.
     this.decisaoErro.set(
-      'Nao foi possivel concluir a decisao. Atualize a sugestao antes de tentar novamente.',
+      'Não foi possível concluir a decisão. Atualize a sugestão antes de tentar novamente.',
     );
     this.desatualizado.set(true);
   }
@@ -334,6 +334,6 @@ export class MatchingDetailPageComponent implements OnInit {
       this.desatualizado.set(true);
       return;
     }
-    this.errorMessage.set(mensagemCredoraErro(err, 'Nao foi possivel carregar a sugestao.'));
+    this.errorMessage.set(mensagemCredoraErro(err, 'Não foi possível carregar a sugestão.'));
   }
 }

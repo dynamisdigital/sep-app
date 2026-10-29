@@ -14,9 +14,9 @@
           <div>
             <h1>Chaves Pix da conta operacional</h1>
             <p class="px66-subtitulo">
-              Chaves da conta operacional/escrow, sempre mascaradas: o valor integral nunca e
-              exibido nem armazenado pelo frontend. O historico de chaves inativas permanece
-              visivel. Nesta fase o processamento usa provider local (fake).
+              Chaves da conta operacional/escrow, sempre mascaradas: o valor integral nunca é
+              exibido nem armazenado pelo frontend. O histórico de chaves inativas permanece
+              visível. Nesta fase o processamento usa provider local (fake).
             </p>
           </div>
         </div>
@@ -84,11 +84,11 @@
             <div class="px66-alerta" data-tone="amber" role="alert">
               <lucide-icon name="triangle-alert" [size]="18" aria-hidden="true" />
               <p>
-                Para remover uma chave Pix e preciso ter a verificacao em duas etapas (MFA) ativa na
+                Para remover uma chave Pix é preciso ter a verificação em duas etapas (MFA) ativa na
                 sua conta.
               </p>
               <a class="px66-link" routerLink="/app/profile/setup-totp">
-                Ativar verificacao em duas etapas
+                Ativar verificação em duas etapas
               </a>
             </div>
           }
@@ -96,7 +96,7 @@
           @if (remocaoVerificacaoNecessaria()) {
             <div class="px66-alerta" data-tone="amber" role="alert">
               <lucide-icon name="triangle-alert" [size]="18" aria-hidden="true" />
-              <p>Nao foi possivel confirmar sua identidade para a remocao da chave.</p>
+              <p>Não foi possível confirmar sua identidade para a remoção da chave.</p>
               <button type="button" class="px66-btn-sec" (click)="verificarNovamenteRemocao()">
                 Verificar novamente
               </button>
@@ -134,7 +134,7 @@
                     <th scope="col">Status</th>
                     <th scope="col">Cadastrada em</th>
                     <th scope="col">Removida em</th>
-                    <th scope="col">Acoes</th>
+                    <th scope="col">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -212,7 +212,7 @@
           <h2 id="chaves-cadastro-titulo">Cadastrar nova chave</h2>
         </header>
         <p class="px66-ajuda">
-          O cadastro exige verificacao de identidade (step-up). O valor informado e enviado ao
+          O cadastro exige verificação de identidade (step-up). O valor informado é enviado ao
           backend e nunca fica armazenado no navegador; a chave volta sempre mascarada.
         </p>
 
@@ -226,11 +226,11 @@
           <div class="px66-alerta" data-tone="amber" role="alert">
             <lucide-icon name="triangle-alert" [size]="18" aria-hidden="true" />
             <p>
-              Para cadastrar uma chave Pix e preciso ter a verificacao em duas etapas (MFA) ativa na
+              Para cadastrar uma chave Pix é preciso ter a verificação em duas etapas (MFA) ativa na
               sua conta.
             </p>
             <a class="px66-link" routerLink="/app/profile/setup-totp">
-              Ativar verificacao em duas etapas
+              Ativar verificação em duas etapas
             </a>
           </div>
         }
@@ -238,7 +238,7 @@
         @if (verificacaoNecessaria()) {
           <div class="px66-alerta" data-tone="amber" role="alert">
             <lucide-icon name="triangle-alert" [size]="18" aria-hidden="true" />
-            <p>Nao foi possivel confirmar sua identidade para o cadastro da chave.</p>
+            <p>Não foi possível confirmar sua identidade para o cadastro da chave.</p>
             <button type="button" class="px66-btn-sec" (click)="verificarNovamente()">
               Verificar novamente
             </button>
@@ -277,8 +277,8 @@
               (input)="atualizarValor($any($event.target).value)"
             />
             <span class="px66-ajuda">
-              Obrigatorio para todos os tipos, inclusive aleatoria (EVP). O formato e o digito
-              verificador sao validados pelo backend.
+              Obrigatório para todos os tipos, inclusive aleatória (EVP). O formato e o dígito
+              verificador são validados pelo backend.
             </span>
             @if (valorErro(); as erroValor) {
               <span class="px66-erro-campo" role="alert">{{ erroValor }}</span>
@@ -315,11 +315,11 @@
         <span class="px66-titulo-icone px66-dialogo-icone" data-tone="red">
           <lucide-icon name="trash-2" [size]="22" aria-hidden="true" />
         </span>
-        <h2 id="confirmacao-remocao-titulo">Confirmar remocao de chave</h2>
+        <h2 id="confirmacao-remocao-titulo">Confirmar remoção de chave</h2>
         <p>
-          Voce esta removendo a chave {{ tipoLabel[alvo.tipo] }} {{ alvo.valorMascarado }} da conta
-          operacional. A chave passa a INATIVA e permanece no historico; o registro no provider
-          local (fake) tambem e desfeito.
+          Você está removendo a chave {{ tipoLabel[alvo.tipo] }} {{ alvo.valorMascarado }} da conta
+          operacional. A chave passa a INATIVA e permanece no histórico; o registro no provider
+          local (fake) também é desfeito.
         </p>
         <div class="px66-dialogo-acoes">
           <button
@@ -328,7 +328,7 @@
             (click)="confirmarRemocao()"
             [disabled]="remocaoEmVoo()"
           >
-            {{ remocaoEmVoo() ? 'Removendo...' : 'Confirmar remocao' }}
+            {{ remocaoEmVoo() ? 'Removendo...' : 'Confirmar remoção' }}
           </button>
           <button
             type="button"
@@ -361,9 +361,9 @@
         </span>
         <h3 id="confirmacao-chave-titulo">Confirmar cadastro de chave</h3>
         <p>
-          Voce esta cadastrando uma chave do tipo {{ tipoLabel[tipo()] }} com o valor
+          Você está cadastrando uma chave do tipo {{ tipoLabel[tipo()] }} com o valor
           {{ valor() }} na conta operacional. Nesta fase o registro usa provider local (fake):
-          nenhuma chave real e criada no DICT.
+          nenhuma chave real é criada no DICT.
         </p>
         <div class="px66-dialogo-acoes">
           <button

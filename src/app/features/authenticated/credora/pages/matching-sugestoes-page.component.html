@@ -13,14 +13,14 @@
           <div>
             <h1>Matching de credoras</h1>
             <p class="px67-subtitulo">
-              Sugestoes de pareamento entre credoras e operacoes financiadas, geradas pelo backend.
-              A atualizacao pode registrar e auditar sugestoes novas; nada e confirmado
-              automaticamente — a decisao e sempre sua, no detalhe de cada sugestao.
+              Sugestões de pareamento entre credoras e operações financiadas, geradas pelo backend.
+              A atualização pode registrar e auditar sugestões novas; nada é confirmado
+              automaticamente — a decisão é sempre sua, no detalhe de cada sugestão.
             </p>
           </div>
         </div>
         <button type="button" class="px67-btn-primary" [disabled]="loading()" (click)="carregar()">
-          <lucide-icon name="refresh-cw" [size]="16" aria-hidden="true" />Atualizar sugestoes
+          <lucide-icon name="refresh-cw" [size]="16" aria-hidden="true" />Atualizar sugestões
         </button>
       </div>
     </header>
@@ -68,7 +68,7 @@
       </header>
 
       @if (loading()) {
-        <p class="px67-estado" role="status">Carregando sugestoes...</p>
+        <p class="px67-estado" role="status">Carregando sugestões...</p>
       } @else if (errorMessage()) {
         <div class="px67-estado px67-erro" role="alert">
           <lucide-icon name="triangle-alert" [size]="22" aria-hidden="true" />
@@ -78,20 +78,20 @@
           </button>
         </div>
       } @else if (sugestoes().length === 0) {
-        <p class="px67-estado">Nenhuma sugestao de matching pendente de decisao.</p>
+        <p class="px67-estado">Nenhuma sugestão de matching pendente de decisão.</p>
       } @else {
         <ul class="px67-lista">
           @for (sugestao of sugestoes(); track sugestao.id) {
             <li class="px67-item">
               <div class="px67-item-topo">
                 <span class="px67-item-titulo">
-                  Operacao {{ idCurto(sugestao.operacaoId) }} · Credora
+                  Operação {{ idCurto(sugestao.operacaoId) }} · Credora
                   {{ idCurto(sugestao.empresaCredoraId) }}
                 </span>
                 <sep-matching-status [status]="sugestao.status" />
               </div>
               <span class="px67-item-valor">
-                Valor elegivel: {{ formatarMoeda(sugestao.valorElegivel) }}
+                Valor elegível: {{ formatarMoeda(sugestao.valorElegivel) }}
               </span>
               <ul class="px67-criterios">
                 @for (criterio of sugestao.criterios; track criterio) {

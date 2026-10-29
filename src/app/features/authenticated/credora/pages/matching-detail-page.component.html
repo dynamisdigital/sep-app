@@ -16,21 +16,21 @@
             <h1>Detalhe do matching</h1>
             @if (sugestao(); as atual) {
               <p class="px68-subtitulo">
-                Sugestao gerada pelo sistema para o par credora-operacao. Confirmar apenas registra
-                a decisao: nenhum aporte e criado e nenhum recurso e transferido.
+                Sugestão gerada pelo sistema para o par credora-operação. Confirmar apenas registra
+                a decisão: nenhum aporte é criado e nenhum recurso é transferido.
               </p>
               <sep-matching-status [status]="atual.status" />
             }
           </div>
         </div>
         <a class="px68-btn-sec" routerLink="/app/credora/matching">
-          <lucide-icon name="arrow-left" [size]="16" aria-hidden="true" />Voltar para as sugestoes
+          <lucide-icon name="arrow-left" [size]="16" aria-hidden="true" />Voltar para as sugestões
         </a>
       </div>
     </header>
 
     @if (loading()) {
-      <p class="px68-card px68-estado" role="status">Carregando sugestao...</p>
+      <p class="px68-card px68-estado" role="status">Carregando sugestão...</p>
     } @else if (errorMessage()) {
       <div class="px68-card px68-estado px68-erro" role="alert">
         <lucide-icon name="triangle-alert" [size]="22" aria-hidden="true" />
@@ -41,7 +41,7 @@
       </div>
     } @else if (indisponivel()) {
       <div class="px68-card px68-estado">
-        <p>Sugestao de matching indisponivel. Ela pode ja ter sido removida.</p>
+        <p>Sugestão de matching indisponível. Ela pode já ter sido removida.</p>
       </div>
     } @else if (sugestao(); as s) {
       <div class="px68-colunas">
@@ -52,7 +52,7 @@
           </header>
           <dl class="px68-campos">
             <div class="px68-campo-dado">
-              <dt>Operacao</dt>
+              <dt>Operação</dt>
               <dd>{{ idCurto(s.operacaoId) }}</dd>
             </div>
             <div class="px68-campo-dado">
@@ -60,7 +60,7 @@
               <dd>{{ idCurto(s.empresaCredoraId) }}</dd>
             </div>
             <div class="px68-campo-dado px68-campo-valor">
-              <dt>Valor elegivel</dt>
+              <dt>Valor elegível</dt>
               <dd>{{ formatarMoeda(s.valorElegivel) }}</dd>
             </div>
             <div class="px68-campo-dado">
@@ -75,7 +75,7 @@
             }
           </dl>
 
-          <h3 class="px68-subtitulo-secao">Criterios atendidos</h3>
+          <h3 class="px68-subtitulo-secao">Critérios atendidos</h3>
           <ul class="px68-criterios">
             @for (criterio of s.criterios; track criterio) {
               <li class="px68-criterio">{{ criterio }}</li>
@@ -99,11 +99,11 @@
               <div class="px68-alerta" data-tone="amber" role="alert">
                 <lucide-icon name="triangle-alert" [size]="18" aria-hidden="true" />
                 <p>
-                  Para decidir o matching e preciso ter a verificacao em duas etapas (MFA) ativa na
+                  Para decidir o matching é preciso ter a verificação em duas etapas (MFA) ativa na
                   sua conta.
                 </p>
                 <a class="px68-link" [routerLink]="['/app/profile/setup-totp']">
-                  Ativar verificacao em duas etapas
+                  Ativar verificação em duas etapas
                 </a>
               </div>
             }
@@ -121,7 +121,7 @@
                 <lucide-icon name="triangle-alert" [size]="18" aria-hidden="true" />
                 <p>Os dados exibidos podem estar desatualizados.</p>
                 <button type="button" class="px68-btn-sec" (click)="atualizarSugestao()">
-                  Atualizar sugestao
+                  Atualizar sugestão
                 </button>
               </div>
             }
@@ -129,7 +129,7 @@
             @if (verificacaoNecessaria()) {
               <div class="px68-alerta" data-tone="amber" role="alert">
                 <lucide-icon name="triangle-alert" [size]="18" aria-hidden="true" />
-                <p>Nao foi possivel confirmar sua identidade para a decisao.</p>
+                <p>Não foi possível confirmar sua identidade para a decisão.</p>
                 <button type="button" class="px68-btn-sec" (click)="verificarNovamente()">
                   Verificar novamente
                 </button>
@@ -167,11 +167,11 @@
               />
               @if (s.status === 'CONFIRMADA') {
                 <p>
-                  Matching confirmado e registrado. Nenhum recurso foi transferido: o aporte e um
+                  Matching confirmado e registrado. Nenhum recurso foi transferido: o aporte é um
                   passo separado, feito pelo fluxo assistido de aporte.
                 </p>
               } @else {
-                <p>Matching rejeitado. Esta sugestao nao aceita nova decisao.</p>
+                <p>Matching rejeitado. Esta sugestão não aceita nova decisão.</p>
               }
             </div>
             @if (s.status === 'CONFIRMADA') {
@@ -180,7 +180,7 @@
                 [routerLink]="['/app/credora/matching', s.id, 'aporte']"
               >
                 <lucide-icon name="banknote" [size]="16" aria-hidden="true" />Registrar aporte da
-                operacao
+                operação
               </a>
             }
           }
@@ -247,14 +247,14 @@
             </h2>
             <p>
               @if (acao === 'CONFIRMAR') {
-                Voce esta confirmando o matching da operacao {{ idCurto(s.operacaoId) }} com a
-                credora {{ idCurto(s.empresaCredoraId) }}, com valor elegivel de
-                {{ formatarMoeda(s.valorElegivel) }}. A confirmacao apenas registra a decisao; o
-                aporte e um passo separado.
+                Você está confirmando o matching da operação {{ idCurto(s.operacaoId) }} com a
+                credora {{ idCurto(s.empresaCredoraId) }}, com valor elegível de
+                {{ formatarMoeda(s.valorElegivel) }}. A confirmação apenas registra a decisão; o
+                aporte é um passo separado.
               } @else {
-                Voce esta rejeitando o matching da operacao {{ idCurto(s.operacaoId) }} com a
-                credora {{ idCurto(s.empresaCredoraId) }}, com valor elegivel de
-                {{ formatarMoeda(s.valorElegivel) }}. A rejeicao e definitiva para esta sugestao.
+                Você está rejeitando o matching da operação {{ idCurto(s.operacaoId) }} com a
+                credora {{ idCurto(s.empresaCredoraId) }}, com valor elegível de
+                {{ formatarMoeda(s.valorElegivel) }}. A rejeição é definitiva para esta sugestão.
               }
             </p>
             <div class="px68-campo px68-campo-cheio">
@@ -284,8 +284,8 @@
                   decisaoEmVoo()
                     ? 'Enviando...'
                     : acao === 'CONFIRMAR'
-                      ? 'Confirmar decisao'
-                      : 'Rejeitar sugestao'
+                      ? 'Confirmar decisão'
+                      : 'Rejeitar sugestão'
                 }}
               </button>
               <button

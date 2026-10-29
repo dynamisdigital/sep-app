@@ -101,7 +101,7 @@ describe('MatchingDetailPageComponent', () => {
     expect(rota?.data?.['roles']).toEqual(['FINANCEIRO', 'ADMIN']);
   });
 
-  it('mostra loading acessivel e depois o detalhe autoritativo da sugestao SUGERIDA', async () => {
+  it('mostra loading acessivel e depois o detalhe autoritativo da sugestão SUGERIDA', async () => {
     const { fixture } = await renderDetalhe(MATCHING_SUGERIDA_ID);
 
     expect(screen.getByRole('status')).toBeTruthy();
@@ -116,7 +116,7 @@ describe('MatchingDetailPageComponent', () => {
     expect(screen.getByText('Rejeitar matching')).toBeTruthy();
   });
 
-  it('status terminal mostra resultado e data sem CTA de decisao', async () => {
+  it('status terminal mostra resultado e data sem CTA de decisão', async () => {
     server.use(
       http.get(DETALHE_URL, () =>
         HttpResponse.json({
@@ -136,20 +136,20 @@ describe('MatchingDetailPageComponent', () => {
 
     expect(screen.getByText('Confirmada')).toBeTruthy();
     expect(screen.getByText('Decidida em')).toBeTruthy();
-    expect(screen.getByText(/o aporte e um passo separado/i)).toBeTruthy();
+    expect(screen.getByText(/o aporte é um passo separado/i)).toBeTruthy();
     expect(screen.queryByText('Confirmar matching')).toBeNull();
     expect(screen.queryByText('Rejeitar matching')).toBeNull();
   });
 
-  it('404 mostra estado indisponivel neutro sem ecoar UUID', async () => {
+  it('404 mostra estado indisponível neutro sem ecoar UUID', async () => {
     const { fixture } = await renderDetalhe(MATCHING_INEXISTENTE_ID);
     await estabilizar(fixture);
 
-    expect(screen.getByText(/Sugestao de matching indisponivel/)).toBeTruthy();
+    expect(screen.getByText(/Sugestão de matching indisponível/)).toBeTruthy();
     expect(document.body.textContent).not.toMatch(UUID_PATTERN);
   });
 
-  it('sem MFA ativo, a decisao e bloqueada com orientacao e nenhum dialogo abre', async () => {
+  it('sem MFA ativo, a decisão e bloqueada com orientacao e nenhum dialogo abre', async () => {
     const { fixture } = await renderDetalhe(MATCHING_SUGERIDA_ID);
     autenticarFinanceiro(fixture, false);
     await estabilizar(fixture);
@@ -157,7 +157,7 @@ describe('MatchingDetailPageComponent', () => {
     fireEvent.click(screen.getByText('Confirmar matching'));
     await estabilizar(fixture);
 
-    expect(screen.getByText(/verificacao em duas etapas \(MFA\) ativa/)).toBeTruthy();
+    expect(screen.getByText(/verificação em duas etapas \(MFA\) ativa/)).toBeTruthy();
     expect(screen.queryByRole('alertdialog')).toBeNull();
   });
 
@@ -188,13 +188,13 @@ describe('MatchingDetailPageComponent', () => {
 
     expect(consultas).toBe(2);
     const dialogo = screen.getByRole('alertdialog');
-    expect(dialogo.textContent).toContain('Voce esta confirmando o matching');
-    expect(dialogo.textContent).toContain('o aporte e um passo separado');
+    expect(dialogo.textContent).toContain('Você está confirmando o matching');
+    expect(dialogo.textContent).toContain('o aporte é um passo separado');
     expect(screen.getByLabelText('Motivo (opcional)')).toBeTruthy();
     expect(screen.getByText('0/255')).toBeTruthy();
   });
 
-  it('se a reconsulta devolve status terminal, o dialogo nao abre e o resultado aparece', async () => {
+  it('se a reconsulta devolve status terminal, o dialogo não abre e o resultado aparece', async () => {
     const { fixture } = await renderDetalhe(MATCHING_SUGERIDA_ID);
     autenticarFinanceiro(fixture, true);
     await estabilizar(fixture);
@@ -218,10 +218,10 @@ describe('MatchingDetailPageComponent', () => {
 
     expect(screen.queryByRole('alertdialog')).toBeNull();
     expect(screen.getByText('Rejeitada')).toBeTruthy();
-    expect(screen.getByText(/nao aceita nova decisao/)).toBeTruthy();
+    expect(screen.getByText(/não aceita nova decisão/)).toBeTruthy();
   });
 
-  it('falha na reconsulta nao abre dialogo nem chama o POST', async () => {
+  it('falha na reconsulta não abre dialogo nem chama o POST', async () => {
     const { fixture } = await renderDetalhe(MATCHING_SUGERIDA_ID);
     autenticarFinanceiro(fixture, true);
     await estabilizar(fixture);
@@ -259,7 +259,7 @@ describe('MatchingDetailPageComponent', () => {
 
     fireEvent.click(screen.getByText('Confirmar matching'));
     await estabilizar(fixture);
-    fireEvent.click(screen.getByText('Confirmar decisao'));
+    fireEvent.click(screen.getByText('Confirmar decisão'));
     await estabilizar(fixture);
 
     expect(navegar).toHaveBeenCalledWith(
@@ -270,7 +270,7 @@ describe('MatchingDetailPageComponent', () => {
     expect(screen.queryByRole('alertdialog')).toBeNull();
   });
 
-  it('com token, confirma a decisao com motivo e substitui o detalhe pelo estado terminal', async () => {
+  it('com token, confirma a decisão com motivo e substitui o detalhe pelo estado terminal', async () => {
     let bodyRecebido: unknown = null;
     let tokenRecebido: string | null = null;
     server.use(
@@ -304,14 +304,14 @@ describe('MatchingDetailPageComponent', () => {
     fixture.detectChanges();
     expect(screen.getByText('12/255')).toBeTruthy();
 
-    fireEvent.click(screen.getByText('Confirmar decisao'));
+    fireEvent.click(screen.getByText('Confirmar decisão'));
     await estabilizar(fixture);
 
     expect(tokenRecebido).toBe('step-up-tok');
     expect(bodyRecebido).toEqual({ acao: 'CONFIRMAR', motivo: 'par validado' });
     expect(screen.getByText('Confirmada')).toBeTruthy();
     expect(screen.getByText(/Matching confirmado e registrado/)).toBeTruthy();
-    expect(screen.getByText(/o aporte e um passo separado/)).toBeTruthy();
+    expect(screen.getByText(/o aporte é um passo separado/)).toBeTruthy();
     expect(screen.queryByRole('alertdialog')).toBeNull();
   });
 
@@ -325,18 +325,18 @@ describe('MatchingDetailPageComponent', () => {
 
     fireEvent.click(screen.getByText('Rejeitar matching'));
     await estabilizar(fixture);
-    fireEvent.click(screen.getByText('Rejeitar sugestao'));
+    fireEvent.click(screen.getByText('Rejeitar sugestão'));
     await estabilizar(fixture);
 
     // Mock stateful: o POST real do handler muda o status para REJEITADA.
     expect(screen.getByText('Rejeitada')).toBeTruthy();
-    expect(screen.getByText(/nao aceita nova decisao/)).toBeTruthy();
+    expect(screen.getByText(/não aceita nova decisão/)).toBeTruthy();
   });
 
-  it('409 na decisao reconsulta e mostra que a sugestao ja foi decidida, sem sucesso presumido', async () => {
+  it('409 na decisão reconsulta e mostra que a sugestão já foi decidida, sem sucesso presumido', async () => {
     server.use(
       http.post(DECISAO_URL, () =>
-        HttpResponse.json({ message: 'Sugestao ja decidida' }, { status: 409 }),
+        HttpResponse.json({ message: 'Sugestão já decidida' }, { status: 409 }),
       ),
       http.get(DETALHE_URL, () =>
         HttpResponse.json({
@@ -360,17 +360,17 @@ describe('MatchingDetailPageComponent', () => {
 
     fireEvent.click(screen.getByText('Confirmar matching'));
     await estabilizar(fixture);
-    fireEvent.click(screen.getByText('Confirmar decisao'));
+    fireEvent.click(screen.getByText('Confirmar decisão'));
     await estabilizar(fixture);
 
-    expect(screen.getByText(/ja foi decidida/)).toBeTruthy();
+    expect(screen.getByText(/já foi decidida/)).toBeTruthy();
     expect(screen.queryByText(/Matching confirmado e registrado/)).toBeNull();
   });
 
-  it('403 na decisao com MFA ativo oferece reverificacao explicita sem redirect global', async () => {
+  it('403 na decisão com MFA ativo oferece reverificacao explicita sem redirect global', async () => {
     server.use(
       http.post(DECISAO_URL, () =>
-        HttpResponse.json({ message: 'Step-up invalido' }, { status: 403 }),
+        HttpResponse.json({ message: 'Step-up inválido' }, { status: 403 }),
       ),
     );
     const { fixture } = await renderDetalhe(MATCHING_SUGERIDA_ID, {
@@ -384,12 +384,12 @@ describe('MatchingDetailPageComponent', () => {
 
     fireEvent.click(screen.getByText('Confirmar matching'));
     await estabilizar(fixture);
-    fireEvent.click(screen.getByText('Confirmar decisao'));
+    fireEvent.click(screen.getByText('Confirmar decisão'));
     await estabilizar(fixture);
 
     // Sem redirect automatico (nem /access-denied global, nem step-up em loop).
     expect(navegar).not.toHaveBeenCalled();
-    expect(screen.getByText(/Nao foi possivel confirmar sua identidade/)).toBeTruthy();
+    expect(screen.getByText(/Não foi possível confirmar sua identidade/)).toBeTruthy();
 
     fireEvent.click(screen.getByText('Verificar novamente'));
     await estabilizar(fixture);
@@ -399,7 +399,7 @@ describe('MatchingDetailPageComponent', () => {
     );
   });
 
-  it('rede/5xx na decisao marca o snapshot como desatualizado e bloqueia novo gesto', async () => {
+  it('rede/5xx na decisão marca o snapshot como desatualizado e bloqueia novo gesto', async () => {
     server.use(
       http.post(DECISAO_URL, () => HttpResponse.json({ message: 'erro' }, { status: 500 })),
     );
@@ -412,14 +412,14 @@ describe('MatchingDetailPageComponent', () => {
 
     fireEvent.click(screen.getByText('Confirmar matching'));
     await estabilizar(fixture);
-    fireEvent.click(screen.getByText('Confirmar decisao'));
+    fireEvent.click(screen.getByText('Confirmar decisão'));
     await estabilizar(fixture);
 
-    expect(screen.getByText(/Nao foi possivel concluir a decisao/)).toBeTruthy();
+    expect(screen.getByText(/Não foi possível concluir a decisão/)).toBeTruthy();
     expect(screen.getByText(/podem estar desatualizados/)).toBeTruthy();
     expect((screen.getByText('Confirmar matching') as HTMLButtonElement).disabled).toBe(true);
 
-    fireEvent.click(screen.getByText('Atualizar sugestao'));
+    fireEvent.click(screen.getByText('Atualizar sugestão'));
     await estabilizar(fixture);
 
     expect((screen.getByText('Confirmar matching') as HTMLButtonElement).disabled).toBe(false);
@@ -445,10 +445,10 @@ describe('MatchingDetailPageComponent', () => {
     }
   });
 
-  it('400 na decisao mostra a mensagem da API e mantem o contexto, sem sucesso presumido', async () => {
+  it('400 na decisão mostra a mensagem da API e mantem o contexto, sem sucesso presumido', async () => {
     server.use(
       http.post(DECISAO_URL, () =>
-        HttpResponse.json({ message: 'motivo nao pode exceder 255 caracteres' }, { status: 400 }),
+        HttpResponse.json({ message: 'motivo não pode exceder 255 caracteres' }, { status: 400 }),
       ),
     );
     const { fixture } = await renderDetalhe(MATCHING_SUGERIDA_ID, {
@@ -460,16 +460,16 @@ describe('MatchingDetailPageComponent', () => {
 
     fireEvent.click(screen.getByText('Confirmar matching'));
     await estabilizar(fixture);
-    fireEvent.click(screen.getByRole('button', { name: 'Confirmar decisao' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar decisão' }));
     await estabilizar(fixture);
 
-    expect(screen.getByText('motivo nao pode exceder 255 caracteres')).toBeTruthy();
+    expect(screen.getByText('motivo não pode exceder 255 caracteres')).toBeTruthy();
     expect(screen.queryByText(/Matching confirmado e registrado/)).toBeNull();
     // A sugestao continua decidivel apos a correcao.
     expect(screen.getByText('Confirmar matching')).toBeTruthy();
   });
 
-  it('duplo clique no CTA de decisao dispara UMA reconsulta', async () => {
+  it('duplo clique no CTA de decisão dispara UMA reconsulta', async () => {
     let consultas = 0;
     server.use(
       http.get(DETALHE_URL, () => {
@@ -500,7 +500,7 @@ describe('MatchingDetailPageComponent', () => {
     expect(consultas).toBe(2);
   });
 
-  it('duplo clique em Confirmar decisao dispara UM POST', async () => {
+  it('duplo clique em Confirmar decisão dispara UM POST', async () => {
     let posts = 0;
     server.use(
       http.post(DECISAO_URL, () => {
@@ -527,7 +527,7 @@ describe('MatchingDetailPageComponent', () => {
     fireEvent.click(screen.getByText('Confirmar matching'));
     await estabilizar(fixture);
 
-    const confirmar = screen.getByRole('button', { name: 'Confirmar decisao' });
+    const confirmar = screen.getByRole('button', { name: 'Confirmar decisão' });
     fireEvent.click(confirmar);
     fireEvent.click(confirmar);
     await estabilizar(fixture);
@@ -542,7 +542,7 @@ describe('MatchingDetailPageComponent', () => {
     expect(screen.getAllByRole('heading', { level: 1 }).length).toBe(1);
   });
 
-  it('clique rapido repetido em Tentar novamente nao abre consultas concorrentes', async () => {
+  it('clique rapido repetido em Tentar novamente não abre consultas concorrentes', async () => {
     let consultas = 0;
     server.use(
       http.get(DETALHE_URL, () => {

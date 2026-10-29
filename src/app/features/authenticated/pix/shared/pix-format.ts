@@ -65,7 +65,7 @@ export const TIPO_CHAVE_LABEL: Record<TipoChavePix, string> = {
   CNPJ: 'CNPJ',
   EMAIL: 'E-mail',
   TELEFONE: 'Telefone',
-  EVP: 'Aleatoria (EVP)',
+  EVP: 'Aleatória (EVP)',
 };
 
 // Label por estado da chave Pix. ATIVA -> INATIVA e a unica transicao; a remocao e logica e o

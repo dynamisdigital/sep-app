@@ -26,7 +26,7 @@ import { MatchingStatusComponent } from '../shared/matching-status.component';
 // Fila de sugestoes de matching (F-18.2 / backend Sprint 30) para FINANCEIRO/ADMIN. O GET e
 // refresh-on-read: o backend pode persistir e auditar sugestoes novas antes de listar as SUGERIDA —
 // por isso a consulta acontece UMA vez na entrada e depois somente por gesto explicito no botao
-// "Atualizar sugestoes" (sem interval, sem refresh ao recuperar foco, sem polling). A lista exibida
+// "Atualizar sugestões" (sem interval, sem refresh ao recuperar foco, sem polling). A lista exibida
 // nao e fonte autoritativa: a decisao acontece no detalhe, que reconsulta o backend.
 @Component({
   selector: 'sep-matching-sugestoes-page',
@@ -75,7 +75,7 @@ export class MatchingSugestoesPageComponent implements OnInit {
         error: (err: HttpErrorResponse) => {
           this.loading.set(false);
           this.errorMessage.set(
-            mensagemCredoraErro(err, 'Nao foi possivel carregar as sugestoes de matching.'),
+            mensagemCredoraErro(err, 'Não foi possível carregar as sugestões de matching.'),
           );
         },
       });

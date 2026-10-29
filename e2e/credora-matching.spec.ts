@@ -23,7 +23,7 @@ async function login(page: Page, username: string): Promise<void> {
   await page.waitForURL(/\/app\/dashboard/, { timeout: 10_000 });
 }
 
-test('admin: sugestoes -> detalhe -> confirmacao navega ao step-up sem decidir no retorno', async ({
+test('admin: sugestões -> detalhe -> confirmação navega ao step-up sem decidir no retorno', async ({
   page,
 }) => {
   await login(page, 'admin@empresa.com');
@@ -46,7 +46,7 @@ test('admin: sugestoes -> detalhe -> confirmacao navega ao step-up sem decidir n
   await page.getByRole('button', { name: 'Confirmar matching' }).click();
   await expect(page.getByRole('alertdialog')).toBeVisible();
   await expect(page.getByLabel('Motivo (opcional)')).toBeVisible();
-  await page.getByRole('button', { name: 'Confirmar decisao' }).click();
+  await page.getByRole('button', { name: 'Confirmar decisão' }).click();
   await page.waitForURL(/\/app\/step-up\?next=/, { timeout: 10_000 });
 
   // Retorno sem completar o desafio: nada foi decidido e um novo gesto e exigido.
@@ -59,7 +59,7 @@ test('admin: sugestoes -> detalhe -> confirmacao navega ao step-up sem decidir n
   await expect(page.getByRole('button', { name: 'Confirmar matching' })).toBeEnabled();
 });
 
-test('admin: matching confirmado tem CTA separado de aporte com prefill e step-up sem registro automatico', async ({
+test('admin: matching confirmado tem CTA separado de aporte com prefill e step-up sem registro automático', async ({
   page,
 }) => {
   await login(page, 'admin@empresa.com');
@@ -67,7 +67,7 @@ test('admin: matching confirmado tem CTA separado de aporte com prefill e step-u
   // Detalhe do matching ja confirmado: resultado terminal + CTA separado de aporte.
   await page.goto(`/app/credora/matching/${MATCHING_CONFIRMADA_ID}`);
   await expect(page.getByText(/Matching confirmado e registrado/)).toBeVisible();
-  await page.getByRole('link', { name: 'Registrar aporte da operacao' }).click();
+  await page.getByRole('link', { name: 'Registrar aporte da operação' }).click();
   await page.waitForURL(new RegExp(`/app/credora/matching/${MATCHING_CONFIRMADA_ID}/aporte$`), {
     timeout: 10_000,
   });
@@ -115,7 +115,7 @@ test('credora: carteira mostra aportes somente leitura, sem mutacao', async ({ p
 // A negacao da ROTA operacional para role indevida e coberta pelos testes unitarios do roleGuard
 // e da configuracao de rotas (Vitest): provar via page.goto no modo offline e inviavel porque o
 // full reload reinicia o estado do MSW e a sessao mock volta ao usuario default (ADMIN).
-test('backoffice e credora (CLIENTE): nao veem o menu de matching', async ({ page }) => {
+test('backoffice e credora (CLIENTE): não veem o menu de matching', async ({ page }) => {
   await login(page, 'backoffice@empresa.com');
   await expect(page.getByRole('link', { name: 'Matching de credoras' })).toHaveCount(0);
 

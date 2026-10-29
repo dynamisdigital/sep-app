@@ -42,14 +42,14 @@ describe('MatchingSugestoesPageComponent', () => {
     expect(rota?.data?.['roles']).toEqual(['FINANCEIRO', 'ADMIN']);
   });
 
-  it('lista as sugestoes do backend com IDs curtos, valor, criterios, status e data', async () => {
+  it('lista as sugestões do backend com IDs curtos, valor, critérios, status e data', async () => {
     const { fixture } = await renderPage();
     await estabilizar(fixture);
 
     // Ordem deterministica do backend (maior valor elegivel primeiro); IDs aparecem como sufixo
     // curto, nunca o UUID integral como titulo.
-    expect(screen.getByText('Operacao 5b78c001 · Credora 5b780001')).toBeTruthy();
-    expect(screen.getByText('Operacao 5b78c002 · Credora 5b780001')).toBeTruthy();
+    expect(screen.getByText('Operação 5b78c001 · Credora 5b780001')).toBeTruthy();
+    expect(screen.getByText('Operação 5b78c002 · Credora 5b780001')).toBeTruthy();
     expect(screen.queryByText(/7f0799c0-98b9/)).toBeNull();
     expect(screen.getByText(/25\.000,00/)).toBeTruthy();
     expect(screen.getByText(/12\.000,00/)).toBeTruthy();
@@ -58,7 +58,7 @@ describe('MatchingSugestoesPageComponent', () => {
     expect(screen.getAllByText('Sugerida').length).toBe(2);
   });
 
-  it('cada sugestao leva ao detalhe de decisao', async () => {
+  it('cada sugestão leva ao detalhe de decisão', async () => {
     const { fixture } = await renderPage();
     await estabilizar(fixture);
 
@@ -80,7 +80,7 @@ describe('MatchingSugestoesPageComponent', () => {
 
     expect(chamadas).toBe(1);
 
-    fireEvent.click(screen.getByText('Atualizar sugestoes'));
+    fireEvent.click(screen.getByText('Atualizar sugestões'));
     await estabilizar(fixture);
 
     expect(chamadas).toBe(2);
@@ -91,7 +91,7 @@ describe('MatchingSugestoesPageComponent', () => {
     fixture.detectChanges();
 
     // Durante o GET inicial o botao fica desabilitado; apos a resposta, habilita.
-    const botao = screen.getByText('Atualizar sugestoes') as HTMLButtonElement;
+    const botao = screen.getByText('Atualizar sugestões') as HTMLButtonElement;
     expect(botao.disabled).toBe(true);
 
     await estabilizar(fixture);
@@ -103,7 +103,7 @@ describe('MatchingSugestoesPageComponent', () => {
     const { fixture } = await renderPage();
     await estabilizar(fixture);
 
-    expect(screen.getByText('Nenhuma sugestao de matching pendente de decisao.')).toBeTruthy();
+    expect(screen.getByText('Nenhuma sugestão de matching pendente de decisão.')).toBeTruthy();
   });
 
   it('mostra erro com retry quando a consulta falha', async () => {
@@ -126,7 +126,7 @@ describe('MatchingSugestoesPageComponent', () => {
     await estabilizar(fixture);
 
     expect(screen.queryByRole('alert')).toBeNull();
-    expect(screen.getByText('Nenhuma sugestao de matching pendente de decisao.')).toBeTruthy();
+    expect(screen.getByText('Nenhuma sugestão de matching pendente de decisão.')).toBeTruthy();
   });
 
   it('pagina tem um unico heading nivel 1', async () => {
@@ -136,11 +136,11 @@ describe('MatchingSugestoesPageComponent', () => {
     expect(screen.getAllByRole('heading', { level: 1 }).length).toBe(1);
   });
 
-  it('explica o refresh-on-read e nao promete confirmacao automatica', async () => {
+  it('explica o refresh-on-read e não promete confirmação automatica', async () => {
     const { fixture } = await renderPage();
     await estabilizar(fixture);
 
-    expect(screen.getByText(/atualizacao pode registrar e auditar sugestoes novas/i)).toBeTruthy();
-    expect(screen.getByText(/nada e confirmado automaticamente/i)).toBeTruthy();
+    expect(screen.getByText(/atualização pode registrar e auditar sugestões novas/i)).toBeTruthy();
+    expect(screen.getByText(/nada é confirmado automaticamente/i)).toBeTruthy();
   });
 });
