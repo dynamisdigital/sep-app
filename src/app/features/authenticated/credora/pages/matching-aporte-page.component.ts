@@ -12,12 +12,14 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 
 import { AporteCredoraResponse, MatchingSugestaoResponse } from '../../../../core/api/api.models';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
 import { AporteIntencaoStore } from '../../../../core/credora/aporte-intencao.store';
 import { CredoraService } from '../../../../core/credora/credora.service';
+import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
 import {
   formatarData,
   formatarMoeda,
@@ -40,7 +42,13 @@ const VALOR_PATTERN = /^\d+([.,]\d{1,2})?$/;
 // Provider fake/local na Fase 4: nenhum dinheiro real e movimentado.
 @Component({
   selector: 'sep-matching-aporte-page',
-  imports: [RouterLink, AporteStatusComponent, AportesListComponent],
+  imports: [
+    RouterLink,
+    LucideAngularModule,
+    OperationalShellComponent,
+    AporteStatusComponent,
+    AportesListComponent,
+  ],
   templateUrl: './matching-aporte-page.component.html',
   styleUrl: './matching-aporte-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

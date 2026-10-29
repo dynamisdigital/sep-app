@@ -4,14 +4,17 @@ import {
   Component,
   DestroyRef,
   OnInit,
+  computed,
   inject,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 
 import { MatchingSugestaoResponse } from '../../../../core/api/api.models';
 import { CredoraService } from '../../../../core/credora/credora.service';
+import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
 import {
   formatarData,
   formatarMoeda,
@@ -27,7 +30,7 @@ import { MatchingStatusComponent } from '../shared/matching-status.component';
 // nao e fonte autoritativa: a decisao acontece no detalhe, que reconsulta o backend.
 @Component({
   selector: 'sep-matching-sugestoes-page',
-  imports: [RouterLink, MatchingStatusComponent],
+  imports: [RouterLink, LucideAngularModule, OperationalShellComponent, MatchingStatusComponent],
   templateUrl: './matching-sugestoes-page.component.html',
   styleUrl: './matching-sugestoes-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,6 +46,12 @@ export class MatchingSugestoesPageComponent implements OnInit {
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly sugestoes = signal<MatchingSugestaoResponse[]>([]);
+  // Os indicadores só aparecem depois da primeira leitura: antes dela o zero seria mentira.
+  protected readonly carregado = signal(false);
+  protected readonly aguardando = computed(
+    () => this.sugestoes().filter((s) => s.status === 'SUGERIDA').length,
+  );
+  protected readonly decididas = computed(() => this.sugestoes().length - this.aguardando());
 
   ngOnInit(): void {
     this.carregar();
@@ -60,6 +69,7 @@ export class MatchingSugestoesPageComponent implements OnInit {
       .subscribe({
         next: (sugestoes) => {
           this.sugestoes.set(sugestoes);
+          this.carregado.set(true);
           this.loading.set(false);
         },
         error: (err: HttpErrorResponse) => {

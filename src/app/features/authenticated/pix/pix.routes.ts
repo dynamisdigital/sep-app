@@ -60,7 +60,7 @@ export const PIX_ROUTES: Routes = [
     canActivate: [roleGuard],
     loadComponent: () =>
       import('./pages/chaves-pix-page.component').then((m) => m.ChavesPixPageComponent),
-    data: { roles: ['FINANCEIRO', 'ADMIN'], breadcrumb: 'Chaves Pix' },
+    data: { roles: ['FINANCEIRO', 'ADMIN'], breadcrumb: 'Chaves Pix', immersive: true },
   },
   {
     path: 'divergencias',

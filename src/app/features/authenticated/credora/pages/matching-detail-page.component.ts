@@ -12,11 +12,13 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 
 import { AcaoDecisaoMatching, MatchingSugestaoResponse } from '../../../../core/api/api.models';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
 import { CredoraService } from '../../../../core/credora/credora.service';
+import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
 import {
   formatarData,
   formatarMoeda,
@@ -37,7 +39,7 @@ const MOTIVO_MAX = 255;
 // Confirmar apenas registra a decisao: nenhum aporte e criado e nenhum recurso e transferido.
 @Component({
   selector: 'sep-matching-detail-page',
-  imports: [RouterLink, MatchingStatusComponent],
+  imports: [RouterLink, LucideAngularModule, OperationalShellComponent, MatchingStatusComponent],
   templateUrl: './matching-detail-page.component.html',
   styleUrl: './matching-detail-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

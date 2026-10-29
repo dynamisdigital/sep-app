@@ -1,9 +1,13 @@
+import { importProvidersFrom, signal } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { HttpResponse, http } from 'msw';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
+import { NotificacoesNaoLidasStore } from '../../../../core/notificacoes/notificacoes-nao-lidas.store';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
@@ -26,6 +30,13 @@ const DECISAO_URL = `${DETALHE_URL}/decisao`;
 // errorInterceptor sempre na cadeia: as provas de 403 local rodam contra o redirect global real,
 // que o TRATA_403_LOCALMENTE do CredoraService deve suprimir. stepUpInterceptor entra quando o
 // cenario precisa anexar/consumir o token de uso unico.
+// O shell operacional consulta a contagem de notificacoes ao montar; aqui ela e uma dublê.
+const CENTRAL_NOTIFICACOES_FALSA = {
+  provide: NotificacoesNaoLidasStore,
+  useValue: { contagem: signal({ situacao: 'conhecida', naoLidas: 0 }), carregar: () => undefined },
+};
+const ICONES = importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS));
+
 function renderDetalhe(
   sugestaoId: string,
   opts: { comStepUp?: boolean; tokenInicial?: string } = {},
@@ -36,6 +47,8 @@ function renderDetalhe(
         ? provideHttpClient(withInterceptors([stepUpInterceptor, errorInterceptor]))
         : provideHttpClient(withInterceptors([errorInterceptor])),
       provideRouter([]),
+      ICONES,
+      CENTRAL_NOTIFICACOES_FALSA,
       {
         provide: ActivatedRoute,
         useValue: { snapshot: { paramMap: convertToParamMap({ sugestaoId }) } },

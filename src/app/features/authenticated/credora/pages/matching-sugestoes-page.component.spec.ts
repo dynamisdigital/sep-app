@@ -1,8 +1,12 @@
+import { importProvidersFrom, signal } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
+import { NotificacoesNaoLidasStore } from '../../../../core/notificacoes/notificacoes-nao-lidas.store';
 
 import { server } from '../../../../../mocks/server';
 import { CREDORA_ROUTES } from '../credora.routes';
@@ -12,9 +16,16 @@ import { estabilizar } from '../../../../../testing/estabilizar';
 const MATCHING_SUGERIDA_ID = '7f0799c0-98b9-6d9d-bc4a-7d6f5b78f001';
 const SUGESTOES_URL = 'http://localhost:8080/api/v1/credores/matching/sugestoes';
 
+// O shell operacional consulta a contagem de notificacoes ao montar; aqui ela e uma dublê.
+const CENTRAL_NOTIFICACOES_FALSA = {
+  provide: NotificacoesNaoLidasStore,
+  useValue: { contagem: signal({ situacao: 'conhecida', naoLidas: 0 }), carregar: () => undefined },
+};
+const ICONES = importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS));
+
 function renderPage() {
   return render(MatchingSugestoesPageComponent, {
-    providers: [provideHttpClient(), provideRouter([])],
+    providers: [provideHttpClient(), provideRouter([]), ICONES, CENTRAL_NOTIFICACOES_FALSA],
   });
 }
 

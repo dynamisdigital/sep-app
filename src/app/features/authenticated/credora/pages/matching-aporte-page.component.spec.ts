@@ -1,9 +1,13 @@
+import { importProvidersFrom, signal } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { HttpResponse, http } from 'msw';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
+import { NotificacoesNaoLidasStore } from '../../../../core/notificacoes/notificacoes-nao-lidas.store';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
@@ -34,6 +38,13 @@ const MATCHING_CONFIRMADA = {
   decididaEm: '2026-07-11T09:30:00-03:00',
 };
 
+// O shell operacional consulta a contagem de notificacoes ao montar; aqui ela e uma dublê.
+const CENTRAL_NOTIFICACOES_FALSA = {
+  provide: NotificacoesNaoLidasStore,
+  useValue: { contagem: signal({ situacao: 'conhecida', naoLidas: 0 }), carregar: () => undefined },
+};
+const ICONES = importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS));
+
 function renderAporte(opts: { comStepUp?: boolean; tokenInicial?: string } = {}) {
   return render(MatchingAportePageComponent, {
     providers: [
@@ -41,6 +52,8 @@ function renderAporte(opts: { comStepUp?: boolean; tokenInicial?: string } = {})
         ? provideHttpClient(withInterceptors([stepUpInterceptor, errorInterceptor]))
         : provideHttpClient(withInterceptors([errorInterceptor])),
       provideRouter([]),
+      ICONES,
+      CENTRAL_NOTIFICACOES_FALSA,
       {
         provide: ActivatedRoute,
         useValue: {
@@ -382,8 +395,12 @@ describe('MatchingAportePageComponent', () => {
     );
     const { fixture } = await render(MatchingAportePageComponent, {
       providers: [
+        ICONES,
+        CENTRAL_NOTIFICACOES_FALSA,
         provideHttpClient(withInterceptors([stepUpInterceptor, errorInterceptor])),
         provideRouter([]),
+        ICONES,
+        CENTRAL_NOTIFICACOES_FALSA,
         {
           provide: ActivatedRoute,
           useValue: {

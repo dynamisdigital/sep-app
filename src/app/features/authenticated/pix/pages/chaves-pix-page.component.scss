@@ -1,310 +1,111 @@
-@use "../../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../../styles/sep-ds-components" as sepDs;
+// ============ CHAVES PIX — TELA DERIVADA DO MÓDULO PIX ============
+// Sem arte de designer: construída no padrão visual do tema, na linguagem dos Mockups 35 e 36 (a
+// mesma da Carteira da credora). Veio do MVP com folha própria; esta folha a substitui. Indicadores,
+// avisos, campos, perigo, regras e modal vêm de `tela-operacional-blocos`.
 
-.sep-chaves {
+@use "../../../../../styles/tela-operacional-tema" as tema;
+@use "../../../../../styles/tela-operacional-blocos" as blocos;
+@use "../../../../../styles/sep-responsivo" as resp;
+
+:host {
+  @include tema.tokens;
+}
+
+@include tema.base("px66");
+@include tema.tabela("px66");
+@include blocos.card-topo("px66");
+@include blocos.so-leitor("px66");
+@include blocos.metricas("px66");
+@include blocos.alerta("px66");
+@include blocos.campos("px66");
+@include blocos.perigo("px66");
+@include blocos.regras("px66");
+@include blocos.modal("px66");
+
+// ============ GRADE PRINCIPAL ============
+
+.px66-page {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-24);
-  max-width: 860px;
-  margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+  gap: 18px;
+  width: 100%;
+  height: 100%;
+  padding: 16px 26px 18px;
+  overflow: hidden auto;
+  background: radial-gradient(circle at 45% 14%, rgb(var(--sep-c-blue) / 6%), transparent 48%);
 }
 
-.sep-chaves-header {
+.px66-heading {
+  flex: 0 0 auto;
+}
+
+// ============ LISTA E CADASTRO ============
+
+.px66-colunas {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: minmax(0, 1.75fr) minmax(300px, 1fr);
+  gap: 16px;
+  align-items: stretch;
+  min-width: 0;
+  min-height: 0;
+}
+
+.px66-lista,
+.px66-cadastro {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-8);
+  gap: 14px;
+  min-width: 0;
 }
 
-.sep-chaves-title {
-  @include sepType.sep-type-page-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
-}
-
-.sep-chaves-subtitle {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-chaves-lista {
+// Coluna da esquerda: o cartão da tabela abraça as linhas que existem e as regras ficam ancoradas
+// embaixo, de modo que a folga de altura vira vão ENTRE as duas faixas, e não vazio dentro do
+// cartão.
+.px66-coluna-lista {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-12);
+  gap: 16px;
+  min-width: 0;
 }
 
-.sep-chaves-acoes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sep-space-12);
-  align-items: center;
-  justify-content: space-between;
+.px66-lista {
+  flex: 0 0 auto;
 }
 
-.sep-chaves-atualizar {
-  @include sepDs.sep-button-base;
-  @include sepDs.sep-button-outline;
-  @include sepDs.sep-button-size-sm;
+// Tabela abraça as linhas que existem; o excedente rola dentro dela, nunca na página.
+.px66-tabela-wrap {
+  max-height: 46vh;
 }
 
-.sep-chaves-table-wrapper {
-  @include sepDs.sep-table-wrapper;
+.px66-valor {
+  color: var(--sep-text);
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-weight: 600;
+  letter-spacing: 0.2px;
 }
 
-.sep-chaves-table {
-  @include sepDs.sep-table;
-
-  th {
-    @include sepDs.sep-table-head;
-  }
-
-  tr {
-    @include sepDs.sep-table-row;
-  }
-
-  td {
-    @include sepDs.sep-table-cell;
-  }
+.px66-sem-valor {
+  color: var(--muted);
 }
 
-// Viewport estreito: a tabela vira cartoes empilhados. O display: flex sobre tr/td desfaz os
-// papeis nativos row/cell, entao a associacao cabecalho->celula deixa de existir de qualquer
-// forma; por isso o thead sai da arvore de acessibilidade com display: none e o rotulo passa a
-// vir do data-label via ::before. Ocultar o thead so visualmente (clip-path) faria o leitor de
-// tela anunciar o cabecalho E o data-label — os dois mecanismos sao exclusivos.
-// Nenhuma coluna e escondida: estado e acao seguem visiveis.
-@media (width < 768px) {
-  .sep-chaves-table thead {
-    display: none;
-  }
-
-  .sep-chaves-table tr {
-    display: flex;
-    flex-direction: column;
-    gap: var(--sep-space-4);
-    padding: var(--sep-space-12) 0;
-  }
-
-  .sep-chaves-table td {
-    display: flex;
-    gap: var(--sep-space-12);
-    align-items: baseline;
-    justify-content: space-between;
-    padding: var(--sep-space-4) var(--sep-space-16);
-  }
-
-  .sep-chaves-table td::before {
-    content: attr(data-label);
-    flex-shrink: 0;
-    color: hsl(var(--muted-foreground));
-    font-weight: 500;
-  }
+.px66-estado {
+  padding: 28px 0;
 }
 
-.sep-chaves-table-caption {
-  @include sepType.sep-type-caption;
-
-  padding: var(--sep-space-8) var(--sep-space-16);
-  color: hsl(var(--muted-foreground));
-  text-align: left;
-}
-
-// Valor mascarado: fonte monoespacada mantem a mascara legivel e impede que o olho confunda
-// caracteres substituidos com o valor real.
-.sep-chaves-valor {
-  font-family: ui-monospace, sfmono-regular, menlo, monospace;
-  word-break: break-all;
-}
-
-.sep-chaves-vazio-celula {
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-chaves-vazio {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-chaves-state {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-chaves-retry {
-  @include sepDs.sep-button-base;
-  @include sepDs.sep-button-outline;
-  @include sepDs.sep-button-size-sm;
-
-  margin-top: var(--sep-space-8);
-}
-
-.sep-chaves-cadastro {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-12);
-}
-
-.sep-chaves-subtitulo {
-  @include sepType.sep-type-section-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
-}
-
-.sep-chaves-cadastro-aviso {
-  @include sepType.sep-type-caption;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-chaves-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-16);
-
-  @media (width >= 768px) {
-    flex-direction: row;
-    align-items: flex-start;
-  }
-}
-
-.sep-chaves-form-campo {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: var(--sep-space-4);
-}
-
-.sep-chaves-form-label {
-  @include sepDs.sep-label;
-}
-
-.sep-chaves-form-select {
-  @include sepDs.sep-input;
-}
-
-.sep-chaves-form-input {
-  @include sepDs.sep-input;
-}
-
-.sep-chaves-form-ajuda {
-  @include sepType.sep-type-caption;
-
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-chaves-form-erro {
-  @include sepDs.sep-field-error;
-}
-
-.sep-chaves-cadastrar {
-  @include sepDs.sep-button-base;
-  @include sepDs.sep-button-primary;
-  @include sepDs.sep-button-size-sm;
-}
-
-// Acao destrutiva: variante propria do DS para nao ser confundida com um CTA neutro.
-.sep-chaves-remover {
-  @include sepDs.sep-button-base;
-  @include sepDs.sep-button-ghost;
-  @include sepDs.sep-button-size-sm;
-
-  color: hsl(var(--destructive));
-}
-
-.sep-chaves-remover-confirmar {
-  @include sepDs.sep-button-base;
-  @include sepDs.sep-button-destructive;
-  @include sepDs.sep-button-size-sm;
-}
-
-.sep-chaves-cancelar {
-  @include sepDs.sep-button-base;
-  @include sepDs.sep-button-outline;
-  @include sepDs.sep-button-size-sm;
-}
-
-.sep-chaves-aviso {
-  @include sepDs.sep-card;
-
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-8);
-  padding: var(--sep-space-16);
-
-  p {
-    @include sepType.sep-type-body;
-
-    margin: 0;
-    color: hsl(var(--foreground));
-  }
-}
-
-.sep-chaves-aviso-link {
-  @include sepType.sep-type-body;
-
+.px66-cadastrar {
   align-self: flex-start;
-  color: hsl(var(--primary));
 }
 
-.sep-chaves-sucesso {
-  @include sepType.sep-type-body;
+// ============ RESPONSIVO ============
 
-  margin: 0;
-  color: hsl(var(--success));
-}
+@include resp.half {
+  .px66-colunas {
+    grid-template-columns: minmax(0, 1fr);
+  }
 
-.sep-chaves-cadastro-erro {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--destructive));
-}
-
-.sep-chaves-confirmacao {
-  @include sepDs.sep-dialog;
-
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-12);
-  padding: var(--sep-space-16);
-}
-
-.sep-chaves-confirmacao-titulo {
-  @include sepType.sep-type-card-title;
-
-  margin: 0;
-  color: hsl(var(--foreground));
-}
-
-.sep-chaves-confirmacao-texto {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-chaves-confirmacao-acoes {
-  display: flex;
-  gap: var(--sep-space-12);
-}
-
-.sep-chaves-voltar {
-  @include sepType.sep-type-body;
-
-  align-self: flex-start;
-  color: hsl(var(--primary));
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
+  .px66-page {
+    padding-right: 18px;
+    padding-left: 18px;
   }
 }

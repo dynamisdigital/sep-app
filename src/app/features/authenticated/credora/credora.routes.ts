@@ -15,7 +15,7 @@ export const CREDORA_ROUTES: Routes = [
   {
     path: 'matching',
     canActivate: [roleGuard],
-    data: { roles: ['FINANCEIRO', 'ADMIN'], breadcrumb: 'Matching de credoras' },
+    data: { roles: ['FINANCEIRO', 'ADMIN'], breadcrumb: 'Matching de credoras', immersive: true },
     loadComponent: () =>
       import('./pages/matching-sugestoes-page.component').then(
         (m) => m.MatchingSugestoesPageComponent,
@@ -24,14 +24,14 @@ export const CREDORA_ROUTES: Routes = [
   {
     path: 'matching/:sugestaoId',
     canActivate: [roleGuard],
-    data: { roles: ['FINANCEIRO', 'ADMIN'], breadcrumb: 'Detalhe do matching' },
+    data: { roles: ['FINANCEIRO', 'ADMIN'], breadcrumb: 'Detalhe do matching', immersive: true },
     loadComponent: () =>
       import('./pages/matching-detail-page.component').then((m) => m.MatchingDetailPageComponent),
   },
   {
     path: 'matching/:sugestaoId/aporte',
     canActivate: [roleGuard],
-    data: { roles: ['FINANCEIRO', 'ADMIN'], breadcrumb: 'Aporte da operacao' },
+    data: { roles: ['FINANCEIRO', 'ADMIN'], breadcrumb: 'Aporte da operacao', immersive: true },
     loadComponent: () =>
       import('./pages/matching-aporte-page.component').then((m) => m.MatchingAportePageComponent),
   },

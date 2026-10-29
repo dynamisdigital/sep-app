@@ -5,6 +5,7 @@ import {
   DestroyRef,
   ElementRef,
   OnInit,
+  computed,
   effect,
   inject,
   signal,
@@ -12,6 +13,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 import { Subscription } from 'rxjs';
 
 import { ChavePixResponse, TipoChavePix } from '../../../../core/api/api.models';
@@ -19,6 +21,7 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
 import { ChavePixIntencaoStore } from '../../../../core/pix/chave-pix-intencao.store';
 import { PixService } from '../../../../core/pix/pix.service';
+import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
 import { formatarDataHora, mensagemPixErro, TIPO_CHAVE_LABEL } from '../shared/pix-format';
 import { ChavePixStatusComponent } from '../shared/chave-pix-status.component';
 
@@ -45,7 +48,7 @@ const ROTA_STEP_UP = '/app/step-up?next=/app/pix/chaves';
 // em claro sao persistidos. Nesta fase o provider e local (fake).
 @Component({
   selector: 'sep-chaves-pix-page',
-  imports: [RouterLink, ChavePixStatusComponent],
+  imports: [RouterLink, ChavePixStatusComponent, LucideAngularModule, OperationalShellComponent],
   templateUrl: './chaves-pix-page.component.html',
   styleUrl: './chaves-pix-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -62,6 +65,12 @@ export class ChavesPixPageComponent implements OnInit {
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly chaves = signal<ChavePixResponse[]>([]);
   protected readonly carregado = signal(false);
+  // Contagens so para os indicadores do topo: a lista e o estado de cada chave seguem como o backend
+  // devolveu, sem reordenar nem filtrar.
+  protected readonly totalAtivas = computed(
+    () => this.chaves().filter((c) => c.status === 'ATIVA').length,
+  );
+  protected readonly totalInativas = computed(() => this.chaves().length - this.totalAtivas());
 
   protected readonly tipos = TIPOS;
   protected readonly tipo = signal<TipoChavePix>('EMAIL');

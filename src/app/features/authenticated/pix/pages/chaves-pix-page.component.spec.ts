@@ -1,7 +1,9 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { importProvidersFrom, signal } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { http, HttpResponse } from 'msw';
 import { Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -9,9 +11,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ChavePixResponse, TipoChavePix } from '../../../../core/api/api.models';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { errorInterceptor } from '../../../../core/interceptors/error.interceptor';
 import { stepUpInterceptor } from '../../../../core/interceptors/step-up.interceptor';
 import { ChavePixIntencaoStore } from '../../../../core/pix/chave-pix-intencao.store';
+import { NotificacoesNaoLidasStore } from '../../../../core/notificacoes/notificacoes-nao-lidas.store';
 import { PixService } from '../../../../core/pix/pix.service';
 import { resetChavesPixState } from '../../../../../mocks/handlers';
 import { server } from '../../../../../mocks/server';
@@ -44,6 +48,13 @@ const VALOR_EM_CLARO = 'financeiro@dynamis.com.br';
 
 // `intencaoInicial` simula o estado real do retorno do step-up: o singleton de root sobreviveu a
 // destruicao da pagina e carrega a intencao criada antes da navegacao.
+// O shell operacional consulta a contagem de notificacoes ao montar. Aqui o AuthService e os
+// interceptors sao reais, e essa chamada voltaria 401, limpando a sessao no meio do teste.
+const CENTRAL_NOTIFICACOES_FALSA = {
+  provide: NotificacoesNaoLidasStore,
+  useValue: { contagem: signal({ situacao: 'conhecida', naoLidas: 0 }), carregar: () => undefined },
+};
+
 function renderPage(
   opts: { tokenInicial?: string; intencaoInicial?: { tipo: TipoChavePix; valor: string } } = {},
 ) {
@@ -51,6 +62,8 @@ function renderPage(
     providers: [
       provideHttpClient(withInterceptors([stepUpInterceptor, errorInterceptor])),
       provideRouter([]),
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      CENTRAL_NOTIFICACOES_FALSA,
       ...(opts.tokenInicial
         ? [
             {
@@ -324,6 +337,8 @@ describe('ChavesPixPageComponent', () => {
         providers: [
           provideHttpClient(),
           provideRouter([]),
+          importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+          CENTRAL_NOTIFICACOES_FALSA,
           { provide: PixService, useValue: pixFake },
         ],
       });

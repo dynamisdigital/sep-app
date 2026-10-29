@@ -1,62 +1,146 @@
-<section class="sep-matching">
-  <header class="sep-matching-header">
-    <h1 class="sep-matching-title">Matching de credoras</h1>
-    <p class="sep-matching-subtitle">
-      Sugestoes de pareamento entre credoras e operacoes financiadas, geradas pelo backend. A
-      atualizacao pode registrar e auditar sugestoes novas; nada e confirmado automaticamente — a
-      decisao e sempre sua, no detalhe de cada sugestao.
-    </p>
-  </header>
+<sep-operational-shell>
+  <main class="px67-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px67-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span><strong>Matching de credoras</strong>
+      </nav>
+      <div class="px67-heading-row">
+        <div class="px67-titulo-wrap">
+          <span class="px67-titulo-icone" data-tone="purple">
+            <lucide-icon name="handshake" [size]="24" aria-hidden="true" />
+          </span>
+          <div>
+            <h1>Matching de credoras</h1>
+            <p class="px67-subtitulo">
+              Sugestoes de pareamento entre credoras e operacoes financiadas, geradas pelo backend.
+              A atualizacao pode registrar e auditar sugestoes novas; nada e confirmado
+              automaticamente — a decisao e sempre sua, no detalhe de cada sugestao.
+            </p>
+          </div>
+        </div>
+        <button type="button" class="px67-btn-primary" [disabled]="loading()" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" aria-hidden="true" />Atualizar sugestoes
+        </button>
+      </div>
+    </header>
 
-  <div class="sep-matching-acoes">
-    <button
-      type="button"
-      class="sep-matching-atualizar"
-      [disabled]="loading()"
-      (click)="carregar()"
-    >
-      Atualizar sugestoes
-    </button>
-  </div>
-
-  @if (loading()) {
-    <p class="sep-matching-state" role="status">Carregando sugestoes...</p>
-  } @else if (errorMessage()) {
-    <div class="sep-matching-state sep-matching-error" role="alert">
-      <p>{{ errorMessage() }}</p>
-      <button type="button" class="sep-matching-retry" (click)="carregar()">
-        Tentar novamente
-      </button>
-    </div>
-  } @else if (sugestoes().length === 0) {
-    <p class="sep-matching-vazio">Nenhuma sugestao de matching pendente de decisao.</p>
-  } @else {
-    <ul class="sep-matching-lista">
-      @for (sugestao of sugestoes(); track sugestao.id) {
-        <li class="sep-matching-item">
-          <div class="sep-matching-item-topo">
-            <span class="sep-matching-item-titulo">
-              Operacao {{ idCurto(sugestao.operacaoId) }} · Credora
-              {{ idCurto(sugestao.empresaCredoraId) }}
+    <!-- ============ INDICADORES ============ -->
+    @if (carregado() && !errorMessage()) {
+      <div class="px67-metricas">
+        <article class="px67-card px67-metrica" data-tone="purple">
+          <header>
+            <span class="px67-metrica-icone">
+              <lucide-icon name="inbox" [size]="18" aria-hidden="true" />
             </span>
-            <sep-matching-status [status]="sugestao.status" />
-          </div>
-          <span class="sep-matching-item-valor">
-            Valor elegivel: {{ formatarMoeda(sugestao.valorElegivel) }}
-          </span>
-          <ul class="sep-matching-criterios">
-            @for (criterio of sugestao.criterios; track criterio) {
-              <li class="sep-matching-criterio">{{ criterio }}</li>
-            }
-          </ul>
-          <span class="sep-matching-item-data">
-            Criada em {{ formatarData(sugestao.criadaEm) }}
-          </span>
-          <div class="sep-matching-item-acoes">
-            <a [routerLink]="['/app/credora/matching', sugestao.id]">Ver detalhe e decidir</a>
-          </div>
-        </li>
+            <small>Sugestões na fila</small>
+          </header>
+          <strong>{{ sugestoes().length }}</strong>
+          <em>geradas pelo backend</em>
+        </article>
+        <article class="px67-card px67-metrica" data-tone="amber">
+          <header>
+            <span class="px67-metrica-icone">
+              <lucide-icon name="hourglass" [size]="18" aria-hidden="true" />
+            </span>
+            <small>Aguardando decisão</small>
+          </header>
+          <strong>{{ aguardando() }}</strong>
+          <em>pedem a sua confirmação</em>
+        </article>
+        <article class="px67-card px67-metrica" data-tone="green">
+          <header>
+            <span class="px67-metrica-icone">
+              <lucide-icon name="circle-check" [size]="18" aria-hidden="true" />
+            </span>
+            <small>Já decididas</small>
+          </header>
+          <strong>{{ decididas() }}</strong>
+          <em>confirmadas ou rejeitadas</em>
+        </article>
+      </div>
+    }
+
+    <!-- ============ LISTA ============ -->
+    <section class="px67-card px67-fila" aria-labelledby="matching-fila-titulo">
+      <header class="px67-card-topo">
+        <h2 id="matching-fila-titulo">Fila de sugestões</h2>
+      </header>
+
+      @if (loading()) {
+        <p class="px67-estado" role="status">Carregando sugestoes...</p>
+      } @else if (errorMessage()) {
+        <div class="px67-estado px67-erro" role="alert">
+          <lucide-icon name="triangle-alert" [size]="22" aria-hidden="true" />
+          <p>{{ errorMessage() }}</p>
+          <button type="button" class="px67-btn-primary" (click)="carregar()">
+            <lucide-icon name="refresh-cw" [size]="16" aria-hidden="true" />Tentar novamente
+          </button>
+        </div>
+      } @else if (sugestoes().length === 0) {
+        <p class="px67-estado">Nenhuma sugestao de matching pendente de decisao.</p>
+      } @else {
+        <ul class="px67-lista">
+          @for (sugestao of sugestoes(); track sugestao.id) {
+            <li class="px67-item">
+              <div class="px67-item-topo">
+                <span class="px67-item-titulo">
+                  Operacao {{ idCurto(sugestao.operacaoId) }} · Credora
+                  {{ idCurto(sugestao.empresaCredoraId) }}
+                </span>
+                <sep-matching-status [status]="sugestao.status" />
+              </div>
+              <span class="px67-item-valor">
+                Valor elegivel: {{ formatarMoeda(sugestao.valorElegivel) }}
+              </span>
+              <ul class="px67-criterios">
+                @for (criterio of sugestao.criterios; track criterio) {
+                  <li class="px67-criterio">{{ criterio }}</li>
+                }
+              </ul>
+              <span class="px67-item-data"> Criada em {{ formatarData(sugestao.criadaEm) }} </span>
+              <a
+                class="px67-btn-sec px67-item-acao"
+                [routerLink]="['/app/credora/matching', sugestao.id]"
+              >
+                Ver detalhe e decidir
+                <lucide-icon name="chevron-right" [size]="16" aria-hidden="true" />
+              </a>
+            </li>
+          }
+        </ul>
       }
+    </section>
+
+    <!-- ============ REGRAS ============ -->
+    <ul class="px67-regras" aria-label="Regras desta tela">
+      <li data-tone="purple">
+        <span class="px67-regra-icone"
+          ><lucide-icon name="handshake" [size]="18" aria-hidden="true"
+        /></span>
+        <div>
+          <strong>Nada é automático</strong>
+          <span>A lista só sugere; quem confirma ou rejeita é você, no detalhe.</span>
+        </div>
+      </li>
+      <li data-tone="amber">
+        <span class="px67-regra-icone"
+          ><lucide-icon name="shield-check" [size]="18" aria-hidden="true"
+        /></span>
+        <div>
+          <strong>Decisão pede confirmação</strong>
+          <span>Confirmar e rejeitar exigem verificação em duas etapas e nova identificação.</span>
+        </div>
+      </li>
+      <li data-tone="green">
+        <span class="px67-regra-icone"
+          ><lucide-icon name="banknote" [size]="18" aria-hidden="true"
+        /></span>
+        <div>
+          <strong>Aporte é outro passo</strong>
+          <span>Confirmar não transfere recursos; o aporte é registrado em fluxo separado.</span>
+        </div>
+      </li>
     </ul>
-  }
-</section>
+  </main>
+</sep-operational-shell>
