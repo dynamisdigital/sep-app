@@ -56,7 +56,7 @@ function renderDetail(
 }
 
 describe('OperacaoCarteiraDetailPageComponent', () => {
-  it('carrega operacao com contrato e resumo agregado de cobranca', async () => {
+  it('carrega operação com contrato e resumo agregado de cobranca', async () => {
     const { fixture } = await renderDetail(() => of(OPERACAO));
     await estabilizar(fixture);
 
@@ -77,7 +77,7 @@ describe('OperacaoCarteiraDetailPageComponent', () => {
     expect(screen.getByText('2 parcelas restantes')).toBeTruthy();
   });
 
-  it('operacao sem cobranca avisa ausencia de resumo', async () => {
+  it('operação sem cobranca avisa ausencia de resumo', async () => {
     const { fixture } = await renderDetail(() => of({ ...OPERACAO, cobranca: null }));
     await estabilizar(fixture);
 
@@ -102,7 +102,7 @@ describe('OperacaoCarteiraDetailPageComponent', () => {
     expect(screen.queryByText('null')).toBeNull();
   });
 
-  it('erro nao-404 mostra mensagem e acao de tentar novamente', async () => {
+  it('erro não-404 mostra mensagem e acao de tentar novamente', async () => {
     const { fixture } = await renderDetail(() =>
       throwError(() => new HttpErrorResponse({ status: 500 })),
     );
@@ -112,7 +112,7 @@ describe('OperacaoCarteiraDetailPageComponent', () => {
     expect(screen.getByText('Tentar novamente')).toBeTruthy();
   });
 
-  it('404 por ownership mostra operacao nao encontrada', async () => {
+  it('404 por ownership mostra operação não encontrada', async () => {
     const { fixture } = await renderDetail(() =>
       throwError(() => new HttpErrorResponse({ status: 404 })),
     );
@@ -153,10 +153,10 @@ describe('OperacaoCarteiraDetailPageComponent', () => {
     const { fixture } = await renderDetail(() => of(OPERACAO));
     await estabilizar(fixture);
 
-    expect(screen.getByText('Nenhum aporte registrado para esta operacao.')).toBeTruthy();
+    expect(screen.getByText('Nenhum aporte registrado para esta operação.')).toBeTruthy();
   });
 
-  it('falha na lista de aportes nao apaga o detalhe ja carregado e oferece retry local', async () => {
+  it('falha na lista de aportes não apaga o detalhe já carregado e oferece retry local', async () => {
     let falhar = true;
     const { fixture } = await renderDetail(
       () => of(OPERACAO),
@@ -166,12 +166,12 @@ describe('OperacaoCarteiraDetailPageComponent', () => {
 
     // Detalhe permanece; o erro fica localizado na secao de aportes.
     expect(screen.getByText('Associacao assistida apos formalizacao')).toBeTruthy();
-    expect(screen.getByText('Nao foi possivel carregar os aportes.')).toBeTruthy();
+    expect(screen.getByText('Não foi possível carregar os aportes.')).toBeTruthy();
 
     falhar = false;
     fireEvent.click(screen.getByText('Tentar novamente'));
     await estabilizar(fixture);
 
-    expect(screen.getByText('Nenhum aporte registrado para esta operacao.')).toBeTruthy();
+    expect(screen.getByText('Nenhum aporte registrado para esta operação.')).toBeTruthy();
   });
 });

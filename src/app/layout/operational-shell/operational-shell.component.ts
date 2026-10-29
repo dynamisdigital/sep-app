@@ -212,12 +212,42 @@ const AJUDA_POR_ROTA: AjudaContexto[] = [
     dicas: ['Os números do painel são recortes das mesmas listas das telas de detalhe.'],
   },
   {
+    rota: '/app/notificacoes',
+    titulo: 'Notificações',
+    descricao: 'Avisos sobre a sua conta, do mais recente ao mais antigo, com o estado de leitura.',
+    dicas: [
+      'Abrir a central não marca nada como lido: a leitura é sempre um gesto seu, em cada aviso.',
+      'O contador no topo atualiza ao abrir a central e ao marcar um aviso como lido.',
+      'Os alertas do sino são outra coisa: são recortes dos dados da tela em que você está.',
+    ],
+  },
+  {
     rota: '/app/cobranca',
     titulo: 'Cobrança',
     descricao: 'Agenda de parcelas, recebimentos, inadimplência e renegociação.',
     dicas: [
       'O recebimento manual é operação sensível e fica registrado com quem lançou.',
       'A régua de inadimplência é somada das parcelas, e não de um contador à parte.',
+    ],
+  },
+  {
+    rota: '/app/pix/chaves',
+    titulo: 'Chaves Pix',
+    descricao: 'Chaves da conta operacional, sempre mascaradas, com o histórico das inativas.',
+    dicas: [
+      'O valor integral da chave nunca é exibido nem guardado no navegador.',
+      'Cadastrar e remover pedem confirmação adicional de identidade.',
+      'Uma chave removida fica no histórico como inativa.',
+    ],
+  },
+  {
+    rota: '/app/credora/matching',
+    titulo: 'Matching de credoras',
+    descricao: 'Sugestões de pareamento entre credoras e operações, para decidir uma a uma.',
+    dicas: [
+      'Nada é confirmado automaticamente: a decisão é sempre sua, no detalhe.',
+      'Confirmar ou rejeitar pede MFA ativo e confirmação adicional.',
+      'Confirmar só registra a decisão; o aporte é um passo separado.',
     ],
   },
   {

@@ -1,7 +1,9 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { importProvidersFrom, signal } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { http, HttpResponse } from 'msw';
 import { Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -9,9 +11,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ChavePixResponse, TipoChavePix } from '../../../../core/api/api.models';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
 import { errorInterceptor } from '../../../../core/interceptors/error.interceptor';
 import { stepUpInterceptor } from '../../../../core/interceptors/step-up.interceptor';
 import { ChavePixIntencaoStore } from '../../../../core/pix/chave-pix-intencao.store';
+import { NotificacoesNaoLidasStore } from '../../../../core/notificacoes/notificacoes-nao-lidas.store';
 import { PixService } from '../../../../core/pix/pix.service';
 import { resetChavesPixState } from '../../../../../mocks/handlers';
 import { server } from '../../../../../mocks/server';
@@ -44,6 +48,13 @@ const VALOR_EM_CLARO = 'financeiro@dynamis.com.br';
 
 // `intencaoInicial` simula o estado real do retorno do step-up: o singleton de root sobreviveu a
 // destruicao da pagina e carrega a intencao criada antes da navegacao.
+// O shell operacional consulta a contagem de notificacoes ao montar. Aqui o AuthService e os
+// interceptors sao reais, e essa chamada voltaria 401, limpando a sessao no meio do teste.
+const CENTRAL_NOTIFICACOES_FALSA = {
+  provide: NotificacoesNaoLidasStore,
+  useValue: { contagem: signal({ situacao: 'conhecida', naoLidas: 0 }), carregar: () => undefined },
+};
+
 function renderPage(
   opts: { tokenInicial?: string; intencaoInicial?: { tipo: TipoChavePix; valor: string } } = {},
 ) {
@@ -51,6 +62,8 @@ function renderPage(
     providers: [
       provideHttpClient(withInterceptors([stepUpInterceptor, errorInterceptor])),
       provideRouter([]),
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      CENTRAL_NOTIFICACOES_FALSA,
       ...(opts.tokenInicial
         ? [
             {
@@ -167,7 +180,7 @@ async function abrirRemocao(fixture: ComponentFixture<unknown>): Promise<void> {
 }
 
 async function confirmarRemocao(fixture: ComponentFixture<unknown>): Promise<void> {
-  fireEvent.click(screen.getByRole('button', { name: 'Confirmar remocao' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Confirmar remoção' }));
   await estabilizar(fixture);
 }
 
@@ -242,7 +255,7 @@ describe('ChavesPixPageComponent', () => {
     // Colunas: 0 Tipo | 1 Chave | 2 Status | 3 Cadastrada em | 4 Removida em | 5 Acoes.
     const COLUNA_REMOVIDA_EM = 4;
 
-    it('so exibe data de remocao quando a chave esta INATIVA', async () => {
+    it('so exibe data de remoção quando a chave esta INATIVA', async () => {
       stubLista([CHAVE_ATIVA, CHAVE_INATIVA]);
       const { fixture } = await renderPage();
       await estabilizar(fixture);
@@ -291,7 +304,7 @@ describe('ChavesPixPageComponent', () => {
       expect(screen.queryByRole('alert')).toBeNull();
     });
 
-    it('consulta uma unica vez na entrada e nao faz polling', async () => {
+    it('consulta uma unica vez na entrada e não faz polling', async () => {
       const stub = stubLista([CHAVE_ATIVA]);
       const { fixture } = await renderPage();
       await estabilizar(fixture);
@@ -311,7 +324,7 @@ describe('ChavesPixPageComponent', () => {
     //
     // O service e fakeado com Subjects porque a ordem de emissao precisa ser controlada: com MSW,
     // uma request pendente trava o whenStable e o teste nunca estabiliza.
-    it('resposta tardia de uma consulta anterior nao sobrescreve a lista mais nova', async () => {
+    it('resposta tardia de uma consulta anterior não sobrescreve a lista mais nova', async () => {
       const emissores: Subject<ChavePixResponse[]>[] = [];
       const pixFake = {
         listarChavesPix: () => {
@@ -324,6 +337,8 @@ describe('ChavesPixPageComponent', () => {
         providers: [
           provideHttpClient(),
           provideRouter([]),
+          importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+          CENTRAL_NOTIFICACOES_FALSA,
           { provide: PixService, useValue: pixFake },
         ],
       });
@@ -361,7 +376,7 @@ describe('ChavesPixPageComponent', () => {
   });
 
   describe('cadastro assistido', () => {
-    it('sem MFA ativo, bloqueia o cadastro com orientacao e nao abre a confirmacao', async () => {
+    it('sem MFA ativo, bloqueia o cadastro com orientacao e não abre a confirmação', async () => {
       stubLista([]);
       const { fixture } = await renderPage();
       autenticarFinanceiro(fixture, false);
@@ -369,11 +384,11 @@ describe('ChavesPixPageComponent', () => {
 
       await abrirConfirmacao(fixture);
 
-      expect(screen.getByText(/verificacao em duas etapas \(MFA\) ativa/)).toBeTruthy();
+      expect(screen.getByText(/verificação em duas etapas \(MFA\) ativa/)).toBeTruthy();
       expect(screen.queryByRole('alertdialog')).toBeNull();
     });
 
-    it('valor vazio nao abre a confirmacao e sinaliza o campo', async () => {
+    it('valor vazio não abre a confirmação e sinaliza o campo', async () => {
       stubLista([]);
       const { fixture } = await renderPage();
       autenticarFinanceiro(fixture, true);
@@ -386,7 +401,7 @@ describe('ChavesPixPageComponent', () => {
       expect(screen.getByText('Informe o valor da chave.')).toBeTruthy();
     });
 
-    it('sem token, confirmar navega ao step-up desta rota e NAO chama o POST', async () => {
+    it('sem token, confirmar navega ao step-up desta rota e Não chama o POST', async () => {
       stubLista([]);
       const cadastro = stubCadastro(() => HttpResponse.json(CHAVE_ATIVA, { status: 201 }));
       const { fixture } = await renderPage();
@@ -407,7 +422,7 @@ describe('ChavesPixPageComponent', () => {
 
     // Cenario do retorno do step-up: a pagina renasce com token no store. Nenhum POST pode sair
     // sem um novo gesto do operador.
-    it('voltar do step-up com token NAO cadastra sozinho: exige novo clique', async () => {
+    it('voltar do step-up com token Não cadastra sozinho: exige novo clique', async () => {
       stubLista([]);
       const cadastro = stubCadastro(() => HttpResponse.json(CHAVE_ATIVA, { status: 201 }));
       const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
@@ -484,7 +499,7 @@ describe('ChavesPixPageComponent', () => {
       expect(lista.total()).toBe(2);
     });
 
-    it('200 (replay idempotente) tambem e sucesso real', async () => {
+    it('200 (replay idempotente) também e sucesso real', async () => {
       stubLista([]);
       stubCadastro(() => HttpResponse.json(CHAVE_ATIVA, { status: 200 }));
       const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
@@ -523,7 +538,7 @@ describe('ChavesPixPageComponent', () => {
 
       await abrirConfirmacao(fixture);
       await confirmarCadastro(fixture);
-      expect(screen.getByText(/nao foi possivel confirmar o cadastro/i)).toBeTruthy();
+      expect(screen.getByText(/não foi possível confirmar o cadastro/i)).toBeTruthy();
 
       // Novo step-up (o token anterior foi consumido), mesmo tipo/valor: a intencao sobrevive.
       renovarStepUp(fixture, 'step-up-tok-2');
@@ -564,7 +579,7 @@ describe('ChavesPixPageComponent', () => {
       await abrirConfirmacao(fixture);
       await confirmarCadastro(fixture);
 
-      expect(screen.getByText(/dados da chave invalidos/i)).toBeTruthy();
+      expect(screen.getByText(/dados da chave inválidos/i)).toBeTruthy();
       expect(screen.queryByText(/cadastrada/i, { selector: '[role="status"]' })).toBeNull();
       expect((screen.getByLabelText('Valor da chave') as HTMLInputElement).value).toBe(
         VALOR_EM_CLARO,
@@ -581,7 +596,7 @@ describe('ChavesPixPageComponent', () => {
       await abrirConfirmacao(fixture);
       await confirmarCadastro(fixture);
 
-      expect(screen.getByText(/ja existe uma equivalente ativa ou houve conflito/i)).toBeTruthy();
+      expect(screen.getByText(/já existe uma equivalente ativa ou houve conflito/i)).toBeTruthy();
       expect(screen.queryByText(/cadastrada/i, { selector: '[role="status"]' })).toBeNull();
       expect(lista.total()).toBe(2);
     });
@@ -596,12 +611,12 @@ describe('ChavesPixPageComponent', () => {
       await abrirConfirmacao(fixture);
       await confirmarCadastro(fixture);
 
-      expect(screen.getByText(/conta operacional esta indisponivel/i)).toBeTruthy();
+      expect(screen.getByText(/conta operacional está indisponível/i)).toBeTruthy();
       expect(screen.queryByText(/cadastrada/i, { selector: '[role="status"]' })).toBeNull();
     });
 
     // TRATA_403_LOCALMENTE: o errorInterceptor nao pode ejetar o operador para /access-denied.
-    it('403 oferece nova verificacao na propria tela e preserva a intencao (mesma key)', async () => {
+    it('403 oferece nova verificação na propria tela e preserva a intencao (mesma key)', async () => {
       stubLista([]);
       const cadastro = stubCadastro(() => new HttpResponse(null, { status: 403 }));
       const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
@@ -613,7 +628,7 @@ describe('ChavesPixPageComponent', () => {
       await abrirConfirmacao(fixture);
       await confirmarCadastro(fixture);
 
-      expect(screen.getByText(/nao foi possivel confirmar sua identidade/i)).toBeTruthy();
+      expect(screen.getByText(/não foi possível confirmar sua identidade/i)).toBeTruthy();
       expect(navegar).not.toHaveBeenCalledWith('/access-denied');
 
       // Reverificacao por gesto explicito; o POST nao e reenviado sozinho.
@@ -663,7 +678,7 @@ describe('ChavesPixPageComponent', () => {
       expect(cadastro.keys().length).toBe(1);
     });
 
-    it('nao abre o cadastro enquanto a confirmacao de remocao esta aberta', async () => {
+    it('não abre o cadastro enquanto a confirmação de remoção esta aberta', async () => {
       stubLista([CHAVE_ATIVA]);
       const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
       autenticarFinanceiro(fixture, true);
@@ -681,7 +696,7 @@ describe('ChavesPixPageComponent', () => {
       expect(screen.getByRole('dialog')).toBeTruthy();
     });
 
-    it('nem a Idempotency-Key nem o valor em claro sao persistidos no navegador', async () => {
+    it('nem a Idempotency-Key nem o valor em claro são persistidos no navegador', async () => {
       stubLista([]);
       stubCadastro(() => new HttpResponse(null, { status: 503 }));
       const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
@@ -696,8 +711,8 @@ describe('ChavesPixPageComponent', () => {
     });
   });
 
-  describe('remocao assistida', () => {
-    it('oferece Remover apenas em chave ATIVA; INATIVA nao tem CTA', async () => {
+  describe('remoção assistida', () => {
+    it('oferece Remover apenas em chave ATIVA; INATIVA não tem CTA', async () => {
       stubLista([CHAVE_ATIVA, CHAVE_INATIVA]);
       const { fixture } = await renderPage();
       autenticarFinanceiro(fixture, true);
@@ -708,7 +723,7 @@ describe('ChavesPixPageComponent', () => {
       expect(remover[0].getAttribute('aria-label')).toContain(CHAVE_ATIVA.valorMascarado);
     });
 
-    it('sem MFA ativo, bloqueia a remocao com orientacao e nao abre a confirmacao', async () => {
+    it('sem MFA ativo, bloqueia a remoção com orientacao e não abre a confirmação', async () => {
       stubLista([CHAVE_ATIVA]);
       const { fixture } = await renderPage();
       autenticarFinanceiro(fixture, false);
@@ -716,11 +731,11 @@ describe('ChavesPixPageComponent', () => {
 
       await abrirRemocao(fixture);
 
-      expect(screen.getByText(/remover uma chave Pix e preciso ter a verificacao/i)).toBeTruthy();
+      expect(screen.getByText(/remover uma chave Pix é preciso ter a verificação/i)).toBeTruthy();
       expect(screen.queryByRole('dialog')).toBeNull();
     });
 
-    it('sem token, confirmar navega ao step-up desta rota e NAO chama o DELETE', async () => {
+    it('sem token, confirmar navega ao step-up desta rota e Não chama o DELETE', async () => {
       stubLista([CHAVE_ATIVA]);
       const remocao = stubRemocao(() => new HttpResponse(null, { status: 204 }));
       const { fixture } = await renderPage();
@@ -741,7 +756,7 @@ describe('ChavesPixPageComponent', () => {
 
     // Cenario do retorno do step-up: a pagina renasce com token no store. Nenhuma chave pode ser
     // inativada sem um novo gesto do operador.
-    it('voltar do step-up com token NAO remove sozinho: exige novo clique', async () => {
+    it('voltar do step-up com token Não remove sozinho: exige novo clique', async () => {
       stubLista([CHAVE_ATIVA]);
       const remocao = stubRemocao(() => new HttpResponse(null, { status: 204 }));
       const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
@@ -770,7 +785,7 @@ describe('ChavesPixPageComponent', () => {
       expect(lista.total()).toBe(2);
     });
 
-    it('404 e tratado como indisponivel neutro, sem enumerar o motivo', async () => {
+    it('404 e tratado como indisponível neutro, sem enumerar o motivo', async () => {
       const lista = stubLista([CHAVE_ATIVA]);
       stubRemocao(() => new HttpResponse(null, { status: 404 }));
       const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
@@ -780,7 +795,7 @@ describe('ChavesPixPageComponent', () => {
       await abrirRemocao(fixture);
       await confirmarRemocao(fixture);
 
-      const alerta = screen.getByText(/chave indisponivel para remocao/i);
+      const alerta = screen.getByText(/chave indisponível para remoção/i);
       expect(alerta).toBeTruthy();
       // Neutro: nao distingue inexistente, fora de escopo ou conta ausente, nem ecoa o UUID.
       expect(alerta.textContent).not.toContain(CHAVE_ATIVA.id);
@@ -788,7 +803,7 @@ describe('ChavesPixPageComponent', () => {
       expect(lista.total()).toBe(2);
     });
 
-    it('403 oferece nova verificacao na propria tela, sem redirect global', async () => {
+    it('403 oferece nova verificação na propria tela, sem redirect global', async () => {
       stubLista([CHAVE_ATIVA]);
       const remocao = stubRemocao(() => new HttpResponse(null, { status: 403 }));
       const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
@@ -801,7 +816,7 @@ describe('ChavesPixPageComponent', () => {
       await confirmarRemocao(fixture);
 
       expect(
-        screen.getByText(/nao foi possivel confirmar sua identidade para a remocao/i),
+        screen.getByText(/não foi possível confirmar sua identidade para a remoção/i),
       ).toBeTruthy();
       expect(navegar).not.toHaveBeenCalledWith('/access-denied');
 
@@ -811,7 +826,7 @@ describe('ChavesPixPageComponent', () => {
       expect(remocao.ids().length).toBe(1);
     });
 
-    it('rede/5xx nao presume remocao e reconsulta a lista antes de repetir', async () => {
+    it('rede/5xx não presume remoção e reconsulta a lista antes de repetir', async () => {
       const lista = stubLista([CHAVE_ATIVA]);
       stubRemocao(() => new HttpResponse(null, { status: 503 }));
       const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
@@ -821,12 +836,12 @@ describe('ChavesPixPageComponent', () => {
       await abrirRemocao(fixture);
       await confirmarRemocao(fixture);
 
-      expect(screen.getByText(/nao foi possivel confirmar a remocao/i)).toBeTruthy();
+      expect(screen.getByText(/não foi possível confirmar a remoção/i)).toBeTruthy();
       expect(screen.queryByText(/removida/i, { selector: '[role="status"]' })).toBeNull();
       expect(lista.total()).toBe(2);
     });
 
-    it('duplo clique em Confirmar remocao: o botao desabilita apos o primeiro', async () => {
+    it('duplo clique em Confirmar remoção: o botao desabilita apos o primeiro', async () => {
       stubLista([CHAVE_ATIVA]);
       const remocao = stubRemocao(() => new HttpResponse(null, { status: 204 }));
       const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
@@ -834,7 +849,7 @@ describe('ChavesPixPageComponent', () => {
       await estabilizar(fixture);
 
       await abrirRemocao(fixture);
-      const confirmar = screen.getByRole('button', { name: 'Confirmar remocao' });
+      const confirmar = screen.getByRole('button', { name: 'Confirmar remoção' });
       fireEvent.click(confirmar);
       fireEvent.click(confirmar);
       await estabilizar(fixture);
@@ -862,7 +877,7 @@ describe('ChavesPixPageComponent', () => {
       expect(remocao.ids().length).toBe(1);
     });
 
-    it('remocao tambem e bloqueada enquanto a confirmacao de cadastro esta aberta', async () => {
+    it('remoção também e bloqueada enquanto a confirmação de cadastro esta aberta', async () => {
       stubLista([CHAVE_ATIVA]);
       const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
       autenticarFinanceiro(fixture, true);
@@ -879,7 +894,7 @@ describe('ChavesPixPageComponent', () => {
       expect(screen.getByRole('alertdialog')).toBeTruthy();
     });
 
-    it('Escape fecha a confirmacao sem chamar o DELETE', async () => {
+    it('Escape fecha a confirmação sem chamar o DELETE', async () => {
       stubLista([CHAVE_ATIVA]);
       const remocao = stubRemocao(() => new HttpResponse(null, { status: 204 }));
       const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });
@@ -916,7 +931,7 @@ describe('ChavesPixPageComponent', () => {
       expect(document.activeElement).toBe(screen.getByRole('button', { name: /^Remover chave/ }));
     });
 
-    it('cancelar fecha a confirmacao sem chamar o DELETE', async () => {
+    it('cancelar fecha a confirmação sem chamar o DELETE', async () => {
       stubLista([CHAVE_ATIVA]);
       const remocao = stubRemocao(() => new HttpResponse(null, { status: 204 }));
       const { fixture } = await renderPage({ tokenInicial: 'step-up-tok' });

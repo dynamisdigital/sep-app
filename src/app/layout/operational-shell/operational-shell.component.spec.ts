@@ -72,7 +72,7 @@ describe('OperationalShellComponent', () => {
     const link = document.querySelector('.op-topbar-actions a[href="/app/notificacoes"]');
 
     expect(link).not.toBeNull();
-    expect(link?.getAttribute('aria-label')).toMatch(/^Notificacoes, /);
+    expect(link?.getAttribute('aria-label')).toMatch(/^Notificações, /);
   });
 
   it('ADMIN alcanca os dois modulos de Administracao', async () => {

@@ -691,7 +691,10 @@
     align-self: center;
     height: auto;
     font-size: 14px !important;
-    line-height: 1;
+
+    // Rótulo longo quebra em mais de uma linha; com `line-height: 1` a altura da linha era menor que
+    // a do glifo e cortava o pé das letras (g, p, ç).
+    line-height: 1.2;
   }
 
   .op-sidebar .op-nav-link sep-arte {

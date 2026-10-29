@@ -19,10 +19,10 @@ import { AporteStatusComponent } from './aporte-status.component';
 // Mensagem operacional por estado do aporte (Fase 4: provider fake/local, sem endpoint de
 // reconciliacao). O contrato publico nao traz motivo tecnico de falha.
 const MENSAGENS_STATUS: Record<StatusAporteCredora, string> = {
-  PENDENTE: 'Processamento local em andamento, sem garantia de liquidacao.',
-  EM_PROCESSAMENTO: 'Processamento local em andamento, sem garantia de liquidacao.',
+  PENDENTE: 'Processamento local em andamento, sem garantia de liquidação.',
+  EM_PROCESSAMENTO: 'Processamento local em andamento, sem garantia de liquidação.',
   LIQUIDADO: 'Status confirmado pelo backend.',
-  FALHOU: 'O processamento falhou. Nao ha reprocesso automatico nesta fase.',
+  FALHOU: 'O processamento falhou. Não há reprocesso automático nesta fase.',
 };
 
 // Lista somente leitura dos aportes de uma operacao (F-18.4 / GET owner-scoped da Sprint 29),
@@ -83,8 +83,8 @@ export class AportesListComponent implements OnInit {
           // mensagem nao distingue inexistencia de falta de acesso nem ecoa identificador.
           this.errorMessage.set(
             err.status === 404
-              ? 'Aportes indisponiveis para esta operacao.'
-              : 'Nao foi possivel carregar os aportes.',
+              ? 'Aportes indisponíveis para esta operação.'
+              : 'Não foi possível carregar os aportes.',
           );
         },
       });

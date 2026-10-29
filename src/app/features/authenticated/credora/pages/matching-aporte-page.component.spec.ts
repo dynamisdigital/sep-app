@@ -1,9 +1,13 @@
+import { importProvidersFrom, signal } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { HttpResponse, http } from 'msw';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
+import { NotificacoesNaoLidasStore } from '../../../../core/notificacoes/notificacoes-nao-lidas.store';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
@@ -34,6 +38,13 @@ const MATCHING_CONFIRMADA = {
   decididaEm: '2026-07-11T09:30:00-03:00',
 };
 
+// O shell operacional consulta a contagem de notificacoes ao montar; aqui ela e uma dublê.
+const CENTRAL_NOTIFICACOES_FALSA = {
+  provide: NotificacoesNaoLidasStore,
+  useValue: { contagem: signal({ situacao: 'conhecida', naoLidas: 0 }), carregar: () => undefined },
+};
+const ICONES = importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS));
+
 function renderAporte(opts: { comStepUp?: boolean; tokenInicial?: string } = {}) {
   return render(MatchingAportePageComponent, {
     providers: [
@@ -41,6 +52,8 @@ function renderAporte(opts: { comStepUp?: boolean; tokenInicial?: string } = {})
         ? provideHttpClient(withInterceptors([stepUpInterceptor, errorInterceptor]))
         : provideHttpClient(withInterceptors([errorInterceptor])),
       provideRouter([]),
+      ICONES,
+      CENTRAL_NOTIFICACOES_FALSA,
       {
         provide: ActivatedRoute,
         useValue: {
@@ -98,13 +111,13 @@ describe('MatchingAportePageComponent', () => {
     expect(rota?.data?.['roles']).toEqual(['FINANCEIRO', 'ADMIN']);
   });
 
-  it('matching nao confirmado nao oferece CTA de aporte', async () => {
+  it('matching não confirmado não oferece CTA de aporte', async () => {
     // Seed real: a sugestao nasce SUGERIDA.
     const { fixture } = await renderAporte();
     await estabilizar(fixture);
 
     expect(
-      screen.getByText(/aporte assistido so esta disponivel para matching confirmado/i),
+      screen.getByText(/aporte assistido só está disponível para matching confirmado/i),
     ).toBeTruthy();
     expect(screen.queryByText('Registrar aporte')).toBeNull();
     expect(screen.queryByLabelText('Valor do aporte (R$)')).toBeNull();
@@ -125,7 +138,7 @@ describe('MatchingAportePageComponent', () => {
     expect(screen.getByText('Liquidado')).toBeTruthy();
   });
 
-  it('valida somente o formato do valor antes de abrir a confirmacao', async () => {
+  it('valida somente o formato do valor antes de abrir a confirmação', async () => {
     comMatchingConfirmada();
     const { fixture } = await renderAporte();
     autenticarFinanceiro(fixture, true);
@@ -151,11 +164,11 @@ describe('MatchingAportePageComponent', () => {
     fireEvent.click(screen.getByText('Registrar aporte'));
     await estabilizar(fixture);
 
-    expect(screen.getByText(/verificacao em duas etapas \(MFA\) ativa/)).toBeTruthy();
+    expect(screen.getByText(/verificação em duas etapas \(MFA\) ativa/)).toBeTruthy();
     expect(screen.queryByRole('alertdialog')).toBeNull();
   });
 
-  it('sem token de step-up, confirmar navega ao step-up com next desta rota e nao chama o POST', async () => {
+  it('sem token de step-up, confirmar navega ao step-up com next desta rota e não chama o POST', async () => {
     comMatchingConfirmada();
     let postChamado = false;
     server.use(
@@ -267,7 +280,7 @@ describe('MatchingAportePageComponent', () => {
     expect(keys[2]).not.toBe(keys[0]);
   });
 
-  it('replay idempotente 200 e sucesso real, nao erro', async () => {
+  it('replay idempotente 200 e sucesso real, não erro', async () => {
     comMatchingConfirmada();
     server.use(
       http.post(APORTES_URL, () =>
@@ -294,7 +307,7 @@ describe('MatchingAportePageComponent', () => {
     expect(screen.getByText('Em processamento')).toBeTruthy();
   });
 
-  it('409 nao presume sucesso e reconsulta a lista', async () => {
+  it('409 não presume sucesso e reconsulta a lista', async () => {
     comMatchingConfirmada();
     let listagens = 0;
     server.use(
@@ -316,7 +329,7 @@ describe('MatchingAportePageComponent', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar aporte' }));
     await estabilizar(fixture);
 
-    expect(screen.getByText(/nao aceitou o aporte/)).toBeTruthy();
+    expect(screen.getByText(/não aceitou o aporte/)).toBeTruthy();
     expect(screen.queryByText(/Aporte registrado no valor de/)).toBeNull();
     expect(listagens).toBe(listagensAntes + 1);
   });
@@ -327,7 +340,7 @@ describe('MatchingAportePageComponent', () => {
     server.use(
       http.post(APORTES_URL, () => {
         posts += 1;
-        return HttpResponse.json({ message: 'step-up invalido' }, { status: 403 });
+        return HttpResponse.json({ message: 'step-up inválido' }, { status: 403 });
       }),
     );
     const { fixture } = await renderAporte({ comStepUp: true, tokenInicial: 'step-up-tok' });
@@ -343,7 +356,7 @@ describe('MatchingAportePageComponent', () => {
 
     expect(posts).toBe(1);
     expect(navegar).not.toHaveBeenCalled();
-    expect(screen.getByText(/Nao foi possivel confirmar sua identidade/)).toBeTruthy();
+    expect(screen.getByText(/Não foi possível confirmar sua identidade/)).toBeTruthy();
 
     fireEvent.click(screen.getByText('Verificar novamente'));
     await estabilizar(fixture);
@@ -382,8 +395,12 @@ describe('MatchingAportePageComponent', () => {
     );
     const { fixture } = await render(MatchingAportePageComponent, {
       providers: [
+        ICONES,
+        CENTRAL_NOTIFICACOES_FALSA,
         provideHttpClient(withInterceptors([stepUpInterceptor, errorInterceptor])),
         provideRouter([]),
+        ICONES,
+        CENTRAL_NOTIFICACOES_FALSA,
         {
           provide: ActivatedRoute,
           useValue: {
@@ -437,11 +454,11 @@ describe('MatchingAportePageComponent', () => {
     expect(screen.queryByText(/Aporte registrado no valor de/)).toBeNull();
   });
 
-  it('404 no POST mostra operacao indisponivel neutra, sem ecoar UUID em erro', async () => {
+  it('404 no POST mostra operação indisponível neutra, sem ecoar UUID em erro', async () => {
     comMatchingConfirmada();
     server.use(
       http.post(APORTES_URL, () =>
-        HttpResponse.json({ message: 'Operacao nao encontrada para aporte' }, { status: 404 }),
+        HttpResponse.json({ message: 'Operação não encontrada para aporte' }, { status: 404 }),
       ),
     );
     const { fixture } = await renderAporte({ comStepUp: true, tokenInicial: 'step-up-tok' });
@@ -453,7 +470,7 @@ describe('MatchingAportePageComponent', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar aporte' }));
     await estabilizar(fixture);
 
-    const erro = screen.getByText('Operacao indisponivel para aporte.');
+    const erro = screen.getByText('Operação indisponível para aporte.');
     expect(erro).toBeTruthy();
     // Mensagem de erro nao contem UUID integral (IDs curtos do contexto ficam fora do alerta).
     expect(erro.textContent).not.toMatch(

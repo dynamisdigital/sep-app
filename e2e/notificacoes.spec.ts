@@ -39,12 +39,13 @@ async function entrarComo(page: Page, username: string): Promise<void> {
 }
 
 async function sair(page: Page): Promise<void> {
-  await page.getByRole('button', { name: 'Sair' }).click();
+  await page.getByRole('button', { name: 'Menu da conta' }).click();
+  await page.getByRole('menuitem', { name: /Sair da conta/ }).click();
   await page.waitForURL(/\/login/, { timeout: 10_000 });
 }
 
 async function abrirCentral(page: Page): Promise<void> {
-  await page.getByRole('link', { name: /^Notificacoes,/ }).click();
+  await page.getByRole('link', { name: /^Notificações,/ }).click();
   await page.waitForURL(/\/app\/notificacoes$/, { timeout: 10_000 });
 }
 
@@ -53,7 +54,7 @@ function larguraDoDocumento(page: Page): Promise<number> {
 }
 
 function avisos(page: Page) {
-  return page.getByRole('list', { name: 'Notificacoes' }).getByRole('listitem');
+  return page.getByRole('list', { name: 'Notificações' }).getByRole('listitem');
 }
 
 async function chamarApi(
@@ -80,23 +81,23 @@ async function chamarApi(
 test('tomador: lista, pagina, conta e marca como lida pela central', async ({ page }) => {
   await abrirLogin(page);
   await entrarComo(page, 'tomador@empresa.com');
-  await expect(page.getByRole('link', { name: 'Notificacoes, 3 nao lidas' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Notificações, 3 não lidas' })).toBeVisible();
 
   await abrirCentral(page);
   await expect(avisos(page)).toHaveCount(10);
-  await expect(page.getByText('12 notificacoes')).toBeVisible();
-  const paginacao = page.getByRole('navigation', { name: 'Paginacao das notificacoes' });
-  await expect(paginacao).toContainText('Pagina 1 de 2');
+  await expect(page.getByText('12 notificações')).toBeVisible();
+  const paginacao = page.getByRole('navigation', { name: 'Paginação das notificações' });
+  await expect(paginacao).toContainText('Página 1 de 2');
 
-  await paginacao.getByRole('button', { name: 'Proxima pagina' }).click();
+  await paginacao.getByRole('button', { name: 'Próxima página' }).click();
   await expect(avisos(page)).toHaveCount(2);
-  await expect(paginacao).toContainText('Pagina 2 de 2');
-  await paginacao.getByRole('button', { name: 'Pagina anterior' }).click();
+  await expect(paginacao).toContainText('Página 2 de 2');
+  await paginacao.getByRole('button', { name: 'Página anterior' }).click();
   await expect(avisos(page)).toHaveCount(10);
 
   await avisos(page).first().getByRole('button', { name: 'Marcar como lida' }).click();
   await expect(avisos(page).first()).toContainText('Lida em');
-  await expect(page.getByRole('link', { name: 'Notificacoes, 2 nao lidas' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Notificações, 2 não lidas' })).toBeVisible();
 });
 
 test('owner-scope: outra conta nao ve nem marca aviso do tomador, e a leitura dele fica', async ({
@@ -108,14 +109,14 @@ test('owner-scope: outra conta nao ve nem marca aviso do tomador, e a leitura de
   const idDoTomador = (doTomador.corpo?.['content'] as { id: string }[])[0].id;
   await abrirCentral(page);
   await avisos(page).first().getByRole('button', { name: 'Marcar como lida' }).click();
-  await expect(page.getByRole('link', { name: 'Notificacoes, 2 nao lidas' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Notificações, 2 não lidas' })).toBeVisible();
 
   await sair(page);
   await entrarComo(page, 'credora@empresa.com');
-  await expect(page.getByRole('link', { name: 'Notificacoes, nenhuma nao lida' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Notificações, nenhuma não lida' })).toBeVisible();
   await abrirCentral(page);
-  await expect(page.getByText('Voce nao tem notificacoes.')).toBeVisible();
-  await expect(page.getByRole('list', { name: 'Notificacoes' })).toHaveCount(0);
+  await expect(page.getByText('Você não tem notificações.')).toBeVisible();
+  await expect(page.getByRole('list', { name: 'Notificações' })).toHaveCount(0);
 
   const leituraAlheia = await chamarApi(page, 'POST', `/notificacoes/${idDoTomador}/leitura`);
   // Neutro: aviso de outra conta responde igual a aviso inexistente, fora o `path`, que so repete a
@@ -128,7 +129,7 @@ test('owner-scope: outra conta nao ve nem marca aviso do tomador, e a leitura de
 
   await sair(page);
   await entrarComo(page, 'tomador@empresa.com');
-  await expect(page.getByRole('link', { name: 'Notificacoes, 2 nao lidas' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Notificações, 2 não lidas' })).toBeVisible();
 });
 
 test('mock fiel ao contrato: 401, 400 com codigo, e-mail fora, recorte inteiro e leitura idempotente', async ({
@@ -182,15 +183,15 @@ test('teclado: do sino a leitura e a paginacao, com foco e anuncios', async ({ p
 
   // No shell operacional o link fica na barra de icones; a ordem de Tab ate ele e a do DOM e nao a
   // do antigo botao de menu lateral, entao o foco parte do proprio link.
-  const sino = page.getByRole('link', { name: 'Notificacoes, 3 nao lidas' });
+  const sino = page.getByRole('link', { name: 'Notificações, 3 não lidas' });
   await sino.focus();
   await expect(sino).toBeFocused();
   await page.keyboard.press('Enter');
   await page.waitForURL(/\/app\/notificacoes$/, { timeout: 10_000 });
-  await expect(page.getByRole('heading', { level: 1, name: 'Notificacoes' })).toBeFocused();
+  await expect(page.getByRole('heading', { level: 1, name: 'Notificações' })).toBeFocused();
   await expect(sino).toHaveAttribute('aria-current', 'page');
 
-  const anuncio = page.locator('.sep-notificacoes-anuncio');
+  const anuncio = page.locator('.px70-anuncio');
   // O titulo recebe foco ja no carregando; o Tab so encontra o botao depois que a lista chega.
   await expect(avisos(page)).toHaveCount(10);
   await page.keyboard.press('Tab');
@@ -200,13 +201,13 @@ test('teclado: do sino a leitura e a paginacao, com foco e anuncios', async ({ p
   await expect(avisos(page).first()).toContainText('Lida em');
   await expect(avisos(page).first().getByRole('heading', { level: 2 })).toBeFocused();
   await expect(anuncio).toHaveText('Aviso marcado como lido.');
-  await expect(page.getByRole('link', { name: 'Notificacoes, 2 nao lidas' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Notificações, 2 não lidas' })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Proxima pagina' }).focus();
+  await page.getByRole('button', { name: 'Próxima página' }).focus();
   await page.keyboard.press('Enter');
   await expect(avisos(page)).toHaveCount(2);
-  await expect(page.getByRole('heading', { level: 1, name: 'Notificacoes' })).toBeFocused();
-  await expect(anuncio).toHaveText('Pagina 2 de 2');
+  await expect(page.getByRole('heading', { level: 1, name: 'Notificações' })).toBeFocused();
+  await expect(anuncio).toHaveText('Página 2 de 2');
 });
 
 // page.goto reinicia o MSW: a sessao mock volta ao usuario default (ADMIN), que nao tem avisos. E o
@@ -217,9 +218,9 @@ test('URL direta abre a central com foco no titulo', async ({ page }) => {
 
   await page.goto('/app/notificacoes');
 
-  await expect(page.getByRole('heading', { level: 1, name: 'Notificacoes' })).toBeFocused();
-  await expect(page.getByText('Voce nao tem notificacoes.')).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Notificacoes, nenhuma nao lida' })).toHaveAttribute(
+  await expect(page.getByRole('heading', { level: 1, name: 'Notificações' })).toBeFocused();
+  await expect(page.getByText('Você não tem notificações.')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Notificações, nenhuma não lida' })).toHaveAttribute(
     'aria-current',
     'page',
   );
@@ -240,7 +241,7 @@ test('viewport estreito: sino e leitura operaveis com alvo de toque suficiente',
   // Review de fim de sprint (P2): o sino somava 58px a um header que ja transbordava (455 -> 513px).
   // Ver o sino nao basta; a pagina nao pode rolar na horizontal.
   expect(await larguraDoDocumento(page)).toBeLessThanOrEqual(390);
-  const sino = page.getByRole('link', { name: 'Notificacoes, 3 nao lidas' });
+  const sino = page.getByRole('link', { name: 'Notificações, 3 não lidas' });
   await expect(sino).toBeInViewport();
   const caixaDoSino = await sino.boundingBox();
   expect(caixaDoSino?.width).toBeGreaterThanOrEqual(24);
@@ -256,5 +257,5 @@ test('viewport estreito: sino e leitura operaveis com alvo de toque suficiente',
   expect(caixaDoBotao?.height).toBeGreaterThanOrEqual(24);
   await marcar.click();
   await expect(avisos(page).first()).toContainText('Lida em');
-  await expect(page.getByRole('link', { name: 'Notificacoes, 2 nao lidas' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Notificações, 2 não lidas' })).toBeVisible();
 });

@@ -12,6 +12,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 import { Subscription, finalize } from 'rxjs';
 
 import { mensagemDeErroDaApi } from '../../../core/api/api-error';
@@ -19,14 +21,15 @@ import { NotificacaoResponse, PageResponse } from '../../../core/api/api.models'
 import { formatarDataIso } from '../../../core/format/data';
 import { NotificacaoService } from '../../../core/notificacoes/notificacao.service';
 import { NotificacoesNaoLidasStore } from '../../../core/notificacoes/notificacoes-nao-lidas.store';
+import { OperationalShellComponent } from '../../../layout/operational-shell/operational-shell.component';
 
 const TAMANHO_PAGINA = 10;
-const ERRO_PADRAO = 'Nao foi possivel carregar suas notificacoes.';
-const ERRO_LEITURA = 'Nao foi possivel marcar o aviso como lido. Tente novamente.';
+const ERRO_PADRAO = 'Não foi possível carregar suas notificações.';
+const ERRO_LEITURA = 'Não foi possível marcar o aviso como lido. Tente novamente.';
 // Mesmo texto para aviso inexistente, de outra conta ou de e-mail: o 404 do backend e neutro, e a
 // tela nao pode ser mais especifica que ele.
 const AVISO_NAO_ENCONTRADO =
-  'Este aviso nao foi encontrado. Atualize a lista para ver seus avisos.';
+  'Este aviso não foi encontrado. Atualize a lista para ver seus avisos.';
 
 interface FalhaDeLeitura {
   mensagem: string;
@@ -77,6 +80,7 @@ function formatarDataHora(iso: string): string {
 // item nao vira link: nenhuma navegacao por notificacao faz parte desta spec.
 @Component({
   selector: 'sep-notificacoes-page',
+  imports: [RouterLink, LucideAngularModule, OperationalShellComponent],
   templateUrl: './notificacoes-page.component.html',
   styleUrl: './notificacoes-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -115,6 +119,11 @@ export class NotificacoesPageComponent implements OnInit, AfterViewInit {
     return consulta.situacao === 'erro' ? consulta.mensagem : '';
   });
   protected readonly totalPaginas = computed(() => Math.ceil(this.total() / TAMANHO_PAGINA));
+  // O mesmo contador do topo; so aparece quando o numero e conhecido, nunca como zero inventado.
+  protected readonly naoLidasConhecidas = computed(() => {
+    const contagem = this.naoLidas.contagem();
+    return contagem?.situacao === 'conhecida' ? contagem : null;
+  });
 
   private consultaEmVoo?: Subscription;
 
@@ -208,12 +217,12 @@ export class NotificacoesPageComponent implements OnInit, AfterViewInit {
   // O foco volta ao titulo depois do gesto; e a regiao de status que diz onde o usuario chegou.
   private descricaoDaPagina(): string {
     if (this.total() === 0) {
-      return 'Voce nao tem notificacoes.';
+      return 'Você não tem notificações.';
     }
     if (this.itens().length === 0) {
-      return 'Esta pagina nao tem notificacoes.';
+      return 'Esta página não tem notificações.';
     }
-    return `Pagina ${this.pagina() + 1} de ${this.totalPaginas()}`;
+    return `Página ${this.pagina() + 1} de ${this.totalPaginas()}`;
   }
 
   private focarTituloSe(porGesto: boolean): void {

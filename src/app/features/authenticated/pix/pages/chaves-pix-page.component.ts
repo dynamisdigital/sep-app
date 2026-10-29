@@ -5,6 +5,7 @@ import {
   DestroyRef,
   ElementRef,
   OnInit,
+  computed,
   effect,
   inject,
   signal,
@@ -12,6 +13,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 import { Subscription } from 'rxjs';
 
 import { ChavePixResponse, TipoChavePix } from '../../../../core/api/api.models';
@@ -19,6 +21,7 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
 import { ChavePixIntencaoStore } from '../../../../core/pix/chave-pix-intencao.store';
 import { PixService } from '../../../../core/pix/pix.service';
+import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
 import { formatarDataHora, mensagemPixErro, TIPO_CHAVE_LABEL } from '../shared/pix-format';
 import { ChavePixStatusComponent } from '../shared/chave-pix-status.component';
 
@@ -45,7 +48,7 @@ const ROTA_STEP_UP = '/app/step-up?next=/app/pix/chaves';
 // em claro sao persistidos. Nesta fase o provider e local (fake).
 @Component({
   selector: 'sep-chaves-pix-page',
-  imports: [RouterLink, ChavePixStatusComponent],
+  imports: [RouterLink, ChavePixStatusComponent, LucideAngularModule, OperationalShellComponent],
   templateUrl: './chaves-pix-page.component.html',
   styleUrl: './chaves-pix-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -62,6 +65,12 @@ export class ChavesPixPageComponent implements OnInit {
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly chaves = signal<ChavePixResponse[]>([]);
   protected readonly carregado = signal(false);
+  // Contagens so para os indicadores do topo: a lista e o estado de cada chave seguem como o backend
+  // devolveu, sem reordenar nem filtrar.
+  protected readonly totalAtivas = computed(
+    () => this.chaves().filter((c) => c.status === 'ATIVA').length,
+  );
+  protected readonly totalInativas = computed(() => this.chaves().length - this.totalAtivas());
 
   protected readonly tipos = TIPOS;
   protected readonly tipo = signal<TipoChavePix>('EMAIL');
@@ -149,7 +158,7 @@ export class ChavesPixPageComponent implements OnInit {
         error: (err: HttpErrorResponse) => {
           this.loading.set(false);
           this.errorMessage.set(
-            mensagemPixErro(err, 'Nao foi possivel carregar as chaves Pix da conta operacional.'),
+            mensagemPixErro(err, 'Não foi possível carregar as chaves Pix da conta operacional.'),
           );
         },
       });
@@ -404,7 +413,7 @@ export class ChavesPixPageComponent implements OnInit {
       this.cadastroErro.set(
         mensagemPixErro(
           err,
-          'Dados da chave invalidos. Revise o tipo e o valor e tente novamente.',
+          'Dados da chave inválidos. Revise o tipo e o valor e tente novamente.',
         ),
       );
       this.intencoes.limpar();
@@ -426,7 +435,7 @@ export class ChavesPixPageComponent implements OnInit {
       // A mensagem nao afirma que a lista JA foi atualizada: carregar() e assincrono e a
       // reconsulta ainda esta em voo quando o texto aparece.
       this.cadastroErro.set(
-        'A chave nao foi aceita (ja existe uma equivalente ativa ou houve conflito de registro). Atualizando a lista.',
+        'A chave não foi aceita (já existe uma equivalente ativa ou houve conflito de registro). Atualizando a lista.',
       );
       this.intencoes.limpar();
       this.carregar();
@@ -435,7 +444,7 @@ export class ChavesPixPageComponent implements OnInit {
     if (err.status === 422) {
       // Indisponibilidade da conta operacional/escrow: nao e falha do operador e nada foi criado.
       this.cadastroErro.set(
-        'A conta operacional esta indisponivel para cadastro de chave no momento.',
+        'A conta operacional está indisponível para cadastro de chave no momento.',
       );
       this.intencoes.limpar();
       return;
@@ -443,7 +452,7 @@ export class ChavesPixPageComponent implements OnInit {
     // Rede/5xx: a chave pode ou nao ter sido cadastrada. A intencao (mesma key) e mantida para o
     // retry com o mesmo tipo/valor — o backend faz o replay idempotente — e a lista e reconsultada.
     this.cadastroErro.set(
-      'Nao foi possivel confirmar o cadastro da chave. Atualize a lista antes de tentar novamente com o mesmo tipo e valor.',
+      'Não foi possível confirmar o cadastro da chave. Atualize a lista antes de tentar novamente com o mesmo tipo e valor.',
     );
     this.carregar();
   }
@@ -462,13 +471,13 @@ export class ChavesPixPageComponent implements OnInit {
     if (err.status === 404) {
       // Neutro por contrato: nao distingue chave inexistente, fora do escopo da conta operacional
       // ou conta ausente. A mensagem tambem nao enumera os casos.
-      this.remocaoErro.set('Chave indisponivel para remocao. Atualizando a lista.');
+      this.remocaoErro.set('Chave indisponível para remoção. Atualizando a lista.');
       this.carregar();
       return;
     }
     // Rede/5xx: a chave pode ou nao ter sido inativada. Reconsultar antes de repetir.
     this.remocaoErro.set(
-      'Nao foi possivel confirmar a remocao da chave. Atualize a lista antes de tentar novamente.',
+      'Não foi possível confirmar a remoção da chave. Atualize a lista antes de tentar novamente.',
     );
     this.carregar();
   }

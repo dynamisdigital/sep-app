@@ -86,6 +86,7 @@ describe('TourService', () => {
       'Formalização',
       'Cobrança',
       'Pix',
+      'Matching de credoras',
       'Backoffice',
       'Correspondentes',
       'Usuários',
@@ -216,7 +217,7 @@ describe('TourService', () => {
     const grupo = tour.catalogo().find((g) => g.modulo === 'Pix')!;
     const motivo = (titulo: string) =>
       tour.impedimento(grupo.roteiros.find((r) => r.titulo === titulo)!);
-    expect(grupo.roteiros).toHaveLength(6);
+    expect(grupo.roteiros).toHaveLength(7);
     expect(motivo('Consultar um desembolso')).toBeNull();
     expect(motivo('Solicitar um desembolso')).toContain('TOTP');
     expect(motivo('Módulo completo')).toContain('TOTP');
@@ -534,6 +535,7 @@ describe('TourService', () => {
       'file-check',
       'banknote',
       'pix',
+      'link-2',
       'briefcase',
       'handshake',
       'users',

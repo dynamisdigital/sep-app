@@ -291,6 +291,7 @@ $janela-meia-tela: 1716px;
    respeita a linha e rola por dentro. */
 .op-dashboard .op-sidebar .op-nav {
   align-self: stretch;
+  padding-inline: 10px;
 }
 
 .op-nav-section {
@@ -325,12 +326,21 @@ $janela-meia-tela: 1716px;
     background 180ms ease;
 }
 
+// Recuo do menu: ícone e texto mais perto da borda e entre si, para o rótulo longo caber sem quebrar.
+// O seletor tem a força do `.op-sidebar .op-nav-link` do tema global, que fixava o padding em 12px.
+.op-dashboard .op-sidebar .op-nav-link {
+  gap: 9px;
+  padding-inline: 9px;
+}
+
 .op-nav-link span {
+  // Rótulo longo ("Matching de credoras", "Correspondentes") quebra em até duas linhas em vez de
+  // ser cortado com reticências: o texto do menu precisa ficar inteiro à vista.
   overflow: hidden;
   font-size: 13px;
   font-weight: 700;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .op-nav-link small {
@@ -801,8 +811,8 @@ $janela-meia-tela: 1716px;
     width: 116px;
   }
 
-  .op-nav {
-    padding: 14px 8px 8px;
+  .op-dashboard .op-sidebar .op-nav {
+    padding: 14px 6px 8px;
   }
 
   .op-nav-section {
@@ -814,6 +824,17 @@ $janela-meia-tela: 1716px;
     gap: 7px;
     min-height: 38px;
     padding-inline: 9px;
+  }
+
+  .op-dashboard .op-sidebar .op-nav-link {
+    gap: 6px;
+    padding-inline: 7px;
+  }
+
+  /* Último recurso: o tema global fixa o rótulo em 14px com !important e "Correspondentes" ainda
+     quebrava no meio da palavra nos 208px. Meio ponto a menos resolve sem mexer nas outras larguras. */
+  .op-dashboard .op-sidebar .op-nav-link span {
+    font-size: 13.5px !important;
   }
 
   /* Com a barra em 208px o rotulo e a primeira coisa a faltar espaco: "Agenda financeira" e
@@ -1460,8 +1481,8 @@ $janela-meia-tela: 1716px;
   overflow: hidden;
   font-size: 12.5px;
   font-weight: 600;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .op-subnav-link lucide-icon {

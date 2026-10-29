@@ -74,18 +74,18 @@ test('tomador: parcela EM_NEGOCIACAO leva aos termos completos da proposta', asy
   await page.getByRole('link', { name: /Ver proposta de renegocia(ç|c)(ã|a)o/ }).click();
   await page.waitForURL(/\/renegociacao$/, { timeout: 10_000 });
 
-  await expect(page.getByRole('heading', { name: 'Proposta de renegociacao' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Proposta de renegociação' })).toBeVisible();
   await expect(page.getByText('Novo valor por parcela')).toBeVisible();
   await expect(page.getByText('Valor total renegociado')).toBeVisible();
   await expect(page.getByText(/1\.700,00/)).toBeVisible();
-  await expect(page.getByText('Valida ate')).toBeVisible();
+  await expect(page.getByText('Válida até')).toBeVisible();
 });
 
 test('tomador: recusa a proposta sem passar por step-up', async ({ page }) => {
   await login(page, 'tomador@empresa.com');
 
   await page.goto(`/app/cobranca/parcelas/${PARCELA_RECUSA_TOMADOR_ID}/renegociacao`);
-  await expect(page.getByRole('heading', { name: 'Proposta de renegociacao' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Proposta de renegociação' })).toBeVisible();
 
   await page.getByRole('button', { name: 'Recusar proposta' }).click();
   await expect(page.getByRole('alertdialog')).toBeVisible();
@@ -111,7 +111,7 @@ test('tomador: aceite sem token navega ao step-up e o retorno nao aceita automat
   // nenhum aceite automatico acontece com a navegacao.
   await page.goBack();
   await page.waitForURL(/\/renegociacao$/, { timeout: 10_000 });
-  await expect(page.getByRole('heading', { name: 'Proposta de renegociacao' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Proposta de renegociação' })).toBeVisible();
   await expect(page.getByText(/Proposta aceita/)).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Aceitar proposta' })).toBeEnabled();
 });

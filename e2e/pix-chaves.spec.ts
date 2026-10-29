@@ -44,7 +44,7 @@ async function abrirChavesPix(page: Page): Promise<void> {
 // Personas: as duas veem a tela (o backend autoriza FINANCEIRO e ADMIN), mas no seed offline so o
 // admin tem MFA ativo — e MFA e pre-condicao do step-up. Por isso a leitura roda como FINANCEIRO
 // (persona operacional tipica) e as mutacoes rodam como ADMIN.
-test('financeiro: lista chaves mascaradas com historico ATIVA e INATIVA', async ({ page }) => {
+test('financeiro: lista chaves mascaradas com histórico ATIVA e INATIVA', async ({ page }) => {
   await login(page, 'financeiro@empresa.com');
   await abrirChavesPix(page);
 
@@ -71,7 +71,7 @@ test('financeiro: lista chaves mascaradas com historico ATIVA e INATIVA', async 
 });
 
 // Sem MFA ativo nao ha step-up possivel: a tela orienta a habilitar em vez de abrir a confirmacao.
-test('financeiro sem MFA: cadastro orienta a habilitar verificacao e nao abre a confirmacao', async ({
+test('financeiro sem MFA: cadastro orienta a habilitar verificação e não abre a confirmação', async ({
   page,
 }) => {
   await login(page, 'financeiro@empresa.com');
@@ -80,8 +80,8 @@ test('financeiro sem MFA: cadastro orienta a habilitar verificacao e nao abre a 
   await page.getByLabel('Valor da chave').fill('chave-sem-mfa');
   await page.getByRole('button', { name: 'Cadastrar chave' }).click();
 
-  await expect(page.getByText(/verificacao em duas etapas \(MFA\) ativa/)).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Ativar verificacao em duas etapas' })).toBeVisible();
+  await expect(page.getByText(/verificação em duas etapas \(MFA\) ativa/)).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Ativar verificação em duas etapas' })).toBeVisible();
   await expect(page.getByRole('alertdialog')).toHaveCount(0);
 });
 
@@ -112,16 +112,16 @@ test('admin: cadastro confirma e navega ao step-up sem cadastrar no retorno', as
   await expect(page.getByLabel('Valor da chave')).toHaveValue('chave-aleatoria-smoke');
 });
 
-test('admin: remocao confirma e navega ao step-up sem remover no retorno', async ({ page }) => {
+test('admin: remoção confirma e navega ao step-up sem remover no retorno', async ({ page }) => {
   await login(page, 'admin@empresa.com');
   await abrirChavesPix(page);
 
   await page.getByRole('button', { name: /^Remover chave/ }).click();
 
   await expect(page.getByRole('dialog')).toBeVisible();
-  await expect(page.getByRole('dialog')).toContainText('permanece no historico');
+  await expect(page.getByRole('dialog')).toContainText('permanece no histórico');
 
-  await page.getByRole('button', { name: 'Confirmar remocao' }).click();
+  await page.getByRole('button', { name: 'Confirmar remoção' }).click();
   await page.waitForURL(`**${URL_STEP_UP_DE_VOLTA}`, { timeout: 10_000 });
 
   // Retorno sem completar o desafio: a chave segue ATIVA e o CTA continua disponivel.
@@ -133,7 +133,7 @@ test('admin: remocao confirma e navega ao step-up sem remover no retorno', async
   await expect(page.getByRole('button', { name: /^Remover chave/ })).toHaveCount(1);
 });
 
-test('backoffice e cliente: nao veem o menu de chaves Pix', async ({ page }) => {
+test('backoffice e cliente: não veem o menu de chaves Pix', async ({ page }) => {
   // BACKOFFICE entra no Pix operacional, mas o backend restringe as chaves a FINANCEIRO/ADMIN.
   await login(page, 'backoffice@empresa.com');
   const menu = page.getByRole('complementary', { name: 'Navegação operacional' });

@@ -1,85 +1,99 @@
-@use "../../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../../styles/sep-ds-components" as sepDs;
-
+// Lista de aportes da operação, no padrão dos cartões internos do tema operacional.
 .sep-aportes {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-12);
+  gap: 12px;
 }
 
 .sep-aportes-acoes {
   display: flex;
 }
 
-.sep-aportes-atualizar {
-  @include sepDs.sep-button-secondary;
+.sep-aportes-atualizar,
+.sep-aportes-retry {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding: 0 14px;
+  color: var(--sep-text);
+  font-size: 12.5px;
+  font-weight: 600;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 9px;
+  background: rgb(var(--sep-c-surf2) / 85%);
+  cursor: pointer;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    border-color: var(--blue);
+    box-shadow: 0 0 12px rgb(var(--sep-c-blue) / calc(25% * var(--sep-glow-alpha)));
+  }
+
+  &:disabled {
+    color: var(--sep-text-muted);
+    cursor: not-allowed;
+  }
 }
 
-.sep-aportes-state {
-  @include sepType.sep-type-body;
-
-  color: hsl(var(--muted-foreground));
+.sep-aportes-state,
+.sep-aportes-vazio {
+  margin: 0;
+  color: var(--sep-text-muted);
+  font-size: 13.5px;
 }
 
 .sep-aportes-error {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-8);
+  gap: 8px;
   align-items: flex-start;
-  color: hsl(var(--warning));
-}
-
-.sep-aportes-retry {
-  @include sepDs.sep-button-outline;
-}
-
-.sep-aportes-vazio {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
+  color: var(--sep-warning);
 }
 
 .sep-aportes-lista {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-12);
+  gap: 12px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .sep-aportes-item {
-  @include sepDs.sep-card;
-
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-8);
-  padding: var(--sep-space-16);
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 12px;
+  background: rgb(var(--sep-c-sunken) / 90%);
 }
 
 .sep-aportes-item-topo {
   display: flex;
   flex-wrap: wrap;
+  gap: 12px;
   align-items: center;
   justify-content: space-between;
-  gap: var(--sep-space-12);
 }
 
 .sep-aportes-item-valor {
-  @include sepType.sep-type-body-semibold;
-
-  color: hsl(var(--foreground));
+  color: var(--sep-text);
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .sep-aportes-item-mensagem {
-  @include sepType.sep-type-body;
-
-  color: hsl(var(--muted-foreground));
+  color: var(--sep-text-muted);
+  font-size: 13px;
 }
 
 .sep-aportes-item-datas {
-  @include sepType.sep-type-caption;
-
-  color: hsl(var(--muted-foreground));
+  color: var(--sep-text-muted);
+  font-size: 12px;
 }

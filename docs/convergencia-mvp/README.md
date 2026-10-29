@@ -21,6 +21,7 @@ está em aberto**.
 | [modulos/05-analise-de-credito.md](modulos/05-analise-de-credito.md) | Bureaus, score interno explicável e parecer |
 | [modulos/06-glossario-e-ajuda.md](modulos/06-glossario-e-ajuda.md) | Glossário técnico e ajuda do sistema |
 | [modulos/07-site-publico-e-demonstracao.md](modulos/07-site-publico-e-demonstracao.md) | Site institucional, blog, investidores e demonstração |
+| [modulos/08-chaves-pix-e-matching-de-credoras.md](modulos/08-chaves-pix-e-matching-de-credoras.md) | Chaves Pix e Matching de credoras no tema do SEP, critérios em português, ajuda e tour |
 | [08-correcao-ci.md](08-correcao-ci.md) | Correção da auditoria do PR #190, compatibilidade do tooling e limites da validação |
 | [09-observacoes-para-o-backend.md](09-observacoes-para-o-backend.md) | O que o backend confirma ou decide depois do fechamento do front (28/10/2026) |
 
@@ -45,6 +46,7 @@ planejar.
 | Análise de crédito | `credito` com propostas, parecer e Open Finance | Consulta a bureaus, score interno, capacidade de pagamento, regras |
 | Glossário e ajuda | Não se aplica | Nada: é conteúdo do front |
 | Site público e demonstração | Não se aplica | Nada para a demonstração; o blog pode virar API no futuro |
+| Chaves Pix e Matching de credoras | `pix/chaves` e `credores/matching` com decisão e aportes | Confirmar se há códigos de critério além dos seis mapeados no front |
 
 ## O que também está neste pacote
 

@@ -1,110 +1,161 @@
-<section class="sep-notificacoes" aria-labelledby="notificacoes-titulo">
-  <header class="sep-notificacoes-header">
-    <h1 #titulo id="notificacoes-titulo" class="sep-notificacoes-title" tabindex="-1">
-      Notificacoes
-    </h1>
-    <p class="sep-notificacoes-subtitle">
-      Avisos sobre a sua conta. O contador no topo atualiza ao abrir esta central e ao marcar um
-      aviso como lido.
-    </p>
-  </header>
-
-  <p class="sep-notificacoes-anuncio" role="status">{{ anuncio() }}</p>
-
-  @switch (consulta().situacao) {
-    @case ('carregando') {
-      <p class="sep-notificacoes-estado" role="status">Carregando notificacoes...</p>
-    }
-    @case ('erro') {
-      <div class="sep-notificacoes-estado sep-notificacoes-erro" role="alert">
-        <p>{{ mensagemErro() }}</p>
-        <button type="button" class="sep-notificacoes-botao" (click)="tentarNovamente()">
-          Tentar novamente
-        </button>
+<sep-operational-shell>
+  <section class="px70-page" aria-labelledby="notificacoes-titulo">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px70-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span><strong>Notificações</strong>
+      </nav>
+      <div class="px70-heading-row">
+        <div class="px70-titulo-wrap">
+          <span class="px70-titulo-icone" data-tone="blue">
+            <lucide-icon name="bell" [size]="24" aria-hidden="true" />
+          </span>
+          <div>
+            <h1 #titulo id="notificacoes-titulo" tabindex="-1">Notificações</h1>
+            <p class="px70-subtitulo">
+              Avisos sobre a sua conta. O contador no topo atualiza ao abrir esta central e ao
+              marcar um aviso como lido.
+            </p>
+          </div>
+        </div>
       </div>
-    }
-    @case ('pronta') {
-      @if (total() === 0) {
-        <p class="sep-notificacoes-estado">Voce nao tem notificacoes.</p>
-      } @else if (itens().length === 0) {
-        <div class="sep-notificacoes-estado">
-          <p>Esta pagina nao tem notificacoes.</p>
-          <button type="button" class="sep-notificacoes-botao" (click)="irParaPagina(0)">
-            Ir para a primeira pagina
+    </header>
+
+    <p class="px70-anuncio" role="status">{{ anuncio() }}</p>
+
+    @switch (consulta().situacao) {
+      @case ('carregando') {
+        <div class="px70-estado">
+          <lucide-icon name="loader-circle" [size]="22" aria-hidden="true" />
+          <p role="status">Carregando notificações...</p>
+        </div>
+      }
+      @case ('erro') {
+        <div class="px70-card px70-estado px70-erro" role="alert">
+          <lucide-icon name="circle-alert" [size]="22" aria-hidden="true" />
+          <p>{{ mensagemErro() }}</p>
+          <button type="button" class="px70-btn-sec" (click)="tentarNovamente()">
+            <lucide-icon name="refresh-cw" [size]="16" aria-hidden="true" />Tentar novamente
           </button>
         </div>
-      } @else {
-        <p class="sep-notificacoes-total">
-          {{ total() }} {{ total() === 1 ? 'notificacao' : 'notificacoes' }}
-        </p>
-        <!-- role="list" explicito: o WebKit tira a semantica de lista de <ul> com list-style: none. -->
-        <ul class="sep-notificacoes-lista" role="list" aria-label="Notificacoes">
-          @for (item of itens(); track item.id) {
-            <li class="sep-notificacoes-item" [class.sep-notificacoes-item-nao-lida]="!item.lidaEm">
-              <h2 [id]="idDoTitulo(item.id)" class="sep-notificacoes-item-titulo" tabindex="-1">
-                {{ item.titulo }}
-              </h2>
-              <p class="sep-notificacoes-item-mensagem">{{ item.mensagem }}</p>
-              <p class="sep-notificacoes-item-meta">
-                <span>Recebida em {{ formatarDataHora(item.criadaEm) }}</span>
-                @if (item.lidaEm) {
-                  <span>Lida em {{ formatarDataHora(item.lidaEm) }}</span>
-                } @else {
-                  <span class="sep-notificacoes-item-rotulo-nao-lida">Nao lida</span>
-                }
-              </p>
-              @if (!item.lidaEm) {
-                <!-- aria-disabled, e nao disabled: botao desabilitado perde o foco no meio do gesto. -->
-                <button
-                  type="button"
-                  class="sep-notificacoes-botao sep-notificacoes-item-acao"
-                  [attr.aria-describedby]="idDoTitulo(item.id)"
-                  [attr.aria-disabled]="marcando().has(item.id) ? 'true' : null"
-                  (click)="marcarComoLida(item.id)"
-                >
-                  {{ marcando().has(item.id) ? 'Marcando como lida...' : 'Marcar como lida' }}
-                </button>
-              }
-              @if (falhas().get(item.id); as falha) {
-                <div class="sep-notificacoes-item-falha" role="alert">
-                  <p>{{ falha.mensagem }}</p>
-                  @if (falha.naoEncontrada) {
+      }
+      @case ('pronta') {
+        @if (total() === 0) {
+          <div class="px70-card px70-estado">
+            <lucide-icon name="bell-off" [size]="26" aria-hidden="true" />
+            <p>Você não tem notificações.</p>
+          </div>
+        } @else if (itens().length === 0) {
+          <div class="px70-card px70-estado">
+            <lucide-icon name="inbox" [size]="26" aria-hidden="true" />
+            <p>Esta página não tem notificações.</p>
+            <button type="button" class="px70-btn-sec" (click)="irParaPagina(0)">
+              Ir para a primeira página
+            </button>
+          </div>
+        } @else {
+          <!-- ============ INDICADORES ============ -->
+          <div class="px70-metricas">
+            <article class="px70-card px70-metrica" data-tone="blue">
+              <header>
+                <span class="px70-metrica-icone">
+                  <lucide-icon name="inbox" [size]="18" aria-hidden="true" />
+                </span>
+                <small>Total de avisos</small>
+              </header>
+              <strong class="px70-total">
+                {{ total() }} {{ total() === 1 ? 'notificação' : 'notificações' }}
+              </strong>
+            </article>
+            @if (naoLidasConhecidas(); as quantas) {
+              <article class="px70-card px70-metrica" data-tone="amber">
+                <header>
+                  <span class="px70-metrica-icone">
+                    <lucide-icon name="bell-ring" [size]="18" aria-hidden="true" />
+                  </span>
+                  <small>Não lidas</small>
+                </header>
+                <strong>{{ quantas.naoLidas }}</strong>
+              </article>
+            }
+          </div>
+
+          <!-- role="list" explícito: o WebKit tira a semântica de lista de <ul> com list-style: none. -->
+          <ul class="px70-lista" role="list" aria-label="Notificações">
+            @for (item of itens(); track item.id) {
+              <li
+                class="px70-card px70-item"
+                [class.px70-item-nao-lida]="!item.lidaEm"
+                [attr.data-tone]="item.lidaEm ? 'green' : 'amber'"
+              >
+                <span class="px70-item-icone" aria-hidden="true">
+                  <lucide-icon [name]="item.lidaEm ? 'mail-open' : 'mail'" [size]="20" />
+                </span>
+                <div class="px70-item-corpo">
+                  <h2 [id]="idDoTitulo(item.id)" class="px70-item-titulo" tabindex="-1">
+                    {{ item.titulo }}
+                  </h2>
+                  <p class="px70-item-mensagem">{{ item.mensagem }}</p>
+                  <p class="px70-item-meta">
+                    <span>Recebida em {{ formatarDataHora(item.criadaEm) }}</span>
+                    @if (item.lidaEm) {
+                      <span>Lida em {{ formatarDataHora(item.lidaEm) }}</span>
+                    } @else {
+                      <span class="px70-selo px70-item-rotulo-nao-lida">Não lida</span>
+                    }
+                  </p>
+                  @if (!item.lidaEm) {
+                    <!-- aria-disabled, e não disabled: botão desabilitado perde o foco no meio do gesto. -->
                     <button
                       type="button"
-                      class="sep-notificacoes-botao"
-                      (click)="tentarNovamente()"
+                      class="px70-btn-sec px70-item-acao"
+                      [attr.aria-describedby]="idDoTitulo(item.id)"
+                      [attr.aria-disabled]="marcando().has(item.id) ? 'true' : null"
+                      (click)="marcarComoLida(item.id)"
                     >
-                      Atualizar lista
+                      <lucide-icon name="check" [size]="16" aria-hidden="true" />{{
+                        marcando().has(item.id) ? 'Marcando como lida...' : 'Marcar como lida'
+                      }}
                     </button>
                   }
+                  @if (falhas().get(item.id); as falha) {
+                    <div class="px70-item-falha" role="alert">
+                      <p>{{ falha.mensagem }}</p>
+                      @if (falha.naoEncontrada) {
+                        <button type="button" class="px70-btn-sec" (click)="tentarNovamente()">
+                          Atualizar lista
+                        </button>
+                      }
+                    </div>
+                  }
                 </div>
-              }
-            </li>
-          }
-        </ul>
+              </li>
+            }
+          </ul>
 
-        @if (totalPaginas() > 1) {
-          <nav class="sep-notificacoes-paginacao" aria-label="Paginacao das notificacoes">
-            <button
-              type="button"
-              class="sep-notificacoes-botao"
-              [disabled]="pagina() === 0"
-              (click)="irParaPagina(pagina() - 1)"
-            >
-              Pagina anterior
-            </button>
-            <span>Pagina {{ pagina() + 1 }} de {{ totalPaginas() }}</span>
-            <button
-              type="button"
-              class="sep-notificacoes-botao"
-              [disabled]="pagina() + 1 >= totalPaginas()"
-              (click)="irParaPagina(pagina() + 1)"
-            >
-              Proxima pagina
-            </button>
-          </nav>
+          @if (totalPaginas() > 1) {
+            <nav class="px70-paginacao" aria-label="Paginação das notificações">
+              <button
+                type="button"
+                class="px70-btn-sec"
+                [disabled]="pagina() === 0"
+                (click)="irParaPagina(pagina() - 1)"
+              >
+                <lucide-icon name="chevron-left" [size]="16" aria-hidden="true" />Página anterior
+              </button>
+              <span>Página {{ pagina() + 1 }} de {{ totalPaginas() }}</span>
+              <button
+                type="button"
+                class="px70-btn-sec"
+                [disabled]="pagina() + 1 >= totalPaginas()"
+                (click)="irParaPagina(pagina() + 1)"
+              >
+                Próxima página<lucide-icon name="chevron-right" [size]="16" aria-hidden="true" />
+              </button>
+            </nav>
+          }
         }
       }
     }
-  }
-</section>
+  </section>
+</sep-operational-shell>

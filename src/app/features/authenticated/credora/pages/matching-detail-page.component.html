@@ -1,214 +1,305 @@
-<section class="sep-matching-detail">
-  @if (loading()) {
-    <p class="sep-matching-detail-state" role="status">Carregando sugestao...</p>
-  } @else if (errorMessage()) {
-    <div class="sep-matching-detail-state sep-matching-detail-error" role="alert">
-      <p>{{ errorMessage() }}</p>
-      <button type="button" class="sep-matching-detail-retry" (click)="carregar()">
-        Tentar novamente
-      </button>
-    </div>
-  } @else if (indisponivel()) {
-    <div class="sep-matching-detail-state sep-matching-detail-empty">
-      <p>Sugestao de matching indisponivel. Ela pode ja ter sido removida.</p>
-      <a class="sep-matching-detail-voltar" [routerLink]="['/app/credora/matching']">
-        Voltar para as sugestoes
-      </a>
-    </div>
-  } @else if (sugestao(); as s) {
-    <header class="sep-matching-detail-header">
-      <h1 class="sep-matching-detail-title">Detalhe do matching</h1>
-      <sep-matching-status [status]="s.status" />
+<sep-operational-shell>
+  <main class="px68-page">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px68-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/credora/matching">Matching de credoras</a><span>›</span
+        ><strong>Detalhe</strong>
+      </nav>
+      <div class="px68-heading-row">
+        <div class="px68-titulo-wrap">
+          <span class="px68-titulo-icone" data-tone="purple">
+            <lucide-icon name="handshake" [size]="24" aria-hidden="true" />
+          </span>
+          <div>
+            <h1>Detalhe do matching</h1>
+            @if (sugestao(); as atual) {
+              <p class="px68-subtitulo">
+                Sugestão gerada pelo sistema para o par credora-operação. Confirmar apenas registra
+                a decisão: nenhum aporte é criado e nenhum recurso é transferido.
+              </p>
+              <sep-matching-status [status]="atual.status" />
+            }
+          </div>
+        </div>
+        <a class="px68-btn-sec" routerLink="/app/credora/matching">
+          <lucide-icon name="arrow-left" [size]="16" aria-hidden="true" />Voltar para as sugestões
+        </a>
+      </div>
     </header>
 
-    <p class="sep-matching-detail-descricao">
-      Sugestao gerada pelo sistema para o par credora-operacao. Confirmar apenas registra a decisao:
-      nenhum aporte e criado e nenhum recurso e transferido.
-    </p>
-
-    <dl class="sep-matching-detail-campos">
-      <div class="sep-matching-detail-campo">
-        <dt>Operacao</dt>
-        <dd>{{ idCurto(s.operacaoId) }}</dd>
-      </div>
-      <div class="sep-matching-detail-campo">
-        <dt>Empresa credora</dt>
-        <dd>{{ idCurto(s.empresaCredoraId) }}</dd>
-      </div>
-      <div class="sep-matching-detail-campo sep-matching-detail-campo-valor">
-        <dt>Valor elegivel</dt>
-        <dd>{{ formatarMoeda(s.valorElegivel) }}</dd>
-      </div>
-      <div class="sep-matching-detail-campo">
-        <dt>Criada em</dt>
-        <dd>{{ formatarData(s.criadaEm) }}</dd>
-      </div>
-      @if (s.decididaEm) {
-        <div class="sep-matching-detail-campo">
-          <dt>Decidida em</dt>
-          <dd>{{ formatarData(s.decididaEm) }}</dd>
-        </div>
-      }
-    </dl>
-
-    <h2 class="sep-matching-detail-subtitulo">Criterios atendidos</h2>
-    <ul class="sep-matching-detail-criterios">
-      @for (criterio of s.criterios; track criterio) {
-        <li class="sep-matching-detail-criterio">{{ criterio }}</li>
-      }
-    </ul>
-
-    @if (s.status === 'SUGERIDA') {
-      @if (mfaNecessario()) {
-        <div class="sep-matching-detail-aviso" role="alert">
-          <p>
-            Para decidir o matching e preciso ter a verificacao em duas etapas (MFA) ativa na sua
-            conta.
-          </p>
-          <a class="sep-matching-detail-aviso-link" [routerLink]="['/app/profile/setup-totp']">
-            Ativar verificacao em duas etapas
-          </a>
-        </div>
-      }
-
-      @if (decisaoErro()) {
-        <p class="sep-matching-detail-decisao-erro" role="alert">{{ decisaoErro() }}</p>
-      }
-
-      @if (desatualizado()) {
-        <div class="sep-matching-detail-aviso" role="alert">
-          <p>Os dados exibidos podem estar desatualizados.</p>
-          <button type="button" class="sep-matching-detail-retry" (click)="atualizarSugestao()">
-            Atualizar sugestao
-          </button>
-        </div>
-      }
-
-      @if (verificacaoNecessaria()) {
-        <div class="sep-matching-detail-aviso" role="alert">
-          <p>Nao foi possivel confirmar sua identidade para a decisao.</p>
-          <button type="button" class="sep-matching-detail-retry" (click)="verificarNovamente()">
-            Verificar novamente
-          </button>
-        </div>
-      }
-
-      <div class="sep-matching-detail-acoes">
-        <button
-          type="button"
-          class="sep-matching-detail-confirmar"
-          (click)="decidirClick('CONFIRMAR')"
-          [disabled]="decisaoBloqueada()"
-        >
-          {{ reconsultando() ? 'Atualizando...' : 'Confirmar matching' }}
-        </button>
-        <button
-          type="button"
-          class="sep-matching-detail-rejeitar"
-          (click)="decidirClick('REJEITAR')"
-          [disabled]="decisaoBloqueada()"
-        >
-          Rejeitar matching
+    @if (loading()) {
+      <p class="px68-card px68-estado" role="status">Carregando sugestão...</p>
+    } @else if (errorMessage()) {
+      <div class="px68-card px68-estado px68-erro" role="alert">
+        <lucide-icon name="triangle-alert" [size]="22" aria-hidden="true" />
+        <p>{{ errorMessage() }}</p>
+        <button type="button" class="px68-btn-primary" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" aria-hidden="true" />Tentar novamente
         </button>
       </div>
-
-      @if (confirmando(); as acao) {
-        <div
-          #confirmacaoBox
-          class="sep-matching-detail-confirmacao"
-          role="alertdialog"
-          aria-modal="true"
-          tabindex="-1"
-          aria-labelledby="confirmacao-matching-titulo"
-          (keydown.escape)="cancelarConfirmacao()"
-          (keydown.tab)="prenderFoco($event)"
-          (keydown.shift.tab)="prenderFoco($event)"
-        >
-          <h2 class="sep-matching-detail-confirmacao-titulo" id="confirmacao-matching-titulo">
-            {{ acao === 'CONFIRMAR' ? 'Confirmar matching' : 'Rejeitar matching' }}
-          </h2>
-          <p class="sep-matching-detail-confirmacao-texto">
-            @if (acao === 'CONFIRMAR') {
-              Voce esta confirmando o matching da operacao {{ idCurto(s.operacaoId) }} com a credora
-              {{ idCurto(s.empresaCredoraId) }}, com valor elegivel de
-              {{ formatarMoeda(s.valorElegivel) }}. A confirmacao apenas registra a decisao; o
-              aporte e um passo separado.
-            } @else {
-              Voce esta rejeitando o matching da operacao {{ idCurto(s.operacaoId) }} com a credora
-              {{ idCurto(s.empresaCredoraId) }}, com valor elegivel de
-              {{ formatarMoeda(s.valorElegivel) }}. A rejeicao e definitiva para esta sugestao.
+    } @else if (indisponivel()) {
+      <div class="px68-card px68-estado">
+        <p>Sugestão de matching indisponível. Ela pode já ter sido removida.</p>
+      </div>
+    } @else if (sugestao(); as s) {
+      <div class="px68-colunas">
+        <!-- ============ DADOS ============ -->
+        <section class="px68-card px68-dados" aria-labelledby="matching-dados-titulo">
+          <header class="px68-card-topo">
+            <h2 id="matching-dados-titulo">Dados da sugestão</h2>
+          </header>
+          <dl class="px68-campos">
+            <div class="px68-campo-dado">
+              <dt>Operação</dt>
+              <dd>{{ idCurto(s.operacaoId) }}</dd>
+            </div>
+            <div class="px68-campo-dado">
+              <dt>Empresa credora</dt>
+              <dd>{{ idCurto(s.empresaCredoraId) }}</dd>
+            </div>
+            <div class="px68-campo-dado px68-campo-valor">
+              <dt>Valor elegível</dt>
+              <dd>{{ formatarMoeda(s.valorElegivel) }}</dd>
+            </div>
+            <div class="px68-campo-dado">
+              <dt>Criada em</dt>
+              <dd>{{ formatarData(s.criadaEm) }}</dd>
+            </div>
+            @if (s.decididaEm) {
+              <div class="px68-campo-dado">
+                <dt>Decidida em</dt>
+                <dd>{{ formatarData(s.decididaEm) }}</dd>
+              </div>
             }
-          </p>
-          <div class="sep-matching-detail-motivo">
-            <label class="sep-matching-detail-motivo-label" for="motivo-decisao">
-              Motivo (opcional)
-            </label>
-            <textarea
-              class="sep-matching-detail-motivo-campo"
-              id="motivo-decisao"
-              rows="3"
-              [attr.maxlength]="motivoMax"
-              [value]="motivo()"
-              [disabled]="decisaoEmVoo()"
-              (input)="atualizarMotivo($any($event.target).value)"
-            ></textarea>
-            <span class="sep-matching-detail-motivo-contador">
-              {{ motivo().length }}/{{ motivoMax }}
-            </span>
+          </dl>
+
+          <h3 class="px68-subtitulo-secao">Critérios atendidos</h3>
+          <ul class="px68-criterios">
+            @for (criterio of s.criterios; track criterio) {
+              <li class="px68-criterio">{{ rotuloCriterio(criterio) }}</li>
+            }
+          </ul>
+        </section>
+
+        <!-- ============ DECISÃO ============ -->
+        <section class="px68-card px68-decisao" aria-labelledby="matching-decisao-titulo">
+          <header class="px68-card-topo">
+            <h2 id="matching-decisao-titulo">Decisão</h2>
+          </header>
+
+          @if (s.status === 'SUGERIDA') {
+            <p class="px68-ajuda">
+              Confirmar ou rejeitar pede verificação em duas etapas. Antes de abrir a confirmação, o
+              sistema reconsulta a sugestão para decidir sobre o estado atual.
+            </p>
+
+            @if (mfaNecessario()) {
+              <div class="px68-alerta" data-tone="amber" role="alert">
+                <lucide-icon name="triangle-alert" [size]="18" aria-hidden="true" />
+                <p>
+                  Para decidir o matching é preciso ter a verificação em duas etapas (MFA) ativa na
+                  sua conta.
+                </p>
+                <a class="px68-link" [routerLink]="['/app/profile/setup-totp']">
+                  Ativar verificação em duas etapas
+                </a>
+              </div>
+            }
+
+            @if (decisaoErro()) {
+              <p class="px68-alerta" data-tone="red" role="alert">
+                <lucide-icon name="circle-alert" [size]="18" aria-hidden="true" />{{
+                  decisaoErro()
+                }}
+              </p>
+            }
+
+            @if (desatualizado()) {
+              <div class="px68-alerta" data-tone="amber" role="alert">
+                <lucide-icon name="triangle-alert" [size]="18" aria-hidden="true" />
+                <p>Os dados exibidos podem estar desatualizados.</p>
+                <button type="button" class="px68-btn-sec" (click)="atualizarSugestao()">
+                  Atualizar sugestão
+                </button>
+              </div>
+            }
+
+            @if (verificacaoNecessaria()) {
+              <div class="px68-alerta" data-tone="amber" role="alert">
+                <lucide-icon name="triangle-alert" [size]="18" aria-hidden="true" />
+                <p>Não foi possível confirmar sua identidade para a decisão.</p>
+                <button type="button" class="px68-btn-sec" (click)="verificarNovamente()">
+                  Verificar novamente
+                </button>
+              </div>
+            }
+
+            <div class="px68-acoes">
+              <button
+                type="button"
+                class="px68-btn-primary"
+                (click)="decidirClick('CONFIRMAR')"
+                [disabled]="decisaoBloqueada()"
+              >
+                {{ reconsultando() ? 'Atualizando...' : 'Confirmar matching' }}
+              </button>
+              <button
+                type="button"
+                class="px68-btn-perigo px68-btn-alto"
+                (click)="decidirClick('REJEITAR')"
+                [disabled]="decisaoBloqueada()"
+              >
+                Rejeitar matching
+              </button>
+            </div>
+          } @else {
+            <div
+              class="px68-alerta"
+              [attr.data-tone]="s.status === 'CONFIRMADA' ? 'green' : 'red'"
+              role="status"
+            >
+              <lucide-icon
+                [name]="s.status === 'CONFIRMADA' ? 'circle-check' : 'circle-x'"
+                [size]="18"
+                aria-hidden="true"
+              />
+              @if (s.status === 'CONFIRMADA') {
+                <p>
+                  Matching confirmado e registrado. Nenhum recurso foi transferido: o aporte é um
+                  passo separado, feito pelo fluxo assistido de aporte.
+                </p>
+              } @else {
+                <p>Matching rejeitado. Esta sugestão não aceita nova decisão.</p>
+              }
+            </div>
+            @if (s.status === 'CONFIRMADA') {
+              <a
+                class="px68-btn-primary px68-cadastrar"
+                [routerLink]="['/app/credora/matching', s.id, 'aporte']"
+              >
+                <lucide-icon name="banknote" [size]="16" aria-hidden="true" />Registrar aporte da
+                operação
+              </a>
+            }
+          }
+        </section>
+      </div>
+
+      <!-- ============ REGRAS ============ -->
+      <ul class="px68-regras" aria-label="Regras desta tela">
+        <li data-tone="blue">
+          <span class="px68-regra-icone"
+            ><lucide-icon name="refresh-cw" [size]="18" aria-hidden="true"
+          /></span>
+          <div>
+            <strong>Decide sobre o estado atual</strong>
+            <span>Antes de abrir a confirmação, a sugestão é reconsultada no backend.</span>
           </div>
-          <div class="sep-matching-detail-confirmacao-acoes">
-            <button
-              type="button"
-              [class]="
-                acao === 'CONFIRMAR'
-                  ? 'sep-matching-detail-confirmar'
-                  : 'sep-matching-detail-rejeitar'
-              "
-              (click)="confirmarDecisao()"
-              [disabled]="decisaoEmVoo()"
+        </li>
+        <li data-tone="amber">
+          <span class="px68-regra-icone"
+            ><lucide-icon name="shield-check" [size]="18" aria-hidden="true"
+          /></span>
+          <div>
+            <strong>Identidade confirmada</strong>
+            <span>Confirmar e rejeitar exigem verificação em duas etapas, sem exceção.</span>
+          </div>
+        </li>
+        <li data-tone="green">
+          <span class="px68-regra-icone"
+            ><lucide-icon name="banknote" [size]="18" aria-hidden="true"
+          /></span>
+          <div>
+            <strong>Aporte é outro passo</strong>
+            <span>Confirmar só registra a decisão; nenhum recurso é transferido.</span>
+          </div>
+        </li>
+      </ul>
+
+      <!-- ============ CONFIRMAÇÃO (MODAL) ============ -->
+      @if (confirmando(); as acao) {
+        <div class="px68-modal">
+          <div
+            #confirmacaoBox
+            class="px68-dialogo"
+            role="alertdialog"
+            aria-modal="true"
+            tabindex="-1"
+            aria-labelledby="confirmacao-matching-titulo"
+            (keydown.escape)="cancelarConfirmacao()"
+            (keydown.tab)="prenderFoco($event)"
+            (keydown.shift.tab)="prenderFoco($event)"
+          >
+            <span
+              class="px68-titulo-icone px68-dialogo-icone"
+              [attr.data-tone]="acao === 'CONFIRMAR' ? 'purple' : 'red'"
             >
-              {{
-                decisaoEmVoo()
-                  ? 'Enviando...'
-                  : acao === 'CONFIRMAR'
-                    ? 'Confirmar decisao'
-                    : 'Rejeitar sugestao'
-              }}
-            </button>
-            <button
-              type="button"
-              class="sep-matching-detail-cancelar"
-              (click)="cancelarConfirmacao()"
-              [disabled]="decisaoEmVoo()"
-            >
-              Cancelar
-            </button>
+              <lucide-icon
+                [name]="acao === 'CONFIRMAR' ? 'handshake' : 'ban'"
+                [size]="22"
+                aria-hidden="true"
+              />
+            </span>
+            <h2 id="confirmacao-matching-titulo">
+              {{ acao === 'CONFIRMAR' ? 'Confirmar matching' : 'Rejeitar matching' }}
+            </h2>
+            <p>
+              @if (acao === 'CONFIRMAR') {
+                Você está confirmando o matching da operação {{ idCurto(s.operacaoId) }} com a
+                credora {{ idCurto(s.empresaCredoraId) }}, com valor elegível de
+                {{ formatarMoeda(s.valorElegivel) }}. A confirmação apenas registra a decisão; o
+                aporte é um passo separado.
+              } @else {
+                Você está rejeitando o matching da operação {{ idCurto(s.operacaoId) }} com a
+                credora {{ idCurto(s.empresaCredoraId) }}, com valor elegível de
+                {{ formatarMoeda(s.valorElegivel) }}. A rejeição é definitiva para esta sugestão.
+              }
+            </p>
+            <div class="px68-campo px68-campo-cheio">
+              <label for="motivo-decisao">Motivo (opcional)</label>
+              <textarea
+                id="motivo-decisao"
+                rows="3"
+                [attr.maxlength]="motivoMax"
+                [value]="motivo()"
+                [disabled]="decisaoEmVoo()"
+                (input)="atualizarMotivo($any($event.target).value)"
+              ></textarea>
+              <span class="px68-ajuda px68-contador">{{ motivo().length }}/{{ motivoMax }}</span>
+            </div>
+            <div class="px68-dialogo-acoes">
+              <button
+                type="button"
+                [class]="
+                  acao === 'CONFIRMAR'
+                    ? 'px68-btn-primary px68-btn-cheio'
+                    : 'px68-btn-perigo px68-btn-cheio'
+                "
+                (click)="confirmarDecisao()"
+                [disabled]="decisaoEmVoo()"
+              >
+                {{
+                  decisaoEmVoo()
+                    ? 'Enviando...'
+                    : acao === 'CONFIRMAR'
+                      ? 'Confirmar decisão'
+                      : 'Rejeitar sugestão'
+                }}
+              </button>
+              <button
+                type="button"
+                class="px68-btn-sec"
+                (click)="cancelarConfirmacao()"
+                [disabled]="decisaoEmVoo()"
+              >
+                Cancelar
+              </button>
+            </div>
           </div>
         </div>
-      }
-    } @else {
-      <div class="sep-matching-detail-resultado" role="status">
-        @if (s.status === 'CONFIRMADA') {
-          <p>
-            Matching confirmado e registrado. Nenhum recurso foi transferido: o aporte e um passo
-            separado, feito pelo fluxo assistido de aporte.
-          </p>
-        } @else {
-          <p>Matching rejeitado. Esta sugestao nao aceita nova decisao.</p>
-        }
-      </div>
-      @if (s.status === 'CONFIRMADA') {
-        <a
-          class="sep-matching-detail-aporte-cta"
-          [routerLink]="['/app/credora/matching', s.id, 'aporte']"
-        >
-          Registrar aporte da operacao
-        </a>
       }
     }
-
-    <a class="sep-matching-detail-voltar" [routerLink]="['/app/credora/matching']">
-      Voltar para as sugestoes
-    </a>
-  }
-</section>
+  </main>
+</sep-operational-shell>

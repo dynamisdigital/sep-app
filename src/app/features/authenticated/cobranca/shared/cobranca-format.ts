@@ -60,7 +60,7 @@ export const STATUS_PARCELA_LABEL: Record<StatusParcela, string> = {
 // Label curto por status de renegociacao apresentado ao tomador (F-16). A proposta
 // consultavel e sempre PROPOSTA; os demais cobrem estados historicos/terminais.
 export const STATUS_RENEGOCIACAO_LABEL: Record<StatusRenegociacao, string> = {
-  PROPOSTA: 'Aguardando sua decisao',
+  PROPOSTA: 'Aguardando sua decisão',
   ACEITA: 'Aceita',
   RECUSADA: 'Recusada',
   EXPIRADA: 'Expirada',

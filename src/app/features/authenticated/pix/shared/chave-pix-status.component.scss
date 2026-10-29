@@ -1,17 +1,28 @@
-@use "../../../../../styles/sep-ds-components" as sepDs;
-
+// Selo de estado da chave Pix, nas mesmas cores e medidas do `selo` do tema operacional.
 .sep-chave-pix-status-badge {
-  @include sepDs.sep-badge-base;
+  --cor: var(--sep-text-muted);
 
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
   align-self: flex-start;
+  height: 26px;
+  padding: 0 13px;
+  color: var(--cor);
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  border: 1px solid color-mix(in srgb, var(--cor) 55%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--cor) 12%, transparent);
 
   &.is-ativa {
-    color: hsl(var(--success));
-    background: hsl(var(--success) / 12%);
+    --cor: var(--sep-success);
   }
 
   &.is-inativa {
-    color: hsl(var(--muted-foreground));
-    background: hsl(var(--muted));
+    --cor: var(--sep-text-muted);
   }
 }

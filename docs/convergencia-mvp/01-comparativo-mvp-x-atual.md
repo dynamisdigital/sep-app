@@ -74,6 +74,9 @@ unitários verdes. O e2e achou o que o merge deixou desalinhado, já corrigido:
   (`playwright.config.ts`); só `aviso-cookies.spec.ts` o reexibe.
 - **Menu.** "Chaves Pix" e "Matching de credoras" só existiam no `sidenav` antigo. Entraram no shell
   operacional (filho de Pix e item de Operação, ambos FINANCEIRO e ADMIN).
+  Em 29/10/2026 as quatro telas (Chaves Pix e as três do Matching) passaram para o layout do tema do SEP, com
+  acentuação, critérios do matching em português, ajuda contextual e tour assistido. Detalhes em
+  [`modulos/08-chaves-pix-e-matching-de-credoras.md`](modulos/08-chaves-pix-e-matching-de-credoras.md).
 - **Rota duplicada.** `/politica-de-privacidade` existia nas duas bases; ficou a página do atual (11
   seções). `politica-privacidade/` (MVP) foi removida: o inventário de cookies e
   de chaves do navegador (`sep-refresh`, `SEP_ACCESS_TOKEN`, `SEP_PENDING_MFA_CHALLENGE`, `SEP_THEME`,
@@ -88,6 +91,15 @@ unitários verdes. O e2e achou o que o merge deixou desalinhado, já corrigido:
 - **Central de notificações.** A página `/app/notificacoes` e o contador de não lidas vieram do MVP, mas só tinham
   porta no cabeçalho antigo. O shell operacional ganhou o link com a contagem na barra de ícones, distinto do sino
   de alertas (que são recortes dos dados da tela).
+- **Últimas telas do MVP no tema do SEP (29/10/2026).** Uma varredura das rotas autenticadas achou só duas telas
+  ainda dentro do cabeçalho e do menu antigos (sem `immersive: true`): a **Central de notificações** e a
+  **Proposta de renegociação do tomador**. As duas passaram para o shell operacional, com a folha de estilo do
+  tema (`tela-operacional-tema` e `-blocos`), textos acentuados e rotas marcadas como `immersive`. A central
+  ganhou indicadores (total e não lidas) e entrada na Ajuda; a renegociação manteve o diálogo de confirmação
+  com foco preso e a regra de MFA e *step-up*. O rótulo do link da central (`Notificações, 3 não lidas`) também
+  foi acentuado. Sobraram, fora das rotas, só componentes pequenos de status (chips) e a vitrine do design
+  system, que não são telas. O layout antigo (`layout/shell`, cabeçalho, menu e trilha) segue existindo apenas
+  como moldura das rotas não imersivas; hoje nenhuma rota o usa.
 
 Cinco specs e2e já falhavam **antes** do merge, na `escritorio-2026-10-26`, e seguem pendentes (não são do
 merge): `cobranca` (painel de inadimplência), `credores-escrow` (conta de destino e saque), `governanca`

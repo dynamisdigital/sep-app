@@ -1,132 +1,180 @@
-<section class="sep-reneg">
-  @if (loading()) {
-    <p class="sep-reneg-state" role="status">Carregando proposta...</p>
-  } @else if (errorMessage()) {
-    <div class="sep-reneg-state sep-reneg-error" role="alert">
-      <p>{{ errorMessage() }}</p>
-      <button type="button" class="sep-reneg-retry" (click)="carregar()">Tentar novamente</button>
-    </div>
-  } @else if (indisponivel()) {
-    <div class="sep-reneg-state sep-reneg-empty">
-      <p>
-        Nenhuma proposta de renegociacao disponivel para esta parcela. Ela pode ja ter sido decidida
-        ou ter expirado.
-      </p>
-      <a class="sep-reneg-voltar" [routerLink]="['/app/cobranca/parcelas', parcelaId]">
-        Voltar para a parcela
-      </a>
-    </div>
-  } @else if (termos(); as t) {
-    <header class="sep-reneg-header">
-      <h1 class="sep-reneg-title">Proposta de renegociacao</h1>
-      <span class="sep-reneg-status">{{ statusLabel[t.status] }}</span>
+<sep-operational-shell>
+  <section class="px71-page" aria-labelledby="reneg-titulo">
+    <!-- ============ CABEÇALHO ============ -->
+    <header class="px71-heading">
+      <nav aria-label="Navegação estrutural">
+        <a routerLink="/app/dashboard">Início</a><span>›</span
+        ><a routerLink="/app/cobranca">Cobrança</a><span>›</span
+        ><a [routerLink]="['/app/cobranca/parcelas', parcelaId]">Parcela</a><span>›</span
+        ><strong>Renegociação</strong>
+      </nav>
+      <div class="px71-heading-row">
+        <div class="px71-titulo-wrap">
+          <span class="px71-titulo-icone" data-tone="blue">
+            <lucide-icon name="handshake" [size]="24" aria-hidden="true" />
+          </span>
+          <div>
+            <h1 id="reneg-titulo">Proposta de renegociação</h1>
+            <p class="px71-subtitulo">
+              Confira os termos calculados pelo sistema. Nada muda na sua parcela sem a sua decisão.
+            </p>
+          </div>
+        </div>
+      </div>
     </header>
 
-    <p class="sep-reneg-descricao">
-      Confira os termos calculados pelo sistema. Nada muda na sua parcela sem a sua decisao.
-    </p>
+    @if (loading()) {
+      <div class="px71-estado">
+        <lucide-icon name="loader-circle" [size]="22" aria-hidden="true" />
+        <p role="status">Carregando proposta...</p>
+      </div>
+    } @else if (errorMessage()) {
+      <div class="px71-card px71-estado px71-erro" role="alert">
+        <lucide-icon name="circle-alert" [size]="22" aria-hidden="true" />
+        <p>{{ errorMessage() }}</p>
+        <button type="button" class="px71-btn-sec" (click)="carregar()">
+          <lucide-icon name="refresh-cw" [size]="16" aria-hidden="true" />Tentar novamente
+        </button>
+      </div>
+    } @else if (indisponivel()) {
+      <div class="px71-card px71-estado">
+        <lucide-icon name="inbox" [size]="26" aria-hidden="true" />
+        <p>
+          Nenhuma proposta de renegociação disponível para esta parcela. Ela pode já ter sido
+          decidida ou ter expirado.
+        </p>
+        <a class="px71-btn-sec" [routerLink]="['/app/cobranca/parcelas', parcelaId]">
+          Voltar para a parcela
+        </a>
+      </div>
+    } @else if (termos(); as t) {
+      <!-- ============ TERMOS ============ -->
+      <article class="px71-card px71-termos-card">
+        <h2>
+          Termos da proposta
+          <span class="px71-selo" data-tone="amber">{{ statusLabel[t.status] }}</span>
+        </h2>
+        <dl class="px71-termos">
+          <div class="px71-termo">
+            <dt>Novo valor por parcela</dt>
+            <dd>{{ formatarMoeda(t.novoValorParcela) }}</dd>
+          </div>
+          <div class="px71-termo">
+            <dt>Quantidade de parcelas</dt>
+            <dd>{{ t.numeroParcelas }}</dd>
+          </div>
+          <div class="px71-termo px71-termo-total">
+            <dt>Valor total renegociado</dt>
+            <dd>{{ formatarMoeda(t.valorTotalRenegociado) }}</dd>
+          </div>
+          <div class="px71-termo">
+            <dt>Desconto</dt>
+            <dd>{{ formatarMoeda(t.desconto) }}</dd>
+          </div>
+          <div class="px71-termo">
+            <dt>Primeiro vencimento</dt>
+            <dd>{{ formatarDataLocal(t.novoVencimento) }}</dd>
+          </div>
+          <div class="px71-termo">
+            <dt>Data da proposta</dt>
+            <dd>{{ formatarData(t.dataProposta) }}</dd>
+          </div>
+          <div class="px71-termo">
+            <dt>Válida até</dt>
+            <dd>{{ formatarData(t.dataExpiracao) }}</dd>
+          </div>
+        </dl>
+      </article>
 
-    <dl class="sep-reneg-termos">
-      <div class="sep-reneg-termo">
-        <dt>Novo valor por parcela</dt>
-        <dd>{{ formatarMoeda(t.novoValorParcela) }}</dd>
-      </div>
-      <div class="sep-reneg-termo">
-        <dt>Quantidade de parcelas</dt>
-        <dd>{{ t.numeroParcelas }}</dd>
-      </div>
-      <div class="sep-reneg-termo sep-reneg-termo-total">
-        <dt>Valor total renegociado</dt>
-        <dd>{{ formatarMoeda(t.valorTotalRenegociado) }}</dd>
-      </div>
-      <div class="sep-reneg-termo">
-        <dt>Desconto</dt>
-        <dd>{{ formatarMoeda(t.desconto) }}</dd>
-      </div>
-      <div class="sep-reneg-termo">
-        <dt>Primeiro vencimento</dt>
-        <dd>{{ formatarDataLocal(t.novoVencimento) }}</dd>
-      </div>
-      <div class="sep-reneg-termo">
-        <dt>Data da proposta</dt>
-        <dd>{{ formatarData(t.dataProposta) }}</dd>
-      </div>
-      <div class="sep-reneg-termo">
-        <dt>Valida ate</dt>
-        <dd>{{ formatarData(t.dataExpiracao) }}</dd>
-      </div>
-    </dl>
-
-    @if (decisaoFinal(); as decisao) {
-      <div class="sep-reneg-sucesso" role="status">
-        @if (decisao === 'ACEITA') {
-          <p>Proposta aceita. A parcela sera atualizada pelo sistema.</p>
-        } @else {
-          <p>Proposta recusada. A situacao da parcela sera atualizada pelo sistema.</p>
+      <!-- ============ DECISÃO ============ -->
+      @if (decisaoFinal(); as decisao) {
+        <div class="px71-alerta" data-tone="green" role="status">
+          <lucide-icon name="circle-check" [size]="18" aria-hidden="true" />
+          @if (decisao === 'ACEITA') {
+            <p>Proposta aceita. A parcela será atualizada pelo sistema.</p>
+          } @else {
+            <p>Proposta recusada. A situação da parcela será atualizada pelo sistema.</p>
+          }
+        </div>
+      } @else {
+        @if (mfaNecessario()) {
+          <div class="px71-alerta" data-tone="amber" role="alert">
+            <lucide-icon name="shield-alert" [size]="18" aria-hidden="true" />
+            <p>
+              Para aceitar a proposta é preciso ter a verificação em duas etapas (MFA) ativa na sua
+              conta.
+            </p>
+            <a class="px71-btn-sec" [routerLink]="['/app/profile/setup-totp']">
+              Ativar verificação em duas etapas
+            </a>
+          </div>
         }
-      </div>
-    } @else {
-      @if (mfaNecessario()) {
-        <div class="sep-reneg-aviso" role="alert">
-          <p>
-            Para aceitar a proposta e preciso ter a verificacao em duas etapas (MFA) ativa na sua
-            conta.
+
+        @if (decisaoErro()) {
+          <p class="px71-alerta" data-tone="red" role="alert">
+            <lucide-icon name="circle-alert" [size]="18" aria-hidden="true" />{{ decisaoErro() }}
           </p>
-          <a class="sep-reneg-aviso-link" [routerLink]="['/app/profile/setup-totp']">
-            Ativar verificacao em duas etapas
-          </a>
-        </div>
-      }
+        }
 
-      @if (decisaoErro()) {
-        <p class="sep-reneg-decisao-erro" role="alert">{{ decisaoErro() }}</p>
-      }
+        @if (desatualizado()) {
+          <div class="px71-alerta" data-tone="amber" role="alert">
+            <lucide-icon name="triangle-alert" [size]="18" aria-hidden="true" />
+            <p>Os termos exibidos podem estar desatualizados.</p>
+            <button type="button" class="px71-btn-sec" (click)="atualizarTermos()">
+              Atualizar termos
+            </button>
+          </div>
+        }
 
-      @if (desatualizado()) {
-        <div class="sep-reneg-aviso" role="alert">
-          <p>Os termos exibidos podem estar desatualizados.</p>
-          <button type="button" class="sep-reneg-retry" (click)="atualizarTermos()">
-            Atualizar termos
+        @if (verificacaoNecessaria()) {
+          <div class="px71-alerta" data-tone="amber" role="alert">
+            <lucide-icon name="shield-alert" [size]="18" aria-hidden="true" />
+            <p>Não foi possível confirmar sua identidade para o aceite.</p>
+            <button type="button" class="px71-btn-sec" (click)="verificarNovamente()">
+              Verificar novamente
+            </button>
+          </div>
+        }
+
+        <div class="px71-acoes">
+          <button
+            type="button"
+            class="px71-btn-primary"
+            (click)="aceitarClick()"
+            [disabled]="
+              reconsultando() || decisaoEmVoo() || confirmando() !== null || desatualizado()
+            "
+          >
+            <lucide-icon name="check" [size]="18" aria-hidden="true" />{{
+              reconsultando() ? 'Atualizando termos...' : 'Aceitar proposta'
+            }}
+          </button>
+          <button
+            type="button"
+            class="px71-btn-perigo"
+            (click)="recusarClick()"
+            [disabled]="
+              reconsultando() || decisaoEmVoo() || confirmando() !== null || desatualizado()
+            "
+          >
+            <lucide-icon name="x" [size]="18" aria-hidden="true" />Recusar proposta
           </button>
         </div>
       }
 
-      @if (verificacaoNecessaria()) {
-        <div class="sep-reneg-aviso" role="alert">
-          <p>Nao foi possivel confirmar sua identidade para o aceite.</p>
-          <button type="button" class="sep-reneg-retry" (click)="verificarNovamente()">
-            Verificar novamente
-          </button>
-        </div>
-      }
+      <a class="px71-btn-sec px71-voltar" [routerLink]="['/app/cobranca/parcelas', parcelaId]">
+        <lucide-icon name="arrow-left" [size]="16" aria-hidden="true" />Voltar para a parcela
+      </a>
+    }
+  </section>
 
-      <div class="sep-reneg-acoes">
-        <button
-          type="button"
-          class="sep-reneg-aceitar"
-          (click)="aceitarClick()"
-          [disabled]="
-            reconsultando() || decisaoEmVoo() || confirmando() !== null || desatualizado()
-          "
-        >
-          {{ reconsultando() ? 'Atualizando termos...' : 'Aceitar proposta' }}
-        </button>
-        <button
-          type="button"
-          class="sep-reneg-recusar"
-          (click)="recusarClick()"
-          [disabled]="
-            reconsultando() || decisaoEmVoo() || confirmando() !== null || desatualizado()
-          "
-        >
-          Recusar proposta
-        </button>
-      </div>
-
-      @if (confirmando() === 'ACEITE') {
+  <!-- ============ CONFIRMAÇÕES (MODAL) ============ -->
+  @if (termos(); as t) {
+    @if (confirmando() === 'ACEITE') {
+      <div class="px71-modal">
         <div
           #confirmacaoBox
-          class="sep-reneg-confirmacao"
+          class="px71-dialogo"
           role="alertdialog"
           aria-modal="true"
           tabindex="-1"
@@ -135,20 +183,21 @@
           (keydown.tab)="prenderFoco($event)"
           (keydown.shift.tab)="prenderFoco($event)"
         >
-          <h2 class="sep-reneg-confirmacao-titulo" id="confirmacao-aceite-titulo">
-            Confirmar aceite
-          </h2>
-          <p class="sep-reneg-confirmacao-texto">
-            Voce esta aceitando {{ t.numeroParcelas }} parcela(s) de
+          <span class="px71-titulo-icone px71-dialogo-icone" data-tone="green">
+            <lucide-icon name="circle-check" [size]="22" aria-hidden="true" />
+          </span>
+          <h2 id="confirmacao-aceite-titulo">Confirmar aceite</h2>
+          <p>
+            Você está aceitando {{ t.numeroParcelas }} parcela(s) de
             {{ formatarMoeda(t.novoValorParcela) }}, no total de
             {{ formatarMoeda(t.valorTotalRenegociado) }}. Primeiro vencimento em
-            {{ formatarDataLocal(t.novoVencimento) }}; proposta valida ate
+            {{ formatarDataLocal(t.novoVencimento) }}; proposta válida até
             {{ formatarData(t.dataExpiracao) }}.
           </p>
-          <div class="sep-reneg-confirmacao-acoes">
+          <div class="px71-dialogo-acoes">
             <button
               type="button"
-              class="sep-reneg-confirmar"
+              class="px71-btn-primary px71-btn-cheio"
               (click)="confirmarAceite()"
               [disabled]="decisaoEmVoo()"
             >
@@ -156,7 +205,7 @@
             </button>
             <button
               type="button"
-              class="sep-reneg-cancelar"
+              class="px71-btn-sec"
               (click)="cancelarConfirmacao()"
               [disabled]="decisaoEmVoo()"
             >
@@ -164,12 +213,14 @@
             </button>
           </div>
         </div>
-      }
+      </div>
+    }
 
-      @if (confirmando() === 'RECUSA') {
+    @if (confirmando() === 'RECUSA') {
+      <div class="px71-modal">
         <div
           #confirmacaoBox
-          class="sep-reneg-confirmacao"
+          class="px71-dialogo"
           role="alertdialog"
           aria-modal="true"
           tabindex="-1"
@@ -178,19 +229,20 @@
           (keydown.tab)="prenderFoco($event)"
           (keydown.shift.tab)="prenderFoco($event)"
         >
-          <h2 class="sep-reneg-confirmacao-titulo" id="confirmacao-recusa-titulo">
-            Confirmar recusa
-          </h2>
-          <p class="sep-reneg-confirmacao-texto">
-            Voce esta recusando a proposta de {{ t.numeroParcelas }} parcela(s) de
+          <span class="px71-titulo-icone px71-dialogo-icone" data-tone="red">
+            <lucide-icon name="circle-x" [size]="22" aria-hidden="true" />
+          </span>
+          <h2 id="confirmacao-recusa-titulo">Confirmar recusa</h2>
+          <p>
+            Você está recusando a proposta de {{ t.numeroParcelas }} parcela(s) de
             {{ formatarMoeda(t.novoValorParcela) }}, no total de
-            {{ formatarMoeda(t.valorTotalRenegociado) }}. A proposta sera rejeitada e a situacao da
-            parcela sera atualizada pelo sistema.
+            {{ formatarMoeda(t.valorTotalRenegociado) }}. A proposta será rejeitada e a situação da
+            parcela será atualizada pelo sistema.
           </p>
-          <div class="sep-reneg-confirmacao-acoes">
+          <div class="px71-dialogo-acoes">
             <button
               type="button"
-              class="sep-reneg-confirmar-recusa"
+              class="px71-btn-perigo px71-btn-cheio"
               (click)="confirmarRecusa()"
               [disabled]="decisaoEmVoo()"
             >
@@ -198,7 +250,7 @@
             </button>
             <button
               type="button"
-              class="sep-reneg-cancelar"
+              class="px71-btn-sec"
               (click)="cancelarConfirmacao()"
               [disabled]="decisaoEmVoo()"
             >
@@ -206,11 +258,7 @@
             </button>
           </div>
         </div>
-      }
+      </div>
     }
-
-    <a class="sep-reneg-voltar" [routerLink]="['/app/cobranca/parcelas', parcelaId]">
-      Voltar para a parcela
-    </a>
   }
-</section>
+</sep-operational-shell>

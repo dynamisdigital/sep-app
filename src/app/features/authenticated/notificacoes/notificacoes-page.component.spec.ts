@@ -65,7 +65,7 @@ async function abrirCentralComo(username: string, esperarEstavel = true) {
 }
 
 function lista(): HTMLElement {
-  return screen.getByRole('list', { name: 'Notificacoes' });
+  return screen.getByRole('list', { name: 'Notificações' });
 }
 
 describe('NotificacoesPageComponent', () => {
@@ -83,9 +83,11 @@ describe('NotificacoesPageComponent', () => {
     it('move o foco para o titulo e nao aninha outro main no do shell', async () => {
       const { container } = await abrirCentralComo('tomador@empresa.com');
 
-      const titulo = screen.getByRole('heading', { level: 1, name: 'Notificacoes' });
+      const titulo = screen.getByRole('heading', { level: 1, name: 'Notificações' });
       expect(document.activeElement).toBe(titulo);
-      expect(container.querySelector('main')).toBeNull();
+      // O unico <main> e o do shell: a central e uma regiao nomeada pelo titulo, sem outro landmark.
+      expect(container.querySelectorAll('main')).toHaveLength(1);
+      expect(screen.getByRole('region', { name: 'Notificações' })).toBeTruthy();
     });
 
     it('diz na tela quando o contador atualiza, porque ele nao e tempo real', async () => {
@@ -124,9 +126,9 @@ describe('NotificacoesPageComponent', () => {
 
       await abrirCentralComo('tomador@empresa.com', false);
 
-      expect(screen.getByText('Carregando notificacoes...')).toHaveAttribute('role', 'status');
-      expect(screen.queryByRole('list', { name: 'Notificacoes' })).toBeNull();
-      expect(screen.queryByText('Voce nao tem notificacoes.')).toBeNull();
+      expect(screen.getByText('Carregando notificações...')).toHaveAttribute('role', 'status');
+      expect(screen.queryByRole('list', { name: 'Notificações' })).toBeNull();
+      expect(screen.queryByText('Você não tem notificações.')).toBeNull();
       expect(screen.queryByRole('alert')).toBeNull();
     });
 
@@ -143,8 +145,8 @@ describe('NotificacoesPageComponent', () => {
         'A transferencia Pix do desembolso do seu contrato foi concluida.',
       );
       expect(itens[0]).toHaveTextContent('Recebida em 12/09/2026');
-      expect(itens[0]).toHaveTextContent('Nao lida');
-      expect(itens[2]).toHaveTextContent('Nao lida');
+      expect(itens[0]).toHaveTextContent('Não lida');
+      expect(itens[2]).toHaveTextContent('Não lida');
       expect(itens[3]).toHaveTextContent('Lida em 09/09/2026');
       expect(itens[9]).toHaveTextContent('Recebida em 03/09/2026');
       expect(screen.queryByRole('alert')).toBeNull();
@@ -153,10 +155,10 @@ describe('NotificacoesPageComponent', () => {
     it('vazio: 200 com lista vazia e a superficie de vazio, nao a de erro', async () => {
       await abrirCentralComo('credora@empresa.com');
 
-      expect(screen.getByText('Voce nao tem notificacoes.')).toBeTruthy();
+      expect(screen.getByText('Você não tem notificações.')).toBeTruthy();
       expect(screen.queryByRole('alert')).toBeNull();
-      expect(screen.queryByRole('list', { name: 'Notificacoes' })).toBeNull();
-      expect(screen.queryByRole('navigation', { name: 'Paginacao das notificacoes' })).toBeNull();
+      expect(screen.queryByRole('list', { name: 'Notificações' })).toBeNull();
+      expect(screen.queryByRole('navigation', { name: 'Paginação das notificações' })).toBeNull();
     });
 
     it('erro: alerta com retry por gesto, e o retry mostra a lista', async () => {
@@ -166,8 +168,8 @@ describe('NotificacoesPageComponent', () => {
       const { fixture } = await abrirCentralComo('tomador@empresa.com');
 
       const alerta = screen.getByRole('alert');
-      expect(alerta).toHaveTextContent('Nao foi possivel carregar suas notificacoes.');
-      expect(screen.queryByText('Voce nao tem notificacoes.')).toBeNull();
+      expect(alerta).toHaveTextContent('Não foi possível carregar suas notificações.');
+      expect(screen.queryByText('Você não tem notificações.')).toBeNull();
 
       fireEvent.click(within(alerta).getByRole('button', { name: 'Tentar novamente' }));
       await estabilizar(fixture);
@@ -182,7 +184,7 @@ describe('NotificacoesPageComponent', () => {
       await abrirCentralComo('tomador@empresa.com');
 
       expect(screen.getByRole('alert')).toBeTruthy();
-      expect(screen.queryByText('Voce nao tem notificacoes.')).toBeNull();
+      expect(screen.queryByText('Você não tem notificações.')).toBeNull();
     });
   });
 
@@ -205,9 +207,9 @@ describe('NotificacoesPageComponent', () => {
       await abrirCentralComo('tomador@empresa.com');
 
       expect(screen.getByRole('alert')).toHaveTextContent(
-        'Nao foi possivel carregar suas notificacoes.',
+        'Não foi possível carregar suas notificações.',
       );
-      expect(screen.queryByText('Carregando notificacoes...')).toBeNull();
+      expect(screen.queryByText('Carregando notificações...')).toBeNull();
     });
 
     it('usa a mensagem do backend quando ela vem', async () => {
@@ -240,7 +242,7 @@ describe('NotificacoesPageComponent', () => {
 
       const itens = within(lista()).getAllByRole('listitem');
       expect(itens).toHaveLength(1);
-      expect(itens[0]).toHaveTextContent('Nao lida');
+      expect(itens[0]).toHaveTextContent('Não lida');
     });
 
     /**
@@ -279,7 +281,7 @@ describe('NotificacoesPageComponent', () => {
 
       await abrirCentralComo('tomador@empresa.com');
 
-      expect(within(lista()).getByRole('listitem')).toHaveTextContent('Nao lida');
+      expect(within(lista()).getByRole('listitem')).toHaveTextContent('Não lida');
     });
 
     it('titulo e mensagem sao texto, nunca HTML', async () => {
@@ -344,7 +346,7 @@ describe('NotificacoesPageComponent', () => {
 
       const depois = within(lista()).getAllByRole('listitem')[0];
       expect(depois).toHaveTextContent('Lida em 13/09/2026');
-      expect(depois).not.toHaveTextContent('Nao lida');
+      expect(depois).not.toHaveTextContent('Não lida');
       expect(within(depois).queryByRole('button')).toBeNull();
       expect(screen.getByText('Aviso marcado como lido.')).toHaveAttribute('role', 'status');
       expect(document.activeElement).toBe(within(depois).getByRole('heading', { level: 2 }));
@@ -387,9 +389,9 @@ describe('NotificacoesPageComponent', () => {
 
       const alerta = within(within(lista()).getAllByRole('listitem')[0]).getByRole('alert');
       expect(alerta).toHaveTextContent(
-        'Este aviso nao foi encontrado. Atualize a lista para ver seus avisos.',
+        'Este aviso não foi encontrado. Atualize a lista para ver seus avisos.',
       );
-      expect(within(lista()).getAllByRole('listitem')[0]).toHaveTextContent('Nao lida');
+      expect(within(lista()).getAllByRole('listitem')[0]).toHaveTextContent('Não lida');
       expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 3 });
 
       fireEvent.click(within(alerta).getByRole('button', { name: 'Atualizar lista' }));
@@ -416,9 +418,9 @@ describe('NotificacoesPageComponent', () => {
 
       const primeiro = within(lista()).getAllByRole('listitem')[0];
       expect(within(primeiro).getByRole('alert')).toHaveTextContent(
-        'Nao foi possivel marcar o aviso como lido. Tente novamente.',
+        'Não foi possível marcar o aviso como lido. Tente novamente.',
       );
-      expect(primeiro).toHaveTextContent('Nao lida');
+      expect(primeiro).toHaveTextContent('Não lida');
       expect(document.activeElement).toBe(botao);
       expect(botao).not.toHaveAttribute('aria-disabled');
       expect(store.contagem()).toEqual({ situacao: 'conhecida', naoLidas: 3 });
@@ -435,13 +437,13 @@ describe('NotificacoesPageComponent', () => {
     it('pagina pelo totalElements e leva o foco ao titulo depois de trocar', async () => {
       const { fixture } = await abrirCentralComo('tomador@empresa.com');
 
-      const nav = screen.getByRole('navigation', { name: 'Paginacao das notificacoes' });
-      expect(nav).toHaveTextContent('Pagina 1 de 2');
-      expect(screen.getByText('12 notificacoes')).toBeTruthy();
-      expect(within(nav).getByRole('button', { name: 'Pagina anterior' })).toBeDisabled();
+      const nav = screen.getByRole('navigation', { name: 'Paginação das notificações' });
+      expect(nav).toHaveTextContent('Página 1 de 2');
+      expect(screen.getByText('12 notificações')).toBeTruthy();
+      expect(within(nav).getByRole('button', { name: 'Página anterior' })).toBeDisabled();
 
       // O happy-dom nao move foco no click: foca o botao antes, como o teclado faria.
-      const proxima = within(nav).getByRole('button', { name: 'Proxima pagina' });
+      const proxima = within(nav).getByRole('button', { name: 'Próxima página' });
       proxima.focus();
       fireEvent.click(proxima);
       await estabilizar(fixture);
@@ -449,42 +451,40 @@ describe('NotificacoesPageComponent', () => {
       const itens = within(lista()).getAllByRole('listitem');
       expect(itens).toHaveLength(2);
       expect(itens[1]).toHaveTextContent('Recebida em 02/09/2026');
-      const navDepois = screen.getByRole('navigation', { name: 'Paginacao das notificacoes' });
-      expect(navDepois).toHaveTextContent('Pagina 2 de 2');
-      expect(within(navDepois).getByRole('button', { name: 'Proxima pagina' })).toBeDisabled();
+      const navDepois = screen.getByRole('navigation', { name: 'Paginação das notificações' });
+      expect(navDepois).toHaveTextContent('Página 2 de 2');
+      expect(within(navDepois).getByRole('button', { name: 'Próxima página' })).toBeDisabled();
       expect(document.activeElement).toBe(
-        screen.getByRole('heading', { level: 1, name: 'Notificacoes' }),
+        screen.getByRole('heading', { level: 1, name: 'Notificações' }),
       );
     });
 
     // O foco volta ao titulo, que o leitor de tela le; a pagina nova so e ouvida pela regiao de status.
     it('anuncia a pagina nova depois do gesto, e nao anuncia nada na abertura', async () => {
       const { fixture } = await abrirCentralComo('tomador@empresa.com');
-      const regiao = screen.getByText('', { selector: '.sep-notificacoes-anuncio' });
+      const regiao = screen.getByText('', { selector: '.px70-anuncio' });
       expect(regiao).toHaveAttribute('role', 'status');
       expect(regiao).toHaveTextContent('');
 
-      fireEvent.click(screen.getByRole('button', { name: 'Proxima pagina' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Próxima página' }));
       await estabilizar(fixture);
 
-      expect(regiao).toHaveTextContent('Pagina 2 de 2');
+      expect(regiao).toHaveTextContent('Página 2 de 2');
     });
 
     it('pagina alem do fim nao afirma que a central inteira esta vazia', async () => {
       server.use(http.get(LISTA_URL, () => HttpResponse.json(pagina([], 12))));
       const { fixture } = await abrirCentralComo('tomador@empresa.com');
 
-      expect(screen.getByText('Esta pagina nao tem notificacoes.')).toBeTruthy();
-      expect(screen.queryByText('Voce nao tem notificacoes.')).toBeNull();
+      expect(screen.getByText('Esta página não tem notificações.')).toBeTruthy();
+      expect(screen.queryByText('Você não tem notificações.')).toBeNull();
 
       server.resetHandlers();
-      fireEvent.click(screen.getByRole('button', { name: 'Ir para a primeira pagina' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Ir para a primeira página' }));
       await estabilizar(fixture);
 
       expect(within(lista()).getAllByRole('listitem')).toHaveLength(10);
-      expect(
-        screen.getByText('Pagina 1 de 2', { selector: '.sep-notificacoes-anuncio' }),
-      ).toBeTruthy();
+      expect(screen.getByText('Página 1 de 2', { selector: '.px70-anuncio' })).toBeTruthy();
     });
 
     it('com uma pagina so, nao mostra a navegacao de paginas', async () => {
@@ -496,7 +496,7 @@ describe('NotificacoesPageComponent', () => {
 
       await abrirCentralComo('tomador@empresa.com');
 
-      expect(screen.queryByRole('navigation', { name: 'Paginacao das notificacoes' })).toBeNull();
+      expect(screen.queryByRole('navigation', { name: 'Paginação das notificações' })).toBeNull();
     });
   });
 });
@@ -530,8 +530,8 @@ describe('NotificacoesPageComponent — consultas sobrepostas', () => {
 
     expect(within(lista()).getByRole('listitem')).toHaveTextContent('Da pagina atual');
     expect(
-      screen.getByRole('navigation', { name: 'Paginacao das notificacoes' }),
-    ).toHaveTextContent('Pagina 1 de 2');
+      screen.getByRole('navigation', { name: 'Paginação das notificações' }),
+    ).toHaveTextContent('Página 1 de 2');
     httpMock.verify();
   });
 });

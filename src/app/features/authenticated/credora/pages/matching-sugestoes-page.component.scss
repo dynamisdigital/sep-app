@@ -1,136 +1,135 @@
-@use "../../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../../styles/sep-ds-components" as sepDs;
+// ============ MATCHING DE CREDORAS — FILA DE SUGESTÕES ============
+// Sem arte de designer: construída no padrão visual do tema, na linguagem da Carteira da credora.
+// Veio do MVP com folha própria; esta folha a substitui.
 
-.sep-matching {
+@use "../../../../../styles/tela-operacional-tema" as tema;
+@use "../../../../../styles/tela-operacional-blocos" as blocos;
+@use "../../../../../styles/sep-responsivo" as resp;
+
+:host {
+  @include tema.tokens;
+}
+
+@include tema.base("px67");
+@include blocos.card-topo("px67");
+@include blocos.metricas("px67");
+@include blocos.regras("px67");
+
+.px67-page {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-24);
-  max-width: 860px;
-  margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+  gap: 18px;
+  width: 100%;
+  height: 100%;
+  padding: 16px 26px 18px;
+  overflow: hidden auto;
+  background: radial-gradient(circle at 45% 14%, rgb(var(--sep-c-blue) / 6%), transparent 48%);
 }
 
-.sep-matching-header {
+.px67-heading {
+  flex: 0 0 auto;
+}
+
+.px67-fila {
   display: flex;
+  flex: 0 0 auto;
   flex-direction: column;
-  gap: var(--sep-space-8);
+  gap: 14px;
+  min-width: 0;
 }
 
-.sep-matching-title {
-  @include sepType.sep-type-page-title;
-
+.px67-estado {
   margin: 0;
-  color: hsl(var(--foreground));
+  padding: 28px 0;
+  color: var(--muted-forte);
+  font-size: 13.5px;
 }
 
-.sep-matching-subtitle {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-matching-acoes {
-  display: flex;
-}
-
-.sep-matching-atualizar {
-  @include sepDs.sep-button-secondary;
-}
-
-.sep-matching-vazio {
-  @include sepType.sep-type-body;
-
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-matching-lista {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-12);
+// Cada sugestão é um cartão; a grade preenche a largura e quebra em colunas conforme o espaço.
+.px67-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: 14px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.sep-matching-item {
-  @include sepDs.sep-card;
-
+.px67-item {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-8);
-  padding: var(--sep-space-16);
-}
+  gap: 10px;
+  min-width: 0;
+  padding: 16px 18px;
+  border: 1px solid var(--linha);
+  border-radius: 12px;
+  background: linear-gradient(
+    160deg,
+    rgb(var(--sep-c-sunken) / 96%),
+    rgb(var(--sep-c-sunken) / 94%)
+  );
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
 
-.sep-matching-item-topo {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sep-space-12);
-}
-
-.sep-matching-item-titulo {
-  @include sepType.sep-type-body-medium;
-
-  color: hsl(var(--foreground));
-}
-
-.sep-matching-item-valor {
-  @include sepType.sep-type-body;
-
-  color: hsl(var(--foreground));
-}
-
-.sep-matching-criterios {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sep-space-6);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.sep-matching-criterio {
-  @include sepType.sep-type-caption;
-
-  padding: var(--sep-space-2) var(--sep-space-8);
-  border-radius: var(--sep-radius-sm);
-  color: hsl(var(--muted-foreground));
-  background: hsl(var(--muted));
-}
-
-.sep-matching-item-data {
-  @include sepType.sep-type-caption;
-
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-matching-item-acoes {
-  display: flex;
-  gap: var(--sep-space-16);
-
-  a {
-    @include sepType.sep-type-body;
-
-    color: hsl(var(--primary));
+  &:hover {
+    border-color: rgb(var(--sep-c-blue) / 50%);
+    box-shadow: 0 0 16px rgb(var(--sep-c-blue) / calc(18% * var(--sep-glow-alpha)));
   }
 }
 
-.sep-matching-state {
-  @include sepType.sep-type-body;
-
-  color: hsl(var(--muted-foreground));
+.px67-item-topo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.sep-matching-retry {
+.px67-item-titulo {
+  color: var(--sep-text);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.px67-item-valor {
+  color: var(--sep-text);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.px67-item-data {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.px67-criterios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.px67-criterio {
+  padding: 3px 10px;
+  color: var(--muted-forte);
+  font-size: 11.5px;
+  border: 1px solid var(--sep-border-strong);
+  border-radius: 999px;
+  background: rgb(var(--sep-c-surf) / 70%);
+}
+
+.px67-item-acao {
   align-self: flex-start;
-  margin-top: var(--sep-space-8);
-  padding: var(--sep-space-8) var(--sep-space-16);
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--sep-radius-sm);
-  background: transparent;
-  color: hsl(var(--foreground));
-  cursor: pointer;
+  margin-top: auto;
+}
+
+@include resp.half {
+  .px67-page {
+    padding-right: 18px;
+    padding-left: 18px;
+  }
 }

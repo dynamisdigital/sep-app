@@ -12,15 +12,18 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 
 import { AcaoDecisaoMatching, MatchingSugestaoResponse } from '../../../../core/api/api.models';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
 import { CredoraService } from '../../../../core/credora/credora.service';
+import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
 import {
   formatarData,
   formatarMoeda,
   idCurto,
+  rotuloCriterio,
   mensagemCredoraErro,
 } from '../shared/credora-format';
 import { MatchingStatusComponent } from '../shared/matching-status.component';
@@ -37,7 +40,7 @@ const MOTIVO_MAX = 255;
 // Confirmar apenas registra a decisao: nenhum aporte e criado e nenhum recurso e transferido.
 @Component({
   selector: 'sep-matching-detail-page',
-  imports: [RouterLink, MatchingStatusComponent],
+  imports: [RouterLink, LucideAngularModule, OperationalShellComponent, MatchingStatusComponent],
   templateUrl: './matching-detail-page.component.html',
   styleUrl: './matching-detail-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -72,6 +75,7 @@ export class MatchingDetailPageComponent implements OnInit {
   protected readonly formatarData = formatarData;
   protected readonly formatarMoeda = formatarMoeda;
   protected readonly idCurto = idCurto;
+  protected readonly rotuloCriterio = rotuloCriterio;
   protected readonly motivoMax = MOTIVO_MAX;
 
   // Dialogo acessivel (padrao F-16): foco entra na confirmacao ao abrir e volta ao botao que a
@@ -288,12 +292,12 @@ export class MatchingDetailPageComponent implements OnInit {
   // Matriz de falhas da decisao: nenhum caminho presume sucesso e nenhum erro ecoa UUID.
   private tratarErroDecisao(err: HttpErrorResponse): void {
     if (err.status === 409) {
-      this.decisaoErro.set('A sugestao ja foi decidida. O estado foi atualizado.');
+      this.decisaoErro.set('A sugestão já foi decidida. O estado foi atualizado.');
       this.atualizarSugestao();
       return;
     }
     if (err.status === 404) {
-      this.decisaoErro.set('A sugestao nao esta mais disponivel.');
+      this.decisaoErro.set('A sugestão não está mais disponível.');
       this.atualizarSugestao();
       return;
     }
@@ -307,14 +311,14 @@ export class MatchingDetailPageComponent implements OnInit {
     }
     if (err.status === 400) {
       this.decisaoErro.set(
-        mensagemCredoraErro(err, 'Dados da decisao invalidos. Revise e tente novamente.'),
+        mensagemCredoraErro(err, 'Dados da decisão inválidos. Revise e tente novamente.'),
       );
       return;
     }
     // Rede/5xx: resultado desconhecido nunca vira decisao presumida; exige nova leitura
     // bem-sucedida antes de qualquer novo gesto.
     this.decisaoErro.set(
-      'Nao foi possivel concluir a decisao. Atualize a sugestao antes de tentar novamente.',
+      'Não foi possível concluir a decisão. Atualize a sugestão antes de tentar novamente.',
     );
     this.desatualizado.set(true);
   }
@@ -332,6 +336,6 @@ export class MatchingDetailPageComponent implements OnInit {
       this.desatualizado.set(true);
       return;
     }
-    this.errorMessage.set(mensagemCredoraErro(err, 'Nao foi possivel carregar a sugestao.'));
+    this.errorMessage.set(mensagemCredoraErro(err, 'Não foi possível carregar a sugestão.'));
   }
 }

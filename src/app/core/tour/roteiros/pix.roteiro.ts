@@ -44,6 +44,14 @@ const MENU_DIVERGENCIAS = {
   aguardarAlvo: '.px23-main',
 };
 
+const MENU_CHAVES = {
+  rota: '/app/pix/chaves',
+  titulo: 'Submenu Chaves Pix',
+  texto:
+    'O submenu Chaves Pix abre as chaves da conta operacional. Ele aparece só para financeiro e administração.',
+  aguardarAlvo: '.px66-heading',
+};
+
 const IMPEDIMENTO_TOTP: Roteiro['impedimento'] = (ctx) =>
   ctx.mfa
     ? null
@@ -743,13 +751,97 @@ const divergencias: Roteiro = {
   ],
 };
 
+const chaves: Roteiro = {
+  id: 'pix-chaves',
+  modulo: MODULO,
+  titulo: 'Chaves Pix da conta',
+  icone: 'key-round',
+  descricao:
+    'As chaves da conta operacional, sempre mascaradas, o histórico e o cadastro de uma nova chave.',
+  duracao: '≈ 3 min',
+  papeis: PAPEIS_FINANCEIROS,
+  passos: () => [
+    {
+      titulo: 'Chaves Pix',
+      texto:
+        'Este roteiro mostra as chaves Pix da conta operacional, onde o SEP recebe e envia transferências. É só leitura: nada é cadastrado nem removido.',
+    },
+    ...peloMenu(MENU_PIX, MENU_CHAVES),
+    {
+      titulo: 'Para que serve',
+      texto:
+        'A tela lista as chaves da conta operacional, com o status de cada uma, e permite cadastrar uma nova ou remover uma ativa.',
+      alvo: '.px66-heading',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Resumo das chaves',
+      texto:
+        'Os cartões contam as chaves ativas, as inativas, que ficam no histórico, e o total da conta.',
+      alvo: '.px66-metricas',
+      acao: { tipo: 'observar' },
+      pularSe: () => !document.querySelector('.px66-metricas'),
+    },
+    {
+      titulo: 'Chaves cadastradas',
+      texto:
+        'A tabela traz o tipo, a chave, o status, a data de cadastro e a de remoção. Uma chave removida não some: fica como inativa.',
+      alvo: '.px66-lista',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Valor sempre mascarado',
+      texto:
+        'O valor integral da chave nunca chega ao navegador. Só o início aparece, e o resto vem escondido.',
+      alvo: '.px66-tabela-wrap tbody tr:first-child td:nth-child(2)',
+      acao: { tipo: 'observar' },
+      pularSe: () => !document.querySelector('.px66-tabela-wrap tbody tr'),
+    },
+    {
+      titulo: 'Remover uma chave',
+      texto:
+        'O botão Remover aparece só nas chaves ativas e pede confirmação adicional de identidade. Aqui só mostramos onde ele fica.',
+      alvo: '.px66-btn-perigo',
+      acao: { tipo: 'observar' },
+      pularSe: () => !document.querySelector('.px66-btn-perigo'),
+    },
+    {
+      titulo: 'Regras da tela',
+      texto:
+        'Os três avisos resumem as regras: o valor é sempre mascarado, mudanças pedem confirmação e nada se perde.',
+      alvo: '.px66-regras',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Cadastrar nova chave',
+      texto:
+        'À direita fica o cadastro. A chave informada vai ao backend e nunca fica guardada no navegador.',
+      alvo: '.px66-cadastro',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Tipo da chave',
+      texto: 'Primeiro se escolhe o tipo: CPF, CNPJ, e-mail, telefone ou aleatória.',
+      alvo: '#chave-tipo',
+      acao: { tipo: 'observar' },
+    },
+    {
+      titulo: 'Valor da chave',
+      texto:
+        'Depois, o valor. O formato e o dígito verificador são conferidos pelo backend, e o cadastro termina na confirmação por TOTP.',
+      alvo: '#chave-valor',
+      acao: { tipo: 'observar' },
+    },
+  ],
+};
+
 const completo: Roteiro = {
   id: 'pix-completo',
   modulo: MODULO,
   titulo: 'Módulo completo',
   icone: 'list-checks',
-  descricao: 'Os cinco roteiros em sequência, da visão geral às divergências.',
-  duracao: '≈ 16 min',
+  descricao: 'Os seis roteiros em sequência, da visão geral às chaves Pix.',
+  duracao: '≈ 19 min',
   papeis: PAPEIS_FINANCEIROS,
   impedimento: IMPEDIMENTO_TOTP,
   passos: (ctx) => {
@@ -759,6 +851,7 @@ const completo: Roteiro = {
       ...emSecao(solicitar, ctx),
       ...emSecao(recebimentos, ctx),
       ...emSecao(divergencias, ctx),
+      ...emSecao(chaves, ctx),
     ];
   },
 };
@@ -771,4 +864,5 @@ export const ROTEIROS_PIX: Roteiro[] = [
   solicitar,
   recebimentos,
   divergencias,
+  chaves,
 ];
