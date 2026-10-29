@@ -70,13 +70,13 @@ produção; vulnerabilidades da `develop` a conferir depois do merge. Dívidas d
 > de privacidade completa. Também corrigi as dependências (auditoria de segurança zerada) e as 5 telas de teste que
 > estavam desatualizadas.
 >
-> Conferi tudo no meu computador: testes, build e contrato da API passam, e o e2e deu 192 de 197 (as 5 que faltam
-> foram corrigidas no PR #191). Já está tudo mesclado na develop.
+> Conferi tudo no meu computador: testes, build e contrato da API passam, e o e2e deu 196 de 197 (o que falhou
+> foi um teste de tour que passou ao rodar sozinho). Já está tudo mesclado na develop.
 >
 > O relatório completo está aqui: {URL_DO_RELATORIO}
 >
 > Maurício, as pendências do backend estão listadas no relatório e no repositório, no arquivo
-> docs/convergencia-mvp/09-observacoes-para-o-backend.md na develop. Os PRs mesclados são o #190, #191, #192 e #193.
+> docs/convergencia-mvp/09-observacoes-para-o-backend.md na develop. Os PRs mesclados são do #190 ao #195.
 >
 > Qualquer dúvida me chamem.
 
@@ -88,17 +88,18 @@ Cole o texto abaixo na IDE, na raiz do projeto `sep-app`.
 
 ```text
 Contexto: projeto sep-app (Dynamis SEP), front-end. Fechei a convergência MVP × front atual em 28/10/2026.
-Os PRs #190, #191, #192 e #193 já estão mesclados na `develop` de github.com/dynamisdigital/sep-app (commit
-84722f3). As branches da convergência foram apagadas. Faça o seguinte, em ordem, e pare para me perguntar
+Os PRs #190 a #195 já estão mesclados na `develop` de github.com/dynamisdigital/sep-app (commit 5645239).
+As branches da convergência foram apagadas. Faça o seguinte, em ordem, e pare para me perguntar
 antes de qualquer passo que altere o próprio projeto da IDE.
 
 1. Conferência local. Rode `git fetch origin`, vá para a `develop` e confirme que `git rev-parse --short HEAD`
-   é 84722f3 (ou mais novo, se alguém já mesclou outra coisa depois; nesse caso me avise). Depois rode
+   é 5645239 (ou mais novo, se alguém já mesclou outra coisa depois; nesse caso me avise). Depois rode
    `npm ci`, `npm run format:check`, `npm run lint`, `npm run lint:scss`, `npm run typecheck:spec`,
    `npm run contract:check`, `npm run audit`, `npx vitest run` e `npx ng build`. Registre o resultado de cada um.
    Se o Chromium do Playwright estiver desatualizado, peça minha autorização antes de rodar
-   `npx playwright install chromium`, e então rode `npx playwright test`. Esperado: 197 testes, mas esse
-   número nunca foi rodado na `develop` (192 passavam antes do #191); registre o que realmente der.
+   `npx playwright install chromium`, e então rode `npx playwright test`. Referência: 196 de 197 passaram numa
+   rodada local antes do #195 (o tour de todos os cenários falhou uma vez e passou sozinho); registre o que
+   realmente der na `develop`.
 
 2. Relatório. Use o pacote docs/convergencia-mvp/ (README.md e os documentos 00 a 09) e o resumo em
    docs/handoff/2026-10-28-fechamento-convergencia.md como fonte. Gere o relatório em Markdown e em HTML
