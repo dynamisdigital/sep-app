@@ -49,6 +49,10 @@ CLIENTE, e o matching é uma operação interna.
 | `PAR_SEM_MATCHING_PREVIO` | Sem matching prévio no par |
 | `CAPACIDADE_COMPORTA_VALOR` | Capacidade comporta o valor |
 
+- **Menu lateral.** Rótulos longos ("Matching de credoras", "Correspondentes", "Meu Back Office") eram cortados
+  com reticências. Agora o rótulo quebra em duas linhas e, na barra estreita (208 px), volta aos 13px que o
+  bloco já previa, porque o tema global forçava 14px com `!important`. Medido em 3413, 1920, 1449, 1280, 1100 e
+  900 px: nenhum rótulo cortado.
 - **Ajuda do sistema.** Em `/app/pix/chaves` e `/app/credora/matching` o painel de Ajuda fala da própria tela.
 - **Tour assistido.** Pix ganhou o roteiro **Chaves Pix da conta** (entra no "Módulo completo" do Pix) e há um
   módulo novo, **Matching de credoras**, com **Fila de sugestões**, **Detalhe e decisão** e o **Módulo completo**.

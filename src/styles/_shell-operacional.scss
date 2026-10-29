@@ -326,11 +326,13 @@ $janela-meia-tela: 1716px;
 }
 
 .op-nav-link span {
+  // Rótulo longo ("Matching de credoras", "Correspondentes") quebra em até duas linhas em vez de
+  // ser cortado com reticências: o texto do menu precisa ficar inteiro à vista.
   overflow: hidden;
   font-size: 13px;
   font-weight: 700;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .op-nav-link small {
@@ -822,6 +824,13 @@ $janela-meia-tela: 1716px;
   .op-nav-link small {
     min-width: 20px;
     height: 20px;
+  }
+
+  /* O tema global fixa o rótulo em 14px com !important, e "Correspondentes" (112px) não cabe nos
+     108px que sobram aqui: quebrava no meio da palavra. Com a especificidade maior, volta aos 13px
+     que este bloco prometia. */
+  .op-dashboard .op-sidebar .op-nav-link span {
+    font-size: 13px !important;
   }
 
   .op-subnav {
@@ -1460,8 +1469,8 @@ $janela-meia-tela: 1716px;
   overflow: hidden;
   font-size: 12.5px;
   font-weight: 600;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .op-subnav-link lucide-icon {
