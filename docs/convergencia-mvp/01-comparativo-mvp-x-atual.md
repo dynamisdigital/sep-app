@@ -74,6 +74,9 @@ unitários verdes. O e2e achou o que o merge deixou desalinhado, já corrigido:
   (`playwright.config.ts`); só `aviso-cookies.spec.ts` o reexibe.
 - **Menu.** "Chaves Pix" e "Matching de credoras" só existiam no `sidenav` antigo. Entraram no shell
   operacional (filho de Pix e item de Operação, ambos FINANCEIRO e ADMIN).
+  Em 29/10/2026 as quatro telas (Chaves Pix e as três do Matching) passaram para o layout do tema do SEP, com
+  acentuação, critérios do matching em português, ajuda contextual e tour assistido. Detalhes em
+  [`modulos/08-chaves-pix-e-matching-de-credoras.md`](modulos/08-chaves-pix-e-matching-de-credoras.md).
 - **Rota duplicada.** `/politica-de-privacidade` existia nas duas bases; ficou a página do atual (11
   seções). `politica-privacidade/` (MVP) foi removida: o inventário de cookies e
   de chaves do navegador (`sep-refresh`, `SEP_ACCESS_TOKEN`, `SEP_PENDING_MFA_CHALLENGE`, `SEP_THEME`,

@@ -221,6 +221,26 @@ const AJUDA_POR_ROTA: AjudaContexto[] = [
     ],
   },
   {
+    rota: '/app/pix/chaves',
+    titulo: 'Chaves Pix',
+    descricao: 'Chaves da conta operacional, sempre mascaradas, com o histórico das inativas.',
+    dicas: [
+      'O valor integral da chave nunca é exibido nem guardado no navegador.',
+      'Cadastrar e remover pedem confirmação adicional de identidade.',
+      'Uma chave removida fica no histórico como inativa.',
+    ],
+  },
+  {
+    rota: '/app/credora/matching',
+    titulo: 'Matching de credoras',
+    descricao: 'Sugestões de pareamento entre credoras e operações, para decidir uma a uma.',
+    dicas: [
+      'Nada é confirmado automaticamente: a decisão é sempre sua, no detalhe.',
+      'Confirmar ou rejeitar pede MFA ativo e confirmação adicional.',
+      'Confirmar só registra a decisão; o aporte é um passo separado.',
+    ],
+  },
+  {
     rota: '/app/pix',
     titulo: 'Pix',
     descricao: 'Desembolsos, recebimentos, referências e divergências de conciliação.',

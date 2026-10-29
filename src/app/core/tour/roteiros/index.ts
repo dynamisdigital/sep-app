@@ -8,6 +8,7 @@ import { ROTEIROS_COBRANCA } from './cobranca.roteiro';
 import { ROTEIROS_FORMALIZACAO } from './formalizacao.roteiro';
 import { ROTEIROS_GLOSSARIO } from './glossario.roteiro';
 import { ROTEIROS_ONBOARDING } from './onboarding.roteiro';
+import { ROTEIROS_MATCHING } from './matching.roteiro';
 import { ROTEIROS_PIX } from './pix.roteiro';
 import { ROTEIROS_PARAMETROS } from './parametros.roteiro';
 import { ROTEIROS_PLATAFORMA } from './plataforma.roteiro';
@@ -32,6 +33,7 @@ const TODOS: Roteiro[] = [
   ...ROTEIROS_FORMALIZACAO,
   ...ROTEIROS_COBRANCA,
   ...ROTEIROS_PIX,
+  ...ROTEIROS_MATCHING,
   ...ROTEIROS_BACKOFFICE,
   ...ROTEIROS_ESCROW_OPERACAO,
   ...ROTEIROS_CREDORA,
@@ -62,6 +64,7 @@ export const MODULOS_TOUR: Record<string, { icone: string; tom: string }> = {
   Formalização: { icone: 'file-check', tom: 'var(--sep-tint-pink)' },
   Cobrança: { icone: 'banknote', tom: 'var(--sep-tint-amber)' },
   Pix: { icone: 'pix', tom: 'var(--sep-tint-teal)' },
+  'Matching de credoras': { icone: 'link-2', tom: 'var(--sep-success)' },
   Backoffice: { icone: 'briefcase', tom: 'var(--sep-tint-sky)' },
   Credora: { icone: 'building-2', tom: 'var(--sep-tint-emerald)' },
   Correspondentes: { icone: 'handshake', tom: 'var(--sep-tint-lime)' },
