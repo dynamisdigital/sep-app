@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 
 import { RenegociacaoTomadorResponse } from '../../../../core/api/api.models';
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -24,6 +25,7 @@ import {
   formatarMoeda,
   mensagemCobrancaErro,
 } from '../shared/cobranca-format';
+import { OperationalShellComponent } from '../../../../layout/operational-shell/operational-shell.component';
 
 type TipoConfirmacao = 'ACEITE' | 'RECUSA';
 
@@ -47,7 +49,7 @@ type TipoConfirmacao = 'ACEITE' | 'RECUSA';
 // cruzado aceitar <-> recusar.
 @Component({
   selector: 'sep-renegociacao-tomador-page',
-  imports: [RouterLink],
+  imports: [RouterLink, LucideAngularModule, OperationalShellComponent],
   templateUrl: './renegociacao-tomador-page.component.html',
   styleUrl: './renegociacao-tomador-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -322,7 +324,7 @@ export class RenegociacaoTomadorPageComponent implements OnInit {
     // Decisao concorrente ou proposta que sumiu: invalida o snapshot e reconsulta; se o
     // GET responder 404, a tela encerra a decisao no estado de proposta indisponivel.
     if (err.status === 404 || err.status === 409) {
-      this.decisaoErro.set('A proposta foi alterada ou ja decidida. Os termos foram atualizados.');
+      this.decisaoErro.set('A proposta foi alterada ou já decidida. Os termos foram atualizados.');
       this.atualizarTermos();
       return;
     }
@@ -342,8 +344,8 @@ export class RenegociacaoTomadorPageComponent implements OnInit {
     // bem-sucedida antes de qualquer novo gesto.
     this.decisaoErro.set(
       resultado === 'ACEITA'
-        ? 'Nao foi possivel concluir o aceite. Atualize os termos antes de tentar novamente.'
-        : 'Nao foi possivel concluir a recusa. Atualize os termos antes de tentar novamente.',
+        ? 'Não foi possível concluir o aceite. Atualize os termos antes de tentar novamente.'
+        : 'Não foi possível concluir a recusa. Atualize os termos antes de tentar novamente.',
     );
     this.desatualizado.set(true);
   }
@@ -363,6 +365,6 @@ export class RenegociacaoTomadorPageComponent implements OnInit {
       return;
     }
     this.termos.set(null);
-    this.errorMessage.set(mensagemCobrancaErro(err, 'Nao foi possivel carregar a proposta.'));
+    this.errorMessage.set(mensagemCobrancaErro(err, 'Não foi possível carregar a proposta.'));
   }
 }

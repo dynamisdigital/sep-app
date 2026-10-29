@@ -52,7 +52,7 @@ export const AUTHENTICATED_ROUTES: Routes = [
           import('./notificacoes/notificacoes-page.component').then(
             (m) => m.NotificacoesPageComponent,
           ),
-        data: { breadcrumb: 'Notificacoes' },
+        data: { breadcrumb: 'Notificações', immersive: true },
       },
       {
         path: 'step-up',

@@ -1,140 +1,155 @@
-@use "../../../../styles/sep-ds-typography" as sepType;
-@use "../../../../styles/sep-ds-components" as sepDs;
+// ============ CENTRAL DE NOTIFICAÇÕES ============
+// Sem arte de designer: construída no padrão visual do tema, na linguagem dos Mockups 35 e 36 (a
+// mesma da Carteira da credora e das Chaves Pix). Veio do MVP com folha própria, fora do shell;
+// esta folha a substitui. Indicadores vêm de `tela-operacional-blocos`.
 
-.sep-notificacoes {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-24);
-  max-width: 860px;
-  margin: 0 auto;
-  padding: var(--sep-space-16) 0;
+@use "../../../../styles/tela-operacional-tema" as tema;
+@use "../../../../styles/tela-operacional-blocos" as blocos;
+
+:host {
+  @include tema.tokens;
 }
 
-.sep-notificacoes-header {
+@include tema.base("px70");
+@include blocos.card-topo("px70");
+@include blocos.so-leitor("px70");
+@include blocos.metricas("px70");
+
+// ============ GRADE PRINCIPAL ============
+
+.px70-page {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-8);
+  gap: 18px;
+  width: 100%;
+  height: 100%;
+  padding: 16px 26px 18px;
+  overflow: hidden auto;
+  background: radial-gradient(circle at 45% 14%, rgb(var(--sep-c-blue) / 6%), transparent 48%);
 }
 
-.sep-notificacoes-title {
-  @include sepType.sep-type-page-title;
+.px70-heading {
+  flex: 0 0 auto;
+}
 
+// Região de anúncio da leitura: existe desde a abertura (leitor de tela só anuncia mudança em
+// região já presente) e fica fora da vista, porque o próprio aviso já mostra "Lida em".
+.px70-anuncio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
   margin: 0;
-  color: hsl(var(--foreground));
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
 }
 
-.sep-notificacoes-subtitle,
-.sep-notificacoes-estado,
-.sep-notificacoes-total {
-  @include sepType.sep-type-body;
-
+.px70-estado p {
   margin: 0;
-  color: hsl(var(--muted-foreground));
 }
 
-.sep-notificacoes-estado {
+// ============ LISTA ============
+
+.px70-lista {
   display: flex;
   flex-direction: column;
-  gap: var(--sep-space-12);
-  align-items: flex-start;
-
-  p {
-    margin: 0;
-  }
-}
-
-.sep-notificacoes-erro {
-  color: hsl(var(--destructive));
-}
-
-.sep-notificacoes-botao {
-  @include sepDs.sep-button-outline;
-}
-
-.sep-notificacoes-lista {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sep-space-12);
+  gap: 12px;
+  min-width: 0;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.sep-notificacoes-item {
-  @include sepDs.sep-card;
-
+.px70-item {
   display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.px70-item-nao-lida {
+  border-left: 3px solid var(--tone, var(--blue));
+}
+
+.px70-item-icone {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: var(--tone, var(--blue));
+  border: 1px solid var(--tone-borda, rgb(var(--sep-c-blue) / 45%));
+  border-radius: 11px;
+  background: var(--tone-fundo, rgb(var(--sep-c-blue) / 12%));
+}
+
+.px70-item-corpo {
+  display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
-  gap: var(--sep-space-8);
-  padding: var(--sep-space-16);
+  gap: 6px;
+  min-width: 0;
 }
 
-.sep-notificacoes-item-nao-lida {
-  border-left: 3px solid hsl(var(--primary));
-}
-
-.sep-notificacoes-item-titulo {
-  @include sepType.sep-type-card-title;
-
+// Especificidade dupla: vence o `h2` do cartão (margem e tamanho próprios).
+.px70-card .px70-item-titulo {
   margin: 0;
-  color: hsl(var(--foreground));
+  font-size: 16px;
 }
 
-.sep-notificacoes-item-mensagem {
-  @include sepType.sep-type-body;
-
+.px70-item-mensagem {
   margin: 0;
-  color: hsl(var(--foreground));
+  color: var(--sep-text);
+  font-size: 14px;
+  overflow-wrap: anywhere;
 }
 
-.sep-notificacoes-item-meta {
-  @include sepType.sep-type-caption;
-
+.px70-item-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--sep-space-12);
-  margin: 0;
-  color: hsl(var(--muted-foreground));
-}
-
-.sep-notificacoes-item-rotulo-nao-lida {
-  color: hsl(var(--primary));
-  font-weight: 600;
-}
-
-.sep-notificacoes-paginacao {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sep-space-12);
+  gap: 8px 16px;
   align-items: center;
-  justify-content: space-between;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
 }
 
-// Regiao de anuncio da leitura: existe desde a abertura (leitor de tela so anuncia mudanca em regiao
-// ja presente) e fica fora da vista, porque o proprio aviso ja mostra "Lida em".
-.sep-notificacoes-anuncio {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+.px70-item-rotulo-nao-lida {
+  --tone: var(--sep-warning);
+  --tone-borda: color-mix(in srgb, var(--sep-warning) 55%, transparent);
+  --tone-fundo: color-mix(in srgb, var(--sep-warning) 12%, transparent);
+
+  height: 22px;
+  padding: 0 10px;
 }
 
-.sep-notificacoes-item-acao {
+.px70-item-acao {
   align-self: flex-start;
+  margin-top: 4px;
 }
 
-.sep-notificacoes-item-falha {
-  @include sepType.sep-type-caption;
-
+.px70-item-falha {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--sep-space-8);
+  gap: 8px 12px;
   align-items: center;
-  color: hsl(var(--destructive));
+  color: var(--red-forte);
+  font-size: 13px;
 
   p {
     margin: 0;
   }
+}
+
+// ============ PAGINAÇÃO ============
+
+.px70-paginacao {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted-forte);
+  font-size: 13.5px;
 }

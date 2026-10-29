@@ -1,13 +1,17 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { importProvidersFrom, signal } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { HttpResponse, http } from 'msw';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { StepUpTokenStore } from '../../../../core/auth/step-up-token.store';
 import { CobrancaService } from '../../../../core/cobranca/cobranca.service';
+import { LUCIDE_ICONS } from '../../../../core/icons/lucide-icons';
+import { NotificacoesNaoLidasStore } from '../../../../core/notificacoes/notificacoes-nao-lidas.store';
 import { errorInterceptor } from '../../../../core/interceptors/error.interceptor';
 import { stepUpInterceptor } from '../../../../core/interceptors/step-up.interceptor';
 import { server } from '../../../../../mocks/server';
@@ -23,6 +27,13 @@ const PARCELA_SEM_OWNERSHIP_ID = 'a0000000-0000-4000-8000-0000000000ff';
 const UUID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 const BASE_URL = 'http://localhost:8080/api/v1';
 
+// O shell operacional consulta a contagem de notificacoes ao montar. Aqui o AuthService e os
+// interceptors sao reais, e essa chamada voltaria 401, limpando a sessao no meio do teste.
+const CENTRAL_NOTIFICACOES_FALSA = {
+  provide: NotificacoesNaoLidasStore,
+  useValue: { contagem: signal({ situacao: 'conhecida', naoLidas: 0 }), carregar: () => undefined },
+};
+
 function renderProposta(
   parcelaId: string,
   opts: { comStepUp?: boolean; tokenInicial?: string } = {},
@@ -36,7 +47,9 @@ function renderProposta(
       opts.comStepUp
         ? provideHttpClient(withInterceptors([stepUpInterceptor, errorInterceptor]))
         : provideHttpClient(withInterceptors([errorInterceptor])),
-      provideRouter([]),
+      provideRouter([{ path: '**', children: [] }]),
+      importProvidersFrom(LucideAngularModule.pick(LUCIDE_ICONS)),
+      CENTRAL_NOTIFICACOES_FALSA,
       {
         provide: ActivatedRoute,
         useValue: { snapshot: { paramMap: convertToParamMap({ parcelaId }) } },
@@ -92,8 +105,8 @@ describe('RenegociacaoTomadorPageComponent', () => {
     const { fixture } = await renderProposta(PARCELA_EM_NEGOCIACAO_ID);
     await estabilizar(fixture);
 
-    expect(screen.getByRole('heading', { name: 'Proposta de renegociacao' })).toBeTruthy();
-    expect(screen.getByText('Aguardando sua decisao')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Proposta de renegociação' })).toBeTruthy();
+    expect(screen.getByText('Aguardando sua decisão')).toBeTruthy();
     expect(screen.getByText('Novo valor por parcela')).toBeTruthy();
     expect(screen.getByText(/340,00/)).toBeTruthy();
     expect(screen.getByText('Quantidade de parcelas')).toBeTruthy();
@@ -103,7 +116,7 @@ describe('RenegociacaoTomadorPageComponent', () => {
     expect(screen.getByText('Primeiro vencimento')).toBeTruthy();
     expect(screen.getByText('15/08/2026')).toBeTruthy();
     expect(screen.getByText('Data da proposta')).toBeTruthy();
-    expect(screen.getByText('Valida ate')).toBeTruthy();
+    expect(screen.getByText('Válida até')).toBeTruthy();
   });
 
   it('exibe o total exatamente como veio do backend, sem calculo local', async () => {
@@ -126,7 +139,7 @@ describe('RenegociacaoTomadorPageComponent', () => {
     const { fixture } = await renderProposta(PARCELA_PENDENTE_ID);
     await estabilizar(fixture);
 
-    expect(screen.getByText(/Nenhuma proposta de renegociacao disponivel/)).toBeTruthy();
+    expect(screen.getByText(/Nenhuma proposta de renegociação disponível/)).toBeTruthy();
     expect(screen.getByRole('link', { name: /Voltar para a parcela/ })).toBeTruthy();
   });
 
@@ -152,8 +165,8 @@ describe('RenegociacaoTomadorPageComponent', () => {
       fireEvent.click(screen.getByRole('button', { name: /Aceitar proposta/ }));
       await estabilizar(fixture);
 
-      expect(screen.getByRole('alert').textContent).toContain('verificacao em duas etapas');
-      const link = screen.getByRole('link', { name: /Ativar verificacao em duas etapas/ });
+      expect(screen.getByRole('alert').textContent).toContain('verificação em duas etapas');
+      const link = screen.getByRole('link', { name: /Ativar verificação em duas etapas/ });
       expect(link.getAttribute('href')).toBe('/app/profile/setup-totp');
       expect(screen.queryByRole('alertdialog')).toBeNull();
     });
@@ -386,7 +399,7 @@ describe('RenegociacaoTomadorPageComponent', () => {
       fireEvent.click(aceitarButton());
       await estabilizar(fixture);
 
-      expect(screen.getByText(/Nenhuma proposta de renegociacao disponivel/)).toBeTruthy();
+      expect(screen.getByText(/Nenhuma proposta de renegociação disponível/)).toBeTruthy();
       expect(screen.queryByRole('alertdialog')).toBeNull();
       expect(screen.queryByRole('button', { name: /Aceitar proposta/ })).toBeNull();
     });
@@ -413,7 +426,7 @@ describe('RenegociacaoTomadorPageComponent', () => {
 
       expect(navegar).not.toHaveBeenCalled();
       expect(screen.queryByText(/Proposta aceita/)).toBeNull();
-      expect(screen.getByText(/Nao foi possivel confirmar sua identidade/)).toBeTruthy();
+      expect(screen.getByText(/Não foi possível confirmar sua identidade/)).toBeTruthy();
 
       fireEvent.click(screen.getByRole('button', { name: /Verificar novamente/ }));
       expect(navegar).toHaveBeenCalledWith(
@@ -442,7 +455,7 @@ describe('RenegociacaoTomadorPageComponent', () => {
       await estabilizar(fixture);
 
       expect(screen.queryByText(/Proposta aceita/)).toBeNull();
-      expect(screen.getByText(/foi alterada ou ja decidida/)).toBeTruthy();
+      expect(screen.getByText(/foi alterada ou já decidida/)).toBeTruthy();
       expect(screen.queryByRole('alertdialog')).toBeNull();
       // reconsulta do clique + reconsulta pos-409
       expect(consultar).toHaveBeenCalledTimes(2);
@@ -512,7 +525,7 @@ describe('RenegociacaoTomadorPageComponent', () => {
       await estabilizar(fixture);
 
       expect(screen.queryByText(/Proposta recusada/)).toBeNull();
-      expect(screen.getByText(/foi alterada ou ja decidida/)).toBeTruthy();
+      expect(screen.getByText(/foi alterada ou já decidida/)).toBeTruthy();
       expect(screen.queryByRole('alertdialog')).toBeNull();
     });
 

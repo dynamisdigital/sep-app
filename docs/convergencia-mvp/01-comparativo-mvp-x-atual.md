@@ -91,6 +91,15 @@ unitários verdes. O e2e achou o que o merge deixou desalinhado, já corrigido:
 - **Central de notificações.** A página `/app/notificacoes` e o contador de não lidas vieram do MVP, mas só tinham
   porta no cabeçalho antigo. O shell operacional ganhou o link com a contagem na barra de ícones, distinto do sino
   de alertas (que são recortes dos dados da tela).
+- **Últimas telas do MVP no tema do SEP (29/10/2026).** Uma varredura das rotas autenticadas achou só duas telas
+  ainda dentro do cabeçalho e do menu antigos (sem `immersive: true`): a **Central de notificações** e a
+  **Proposta de renegociação do tomador**. As duas passaram para o shell operacional, com a folha de estilo do
+  tema (`tela-operacional-tema` e `-blocos`), textos acentuados e rotas marcadas como `immersive`. A central
+  ganhou indicadores (total e não lidas) e entrada na Ajuda; a renegociação manteve o diálogo de confirmação
+  com foco preso e a regra de MFA e *step-up*. O rótulo do link da central (`Notificações, 3 não lidas`) também
+  foi acentuado. Sobraram, fora das rotas, só componentes pequenos de status (chips) e a vitrine do design
+  system, que não são telas. O layout antigo (`layout/shell`, cabeçalho, menu e trilha) segue existindo apenas
+  como moldura das rotas não imersivas; hoje nenhuma rota o usa.
 
 Cinco specs e2e já falhavam **antes** do merge, na `escritorio-2026-10-26`, e seguem pendentes (não são do
 merge): `cobranca` (painel de inadimplência), `credores-escrow` (conta de destino e saque), `governanca`

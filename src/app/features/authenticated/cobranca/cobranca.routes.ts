@@ -32,7 +32,7 @@ export const COBRANCA_ROUTES: Routes = [
       import('./pages/renegociacao-tomador-page.component').then(
         (m) => m.RenegociacaoTomadorPageComponent,
       ),
-    data: { breadcrumb: 'Renegociacao' },
+    data: { breadcrumb: 'Renegociação', immersive: true },
   },
   {
     path: 'financeiro/agenda',

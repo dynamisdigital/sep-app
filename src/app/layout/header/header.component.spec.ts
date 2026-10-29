@@ -173,7 +173,7 @@ describe('HeaderComponent — contador de notificacoes', () => {
   }
 
   function linkDaCentral(): HTMLElement {
-    return screen.getByRole('link', { name: /^Notificacoes/ });
+    return screen.getByRole('link', { name: /^Notificações/ });
   }
 
   it('sem sessao nao mostra o acesso a central', async () => {
@@ -185,14 +185,14 @@ describe('HeaderComponent — contador de notificacoes', () => {
       ],
     });
 
-    expect(screen.queryByRole('link', { name: /^Notificacoes/ })).toBeNull();
+    expect(screen.queryByRole('link', { name: /^Notificações/ })).toBeNull();
   });
 
   it('rotulo textual com a contagem do dono, sem contar aviso alheio nem e-mail', async () => {
     await renderLogado('tomador@empresa.com');
 
     const link = linkDaCentral();
-    expect(link).toHaveAccessibleName('Notificacoes, 3 nao lidas');
+    expect(link).toHaveAccessibleName('Notificações, 3 não lidas');
     expect(link.getAttribute('href')).toBe('/app/notificacoes');
     expect(link.textContent?.trim()).toBe('3');
   });
@@ -230,7 +230,7 @@ describe('HeaderComponent — contador de notificacoes', () => {
     await renderLogado('admin@empresa.com');
 
     const link = linkDaCentral();
-    expect(link).toHaveAccessibleName('Notificacoes, nenhuma nao lida');
+    expect(link).toHaveAccessibleName('Notificações, nenhuma não lida');
     expect(link.textContent?.trim()).toBe('');
   });
 
@@ -240,7 +240,7 @@ describe('HeaderComponent — contador de notificacoes', () => {
     );
     await renderLogado('admin@empresa.com');
 
-    expect(linkDaCentral()).toHaveAccessibleName('Notificacoes, 1 nao lida');
+    expect(linkDaCentral()).toHaveAccessibleName('Notificações, 1 não lida');
   });
 
   it('acima de 99 o marcador satura, mas o rotulo diz o numero', async () => {
@@ -252,7 +252,7 @@ describe('HeaderComponent — contador de notificacoes', () => {
     await renderLogado('admin@empresa.com');
 
     const link = linkDaCentral();
-    expect(link).toHaveAccessibleName('Notificacoes, 150 nao lidas');
+    expect(link).toHaveAccessibleName('Notificações, 150 não lidas');
     expect(link.textContent?.trim()).toBe('99+');
   });
 
@@ -266,7 +266,7 @@ describe('HeaderComponent — contador de notificacoes', () => {
     await renderLogado('tomador@empresa.com');
 
     const link = linkDaCentral();
-    expect(link).toHaveAccessibleName('Notificacoes, contagem de nao lidas indisponivel');
+    expect(link).toHaveAccessibleName('Notificações, contagem de não lidas indisponível');
     expect(link.textContent?.trim()).toBe('?');
   });
 
@@ -279,7 +279,7 @@ describe('HeaderComponent — contador de notificacoes', () => {
     );
     await renderLogado('tomador@empresa.com', false);
 
-    expect(linkDaCentral()).toHaveAccessibleName('Notificacoes, carregando contagem de nao lidas');
+    expect(linkDaCentral()).toHaveAccessibleName('Notificações, carregando contagem de não lidas');
   });
 
   it('explica quando a contagem atualiza, porque ela nao e tempo real', async () => {

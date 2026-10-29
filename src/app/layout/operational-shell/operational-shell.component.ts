@@ -212,6 +212,16 @@ const AJUDA_POR_ROTA: AjudaContexto[] = [
     dicas: ['Os números do painel são recortes das mesmas listas das telas de detalhe.'],
   },
   {
+    rota: '/app/notificacoes',
+    titulo: 'Notificações',
+    descricao: 'Avisos sobre a sua conta, do mais recente ao mais antigo, com o estado de leitura.',
+    dicas: [
+      'Abrir a central não marca nada como lido: a leitura é sempre um gesto seu, em cada aviso.',
+      'O contador no topo atualiza ao abrir a central e ao marcar um aviso como lido.',
+      'Os alertas do sino são outra coisa: são recortes dos dados da tela em que você está.',
+    ],
+  },
+  {
     rota: '/app/cobranca',
     titulo: 'Cobrança',
     descricao: 'Agenda de parcelas, recebimentos, inadimplência e renegociação.',

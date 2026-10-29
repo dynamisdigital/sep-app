@@ -5,15 +5,15 @@ export function rotuloDaCentral(contagem: ContagemNaoLidas | null): string {
   switch (contagem?.situacao) {
     case 'conhecida':
       if (contagem.naoLidas === 0) {
-        return 'Notificacoes, nenhuma nao lida';
+        return 'Notificações, nenhuma não lida';
       }
       return contagem.naoLidas === 1
-        ? 'Notificacoes, 1 nao lida'
-        : `Notificacoes, ${contagem.naoLidas} nao lidas`;
+        ? 'Notificações, 1 não lida'
+        : `Notificações, ${contagem.naoLidas} não lidas`;
     case 'indisponivel':
-      return 'Notificacoes, contagem de nao lidas indisponivel';
+      return 'Notificações, contagem de não lidas indisponível';
     default:
-      return 'Notificacoes, carregando contagem de nao lidas';
+      return 'Notificações, carregando contagem de não lidas';
   }
 }
 
