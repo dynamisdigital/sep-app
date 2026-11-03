@@ -67,7 +67,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@types/node": "^25.9.3",
     "@vitest/coverage-v8": "^4.1.12",
-    "@vitest/eslint-plugin": "^1.6.27",
+    "@vitest/eslint-plugin": "^1.6.28",
     "angular-eslint": "21.0.1",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^9.1.2",
